@@ -45,11 +45,15 @@ class SocialGenieAPITester:
             elif method == 'POST':
                 if files:
                     response = requests.post(url, data=data, files=files, headers=test_headers)
+                elif headers and headers.get('Content-Type') == 'application/x-www-form-urlencoded':
+                    response = requests.post(url, data=data, headers=test_headers)
                 else:
                     response = requests.post(url, json=data, headers=test_headers)
             elif method == 'PUT':
                 if files:
                     response = requests.put(url, data=data, files=files, headers=test_headers)
+                elif headers and headers.get('Content-Type') == 'application/x-www-form-urlencoded':
+                    response = requests.put(url, data=data, headers=test_headers)
                 else:
                     response = requests.put(url, json=data, headers=test_headers)
             elif method == 'DELETE':

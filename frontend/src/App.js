@@ -1363,6 +1363,224 @@ function MainApp() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Calendar Tab */}
+          <TabsContent value="calendar" className="space-y-8">
+            <Card className="card-gradient">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-3 text-2xl">
+                  <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center">
+                    <CalendarIcon className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                    Calendrier de publication 📅
+                  </span>
+                </CardTitle>
+                <CardDescription className="text-lg text-gray-600">
+                  Planifiez et gérez vos publications à venir comme un pro ! 🗓️
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-20 card-glass rounded-3xl">
+                  <div className="w-24 h-24 bg-gradient-to-r from-orange-500 to-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
+                    <CalendarIcon className="w-12 h-12 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-700 mb-4">Calendrier interactif 🎯</h3>
+                  <p className="text-xl text-gray-500">Bientôt disponible - Vue calendrier avec planification avancée ! 🚀</p>
+                  <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto">
+                    <div className="card-gradient p-6 rounded-2xl">
+                      <h4 className="font-bold text-orange-600 mb-2">📊 Statistiques</h4>
+                      <p className="text-gray-600">Analysez vos performances</p>
+                    </div>
+                    <div className="card-gradient p-6 rounded-2xl">
+                      <h4 className="font-bold text-red-600 mb-2">⏰ Planification</h4>
+                      <p className="text-gray-600">Programmez à l'avance</p>
+                    </div>
+                    <div className="card-gradient p-6 rounded-2xl">
+                      <h4 className="font-bold text-pink-600 mb-2">🎯 Optimisation</h4>
+                      <p className="text-gray-600">Meilleurs moments</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Social Tab */}
+          <TabsContent value="social" className="space-y-8">
+            <Card className="card-gradient">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-3 text-2xl">
+                  <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-teal-500 rounded-2xl flex items-center justify-center">
+                    <Target className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
+                    Comptes sociaux connectés 🌐
+                  </span>
+                </CardTitle>
+                <CardDescription className="text-lg text-gray-600">
+                  Connectez vos comptes Facebook et Instagram pour publier automatiquement ✨
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-8">
+                {/* Connexion Facebook */}
+                <div className="card-glass p-8 rounded-3xl">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-16 h-16 bg-blue-600 rounded-3xl flex items-center justify-center animate-glow">
+                        <span className="text-white font-bold text-2xl">f</span>
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-bold text-gray-800">Facebook</h3>
+                        <p className="text-lg text-gray-600">Connectez vos pages Facebook professionnelles</p>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={connectFacebook}
+                      disabled={isConnectingSocial}
+                      className="btn-gradient-primary h-14 px-8 text-lg font-bold"
+                    >
+                      {isConnectingSocial ? '⏳ Connexion...' : '🔗 Connecter Facebook'}
+                    </Button>
+                  </div>
+
+                  {/* Pages Facebook connectées */}
+                  {socialConnections.filter(conn => conn.platform === 'facebook').length > 0 && (
+                    <div className="space-y-4">
+                      <h4 className="text-xl font-bold text-gray-700">📘 Pages connectées :</h4>
+                      {socialConnections
+                        .filter(conn => conn.platform === 'facebook')
+                        .map((connection) => (
+                          <div key={connection.id} className="flex items-center justify-between card-gradient p-6 rounded-2xl hover:shadow-xl transition-all duration-300">
+                            <div className="flex items-center space-x-4">
+                              <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center">
+                                <span className="text-blue-600 font-bold text-lg">f</span>
+                              </div>
+                              <div>
+                                <p className="text-xl font-bold text-gray-800">{connection.page_name}</p>
+                                <p className="text-sm text-gray-500 font-medium">
+                                  🗓️ Connecté le {new Date(connection.connected_at).toLocaleDateString('fr-FR')}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-3">
+                              <Badge className="badge-success px-4 py-2 text-base">
+                                ✅ Actif
+                              </Badge>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => disconnectSocialAccount(connection.id)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 p-3 rounded-xl"
+                              >
+                                <X className="w-5 h-5" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Instagram */}
+                <div className="card-glass p-8 rounded-3xl">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center animate-glow">
+                        <ImageIcon className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-bold text-gray-800">Instagram</h3>
+                        <p className="text-lg text-gray-600">Connectez vos comptes Instagram Business</p>
+                      </div>
+                    </div>
+                    <Badge className="badge-warning px-6 py-3 text-lg">
+                      🔗 Via Facebook
+                    </Badge>
+                  </div>
+
+                  {/* Comptes Instagram connectés */}
+                  {socialConnections.filter(conn => conn.platform === 'instagram').length > 0 ? (
+                    <div className="space-y-4">
+                      <h4 className="text-xl font-bold text-gray-700">📷 Comptes connectés :</h4>
+                      {socialConnections
+                        .filter(conn => conn.platform === 'instagram')
+                        .map((connection) => (
+                          <div key={connection.id} className="flex items-center justify-between card-gradient p-6 rounded-2xl hover:shadow-xl transition-all duration-300">
+                            <div className="flex items-center space-x-4">
+                              <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center">
+                                <ImageIcon className="w-6 h-6 text-purple-600" />
+                              </div>
+                              <div>
+                                <p className="text-xl font-bold text-gray-800">@{connection.platform_username}</p>
+                                <p className="text-sm text-gray-500 font-medium">
+                                  🗓️ Connecté le {new Date(connection.connected_at).toLocaleDateString('fr-FR')}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-3">
+                              <Badge className="badge-success px-4 py-2 text-base">
+                                ✅ Actif
+                              </Badge>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => disconnectSocialAccount(connection.id)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 p-3 rounded-xl"
+                              >
+                                <X className="w-5 h-5" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 card-gradient rounded-2xl">
+                      <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-4 animate-float">
+                        <ImageIcon className="w-10 h-10 text-white" />
+                      </div>
+                      <h4 className="text-xl font-bold text-gray-700 mb-2">Aucun compte Instagram connecté</h4>
+                      <p className="text-lg text-gray-500">Connectez d'abord une page Facebook avec un compte Instagram Business lié 🔗</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Instructions */}
+                <Alert className="card-gradient border-blue-200/50 p-6">
+                  <Target className="h-6 w-6 text-blue-600" />
+                  <AlertDescription className="text-blue-700 text-lg leading-relaxed">
+                    <strong className="text-xl">🎯 Comment connecter vos comptes :</strong>
+                    <br />
+                    <div className="mt-3 space-y-2">
+                      <p>1. 🚀 Cliquez sur "Connecter Facebook" pour autoriser l'accès à vos pages</p>
+                      <p>2. 📷 Les comptes Instagram Business liés à vos pages Facebook seront automatiquement connectés</p>
+                      <p>3. ✨ Vous pourrez ensuite publier directement depuis l'onglet "Posts"</p>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+
+                {/* État sans connexions */}
+                {socialConnections.length === 0 && (
+                  <div className="text-center py-20 card-glass rounded-3xl border-2 border-dashed border-purple-300">
+                    <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
+                      <Target className="w-12 h-12 text-white" />
+                    </div>
+                    <h3 className="text-3xl font-bold text-gray-900 mb-4">Aucun compte connecté 🌟</h3>
+                    <p className="text-xl text-gray-600 mb-8 max-w-lg mx-auto">
+                      Connectez vos comptes Facebook et Instagram pour commencer à publier automatiquement et faire exploser votre présence en ligne ! 🚀
+                    </p>
+                    <Button
+                      onClick={connectFacebook}
+                      disabled={isConnectingSocial}
+                      className="btn-gradient-primary h-16 px-12 text-xl font-bold"
+                    >
+                      {isConnectingSocial ? '⏳ Connexion en cours...' : '🎯 Connecter mon premier compte'}
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
     </div>

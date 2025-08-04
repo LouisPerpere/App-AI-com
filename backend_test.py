@@ -172,6 +172,12 @@ class SocialGenieAPITester:
             "business-profile",  # This endpoint gets current user's profile
             200
         )
+        
+        # Extract business ID from response
+        if success and 'id' in response:
+            self.business_id = response['id']
+            print(f"   Business ID: {self.business_id}")
+        
         return success
 
     def test_get_all_business_profiles(self):

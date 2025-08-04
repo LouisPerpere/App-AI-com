@@ -247,41 +247,60 @@ class AutoContentGenerator:
             chat = LlmChat(
                 api_key=os.environ['OPENAI_API_KEY'],
                 session_id=f"sector_content_{uuid.uuid4()}",
-                system_message=f"""Tu es un expert en contenu sectoriel pour {business_profile.business_type}.
-                
-                Crée du contenu naturel, utile et engageant qui ne paraît pas généré par IA.
-                Évite les formulations robotes ou trop parfaites."""
+                system_message=f"""Tu écris pour les réseaux sociaux comme quelqu'un qui bosse vraiment dans le {business_profile.business_type}.
+
+PAS d'expert marketing, PAS de consultant. Juste quelqu'un de normal qui partage son expérience.
+
+STYLE NATUREL OBLIGATOIRE:
+❌ JAMAIS: "Découvrez", "Explorons", "Il est crucial", "N'hésitez pas", "Plongeons"
+❌ JAMAIS: ✨🚀💡🎯💫🌟🔥💪⚡ (emojis marketing)
+❌ JAMAIS: Listes parfaites ou transitions fluides artificielles
+❌ JAMAIS: Langage corporate ou trop léché
+
+✅ TOUJOURS: Parler normalement, comme à un pote
+✅ Partager de vraies expériences, pas des théories
+✅ Être utile sans prétention
+✅ Garder des imperfections humaines
+
+EXEMPLES BONS:
+- "Truc qu'on fait ici depuis toujours..."
+- "Ça nous est arrivé la semaine dernière"
+- "Vous voyez ce que je veux dire ?"
+- "On a appris ça à nos dépens"
+
+EXEMPLES MAUVAIS:
+- "Découvrez ces stratégies révolutionnaires ✨"
+- "Explorons ensemble les secrets de..."
+- "Il est crucial d'optimiser votre approche 🚀\""""
             ).with_model("openai", "gpt-4o")
             
             content_types = [
-                "conseil_pratique",
-                "fait_interessant", 
-                "citation_inspirante",
-                "astuce_metier",
-                "tendance_secteur"
+                "astuce_vraiment_utile",
+                "anecdote_du_metier", 
+                "erreur_commune_eviter",
+                "observation_terrain",
+                "conseil_experience"
             ]
             
             generated_content = []
             
             for content_type in content_types:
-                prompt = f"""
-                Génère un {content_type} authentique pour {business_profile.business_type}.
-                
-                Contraintes:
-                - Ton {business_profile.brand_tone}
-                - Audience: {business_profile.target_audience}  
-                - Naturel, pas robote
-                - 50-150 mots maximum
-                - Actionnable si possible
-                
-                Format JSON:
-                {{
-                    "content": "texte principal",
-                    "hashtags": ["hashtag1", "hashtag2", "hashtag3"],
-                    "call_to_action": "appel à l'action subtil",
-                    "content_type": "{content_type}"
-                }}
-                """
+                prompt = f"""Écris un {content_type} pour {business_profile.business_type}.
+
+Tu parles comme quelqu'un qui fait vraiment ce métier au quotidien.
+Ton {business_profile.brand_tone}.
+Audience: {business_profile.target_audience}.
+
+50-120 mots max. Naturel et utile.
+SANS emojis clichés, SANS jargon marketing.
+
+JSON uniquement:
+{{
+    "content": "ton contenu naturel ici",
+    "hashtags": ["hashtag1", "hashtag2"],
+    "call_to_action": "question ou phrase d'engagement simple",
+    "content_type": "{content_type}"
+}}"""
                 
                 response = await chat.send_message(UserMessage(text=prompt))
                 
@@ -293,11 +312,11 @@ class AutoContentGenerator:
                     content_data = json.loads(response_clean) 
                     generated_content.append(content_data)
                 except:
-                    # Fallback content
+                    # Natural fallback
                     generated_content.append({
-                        "content": f"Conseil du jour pour votre {business_profile.business_type}",
+                        "content": f"Petite observation sur notre métier de {business_profile.business_type}...",
                         "hashtags": [business_profile.business_type.replace(' ', '').lower()],
-                        "call_to_action": "Partagez votre expérience !",
+                        "call_to_action": "Ça vous parle ?",
                         "content_type": content_type
                     })
             

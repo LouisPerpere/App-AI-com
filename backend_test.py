@@ -329,23 +329,28 @@ class SocialGenieAPITester:
 
     # Social Media Integration Tests
     
-    def test_facebook_auth_url_without_credentials(self):
-        """Test Facebook auth URL generation without credentials (should fail)"""
+    def test_facebook_auth_url_with_credentials(self):
+        """Test Facebook auth URL generation with real credentials (should work)"""
         if not self.business_id:
             print("❌ Skipping - No business ID available")
             return False
             
         success, response = self.run_test(
-            "Facebook Auth URL (No Credentials)",
+            "Facebook Auth URL (With Real Credentials)",
             "GET",
             f"social/facebook/auth-url?business_id={self.business_id}",
-            500  # Should fail due to missing credentials
+            200  # Should work with real credentials
         )
         
-        # This should fail with proper error message
-        if not success and response.get('detail', '').find('Facebook integration not configured') != -1:
-            print("✅ Correctly failed with proper error message")
-            self.tests_passed += 1
+        if success and 'authorization_url' in response and 'state' in response:
+            print("✅ Successfully generated Facebook auth URL")
+            print(f"   Auth URL contains: {response['authorization_url'][:100]}...")
+            print(f"   State: {response['state'][:20]}...")
+            # Verify URL contains correct App ID
+            if "1098326618299035" in response['authorization_url']:
+                print("✅ Auth URL contains correct Facebook App ID")
+            else:
+                print("⚠️  Auth URL may not contain expected App ID")
             return True
         return success
 

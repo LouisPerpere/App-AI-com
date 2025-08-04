@@ -391,6 +391,86 @@ Réponds UNIQUEMENT en JSON:
             })
         return fallback_posts
 
+# Background task to set up automatic scheduling
+async def setup_automatic_scheduling(business_id: str):
+    """Set up automatic scheduling for a business"""
+    try:
+        business_profile = await db.business_profiles.find_one({"id": business_id})
+        if not business_profile:
+            return
+        
+        business_prof = BusinessProfile(**business_profile)
+        
+        # Calculate next generation date based on frequency
+        now = datetime.utcnow()
+        
+        # Set first generation date if not set
+        if not business_prof.first_generation_date:
+            await db.business_profiles.update_one(
+                {"id": business_id},
+                {"$set": {"first_generation_date": now}}
+            )
+        
+        frequency_map = {
+            "daily": 7,        # Generate weekly for daily posts
+            "3x_week": 7,      # Generate weekly for 3x/week posts  
+            "weekly": 30,      # Generate monthly for weekly posts
+            "bi_weekly": 30    # Generate monthly for bi-weekly posts
+        }
+        
+        days_to_add = frequency_map.get(business_prof.posting_frequency, 7)
+        next_generation = now + timedelta(days=days_to_add)
+        reminder_date = next_generation - timedelta(days=3)
+        
+        # Create scheduled tasks
+        from server import ScheduledTask  # Local import to avoid circular dependency
+        
+        generation_task = {
+            "id": str(uuid.uuid4()),
+            "business_id": business_id,
+            "task_type": "generate_posts",
+            "scheduled_date": next_generation,
+            "frequency": "weekly" if business_prof.posting_frequency in ["daily", "3x_week"] else "monthly",
+            "next_run": next_generation,
+            "active": True,
+            "created_at": datetime.utcnow()
+        }
+        
+        reminder_task = {
+            "id": str(uuid.uuid4()),
+            "business_id": business_id,
+            "task_type": "content_reminder", 
+            "scheduled_date": reminder_date,
+            "frequency": "weekly" if business_prof.posting_frequency in ["daily", "3x_week"] else "monthly",
+            "next_run": reminder_date,
+            "active": True,
+            "created_at": datetime.utcnow()
+        }
+        
+        # Check if tasks already exist
+        existing_gen = await db.scheduled_tasks.find_one({
+            "business_id": business_id,
+            "task_type": "generate_posts",
+            "active": True
+        })
+        
+        existing_reminder = await db.scheduled_tasks.find_one({
+            "business_id": business_id,
+            "task_type": "content_reminder",
+            "active": True
+        })
+        
+        if not existing_gen:
+            await db.scheduled_tasks.insert_one(generation_task)
+        
+        if not existing_reminder:
+            await db.scheduled_tasks.insert_one(reminder_task)
+        
+        logging.info(f"Automatic scheduling set up for {business_prof.business_name}")
+        
+    except Exception as e:
+        logging.error(f"Error setting up automatic scheduling: {e}")
+
 # Authentication Routes
 @api_router.post("/auth/register", response_model=UserResponse)
 async def register(user_data: UserCreate):

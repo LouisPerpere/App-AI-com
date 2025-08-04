@@ -868,8 +868,8 @@ function MainApp() {
             </Card>
           </TabsContent>
 
-          {/* Notes Tab */}
-          <TabsContent value="notes" className="space-y-6">
+          {/* Posts Tab */}
+          <TabsContent value="posts" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">

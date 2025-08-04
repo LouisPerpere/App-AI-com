@@ -24,3 +24,6 @@ python-multipart>=0.0.9
 jq>=1.6.0
 typer>=0.9.0
 emergentintegrations
+facebook-sdk>=3.1.0
+requests-oauthlib>=2.0.0
+httpx>=0.27.0

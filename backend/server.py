@@ -337,6 +337,9 @@ Réponds UNIQUEMENT en JSON:
 # Helper function to generate automatic content when user content is insufficient
 async def generate_automatic_content(business_profile: BusinessProfile, notes: List[ContentNote] = []):
     try:
+        # Get recent posts history to avoid repetition
+        posts_history = await get_recent_posts_history(business_profile.id)
+        
         chat = LlmChat(
             api_key=os.environ['OPENAI_API_KEY'],
             session_id=f"auto_content_{uuid.uuid4()}",
@@ -348,6 +351,8 @@ PROFIL:
 - Audience: {business_profile.target_audience}
 - Ton: {business_profile.brand_tone}
 
+{posts_history}
+
 MISSION: Créer du contenu varié et NATUREL (conseils, anecdotes, infos utiles).
 
 STYLE OBLIGATOIRE - HUMAIN:
@@ -355,11 +360,13 @@ STYLE OBLIGATOIRE - HUMAIN:
 ❌ JAMAIS: ✨🚀💡🎯💫🌟🔥💪⚡
 ❌ JAMAIS: Structure parfaite ou listes à puces
 ❌ JAMAIS: Langage trop marketing ou corporate
+❌ JAMAIS: Répéter les mêmes angles que l'historique ci-dessus
 
 ✅ TOUJOURS: Parler comme quelqu'un de normal
 ✅ Être utile sans en faire trop
 ✅ Rester simple et spontané
 ✅ Quelques imperfections pour rendre humain
+✅ Trouver des ANGLES NOUVEAUX et ORIGINAUX
 
 EXEMPLES BONS (naturel):
 - "Petite astuce qu'on utilise ici depuis longtemps..."
@@ -387,6 +394,9 @@ EXEMPLES MAUVAIS (IA détectable):
         for platform in business_profile.preferred_platforms:
             for content_item in content_types[:3]:  # Max 3 types par plateforme
                 prompt = f"""{content_item['prompt']} pour {business_profile.business_type}.
+
+IMPORTANT: Évite les sujets/angles déjà traités dans l'historique ci-dessus.
+Trouve un angle FRAIS et ORIGINAL.
 
 Écris comme si TU gérais ces réseaux sociaux au quotidien.
 Ton {business_profile.brand_tone}.

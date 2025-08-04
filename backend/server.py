@@ -149,7 +149,7 @@ async def analyze_content_with_ai(content_path: str, description: str, business_
         # Prepare notes context
         notes_context = ""
         if notes:
-            notes_context = "\n\nNotes importantes à prendre en compte:\n"
+            notes_context = "\n\nInformations importantes à intégrer naturellement:\n"
             for note in notes:
                 notes_context += f"- {note.title}: {note.content}\n"
         
@@ -157,16 +157,29 @@ async def analyze_content_with_ai(content_path: str, description: str, business_
         chat = LlmChat(
             api_key=os.environ['OPENAI_API_KEY'],
             session_id=f"content_analysis_{uuid.uuid4()}",
-            system_message=f"""Tu es un expert en marketing digital et réseaux sociaux. 
-            Voici le profil de l'entreprise:
-            - Nom: {business_profile.business_name}
-            - Type: {business_profile.business_type}
-            - Audience cible: {business_profile.target_audience}
-            - Ton de marque: {business_profile.brand_tone}
-            - Plateformes: {', '.join(business_profile.preferred_platforms)}
-            {notes_context}
-            
-            Ta mission est d'analyser le contenu fourni et de générer des posts optimisés pour chaque plateforme."""
+            system_message=f"""Tu écris comme un vrai humain qui gère les réseaux sociaux d'une entreprise.
+
+PROFIL ENTREPRISE:
+- Nom: {business_profile.business_name}
+- Secteur: {business_profile.business_type}
+- Audience: {business_profile.target_audience}
+- Ton: {business_profile.brand_tone}
+- Réseaux: {', '.join(business_profile.preferred_platforms)}
+{notes_context}
+
+RÈGLES ABSOLUES pour un style NATUREL:
+❌ JAMAIS d'emojis clichés: ✨💫🌟🚀💡🎯🔥💪⚡
+❌ JAMAIS "Plongeons dans", "Explorons", "N'hésitez pas à", "Il est crucial"
+❌ JAMAIS de structure parfaite intro-développement-conclusion
+❌ JAMAIS de listes à puces ou de tirets longs (—)
+❌ JAMAIS de transitions fluides artificielles
+
+✅ TOUJOURS écrire comme si c'était TOI qui gérais ces réseaux sociaux
+✅ Langage spontané, familier mais pro selon le ton
+✅ Phrases courtes et variées
+✅ Emojis simples et rares (😊❤️👍)
+✅ Imperfections volontaires qui rendent humain
+✅ References locales quand possible"""
         ).with_model("openai", "gpt-4o")
 
         # Generate posts for each platform
@@ -174,32 +187,56 @@ async def analyze_content_with_ai(content_path: str, description: str, business_
         
         for platform in business_profile.preferred_platforms:
             try:
-                # Platform-specific optimizations
+                # Platform-specific optimizations with natural approach
                 platform_specs = {
-                    "facebook": {"max_chars": 2000, "hashtags_max": 5, "style": "engageant et communautaire"},
-                    "instagram": {"max_chars": 2200, "hashtags_max": 10, "style": "visuel et inspirant"},
-                    "linkedin": {"max_chars": 3000, "hashtags_max": 3, "style": "professionnel et informatif"}
+                    "facebook": {
+                        "max_chars": 2000, 
+                        "hashtags_max": 5, 
+                        "style": "conversationnel et proche, comme si tu parlais à tes voisins"
+                    },
+                    "instagram": {
+                        "max_chars": 2200, 
+                        "hashtags_max": 10, 
+                        "style": "authentique et visuel, sans en faire trop"
+                    },
+                    "linkedin": {
+                        "max_chars": 3000, 
+                        "hashtags_max": 3, 
+                        "style": "professionnel mais humain, pas corporate"
+                    }
                 }
                 
-                specs = platform_specs.get(platform, {"max_chars": 2000, "hashtags_max": 5, "style": "engageant"})
+                specs = platform_specs.get(platform, {
+                    "max_chars": 2000, 
+                    "hashtags_max": 5, 
+                    "style": "naturel et engageant"
+                })
                 
-                platform_prompt = f"""
-                Analyse cette image et la description fournie: "{description}"
-                
-                Génère un post optimisé pour {platform} qui:
-                1. Respecte le ton de marque ({business_profile.brand_tone})
-                2. S'adresse à l'audience cible ({business_profile.target_audience})
-                3. Style {specs['style']}
-                4. Maximum {specs['max_chars']} caractères
-                5. Maximum {specs['hashtags_max']} hashtags pertinents
-                6. Intègre les notes importantes si pertinentes
-                
-                Format de réponse JSON strict:
-                {{
-                    "post_text": "texte du post ici",
-                    "hashtags": ["hashtag1", "hashtag2", "hashtag3"]
-                }}
-                """
+                platform_prompt = f"""Regarde cette image et sa description: "{description}"
+
+Écris un post pour {platform} comme si TU gérais vraiment ce compte.
+
+Style {specs['style']}.
+Ton {business_profile.brand_tone}.
+Max {specs['max_chars']} caractères.
+Max {specs['hashtags_max']} hashtags VRAIMENT pertinents.
+
+EXEMPLES de ce qu'on VEUT (naturel):
+- "On a testé ça toute la semaine... franchement, on est contents du résultat 😊"
+- "Petite question: vous préférez quoi vous, le matin ?"
+- "Bon, on avoue, on est un peu fiers de celui-là"
+- "Ça faisait longtemps qu'on voulait vous montrer ça"
+
+EXEMPLES de ce qu'on VEUT PAS (IA détectable):
+- "Découvrez notre nouvelle création exceptionnelle ✨"
+- "Plongeons ensemble dans cette expérience unique 🚀"
+- "Il est temps de révolutionner votre quotidien 💡"
+
+Réponds UNIQUEMENT en JSON:
+{{
+    "post_text": "ton post naturel ici",
+    "hashtags": ["hashtag1", "hashtag2"]
+}}"""
 
                 # Create image content with base64
                 from emergentintegrations.llm.chat import ImageContent
@@ -227,32 +264,32 @@ async def analyze_content_with_ai(content_path: str, description: str, business_
                         "hashtags": post_data.get("hashtags", [])
                     })
                 except json.JSONDecodeError:
-                    # Fallback if JSON parsing fails
-                    logging.warning(f"Failed to parse JSON for {platform}, using raw response")
+                    # Fallback with natural style
+                    logging.warning(f"Failed to parse JSON for {platform}, using fallback")
                     generated_posts.append({
                         "platform": platform,
-                        "post_text": response[:specs['max_chars']],  # Respect platform limits
-                        "hashtags": []
+                        "post_text": f"On voulait vous montrer ça... {description[:100]}",
+                        "hashtags": ["nouveau"]
                     })
             except Exception as platform_error:
                 logging.error(f"Error generating post for {platform}: {platform_error}")
-                # Create a fallback post
+                # Natural fallback post
                 generated_posts.append({
                     "platform": platform,
-                    "post_text": f"Découvrez notre nouveau contenu ! {description[:100]}",
-                    "hashtags": ["nouveau", "contenu", business_profile.business_type.replace(' ', '')]
+                    "post_text": f"Petite nouveauté chez {business_profile.business_name}... {description[:80]}",
+                    "hashtags": ["nouveaute", business_profile.business_type.replace(' ', '').lower()]
                 })
         
         return generated_posts
     except Exception as e:
         logging.error(f"Error analyzing content with AI: {e}")
-        # Return fallback posts if AI fails
+        # Natural fallback posts
         fallback_posts = []
         for platform in business_profile.preferred_platforms:
             fallback_posts.append({
                 "platform": platform,
-                "post_text": f"Nouveau contenu de {business_profile.business_name}! {description[:100]}",
-                "hashtags": ["nouveau", "contenu", business_profile.business_type.replace(' ', '')]
+                "post_text": f"Du nouveau chez {business_profile.business_name}... {description[:80]}",
+                "hashtags": ["nouveau"]
             })
         return fallback_posts
 

@@ -13,6 +13,8 @@ class SocialGenieAPITester:
         self.business_id = None
         self.content_id = None
         self.post_id = None
+        self.access_token = None
+        self.user_id = None
         self.tests_run = 0
         self.tests_passed = 0
 

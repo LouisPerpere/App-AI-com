@@ -637,8 +637,6 @@ function MainApp() {
 
           {/* Library Tab */}
           <TabsContent value="library" className="space-y-6">
-          {/* Library Tab */}
-          <TabsContent value="library" className="space-y-6">
             {/* Galerie des contenus uploadés */}
             {(pendingContent.length > 0 || generatedPosts.some(p => p.visual_url)) && (
               <Card>

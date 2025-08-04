@@ -164,6 +164,17 @@ function App() {
     }
   };
 
+  const loadSocialConnections = async () => {
+    try {
+      if (businessProfile?.id) {
+        const response = await axios.get(`${API}/social/connections?business_id=${businessProfile.id}`);
+        setSocialConnections(response.data.connections || []);
+      }
+    } catch (error) {
+      console.error('Error loading social connections:', error);
+    }
+  };
+
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     try {

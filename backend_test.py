@@ -18,14 +18,22 @@ class SocialGenieAPITester:
         self.tests_run = 0
         self.tests_passed = 0
 
-    def run_test(self, name, method, endpoint, expected_status, data=None, files=None):
+    def run_test(self, name, method, endpoint, expected_status, data=None, files=None, headers=None):
         """Run a single API test"""
         url = f"{self.api_url}/{endpoint}"
-        headers = {}
+        test_headers = {}
+        
+        # Add authentication header if we have a token
+        if self.access_token:
+            test_headers['Authorization'] = f'Bearer {self.access_token}'
+        
+        # Add custom headers
+        if headers:
+            test_headers.update(headers)
         
         # Don't set Content-Type for multipart/form-data requests
-        if not files:
-            headers['Content-Type'] = 'application/json'
+        if not files and method in ['POST', 'PUT']:
+            test_headers['Content-Type'] = 'application/json'
 
         self.tests_run += 1
         print(f"\n🔍 Testing {name}...")
@@ -33,17 +41,19 @@ class SocialGenieAPITester:
         
         try:
             if method == 'GET':
-                response = requests.get(url, headers=headers)
+                response = requests.get(url, headers=test_headers, params=data)
             elif method == 'POST':
                 if files:
-                    response = requests.post(url, data=data, files=files)
+                    response = requests.post(url, data=data, files=files, headers=test_headers)
                 else:
-                    response = requests.post(url, json=data, headers=headers)
+                    response = requests.post(url, json=data, headers=test_headers)
             elif method == 'PUT':
                 if files:
-                    response = requests.put(url, data=data, files=files)
+                    response = requests.put(url, data=data, files=files, headers=test_headers)
                 else:
-                    response = requests.put(url, json=data, headers=headers)
+                    response = requests.put(url, json=data, headers=test_headers)
+            elif method == 'DELETE':
+                response = requests.delete(url, headers=test_headers)
 
             success = response.status_code == expected_status
             if success:

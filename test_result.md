@@ -155,6 +155,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ TESTED: InstagramAPIClient working correctly. Two-step posting process (create_media_container, publish_media) properly implemented. Instagram posting workflow handles image requirements and account validation correctly."
+      - working: true
+        agent: "testing"
+        comment: "✅ RE-TESTED WITH REAL CREDENTIALS: InstagramAPIClient initialization and configuration working perfectly with real Facebook credentials (Instagram uses same Facebook app credentials). Client properly configured with Facebook Graph API v19.0 for Instagram Business API. Two-step posting workflow (create_media_container, publish_media) ready for actual Instagram posting."
 
   - task: "Social Media API Endpoints"
     implemented: true

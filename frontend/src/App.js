@@ -548,85 +548,483 @@ function App() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="text-center space-y-6">
-          <h2 className="text-3xl font-bold text-gray-900">Dashboard Utilisateur</h2>
-          <p className="text-lg text-gray-600">Fonctionnalités complètes bientôt disponibles</p>
-          
-          <Card className="max-w-2xl mx-auto">
-            <CardHeader>
-              <CardTitle>✅ Fonctionnalités Implémentées</CardTitle>
-            </CardHeader>
-            <CardContent className="text-left space-y-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Système d'authentification complet</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Back office administrateur avancé</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Système de paiement Stripe intégré</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Gestion des abonnements et plans</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Codes promo et système de parrainage</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Analytics et métriques SaaS</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Hashtags d'entreprise personnalisés</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Posts IA naturels et anti-répétition</span>
-              </div>
-            </CardContent>
-          </Card>
+        <Tabs defaultValue="upload" className="space-y-6">
+          <TabsList className="grid grid-cols-5 w-full max-w-2xl mx-auto">
+            <TabsTrigger value="upload" className="flex items-center space-x-2">
+              <Upload className="w-4 h-4" />
+              <span>Upload</span>
+            </TabsTrigger>
+            <TabsTrigger value="posts" className="flex items-center space-x-2">
+              <FileText className="w-4 h-4" />
+              <span>Posts</span>
+            </TabsTrigger>
+            <TabsTrigger value="notes" className="flex items-center space-x-2">
+              <Edit className="w-4 h-4" />
+              <span>Notes</span>
+            </TabsTrigger>
+            <TabsTrigger value="calendar" className="flex items-center space-x-2">
+              <CalendarIcon className="w-4 h-4" />
+              <span>Calendrier</span>
+            </TabsTrigger>
+            <TabsTrigger value="social" className="flex items-center space-x-2">
+              <Target className="w-4 h-4" />
+              <span>Social</span>
+            </TabsTrigger>
+          </TabsList>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          {/* Upload Tab */}
+          <TabsContent value="upload" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>👤 Votre Profil</CardTitle>
+                <CardTitle className="flex items-center space-x-2">
+                  <Upload className="w-5 h-5" />
+                  <span>Upload de contenu</span>
+                </CardTitle>
+                <CardDescription>
+                  Uploadez vos photos et vidéos pour générer des posts automatiquement
+                </CardDescription>
               </CardHeader>
-              <CardContent className="text-left space-y-2">
-                <p><strong>Email :</strong> {user.email}</p>
-                <p><strong>Nom :</strong> {user.first_name} {user.last_name}</p>
-                <p><strong>Plan :</strong> {user.subscription_plan}</p>
-                <p><strong>Statut :</strong> {user.subscription_status}</p>
+              <CardContent className="space-y-4">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 transition-colors">
+                  <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <div className="space-y-2">
+                    <p className="text-lg font-medium text-gray-700">
+                      Glissez vos fichiers ici ou
+                    </p>
+                    <Button
+                      variant="outline"
+                      onClick={() => document.getElementById('file-input').click()}
+                      className="mx-2"
+                    >
+                      Parcourir
+                    </Button>
+                    <input
+                      id="file-input"
+                      type="file"
+                      multiple
+                      accept="image/*,video/*"
+                      className="hidden"
+                      onChange={(e) => setSelectedFiles(Array.from(e.target.files))}
+                    />
+                  </div>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Formats supportés: JPG, PNG, MP4, MOV (max 10 fichiers)
+                  </p>
+                </div>
+
+                {selectedFiles.length > 0 && (
+                  <div className="space-y-4">
+                    <h4 className="font-medium">Fichiers sélectionnés ({selectedFiles.length})</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {selectedFiles.map((file, index) => (
+                        <div key={index} className="relative">
+                          <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                            {file.type.startsWith('image/') ? (
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt={file.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <FileText className="w-8 h-8 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white hover:bg-red-600"
+                            onClick={() => setSelectedFiles(selectedFiles.filter((_, i) => i !== index))}
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                          <p className="text-xs text-gray-600 mt-1 truncate">{file.name}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <Button
+                      onClick={handleBatchUpload}
+                      disabled={isUploading}
+                      className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                    >
+                      {isUploading ? 'Upload en cours...' : `Uploader ${selectedFiles.length} fichier(s)`}
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
+            {/* Pending Content for Description */}
+            {pendingContent.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Contenu en attente de description</CardTitle>
+                  <CardDescription>
+                    Ajoutez une description à vos contenus pour générer des posts
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {pendingContent.map((content) => (
+                      <Card key={content.id} className="overflow-hidden">
+                        <div className="aspect-video bg-gray-100">
+                          <img
+                            src={`${BACKEND_URL}${content.visual_url || '/uploads/' + content.file_path.split('/').pop()}`}
+                            alt="Content"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <CardContent className="p-4">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" className="w-full">
+                                Décrire ce contenu
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Décrire le contenu</DialogTitle>
+                              </DialogHeader>
+                              <form onSubmit={async (e) => {
+                                e.preventDefault();
+                                const formData = new FormData(e.target);
+                                const description = formData.get('description');
+                                
+                                try {
+                                  setIsGeneratingPosts(true);
+                                  await axios.post(`${API}/content/${content.id}/describe`, { description });
+                                  toast.success('Posts générés avec succès !');
+                                  loadPendingContent();
+                                  loadGeneratedPosts();
+                                } catch (error) {
+                                  toast.error('Erreur lors de la génération');
+                                } finally {
+                                  setIsGeneratingPosts(false);
+                                }
+                              }}>
+                                <div className="space-y-4">
+                                  <Textarea
+                                    name="description"
+                                    placeholder="Décrivez ce contenu (produit, service, événement...)"
+                                    required
+                                  />
+                                  <Button type="submit" disabled={isGeneratingPosts} className="w-full">
+                                    {isGeneratingPosts ? 'Génération en cours...' : 'Générer les posts'}
+                                  </Button>
+                                </div>
+                              </form>
+                            </DialogContent>
+                          </Dialog>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Posts Tab */}
+          <TabsContent value="posts" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>🏢 Entreprise</CardTitle>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <FileText className="w-5 h-5" />
+                    <span>Posts générés</span>
+                  </div>
+                  <Badge variant="secondary">
+                    {generatedPosts.length} posts
+                  </Badge>
+                </CardTitle>
               </CardHeader>
-              <CardContent className="text-left space-y-2">
-                <p><strong>Nom :</strong> {businessProfile?.business_name}</p>
-                <p><strong>Type :</strong> {businessProfile?.business_type}</p>
-                <p><strong>Hashtags prioritaires :</strong> {businessProfile?.hashtags_primary?.length || 0}</p>
-                <p><strong>Plateformes :</strong> {businessProfile?.preferred_platforms?.join(', ')}</p>
+              <CardContent>
+                {generatedPosts.length > 0 ? (
+                  <div className="space-y-4">
+                    {/* Carousel Navigation */}
+                    <div className="flex items-center justify-between">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPostIndex(Math.max(0, currentPostIndex - 1))}
+                        disabled={currentPostIndex === 0}
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                        Précédent
+                      </Button>
+                      <span className="text-sm text-gray-500">
+                        {currentPostIndex + 1} / {generatedPosts.length}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPostIndex(Math.min(generatedPosts.length - 1, currentPostIndex + 1))}
+                        disabled={currentPostIndex === generatedPosts.length - 1}
+                      >
+                        Suivant
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    </div>
+
+                    {/* Current Post */}
+                    {generatedPosts[currentPostIndex] && (
+                      <Card className="border-2">
+                        <CardContent className="p-6">
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <Badge 
+                                  variant={generatedPosts[currentPostIndex].platform === 'facebook' ? 'default' : 'secondary'}
+                                  className={`capitalize ${
+                                    generatedPosts[currentPostIndex].platform === 'facebook' 
+                                      ? 'bg-blue-100 text-blue-800' 
+                                      : generatedPosts[currentPostIndex].platform === 'instagram'
+                                      ? 'bg-pink-100 text-pink-800'
+                                      : 'bg-blue-100 text-blue-800'
+                                  }`}
+                                >
+                                  {generatedPosts[currentPostIndex].platform}
+                                </Badge>
+                                <Badge variant={
+                                  generatedPosts[currentPostIndex].status === 'pending' ? 'secondary' :
+                                  generatedPosts[currentPostIndex].status === 'approved' ? 'default' :
+                                  generatedPosts[currentPostIndex].status === 'posted' ? 'success' : 'destructive'
+                                }>
+                                  {generatedPosts[currentPostIndex].status}
+                                </Badge>
+                              </div>
+                              
+                              <div className="bg-gray-50 p-4 rounded-lg">
+                                <h4 className="font-medium mb-2">Contenu du post</h4>
+                                <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                                  {generatedPosts[currentPostIndex].post_text}
+                                </p>
+                              </div>
+
+                              <div>
+                                <h4 className="font-medium mb-2">Hashtags</h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {generatedPosts[currentPostIndex].hashtags?.map((hashtag, idx) => (
+                                    <Badge key={idx} variant="outline" className="text-blue-600">
+                                      #{hashtag}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="flex items-center space-x-2 text-sm text-gray-500">
+                                <Clock className="w-4 h-4" />
+                                <span>
+                                  Programmé pour le {new Date(generatedPosts[currentPostIndex].scheduled_date).toLocaleDateString('fr-FR')} 
+                                  à {generatedPosts[currentPostIndex].scheduled_time}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="space-y-4">
+                              {generatedPosts[currentPostIndex].visual_url && (
+                                <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                                  <img
+                                    src={`${BACKEND_URL}${generatedPosts[currentPostIndex].visual_url}`}
+                                    alt="Contenu"
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              )}
+
+                              <div className="flex space-x-2">
+                                {generatedPosts[currentPostIndex].status === 'pending' && (
+                                  <Button
+                                    variant="default"
+                                    className="flex-1 bg-green-600 hover:bg-green-700"
+                                    onClick={async () => {
+                                      try {
+                                        await axios.put(`${API}/posts/${generatedPosts[currentPostIndex].id}/approve`);
+                                        toast.success('Post approuvé !');
+                                        loadGeneratedPosts();
+                                      } catch (error) {
+                                        toast.error('Erreur lors de l\'approbation');
+                                      }
+                                    }}
+                                  >
+                                    <Check className="w-4 h-4 mr-2" />
+                                    Approuver
+                                  </Button>
+                                )}
+                                
+                                {(generatedPosts[currentPostIndex].status === 'approved' || generatedPosts[currentPostIndex].status === 'pending') && (
+                                  <Button
+                                    variant="outline"
+                                    className="flex-1"
+                                    onClick={async () => {
+                                      try {
+                                        await axios.post(`${API}/posts/${generatedPosts[currentPostIndex].id}/publish`);
+                                        toast.success('Post publié !');
+                                        loadGeneratedPosts();
+                                      } catch (error) {
+                                        toast.error('Erreur lors de la publication');
+                                      }
+                                    }}
+                                  >
+                                    <Send className="w-4 h-4 mr-2" />
+                                    Publier maintenant
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">Aucun post généré pour le moment</p>
+                    <p className="text-sm text-gray-400">Uploadez du contenu pour commencer</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
-          </div>
+          </TabsContent>
 
-          {user.is_admin && (
-            <Alert className="max-w-2xl mx-auto bg-red-50 border-red-200">
-              <Crown className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-700 font-medium">
-                Vous êtes administrateur ! Rechargez la page pour accéder au dashboard admin.
-              </AlertDescription>
-            </Alert>
-          )}
-        </div>
+          {/* Notes Tab */}
+          <TabsContent value="notes" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Edit className="w-5 h-5" />
+                  <span>Notes et informations</span>
+                </CardTitle>
+                <CardDescription>
+                  Ajoutez des informations importantes à intégrer dans vos posts
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  try {
+                    await axios.post(`${API}/notes`, noteForm);
+                    setNoteForm({ title: '', content: '', priority: 'normal' });
+                    toast.success('Note ajoutée !');
+                    loadNotes();
+                  } catch (error) {
+                    toast.error('Erreur lors de l\'ajout de la note');
+                  }
+                }} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Input
+                      placeholder="Titre de la note"
+                      value={noteForm.title}
+                      onChange={(e) => setNoteForm({...noteForm, title: e.target.value})}
+                      required
+                    />
+                    <Select 
+                      value={noteForm.priority} 
+                      onValueChange={(value) => setNoteForm({...noteForm, priority: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="high">Priorité haute</SelectItem>
+                        <SelectItem value="normal">Priorité normale</SelectItem>
+                        <SelectItem value="low">Priorité basse</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Textarea
+                    placeholder="Contenu de la note (ex: fermeture exceptionnelle, nouvelle offre, événement...)"
+                    value={noteForm.content}
+                    onChange={(e) => setNoteForm({...noteForm, content: e.target.value})}
+                    required
+                  />
+                  <Button type="submit" className="w-full">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Ajouter la note
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+
+            {notes.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Notes enregistrées</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {notes.map((note) => (
+                      <div key={note.id} className="border rounded-lg p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <h4 className="font-medium">{note.title}</h4>
+                              <Badge 
+                                variant={note.priority === 'high' ? 'destructive' : note.priority === 'normal' ? 'default' : 'secondary'}
+                              >
+                                {note.priority === 'high' ? 'Haute' : note.priority === 'normal' ? 'Normale' : 'Basse'}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-600">{note.content}</p>
+                            <p className="text-xs text-gray-400 mt-2">
+                              {new Date(note.created_at).toLocaleDateString('fr-FR')}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Calendar Tab */}
+          <TabsContent value="calendar" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <CalendarIcon className="w-5 h-5" />
+                  <span>Calendrier de publication</span>
+                </CardTitle>
+                <CardDescription>
+                  Planifiez et gérez vos publications à venir
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12">
+                  <CalendarIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">Calendrier de publication</p>
+                  <p className="text-sm text-gray-400">Fonctionnalité en développement</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Social Tab */}
+          <TabsContent value="social" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Target className="w-5 h-5" />
+                  <span>Comptes sociaux connectés</span>
+                </CardTitle>
+                <CardDescription>
+                  Connectez vos comptes Facebook et Instagram pour publier automatiquement
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12">
+                  <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">Connexions sociales</p>
+                  <p className="text-sm text-gray-400">Interface Facebook/Instagram bientôt disponible</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

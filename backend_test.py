@@ -341,17 +341,11 @@ class SocialGenieAPITester:
 
     def test_facebook_callback_invalid_state(self):
         """Test Facebook callback with invalid state"""
-        callback_data = {
-            "code": "test_code",
-            "state": "invalid_state"
-        }
-        
         success, response = self.run_test(
             "Facebook Callback (Invalid State)",
             "POST",
-            "social/facebook/callback",
+            "social/facebook/callback?code=test_code&state=invalid_state",
             400,  # Should fail due to invalid state
-            data=callback_data
         )
         return success
 

@@ -154,7 +154,6 @@ class SocialGenieAPITester:
         # If business profile already exists, that's okay for testing
         if not success and response.get('detail') == "Vous avez déjà un profil d'entreprise":
             print("✅ Business profile already exists - continuing")
-            self.tests_passed += 1
             return True
         
         if success and 'id' in response:

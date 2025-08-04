@@ -173,6 +173,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ TESTED: All social media endpoints working correctly. GET /api/social/facebook/auth-url (proper business_id validation), POST /api/social/facebook/callback (state validation), GET /api/social/connections (returns empty list initially), POST /api/social/post (proper error handling without connections), DELETE /api/social/connection/{id} (proper 404 for non-existent connections). All endpoints properly integrated with authentication system."
+      - working: true
+        agent: "testing"
+        comment: "✅ RE-TESTED WITH REAL CREDENTIALS: All social media endpoints working perfectly with real Facebook credentials. GET /api/social/facebook/auth-url generates proper Facebook authorization URLs with App ID 1098326618299035. GET /api/social/connections returns proper empty list initially. POST /api/social/post handles missing connections correctly. DELETE /api/social/connection/{id} returns proper 404 errors. All endpoints accessible and responding correctly with proper authentication."
 
   - task: "Database Schema Updates"
     implemented: true

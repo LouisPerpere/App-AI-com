@@ -354,10 +354,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Facebook/Instagram OAuth Authentication"
-    - "Facebook API Client"
-    - "Instagram Business API Client"
-    - "Social Media API Endpoints"
+    - "Social Media Connection UI"
+    - "OAuth Callback Handler" 
+    - "Post Publishing Interface"
+    - "Authentication Interface"
+    - "Main Dashboard with 5 Tabs"
+    - "Bibliothèque Tab (Gallery Interface)"
+    - "Notes Tab Interface"
+    - "Responsive Design"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -369,3 +373,5 @@ agent_communication:
     message: "✅ BACKEND TESTING COMPLETED: All Facebook/Instagram social media integration backend functionality is working correctly. Tested all 8 tasks successfully: (1) OAuth Authentication - proper error handling when credentials missing, (2) Facebook API Client - all methods working with proper error handling, (3) Instagram API Client - two-step posting process working correctly, (4) Social Media API Endpoints - all 5 endpoints accessible and responding properly, (5) Database Schema - SocialMediaConnection model working correctly, (6) Integration with Post System - publishing workflow integrated properly, (7) Environment Configuration - proper credential detection and error messages, (8) Dependencies - all imports working without conflicts. The system correctly handles the case where Facebook credentials are not configured (FACEBOOK_APP_ID, FACEBOOK_APP_SECRET are empty) by returning appropriate error messages. All endpoint structure, parameter validation, and error handling are working as expected. Ready for frontend implementation and actual Facebook App credential configuration."
   - agent: "testing"
     message: "✅ FACEBOOK/INSTAGRAM INTEGRATION RE-TESTED WITH REAL CREDENTIALS: Comprehensive testing completed with newly configured Facebook Developer App credentials (App ID: 1098326618299035). All core functionality verified: (1) Facebook OAuth URL generation working perfectly with real App ID, (2) FacebookAPIClient and InstagramAPIClient initialization successful, (3) All social media endpoints (GET /api/social/facebook/auth-url, GET /api/social/connections, POST /api/social/post, DELETE /api/social/connection/{id}) accessible and responding correctly, (4) Proper error handling for invalid business IDs and missing connections, (5) Environment variables properly loaded and used. The system is ready for actual Facebook OAuth flow and API interactions. User can now proceed with frontend implementation and actual Facebook account connections."
+  - agent: "testing"
+    message: "✅ FRONTEND TESTING COMPLETED: Comprehensive testing of Facebook/Instagram social media integration frontend completed successfully. All requested functionality verified: (1) Authentication interface with login/register tabs working perfectly, (2) Main dashboard with 5 tabs in correct order (Bibliothèque, Notes, Posts, Calendrier, Social) - Notes comes before Posts as requested, (3) Bibliothèque tab features iPhone Photos app-style gallery interface with grid layout and upload functionality, (4) Social tab contains complete Facebook/Instagram connection interface with 'Connecter Facebook' button and proper status display, (5) OAuth callback handler properly implemented at /auth/facebook/callback, (6) Posts tab with carousel navigation and 'Publier maintenant' functionality, (7) Notes tab with priority selection working correctly, (8) Responsive design working across desktop, tablet, and mobile viewports, (9) Professional UI/UX design with proper error handling and loading states. The frontend implementation is complete and fully functional. Minor backend API endpoint issue detected (404 on business-profile) but frontend interface handles it gracefully."

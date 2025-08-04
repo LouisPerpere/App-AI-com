@@ -1244,4 +1244,15 @@ function MainApp() {
   );
 }
 
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/auth/facebook/callback" element={<FacebookCallback />} />
+        <Route path="/*" element={<MainApp />} />
+      </Routes>
+    </Router>
+  );
+}
+
 export default App;

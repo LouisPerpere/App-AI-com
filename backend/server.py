@@ -141,9 +141,13 @@ class SocialMediaConnection(BaseModel):
     refresh_token: Optional[str] = None
     page_id: Optional[str] = None  # For Facebook pages
     page_name: Optional[str] = None
+    instagram_user_id: Optional[str] = None  # For Instagram
+    platform_user_id: Optional[str] = None  # Platform-specific user ID
+    platform_username: Optional[str] = None  # Platform username
     expires_at: Optional[datetime] = None
     active: bool = True
     connected_at: datetime = Field(default_factory=datetime.utcnow)
+    disconnected_at: Optional[datetime] = None
 
 class ScheduledTask(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))

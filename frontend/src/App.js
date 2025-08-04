@@ -899,104 +899,115 @@ function MainApp() {
 
           {/* Posts Tab */}
           <TabsContent value="posts" className="space-y-6">
-            <Card>
+          {/* Posts Tab */}
+          <TabsContent value="posts" className="space-y-8">
+            <Card className="card-gradient">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <FileText className="w-5 h-5" />
-                    <span>Posts générés</span>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="text-2xl bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
+                      Posts générés automatiquement 🚀
+                    </span>
                   </div>
-                  <Badge variant="secondary">
-                    {generatedPosts.length} posts
+                  <Badge className="badge-info px-4 py-2 text-lg">
+                    {generatedPosts.length} posts créés
                   </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {generatedPosts.length > 0 ? (
-                  <div className="space-y-4">
+                  <div className="space-y-8">
                     {/* Carousel Navigation */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between card-glass p-4 rounded-2xl">
                       <Button
                         variant="outline"
-                        size="sm"
+                        size="lg"
                         onClick={() => setCurrentPostIndex(Math.max(0, currentPostIndex - 1))}
                         disabled={currentPostIndex === 0}
+                        className="btn-gradient-secondary"
                       >
-                        <ChevronLeft className="w-4 h-4" />
+                        <ChevronLeft className="w-5 h-5 mr-2" />
                         Précédent
                       </Button>
-                      <span className="text-sm text-gray-500">
-                        {currentPostIndex + 1} / {generatedPosts.length}
+                      <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        📄 {currentPostIndex + 1} / {generatedPosts.length}
                       </span>
                       <Button
                         variant="outline"
-                        size="sm"
+                        size="lg"
                         onClick={() => setCurrentPostIndex(Math.min(generatedPosts.length - 1, currentPostIndex + 1))}
                         disabled={currentPostIndex === generatedPosts.length - 1}
+                        className="btn-gradient-secondary"
                       >
                         Suivant
-                        <ChevronRight className="w-4 h-4" />
+                        <ChevronRight className="w-5 h-5 ml-2" />
                       </Button>
                     </div>
 
                     {/* Current Post */}
                     {generatedPosts[currentPostIndex] && (
-                      <Card className="border-2">
-                        <CardContent className="p-6">
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div className="space-y-4">
+                      <Card className="card-glass border-2 border-purple-200/50">
+                        <CardContent className="p-8">
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div className="space-y-6">
                               <div className="flex items-center justify-between">
                                 <Badge 
-                                  variant={generatedPosts[currentPostIndex].platform === 'facebook' ? 'default' : 'secondary'}
-                                  className={`capitalize ${
+                                  className={`px-4 py-2 text-lg font-semibold ${
                                     generatedPosts[currentPostIndex].platform === 'facebook' 
-                                      ? 'bg-blue-100 text-blue-800' 
+                                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white' 
                                       : generatedPosts[currentPostIndex].platform === 'instagram'
-                                      ? 'bg-pink-100 text-pink-800'
-                                      : 'bg-blue-100 text-blue-800'
+                                      ? 'bg-gradient-to-r from-pink-500 to-red-500 text-white'
+                                      : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white'
                                   }`}
                                 >
-                                  {generatedPosts[currentPostIndex].platform}
+                                  {generatedPosts[currentPostIndex].platform === 'facebook' ? '📘 Facebook' :
+                                   generatedPosts[currentPostIndex].platform === 'instagram' ? '📷 Instagram' : 
+                                   '💼 LinkedIn'}
                                 </Badge>
-                                <Badge variant={
-                                  generatedPosts[currentPostIndex].status === 'pending' ? 'secondary' :
-                                  generatedPosts[currentPostIndex].status === 'approved' ? 'default' :
-                                  generatedPosts[currentPostIndex].status === 'posted' ? 'success' : 'destructive'
-                                }>
-                                  {generatedPosts[currentPostIndex].status}
+                                <Badge className={`px-4 py-2 text-lg font-semibold ${
+                                  generatedPosts[currentPostIndex].status === 'pending' ? 'badge-warning' :
+                                  generatedPosts[currentPostIndex].status === 'approved' ? 'badge-info' :
+                                  generatedPosts[currentPostIndex].status === 'posted' ? 'badge-success' : 'badge-warning'
+                                }`}>
+                                  {generatedPosts[currentPostIndex].status === 'pending' ? '⏳ En attente' :
+                                   generatedPosts[currentPostIndex].status === 'approved' ? '👍 Approuvé' :
+                                   generatedPosts[currentPostIndex].status === 'posted' ? '✅ Publié' : 'En attente'}
                                 </Badge>
                               </div>
                               
-                              <div className="bg-gray-50 p-4 rounded-lg">
-                                <h4 className="font-medium mb-2">Contenu du post</h4>
-                                <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                              <div className="card-gradient p-6 rounded-2xl">
+                                <h4 className="text-xl font-bold mb-4 text-gray-800">✨ Contenu du post</h4>
+                                <p className="text-lg text-gray-700 whitespace-pre-wrap leading-relaxed">
                                   {generatedPosts[currentPostIndex].post_text}
                                 </p>
                               </div>
 
                               <div>
-                                <h4 className="font-medium mb-2">Hashtags</h4>
-                                <div className="flex flex-wrap gap-2">
+                                <h4 className="text-xl font-bold mb-4 text-gray-800">🏷️ Hashtags magiques</h4>
+                                <div className="flex flex-wrap gap-3">
                                   {generatedPosts[currentPostIndex].hashtags?.map((hashtag, idx) => (
-                                    <Badge key={idx} variant="outline" className="text-blue-600">
+                                    <Badge key={idx} className="badge-info text-base px-3 py-1">
                                       #{hashtag}
                                     </Badge>
                                   ))}
                                 </div>
                               </div>
 
-                              <div className="flex items-center space-x-2 text-sm text-gray-500">
-                                <Clock className="w-4 h-4" />
-                                <span>
-                                  Programmé pour le {new Date(generatedPosts[currentPostIndex].scheduled_date).toLocaleDateString('fr-FR')} 
+                              <div className="flex items-center space-x-3 text-lg text-gray-600 card-glass p-4 rounded-2xl">
+                                <Clock className="w-6 h-6 text-purple-500" />
+                                <span className="font-medium">
+                                  📅 Programmé pour le {new Date(generatedPosts[currentPostIndex].scheduled_date).toLocaleDateString('fr-FR')} 
                                   à {generatedPosts[currentPostIndex].scheduled_time}
                                 </span>
                               </div>
                             </div>
 
-                            <div className="space-y-4">
+                            <div className="space-y-6">
                               {generatedPosts[currentPostIndex].visual_url && (
-                                <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                                <div className="aspect-square bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl overflow-hidden thumbnail-hover">
                                   <img
                                     src={`${BACKEND_URL}${generatedPosts[currentPostIndex].visual_url}`}
                                     alt="Contenu"
@@ -1005,42 +1016,43 @@ function MainApp() {
                                 </div>
                               )}
 
-                              <div className="flex space-x-2">
+                              <div className="flex flex-col space-y-4">
                                 {generatedPosts[currentPostIndex].status === 'pending' && (
                                   <Button
-                                    variant="default"
-                                    className="flex-1 bg-green-600 hover:bg-green-700"
+                                    size="lg"
+                                    className="btn-gradient-success h-14 text-xl font-bold"
                                     onClick={async () => {
                                       try {
                                         await axios.put(`${API}/posts/${generatedPosts[currentPostIndex].id}/approve`);
-                                        toast.success('Post approuvé !');
+                                        toast.success('🎉 Post approuvé avec succès !');
                                         loadGeneratedPosts();
                                       } catch (error) {
                                         toast.error('Erreur lors de l\'approbation');
                                       }
                                     }}
                                   >
-                                    <Check className="w-4 h-4 mr-2" />
-                                    Approuver
+                                    <Check className="w-6 h-6 mr-3" />
+                                    👍 Approuver ce post
                                   </Button>
                                 )}
                                 
                                 {(generatedPosts[currentPostIndex].status === 'approved' || generatedPosts[currentPostIndex].status === 'pending') && (
                                   <Button
                                     variant="outline"
-                                    className="flex-1"
+                                    size="lg"
+                                    className="btn-gradient-primary h-14 text-xl font-bold"
                                     onClick={async () => {
                                       try {
                                         await axios.post(`${API}/posts/${generatedPosts[currentPostIndex].id}/publish`);
-                                        toast.success('Post publié !');
+                                        toast.success('🚀 Post publié avec succès !');
                                         loadGeneratedPosts();
                                       } catch (error) {
                                         toast.error('Erreur lors de la publication');
                                       }
                                     }}
                                   >
-                                    <Send className="w-4 h-4 mr-2" />
-                                    Publier maintenant
+                                    <Send className="w-6 h-6 mr-3" />
+                                    🚀 Publier maintenant
                                   </Button>
                                 )}
                               </div>
@@ -1051,10 +1063,12 @@ function MainApp() {
                     )}
                   </div>
                 ) : (
-                  <div className="text-center py-12">
-                    <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">Aucun post généré pour le moment</p>
-                    <p className="text-sm text-gray-400">Uploadez du contenu pour commencer</p>
+                  <div className="text-center py-20 card-gradient rounded-3xl">
+                    <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
+                      <FileText className="w-12 h-12 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-700 mb-4">Aucun post créé pour le moment ✨</h3>
+                    <p className="text-xl text-gray-500">Uploadez du contenu dans la Bibliothèque pour commencer la magie ! 🎭</p>
                   </div>
                 )}
               </CardContent>

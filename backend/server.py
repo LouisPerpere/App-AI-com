@@ -139,6 +139,37 @@ class SocialMediaIntegration(BaseModel):
     active: bool = True
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+# Helper function to get recent posts history for anti-repetition
+async def get_recent_posts_history(business_id: str, months_back: int = 12) -> str:
+    """Get recent posts to avoid repetition"""
+    try:
+        # Calculate date 12 months ago
+        cutoff_date = datetime.utcnow() - timedelta(days=months_back * 30)
+        
+        # Get recent posts
+        recent_posts = await db.generated_posts.find({
+            "business_id": business_id,
+            "created_at": {"$gte": cutoff_date},
+            "status": {"$in": ["approved", "scheduled", "posted"]}
+        }).sort("created_at", -1).to_list(200)  # Last 200 posts max
+        
+        if not recent_posts:
+            return "Aucun historique de posts précédents."
+        
+        # Format history for AI context
+        history_text = "POSTS DÉJÀ PUBLIÉS (à ne pas répéter):\n"
+        for post in recent_posts[:50]:  # Limit to 50 most recent
+            post_obj = GeneratedPost(**post)
+            # Extract key themes and angles
+            text_preview = post_obj.post_text[:100].replace('\n', ' ')
+            history_text += f"- {post_obj.platform}: \"{text_preview}...\"\n"
+        
+        return history_text
+        
+    except Exception as e:
+        logging.error(f"Error getting posts history: {e}")
+        return "Historique indisponible."
+
 # Helper function to analyze content with OpenAI
 async def analyze_content_with_ai(content_path: str, description: str, business_profile: BusinessProfile, notes: List[ContentNote] = []):
     try:
@@ -152,6 +183,9 @@ async def analyze_content_with_ai(content_path: str, description: str, business_
             notes_context = "\n\nInformations importantes à intégrer naturellement:\n"
             for note in notes:
                 notes_context += f"- {note.title}: {note.content}\n"
+        
+        # Get recent posts history to avoid repetition
+        posts_history = await get_recent_posts_history(business_profile.id)
         
         # Create LLM chat instance with OpenAI
         chat = LlmChat(
@@ -167,19 +201,23 @@ PROFIL ENTREPRISE:
 - Réseaux: {', '.join(business_profile.preferred_platforms)}
 {notes_context}
 
+{posts_history}
+
 RÈGLES ABSOLUES pour un style NATUREL:
 ❌ JAMAIS d'emojis clichés: ✨💫🌟🚀💡🎯🔥💪⚡
 ❌ JAMAIS "Plongeons dans", "Explorons", "N'hésitez pas à", "Il est crucial"
 ❌ JAMAIS de structure parfaite intro-développement-conclusion
 ❌ JAMAIS de listes à puces ou de tirets longs (—)
 ❌ JAMAIS de transitions fluides artificielles
+❌ JAMAIS répéter les mêmes angles/idées que les posts précédents
 
 ✅ TOUJOURS écrire comme si c'était TOI qui gérais ces réseaux sociaux
 ✅ Langage spontané, familier mais pro selon le ton
 ✅ Phrases courtes et variées
 ✅ Emojis simples et rares (😊❤️👍)
 ✅ Imperfections volontaires qui rendent humain
-✅ References locales quand possible"""
+✅ References locales quand possible
+✅ Angles NOUVEAUX et FRAIS par rapport à l'historique"""
         ).with_model("openai", "gpt-4o")
 
         # Generate posts for each platform
@@ -215,6 +253,9 @@ RÈGLES ABSOLUES pour un style NATUREL:
                 platform_prompt = f"""Regarde cette image et sa description: "{description}"
 
 Écris un post pour {platform} comme si TU gérais vraiment ce compte.
+
+IMPORTANT: Trouve un ANGLE NOUVEAU, différent des posts précédents listés ci-dessus.
+Ne répète PAS les mêmes idées, formulations, ou approches.
 
 Style {specs['style']}.
 Ton {business_profile.brand_tone}.

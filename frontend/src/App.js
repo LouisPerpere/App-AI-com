@@ -637,14 +637,165 @@ function MainApp() {
 
           {/* Library Tab */}
           <TabsContent value="library" className="space-y-6">
+          {/* Library Tab */}
+          <TabsContent value="library" className="space-y-6">
+            {/* Galerie des contenus uploadés */}
+            {(pendingContent.length > 0 || generatedPosts.some(p => p.visual_url)) && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <ImageIcon className="w-5 h-5" />
+                    <span>Vos contenus</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Cliquez sur une miniature pour ajouter du contexte et générer des posts
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    {/* Contenus en attente de description */}
+                    {pendingContent.map((content) => (
+                      <Dialog key={content.id}>
+                        <DialogTrigger asChild>
+                          <div className="group relative aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105">
+                            <img
+                              src={`${BACKEND_URL}${content.visual_url || '/uploads/' + content.file_path.split('/').pop()}`}
+                              alt="Contenu"
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200" />
+                            <div className="absolute top-2 right-2">
+                              <Badge variant="secondary" className="bg-orange-100 text-orange-600 text-xs">
+                                Nouveau
+                              </Badge>
+                            </div>
+                          </div>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-4xl w-full h-[80vh]">
+                          <DialogHeader>
+                            <DialogTitle>Ajouter du contexte à votre contenu</DialogTitle>
+                          </DialogHeader>
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+                            {/* Image en grand */}
+                            <div className="flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
+                              <img
+                                src={`${BACKEND_URL}${content.visual_url || '/uploads/' + content.file_path.split('/').pop()}`}
+                                alt="Contenu"
+                                className="max-w-full max-h-full object-contain"
+                              />
+                            </div>
+                            
+                            {/* Zone de texte et actions */}
+                            <div className="flex flex-col space-y-4">
+                              <form onSubmit={async (e) => {
+                                e.preventDefault();
+                                const formData = new FormData(e.target);
+                                const description = formData.get('description');
+                                
+                                try {
+                                  setIsGeneratingPosts(true);
+                                  await axios.post(`${API}/content/${content.id}/describe`, { description });
+                                  toast.success('Posts générés avec succès !');
+                                  loadPendingContent();
+                                  loadGeneratedPosts();
+                                  // Fermer le dialog
+                                  document.querySelector('[data-state="open"]')?.click();
+                                } catch (error) {
+                                  toast.error('Erreur lors de la génération');
+                                } finally {
+                                  setIsGeneratingPosts(false);
+                                }
+                              }} className="flex-1 flex flex-col space-y-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="description">Décrivez ce contenu</Label>
+                                  <Textarea
+                                    id="description"
+                                    name="description"
+                                    placeholder="Décrivez en détail ce contenu : produit, service, événement, ambiance, personnes, lieu, contexte particulier... Plus vous donnez de détails, meilleurs seront les posts générés !"
+                                    className="min-h-[200px] resize-none"
+                                    required
+                                  />
+                                </div>
+                                
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                  <h4 className="font-medium text-blue-900 mb-2">💡 Conseils pour une bonne description</h4>
+                                  <ul className="text-sm text-blue-700 space-y-1">
+                                    <li>• Décrivez le produit/service en détail</li>
+                                    <li>• Mentionnez l'ambiance, les couleurs, l'émotion</li>
+                                    <li>• Ajoutez le contexte (promotion, nouveauté, saison...)</li>
+                                    <li>• Précisez votre public cible pour ce contenu</li>
+                                  </ul>
+                                </div>
+                                
+                                <Button 
+                                  type="submit" 
+                                  disabled={isGeneratingPosts} 
+                                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                                  size="lg"
+                                >
+                                  {isGeneratingPosts ? (
+                                    <>
+                                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                      Génération en cours...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Sparkles className="w-4 h-4 mr-2" />
+                                      Générer mes posts IA
+                                    </>
+                                  )}
+                                </Button>
+                              </form>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    ))}
+                    
+                    {/* Contenus déjà traités (posts générés) */}
+                    {generatedPosts
+                      .filter(post => post.visual_url)
+                      .slice(0, 12) // Limiter à 12 pour ne pas surcharger
+                      .map((post) => (
+                        <div key={post.id} className="group relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                          <img
+                            src={`${BACKEND_URL}${post.visual_url}`}
+                            alt="Contenu généré"
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200" />
+                          <div className="absolute top-2 right-2">
+                            <Badge 
+                              variant={post.status === 'posted' ? 'default' : 'secondary'}
+                              className={`text-xs ${
+                                post.status === 'posted' 
+                                  ? 'bg-green-100 text-green-600' 
+                                  : post.status === 'approved'
+                                  ? 'bg-blue-100 text-blue-600'
+                                  : 'bg-gray-100 text-gray-600'
+                              }`}
+                            >
+                              {post.status === 'posted' ? 'Publié' : 
+                               post.status === 'approved' ? 'Approuvé' : 
+                               'En attente'}
+                            </Badge>
+                          </div>
+                        </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Section d'upload */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Upload className="w-5 h-5" />
-                  <span>Upload de contenu</span>
+                  <span>Ajouter du contenu</span>
                 </CardTitle>
                 <CardDescription>
-                  Uploadez vos photos et vidéos pour générer des posts automatiquement
+                  Uploadez vos photos et vidéos pour créer de nouveaux posts
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -717,79 +868,10 @@ function MainApp() {
                 )}
               </CardContent>
             </Card>
-
-            {/* Pending Content for Description */}
-            {pendingContent.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Contenu en attente de description</CardTitle>
-                  <CardDescription>
-                    Ajoutez une description à vos contenus pour générer des posts
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {pendingContent.map((content) => (
-                      <Card key={content.id} className="overflow-hidden">
-                        <div className="aspect-video bg-gray-100">
-                          <img
-                            src={`${BACKEND_URL}${content.visual_url || '/uploads/' + content.file_path.split('/').pop()}`}
-                            alt="Content"
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <CardContent className="p-4">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" className="w-full">
-                                Décrire ce contenu
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Décrire le contenu</DialogTitle>
-                              </DialogHeader>
-                              <form onSubmit={async (e) => {
-                                e.preventDefault();
-                                const formData = new FormData(e.target);
-                                const description = formData.get('description');
-                                
-                                try {
-                                  setIsGeneratingPosts(true);
-                                  await axios.post(`${API}/content/${content.id}/describe`, { description });
-                                  toast.success('Posts générés avec succès !');
-                                  loadPendingContent();
-                                  loadGeneratedPosts();
-                                } catch (error) {
-                                  toast.error('Erreur lors de la génération');
-                                } finally {
-                                  setIsGeneratingPosts(false);
-                                }
-                              }}>
-                                <div className="space-y-4">
-                                  <Textarea
-                                    name="description"
-                                    placeholder="Décrivez ce contenu (produit, service, événement...)"
-                                    required
-                                  />
-                                  <Button type="submit" disabled={isGeneratingPosts} className="w-full">
-                                    {isGeneratingPosts ? 'Génération en cours...' : 'Générer les posts'}
-                                  </Button>
-                                </div>
-                              </form>
-                            </DialogContent>
-                          </Dialog>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </TabsContent>
 
-          {/* Posts Tab */}
-          <TabsContent value="posts" className="space-y-6">
+          {/* Notes Tab */}
+          <TabsContent value="notes" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">

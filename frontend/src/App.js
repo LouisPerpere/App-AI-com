@@ -105,6 +105,7 @@ function App() {
         loadGeneratedPosts();
         loadPendingContent();
         loadNotes();
+        loadSocialConnections();
       } catch (error) {
         // No business profile found, show onboarding
         setActiveStep('onboarding');

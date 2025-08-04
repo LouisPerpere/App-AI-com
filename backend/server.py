@@ -644,6 +644,315 @@ async def upload_content_batch(
         logging.error(f"Error uploading batch content: {e}")
         raise HTTPException(status_code=500, detail=f"Error uploading content: {str(e)}")
 
+@api_router.post("/content/{content_id}/describe")
+async def describe_content(
+    content_id: str,
+    description: str = Form(...),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Add description to uploaded content and generate social media posts"""
+    try:
+        # Get the content upload
+        content_upload = await db.content_uploads.find_one({
+            "id": content_id,
+            "user_id": current_user.id
+        })
+        
+        if not content_upload:
+            raise HTTPException(status_code=404, detail="Content not found")
+        
+        # Get business profile
+        business_profile = await db.business_profiles.find_one({
+            "id": content_upload["business_id"],
+            "user_id": current_user.id
+        })
+        
+        if not business_profile:
+            raise HTTPException(status_code=404, detail="Business profile not found")
+        
+        business_prof = BusinessProfile(**business_profile)
+        
+        # Get active notes for context
+        notes = await db.content_notes.find({
+            "business_id": business_prof.id,
+            "user_id": current_user.id
+        }).to_list(50)
+        
+        notes_list = [ContentNote(**note) for note in notes]
+        
+        # Generate AI posts
+        generated_posts = await analyze_content_with_ai(
+            content_upload["file_path"], 
+            description, 
+            business_prof, 
+            notes_list
+        )
+        
+        # Save generated posts to database
+        saved_posts = []
+        batch_id = str(uuid.uuid4())
+        
+        for post_data in generated_posts:
+            # Calculate scheduling date (next 7 days distributed)
+            days_ahead = len(saved_posts) % 7 + 1
+            scheduled_date = datetime.utcnow() + timedelta(days=days_ahead)
+            
+            generated_post = GeneratedPost(
+                user_id=current_user.id,
+                business_id=business_prof.id,
+                content_id=content_id,
+                platform=post_data["platform"],
+                post_text=post_data["post_text"],
+                hashtags=post_data["hashtags"],
+                scheduled_date=scheduled_date,
+                status="pending",
+                auto_generated=False,
+                visual_url=f"/uploads/{content_upload['file_path'].split('/')[-1]}",
+                generation_batch=batch_id
+            )
+            
+            await db.generated_posts.insert_one(generated_post.dict())
+            saved_posts.append(generated_post)
+        
+        # Update content status
+        await db.content_uploads.update_one(
+            {"id": content_id},
+            {"$set": {
+                "description": description,
+                "status": "ready"
+            }}
+        )
+        
+        return {
+            "message": "Content described and posts generated successfully",
+            "generated_posts": len(saved_posts),
+            "batch_id": batch_id,
+            "posts": [{"platform": p.platform, "id": p.id} for p in saved_posts]
+        }
+        
+    except Exception as e:
+        logging.error(f"Error describing content: {e}")
+        raise HTTPException(status_code=500, detail=f"Error processing content: {str(e)}")
+
+@api_router.get("/posts")
+async def get_user_posts(
+    current_user: User = Depends(get_current_active_user),
+    status: Optional[str] = None,
+    limit: int = 50
+):
+    """Get user's generated posts"""
+    try:
+        # Get user's business profile
+        business_profile = await db.business_profiles.find_one({"user_id": current_user.id})
+        if not business_profile:
+            raise HTTPException(status_code=404, detail="Business profile not found")
+        
+        # Build query
+        query = {
+            "user_id": current_user.id,
+            "business_id": business_profile["id"]
+        }
+        
+        if status:
+            query["status"] = status
+        
+        # Get posts
+        posts = await db.generated_posts.find(query).sort("created_at", -1).limit(limit).to_list(limit)
+        
+        return {
+            "posts": posts,
+            "total": len(posts)
+        }
+        
+    except Exception as e:
+        logging.error(f"Error getting posts: {e}")
+        raise HTTPException(status_code=500, detail=f"Error retrieving posts: {str(e)}")
+
+@api_router.put("/posts/{post_id}/approve")
+async def approve_post(
+    post_id: str,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Approve a generated post"""
+    result = await db.generated_posts.update_one(
+        {
+            "id": post_id,
+            "user_id": current_user.id
+        },
+        {"$set": {"status": "approved"}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    return {"message": "Post approved successfully"}
+
+@api_router.put("/posts/{post_id}/schedule")
+async def update_post_schedule(
+    post_id: str,
+    schedule_data: PostScheduleUpdate,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Update post schedule"""
+    result = await db.generated_posts.update_one(
+        {
+            "id": post_id,
+            "user_id": current_user.id
+        },
+        {"$set": {
+            "scheduled_date": schedule_data.scheduled_date,
+            "scheduled_time": schedule_data.scheduled_time
+        }}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    return {"message": "Post schedule updated successfully"}
+
+@api_router.post("/posts/{post_id}/publish")
+async def publish_post_now(
+    post_id: str,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Publish a post immediately to connected social media accounts"""
+    try:
+        # Get the post
+        post = await db.generated_posts.find_one({
+            "id": post_id,
+            "user_id": current_user.id
+        })
+        
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+        
+        post_obj = GeneratedPost(**post)
+        
+        # Get social media connections for this business
+        connections = await db.social_media_connections.find({
+            "user_id": current_user.id,
+            "business_id": post_obj.business_id,
+            "platform": post_obj.platform,
+            "active": True
+        }).to_list(10)
+        
+        if not connections:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"No active {post_obj.platform} connections found"
+            )
+        
+        results = []
+        
+        # Import social media clients
+        from social_media import FacebookAPIClient, InstagramAPIClient
+        
+        for connection in connections:
+            try:
+                if post_obj.platform == "facebook":
+                    fb_client = FacebookAPIClient(connection["access_token"])
+                    result = await fb_client.post_to_page(
+                        connection["page_id"],
+                        connection["access_token"],
+                        f"{post_obj.post_text}\n\n{' '.join(['#' + tag for tag in post_obj.hashtags])}",
+                        post_obj.visual_url
+                    )
+                    
+                    results.append({
+                        "platform": "facebook",
+                        "page_name": connection.get("page_name", ""),
+                        "post_id": result["id"],
+                        "success": True
+                    })
+                
+                elif post_obj.platform == "instagram":
+                    if not post_obj.visual_url:
+                        raise HTTPException(
+                            status_code=400, 
+                            detail="Instagram posts require an image"
+                        )
+                    
+                    ig_client = InstagramAPIClient(connection["access_token"])
+                    result = await ig_client.post_to_instagram(
+                        connection["instagram_user_id"],
+                        f"http://localhost:8001{post_obj.visual_url}",  # Full URL for Instagram
+                        f"{post_obj.post_text}\n\n{' '.join(['#' + tag for tag in post_obj.hashtags])}"
+                    )
+                    
+                    results.append({
+                        "platform": "instagram",
+                        "username": connection.get("platform_username", ""),
+                        "media_id": result["media_id"],
+                        "success": True
+                    })
+                
+            except Exception as conn_error:
+                logging.error(f"Error posting to {connection.get('page_name', connection.get('platform_username', 'unknown'))}: {conn_error}")
+                results.append({
+                    "platform": post_obj.platform,
+                    "account": connection.get("page_name", connection.get("platform_username", "unknown")),
+                    "success": False,
+                    "error": str(conn_error)
+                })
+        
+        # Update post status
+        if any(r["success"] for r in results):
+            await db.generated_posts.update_one(
+                {"id": post_id},
+                {"$set": {"status": "posted", "published_at": datetime.utcnow()}}
+            )
+            status_message = "posted"
+        else:
+            status_message = "failed"
+        
+        return {
+            "message": f"Post {status_message}",
+            "results": results,
+            "successful_posts": sum(1 for r in results if r["success"]),
+            "total_attempts": len(results)
+        }
+        
+    except Exception as e:
+        logging.error(f"Error publishing post: {e}")
+        raise HTTPException(status_code=500, detail=f"Error publishing post: {str(e)}")
+
+@api_router.post("/notes")
+async def create_content_note(
+    note_data: ContentNote,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Create a content note"""
+    # Get user's business profile
+    business_profile = await db.business_profiles.find_one({"user_id": current_user.id})
+    if not business_profile:
+        raise HTTPException(status_code=404, detail="Business profile not found")
+    
+    note = ContentNote(
+        user_id=current_user.id,
+        business_id=business_profile["id"],
+        **{k: v for k, v in note_data.dict().items() if k not in ["id", "user_id", "business_id"]}
+    )
+    
+    await db.content_notes.insert_one(note.dict())
+    return note
+
+@api_router.get("/notes")
+async def get_content_notes(
+    current_user: User = Depends(get_current_active_user)
+):
+    """Get user's content notes"""
+    # Get user's business profile
+    business_profile = await db.business_profiles.find_one({"user_id": current_user.id})
+    if not business_profile:
+        raise HTTPException(status_code=404, detail="Business profile not found")
+    
+    notes = await db.content_notes.find({
+        "user_id": current_user.id,
+        "business_id": business_profile["id"]
+    }).sort("created_at", -1).to_list(100)
+    
+    return {"notes": notes}
+
 # Include routers in the main app
 app.include_router(api_router)
 app.include_router(admin_router, prefix="/api")  # Admin routes

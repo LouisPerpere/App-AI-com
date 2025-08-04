@@ -310,6 +310,224 @@ class SocialGenieAPITester:
         )
         return success
 
+    # Social Media Integration Tests
+    
+    def test_facebook_auth_url_without_credentials(self):
+        """Test Facebook auth URL generation without credentials (should fail)"""
+        if not self.business_id:
+            print("❌ Skipping - No business ID available")
+            return False
+            
+        success, response = self.run_test(
+            "Facebook Auth URL (No Credentials)",
+            "GET",
+            f"social/facebook/auth-url?business_id={self.business_id}",
+            500  # Should fail due to missing credentials
+        )
+        
+        # This should fail with proper error message
+        if not success and response.get('detail', '').find('Facebook integration not configured') != -1:
+            print("✅ Correctly failed with proper error message")
+            self.tests_passed += 1
+            return True
+        return success
+
+    def test_facebook_auth_url_invalid_business(self):
+        """Test Facebook auth URL with invalid business ID"""
+        success, response = self.run_test(
+            "Facebook Auth URL (Invalid Business)",
+            "GET",
+            "social/facebook/auth-url?business_id=invalid-business-id",
+            404  # Should fail due to invalid business ID
+        )
+        return success
+
+    def test_facebook_callback_invalid_state(self):
+        """Test Facebook callback with invalid state"""
+        callback_data = {
+            "code": "test_code",
+            "state": "invalid_state"
+        }
+        
+        success, response = self.run_test(
+            "Facebook Callback (Invalid State)",
+            "POST",
+            "social/facebook/callback",
+            400,  # Should fail due to invalid state
+            data=callback_data
+        )
+        return success
+
+    def test_get_social_connections_empty(self):
+        """Test getting social connections (should be empty initially)"""
+        if not self.business_id:
+            print("❌ Skipping - No business ID available")
+            return False
+            
+        success, response = self.run_test(
+            "Get Social Connections (Empty)",
+            "GET",
+            f"social/connections?business_id={self.business_id}",
+            200
+        )
+        
+        if success and response.get('total', 0) == 0:
+            print("✅ Correctly returned empty connections")
+            return True
+        return success
+
+    def test_social_post_without_connection(self):
+        """Test creating social media post without connection (should fail)"""
+        post_data = {
+            "platform": "facebook",
+            "content": "Test post content",
+            "page_id": "test_page_id"
+        }
+        
+        success, response = self.run_test(
+            "Social Post (No Connection)",
+            "POST",
+            "social/post",
+            404,  # Should fail due to no connection
+            data=post_data
+        )
+        return success
+
+    def test_disconnect_nonexistent_connection(self):
+        """Test disconnecting non-existent social connection"""
+        success, response = self.run_test(
+            "Disconnect Non-existent Connection",
+            "DELETE",
+            "social/connection/nonexistent-id",
+            404  # Should fail due to non-existent connection
+        )
+        return success
+
+    def test_social_post_invalid_platform(self):
+        """Test creating post with invalid platform"""
+        post_data = {
+            "platform": "invalid_platform",
+            "content": "Test post content"
+        }
+        
+        success, response = self.run_test(
+            "Social Post (Invalid Platform)",
+            "POST",
+            "social/post",
+            400,  # Should fail due to invalid platform
+            data=post_data
+        )
+        return success
+
+    def test_instagram_post_without_image(self):
+        """Test Instagram post without image (should fail)"""
+        post_data = {
+            "platform": "instagram",
+            "content": "Test Instagram post",
+            "instagram_user_id": "test_user_id"
+        }
+        
+        success, response = self.run_test(
+            "Instagram Post (No Image)",
+            "POST",
+            "social/post",
+            404,  # Should fail due to no connection first
+            data=post_data
+        )
+        return success
+
+    # Integration with existing post system tests
+    
+    def test_upload_content_batch(self):
+        """Test uploading content batch"""
+        if not self.business_id:
+            print("❌ Skipping - No business ID available")
+            return False
+
+        # Create a simple test image file
+        try:
+            # Create a temporary image file
+            with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as tmp_file:
+                # Write some dummy image data (minimal JPEG header)
+                tmp_file.write(b'\xff\xd8\xff\xe0\x10JFIF\x01\x01\x01HH\xff\xdbC\x08\x06\x06\x07\x06\x05\x08\x07\x07\x07\t\t\x08\n\x0c\x14\r\x0c\x0b\x0b\x0c\x19\x12\x13\x0f\x14\x1d\x1a\x1f\x1e\x1d\x1a\x1c\x1c $.\' ",#\x1c\x1c(7),01444\x1f\'9=82<.342\xff\xc0\x11\x08\x01\x01\x01\x01\x11\x02\x11\x01\x03\x11\x01\xff\xc4\x14\x01\x08\xff\xc4\x14\x10\x01\xff\xda\x0c\x03\x01\x02\x11\x03\x11\x3f\xaa\xff\xd9')
+                tmp_file_path = tmp_file.name
+
+            with open(tmp_file_path, 'rb') as f:
+                files = {'files': ('test_image.jpg', f, 'image/jpeg')}
+                
+                success, response = self.run_test(
+                    "Upload Content Batch",
+                    "POST",
+                    "upload-content-batch",
+                    200,
+                    files=files
+                )
+                
+                if success and response.get('uploaded_content'):
+                    uploaded_content = response['uploaded_content']
+                    if uploaded_content:
+                        self.content_id = uploaded_content[0]['id']
+                        print(f"   Content ID: {self.content_id}")
+                    
+            # Clean up temp file
+            os.unlink(tmp_file_path)
+            return success
+            
+        except Exception as e:
+            print(f"❌ Error creating test image: {e}")
+            return False
+
+    def test_describe_content(self):
+        """Test describing uploaded content"""
+        if not self.content_id:
+            print("❌ Skipping - No content ID available")
+            return False
+            
+        # Use form data for this endpoint
+        form_data = "description=Plat signature du restaurant - Coq au vin traditionnel avec légumes de saison"
+        
+        success, response = self.run_test(
+            "Describe Content",
+            "POST",
+            f"content/{self.content_id}/describe",
+            200,
+            data=form_data,
+            headers={'Content-Type': 'application/x-www-form-urlencoded'}
+        )
+        return success
+
+    def test_get_posts(self):
+        """Test getting user's posts"""
+        success, response = self.run_test(
+            "Get Posts",
+            "GET",
+            "posts",
+            200
+        )
+        
+        if success and response.get('posts'):
+            posts = response['posts']
+            if posts:
+                self.post_id = posts[0]['id']
+                print(f"   Found {len(posts)} posts")
+                print(f"   First Post ID: {self.post_id}")
+        
+        return success
+
+    def test_publish_post_now(self):
+        """Test publishing post immediately (should fail without social connections)"""
+        if not self.post_id:
+            print("❌ Skipping - No post ID available")
+            return False
+            
+        success, response = self.run_test(
+            "Publish Post Now (No Connections)",
+            "POST",
+            f"posts/{self.post_id}/publish",
+            404  # Should fail due to no social connections
+        )
+        return success
+
 def main():
     print("🚀 Starting SocialGénie API Tests")
     print("=" * 50)

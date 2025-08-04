@@ -78,6 +78,49 @@ class SocialGenieAPITester:
             print(f"❌ Failed - Error: {str(e)}")
             return False, {}
 
+    def test_user_registration(self):
+        """Test user registration"""
+        user_data = {
+            "email": "testuser@socialgenie.com",
+            "password": "SecurePassword123!",
+            "full_name": "Test User"
+        }
+        
+        success, response = self.run_test(
+            "User Registration",
+            "POST",
+            "auth/register",
+            200,
+            data=user_data
+        )
+        
+        if success and 'id' in response:
+            self.user_id = response['id']
+            print(f"   User ID: {self.user_id}")
+            return True
+        return False
+
+    def test_user_login(self):
+        """Test user login"""
+        login_data = {
+            "email": "testuser@socialgenie.com",
+            "password": "SecurePassword123!"
+        }
+        
+        success, response = self.run_test(
+            "User Login",
+            "POST",
+            "auth/login",
+            200,
+            data=login_data
+        )
+        
+        if success and 'access_token' in response:
+            self.access_token = response['access_token']
+            print(f"   Access Token: {self.access_token[:20]}...")
+            return True
+        return False
+
     def test_create_business_profile(self):
         """Test creating a business profile"""
         profile_data = {

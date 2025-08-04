@@ -83,7 +83,8 @@ class SocialGenieAPITester:
         user_data = {
             "email": "testuser@socialgenie.com",
             "password": "SecurePassword123!",
-            "full_name": "Test User"
+            "first_name": "Test",
+            "last_name": "User"
         }
         
         success, response = self.run_test(

@@ -299,41 +299,67 @@ async def generate_automatic_content(business_profile: BusinessProfile, notes: L
         chat = LlmChat(
             api_key=os.environ['OPENAI_API_KEY'],
             session_id=f"auto_content_{uuid.uuid4()}",
-            system_message=f"""Tu es un expert en création de contenu automatique pour les réseaux sociaux.
-            
-            Profil de l'entreprise:
-            - Nom: {business_profile.business_name}
-            - Type: {business_profile.business_type}
-            - Audience: {business_profile.target_audience}
-            - Ton: {business_profile.brand_tone}
-            
-            Crée du contenu automatique naturel (citations, conseils, informations) 
-            en rapport avec l'activité, sans que cela paraisse généré par IA."""
+            system_message=f"""Tu gères les réseaux sociaux de cette entreprise comme si c'était TON travail au quotidien.
+
+PROFIL:
+- Entreprise: {business_profile.business_name}
+- Secteur: {business_profile.business_type}
+- Audience: {business_profile.target_audience}
+- Ton: {business_profile.brand_tone}
+
+MISSION: Créer du contenu varié et NATUREL (conseils, anecdotes, infos utiles).
+
+STYLE OBLIGATOIRE - HUMAIN:
+❌ JAMAIS: "Découvrez", "Plongeons", "Il est crucial", "N'hésitez pas"
+❌ JAMAIS: ✨🚀💡🎯💫🌟🔥💪⚡
+❌ JAMAIS: Structure parfaite ou listes à puces
+❌ JAMAIS: Langage trop marketing ou corporate
+
+✅ TOUJOURS: Parler comme quelqu'un de normal
+✅ Être utile sans en faire trop
+✅ Rester simple et spontané
+✅ Quelques imperfections pour rendre humain
+
+EXEMPLES BONS (naturel):
+- "Petite astuce qu'on utilise ici depuis longtemps..."
+- "On se posait la question hier avec l'équipe"
+- "Ça marche bien chez nous, peut-être que ça vous aidera aussi"
+- "Vous connaissez sûrement ça..."
+
+EXEMPLES MAUVAIS (IA détectable):
+- "Découvrez ces 5 astuces révolutionnaires ✨"
+- "Plongeons ensemble dans l'univers de..."
+- "Il est temps de révolutionner votre approche 🚀\""""
         ).with_model("openai", "gpt-4o")
 
-        # Generate different types of content
-        content_types = ["citation_inspirante", "conseil_pratique", "information_secteur", "astuce_metier", "fait_interessant"]
+        # Generate different types of natural content
+        content_types = [
+            {"type": "astuce_pratique", "prompt": "Une astuce vraiment utile pour ce secteur"},
+            {"type": "anecdote_metier", "prompt": "Une petite anecdote ou observation du métier"},
+            {"type": "conseil_simple", "prompt": "Un conseil simple et actionnable"},
+            {"type": "reflexion_secteur", "prompt": "Une réflexion sur le secteur, sans prétention"},
+            {"type": "partage_experience", "prompt": "Partager une expérience concrète"}
+        ]
+        
         generated_posts = []
         
         for platform in business_profile.preferred_platforms:
-            for content_type in content_types[:3]:  # Limit to 3 types per platform
-                prompt = f"""
-                Génère un {content_type} pour {platform} adapté à une entreprise {business_profile.business_type}.
-                
-                Contraintes:
-                - Ton {business_profile.brand_tone}
-                - Audience: {business_profile.target_audience}
-                - Naturel, pas robotique
-                - Engaging et utile
-                - 80-200 mots
-                
-                Format JSON:
-                {{
-                    "post_text": "contenu ici",
-                    "hashtags": ["hashtag1", "hashtag2"],
-                    "content_type": "{content_type}"
-                }}
-                """
+            for content_item in content_types[:3]:  # Max 3 types par plateforme
+                prompt = f"""{content_item['prompt']} pour {business_profile.business_type}.
+
+Écris comme si TU gérais ces réseaux sociaux au quotidien.
+Ton {business_profile.brand_tone}.
+Audience: {business_profile.target_audience}.
+
+Sois naturel, spontané, utile. 80-180 mots max.
+SANS emojis clichés, SANS langage marketing.
+
+Réponds en JSON:
+{{
+    "post_text": "ton contenu naturel ici",
+    "hashtags": ["hashtag1", "hashtag2"],
+    "content_type": "{content_item['type']}"
+}}"""
                 
                 response = await chat.send_message(UserMessage(text=prompt))
                 
@@ -348,18 +374,18 @@ async def generate_automatic_content(business_profile: BusinessProfile, notes: L
                         "post_text": post_data.get("post_text", ""),
                         "hashtags": post_data.get("hashtags", []),
                         "auto_generated": True,
-                        "content_type": content_type
+                        "content_type": content_item['type']
                     })
                 except:
-                    # Fallback
+                    # Natural fallback
                     generated_posts.append({
                         "platform": platform,
-                        "post_text": f"Contenu informatif pour votre {business_profile.business_type}",
-                        "hashtags": [business_profile.business_type.replace(' ', '')],
+                        "post_text": f"Petite réflexion du jour sur notre métier de {business_profile.business_type}...",
+                        "hashtags": [business_profile.business_type.replace(' ', '').lower()],
                         "auto_generated": True
                     })
         
-        return generated_posts[:8]  # Limit to 8 auto-generated posts
+        return generated_posts[:8]  # Limit to 8 posts
     except Exception as e:
         logging.error(f"Error generating automatic content: {e}")
         return []

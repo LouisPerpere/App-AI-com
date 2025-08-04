@@ -39,6 +39,8 @@ function App() {
   const [isUploading, setIsUploading] = useState(false);
   const [isGeneratingPosts, setIsGeneratingPosts] = useState(false);
   const [currentPostIndex, setCurrentPostIndex] = useState(0);
+  const [socialConnections, setSocialConnections] = useState([]);
+  const [isConnectingSocial, setIsConnectingSocial] = useState(false);
 
   // Business profile form state
   const [profileForm, setProfileForm] = useState({

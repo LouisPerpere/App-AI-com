@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import axios from 'axios';
 import AuthPage from './Auth';
+import AdminDashboard from './AdminDashboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
 import { Button } from './components/ui/button';
@@ -82,6 +83,13 @@ function App() {
       const userResponse = await axios.get(`${API}/auth/me`);
       setUser(userResponse.data);
       setIsAuthenticated(true);
+
+      // Check if user is admin
+      if (userResponse.data.is_admin) {
+        setActiveStep('admin');
+        setIsLoading(false);
+        return;
+      }
 
       // Get subscription status
       const subResponse = await axios.get(`${API}/auth/subscription-status`);
@@ -266,6 +274,11 @@ function App() {
   // Show auth page if not authenticated
   if (!isAuthenticated) {
     return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+  }
+
+  // Show admin dashboard if user is admin
+  if (user && user.is_admin && activeStep === 'admin') {
+    return <AdminDashboard user={user} onLogout={handleLogout} />;
   }
 
   const OnboardingForm = () => (
@@ -535,12 +548,84 @@ function App() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <p className="text-center text-2xl font-bold mb-8">
-          🚧 Dashboard en construction - Fonctionnalités d'authentification implémentées ! 🚧
-        </p>
-        <div className="text-center space-y-4">
-          <p className="text-gray-600">Votre profil d'entreprise sera bientôt disponible ici.</p>
-          <p className="text-sm text-gray-500">User ID: {user?.id}</p>
+        <div className="text-center space-y-6">
+          <h2 className="text-3xl font-bold text-gray-900">Dashboard Utilisateur</h2>
+          <p className="text-lg text-gray-600">Fonctionnalités complètes bientôt disponibles</p>
+          
+          <Card className="max-w-2xl mx-auto">
+            <CardHeader>
+              <CardTitle>✅ Fonctionnalités Implémentées</CardTitle>
+            </CardHeader>
+            <CardContent className="text-left space-y-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Système d'authentification complet</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Back office administrateur avancé</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Système de paiement Stripe intégré</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Gestion des abonnements et plans</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Codes promo et système de parrainage</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Analytics et métriques SaaS</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Hashtags d'entreprise personnalisés</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Posts IA naturels et anti-répétition</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <Card>
+              <CardHeader>
+                <CardTitle>👤 Votre Profil</CardTitle>
+              </CardHeader>
+              <CardContent className="text-left space-y-2">
+                <p><strong>Email :</strong> {user.email}</p>
+                <p><strong>Nom :</strong> {user.first_name} {user.last_name}</p>
+                <p><strong>Plan :</strong> {user.subscription_plan}</p>
+                <p><strong>Statut :</strong> {user.subscription_status}</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>🏢 Entreprise</CardTitle>
+              </CardHeader>
+              <CardContent className="text-left space-y-2">
+                <p><strong>Nom :</strong> {businessProfile?.business_name}</p>
+                <p><strong>Type :</strong> {businessProfile?.business_type}</p>
+                <p><strong>Hashtags prioritaires :</strong> {businessProfile?.hashtags_primary?.length || 0}</p>
+                <p><strong>Plateformes :</strong> {businessProfile?.preferred_platforms?.join(', ')}</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {user.is_admin && (
+            <Alert className="max-w-2xl mx-auto bg-red-50 border-red-200">
+              <Crown className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-red-700 font-medium">
+                Vous êtes administrateur ! Rechargez la page pour accéder au dashboard admin.
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
       </div>
     </div>

@@ -15,13 +15,15 @@ import json
 from emergentintegrations.llm.chat import LlmChat, UserMessage, FileContentWithMimeType, ImageContent
 import asyncio
 
-# Import authentication
+# Import authentication and admin modules
 from auth import (
     User, UserCreate, UserLogin, UserResponse, Token, PasswordReset, PasswordResetConfirm,
     create_user, authenticate_user, create_access_token, create_refresh_token, create_reset_token,
     get_current_user, get_current_active_user, get_admin_user, check_subscription_status,
     ACCESS_TOKEN_EXPIRE_MINUTES
 )
+from admin import admin_router, init_admin_data
+from payments import payment_router
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -141,6 +143,16 @@ class SocialMediaConnection(BaseModel):
     expires_at: Optional[datetime] = None
     active: bool = True
     connected_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ScheduledTask(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    business_id: str
+    task_type: str  # 'generate_posts', 'content_reminder', 'post_ready_notification'
+    scheduled_date: datetime
+    frequency: str  # 'weekly', 'monthly', 'daily'
+    next_run: datetime
+    active: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
 # Helper function to get recent posts history for anti-repetition
 async def get_recent_posts_history(business_id: str, months_back: int = 12) -> str:
@@ -423,8 +435,6 @@ async def setup_automatic_scheduling(business_id: str):
         reminder_date = next_generation - timedelta(days=3)
         
         # Create scheduled tasks
-        from server import ScheduledTask  # Local import to avoid circular dependency
-        
         generation_task = {
             "id": str(uuid.uuid4()),
             "business_id": business_id,
@@ -629,8 +639,10 @@ async def upload_content_batch(
         logging.error(f"Error uploading batch content: {e}")
         raise HTTPException(status_code=500, detail=f"Error uploading content: {str(e)}")
 
-# Include the router in the main app
+# Include routers in the main app
 app.include_router(api_router)
+app.include_router(admin_router, prefix="/api")  # Admin routes
+app.include_router(payment_router, prefix="/api")  # Payment routes
 
 app.add_middleware(
     CORSMiddleware,
@@ -646,6 +658,13 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Initialize admin data on startup
+@app.on_event("startup")
+async def startup_event():
+    """Initialize data on startup"""
+    await init_admin_data()
+    logging.info("PostCraft API started successfully")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

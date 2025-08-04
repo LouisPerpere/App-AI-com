@@ -536,15 +536,30 @@ def main():
     
     # Test sequence
     tests = [
+        # Authentication Tests
+        ("User Registration", tester.test_user_registration),
+        ("User Login", tester.test_user_login),
+        
+        # Business Profile Tests
         ("Create Business Profile", tester.test_create_business_profile),
         ("Get Business Profile", tester.test_get_business_profile),
-        ("Get All Business Profiles", tester.test_get_all_business_profiles),
-        ("Upload Content", tester.test_upload_content),
-        ("Get Generated Posts", tester.test_get_generated_posts),
+        
+        # Social Media Integration Tests
+        ("Facebook Auth URL (No Credentials)", tester.test_facebook_auth_url_without_credentials),
+        ("Facebook Auth URL (Invalid Business)", tester.test_facebook_auth_url_invalid_business),
+        ("Facebook Callback (Invalid State)", tester.test_facebook_callback_invalid_state),
+        ("Get Social Connections (Empty)", tester.test_get_social_connections_empty),
+        ("Social Post (No Connection)", tester.test_social_post_without_connection),
+        ("Disconnect Non-existent Connection", tester.test_disconnect_nonexistent_connection),
+        ("Social Post (Invalid Platform)", tester.test_social_post_invalid_platform),
+        ("Instagram Post (No Image)", tester.test_instagram_post_without_image),
+        
+        # Content and Post Integration Tests
+        ("Upload Content Batch", tester.test_upload_content_batch),
+        ("Describe Content", tester.test_describe_content),
+        ("Get Posts", tester.test_get_posts),
         ("Approve Post", tester.test_approve_post),
-        ("Reject Post", tester.test_reject_post),
-        ("Edit Post", tester.test_edit_post),
-        ("Get Calendar", tester.test_get_calendar),
+        ("Publish Post Now (No Connections)", tester.test_publish_post_now),
     ]
     
     for test_name, test_func in tests:

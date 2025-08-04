@@ -688,13 +688,17 @@ def main():
         ("Create Business Profile", tester.test_create_business_profile),
         ("Get Business Profile", tester.test_get_business_profile),
         
-        # Social Media Integration Tests
-        ("Facebook Auth URL (No Credentials)", tester.test_facebook_auth_url_without_credentials),
+        # Social Media Integration Tests - Real Credentials Testing
+        ("Facebook OAuth Manager Initialization", tester.test_facebook_oauth_manager_initialization),
+        ("Facebook API Client Initialization", tester.test_facebook_api_client_initialization),
+        ("Instagram API Client Initialization", tester.test_instagram_api_client_initialization),
+        ("Facebook Auth URL (With Real Credentials)", tester.test_facebook_auth_url_with_credentials),
         ("Facebook Auth URL (Invalid Business)", tester.test_facebook_auth_url_invalid_business),
         ("Facebook Callback (Invalid State)", tester.test_facebook_callback_invalid_state),
-        ("Get Social Connections (Empty)", tester.test_get_social_connections_empty),
+        ("Get Social Connections", tester.test_social_connections_endpoint),
+        ("Social Post (Missing Required Fields)", tester.test_social_post_endpoint_structure),
+        ("Delete Non-existent Connection", tester.test_delete_connection_endpoint),
         ("Social Post (No Connection)", tester.test_social_post_without_connection),
-        ("Disconnect Non-existent Connection", tester.test_disconnect_nonexistent_connection),
         ("Social Post (Invalid Platform)", tester.test_social_post_invalid_platform),
         ("Instagram Post (No Image)", tester.test_instagram_post_without_image),
         

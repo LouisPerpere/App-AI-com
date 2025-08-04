@@ -432,12 +432,61 @@ class SocialGenieAPITester:
         except Exception as e:
             print(f"❌ Failed to initialize FacebookOAuthManager: {e}")
             return False
+
+    def test_facebook_auth_url_invalid_business(self):
         """Test Facebook auth URL with invalid business ID"""
         success, response = self.run_test(
             "Facebook Auth URL (Invalid Business)",
             "GET",
             "social/facebook/auth-url?business_id=invalid-business-id",
             404  # Should fail due to invalid business ID
+        )
+        return success
+
+    def test_social_connections_endpoint(self):
+        """Test GET /api/social/connections endpoint"""
+        if not self.business_id:
+            print("❌ Skipping - No business ID available")
+            return False
+            
+        success, response = self.run_test(
+            "Get Social Connections",
+            "GET",
+            f"social/connections?business_id={self.business_id}",
+            200
+        )
+        
+        if success:
+            print(f"   Total connections: {response.get('total', 0)}")
+            print(f"   Connections list: {len(response.get('connections', []))}")
+        
+        return success
+
+    def test_social_post_endpoint_structure(self):
+        """Test POST /api/social/post endpoint structure and validation"""
+        # Test with missing required fields
+        post_data = {
+            "platform": "facebook",
+            "content": "Test post content"
+            # Missing page_id for Facebook
+        }
+        
+        success, response = self.run_test(
+            "Social Post (Missing Required Fields)",
+            "POST",
+            "social/post",
+            400,  # Should fail due to missing required fields
+            data=post_data
+        )
+        return success
+
+    def test_delete_connection_endpoint(self):
+        """Test DELETE /api/social/connection/{id} endpoint"""
+        success, response = self.run_test(
+            "Delete Non-existent Connection",
+            "DELETE",
+            "social/connection/nonexistent-connection-id",
+            404  # Should fail due to non-existent connection
         )
         return success
 

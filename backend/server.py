@@ -12,7 +12,7 @@ import uuid
 from datetime import datetime, timedelta
 import base64
 import json
-from emergentintegrations.llm.chat import LlmChat, UserMessage, FileContentWithMimeType
+from emergentintegrations.llm.chat import LlmChat, UserMessage, FileContentWithMimeType, ImageContent
 import asyncio
 
 ROOT_DIR = Path(__file__).parent

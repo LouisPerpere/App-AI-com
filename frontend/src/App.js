@@ -611,19 +611,19 @@ function MainApp() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <Tabs defaultValue="upload" className="space-y-6">
+        <Tabs defaultValue="library" className="space-y-6">
           <TabsList className="grid grid-cols-5 w-full max-w-2xl mx-auto">
-            <TabsTrigger value="upload" className="flex items-center space-x-2">
-              <Upload className="w-4 h-4" />
-              <span>Upload</span>
-            </TabsTrigger>
-            <TabsTrigger value="posts" className="flex items-center space-x-2">
-              <FileText className="w-4 h-4" />
-              <span>Posts</span>
+            <TabsTrigger value="library" className="flex items-center space-x-2">
+              <ImageIcon className="w-4 h-4" />
+              <span>Bibliothèque</span>
             </TabsTrigger>
             <TabsTrigger value="notes" className="flex items-center space-x-2">
               <Edit className="w-4 h-4" />
               <span>Notes</span>
+            </TabsTrigger>
+            <TabsTrigger value="posts" className="flex items-center space-x-2">
+              <FileText className="w-4 h-4" />
+              <span>Posts</span>
             </TabsTrigger>
             <TabsTrigger value="calendar" className="flex items-center space-x-2">
               <CalendarIcon className="w-4 h-4" />
@@ -635,8 +635,8 @@ function MainApp() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Upload Tab */}
-          <TabsContent value="upload" className="space-y-6">
+          {/* Library Tab */}
+          <TabsContent value="library" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">

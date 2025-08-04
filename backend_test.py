@@ -495,10 +495,9 @@ class SocialGenieAPITester:
             return False
             
         # Use proper form data
-        import urllib.parse
-        form_data = urllib.parse.urlencode({
+        form_data = {
             'description': 'Plat signature du restaurant - Coq au vin traditionnel avec légumes de saison'
-        })
+        }
         
         success, response = self.run_test(
             "Describe Content",

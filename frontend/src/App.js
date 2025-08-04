@@ -1062,86 +1062,94 @@ function MainApp() {
           </TabsContent>
 
           {/* Notes Tab */}
-          <TabsContent value="notes" className="space-y-6">
-            <Card>
+          <TabsContent value="notes" className="space-y-8">
+            <Card className="card-gradient">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Edit className="w-5 h-5" />
-                  <span>Notes et informations</span>
+                <CardTitle className="flex items-center space-x-3 text-2xl">
+                  <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center">
+                    <Edit className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                    Notes et informations magiques ✨
+                  </span>
                 </CardTitle>
-                <CardDescription>
-                  Ajoutez des informations importantes à intégrer dans vos posts
+                <CardDescription className="text-lg text-gray-600">
+                  Ajoutez des informations importantes pour enrichir vos posts automatiquement 🎯
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
                 <form onSubmit={async (e) => {
                   e.preventDefault();
                   try {
                     await axios.post(`${API}/notes`, noteForm);
                     setNoteForm({ title: '', content: '', priority: 'normal' });
-                    toast.success('Note ajoutée !');
+                    toast.success('✨ Note ajoutée avec succès !');
                     loadNotes();
                   } catch (error) {
                     toast.error('Erreur lors de l\'ajout de la note');
                   }
-                }} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                }} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Input
-                      placeholder="Titre de la note"
+                      placeholder="📝 Titre de la note"
                       value={noteForm.title}
                       onChange={(e) => setNoteForm({...noteForm, title: e.target.value})}
                       required
+                      className="input-modern text-lg"
                     />
                     <Select 
                       value={noteForm.priority} 
                       onValueChange={(value) => setNoteForm({...noteForm, priority: value})}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="input-modern">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="high">Priorité haute</SelectItem>
-                        <SelectItem value="normal">Priorité normale</SelectItem>
-                        <SelectItem value="low">Priorité basse</SelectItem>
+                      <SelectContent className="card-glass">
+                        <SelectItem value="high">🔥 Priorité haute</SelectItem>
+                        <SelectItem value="normal">⚡ Priorité normale</SelectItem>
+                        <SelectItem value="low">💫 Priorité basse</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <Textarea
-                    placeholder="Contenu de la note (ex: fermeture exceptionnelle, nouvelle offre, événement...)"
+                    placeholder="💬 Contenu de la note (ex: fermeture exceptionnelle, nouvelle offre, événement spécial...)"
                     value={noteForm.content}
                     onChange={(e) => setNoteForm({...noteForm, content: e.target.value})}
                     required
+                    className="input-modern min-h-[120px] text-lg"
                   />
-                  <Button type="submit" className="w-full">
-                    <Edit className="w-4 h-4 mr-2" />
-                    Ajouter la note
+                  <Button type="submit" className="w-full h-14 text-xl font-bold btn-gradient-primary">
+                    <Edit className="w-6 h-6 mr-3" />
+                    ✨ Ajouter la note magique
                   </Button>
                 </form>
               </CardContent>
             </Card>
 
             {notes.length > 0 && (
-              <Card>
+              <Card className="card-gradient">
                 <CardHeader>
-                  <CardTitle>Notes enregistrées</CardTitle>
+                  <CardTitle className="text-2xl bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                    📚 Vos notes enregistrées
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {notes.map((note) => (
-                      <div key={note.id} className="border rounded-lg p-4">
+                      <div key={note.id} className="card-glass p-6 hover:shadow-2xl transition-all duration-300">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-2">
-                              <h4 className="font-medium">{note.title}</h4>
+                            <div className="flex items-center space-x-3 mb-3">
+                              <h4 className="text-xl font-bold text-gray-800">{note.title}</h4>
                               <Badge 
-                                variant={note.priority === 'high' ? 'destructive' : note.priority === 'normal' ? 'default' : 'secondary'}
+                                className={`${note.priority === 'high' ? 'badge-warning' : note.priority === 'normal' ? 'badge-info' : 'badge-success'}`}
                               >
-                                {note.priority === 'high' ? 'Haute' : note.priority === 'normal' ? 'Normale' : 'Basse'}
+                                {note.priority === 'high' ? '🔥 Haute' : note.priority === 'normal' ? '⚡ Normale' : '💫 Basse'}
                               </Badge>
                             </div>
-                            <p className="text-sm text-gray-600">{note.content}</p>
-                            <p className="text-xs text-gray-400 mt-2">
-                              {new Date(note.created_at).toLocaleDateString('fr-FR')}
+                            <p className="text-lg text-gray-700 leading-relaxed">{note.content}</p>
+                            <p className="text-sm text-gray-500 mt-4 font-medium">
+                              📅 {new Date(note.created_at).toLocaleDateString('fr-FR')}
                             </p>
                           </div>
                         </div>

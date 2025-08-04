@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form, Depends
+from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form, Depends, BackgroundTasks
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -47,8 +47,10 @@ class BusinessProfile(BaseModel):
     preferred_platforms: List[str]  # facebook, instagram, linkedin
     budget_range: str
     logo_url: Optional[str] = None  # NEW: Logo URL
+    email: Optional[str] = None  # NEW: For notifications
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+    first_generation_date: Optional[datetime] = None  # NEW: Track first generation for anniversary
 
 class BusinessProfileCreate(BaseModel):
     business_name: str
@@ -58,6 +60,7 @@ class BusinessProfileCreate(BaseModel):
     posting_frequency: str
     preferred_platforms: List[str]
     budget_range: str
+    email: Optional[str] = None
 
 class BusinessProfileUpdate(BaseModel):
     business_name: Optional[str] = None
@@ -67,6 +70,7 @@ class BusinessProfileUpdate(BaseModel):
     posting_frequency: Optional[str] = None
     preferred_platforms: Optional[List[str]] = None
     budget_range: Optional[str] = None
+    email: Optional[str] = None
 
 class ContentUpload(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -100,6 +104,7 @@ class GeneratedPost(BaseModel):
     status: str = "pending"  # pending, approved, rejected, posted, scheduled
     auto_generated: bool = False  # NEW: Flag for auto-generated content
     visual_url: Optional[str] = None  # NEW: Associated visual
+    generation_batch: Optional[str] = None  # NEW: Batch ID for grouping
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class PostScheduleUpdate(BaseModel):
@@ -111,6 +116,27 @@ class PostCalendar(BaseModel):
     business_id: str
     month: str  # YYYY-MM format
     posts: List[GeneratedPost]
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ScheduledTask(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    business_id: str
+    task_type: str  # 'generate_posts', 'content_reminder', 'post_ready_notification'
+    scheduled_date: datetime
+    frequency: str  # 'weekly', 'monthly', 'daily'
+    next_run: datetime
+    active: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class SocialMediaIntegration(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    business_id: str
+    platform: str  # facebook, instagram, linkedin
+    access_token: str
+    refresh_token: Optional[str] = None
+    page_id: Optional[str] = None  # For Facebook pages
+    expires_at: Optional[datetime] = None
+    active: bool = True
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 # Helper function to analyze content with OpenAI
@@ -249,13 +275,20 @@ async def generate_automatic_content(business_profile: BusinessProfile, notes: L
         ).with_model("openai", "gpt-4o")
 
         # Generate different types of content
-        content_types = ["citation_inspirante", "conseil_pratique", "information_secteur"]
+        content_types = ["citation_inspirante", "conseil_pratique", "information_secteur", "astuce_metier", "fait_interessant"]
         generated_posts = []
         
         for platform in business_profile.preferred_platforms:
-            for content_type in content_types:
+            for content_type in content_types[:3]:  # Limit to 3 types per platform
                 prompt = f"""
                 Génère un {content_type} pour {platform} adapté à une entreprise {business_profile.business_type}.
+                
+                Contraintes:
+                - Ton {business_profile.brand_tone}
+                - Audience: {business_profile.target_audience}
+                - Naturel, pas robotique
+                - Engaging et utile
+                - 80-200 mots
                 
                 Format JSON:
                 {{
@@ -284,23 +317,99 @@ async def generate_automatic_content(business_profile: BusinessProfile, notes: L
                     # Fallback
                     generated_posts.append({
                         "platform": platform,
-                        "post_text": f"Contenu informatif pour {business_profile.business_name}",
+                        "post_text": f"Contenu informatif pour votre {business_profile.business_type}",
                         "hashtags": [business_profile.business_type.replace(' ', '')],
                         "auto_generated": True
                     })
         
-        return generated_posts[:6]  # Limit to 6 auto-generated posts
+        return generated_posts[:8]  # Limit to 8 auto-generated posts
     except Exception as e:
         logging.error(f"Error generating automatic content: {e}")
         return []
 
+# Background task to set up automatic scheduling
+async def setup_automatic_scheduling(business_id: str):
+    """Set up automatic scheduling for a business"""
+    try:
+        business_profile = await db.business_profiles.find_one({"id": business_id})
+        if not business_profile:
+            return
+        
+        business_prof = BusinessProfile(**business_profile)
+        
+        # Calculate next generation date based on frequency
+        now = datetime.utcnow()
+        
+        # Set first generation date if not set
+        if not business_prof.first_generation_date:
+            await db.business_profiles.update_one(
+                {"id": business_id},
+                {"$set": {"first_generation_date": now}}
+            )
+        
+        frequency_map = {
+            "daily": 7,        # Generate weekly for daily posts
+            "3x_week": 7,      # Generate weekly for 3x/week posts  
+            "weekly": 30,      # Generate monthly for weekly posts
+            "bi_weekly": 30    # Generate monthly for bi-weekly posts
+        }
+        
+        days_to_add = frequency_map.get(business_prof.posting_frequency, 7)
+        next_generation = now + timedelta(days=days_to_add)
+        reminder_date = next_generation - timedelta(days=3)
+        
+        # Create scheduled tasks
+        generation_task = ScheduledTask(
+            business_id=business_id,
+            task_type="generate_posts",
+            scheduled_date=next_generation,
+            frequency="weekly" if business_prof.posting_frequency in ["daily", "3x_week"] else "monthly",
+            next_run=next_generation
+        )
+        
+        reminder_task = ScheduledTask(
+            business_id=business_id,
+            task_type="content_reminder", 
+            scheduled_date=reminder_date,
+            frequency="weekly" if business_prof.posting_frequency in ["daily", "3x_week"] else "monthly",
+            next_run=reminder_date
+        )
+        
+        # Check if tasks already exist
+        existing_gen = await db.scheduled_tasks.find_one({
+            "business_id": business_id,
+            "task_type": "generate_posts",
+            "active": True
+        })
+        
+        existing_reminder = await db.scheduled_tasks.find_one({
+            "business_id": business_id,
+            "task_type": "content_reminder",
+            "active": True
+        })
+        
+        if not existing_gen:
+            await db.scheduled_tasks.insert_one(generation_task.dict())
+        
+        if not existing_reminder:
+            await db.scheduled_tasks.insert_one(reminder_task.dict())
+        
+        logging.info(f"Automatic scheduling set up for {business_prof.business_name}")
+        
+    except Exception as e:
+        logging.error(f"Error setting up automatic scheduling: {e}")
+
 # API Routes
 
 @api_router.post("/business-profile", response_model=BusinessProfile)
-async def create_business_profile(profile_data: BusinessProfileCreate):
+async def create_business_profile(profile_data: BusinessProfileCreate, background_tasks: BackgroundTasks):
     """Create a new business profile"""
     profile = BusinessProfile(**profile_data.dict())
     await db.business_profiles.insert_one(profile.dict())
+    
+    # Set up automatic scheduling in background
+    background_tasks.add_task(setup_automatic_scheduling, profile.id)
+    
     return profile
 
 @api_router.put("/business-profile/{profile_id}", response_model=BusinessProfile)
@@ -460,6 +569,7 @@ async def generate_posts_for_business(business_id: str):
             raise HTTPException(status_code=404, detail="Business profile not found")
         
         business_prof = BusinessProfile(**business_profile)
+        batch_id = str(uuid.uuid4())  # Create batch ID for grouping
         
         # Get ready content
         ready_content = await db.content_uploads.find({
@@ -504,7 +614,8 @@ async def generate_posts_for_business(business_id: str):
                         post_text=post_data["post_text"],
                         hashtags=post_data["hashtags"],
                         scheduled_date=scheduled_date,
-                        visual_url=content_obj.file_path
+                        visual_url=content_obj.file_path,
+                        generation_batch=batch_id
                     )
                     
                     await db.generated_posts.insert_one(generated_post.dict())
@@ -540,7 +651,8 @@ async def generate_posts_for_business(business_id: str):
                     post_text=post_data["post_text"],
                     hashtags=post_data["hashtags"],
                     scheduled_date=scheduled_date,
-                    auto_generated=True
+                    auto_generated=True,
+                    generation_batch=batch_id
                 )
                 
                 await db.generated_posts.insert_one(generated_post.dict())
@@ -550,7 +662,8 @@ async def generate_posts_for_business(business_id: str):
             "message": "Posts generated successfully",
             "total_posts": len(all_generated_posts),
             "user_content_posts": len([p for p in all_generated_posts if not p.auto_generated]),
-            "auto_generated_posts": len([p for p in all_generated_posts if p.auto_generated])
+            "auto_generated_posts": len([p for p in all_generated_posts if p.auto_generated]),
+            "batch_id": batch_id
         }
         
     except Exception as e:
@@ -644,6 +757,57 @@ async def get_calendar(business_id: str):
         calendar_data[month_key].append(post_obj)
     
     return calendar_data
+
+@api_router.get("/scheduling-status/{business_id}")
+async def get_scheduling_status(business_id: str):
+    """Get scheduling status and next tasks for a business"""
+    try:
+        # Get scheduled tasks
+        tasks = await db.scheduled_tasks.find({
+            "business_id": business_id,
+            "active": True
+        }).to_list(100)
+        
+        # Get business profile
+        business_profile = await db.business_profiles.find_one({"id": business_id})
+        
+        if not business_profile:
+            raise HTTPException(status_code=404, detail="Business profile not found")
+        
+        business_prof = BusinessProfile(**business_profile)
+        
+        # Calculate content requirements
+        frequency_requirements = {
+            "daily": 7,
+            "3x_week": 3,
+            "weekly": 1,
+            "bi_weekly": 2
+        }
+        
+        required_weekly = frequency_requirements.get(business_prof.posting_frequency, 3)
+        platforms_count = len(business_prof.preferred_platforms)
+        total_required = required_weekly * platforms_count
+        
+        # Get content status
+        ready_content_count = await db.content_uploads.count_documents({
+            "business_id": business_id,
+            "status": "ready"
+        })
+        
+        return {
+            "business_name": business_prof.business_name,
+            "posting_frequency": business_prof.posting_frequency,
+            "platforms": business_prof.preferred_platforms,
+            "content_required_weekly": total_required,
+            "content_available": ready_content_count,
+            "content_sufficient": ready_content_count >= total_required,
+            "scheduled_tasks": [ScheduledTask(**task) for task in tasks],
+            "first_generation_date": business_prof.first_generation_date
+        }
+        
+    except Exception as e:
+        logging.error(f"Error getting scheduling status: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Include the router in the main app
 app.include_router(api_router)

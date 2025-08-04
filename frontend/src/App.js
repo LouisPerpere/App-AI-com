@@ -175,6 +175,52 @@ function App() {
     }
   };
 
+  const connectFacebook = async () => {
+    if (!businessProfile?.id) {
+      toast.error('Profil d\'entreprise requis');
+      return;
+    }
+
+    try {
+      setIsConnectingSocial(true);
+      const response = await axios.get(`${API}/social/facebook/auth-url?business_id=${businessProfile.id}`);
+      
+      // Ouvrir la fenêtre d'authentification Facebook
+      window.open(response.data.authorization_url, 'facebook-auth', 'width=600,height=600');
+      
+      // Écouter le message de retour
+      const handleMessage = (event) => {
+        if (event.data.type === 'FACEBOOK_AUTH_SUCCESS') {
+          toast.success('Compte Facebook connecté avec succès !');
+          loadSocialConnections();
+          window.removeEventListener('message', handleMessage);
+        } else if (event.data.type === 'FACEBOOK_AUTH_ERROR') {
+          toast.error('Erreur lors de la connexion Facebook');
+          console.error('Facebook auth error:', event.data.error);
+        }
+        setIsConnectingSocial(false);
+      };
+
+      window.addEventListener('message', handleMessage);
+      
+    } catch (error) {
+      console.error('Error initiating Facebook connection:', error);
+      toast.error('Erreur lors de l\'initialisation de la connexion Facebook');
+      setIsConnectingSocial(false);
+    }
+  };
+
+  const disconnectSocialAccount = async (connectionId) => {
+    try {
+      await axios.delete(`${API}/social/connection/${connectionId}`);
+      toast.success('Compte déconnecté');
+      loadSocialConnections();
+    } catch (error) {
+      console.error('Error disconnecting account:', error);
+      toast.error('Erreur lors de la déconnexion');
+    }
+  };
+
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     try {

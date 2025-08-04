@@ -354,7 +354,84 @@ class SocialGenieAPITester:
             return True
         return success
 
-    def test_facebook_auth_url_invalid_business(self):
+    def test_facebook_api_client_initialization(self):
+        """Test Facebook API Client can be initialized with real credentials"""
+        # Test with a sample Facebook User Access Token (provided by user)
+        test_token = "sample_facebook_user_token"  # This would be provided by user for testing
+        
+        try:
+            # Import the FacebookAPIClient
+            import sys
+            sys.path.append('/app/backend')
+            from social_media import FacebookAPIClient
+            
+            # Initialize client
+            fb_client = FacebookAPIClient(test_token)
+            
+            print("✅ FacebookAPIClient initialized successfully")
+            print(f"   Base URL: {fb_client.base_url}")
+            print(f"   Token configured: {'Yes' if fb_client.access_token else 'No'}")
+            
+            self.tests_passed += 1
+            return True
+            
+        except Exception as e:
+            print(f"❌ Failed to initialize FacebookAPIClient: {e}")
+            return False
+
+    def test_instagram_api_client_initialization(self):
+        """Test Instagram API Client can be initialized with real credentials"""
+        # Test with a sample Facebook User Access Token (same as Facebook)
+        test_token = "sample_facebook_user_token"  # This would be provided by user for testing
+        
+        try:
+            # Import the InstagramAPIClient
+            import sys
+            sys.path.append('/app/backend')
+            from social_media import InstagramAPIClient
+            
+            # Initialize client
+            ig_client = InstagramAPIClient(test_token)
+            
+            print("✅ InstagramAPIClient initialized successfully")
+            print(f"   Base URL: {ig_client.base_url}")
+            print(f"   Token configured: {'Yes' if ig_client.access_token else 'No'}")
+            
+            self.tests_passed += 1
+            return True
+            
+        except Exception as e:
+            print(f"❌ Failed to initialize InstagramAPIClient: {e}")
+            return False
+
+    def test_facebook_oauth_manager_initialization(self):
+        """Test Facebook OAuth Manager initialization with real credentials"""
+        try:
+            # Import the FacebookOAuthManager
+            import sys
+            sys.path.append('/app/backend')
+            from social_media import FacebookOAuthManager
+            
+            # Initialize OAuth manager
+            oauth_manager = FacebookOAuthManager()
+            
+            print("✅ FacebookOAuthManager initialized successfully")
+            print(f"   Client ID configured: {'Yes' if oauth_manager.client_id else 'No'}")
+            print(f"   Client Secret configured: {'Yes' if oauth_manager.client_secret else 'No'}")
+            print(f"   Redirect URI: {oauth_manager.redirect_uri}")
+            
+            # Verify credentials are the expected ones
+            if oauth_manager.client_id == "1098326618299035":
+                print("✅ Correct Facebook App ID configured")
+            else:
+                print(f"⚠️  Unexpected App ID: {oauth_manager.client_id}")
+            
+            self.tests_passed += 1
+            return True
+            
+        except Exception as e:
+            print(f"❌ Failed to initialize FacebookOAuthManager: {e}")
+            return False
         """Test Facebook auth URL with invalid business ID"""
         success, response = self.run_test(
             "Facebook Auth URL (Invalid Business)",

@@ -1128,88 +1128,166 @@ function MainApp() {
 
           {/* Posts Tab */}
           <TabsContent value="posts" className="space-y-6">
-                <CardDescription>
-                  Ajoutez des informations importantes à intégrer dans vos posts
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <form onSubmit={async (e) => {
-                  e.preventDefault();
-                  try {
-                    await axios.post(`${API}/notes`, noteForm);
-                    setNoteForm({ title: '', content: '', priority: 'normal' });
-                    toast.success('Note ajoutée !');
-                    loadNotes();
-                  } catch (error) {
-                    toast.error('Erreur lors de l\'ajout de la note');
-                  }
-                }} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input
-                      placeholder="Titre de la note"
-                      value={noteForm.title}
-                      onChange={(e) => setNoteForm({...noteForm, title: e.target.value})}
-                      required
-                    />
-                    <Select 
-                      value={noteForm.priority} 
-                      onValueChange={(value) => setNoteForm({...noteForm, priority: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="high">Priorité haute</SelectItem>
-                        <SelectItem value="normal">Priorité normale</SelectItem>
-                        <SelectItem value="low">Priorité basse</SelectItem>
-                      </SelectContent>
-                    </Select>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <FileText className="w-5 h-5" />
+                    <span>Posts générés</span>
                   </div>
-                  <Textarea
-                    placeholder="Contenu de la note (ex: fermeture exceptionnelle, nouvelle offre, événement...)"
-                    value={noteForm.content}
-                    onChange={(e) => setNoteForm({...noteForm, content: e.target.value})}
-                    required
-                  />
-                  <Button type="submit" className="w-full">
-                    <Edit className="w-4 h-4 mr-2" />
-                    Ajouter la note
-                  </Button>
-                </form>
+                  <Badge variant="secondary">
+                    {generatedPosts.length} posts
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {generatedPosts.length > 0 ? (
+                  <div className="space-y-4">
+                    {/* Carousel Navigation */}
+                    <div className="flex items-center justify-between">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPostIndex(Math.max(0, currentPostIndex - 1))}
+                        disabled={currentPostIndex === 0}
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                        Précédent
+                      </Button>
+                      <span className="text-sm text-gray-500">
+                        {currentPostIndex + 1} / {generatedPosts.length}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPostIndex(Math.min(generatedPosts.length - 1, currentPostIndex + 1))}
+                        disabled={currentPostIndex === generatedPosts.length - 1}
+                      >
+                        Suivant
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    </div>
+
+                    {/* Current Post */}
+                    {generatedPosts[currentPostIndex] && (
+                      <Card className="border-2">
+                        <CardContent className="p-6">
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <Badge 
+                                  variant={generatedPosts[currentPostIndex].platform === 'facebook' ? 'default' : 'secondary'}
+                                  className={`capitalize ${
+                                    generatedPosts[currentPostIndex].platform === 'facebook' 
+                                      ? 'bg-blue-100 text-blue-800' 
+                                      : generatedPosts[currentPostIndex].platform === 'instagram'
+                                      ? 'bg-pink-100 text-pink-800'
+                                      : 'bg-blue-100 text-blue-800'
+                                  }`}
+                                >
+                                  {generatedPosts[currentPostIndex].platform}
+                                </Badge>
+                                <Badge variant={
+                                  generatedPosts[currentPostIndex].status === 'pending' ? 'secondary' :
+                                  generatedPosts[currentPostIndex].status === 'approved' ? 'default' :
+                                  generatedPosts[currentPostIndex].status === 'posted' ? 'success' : 'destructive'
+                                }>
+                                  {generatedPosts[currentPostIndex].status}
+                                </Badge>
+                              </div>
+                              
+                              <div className="bg-gray-50 p-4 rounded-lg">
+                                <h4 className="font-medium mb-2">Contenu du post</h4>
+                                <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                                  {generatedPosts[currentPostIndex].post_text}
+                                </p>
+                              </div>
+
+                              <div>
+                                <h4 className="font-medium mb-2">Hashtags</h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {generatedPosts[currentPostIndex].hashtags?.map((hashtag, idx) => (
+                                    <Badge key={idx} variant="outline" className="text-blue-600">
+                                      #{hashtag}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="flex items-center space-x-2 text-sm text-gray-500">
+                                <Clock className="w-4 h-4" />
+                                <span>
+                                  Programmé pour le {new Date(generatedPosts[currentPostIndex].scheduled_date).toLocaleDateString('fr-FR')} 
+                                  à {generatedPosts[currentPostIndex].scheduled_time}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="space-y-4">
+                              {generatedPosts[currentPostIndex].visual_url && (
+                                <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                                  <img
+                                    src={`${BACKEND_URL}${generatedPosts[currentPostIndex].visual_url}`}
+                                    alt="Contenu"
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              )}
+
+                              <div className="flex space-x-2">
+                                {generatedPosts[currentPostIndex].status === 'pending' && (
+                                  <Button
+                                    variant="default"
+                                    className="flex-1 bg-green-600 hover:bg-green-700"
+                                    onClick={async () => {
+                                      try {
+                                        await axios.put(`${API}/posts/${generatedPosts[currentPostIndex].id}/approve`);
+                                        toast.success('Post approuvé !');
+                                        loadGeneratedPosts();
+                                      } catch (error) {
+                                        toast.error('Erreur lors de l\'approbation');
+                                      }
+                                    }}
+                                  >
+                                    <Check className="w-4 h-4 mr-2" />
+                                    Approuver
+                                  </Button>
+                                )}
+                                
+                                {(generatedPosts[currentPostIndex].status === 'approved' || generatedPosts[currentPostIndex].status === 'pending') && (
+                                  <Button
+                                    variant="outline"
+                                    className="flex-1"
+                                    onClick={async () => {
+                                      try {
+                                        await axios.post(`${API}/posts/${generatedPosts[currentPostIndex].id}/publish`);
+                                        toast.success('Post publié !');
+                                        loadGeneratedPosts();
+                                      } catch (error) {
+                                        toast.error('Erreur lors de la publication');
+                                      }
+                                    }}
+                                  >
+                                    <Send className="w-4 h-4 mr-2" />
+                                    Publier maintenant
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">Aucun post généré pour le moment</p>
+                    <p className="text-sm text-gray-400">Uploadez du contenu pour commencer</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
-
-            {notes.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Notes enregistrées</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {notes.map((note) => (
-                      <div key={note.id} className="border rounded-lg p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-2">
-                              <h4 className="font-medium">{note.title}</h4>
-                              <Badge 
-                                variant={note.priority === 'high' ? 'destructive' : note.priority === 'normal' ? 'default' : 'secondary'}
-                              >
-                                {note.priority === 'high' ? 'Haute' : note.priority === 'normal' ? 'Normale' : 'Basse'}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-gray-600">{note.content}</p>
-                            <p className="text-xs text-gray-400 mt-2">
-                              {new Date(note.created_at).toLocaleDateString('fr-FR')}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </TabsContent>
 
           {/* Calendar Tab */}

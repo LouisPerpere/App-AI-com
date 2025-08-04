@@ -480,8 +480,11 @@ class SocialGenieAPITester:
             print("❌ Skipping - No content ID available")
             return False
             
-        # Use form data for this endpoint
-        form_data = "description=Plat signature du restaurant - Coq au vin traditionnel avec légumes de saison"
+        # Use proper form data
+        import urllib.parse
+        form_data = urllib.parse.urlencode({
+            'description': 'Plat signature du restaurant - Coq au vin traditionnel avec légumes de saison'
+        })
         
         success, response = self.run_test(
             "Describe Content",

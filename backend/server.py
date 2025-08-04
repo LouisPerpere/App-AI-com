@@ -86,7 +86,11 @@ class PostCalendar(BaseModel):
 # Helper function to analyze content with OpenAI
 async def analyze_content_with_ai(content_path: str, description: str, business_profile: BusinessProfile):
     try:
-        # Create LLM chat instance
+        # Convert image to base64 for OpenAI
+        with open(content_path, 'rb') as image_file:
+            image_data = base64.b64encode(image_file.read()).decode('utf-8')
+        
+        # Create LLM chat instance with OpenAI
         chat = LlmChat(
             api_key=os.environ['OPENAI_API_KEY'],
             session_id=f"content_analysis_{uuid.uuid4()}",
@@ -101,59 +105,81 @@ async def analyze_content_with_ai(content_path: str, description: str, business_
             Ta mission est d'analyser le contenu fourni et de générer des posts optimisés pour chaque plateforme."""
         ).with_model("openai", "gpt-4o")
 
-        # Create file content for image analysis
-        file_content = FileContentWithMimeType(
-            file_path=content_path,
-            mime_type="image/jpeg" if content_path.lower().endswith(('.jpg', '.jpeg')) else "image/png"
-        )
-
         # Generate posts for each platform
         generated_posts = []
         
         for platform in business_profile.preferred_platforms:
-            platform_prompt = f"""
-            Analyse cette image et la description fournie: "{description}"
-            
-            Génère un post optimisé pour {platform} qui:
-            1. Respecte le ton de marque ({business_profile.brand_tone})
-            2. S'adresse à l'audience cible ({business_profile.target_audience})
-            3. Inclut des hashtags pertinents
-            4. Respecte les meilleures pratiques de {platform}
-            
-            Format de réponse JSON:
-            {{
-                "post_text": "texte du post",
-                "hashtags": ["hashtag1", "hashtag2", "hashtag3"]
-            }}
-            """
-
-            user_message = UserMessage(
-                text=platform_prompt,
-                file_contents=[file_content]
-            )
-
-            response = await chat.send_message(user_message)
-            
             try:
-                # Parse JSON response
-                post_data = json.loads(response)
+                platform_prompt = f"""
+                Analyse cette image et la description fournie: "{description}"
+                
+                Génère un post optimisé pour {platform} qui:
+                1. Respecte le ton de marque ({business_profile.brand_tone})
+                2. S'adresse à l'audience cible ({business_profile.target_audience})
+                3. Inclut des hashtags pertinents (max 5)
+                4. Respecte les meilleures pratiques de {platform}
+                
+                Format de réponse JSON strict:
+                {{
+                    "post_text": "texte du post ici",
+                    "hashtags": ["hashtag1", "hashtag2", "hashtag3"]
+                }}
+                """
+
+                # Create image content with base64
+                from emergentintegrations.llm.chat import ImageContent
+                image_content = ImageContent(image_base64=image_data)
+                
+                user_message = UserMessage(
+                    text=platform_prompt,
+                    file_contents=[image_content]
+                )
+
+                response = await chat.send_message(user_message)
+                
+                try:
+                    # Clean response and parse JSON
+                    response_clean = response.strip()
+                    if response_clean.startswith('```json'):
+                        response_clean = response_clean[7:-3].strip()
+                    elif response_clean.startswith('```'):
+                        response_clean = response_clean[3:-3].strip()
+                    
+                    post_data = json.loads(response_clean)
+                    generated_posts.append({
+                        "platform": platform,
+                        "post_text": post_data.get("post_text", ""),
+                        "hashtags": post_data.get("hashtags", [])
+                    })
+                except json.JSONDecodeError:
+                    # Fallback if JSON parsing fails
+                    logging.warning(f"Failed to parse JSON for {platform}, using raw response")
+                    generated_posts.append({
+                        "platform": platform,
+                        "post_text": response[:500],  # Limit length
+                        "hashtags": []
+                    })
+            except Exception as platform_error:
+                logging.error(f"Error generating post for {platform}: {platform_error}")
+                # Create a fallback post
                 generated_posts.append({
                     "platform": platform,
-                    "post_text": post_data.get("post_text", ""),
-                    "hashtags": post_data.get("hashtags", [])
-                })
-            except:
-                # Fallback if JSON parsing fails
-                generated_posts.append({
-                    "platform": platform,
-                    "post_text": response,
-                    "hashtags": []
+                    "post_text": f"Découvrez notre nouveau contenu ! {description[:100]}",
+                    "hashtags": ["nouveau", "contenu", business_profile.business_type.replace(' ', '')]
                 })
         
         return generated_posts
     except Exception as e:
         logging.error(f"Error analyzing content with AI: {e}")
-        return []
+        # Return fallback posts if AI fails
+        fallback_posts = []
+        for platform in business_profile.preferred_platforms:
+            fallback_posts.append({
+                "platform": platform,
+                "post_text": f"Nouveau contenu de {business_profile.business_name}! {description[:100]}",
+                "hashtags": ["nouveau", "contenu", business_profile.business_type.replace(' ', '')]
+            })
+        return fallback_posts
 
 # API Routes
 @api_router.post("/business-profile", response_model=BusinessProfile)

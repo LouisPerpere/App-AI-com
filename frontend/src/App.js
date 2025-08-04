@@ -1126,6 +1126,92 @@ function MainApp() {
             )}
           </TabsContent>
 
+          {/* Posts Tab */}
+          <TabsContent value="posts" className="space-y-6">
+                <CardDescription>
+                  Ajoutez des informations importantes à intégrer dans vos posts
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  try {
+                    await axios.post(`${API}/notes`, noteForm);
+                    setNoteForm({ title: '', content: '', priority: 'normal' });
+                    toast.success('Note ajoutée !');
+                    loadNotes();
+                  } catch (error) {
+                    toast.error('Erreur lors de l\'ajout de la note');
+                  }
+                }} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Input
+                      placeholder="Titre de la note"
+                      value={noteForm.title}
+                      onChange={(e) => setNoteForm({...noteForm, title: e.target.value})}
+                      required
+                    />
+                    <Select 
+                      value={noteForm.priority} 
+                      onValueChange={(value) => setNoteForm({...noteForm, priority: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="high">Priorité haute</SelectItem>
+                        <SelectItem value="normal">Priorité normale</SelectItem>
+                        <SelectItem value="low">Priorité basse</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Textarea
+                    placeholder="Contenu de la note (ex: fermeture exceptionnelle, nouvelle offre, événement...)"
+                    value={noteForm.content}
+                    onChange={(e) => setNoteForm({...noteForm, content: e.target.value})}
+                    required
+                  />
+                  <Button type="submit" className="w-full">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Ajouter la note
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+
+            {notes.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Notes enregistrées</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {notes.map((note) => (
+                      <div key={note.id} className="border rounded-lg p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <h4 className="font-medium">{note.title}</h4>
+                              <Badge 
+                                variant={note.priority === 'high' ? 'destructive' : note.priority === 'normal' ? 'default' : 'secondary'}
+                              >
+                                {note.priority === 'high' ? 'Haute' : note.priority === 'normal' ? 'Normale' : 'Basse'}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-600">{note.content}</p>
+                            <p className="text-xs text-gray-400 mt-2">
+                              {new Date(note.created_at).toLocaleDateString('fr-FR')}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
           {/* Calendar Tab */}
           <TabsContent value="calendar" className="space-y-6">
             <Card>

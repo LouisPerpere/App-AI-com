@@ -1075,12 +1075,157 @@ function App() {
                   Connectez vos comptes Facebook et Instagram pour publier automatiquement
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-center py-12">
-                  <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">Connexions sociales</p>
-                  <p className="text-sm text-gray-400">Interface Facebook/Instagram bientôt disponible</p>
+              <CardContent className="space-y-6">
+                {/* Connexion Facebook */}
+                <div className="border rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <span className="text-white font-bold text-lg">f</span>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">Facebook</h3>
+                        <p className="text-sm text-gray-500">Connectez vos pages Facebook</p>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={connectFacebook}
+                      disabled={isConnectingSocial}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      {isConnectingSocial ? 'Connexion...' : 'Connecter Facebook'}
+                    </Button>
+                  </div>
+
+                  {/* Pages Facebook connectées */}
+                  {socialConnections.filter(conn => conn.platform === 'facebook').length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-sm text-gray-700">Pages connectées :</h4>
+                      {socialConnections
+                        .filter(conn => conn.platform === 'facebook')
+                        .map((connection) => (
+                          <div key={connection.id} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                <span className="text-blue-600 font-bold text-sm">f</span>
+                              </div>
+                              <div>
+                                <p className="font-medium">{connection.page_name}</p>
+                                <p className="text-xs text-gray-500">
+                                  Connecté le {new Date(connection.connected_at).toLocaleDateString('fr-FR')}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
+                                Actif
+                              </Badge>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => disconnectSocialAccount(connection.id)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
                 </div>
+
+                {/* Instagram */}
+                <div className="border rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                        <ImageIcon className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">Instagram</h3>
+                        <p className="text-sm text-gray-500">Connectez vos comptes Instagram Business</p>
+                      </div>
+                    </div>
+                    <Badge variant="secondary" className="bg-orange-100 text-orange-600">
+                      Via Facebook
+                    </Badge>
+                  </div>
+
+                  {/* Comptes Instagram connectés */}
+                  {socialConnections.filter(conn => conn.platform === 'instagram').length > 0 ? (
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-sm text-gray-700">Comptes connectés :</h4>
+                      {socialConnections
+                        .filter(conn => conn.platform === 'instagram')
+                        .map((connection) => (
+                          <div key={connection.id} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-8 h-8 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center">
+                                <ImageIcon className="w-4 h-4 text-purple-600" />
+                              </div>
+                              <div>
+                                <p className="font-medium">@{connection.platform_username}</p>
+                                <p className="text-xs text-gray-500">
+                                  Connecté le {new Date(connection.connected_at).toLocaleDateString('fr-FR')}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
+                                Actif
+                              </Badge>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => disconnectSocialAccount(connection.id)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 text-gray-500">
+                      <p className="text-sm">Aucun compte Instagram connecté</p>
+                      <p className="text-xs mt-1">Connectez d'abord une page Facebook avec un compte Instagram Business lié</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Instructions */}
+                <Alert className="bg-blue-50 border-blue-200">
+                  <Target className="h-4 w-4 text-blue-600" />
+                  <AlertDescription className="text-blue-700">
+                    <strong>Comment connecter vos comptes :</strong>
+                    <br />
+                    1. Cliquez sur "Connecter Facebook" pour autoriser l'accès à vos pages
+                    <br />
+                    2. Les comptes Instagram Business liés à vos pages Facebook seront automatiquement connectés
+                    <br />
+                    3. Vous pourrez ensuite publier directement depuis l'onglet "Posts"
+                  </AlertDescription>
+                </Alert>
+
+                {/* État sans connexions */}
+                {socialConnections.length === 0 && (
+                  <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
+                    <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun compte connecté</h3>
+                    <p className="text-gray-500 mb-4">
+                      Connectez vos comptes Facebook et Instagram pour commencer à publier automatiquement
+                    </p>
+                    <Button
+                      onClick={connectFacebook}
+                      disabled={isConnectingSocial}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      {isConnectingSocial ? 'Connexion...' : 'Connecter mon premier compte'}
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

@@ -345,21 +345,21 @@ function MainApp() {
   }
 
   const OnboardingForm = () => (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-6">
-      <Card className="w-full max-w-4xl shadow-2xl border-0 bg-white/80 backdrop-blur-lg">
+    <div className="min-h-screen bg-pattern bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-6">
+      <Card className="w-full max-w-4xl card-glass animate-float">
         <CardHeader className="text-center pb-8">
-          <div className="mx-auto mb-4 w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl flex items-center justify-center">
-            <Sparkles className="w-8 h-8 text-white" />
+          <div className="mx-auto mb-4 w-20 h-20 bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 rounded-3xl flex items-center justify-center animate-glow">
+            <Sparkles className="w-10 h-10 text-white" />
           </div>
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          <CardTitle className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 bg-clip-text text-transparent">
             Configuration de votre entreprise
           </CardTitle>
-          <CardDescription className="text-lg text-gray-600 mt-2">
-            Quelques informations pour personnaliser vos publications
+          <CardDescription className="text-xl text-gray-600 mt-2 font-medium">
+            Quelques informations pour personnaliser vos publications magiques ✨
           </CardDescription>
           
           {subscriptionStatus && (
-            <Alert className="mt-4 bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+            <Alert className="mt-4 card-gradient border-green-200">
               <Crown className="h-4 w-4 text-green-600" />
               <AlertDescription className="text-green-700 font-medium">
                 {subscriptionStatus.message} - {subscriptionStatus.days_left} jours restants
@@ -368,84 +368,86 @@ function MainApp() {
           )}
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleProfileSubmit} className="space-y-6">
+          <form onSubmit={handleProfileSubmit} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="business_name">Nom de l'entreprise</Label>
+              <div className="space-y-3">
+                <Label htmlFor="business_name" className="text-gray-700 font-semibold">Nom de l'entreprise</Label>
                 <Input
                   id="business_name"
                   placeholder="Mon Restaurant"
                   value={profileForm.business_name}
                   onChange={(e) => setProfileForm({...profileForm, business_name: e.target.value})}
                   required
+                  className="input-modern"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="business_type">Type d'activité</Label>
+              <div className="space-y-3">
+                <Label htmlFor="business_type" className="text-gray-700 font-semibold">Type d'activité</Label>
                 <Select onValueChange={(value) => setProfileForm({...profileForm, business_type: value})}>
-                  <SelectTrigger>
+                  <SelectTrigger className="input-modern">
                     <SelectValue placeholder="Sélectionnez..." />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="restaurant">Restaurant</SelectItem>
-                    <SelectItem value="retail">Commerce de détail</SelectItem>
-                    <SelectItem value="services">Services</SelectItem>
-                    <SelectItem value="freelance">Freelance</SelectItem>
-                    <SelectItem value="ecommerce">E-commerce</SelectItem>
-                    <SelectItem value="other">Autre</SelectItem>
+                  <SelectContent className="card-glass">
+                    <SelectItem value="restaurant">🍽️ Restaurant</SelectItem>
+                    <SelectItem value="retail">🛍️ Commerce de détail</SelectItem>
+                    <SelectItem value="services">⚡ Services</SelectItem>
+                    <SelectItem value="freelance">💼 Freelance</SelectItem>
+                    <SelectItem value="ecommerce">📦 E-commerce</SelectItem>
+                    <SelectItem value="other">🌟 Autre</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="target_audience">Audience cible</Label>
+            <div className="space-y-3">
+              <Label htmlFor="target_audience" className="text-gray-700 font-semibold">Audience cible</Label>
               <Textarea
                 id="target_audience"
                 placeholder="Décrivez votre audience cible (âge, intérêts, localisation...)"
                 value={profileForm.target_audience}
                 onChange={(e) => setProfileForm({...profileForm, target_audience: e.target.value})}
                 required
+                className="input-modern min-h-[100px]"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="brand_tone">Ton de marque</Label>
+              <div className="space-y-3">
+                <Label htmlFor="brand_tone" className="text-gray-700 font-semibold">Ton de marque</Label>
                 <Select onValueChange={(value) => setProfileForm({...profileForm, brand_tone: value})}>
-                  <SelectTrigger>
+                  <SelectTrigger className="input-modern">
                     <SelectValue placeholder="Sélectionnez..." />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="professional">Professionnel</SelectItem>
-                    <SelectItem value="casual">Décontracté</SelectItem>
-                    <SelectItem value="friendly">Amical</SelectItem>
-                    <SelectItem value="luxury">Luxueux</SelectItem>
-                    <SelectItem value="fun">Amusant</SelectItem>
+                  <SelectContent className="card-glass">
+                    <SelectItem value="professional">👔 Professionnel</SelectItem>
+                    <SelectItem value="casual">😊 Décontracté</SelectItem>
+                    <SelectItem value="friendly">🤝 Amical</SelectItem>
+                    <SelectItem value="luxury">💎 Luxueux</SelectItem>
+                    <SelectItem value="fun">🎉 Amusant</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="posting_frequency">Fréquence de publication</Label>
+              <div className="space-y-3">
+                <Label htmlFor="posting_frequency" className="text-gray-700 font-semibold">Fréquence de publication</Label>
                 <Select onValueChange={(value) => setProfileForm({...profileForm, posting_frequency: value})}>
-                  <SelectTrigger>
+                  <SelectTrigger className="input-modern">
                     <SelectValue placeholder="Sélectionnez..." />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="daily">Quotidien</SelectItem>
-                    <SelectItem value="3x_week">3x par semaine</SelectItem>
-                    <SelectItem value="weekly">Hebdomadaire</SelectItem>
-                    <SelectItem value="bi_weekly">Bi-hebdomadaire</SelectItem>
+                  <SelectContent className="card-glass">
+                    <SelectItem value="daily">📅 Quotidien</SelectItem>
+                    <SelectItem value="3x_week">📈 3x par semaine</SelectItem>
+                    <SelectItem value="weekly">📊 Hebdomadaire</SelectItem>
+                    <SelectItem value="bi_weekly">📋 Bi-hebdomadaire</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Réseaux sociaux préférés</Label>
-              <div className="flex flex-wrap gap-3">
+            <div className="space-y-4">
+              <Label className="text-gray-700 font-semibold">Réseaux sociaux préférés</Label>
+              <div className="flex flex-wrap gap-4">
                 {['facebook', 'instagram', 'linkedin'].map((platform) => (
-                  <label key={platform} className="flex items-center space-x-2 cursor-pointer">
+                  <label key={platform} className="flex items-center space-x-3 cursor-pointer card-gradient p-4 rounded-2xl hover:shadow-lg transition-all duration-200">
                     <input
                       type="checkbox"
                       checked={profileForm.preferred_platforms.includes(platform)}
@@ -462,26 +464,30 @@ function MainApp() {
                           });
                         }
                       }}
-                      className="rounded"
+                      className="rounded-lg w-5 h-5 text-purple-600"
                     />
-                    <span className="capitalize font-medium">{platform}</span>
+                    <span className="capitalize font-semibold text-gray-700">
+                      {platform === 'facebook' ? '📘 Facebook' : 
+                       platform === 'instagram' ? '📷 Instagram' : 
+                       '💼 LinkedIn'}
+                    </span>
                   </label>
                 ))}
               </div>
             </div>
 
             {/* Hashtags Section */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Hashtags prioritaires (toujours inclus)</Label>
-                <div className="flex flex-wrap gap-2 mb-2">
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <Label className="text-gray-700 font-semibold">✨ Hashtags prioritaires (toujours inclus)</Label>
+                <div className="flex flex-wrap gap-3 mb-4">
                   {profileForm.hashtags_primary.map((hashtag) => (
-                    <Badge key={hashtag} variant="secondary" className="bg-purple-100 text-purple-800">
+                    <Badge key={hashtag} className="badge-info">
                       {hashtag}
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="ml-1 h-4 w-4 p-0 hover:bg-purple-200"
+                        className="ml-2 h-4 w-4 p-0 hover:bg-white/20"
                         onClick={() => removeHashtag('primary', hashtag)}
                       >
                         <X className="h-3 w-3" />
@@ -489,33 +495,35 @@ function MainApp() {
                     </Badge>
                   ))}
                 </div>
-                <div className="flex space-x-2">
+                <div className="flex space-x-3">
                   <Input
                     placeholder="Ajouter un hashtag prioritaire"
                     value={newPrimaryHashtag}
                     onChange={(e) => setNewPrimaryHashtag(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addHashtag('primary', newPrimaryHashtag))}
+                    className="input-modern"
                   />
                   <Button
                     type="button"
                     onClick={() => addHashtag('primary', newPrimaryHashtag)}
                     disabled={!newPrimaryHashtag.trim()}
+                    className="btn-gradient-secondary px-6"
                   >
                     Ajouter
                   </Button>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>Hashtags secondaires (selon contexte)</Label>
-                <div className="flex flex-wrap gap-2 mb-2">
+              <div className="space-y-4">
+                <Label className="text-gray-700 font-semibold">🎯 Hashtags secondaires (selon contexte)</Label>
+                <div className="flex flex-wrap gap-3 mb-4">
                   {profileForm.hashtags_secondary.map((hashtag) => (
-                    <Badge key={hashtag} variant="outline" className="border-blue-200 text-blue-600">
+                    <Badge key={hashtag} className="badge-warning">
                       {hashtag}
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="ml-1 h-4 w-4 p-0 hover:bg-blue-100"
+                        className="ml-2 h-4 w-4 p-0 hover:bg-white/20"
                         onClick={() => removeHashtag('secondary', hashtag)}
                       >
                         <X className="h-3 w-3" />
@@ -523,17 +531,19 @@ function MainApp() {
                     </Badge>
                   ))}
                 </div>
-                <div className="flex space-x-2">
+                <div className="flex space-x-3">
                   <Input
                     placeholder="Ajouter un hashtag secondaire"
                     value={newSecondaryHashtag}
                     onChange={(e) => setNewSecondaryHashtag(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addHashtag('secondary', newSecondaryHashtag))}
+                    className="input-modern"
                   />
                   <Button
                     type="button"
                     onClick={() => addHashtag('secondary', newSecondaryHashtag)}
                     disabled={!newSecondaryHashtag.trim()}
+                    className="btn-gradient-secondary px-6"
                   >
                     Ajouter
                   </Button>
@@ -541,23 +551,23 @@ function MainApp() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="budget_range">Budget publicitaire mensuel</Label>
+            <div className="space-y-3">
+              <Label htmlFor="budget_range" className="text-gray-700 font-semibold">💰 Budget publicitaire mensuel</Label>
               <Select onValueChange={(value) => setProfileForm({...profileForm, budget_range: value})}>
-                <SelectTrigger>
+                <SelectTrigger className="input-modern">
                   <SelectValue placeholder="Sélectionnez..." />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0-100">0€ - 100€</SelectItem>
-                  <SelectItem value="100-500">100€ - 500€</SelectItem>
-                  <SelectItem value="500-1000">500€ - 1000€</SelectItem>
-                  <SelectItem value="1000+">1000€+</SelectItem>
+                <SelectContent className="card-glass">
+                  <SelectItem value="0-100">💵 0€ - 100€</SelectItem>
+                  <SelectItem value="100-500">💸 100€ - 500€</SelectItem>
+                  <SelectItem value="500-1000">💰 500€ - 1000€</SelectItem>
+                  <SelectItem value="1000+">🚀 1000€+</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <Button type="submit" className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-              Créer mon profil
+            <Button type="submit" className="w-full h-14 text-lg font-bold btn-gradient-primary">
+              🚀 Créer mon profil magique
             </Button>
           </form>
         </CardContent>

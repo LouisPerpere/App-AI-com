@@ -576,43 +576,42 @@ function MainApp() {
   );
 
   const Dashboard = () => (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-pattern">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+      <div className="card-glass border-0 border-b border-purple-100/50">
+        <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Avatar className="w-12 h-12">
+            <div className="flex items-center space-x-6">
+              <Avatar className="w-16 h-16 ring-4 ring-purple-200/50">
                 <AvatarImage src={businessProfile?.logo_url ? `${BACKEND_URL}${businessProfile.logo_url}` : ""} />
-                <AvatarFallback className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
-                  <Building className="w-6 h-6" />
+                <AvatarFallback className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 text-white text-xl font-bold">
+                  <Building className="w-8 h-8" />
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">PostCraft</h1>
-                <p className="text-sm text-gray-600">{businessProfile?.business_name}</p>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 bg-clip-text text-transparent">
+                  PostCraft
+                </h1>
+                <p className="text-lg text-gray-600 font-medium">{businessProfile?.business_name}</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               {subscriptionStatus && (
-                <Badge 
-                  variant={subscriptionStatus.active ? "default" : "destructive"}
-                  className={subscriptionStatus.active ? "bg-green-100 text-green-800" : ""}
-                >
+                <Badge className={`${subscriptionStatus.active ? "badge-success" : "badge-warning"} px-4 py-2`}>
                   {subscriptionStatus.message}
                 </Badge>
               )}
-              <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+              <Badge className="badge-info px-4 py-2">
                 {generatedPosts.filter(p => p.status === 'pending').length} posts en attente
               </Badge>
               
               <Button
                 variant="outline"
-                size="sm"
+                size="lg"
                 onClick={handleLogout}
-                className="text-gray-600 hover:text-gray-900"
+                className="text-gray-600 hover:text-gray-900 border-2 rounded-xl px-6"
               >
-                <LogOut className="w-4 h-4 mr-2" />
+                <LogOut className="w-5 h-5 mr-2" />
                 Déconnexion
               </Button>
             </div>
@@ -621,80 +620,89 @@ function MainApp() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <Tabs defaultValue="library" className="space-y-6">
-          <TabsList className="grid grid-cols-5 w-full max-w-2xl mx-auto">
-            <TabsTrigger value="library" className="flex items-center space-x-2">
-              <ImageIcon className="w-4 h-4" />
-              <span>Bibliothèque</span>
+        <Tabs defaultValue="library" className="space-y-8">
+          <TabsList className="grid grid-cols-5 w-full max-w-3xl mx-auto bg-white/80 backdrop-blur-lg p-2 rounded-2xl shadow-xl">
+            <TabsTrigger value="library" className="tab-sexy">
+              <ImageIcon className="w-5 h-5" />
+              <span className="ml-2 font-semibold">Bibliothèque</span>
             </TabsTrigger>
-            <TabsTrigger value="notes" className="flex items-center space-x-2">
-              <Edit className="w-4 h-4" />
-              <span>Notes</span>
+            <TabsTrigger value="notes" className="tab-sexy">
+              <Edit className="w-5 h-5" />
+              <span className="ml-2 font-semibold">Notes</span>
             </TabsTrigger>
-            <TabsTrigger value="posts" className="flex items-center space-x-2">
-              <FileText className="w-4 h-4" />
-              <span>Posts</span>
+            <TabsTrigger value="posts" className="tab-sexy">
+              <FileText className="w-5 h-5" />
+              <span className="ml-2 font-semibold">Posts</span>
             </TabsTrigger>
-            <TabsTrigger value="calendar" className="flex items-center space-x-2">
-              <CalendarIcon className="w-4 h-4" />
-              <span>Calendrier</span>
+            <TabsTrigger value="calendar" className="tab-sexy">
+              <CalendarIcon className="w-5 h-5" />
+              <span className="ml-2 font-semibold">Calendrier</span>
             </TabsTrigger>
-            <TabsTrigger value="social" className="flex items-center space-x-2">
-              <Target className="w-4 h-4" />
-              <span>Social</span>
+            <TabsTrigger value="social" className="tab-sexy">
+              <Target className="w-5 h-5" />
+              <span className="ml-2 font-semibold">Social</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Library Tab */}
-          <TabsContent value="library" className="space-y-6">
+          <TabsContent value="library" className="space-y-8">
             {/* Galerie des contenus uploadés */}
             {(pendingContent.length > 0 || generatedPosts.some(p => p.visual_url)) && (
-              <Card>
+              <Card className="card-gradient">
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <ImageIcon className="w-5 h-5" />
-                    <span>Vos contenus</span>
+                  <CardTitle className="flex items-center space-x-3 text-2xl">
+                    <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
+                      <ImageIcon className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                      Vos contenus magiques ✨
+                    </span>
                   </CardTitle>
-                  <CardDescription>
-                    Cliquez sur une miniature pour ajouter du contexte et générer des posts
+                  <CardDescription className="text-lg text-gray-600">
+                    Cliquez sur une miniature pour ajouter du contexte et créer des posts extraordinaires
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
                     {/* Contenus en attente de description */}
                     {pendingContent.map((content) => (
                       <Dialog key={content.id}>
                         <DialogTrigger asChild>
-                          <div className="group relative aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105">
+                          <div className="thumbnail-hover group relative aspect-square bg-gradient-to-br from-purple-50 to-pink-50 cursor-pointer">
                             <img
                               src={`${BACKEND_URL}${content.visual_url || '/uploads/' + content.file_path.split('/').pop()}`}
                               alt="Contenu"
                               className="w-full h-full object-cover"
                             />
-                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200" />
-                            <div className="absolute top-2 right-2">
-                              <Badge variant="secondary" className="bg-orange-100 text-orange-600 text-xs">
-                                Nouveau
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
+                            <div className="absolute top-3 right-3">
+                              <Badge className="badge-warning animate-pulse">
+                                ✨ Nouveau
                               </Badge>
+                            </div>
+                            <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                              <p className="text-white font-semibold text-sm">Cliquez pour décrire ✍️</p>
                             </div>
                           </div>
                         </DialogTrigger>
-                        <DialogContent className="max-w-4xl w-full h-[80vh]">
+                        <DialogContent className="max-w-6xl w-full h-[85vh] card-glass">
                           <DialogHeader>
-                            <DialogTitle>Ajouter du contexte à votre contenu</DialogTitle>
+                            <DialogTitle className="text-2xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                              🎨 Donnez vie à votre contenu
+                            </DialogTitle>
                           </DialogHeader>
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
                             {/* Image en grand */}
-                            <div className="flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
+                            <div className="flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl overflow-hidden">
                               <img
                                 src={`${BACKEND_URL}${content.visual_url || '/uploads/' + content.file_path.split('/').pop()}`}
                                 alt="Contenu"
-                                className="max-w-full max-h-full object-contain"
+                                className="max-w-full max-h-full object-contain rounded-2xl"
                               />
                             </div>
                             
                             {/* Zone de texte et actions */}
-                            <div className="flex flex-col space-y-4">
+                            <div className="flex flex-col space-y-6">
                               <form onSubmit={async (e) => {
                                 e.preventDefault();
                                 const formData = new FormData(e.target);
@@ -703,53 +711,55 @@ function MainApp() {
                                 try {
                                   setIsGeneratingPosts(true);
                                   await axios.post(`${API}/content/${content.id}/describe`, { description });
-                                  toast.success('Posts générés avec succès !');
+                                  toast.success('🎉 Posts créés avec succès !');
                                   loadPendingContent();
                                   loadGeneratedPosts();
                                   // Fermer le dialog
                                   document.querySelector('[data-state="open"]')?.click();
                                 } catch (error) {
-                                  toast.error('Erreur lors de la génération');
+                                  toast.error('Erreur lors de la création');
                                 } finally {
                                   setIsGeneratingPosts(false);
                                 }
-                              }} className="flex-1 flex flex-col space-y-4">
-                                <div className="space-y-2">
-                                  <Label htmlFor="description">Décrivez ce contenu</Label>
+                              }} className="flex-1 flex flex-col space-y-6">
+                                <div className="space-y-3">
+                                  <Label htmlFor="description" className="text-xl font-semibold text-gray-700">
+                                    ✍️ Décrivez ce contenu
+                                  </Label>
                                   <Textarea
                                     id="description"
                                     name="description"
-                                    placeholder="Décrivez en détail ce contenu : produit, service, événement, ambiance, personnes, lieu, contexte particulier... Plus vous donnez de détails, meilleurs seront les posts générés !"
-                                    className="min-h-[200px] resize-none"
+                                    placeholder="Décrivez en détail ce contenu : produit, service, événement, ambiance, personnes, lieu, contexte particulier... Plus vous donnez de détails, plus vos posts seront exceptionnels ! 🚀"
+                                    className="input-modern min-h-[200px] resize-none text-lg"
                                     required
                                   />
                                 </div>
                                 
-                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                  <h4 className="font-medium text-blue-900 mb-2">💡 Conseils pour une bonne description</h4>
-                                  <ul className="text-sm text-blue-700 space-y-1">
-                                    <li>• Décrivez le produit/service en détail</li>
-                                    <li>• Mentionnez l'ambiance, les couleurs, l'émotion</li>
-                                    <li>• Ajoutez le contexte (promotion, nouveauté, saison...)</li>
-                                    <li>• Précisez votre public cible pour ce contenu</li>
+                                <div className="card-gradient p-6 rounded-2xl">
+                                  <h4 className="font-bold text-purple-900 mb-3 text-lg">💡 Conseils pour une description parfaite</h4>
+                                  <ul className="text-purple-700 space-y-2 font-medium">
+                                    <li>• 🎯 Décrivez le produit/service en détail</li>
+                                    <li>• 🌈 Mentionnez l'ambiance, les couleurs, l'émotion</li>
+                                    <li>• 🎪 Ajoutez le contexte (promotion, nouveauté, saison...)</li>
+                                    <li>• 👥 Précisez votre public cible pour ce contenu</li>
                                   </ul>
                                 </div>
                                 
                                 <Button 
                                   type="submit" 
                                   disabled={isGeneratingPosts} 
-                                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                                  className="w-full h-16 text-xl font-bold btn-gradient-primary"
                                   size="lg"
                                 >
                                   {isGeneratingPosts ? (
                                     <>
-                                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                      Génération en cours...
+                                      <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin mr-3"></div>
+                                      ✨ Création en cours...
                                     </>
                                   ) : (
                                     <>
-                                      <Sparkles className="w-4 h-4 mr-2" />
-                                      Générer mes posts IA
+                                      <Sparkles className="w-6 h-6 mr-3" />
+                                      🚀 Créer mes posts magiques
                                     </>
                                   )}
                                 </Button>
@@ -765,27 +775,26 @@ function MainApp() {
                       .filter(post => post.visual_url)
                       .slice(0, 12) // Limiter à 12 pour ne pas surcharger
                       .map((post) => (
-                        <div key={post.id} className="group relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                        <div key={post.id} className="thumbnail-hover group relative aspect-square">
                           <img
                             src={`${BACKEND_URL}${post.visual_url}`}
                             alt="Contenu généré"
                             className="w-full h-full object-cover"
                           />
-                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200" />
-                          <div className="absolute top-2 right-2">
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
+                          <div className="absolute top-3 right-3">
                             <Badge 
-                              variant={post.status === 'posted' ? 'default' : 'secondary'}
-                              className={`text-xs ${
+                              className={`${
                                 post.status === 'posted' 
-                                  ? 'bg-green-100 text-green-600' 
+                                  ? 'badge-success' 
                                   : post.status === 'approved'
-                                  ? 'bg-blue-100 text-blue-600'
-                                  : 'bg-gray-100 text-gray-600'
+                                  ? 'badge-info'
+                                  : 'badge-warning'
                               }`}
                             >
-                              {post.status === 'posted' ? 'Publié' : 
-                               post.status === 'approved' ? 'Approuvé' : 
-                               'En attente'}
+                              {post.status === 'posted' ? '✅ Publié' : 
+                               post.status === 'approved' ? '👍 Approuvé' : 
+                               '⏳ En attente'}
                             </Badge>
                           </div>
                         </div>
@@ -796,51 +805,61 @@ function MainApp() {
             )}
 
             {/* Section d'upload */}
-            <Card>
+            <Card className="card-gradient">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Upload className="w-5 h-5" />
-                  <span>Ajouter du contenu</span>
+                <CardTitle className="flex items-center space-x-3 text-2xl">
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center">
+                    <Upload className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    Ajouter du contenu
+                  </span>
                 </CardTitle>
-                <CardDescription>
-                  Uploadez vos photos et vidéos pour créer de nouveaux posts
+                <CardDescription className="text-lg text-gray-600">
+                  Uploadez vos photos et vidéos pour créer de nouveaux posts spectaculaires 🎬
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 transition-colors">
-                  <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <div className="space-y-2">
-                    <p className="text-lg font-medium text-gray-700">
-                      Glissez vos fichiers ici ou
+              <CardContent className="space-y-6">
+                <div className="upload-zone p-12 text-center">
+                  <div className="space-y-4">
+                    <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto animate-float">
+                      <ImageIcon className="w-10 h-10 text-white" />
+                    </div>
+                    <div className="space-y-3">
+                      <p className="text-2xl font-bold text-gray-700">
+                        Glissez vos fichiers ici ou
+                      </p>
+                      <Button
+                        variant="outline"
+                        onClick={() => document.getElementById('file-input').click()}
+                        className="btn-gradient-secondary text-lg px-8 py-4"
+                      >
+                        📁 Parcourir
+                      </Button>
+                      <input
+                        id="file-input"
+                        type="file"
+                        multiple
+                        accept="image/*,video/*"
+                        className="hidden"
+                        onChange={(e) => setSelectedFiles(Array.from(e.target.files))}
+                      />
+                    </div>
+                    <p className="text-lg text-gray-500 font-medium">
+                      📸 Formats supportés: JPG, PNG, MP4, MOV (max 10 fichiers)
                     </p>
-                    <Button
-                      variant="outline"
-                      onClick={() => document.getElementById('file-input').click()}
-                      className="mx-2"
-                    >
-                      Parcourir
-                    </Button>
-                    <input
-                      id="file-input"
-                      type="file"
-                      multiple
-                      accept="image/*,video/*"
-                      className="hidden"
-                      onChange={(e) => setSelectedFiles(Array.from(e.target.files))}
-                    />
                   </div>
-                  <p className="text-sm text-gray-500 mt-2">
-                    Formats supportés: JPG, PNG, MP4, MOV (max 10 fichiers)
-                  </p>
                 </div>
 
                 {selectedFiles.length > 0 && (
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Fichiers sélectionnés ({selectedFiles.length})</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="space-y-6">
+                    <h4 className="text-xl font-bold text-gray-700">
+                      📋 Fichiers sélectionnés ({selectedFiles.length})
+                    </h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                       {selectedFiles.map((file, index) => (
-                        <div key={index} className="relative">
-                          <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                        <div key={index} className="relative thumbnail-hover">
+                          <div className="aspect-square bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl overflow-hidden">
                             {file.type.startsWith('image/') ? (
                               <img
                                 src={URL.createObjectURL(file)}
@@ -848,29 +867,29 @@ function MainApp() {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <FileText className="w-8 h-8 text-gray-400" />
+                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100">
+                                <FileText className="w-12 h-12 text-purple-600" />
                               </div>
                             )}
                           </div>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white hover:bg-red-600"
+                            className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-red-500 text-white hover:bg-red-600 hover:scale-110"
                             onClick={() => setSelectedFiles(selectedFiles.filter((_, i) => i !== index))}
                           >
-                            <X className="w-3 h-3" />
+                            <X className="w-4 h-4" />
                           </Button>
-                          <p className="text-xs text-gray-600 mt-1 truncate">{file.name}</p>
+                          <p className="text-sm text-gray-600 mt-2 truncate font-medium">{file.name}</p>
                         </div>
                       ))}
                     </div>
                     <Button
                       onClick={handleBatchUpload}
                       disabled={isUploading}
-                      className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                      className="w-full h-16 text-xl font-bold btn-gradient-primary"
                     >
-                      {isUploading ? 'Upload en cours...' : `Uploader ${selectedFiles.length} fichier(s)`}
+                      {isUploading ? '⏳ Upload en cours...' : `🚀 Uploader ${selectedFiles.length} fichier(s)`}
                     </Button>
                   </div>
                 )}

@@ -149,15 +149,11 @@ class SocialGenieAPITester:
         return False
 
     def test_get_business_profile(self):
-        """Test getting a business profile by ID"""
-        if not self.business_id:
-            print("❌ Skipping - No business ID available")
-            return False
-            
+        """Test getting current user's business profile"""
         success, response = self.run_test(
             "Get Business Profile",
             "GET",
-            f"business-profile/{self.business_id}",
+            "business-profile",  # This endpoint gets current user's profile
             200
         )
         return success

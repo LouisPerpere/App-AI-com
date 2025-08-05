@@ -1676,7 +1676,259 @@ class SocialGenieAPITester:
         
         return success
 
-    def test_payment_transactions_database(self):
+    # Website Analysis Tests
+    
+    def test_website_analysis_with_valid_url(self):
+        """Test website analysis with a valid URL"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        analysis_data = {
+            "website_url": "https://example.com",
+            "force_reanalysis": False
+        }
+        
+        success, response = self.run_test(
+            "Website Analysis (Valid URL)",
+            "POST",
+            "website/analyze",
+            200,
+            data=analysis_data
+        )
+        
+        if success:
+            # Verify response structure
+            expected_fields = ["id", "website_url", "analysis_summary", "key_topics", 
+                             "brand_tone", "target_audience", "main_services", 
+                             "last_analyzed", "next_analysis_due"]
+            
+            for field in expected_fields:
+                if field not in response:
+                    print(f"❌ Missing field in response: {field}")
+                    return False
+            
+            print(f"✅ Website analysis completed for {response.get('website_url')}")
+            print(f"   Analysis Summary: {response.get('analysis_summary', '')[:100]}...")
+            print(f"   Key Topics: {response.get('key_topics', [])}")
+            print(f"   Brand Tone: {response.get('brand_tone', '')}")
+            print(f"   Target Audience: {response.get('target_audience', '')[:50]}...")
+            print(f"   Main Services: {response.get('main_services', [])}")
+            
+        return success
+
+    def test_website_analysis_invalid_url(self):
+        """Test website analysis with invalid URL"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        analysis_data = {
+            "website_url": "invalid-url",
+            "force_reanalysis": False
+        }
+        
+        success, response = self.run_test(
+            "Website Analysis (Invalid URL)",
+            "POST",
+            "website/analyze",
+            422,  # Should fail with validation error
+            data=analysis_data
+        )
+        
+        return success
+
+    def test_get_website_analysis(self):
+        """Test getting existing website analysis"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Get Website Analysis",
+            "GET",
+            "website/analysis",
+            200
+        )
+        
+        if success and response:
+            print(f"✅ Retrieved website analysis for: {response.get('website_url', 'N/A')}")
+            print(f"   Last analyzed: {response.get('last_analyzed', 'N/A')}")
+        elif success and not response:
+            print("✅ No website analysis found (expected for new user)")
+        
+        return success
+
+    def test_delete_website_analysis(self):
+        """Test deleting website analysis"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Delete Website Analysis",
+            "DELETE",
+            "website/analysis",
+            200
+        )
+        
+        if success:
+            deleted_count = response.get('deleted_count', 0)
+            print(f"✅ Deleted {deleted_count} website analysis(es)")
+        
+        return success
+
+    def test_business_profile_with_website_url(self):
+        """Test business profile creation/update with website_url field"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        # Test updating business profile with website_url
+        update_data = {
+            "website_url": "https://example.com",
+            "business_name": "Test Business with Website"
+        }
+        
+        success, response = self.run_test(
+            "Update Business Profile with Website URL",
+            "PUT",
+            "business-profile",
+            200,
+            data=update_data
+        )
+        
+        if success and 'website_url' in response:
+            print(f"✅ Business profile updated with website URL: {response.get('website_url')}")
+            return True
+        
+        return success
+
+    def test_website_analysis_models_validation(self):
+        """Test WebsiteData and WebsiteAnalysisResponse models"""
+        print(f"\n🔍 Testing Website Analysis Models...")
+        
+        try:
+            import sys
+            sys.path.append('/app/backend')
+            from website_analyzer import WebsiteData, WebsiteAnalysisResponse
+            from datetime import datetime
+            
+            # Test WebsiteData model
+            test_website_data = WebsiteData(
+                user_id="test_user_123",
+                business_id="test_business_123",
+                website_url="https://example.com",
+                content_text="Test content text",
+                meta_description="Test meta description",
+                meta_title="Test Title",
+                h1_tags=["Main Heading"],
+                h2_tags=["Sub Heading 1", "Sub Heading 2"],
+                analysis_summary="Test analysis summary",
+                key_topics=["topic1", "topic2"],
+                brand_tone="professional",
+                target_audience="business professionals",
+                main_services=["service1", "service2"]
+            )
+            
+            # Verify required fields
+            required_fields = ["id", "user_id", "business_id", "website_url", "content_text",
+                             "analysis_summary", "key_topics", "brand_tone", "target_audience",
+                             "main_services", "created_at", "updated_at", "next_analysis_due"]
+            
+            for field in required_fields:
+                if not hasattr(test_website_data, field):
+                    print(f"   ❌ Missing required field in WebsiteData: {field}")
+                    return False
+            
+            # Test WebsiteAnalysisResponse model
+            test_response = WebsiteAnalysisResponse(
+                id=test_website_data.id,
+                website_url=test_website_data.website_url,
+                analysis_summary=test_website_data.analysis_summary,
+                key_topics=test_website_data.key_topics,
+                brand_tone=test_website_data.brand_tone,
+                target_audience=test_website_data.target_audience,
+                main_services=test_website_data.main_services,
+                last_analyzed=test_website_data.created_at,
+                next_analysis_due=test_website_data.next_analysis_due
+            )
+            
+            response_fields = ["id", "website_url", "analysis_summary", "key_topics",
+                             "brand_tone", "target_audience", "main_services",
+                             "last_analyzed", "next_analysis_due"]
+            
+            for field in response_fields:
+                if not hasattr(test_response, field):
+                    print(f"   ❌ Missing required field in WebsiteAnalysisResponse: {field}")
+                    return False
+            
+            print("✅ WebsiteData and WebsiteAnalysisResponse models have all required fields")
+            print(f"   WebsiteData ID: {test_website_data.id}")
+            print(f"   Analysis Summary: {test_website_data.analysis_summary}")
+            print(f"   Key Topics: {test_website_data.key_topics}")
+            print(f"   Brand Tone: {test_website_data.brand_tone}")
+            
+            self.tests_passed += 1
+            return True
+            
+        except Exception as e:
+            print(f"❌ Failed to test website analysis models: {e}")
+            return False
+
+    def test_new_subscription_plans_validation(self):
+        """Test that new subscription plans (starter, rocket, pro) are properly configured"""
+        print(f"\n🔍 Testing New Subscription Plans...")
+        
+        try:
+            import sys
+            sys.path.append('/app/backend')
+            from payments import SUBSCRIPTION_PACKAGES
+            
+            # Expected new plans with correct pricing
+            expected_plans = {
+                "starter_monthly": {"name": "Starter", "amount": 14.99, "period": "monthly"},
+                "starter_yearly": {"name": "Starter", "amount": 149.99, "period": "yearly"},
+                "rocket_monthly": {"name": "Rocket", "amount": 29.99, "period": "monthly"},
+                "rocket_yearly": {"name": "Rocket", "amount": 299.99, "period": "yearly"},
+                "pro_monthly": {"name": "Pro", "amount": 199.99, "period": "monthly"},
+                "pro_yearly": {"name": "Pro", "amount": 1999.99, "period": "yearly"}
+            }
+            
+            print(f"   Found {len(SUBSCRIPTION_PACKAGES)} subscription packages")
+            
+            # Verify all expected plans exist with correct pricing
+            for plan_id, expected_plan in expected_plans.items():
+                if plan_id not in SUBSCRIPTION_PACKAGES:
+                    print(f"   ❌ Missing plan: {plan_id}")
+                    return False
+                
+                actual_plan = SUBSCRIPTION_PACKAGES[plan_id]
+                
+                # Check name
+                if actual_plan["name"] != expected_plan["name"]:
+                    print(f"   ❌ Plan name mismatch for {plan_id}: expected {expected_plan['name']}, got {actual_plan['name']}")
+                    return False
+                
+                # Check amount
+                if actual_plan["amount"] != expected_plan["amount"]:
+                    print(f"   ❌ Plan amount mismatch for {plan_id}: expected €{expected_plan['amount']}, got €{actual_plan['amount']}")
+                    return False
+                
+                # Check period
+                if actual_plan["period"] != expected_plan["period"]:
+                    print(f"   ❌ Plan period mismatch for {plan_id}: expected {expected_plan['period']}, got {actual_plan['period']}")
+                    return False
+                
+                print(f"   ✅ {plan_id}: {actual_plan['name']} - €{actual_plan['amount']} ({actual_plan['period']})")
+            
+            print("✅ All new subscription plans (Starter, Rocket, Pro) are properly configured")
+            self.tests_passed += 1
+            return True
+            
+        except Exception as e:
+            print(f"❌ Failed to validate new subscription plans: {e}")
+            return False
         """Test payment_transactions collection creation and structure"""
         print(f"\n🔍 Testing Payment Transactions Database...")
         

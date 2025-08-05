@@ -481,8 +481,10 @@ class ContentScheduler:
     
     @staticmethod
     async def generate_posts_automatically(business_id: str):
-        """Automatically generate posts for a business"""
+        """Automatically generate posts for a business with performance analysis"""
         try:
+            logger.info(f"🚀 Starting automatic post generation for business {business_id}")
+            
             # Get business profile
             business_profile = await db.business_profiles.find_one({"id": business_id})
             if not business_profile:
@@ -490,6 +492,18 @@ class ContentScheduler:
                 return
             
             business_prof = BusinessProfile(**business_profile)
+            logger.info(f"📋 Business: {business_prof.business_name} - Frequency: {business_prof.posting_frequency}")
+            
+            # PHASE 2: PERFORMANCE ANALYSIS BEFORE GENERATION
+            logger.info("🔍 Step 1/4: Analyzing previous post performance...")
+            performance_data = await ContentScheduler.analyze_performance_before_generation(
+                business_id, 
+                business_prof.posting_frequency
+            )
+            
+            logger.info(f"📊 Analysis complete - Insights available: {performance_data['has_insights']}")
+            if performance_data['has_insights']:
+                logger.info(f"💡 Key recommendations: {performance_data['ai_recommendations'][:2]}")
             
             # Calculate required posts
             frequency_requirements = {

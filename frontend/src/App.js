@@ -28,6 +28,298 @@ import { toast } from 'react-hot-toast';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+// Subscription plans data
+const SUBSCRIPTION_PLANS = [
+  {
+    id: 'starter',
+    name: 'Starter',
+    monthlyPrice: 19.99,
+    yearlyPrice: 199.99,
+    features: ['50 posts IA par mois', '2 réseaux sociaux', 'Programmation automatique', 'Support par email'],
+    color: 'blue',
+    popular: false
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    monthlyPrice: 49.99,
+    yearlyPrice: 499.99,
+    features: ['200 posts IA par mois', 'Tous les réseaux sociaux', 'Analytics avancés', 'Support prioritaire', 'Calendrier de contenu'],
+    color: 'purple',
+    popular: true
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    monthlyPrice: 99.99,
+    yearlyPrice: 999.99,
+    features: ['Posts IA illimités', 'Tous les réseaux sociaux', 'Branding personnalisé', 'Support dédié', 'Analytics complets', 'API access'],
+    color: 'gold',
+    popular: false
+  }
+];
+
+// Subscription upgrade component
+const SubscriptionUpgrade = ({ user, onUpgradeSuccess }) => {
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [isYearly, setIsYearly] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState(null);
+
+  // Check for payment return from Stripe
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('session_id');
+    const paymentSuccess = urlParams.get('payment_success');
+    const paymentCancelled = urlParams.get('payment_cancelled');
+
+    if (sessionId) {
+      setPaymentStatus('checking');
+      pollPaymentStatus(sessionId);
+    } else if (paymentSuccess) {
+      setPaymentStatus('success');
+    } else if (paymentCancelled) {
+      setPaymentStatus('cancelled');
+    }
+  }, []);
+
+  const pollPaymentStatus = async (sessionId, attempts = 0) => {
+    const maxAttempts = 5;
+    
+    if (attempts >= maxAttempts) {
+      setPaymentStatus('timeout');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API}/payments/v1/checkout/status/${sessionId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data.payment_status === 'paid') {
+        setPaymentStatus('success');
+        setTimeout(() => {
+          onUpgradeSuccess();
+        }, 2000);
+        return;
+      } else if (response.data.status === 'expired') {
+        setPaymentStatus('expired');
+        return;
+      }
+
+      // Continue polling
+      setTimeout(() => pollPaymentStatus(sessionId, attempts + 1), 2000);
+    } catch (error) {
+      console.error('Error checking payment status:', error);
+      setPaymentStatus('error');
+    }
+  };
+
+  const handleUpgrade = async (planId) => {
+    if (!planId) return;
+
+    setIsProcessing(true);
+    setSelectedPlan(planId);
+
+    try {
+      const token = localStorage.getItem('token');
+      const packageId = `${planId}_${isYearly ? 'yearly' : 'monthly'}`;
+
+      const response = await axios.post(`${API}/payments/v1/checkout/session`, {
+        package_id: packageId,
+        origin_url: window.location.origin,
+        promo_code: promoCode || undefined
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data.url) {
+        // Redirect to Stripe
+        window.location.href = response.data.url;
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast.error(error.response?.data?.detail || 'Erreur lors du paiement');
+      setIsProcessing(false);
+    }
+  };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: 'EUR'
+    }).format(price);
+  };
+
+  // Payment status displays
+  if (paymentStatus === 'checking') {
+    return (
+      <Card className="card-gradient">
+        <CardContent className="text-center py-12">
+          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <h3 className="text-xl font-bold text-gray-700">Vérification du paiement...</h3>
+          <p className="text-gray-500">Veuillez patienter pendant que nous confirmons votre paiement</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (paymentStatus === 'success') {
+    return (
+      <Card className="card-gradient border-green-200">
+        <CardContent className="text-center py-12">
+          <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Check className="w-8 h-8 text-white" />
+          </div>
+          <h3 className="text-xl font-bold text-green-700">Paiement réussi ! 🎉</h3>
+          <p className="text-gray-600">Votre abonnement a été activé avec succès</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (paymentStatus === 'cancelled') {
+    return (
+      <Card className="card-gradient border-yellow-200">
+        <CardContent className="text-center py-12">
+          <div className="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <X className="w-8 h-8 text-white" />
+          </div>
+          <h3 className="text-xl font-bold text-yellow-700">Paiement annulé</h3>
+          <p className="text-gray-600">Vous pouvez réessayer à tout moment</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="card-gradient border-2 border-purple-200">
+      <CardHeader className="text-center">
+        <CardTitle className="flex items-center justify-center space-x-3 text-2xl">
+          <Crown className="w-8 h-8 text-purple-600" />
+          <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            Passez au niveau supérieur ! 🚀
+          </span>
+        </CardTitle>
+        <CardDescription className="text-lg">
+          {user.subscription_status === 'trial' 
+            ? 'Votre essai arrive à terme. Choisissez un plan pour continuer.'
+            : 'Réactivez votre abonnement pour continuer à utiliser nos services.'
+          }
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {/* Billing toggle */}
+        <div className="flex items-center justify-center space-x-4 mb-8">
+          <span className={`text-lg ${!isYearly ? 'font-bold text-purple-600' : 'text-gray-500'}`}>
+            Mensuel
+          </span>
+          <div 
+            className="relative w-14 h-7 bg-gray-200 rounded-full cursor-pointer transition-colors"
+            onClick={() => setIsYearly(!isYearly)}
+            style={{ backgroundColor: isYearly ? '#9333ea' : '#e5e7eb' }}
+          >
+            <div 
+              className="absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow-md transition-transform"
+              style={{ transform: isYearly ? 'translateX(28px)' : 'translateX(0px)' }}
+            />
+          </div>
+          <span className={`text-lg ${isYearly ? 'font-bold text-purple-600' : 'text-gray-500'}`}>
+            Annuel <span className="text-green-600 text-sm">(2 mois gratuits)</span>
+          </span>
+        </div>
+
+        {/* Plans grid */}
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          {SUBSCRIPTION_PLANS.map((plan) => {
+            const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+            const monthlyEquivalent = isYearly ? plan.yearlyPrice / 12 : plan.monthlyPrice;
+            
+            return (
+              <div
+                key={plan.id}
+                className={`relative rounded-2xl p-6 border-2 cursor-pointer transition-all hover:shadow-lg ${
+                  plan.popular ? 'border-purple-500 bg-gradient-to-b from-purple-50 to-white' : 'border-gray-200 hover:border-purple-300'
+                } ${selectedPlan === plan.id ? 'ring-2 ring-purple-500' : ''}`}
+                onClick={() => setSelectedPlan(plan.id)}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-purple-500 text-white px-3 py-1">Plus populaire</Badge>
+                  </div>
+                )}
+                
+                <div className="text-center mb-4">
+                  <h3 className="text-xl font-bold text-gray-900">{plan.name}</h3>
+                  <div className="mt-2">
+                    <span className="text-3xl font-bold text-gray-900">
+                      {formatPrice(price)}
+                    </span>
+                    <span className="text-gray-500">
+                      {isYearly ? '/an' : '/mois'}
+                    </span>
+                    {isYearly && (
+                      <div className="text-sm text-green-600">
+                        {formatPrice(monthlyEquivalent)}/mois
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <ul className="space-y-3 mb-6">
+                  {plan.features.map((feature, index) => (
+                    <li key={index} className="flex items-start">
+                      <Check className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+                      <span className="text-sm text-gray-700">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Promo code input */}
+        <div className="mb-6">
+          <Label htmlFor="promo">Code promo (optionnel)</Label>
+          <Input
+            id="promo"
+            placeholder="Entrez votre code promo"
+            value={promoCode}
+            onChange={(e) => setPromoCode(e.target.value)}
+            className="mt-1"
+          />
+        </div>
+
+        {/* Upgrade button */}
+        {selectedPlan && (
+          <div className="text-center">
+            <Button
+              onClick={() => handleUpgrade(selectedPlan)}
+              disabled={isProcessing}
+              className="btn-gradient-primary h-14 px-8 text-lg font-bold"
+            >
+              {isProcessing ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  Redirection vers le paiement...
+                </>
+              ) : (
+                <>
+                  <CreditCard className="w-5 h-5 mr-2" />
+                  Passer à {SUBSCRIPTION_PLANS.find(p => p.id === selectedPlan)?.name}
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
 function MainApp() {
   const location = useLocation();
   

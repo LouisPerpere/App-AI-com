@@ -952,7 +952,7 @@ function MainApp() {
                   </span>
                 </CardTitle>
                 <CardDescription className="text-lg text-gray-600">
-                  Ajoutez des informations importantes pour enrichir vos posts automatiquement 🎯
+                  Ajoutez des informations importantes pour créer des posts qui cartonnent ! 🎯
                 </CardDescription>
               </CardHeader>
               <CardContent>

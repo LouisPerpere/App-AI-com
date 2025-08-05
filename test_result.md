@@ -296,6 +296,18 @@ backend:
         agent: "main"
         comment: "✅ IMPLEMENTED: Added complete Notes API endpoints: (1) Fixed POST /api/notes to accept simple dict with title/content/priority instead of full ContentNote model, (2) Fixed GET /api/notes to return notes array directly instead of wrapped in {notes: array}, (3) Added DELETE /api/notes/{note_id} endpoint with proper user validation, (4) Added POST /api/posts/generate endpoint to generate posts from notes using OpenAI GPT with business profile context, proper error handling, and database storage. All endpoints are user-scoped and require authentication."
 
+  - task: "Posts Generation from Notes"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ IMPLEMENTED: Added POST /api/posts/generate endpoint that takes notes and business profile data, uses OpenAI GPT to generate 3 engaging social media posts, stores them in database with proper user/business scoping, and returns structured response. Includes error handling for missing API key, JSON parsing fallbacks, and proper GeneratedPost model usage."
+
   - task: "User Password Reset for lperpere@yahoo.fr"
     implemented: true
     working: true

@@ -4612,6 +4612,66 @@ class SocialGenieAPITester:
         
         return investigation_results
 
+    def run_lperpere_task_creation_tests(self):
+        """Run specific tests for lperpere@yahoo.fr task creation as requested"""
+        print("🎯 Starting Immediate Task Creation Tests for lperpere@yahoo.fr...")
+        print("="*80)
+        
+        # Authentication first
+        print("\n🔐 AUTHENTICATION")
+        print("-"*40)
+        
+        if not self.test_user_login():
+            print("❌ Cannot proceed without authentication")
+            return False
+        
+        # Get business profile
+        print("\n📋 BUSINESS PROFILE SETUP")
+        print("-"*40)
+        
+        if not self.test_get_business_profile():
+            print("❌ Cannot proceed without business profile")
+            return False
+        
+        # Execute the specific tests requested
+        print("\n🚀 IMMEDIATE TASK CREATION TESTS")
+        print("-"*40)
+        
+        # Test 1: Create immediate generation task for lperpere
+        success1 = self.test_create_immediate_generation_task_for_lperpere()
+        
+        # Test 2: Verify scheduled tasks in database
+        success2 = self.test_verify_scheduled_tasks_in_database()
+        
+        # Print results
+        print("\n📊 LPERPERE TASK CREATION TEST RESULTS")
+        print("="*80)
+        
+        print(f"✅ Authentication: {'SUCCESS' if self.access_token else 'FAILED'}")
+        print(f"✅ Business Profile: {'SUCCESS' if self.business_id else 'FAILED'}")
+        print(f"✅ Task Creation: {'SUCCESS' if success1 else 'FAILED'}")
+        print(f"✅ Database Verification: {'SUCCESS' if success2 else 'FAILED'}")
+        
+        overall_success = success1 and success2
+        
+        if overall_success:
+            print("\n🎉 ALL TESTS PASSED!")
+            print("✅ Generation task created (scheduled in ~2 minutes)")
+            print("✅ Reminder task created (scheduled in ~30 seconds)")
+            print("✅ Tasks verified in scheduled_tasks collection")
+            print("✅ Scheduler should detect and execute these tasks automatically")
+            print("\n💡 Expected Results:")
+            print("   - Generation task will run in approximately 2 minutes")
+            print("   - Reminder task will run in approximately 30 seconds")
+            print("   - Both tasks are active and ready for scheduler detection")
+            print("   - User: lperpere@yahoo.fr")
+            print("   - Authentication: L@Reunion974!")
+        else:
+            print("\n❌ SOME TESTS FAILED")
+            print("   Please check the error messages above for details")
+        
+        return overall_success
+
 def main():
     print("🚀 Starting PostCraft SaaS Backend API Tests")
     print("=" * 60)

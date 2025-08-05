@@ -418,6 +418,7 @@ function MainApp() {
   const [websiteAnalysis, setWebsiteAnalysis] = useState(null);
   const [isAnalyzingWebsite, setIsAnalyzingWebsite] = useState(false);
   const [showWebsiteAnalysis, setShowWebsiteAnalysis] = useState(false);
+  const [showBurgerMenu, setShowBurgerMenu] = useState(false);
   
   // Hashtag management
   const [newPrimaryHashtag, setNewPrimaryHashtag] = useState('');

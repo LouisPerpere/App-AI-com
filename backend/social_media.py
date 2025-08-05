@@ -614,5 +614,291 @@ async def disconnect_social_account(
     
     return {"message": "Social media account disconnected successfully"}
 
+# Social Media Analytics Functions
+class SocialMediaAnalytics:
+    """Functions to retrieve post metrics from social media platforms"""
+    
+    def __init__(self):
+        self.facebook_api = FacebookAPIClient()
+        self.instagram_api = InstagramAPIClient()
+    
+    async def get_facebook_post_metrics(self, post_id: str, access_token: str) -> Dict[str, Any]:
+        """Retrieve metrics for a Facebook post"""
+        try:
+            # Facebook Graph API endpoint for post insights
+            url = f"https://graph.facebook.com/v19.0/{post_id}/insights"
+            params = {
+                'access_token': access_token,
+                'metric': 'post_engaged_users,post_clicks,post_impressions,post_reach,post_reactions_by_type_total'
+            }
+            
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url, params=params)
+                
+            if response.status_code == 200:
+                data = response.json()
+                insights = data.get('data', [])
+                
+                # Parse metrics into standardized format
+                metrics = {}
+                for insight in insights:
+                    metric_name = insight.get('name')
+                    values = insight.get('values', [])
+                    
+                    if values:
+                        if metric_name == 'post_engaged_users':
+                            metrics['engaged_users'] = values[0].get('value', 0)
+                        elif metric_name == 'post_clicks':
+                            metrics['clicks'] = values[0].get('value', 0)
+                        elif metric_name == 'post_impressions':
+                            metrics['impressions'] = values[0].get('value', 0)
+                        elif metric_name == 'post_reach':
+                            metrics['reach'] = values[0].get('value', 0)
+                        elif metric_name == 'post_reactions_by_type_total':
+                            reactions = values[0].get('value', {})
+                            metrics['likes'] = reactions.get('like', 0)
+                            metrics['love'] = reactions.get('love', 0)
+                            metrics['wow'] = reactions.get('wow', 0)
+                            metrics['haha'] = reactions.get('haha', 0)
+                            metrics['sad'] = reactions.get('sad', 0)
+                            metrics['angry'] = reactions.get('angry', 0)
+                            metrics['total_reactions'] = sum(reactions.values())
+                
+                # Get additional metrics (comments, shares) from post endpoint
+                post_url = f"https://graph.facebook.com/v19.0/{post_id}"
+                post_params = {
+                    'access_token': access_token,
+                    'fields': 'comments.summary(true),shares'
+                }
+                
+                post_response = await client.get(post_url, params=post_params)
+                if post_response.status_code == 200:
+                    post_data = post_response.json()
+                    metrics['comments'] = post_data.get('comments', {}).get('summary', {}).get('total_count', 0)
+                    metrics['shares'] = post_data.get('shares', {}).get('count', 0)
+                
+                # Calculate engagement rate
+                total_engagement = (metrics.get('total_reactions', 0) + 
+                                  metrics.get('comments', 0) + 
+                                  metrics.get('shares', 0))
+                reach = metrics.get('reach', 1)
+                metrics['engagement_rate'] = round((total_engagement / max(reach, 1)) * 100, 2)
+                
+                return metrics
+                
+            else:
+                logging.error(f"Facebook API error: {response.status_code} - {response.text}")
+                return {}
+                
+        except Exception as e:
+            logging.error(f"Error retrieving Facebook post metrics: {e}")
+            return {}
+    
+    async def get_instagram_post_metrics(self, post_id: str, access_token: str) -> Dict[str, Any]:
+        """Retrieve metrics for an Instagram post"""
+        try:
+            # Instagram Graph API endpoint for media insights
+            url = f"https://graph.facebook.com/v19.0/{post_id}/insights"
+            params = {
+                'access_token': access_token,
+                'metric': 'impressions,reach,likes,comments,shares,saved,profile_visits,follows'
+            }
+            
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url, params=params)
+                
+            if response.status_code == 200:
+                data = response.json()
+                insights = data.get('data', [])
+                
+                # Parse metrics into standardized format
+                metrics = {}
+                for insight in insights:
+                    metric_name = insight.get('name')
+                    values = insight.get('values', [])
+                    
+                    if values:
+                        value = values[0].get('value', 0)
+                        metrics[metric_name] = value
+                
+                # Calculate engagement rate
+                total_engagement = (metrics.get('likes', 0) + 
+                                  metrics.get('comments', 0) + 
+                                  metrics.get('shares', 0) + 
+                                  metrics.get('saved', 0))
+                reach = metrics.get('reach', 1)
+                metrics['engagement_rate'] = round((total_engagement / max(reach, 1)) * 100, 2)
+                
+                return metrics
+                
+            else:
+                logging.error(f"Instagram API error: {response.status_code} - {response.text}")
+                return {}
+                
+        except Exception as e:
+            logging.error(f"Error retrieving Instagram post metrics: {e}")
+            return {}
+    
+    async def get_post_metrics_for_business(self, business_id: str, days_back: int = 7) -> List[Dict[str, Any]]:
+        """Retrieve metrics for all posts from a business in the specified period"""
+        try:
+            # Calculate date range
+            end_date = datetime.utcnow()
+            start_date = end_date - timedelta(days=days_back)
+            
+            # Get published posts from the period
+            published_posts = await db.generated_posts.find({
+                "business_id": business_id,
+                "status": "posted",
+                "published_at": {"$gte": start_date, "$lte": end_date}
+            }).to_list(100)
+            
+            # Get social media connections for this business
+            connections = await db.social_media_connections.find({
+                "business_id": business_id,
+                "active": True
+            }).to_list(50)
+            
+            # Create connection lookup
+            connection_map = {conn["platform"]: conn for conn in connections}
+            
+            metrics_list = []
+            
+            for post in published_posts:
+                platform = post.get("platform", "facebook")
+                platform_post_id = post.get("platform_post_id")
+                
+                if not platform_post_id:
+                    continue
+                    
+                connection = connection_map.get(platform)
+                if not connection:
+                    continue
+                
+                access_token = connection.get("access_token")
+                if not access_token:
+                    continue
+                
+                # Retrieve metrics based on platform
+                if platform == "facebook":
+                    metrics = await self.get_facebook_post_metrics(platform_post_id, access_token)
+                elif platform == "instagram":
+                    metrics = await self.get_instagram_post_metrics(platform_post_id, access_token)
+                else:
+                    continue
+                
+                if metrics:
+                    post_metrics = {
+                        "post_id": post["id"],
+                        "platform": platform,
+                        "platform_post_id": platform_post_id,
+                        "metrics": metrics,
+                        "collected_at": datetime.utcnow(),
+                        "analysis_period": f"{days_back}_days"
+                    }
+                    metrics_list.append(post_metrics)
+            
+            return metrics_list
+            
+        except Exception as e:
+            logging.error(f"Error retrieving post metrics for business: {e}")
+            return []
+
+# Initialize analytics
+social_analytics = SocialMediaAnalytics()
+
+# API Endpoint for retrieving metrics
+@social_router.get("/metrics")
+async def get_social_media_metrics(
+    days_back: int = 7,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Get social media metrics for user's posts"""
+    try:
+        # Get user's business profile
+        business_profile = await db.business_profiles.find_one({"user_id": current_user.id})
+        if not business_profile:
+            raise HTTPException(status_code=404, detail="Business profile not found")
+        
+        # Retrieve metrics
+        metrics = await social_analytics.get_post_metrics_for_business(
+            business_profile["id"], 
+            days_back
+        )
+        
+        return {
+            "metrics": metrics,
+            "total_posts": len(metrics),
+            "period": f"{days_back} days",
+            "collected_at": datetime.utcnow()
+        }
+        
+    except Exception as e:
+        logging.error(f"Error in get_social_media_metrics: {e}")
+        raise HTTPException(status_code=500, detail=f"Error retrieving metrics: {str(e)}")
+
+@social_router.get("/metrics/{post_id}")
+async def get_specific_post_metrics(
+    post_id: str,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Get metrics for a specific post"""
+    try:
+        # Verify post belongs to user
+        post = await db.generated_posts.find_one({
+            "id": post_id,
+            "user_id": current_user.id
+        })
+        
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+        
+        platform = post.get("platform", "facebook")
+        platform_post_id = post.get("platform_post_id")
+        
+        if not platform_post_id:
+            raise HTTPException(status_code=400, detail="Post not published to social media")
+        
+        # Get business profile and connections
+        business_profile = await db.business_profiles.find_one({"user_id": current_user.id})
+        if not business_profile:
+            raise HTTPException(status_code=404, detail="Business profile not found")
+        
+        connection = await db.social_media_connections.find_one({
+            "business_id": business_profile["id"],
+            "platform": platform,
+            "active": True
+        })
+        
+        if not connection:
+            raise HTTPException(status_code=404, detail=f"No active {platform} connection found")
+        
+        access_token = connection.get("access_token")
+        if not access_token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+        
+        # Retrieve metrics
+        if platform == "facebook":
+            metrics = await social_analytics.get_facebook_post_metrics(platform_post_id, access_token)
+        elif platform == "instagram":
+            metrics = await social_analytics.get_instagram_post_metrics(platform_post_id, access_token)
+        else:
+            raise HTTPException(status_code=400, detail=f"Unsupported platform: {platform}")
+        
+        return {
+            "post": {
+                "id": post["id"],
+                "content": post.get("content", ""),
+                "platform": platform,
+                "published_at": post.get("published_at")
+            },
+            "metrics": metrics,
+            "collected_at": datetime.utcnow()
+        }
+        
+    except Exception as e:
+        logging.error(f"Error getting specific post metrics: {e}")
+        raise HTTPException(status_code=500, detail=f"Error retrieving post metrics: {str(e)}")
+
 # Export router
 __all__ = ["social_router"]

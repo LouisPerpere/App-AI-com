@@ -61,6 +61,7 @@ class BusinessProfile(BaseModel):
     budget_range: str
     logo_url: Optional[str] = None
     email: Optional[str] = None
+    website_url: Optional[str] = None  # NEW: Website URL for analysis
     hashtags_primary: List[str] = []  # NEW: Always included
     hashtags_secondary: List[str] = []  # NEW: Context-dependent
     created_at: datetime = Field(default_factory=datetime.utcnow)

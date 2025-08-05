@@ -1136,29 +1136,35 @@ function MainApp() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <Tabs defaultValue="library" className="space-y-8">
-          <TabsList className="grid grid-cols-5 w-full max-w-3xl mx-auto bg-white/80 backdrop-blur-lg p-2 rounded-2xl shadow-xl">
-            <TabsTrigger value="library" className="tab-sexy">
-              <ImageIcon className="w-5 h-5" />
-              <span className="ml-2 font-semibold">Bibliothèque</span>
-            </TabsTrigger>
-            <TabsTrigger value="notes" className="tab-sexy">
-              <Edit className="w-5 h-5" />
-              <span className="ml-2 font-semibold">Notes</span>
-            </TabsTrigger>
-            <TabsTrigger value="posts" className="tab-sexy">
-              <FileText className="w-5 h-5" />
-              <span className="ml-2 font-semibold">Posts</span>
-            </TabsTrigger>
-            <TabsTrigger value="calendar" className="tab-sexy">
-              <CalendarIcon className="w-5 h-5" />
-              <span className="ml-2 font-semibold">Calendrier</span>
-            </TabsTrigger>
-            <TabsTrigger value="social" className="tab-sexy">
-              <Target className="w-5 h-5" />
-              <span className="ml-2 font-semibold">Social</span>
-            </TabsTrigger>
-          </TabsList>
+        <Tabs defaultValue="entreprise" className="space-y-8">
+          <div className="overflow-x-auto">
+            <TabsList className="grid grid-cols-6 w-full max-w-4xl mx-auto bg-white/80 backdrop-blur-lg p-2 rounded-2xl shadow-xl min-w-max">
+              <TabsTrigger value="entreprise" className="tab-sexy">
+                <Building className="w-5 h-5" />
+                <span className="ml-2 font-semibold">Entreprise</span>
+              </TabsTrigger>
+              <TabsTrigger value="library" className="tab-sexy">
+                <ImageIcon className="w-5 h-5" />
+                <span className="ml-2 font-semibold">Bibliothèque</span>
+              </TabsTrigger>
+              <TabsTrigger value="notes" className="tab-sexy">
+                <Edit className="w-5 h-5" />
+                <span className="ml-2 font-semibold">Notes</span>
+              </TabsTrigger>
+              <TabsTrigger value="posts" className="tab-sexy">
+                <FileText className="w-5 h-5" />
+                <span className="ml-2 font-semibold">Posts</span>
+              </TabsTrigger>
+              <TabsTrigger value="calendar" className="tab-sexy">
+                <CalendarIcon className="w-5 h-5" />
+                <span className="ml-2 font-semibold">Calendrier</span>
+              </TabsTrigger>
+              <TabsTrigger value="social" className="tab-sexy">
+                <Target className="w-5 h-5" />
+                <span className="ml-2 font-semibold">Social</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="library" className="space-y-8">
             <Card className="card-gradient">

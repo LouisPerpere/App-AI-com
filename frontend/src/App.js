@@ -33,31 +33,42 @@ const SUBSCRIPTION_PLANS = [
   {
     id: 'starter',
     name: 'Starter',
-    monthlyPrice: 19.99,
-    yearlyPrice: 199.99,
-    features: ['50 contenus par mois', '2 réseaux sociaux', 'Programmation automatique', 'Support par email'],
+    monthlyPrice: 14.99,
+    yearlyPrice: 149.99,
+    features: ['4 posts par mois', '1 réseau social', 'Programmation automatique', 'Support par email'],
     color: 'blue',
-    popular: false
+    popular: false,
+    badge: null
+  },
+  {
+    id: 'rocket',
+    name: 'Rocket',
+    monthlyPrice: 29.99,
+    yearlyPrice: 299.99,
+    features: ['Posts illimités', 'Tous les réseaux sociaux', 'Analytics avancés', 'Support prioritaire', 'Calendrier de contenu'],
+    color: 'purple',
+    popular: true,
+    badge: 'Plus populaire'
   },
   {
     id: 'pro',
     name: 'Pro',
-    monthlyPrice: 49.99,
-    yearlyPrice: 499.99,
-    features: ['200 contenus par mois', 'Tous les réseaux sociaux', 'Analytics avancés', 'Support prioritaire', 'Calendrier de contenu'],
-    color: 'purple',
-    popular: true
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    monthlyPrice: 99.99,
-    yearlyPrice: 999.99,
-    features: ['Contenus illimités', 'Tous les réseaux sociaux', 'Branding personnalisé', 'Support dédié', 'Analytics complets', 'API access'],
+    monthlyPrice: 199.99,
+    yearlyPrice: 1999.99,
+    features: ['Posts illimités', 'Tous les réseaux sociaux', 'Gestion multi-comptes', 'Support dédié', 'Analytics complets', 'Community management'],
     color: 'gold',
-    popular: false
+    popular: false,
+    badge: 'Community Managers'
   }
 ];
+
+// Free trial plan (shown separately)
+const FREE_TRIAL_PLAN = {
+  name: 'Essai Gratuit',
+  duration: '1 mois offert',
+  features: ['Posts illimités', '1 réseau social', 'Découverte complète', 'Support par email'],
+  color: 'green'
+};
 
 // Subscription upgrade component
 const SubscriptionUpgrade = ({ user, onUpgradeSuccess }) => {

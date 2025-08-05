@@ -1681,7 +1681,7 @@ function MainApp() {
                     {/* Quick Actions */}
                     <div className="grid md:grid-cols-3 gap-4">
                       <Button
-                        onClick={() => setIsEditingProfile(true)}
+                        onClick={handleEditProfile}
                         className="h-16 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 flex-col"
                       >
                         <Edit className="w-6 h-6 mb-1" />

@@ -48,8 +48,13 @@ const AuthPage = ({ onAuthSuccess }) => {
       localStorage.setItem('access_token', response.data.access_token);
       localStorage.setItem('refresh_token', response.data.refresh_token);
       
+      // Set axios default header immediately
+      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`;
+      
       toast.success('Connexion réussie ! 🎉');
-      onAuthSuccess(response.data);
+      
+      // Call auth success callback
+      await onAuthSuccess();
     } catch (error) {
       console.error('Login error:', error);
       setError(error.response?.data?.detail || 'Erreur de connexion');

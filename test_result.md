@@ -469,9 +469,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Website Analysis Routes"
-    - "New Subscription Plans"
-    - "Website Analysis Models"
+    - "Notes API Endpoints"
+    - "Notes Tab Interface"
+    - "Posts Generation from Notes"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

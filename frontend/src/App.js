@@ -561,6 +561,35 @@ function MainApp() {
     }
   };
 
+  const generatePosts = async () => {
+    if (notes.length === 0) {
+      toast.error('Aucune note disponible pour générer des posts');
+      return;
+    }
+
+    setIsGeneratingPosts(true);
+    try {
+      const response = await axios.post(`${API}/posts/generate`, {
+        notes: notes,
+        business_profile: businessProfile
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        toast.success('Posts générés avec succès !');
+        loadGeneratedPosts(); // Recharger la liste des posts générés
+        // Optionnel: passer à l'onglet Posts pour voir les résultats
+        setTimeout(() => {
+          document.querySelector('[value="posts"]')?.click();
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('Error generating posts:', error);
+      toast.error('Erreur lors de la génération des posts');
+    } finally {
+      setIsGeneratingPosts(false);
+    }
+  };
+
   const loadSocialConnections = async () => {
     try {
       if (businessProfile?.id) {

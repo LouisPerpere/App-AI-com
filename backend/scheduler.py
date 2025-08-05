@@ -328,6 +328,140 @@ JSON uniquement:
         except Exception as e:
             logger.error(f"Error generating sector content: {e}")
             return []
+    
+    @staticmethod
+    async def generate_performance_optimized_content(business_profile: BusinessProfile, performance_data: Dict[str, Any], notes_list: List[ContentNote] = None):
+        """Generate content optimized based on performance insights"""
+        try:
+            logger.info("🎯 Generating performance-optimized content...")
+            
+            if notes_list is None:
+                notes_list = []
+            
+            # Extract performance insights
+            has_insights = performance_data.get('has_insights', False)
+            recommended_hashtags = performance_data.get('recommended_hashtags', [])
+            high_performing_keywords = performance_data.get('high_performing_keywords', [])
+            high_performing_topics = performance_data.get('high_performing_topics', [])
+            ai_recommendations = performance_data.get('ai_recommendations', [])
+            content_length = performance_data.get('optimal_content_length', '100-150')
+            
+            # Build performance-aware system message
+            if has_insights:
+                performance_context = f"""
+INSIGHTS DE PERFORMANCE ANALYSÉS:
+- Hashtags performants: {', '.join(recommended_hashtags[:3]) if recommended_hashtags else 'Aucun data disponible'}
+- Mots-clés qui marchent: {', '.join(high_performing_keywords[:3]) if high_performing_keywords else 'Aucun data disponible'}
+- Sujets engageants: {', '.join(high_performing_topics[:2]) if high_performing_topics else 'Aucun data disponible'}
+- Longueur optimale: {content_length} caractères
+- Recommandations IA: {', '.join(ai_recommendations[:2]) if ai_recommendations else 'Aucun data disponible'}
+
+UTILISE CES INSIGHTS pour optimiser le contenu généré !
+"""
+            else:
+                performance_context = """
+PREMIÈRE GÉNÉRATION - Pas encore d'insights de performance.
+Focus sur du contenu engageant et authentique pour créer une base de données.
+"""
+            
+            # Prepare notes context
+            notes_context = ""
+            if notes_list:
+                notes_context = "\nINFORMATIONS IMPORTANTES À INTÉGRER:\n"
+                for note in notes_list:
+                    priority_emoji = "🔴" if note.priority == "high" else "🟡" if note.priority == "medium" else "🟢"
+                    notes_context += f"- {priority_emoji} {note.title}: {note.content}\n"
+            
+            # Create performance-optimized system message
+            system_message = f"""Tu génères du contenu pour {business_profile.business_name} - {business_profile.business_type}.
+
+PROFIL ENTREPRISE:
+- Audience: {business_profile.target_audience}
+- Ton: {business_profile.brand_tone}
+- Plateformes: {', '.join(business_profile.preferred_platforms)}
+
+{performance_context}
+
+{notes_context}
+
+RÈGLES DE GÉNÉRATION INTELLIGENTE:
+1. Si des hashtags performants sont disponibles, INTÈGRE-LES naturellement
+2. Si des mots-clés performants sont identifiés, UTILISE-LES dans le contenu
+3. Si des sujets engageants sont connus, CONCENTRE-TOI dessus
+4. Respecte la longueur optimale identifiée: {content_length} caractères
+5. Intègre les recommandations IA quand pertinentes
+
+STYLE AUTHENTIQUE OBLIGATOIRE:
+❌ JAMAIS: Language marketing artificiel, emojis clichés (🚀✨💫🎯)
+❌ JAMAIS: "Découvrez", "Explorons", "Il est crucial", "N'hésitez pas"
+✅ TOUJOURS: Ton naturel, expériences réelles, utile sans prétention
+
+Génère 3 posts variés et optimisés."""
+            
+            chat = LlmChat(
+                api_key=os.environ['OPENAI_API_KEY'],
+                session_id=f"perf_optimized_{uuid.uuid4()}",
+                system_message=system_message
+            ).with_model("openai", "gpt-4o")
+            
+            # Dynamic prompt based on performance data
+            if has_insights and high_performing_topics:
+                topic_focus = f"Focus sur ces sujets qui marchent bien: {', '.join(high_performing_topics[:2])}"
+            else:
+                topic_focus = "Varie les sujets pour tester ce qui engage le mieux"
+            
+            hashtag_guidance = ""
+            if recommended_hashtags:
+                hashtag_guidance = f"Intègre ces hashtags performants: {' '.join(recommended_hashtags[:5])}"
+            else:
+                hashtag_guidance = "Utilise des hashtags pertinents pour ton secteur"
+            
+            prompt = f"""Génère 3 posts optimisés pour les réseaux sociaux.
+
+CONSIGNES SPÉCIFIQUES:
+- {topic_focus}
+- {hashtag_guidance}
+- Longueur cible: {content_length} caractères
+- Ton: {business_profile.brand_tone}
+
+{"Applique ces recommandations: " + ', '.join(ai_recommendations[:2]) if ai_recommendations else ""}
+
+JSON uniquement:
+{{"posts": [
+  {{"platform": "facebook", "content": "contenu du post", "hashtags": ["hashtag1", "hashtag2"], "visual_description": "description visuel"}},
+  {{"platform": "instagram", "content": "contenu du post", "hashtags": ["hashtag1", "hashtag2"], "visual_description": "description visuel"}},
+  {{"platform": "linkedin", "content": "contenu du post", "hashtags": ["hashtag1", "hashtag2"], "visual_description": "description visuel"}}
+]}}"""
+            
+            response = await chat.send_message(UserMessage(content=prompt))
+            
+            try:
+                data = json.loads(response.content)
+                posts = data.get("posts", [])
+                
+                logger.info(f"✅ Generated {len(posts)} performance-optimized posts")
+                
+                # Add performance metadata to posts
+                for post in posts:
+                    post["generation_type"] = "performance_optimized"
+                    post["based_on_insights"] = has_insights
+                    post["insights_applied"] = {
+                        "hashtags_used": any(hashtag in post.get("hashtags", []) for hashtag in recommended_hashtags),
+                        "keywords_used": any(keyword in post.get("content", "").lower() for keyword in high_performing_keywords),
+                        "optimal_length_respected": len(post.get("content", "")) <= int(content_length.split('-')[1]) if '-' in content_length else True
+                    }
+                
+                return posts
+                
+            except json.JSONDecodeError:
+                logger.error("Failed to parse GPT response for performance-optimized content")
+                # Fallback to basic content
+                return await AutoContentGenerator.generate_sector_specific_content(business_profile)
+                
+        except Exception as e:
+            logger.error(f"Error generating performance-optimized content: {e}")
+            # Fallback to basic content generation
+            return await AutoContentGenerator.generate_sector_specific_content(business_profile)
 
 class ContentScheduler:
     """Main scheduler for automatic content generation"""

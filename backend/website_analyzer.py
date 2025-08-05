@@ -6,6 +6,7 @@ import uuid
 import requests
 from bs4 import BeautifulSoup
 import openai
+from openai import OpenAI
 import os
 import logging
 from motor.motor_asyncio import AsyncIOMotorClient

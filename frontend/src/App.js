@@ -415,6 +415,9 @@ function MainApp() {
   const [isUploading, setIsUploading] = useState(false);
   const [isGeneratingPosts, setIsGeneratingPosts] = useState(false);
   const [isConnectingSocial, setIsConnectingSocial] = useState(false);
+  const [websiteAnalysis, setWebsiteAnalysis] = useState(null);
+  const [isAnalyzingWebsite, setIsAnalyzingWebsite] = useState(false);
+  const [showWebsiteAnalysis, setShowWebsiteAnalysis] = useState(false);
   
   // Hashtag management
   const [newPrimaryHashtag, setNewPrimaryHashtag] = useState('');

@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from datetime import datetime, timedelta
-from typing import List
+from typing import List, Dict, Any
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -18,6 +18,9 @@ import json
 import uuid
 import base64
 import requests
+
+# Import analytics engine
+from analytics import analytics_engine, PerformanceInsights
 
 # Load environment variables
 from dotenv import load_dotenv

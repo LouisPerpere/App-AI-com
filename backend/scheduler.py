@@ -639,6 +639,8 @@ class ContentScheduler:
             if performance_data['has_insights']:
                 logger.info(f"💡 Key recommendations: {performance_data['ai_recommendations'][:2]}")
             
+            logger.info("📝 Step 2/4: Preparing content generation...")
+            
             # Calculate required posts
             frequency_requirements = {
                 "daily": 7,
@@ -650,6 +652,8 @@ class ContentScheduler:
             required_weekly = frequency_requirements.get(business_prof.posting_frequency, 3)
             platforms_count = len(business_prof.preferred_platforms)
             total_required = required_weekly * platforms_count
+            
+            logger.info(f"📊 Posts needed: {total_required} ({required_weekly} per platform × {platforms_count} platforms)")
             
             # Check content sufficiency
             content_status = await ContentScheduler.check_content_sufficiency(business_id, total_required)
@@ -671,6 +675,8 @@ class ContentScheduler:
             
             notes_list = [ContentNote(**note) for note in notes]
             all_generated_posts = []
+            
+            logger.info("📝 Step 3/4: Generating content from user uploads...")
             
             # Generate from user content first
             for content in ready_content:
@@ -706,39 +712,69 @@ class ContentScheduler:
                         {"$set": {"status": "processed"}}
                     )
             
-            # Generate automatic content if needed
+            logger.info(f"✅ Generated {len(all_generated_posts)} posts from user content")
+            
+            # Generate automatic content if needed (PERFORMANCE-OPTIMIZED)
             if len(all_generated_posts) < total_required:
-                # Generate sector-specific content
-                sector_content = await AutoContentGenerator.generate_sector_specific_content(business_prof)
+                remaining_needed = total_required - len(all_generated_posts)
+                logger.info(f"🎯 Step 4/4: Generating {remaining_needed} performance-optimized posts...")
                 
-                for content_data in sector_content[:total_required - len(all_generated_posts)]:
+                # Use performance-optimized generation
+                optimized_content = await AutoContentGenerator.generate_performance_optimized_content(
+                    business_prof, 
+                    performance_data, 
+                    notes_list
+                )
+                
+                logger.info(f"🤖 Generated {len(optimized_content)} optimized content pieces")
+                
+                # Save optimized posts
+                posts_created = 0
+                for content_data in optimized_content[:remaining_needed]:
                     for platform in business_prof.preferred_platforms:
-                        # Generate visual concept
-                        visual_concept = await AutoContentGenerator.generate_visual_content(business_prof, content_data['content_type'])
-                        
+                        if posts_created >= remaining_needed:
+                            break
+                            
                         scheduled_date = datetime.utcnow() + timedelta(days=len(all_generated_posts) + 1)
                         
-                        # Create post with enhanced content
-                        post_text = f"{content_data['content']}\n\n{content_data.get('call_to_action', '')}"
+                        # Extract content details
+                        post_text = content_data.get('content', '')
+                        hashtags = content_data.get('hashtags', [])
+                        visual_desc = content_data.get('visual_description', 'Contenu généré automatiquement')
                         
                         generated_post = GeneratedPost(
                             business_id=business_id,
                             platform=platform,
                             post_text=post_text,
-                            hashtags=content_data['hashtags'],
+                            hashtags=hashtags,
                             scheduled_date=scheduled_date,
                             auto_generated=True,
-                            visual_url=None  # Would be generated visual URL in full implementation
+                            visual_url=None,  # Would be generated visual URL in full implementation
+                            # Add performance metadata
+                            generation_metadata={
+                                "type": "performance_optimized",
+                                "based_on_insights": performance_data.get('has_insights', False),
+                                "insights_id": performance_data.get('performance_insights_id'),
+                                "analysis_type": performance_data.get('analysis_type', 'fallback'),
+                                "insights_applied": content_data.get('insights_applied', {})
+                            }
                         )
                         
                         await db.generated_posts.insert_one(generated_post.dict())
                         all_generated_posts.append(generated_post)
-                        
-                        if len(all_generated_posts) >= total_required:
-                            break
+                        posts_created += 1
                     
-                    if len(all_generated_posts) >= total_required:
+                    if posts_created >= remaining_needed:
                         break
+                
+                logger.info(f"✅ Total posts generated: {len(all_generated_posts)} (Performance-optimized: {posts_created})")
+                
+                # Mark analysis as used for generation
+                if performance_data.get('has_insights'):
+                    await db.performance_analysis_results.update_one(
+                        {"insights_id": performance_data.get('performance_insights_id')},
+                        {"$set": {"used_for_generation": True, "generation_date": datetime.utcnow()}}
+                    )
             
             # Schedule next generation
             next_generation = await ContentScheduler.calculate_next_generation_date(business_prof)

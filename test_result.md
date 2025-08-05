@@ -308,6 +308,30 @@ backend:
         agent: "main"
         comment: "✅ IMPLEMENTED: Added POST /api/posts/generate endpoint that takes notes and business profile data, uses OpenAI GPT to generate 3 engaging social media posts, stores them in database with proper user/business scoping, and returns structured response. Includes error handling for missing API key, JSON parsing fallbacks, and proper GeneratedPost model usage."
 
+  - task: "Analytics System Backend Core"
+    implemented: true
+    working: false
+    file: "/app/backend/analytics.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ IMPLEMENTED: Created comprehensive analytics system with PostMetrics, ContentPattern, PerformanceInsights, and AnalyticsReport models. AnalyticsEngine analyzes hashtags, keywords, content length, posting times, and topics performance. Includes AI-powered recommendations using OpenAI GPT and intelligent fallbacks. API endpoints: POST /api/analytics/analyze, GET /api/analytics/insights, GET /api/analytics/report, GET /api/analytics/metrics/{post_id}."
+
+  - task: "Social Media Metrics Collection"
+    implemented: true
+    working: false
+    file: "/app/backend/social_media.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ IMPLEMENTED: Extended social_media.py with SocialMediaAnalytics class for real metrics collection from Facebook/Instagram Graph APIs. Functions: get_facebook_post_metrics(), get_instagram_post_metrics(), get_post_metrics_for_business(). New endpoints: GET /api/social/metrics, GET /api/social/metrics/{post_id}. Retrieves likes, comments, shares, reach, impressions, engagement rates from actual social platforms."
+
   - task: "User Password Reset for lperpere@yahoo.fr"
     implemented: true
     working: true

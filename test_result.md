@@ -281,6 +281,18 @@ backend:
         agent: "testing"
         comment: "✅ TESTED: Dependencies installation working correctly. All required dependencies (httpx for HTTP requests, pydantic for data validation) are properly installed and imported. No import errors or dependency conflicts detected."
 
+  - task: "Notes API Endpoints"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "⚠️ IDENTIFIED: Frontend Notes tab now makes API calls to /api/notes endpoints (GET, POST, DELETE) but these endpoints are not implemented in the backend. Need to implement Notes CRUD operations in server.py with proper data models and database integration."
+
   - task: "User Password Reset for lperpere@yahoo.fr"
     implemented: true
     working: true

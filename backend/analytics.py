@@ -108,6 +108,406 @@ class AnalyticsEngine:
         else:
             self.chat = None
             logging.warning("OpenAI API key not found - AI insights will be limited")
+
+class PromptOptimizer:
+    """Advanced prompt optimization system for continuous improvement"""
+    
+    def __init__(self):
+        self.openai_api_key = os.environ.get('OPENAI_API_KEY')
+        if self.openai_api_key:
+            self.chat = LlmChat(self.openai_api_key)
+        else:
+            self.chat = None
+            logging.warning("OpenAI API key not found - Prompt optimization will be limited")
+    
+    async def analyze_prompt_performance(self, business_id: str, days_back: int = 30) -> Dict[str, Any]:
+        """Analyze which prompts generate the best performing content"""
+        try:
+            logging.info(f"🔍 Analyzing prompt performance for business {business_id}")
+            
+            # Get posts with prompt metadata from the analysis period
+            end_date = datetime.utcnow()
+            start_date = end_date - timedelta(days=days_back)
+            
+            posts_with_prompts = await db.generated_posts.find({
+                "business_id": business_id,
+                "created_at": {"$gte": start_date, "$lte": end_date},
+                "generation_metadata.prompt_version": {"$exists": True}
+            }).to_list(200)
+            
+            if not posts_with_prompts:
+                logging.info("No posts with prompt metadata found")
+                return {"has_data": False, "message": "No prompt performance data available"}
+            
+            # Get corresponding metrics for these posts
+            post_ids = [post["id"] for post in posts_with_prompts]
+            metrics_cursor = db.post_metrics.find({"post_id": {"$in": post_ids}})
+            metrics_list = await metrics_cursor.to_list(200)
+            
+            # Create mapping of post_id to metrics
+            metrics_map = {m["post_id"]: m["metrics"] for m in metrics_list}
+            
+            # Analyze prompt patterns and their performance
+            prompt_performance = {}
+            
+            for post in posts_with_prompts:
+                post_id = post["id"]
+                prompt_data = post.get("generation_metadata", {})
+                prompt_version = prompt_data.get("prompt_version", "unknown")
+                prompt_type = prompt_data.get("prompt_type", "standard")
+                prompt_elements = prompt_data.get("prompt_elements", {})
+                
+                metrics = metrics_map.get(post_id)
+                if not metrics:
+                    continue
+                
+                engagement_rate = metrics.get("engagement_rate", 0)
+                total_engagement = (metrics.get("likes", 0) + 
+                                  metrics.get("comments", 0) + 
+                                  metrics.get("shares", 0))
+                
+                # Track performance by prompt version
+                if prompt_version not in prompt_performance:
+                    prompt_performance[prompt_version] = {
+                        "total_posts": 0,
+                        "total_engagement": 0,
+                        "engagement_rates": [],
+                        "prompt_elements": prompt_elements,
+                        "prompt_type": prompt_type,
+                        "sample_posts": []
+                    }
+                
+                prompt_performance[prompt_version]["total_posts"] += 1
+                prompt_performance[prompt_version]["total_engagement"] += total_engagement
+                prompt_performance[prompt_version]["engagement_rates"].append(engagement_rate)
+                prompt_performance[prompt_version]["sample_posts"].append(post_id)
+            
+            # Calculate performance scores and rankings
+            performance_ranking = []
+            for prompt_version, data in prompt_performance.items():
+                avg_engagement_rate = sum(data["engagement_rates"]) / len(data["engagement_rates"])
+                avg_total_engagement = data["total_engagement"] / data["total_posts"]
+                
+                performance_score = (avg_engagement_rate * 0.7) + (avg_total_engagement / 100 * 0.3)
+                
+                performance_ranking.append({
+                    "prompt_version": prompt_version,
+                    "prompt_type": data["prompt_type"],
+                    "prompt_elements": data["prompt_elements"],
+                    "total_posts": data["total_posts"],
+                    "avg_engagement_rate": avg_engagement_rate,
+                    "avg_total_engagement": avg_total_engagement,
+                    "performance_score": performance_score,
+                    "sample_posts": data["sample_posts"][:3]
+                })
+            
+            # Sort by performance score
+            performance_ranking.sort(key=lambda x: x["performance_score"], reverse=True)
+            
+            # Generate optimization insights
+            optimization_insights = await self._generate_prompt_optimization_insights(performance_ranking)
+            
+            analysis_result = {
+                "has_data": True,
+                "analysis_period_days": days_back,
+                "total_posts_analyzed": len(posts_with_prompts),
+                "prompt_versions_tested": len(prompt_performance),
+                "performance_ranking": performance_ranking,
+                "optimization_insights": optimization_insights,
+                "best_performing_prompt": performance_ranking[0] if performance_ranking else None,
+                "worst_performing_prompt": performance_ranking[-1] if performance_ranking else None,
+                "analyzed_at": datetime.utcnow()
+            }
+            
+            # Store analysis results
+            await db.prompt_performance_analysis.insert_one({
+                "id": str(uuid.uuid4()),
+                "business_id": business_id,
+                "analysis_data": analysis_result,
+                "created_at": datetime.utcnow()
+            })
+            
+            logging.info(f"✅ Prompt performance analysis complete: {len(performance_ranking)} prompt versions analyzed")
+            return analysis_result
+            
+        except Exception as e:
+            logging.error(f"Error analyzing prompt performance: {e}")
+            return {"has_data": False, "error": str(e)}
+    
+    async def _generate_prompt_optimization_insights(self, performance_ranking: List[Dict]) -> List[str]:
+        """Generate AI insights for prompt optimization"""
+        if not self.chat or not performance_ranking:
+            return [
+                "Continuez à tester différentes approches de contenu",
+                "Variez la structure de vos prompts pour identifier les patterns efficaces",
+                "Surveillez l'engagement pour adapter votre stratégie de contenu"
+            ]
+        
+        try:
+            # Prepare data for AI analysis
+            best_prompts = performance_ranking[:3]
+            worst_prompts = performance_ranking[-2:] if len(performance_ranking) > 2 else []
+            
+            analysis_summary = "PROMPTS PERFORMANTS:\n"
+            for i, prompt in enumerate(best_prompts, 1):
+                analysis_summary += f"{i}. Version {prompt['prompt_version']} - Engagement: {prompt['avg_engagement_rate']:.2f}% - Elements: {prompt['prompt_elements']}\n"
+            
+            if worst_prompts:
+                analysis_summary += "\nPROMPTS MOINS PERFORMANTS:\n"
+                for i, prompt in enumerate(worst_prompts, 1):
+                    analysis_summary += f"{i}. Version {prompt['prompt_version']} - Engagement: {prompt['avg_engagement_rate']:.2f}% - Elements: {prompt['prompt_elements']}\n"
+            
+            prompt = f"""
+            Analysez ces performances de prompts de génération de contenu et donnez 5 insights d'optimisation concrets :
+            
+            {analysis_summary}
+            
+            Identifiez les patterns qui fonctionnent le mieux et recommandez des améliorations spécifiques pour les futurs prompts.
+            
+            Répondez avec un JSON : {{"insights": ["insight 1", "insight 2", ...]}}
+            """
+            
+            response = await self.chat.send_message(UserMessage(content=prompt))
+            
+            try:
+                data = json.loads(response.content)
+                return data.get("insights", [])[:5]
+            except json.JSONDecodeError:
+                # Fallback parsing
+                lines = response.content.split('\n')
+                insights = [line.strip('- ') for line in lines if line.strip().startswith('-')]
+                return insights[:5] if insights else [
+                    "Optimisez les prompts basés sur les éléments les plus performants",
+                    "Testez des variations de structure pour améliorer l'engagement",
+                    "Adaptez le ton selon les performances observées"
+                ]
+                
+        except Exception as e:
+            logging.error(f"Error generating prompt insights: {e}")
+            return [
+                "Analysez les patterns des prompts les plus performants",
+                "Testez différentes structures de prompts",
+                "Adaptez la longueur et le ton basés sur les résultats"
+            ]
+    
+    async def generate_optimized_prompt(self, business_profile: Dict, performance_data: Dict, prompt_type: str = "social_post") -> Dict[str, Any]:
+        """Generate an optimized prompt based on performance insights"""
+        try:
+            logging.info(f"🎯 Generating optimized prompt for {prompt_type}")
+            
+            # Get the latest prompt performance analysis
+            latest_analysis = await db.prompt_performance_analysis.find_one(
+                {"business_id": business_profile.get("id")},
+                sort=[("created_at", -1)]
+            )
+            
+            # Extract optimization insights
+            best_elements = {}
+            optimization_insights = []
+            
+            if latest_analysis and latest_analysis.get("analysis_data", {}).get("has_data"):
+                analysis_data = latest_analysis["analysis_data"]
+                best_prompt = analysis_data.get("best_performing_prompt", {})
+                optimization_insights = analysis_data.get("optimization_insights", [])
+                
+                if best_prompt:
+                    best_elements = best_prompt.get("prompt_elements", {})
+                    logging.info(f"📊 Using insights from best performing prompt (score: {best_prompt.get('performance_score', 0):.2f})")
+            
+            # Combine performance data with prompt optimization insights
+            combined_insights = performance_data.get("ai_recommendations", []) + optimization_insights
+            
+            # Generate adaptive prompt components
+            prompt_components = await self._generate_adaptive_prompt_components(
+                business_profile, 
+                performance_data, 
+                best_elements, 
+                combined_insights
+            )
+            
+            # Create version identifier
+            prompt_version = f"v{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+            
+            optimized_prompt = {
+                "prompt_version": prompt_version,
+                "prompt_type": prompt_type,
+                "business_id": business_profile.get("id"),
+                "created_at": datetime.utcnow(),
+                
+                # Prompt components
+                "system_message": prompt_components["system_message"],
+                "user_prompt_template": prompt_components["user_prompt_template"],
+                "optimization_focus": prompt_components["optimization_focus"],
+                
+                # Metadata for tracking
+                "prompt_elements": {
+                    "tone_adaptation": prompt_components.get("tone_adaptation", "standard"),
+                    "length_optimization": prompt_components.get("length_optimization", "medium"),
+                    "hashtag_strategy": prompt_components.get("hashtag_strategy", "balanced"),
+                    "cta_style": prompt_components.get("cta_style", "subtle"),
+                    "personalization_level": prompt_components.get("personalization_level", "medium")
+                },
+                
+                # Performance baseline
+                "expected_improvement": prompt_components.get("expected_improvement", 0),
+                "based_on_insights": len(optimization_insights) > 0,
+                "insights_applied": combined_insights[:3],
+                
+                # A/B testing info
+                "is_test_variant": False,
+                "parent_version": None
+            }
+            
+            # Store optimized prompt
+            await db.optimized_prompts.insert_one(optimized_prompt)
+            
+            logging.info(f"✅ Generated optimized prompt {prompt_version}")
+            return optimized_prompt
+            
+        except Exception as e:
+            logging.error(f"Error generating optimized prompt: {e}")
+            # Return fallback prompt
+            return await self._get_fallback_prompt(business_profile, prompt_type)
+    
+    async def _generate_adaptive_prompt_components(self, business_profile: Dict, performance_data: Dict, best_elements: Dict, insights: List[str]) -> Dict[str, Any]:
+        """Generate adaptive prompt components based on performance insights"""
+        
+        # Extract key information
+        business_name = business_profile.get("business_name", "")
+        business_type = business_profile.get("business_type", "")
+        target_audience = business_profile.get("target_audience", "")
+        brand_tone = business_profile.get("brand_tone", "professionnel")
+        
+        # Performance-based optimizations
+        top_hashtags = performance_data.get("recommended_hashtags", [])[:5]
+        high_performing_keywords = performance_data.get("high_performing_keywords", [])[:5]
+        optimal_length = performance_data.get("optimal_content_length", "100-150")
+        best_topics = performance_data.get("high_performing_topics", [])[:3]
+        
+        # Adaptive tone based on performance
+        tone_adaptation = "standard"
+        if performance_data.get("avg_engagement_rate", 0) > 7.0:
+            tone_adaptation = "amplify_current"  # Keep current approach
+        elif performance_data.get("avg_engagement_rate", 0) < 3.0:
+            tone_adaptation = "more_engaging"  # Need more engagement
+        else:
+            tone_adaptation = "optimize_balance"  # Balance engagement and professionalism
+        
+        # Length optimization based on insights
+        length_optimization = "medium"
+        if "court" in " ".join(insights).lower() or "150" in optimal_length:
+            length_optimization = "concise"
+        elif "long" in " ".join(insights).lower() or "200" in optimal_length:
+            length_optimization = "detailed"
+        
+        # Build adaptive system message
+        performance_guidance = ""
+        if performance_data.get("has_insights"):
+            hashtags_text = ', '.join(top_hashtags) if top_hashtags else "En cours d'analyse"
+            keywords_text = ', '.join(high_performing_keywords) if high_performing_keywords else "En cours d'analyse"
+            topics_text = ', '.join(best_topics) if best_topics else "En cours d'analyse"
+            insights_text = '; '.join(insights[:2]) if insights else "Collecte en cours"
+            
+            performance_guidance = f"""
+OPTIMISATIONS BASÉES SUR PERFORMANCE RÉELLE :
+- Hashtags performants détectés : {hashtags_text}
+- Mots-clés engageants : {keywords_text}
+- Longueur optimale identifiée : {optimal_length} caractères
+- Sujets qui engagent : {topics_text}
+- Insights clés : {insights_text}
+
+DIRECTIVE D'OPTIMISATION : Intègre ces éléments performants naturellement dans le contenu généré !
+"""
+        
+        # Adaptive tone instructions
+        tone_instructions = {
+            "amplify_current": f"EXCELLENT ENGAGEMENT DÉTECTÉ ! Continue exactement dans ce style {brand_tone} qui fonctionne parfaitement.",
+            "more_engaging": f"ENGAGEMENT À AMÉLIORER : Adapte le ton {brand_tone} pour être plus captivant et interactif.",
+            "optimize_balance": f"BON ENGAGEMENT : Optimise le ton {brand_tone} pour équilibrer professionnalisme et engagement."
+        }
+        
+        hashtags_rule = "Privilégie " + ", ".join(top_hashtags[:3]) if top_hashtags else "Utilise des hashtags pertinents sectoriels"
+        keywords_rule = "Intègre naturellement : " + ", ".join(high_performing_keywords[:3]) if high_performing_keywords else "Utilise un vocabulaire engageant"
+        length_rule = "Vise " + optimal_length + " caractères (optimisé selon tes performances)" if optimal_length else "100-150 caractères"
+        topics_rule = "Concentre-toi sur : " + ", ".join(best_topics[:2]) if best_topics else "Varie les sujets pour tester l'engagement"
+        
+        system_message = f"""Tu génères du contenu optimisé pour {business_name} - {business_type}.
+
+PROFIL CIBLE ADAPTATIF :
+- Entreprise : {business_name}
+- Secteur : {business_type}  
+- Audience : {target_audience}
+- Ton de marque : {brand_tone}
+
+{performance_guidance}
+
+ADAPTATION INTELLIGENTE :
+{tone_instructions.get(tone_adaptation, tone_instructions["optimize_balance"])}
+
+RÈGLES D'OPTIMISATION ADAPTATIVE :
+1. HASHTAGS : {hashtags_rule}
+2. MOTS-CLÉS : {keywords_rule}
+3. LONGUEUR : {length_rule}
+4. SUJETS : {topics_rule}
+
+AMÉLIORATION CONTINUE :
+- Ce prompt s'adapte automatiquement selon tes performances réelles
+- Les recommandations évoluent avec tes résultats d'engagement
+- L'objectif : contenu de plus en plus performant à chaque génération
+
+Style authentique obligatoire : Ton naturel, pas de marketing artificiel."""
+        
+        # Create adaptive user prompt template
+        insights_text = '; '.join(insights[:2]) if insights else 'Teste différentes approches'
+        hashtags_text = "Utilise ces hashtags performants : " + " ".join(top_hashtags[:3]) if top_hashtags else "Choisis des hashtags testables"
+        topics_text = "Focus sujets engageants : " + ", ".join(best_topics[:2]) if best_topics else "Varie pour identifier ce qui marche"
+        
+        user_prompt_template = f"""Génère du contenu optimisé selon les performances analysées.
+
+CONSIGNES ADAPTATIVES :
+- Applique les insights de performance : {insights_text}
+- {hashtags_text}
+- Longueur cible : {optimal_length} caractères
+- {topics_text}
+
+Génère [X] posts optimisés qui s'améliorent basés sur les données réelles.
+
+JSON format attendu : {{"posts": [{{"content": "...", "hashtags": [...], "optimization_applied": "..."}}, ...]}}"""
+        
+        return {
+            "system_message": system_message,
+            "user_prompt_template": user_prompt_template,
+            "optimization_focus": {
+                "tone_adaptation": tone_adaptation,
+                "length_optimization": length_optimization,
+                "hashtag_strategy": "performance_based" if top_hashtags else "experimental",
+                "keyword_integration": "data_driven" if high_performing_keywords else "exploratory",
+                "topic_selection": "insight_based" if best_topics else "diversified"
+            },
+            "tone_adaptation": tone_adaptation,
+            "length_optimization": length_optimization,
+            "hashtag_strategy": "performance_based" if top_hashtags else "experimental",
+            "cta_style": "tested" if insights else "experimental",
+            "personalization_level": "high" if performance_data.get("has_insights") else "medium",
+            "expected_improvement": 15 if performance_data.get("has_insights") else 5
+        }
+    
+    async def _get_fallback_prompt(self, business_profile: Dict, prompt_type: str) -> Dict[str, Any]:
+        """Generate fallback prompt when optimization data is not available"""
+        prompt_version = f"fallback_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+        
+        return {
+            "prompt_version": prompt_version,
+            "prompt_type": prompt_type,
+            "business_id": business_profile.get("id"),
+            "created_at": datetime.utcnow(),
+            "system_message": f"Tu génères du contenu engageant pour {business_profile.get('business_name', '')} - {business_profile.get('business_type', '')}. Ton naturel et authentique.",
+            "user_prompt_template": "Génère du contenu varié pour tester l'engagement et commencer à collecter des données de performance.",
+            "optimization_focus": {"type": "baseline", "goal": "data_collection"},
+            "prompt_elements": {"tone_adaptation": "standard", "length_optimization": "medium"},
+            "based_on_insights": False,
+            "is_test_variant": False
+        }
     
     async def collect_post_metrics(self, business_id: str, days_back: int = 7) -> List[PostMetrics]:
         """Collect metrics for all posts from the specified period"""

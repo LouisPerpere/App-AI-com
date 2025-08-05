@@ -94,7 +94,7 @@ const AuthPage = ({ onAuthSuccess }) => {
       localStorage.setItem('access_token', loginResponse.data.access_token);
       localStorage.setItem('refresh_token', loginResponse.data.refresh_token);
       
-      onAuthSuccess(loginResponse.data);
+      onAuthSuccess();
     } catch (error) {
       console.error('Registration error:', error);
       setError(error.response?.data?.detail || 'Erreur lors de la création du compte');

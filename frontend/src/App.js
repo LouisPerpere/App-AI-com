@@ -1194,7 +1194,7 @@ function MainApp() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <Tabs defaultValue="entreprise" className="space-y-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           <div className="overflow-x-auto">
             <TabsList className="grid grid-cols-6 w-full max-w-4xl mx-auto bg-white/80 backdrop-blur-lg p-2 rounded-2xl shadow-xl min-w-max">
               <TabsTrigger value="entreprise" className="tab-sexy">

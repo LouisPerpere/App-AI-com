@@ -254,6 +254,19 @@ class AutoContentGenerator:
 
 PAS d'expert marketing, PAS de consultant. Juste quelqu'un de normal qui partage son expérience.
 
+⚠️ FILTRAGE DE CONTENU OBLIGATOIRE - REFUS ABSOLU:
+❌ JAMAIS de contenu injurieux, offensant, discriminatoire
+❌ JAMAIS de références sexuelles, pornographiques ou suggestives
+❌ JAMAIS de contenu violent, haineux ou agressif
+❌ JAMAIS de références aux drogues, alcool excessif, substances illégales
+❌ JAMAIS de contenu lié aux armes, violence, criminalité
+❌ JAMAIS de propos politiques extrêmes ou controversés
+❌ JAMAIS de contenu pouvant nuire à des mineurs
+❌ JAMAIS de fake news, désinformation ou théories complotistes
+❌ JAMAIS de promotion d'activités illégales ou dangereuses
+
+✅ OBJECTIF: Contenu professionnel, bienveillant et constructif uniquement
+
 STYLE NATUREL OBLIGATOIRE:
 ❌ JAMAIS: "Découvrez", "Explorons", "Il est crucial", "N'hésitez pas", "Plongeons"
 ❌ JAMAIS: ✨🚀💡🎯💫🌟🔥💪⚡ (emojis marketing)
@@ -264,6 +277,7 @@ STYLE NATUREL OBLIGATOIRE:
 ✅ Partager de vraies expériences, pas des théories
 ✅ Être utile sans prétention
 ✅ Garder des imperfections humaines
+✅ Contenu respectueux et professionnel
 
 EXEMPLES BONS:
 - "Truc qu'on fait ici depuis toujours..."

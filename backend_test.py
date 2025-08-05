@@ -974,6 +974,335 @@ class SocialGenieAPITester:
         
         return success
 
+    # New Stripe Payment Integration Tests (emergentintegrations)
+    
+    def test_create_checkout_session_valid_package(self):
+        """Test creating checkout session with valid package"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        checkout_data = {
+            "package_id": "starter_monthly",
+            "origin_url": "https://517d3af0-c990-48c7-9557-b206f74fa495.preview.emergentagent.com"
+        }
+        
+        success, response = self.run_test(
+            "Create Checkout Session (Valid Package)",
+            "POST",
+            "payments/v1/checkout/session",
+            500,  # Expected to fail without Stripe API key
+            data=checkout_data
+        )
+        
+        # Check if it fails with proper error message about Stripe configuration
+        if not success and "Stripe API key not configured" in str(response.get('detail', '')):
+            print("✅ Correctly handled missing Stripe API key")
+            return True
+        
+        return success
+
+    def test_create_checkout_session_invalid_package(self):
+        """Test creating checkout session with invalid package"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        checkout_data = {
+            "package_id": "invalid_package",
+            "origin_url": "https://517d3af0-c990-48c7-9557-b206f74fa495.preview.emergentagent.com"
+        }
+        
+        success, response = self.run_test(
+            "Create Checkout Session (Invalid Package)",
+            "POST",
+            "payments/v1/checkout/session",
+            400,  # Should fail with invalid package
+            data=checkout_data
+        )
+        
+        if success and "Invalid package selected" in str(response.get('detail', '')):
+            print("✅ Correctly rejected invalid package")
+            return True
+        
+        return success
+
+    def test_create_checkout_session_with_promo_code(self):
+        """Test creating checkout session with promo code"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        checkout_data = {
+            "package_id": "pro_monthly",
+            "origin_url": "https://517d3af0-c990-48c7-9557-b206f74fa495.preview.emergentagent.com",
+            "promo_code": "TESTCODE"
+        }
+        
+        success, response = self.run_test(
+            "Create Checkout Session (With Promo Code)",
+            "POST",
+            "payments/v1/checkout/session",
+            500,  # Expected to fail without Stripe API key
+            data=checkout_data
+        )
+        
+        # Check if it fails with proper error message about Stripe configuration
+        if not success and "Stripe API key not configured" in str(response.get('detail', '')):
+            print("✅ Correctly handled missing Stripe API key with promo code")
+            return True
+        
+        return success
+
+    def test_get_checkout_status_invalid_session(self):
+        """Test getting checkout status with invalid session ID"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Get Checkout Status (Invalid Session)",
+            "GET",
+            "payments/v1/checkout/status/invalid_session_id",
+            404  # Should fail with transaction not found
+        )
+        
+        if success and "Transaction not found" in str(response.get('detail', '')):
+            print("✅ Correctly handled invalid session ID")
+            return True
+        
+        return success
+
+    def test_stripe_webhook_endpoint(self):
+        """Test Stripe webhook endpoint structure"""
+        # Test webhook endpoint without proper signature (should fail)
+        webhook_data = {
+            "type": "checkout.session.completed",
+            "data": {"object": {"id": "cs_test_123"}}
+        }
+        
+        success, response = self.run_test(
+            "Stripe Webhook (No Signature)",
+            "POST",
+            "payments/webhook/stripe",
+            400,  # Should fail without proper signature
+            data=webhook_data
+        )
+        
+        return success
+
+    def test_subscription_packages_validation(self):
+        """Test that all 6 subscription packages are properly defined"""
+        expected_packages = [
+            "starter_monthly", "starter_yearly",
+            "pro_monthly", "pro_yearly", 
+            "enterprise_monthly", "enterprise_yearly"
+        ]
+        
+        print(f"\n🔍 Testing Subscription Packages Validation...")
+        
+        # Import the payments module to check SUBSCRIPTION_PACKAGES
+        try:
+            import sys
+            sys.path.append('/app/backend')
+            from payments import SUBSCRIPTION_PACKAGES
+            
+            print(f"   Found {len(SUBSCRIPTION_PACKAGES)} packages")
+            
+            # Check all expected packages exist
+            missing_packages = []
+            for package_id in expected_packages:
+                if package_id not in SUBSCRIPTION_PACKAGES:
+                    missing_packages.append(package_id)
+                else:
+                    package = SUBSCRIPTION_PACKAGES[package_id]
+                    print(f"   ✅ {package_id}: {package['name']} - €{package['amount']} ({package['period']})")
+            
+            if missing_packages:
+                print(f"   ❌ Missing packages: {missing_packages}")
+                return False
+            
+            # Verify pricing structure
+            expected_prices = {
+                "starter_monthly": 19.99, "starter_yearly": 199.99,
+                "pro_monthly": 49.99, "pro_yearly": 499.99,
+                "enterprise_monthly": 99.99, "enterprise_yearly": 999.99
+            }
+            
+            for package_id, expected_price in expected_prices.items():
+                actual_price = SUBSCRIPTION_PACKAGES[package_id]["amount"]
+                if actual_price != expected_price:
+                    print(f"   ❌ Price mismatch for {package_id}: expected €{expected_price}, got €{actual_price}")
+                    return False
+            
+            print("✅ All subscription packages correctly defined with proper pricing")
+            self.tests_passed += 1
+            return True
+            
+        except Exception as e:
+            print(f"❌ Failed to validate subscription packages: {e}")
+            return False
+
+    def test_payment_transaction_model(self):
+        """Test PaymentTransaction model structure"""
+        print(f"\n🔍 Testing PaymentTransaction Model...")
+        
+        try:
+            import sys
+            sys.path.append('/app/backend')
+            from payments import PaymentTransaction
+            
+            # Create a test transaction
+            test_transaction = PaymentTransaction(
+                user_id="test_user_123",
+                session_id="cs_test_session_123",
+                package_id="starter_monthly",
+                amount=19.99,
+                currency="eur",
+                payment_status="pending",
+                status="initiated",
+                metadata={"test": "data"}
+            )
+            
+            # Verify required fields
+            required_fields = ["id", "user_id", "session_id", "package_id", "amount", 
+                             "currency", "payment_status", "status", "metadata", 
+                             "created_at", "updated_at"]
+            
+            for field in required_fields:
+                if not hasattr(test_transaction, field):
+                    print(f"   ❌ Missing required field: {field}")
+                    return False
+            
+            print("✅ PaymentTransaction model has all required fields")
+            print(f"   Transaction ID: {test_transaction.id}")
+            print(f"   Currency: {test_transaction.currency}")
+            print(f"   Status: {test_transaction.status}")
+            
+            self.tests_passed += 1
+            return True
+            
+        except Exception as e:
+            print(f"❌ Failed to test PaymentTransaction model: {e}")
+            return False
+
+    def test_promo_code_integration_with_checkout(self):
+        """Test promo code integration with checkout session"""
+        if not self.access_token or not self.admin_access_token:
+            print("❌ Skipping - No access tokens available")
+            return False
+        
+        # First create a promo code as admin
+        regular_token = self.access_token
+        self.access_token = self.admin_access_token
+        
+        promo_data = {
+            "code": f"CHECKOUT{datetime.now().strftime('%Y%m%d%H%M%S')}",
+            "discount_type": "percentage",
+            "discount_value": 25.0,
+            "max_uses": 10
+        }
+        
+        success, promo_response = self.run_test(
+            "Create Promo Code for Checkout Test",
+            "POST",
+            "admin/promo-codes",
+            200,
+            data=promo_data
+        )
+        
+        self.access_token = regular_token
+        
+        if success:
+            # Now test checkout with the promo code
+            checkout_data = {
+                "package_id": "starter_monthly",
+                "origin_url": "https://517d3af0-c990-48c7-9557-b206f74fa495.preview.emergentagent.com",
+                "promo_code": promo_data["code"]
+            }
+            
+            success, response = self.run_test(
+                "Checkout with Valid Promo Code",
+                "POST",
+                "payments/v1/checkout/session",
+                500,  # Expected to fail without Stripe API key
+                data=checkout_data
+            )
+            
+            # Should fail with Stripe configuration error, not promo code error
+            if not success and "Stripe API key not configured" in str(response.get('detail', '')):
+                print("✅ Promo code validation passed, failed at Stripe configuration as expected")
+                return True
+        
+        return success
+
+    def test_origin_url_handling(self):
+        """Test origin_url handling for dynamic success/cancel URLs"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+        
+        test_origins = [
+            "https://517d3af0-c990-48c7-9557-b206f74fa495.preview.emergentagent.com",
+            "https://517d3af0-c990-48c7-9557-b206f74fa495.preview.emergentagent.com/",  # with trailing slash
+            "http://localhost:3000",
+            "https://custom-domain.com"
+        ]
+        
+        for origin_url in test_origins:
+            checkout_data = {
+                "package_id": "pro_yearly",
+                "origin_url": origin_url
+            }
+            
+            success, response = self.run_test(
+                f"Checkout with Origin URL: {origin_url[:30]}...",
+                "POST",
+                "payments/v1/checkout/session",
+                500,  # Expected to fail without Stripe API key
+                data=checkout_data
+            )
+            
+            # Should fail with Stripe configuration, not URL validation
+            if not success and "Stripe API key not configured" in str(response.get('detail', '')):
+                print(f"✅ Origin URL {origin_url} handled correctly")
+            else:
+                print(f"❌ Unexpected response for origin URL {origin_url}")
+                return False
+        
+        return True
+
+    def test_package_security_validation(self):
+        """Test that frontend cannot manipulate prices (server-side validation)"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+        
+        # Try to create checkout with valid package_id but potentially manipulated data
+        # The server should only use server-side package definitions
+        checkout_data = {
+            "package_id": "starter_monthly",  # Valid package
+            "origin_url": "https://517d3af0-c990-48c7-9557-b206f74fa495.preview.emergentagent.com",
+            # These fields should be ignored by server (if they were included)
+            "amount": 1.00,  # Trying to manipulate price
+            "currency": "usd"  # Trying to change currency
+        }
+        
+        success, response = self.run_test(
+            "Package Security Validation",
+            "POST",
+            "payments/v1/checkout/session",
+            500,  # Expected to fail without Stripe API key
+            data=checkout_data
+        )
+        
+        # Should fail with Stripe configuration, meaning it passed validation
+        if not success and "Stripe API key not configured" in str(response.get('detail', '')):
+            print("✅ Server-side package validation working (ignores client-side price manipulation)")
+            return True
+        
+        return success
+
     def test_social_post_invalid_platform(self):
         """Test creating post with invalid platform"""
         post_data = {

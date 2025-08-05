@@ -261,7 +261,7 @@ const AuthPage = ({ onAuthSuccess }) => {
                 <div className="mt-4 pt-4 border-t border-purple-200">
                   <div className="flex items-center justify-center text-sm text-purple-700 font-medium">
                     <CheckCircle className="w-4 h-4 mr-2" />
-                    Simple, efficace, et entièrement automatisé !
+                    Simple, efficace, et vous fait gagner du temps !
                   </div>
                 </div>
               </div>

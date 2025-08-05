@@ -420,6 +420,8 @@ function MainApp() {
   const [showWebsiteAnalysis, setShowWebsiteAnalysis] = useState(false);
   const [showBurgerMenu, setShowBurgerMenu] = useState(false);
   const [activeTab, setActiveTab] = useState('entreprise');
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeModalDismissed, setUpgradeModalDismissed] = useState(false);
   
   // Hashtag management
   const [newPrimaryHashtag, setNewPrimaryHashtag] = useState('');

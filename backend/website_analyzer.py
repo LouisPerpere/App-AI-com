@@ -22,12 +22,12 @@ load_dotenv(ROOT_DIR / '.env')
 
 # OpenAI configuration
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
-client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+openai_client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
 # MongoDB connection
 mongo_url = os.environ.get('MONGO_URL')
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ.get('DB_NAME', 'socialgenie')]
+mongo_client = AsyncIOMotorClient(mongo_url)
+db = mongo_client[os.environ.get('DB_NAME', 'socialgenie')]
 
 # Router setup
 website_router = APIRouter(prefix="/website")
@@ -117,7 +117,7 @@ def extract_website_content(url: str) -> dict:
 def analyze_website_with_gpt(content_data: dict, website_url: str) -> dict:
     """Analyze website content using OpenAI GPT"""
     try:
-        if not client:
+        if not openai_client:
             logging.warning("OpenAI client not configured, using fallback analysis")
             return create_fallback_analysis(content_data, website_url)
         
@@ -145,7 +145,7 @@ def analyze_website_with_gpt(content_data: dict, website_url: str) -> dict:
         Répondez UNIQUEMENT avec le JSON valide, sans texte supplémentaire.
         """
         
-        response = client.chat.completions.create(
+        response = openai_client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "Tu es un expert en analyse de contenu web et marketing digital. Tu réponds uniquement avec du JSON valide."},
@@ -247,7 +247,17 @@ async def analyze_website(
             })
             
             if existing_analysis:
-                return WebsiteAnalysisResponse(**existing_analysis)
+                return WebsiteAnalysisResponse(
+                    id=existing_analysis['id'],
+                    website_url=existing_analysis['website_url'],
+                    analysis_summary=existing_analysis['analysis_summary'],
+                    key_topics=existing_analysis['key_topics'],
+                    brand_tone=existing_analysis['brand_tone'],
+                    target_audience=existing_analysis['target_audience'],
+                    main_services=existing_analysis['main_services'],
+                    last_analyzed=existing_analysis['created_at'],
+                    next_analysis_due=existing_analysis['next_analysis_due']
+                )
         
         # Extract content from website
         content_data = extract_website_content(website_url)
@@ -324,7 +334,17 @@ async def get_website_analysis(current_user: User = Depends(get_current_active_u
         if not analysis:
             return None
             
-        return WebsiteAnalysisResponse(**analysis)
+        return WebsiteAnalysisResponse(
+            id=analysis['id'],
+            website_url=analysis['website_url'],
+            analysis_summary=analysis['analysis_summary'],
+            key_topics=analysis['key_topics'],
+            brand_tone=analysis['brand_tone'],
+            target_audience=analysis['target_audience'],
+            main_services=analysis['main_services'],
+            last_analyzed=analysis['created_at'],
+            next_analysis_due=analysis['next_analysis_due']
+        )
         
     except Exception as e:
         logging.error(f"Error getting website analysis: {e}")

@@ -605,6 +605,18 @@ function MainApp() {
   const navigateToTab = (tabValue) => {
     setActiveTab(tabValue);
     setShowBurgerMenu(false);
+    
+    // Scroll to center the active tab in the horizontal navigation
+    setTimeout(() => {
+      const activeTabElement = document.querySelector(`[role="tab"][value="${tabValue}"]`);
+      if (activeTabElement) {
+        activeTabElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'nearest', 
+          inline: 'center' 
+        });
+      }
+    }, 100);
   };
 
   const handleLogout = () => {

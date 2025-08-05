@@ -277,28 +277,34 @@ backend:
 
 frontend:
   - task: "SaaS Admin Dashboard Frontend"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/AdminDashboard.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: unknown
+        agent: "main"
+        comment: "Admin dashboard partially implemented in App.js with AdminDashboard component import. Need to verify if complete admin interface exists for user management, subscription plans, promo codes, analytics. Backend admin routes are ready at /api/admin/* endpoints."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Admin dashboard fully functional after fixing UserResponse model to include is_admin field. Successfully tested: (1) Admin login with admin@postcraft.com works, (2) All 6 tabs present: Vue d'ensemble, Utilisateurs, Abonnements, Codes Promo, Paiements, Analytics, (3) Stats cards display correctly (users, subscriptions, MRR, posts), (4) User management interface with search/filter functionality, (5) Promo code creation form working, (6) Subscription plans display (3 plans: Starter €19.99, Pro €49.99, Enterprise €99.99), (7) Payment history table, (8) Revenue analytics and SaaS metrics, (9) Admin logout functionality. Minor React Select component errors present but don't affect core functionality."
+
+  - task: "Payment Integration Frontend"
     implemented: partial
-    working: unknown
+    working: "NA"
     file: "/app/frontend/src/App.js"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
     status_history:
-      - working: unknown
-        agent: "main"
-        comment: "Admin dashboard partially implemented in App.js with AdminDashboard component import. Need to verify if complete admin interface exists for user management, subscription plans, promo codes, analytics. Backend admin routes are ready at /api/admin/* endpoints."
-
-  - task: "Payment Integration Frontend"
-    implemented: false
-    working: false
-    file: "/app/frontend/src/App.js"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
       - working: false
         agent: "main"
         comment: "Payment integration frontend not implemented. Need to create subscription plans display, payment forms using Stripe Elements, promo code validation, subscription management interface. Backend payment routes ready at /api/payments/* endpoints."
+      - working: "NA"
+        agent: "testing"
+        comment: "⚠️ TESTED: Payment integration frontend not fully implemented in regular user interface. Backend payment system working correctly with 3 subscription plans available via API (Starter €19.99, Pro €49.99, Enterprise €99.99). Payment intent creation endpoint functional but requires valid Stripe API key. Regular users can see subscription status badges but no upgrade/payment interface is present in the main dashboard tabs. Need to implement: (1) Subscription upgrade buttons, (2) Stripe Elements payment forms, (3) Plan selection interface, (4) Payment success/failure handling."
 
   - task: "LinkedIn Connection Interface"
     implemented: false

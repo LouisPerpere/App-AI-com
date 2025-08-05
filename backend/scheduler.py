@@ -20,7 +20,7 @@ import base64
 import requests
 
 # Import analytics engine
-from analytics import analytics_engine, PerformanceInsights
+from analytics import analytics_engine, PerformanceInsights, prompt_optimizer
 
 # Load environment variables
 from dotenv import load_dotenv

@@ -140,6 +140,83 @@ const AuthPage = ({ onAuthSuccess }) => {
             </p>
           </div>
 
+          {/* How It Works Section - Moved up and improved */}
+          <div className="bg-gradient-to-br from-indigo-50 via-white to-purple-50 rounded-3xl p-8 border-2 border-purple-100 shadow-lg">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold text-gray-900 mb-3 flex items-center justify-center">
+                <Sparkles className="w-6 h-6 mr-3 text-purple-600" />
+                Comment ça fonctionne ?
+                <Sparkles className="w-6 h-6 ml-3 text-purple-600" />
+              </h3>
+              <p className="text-gray-600 font-medium">4 étapes simples pour automatiser vos réseaux sociaux</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Step 1 */}
+              <div className="flex items-center space-x-4 p-4 bg-white rounded-2xl shadow-sm border border-purple-100">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full flex items-center justify-center flex-shrink-0 text-lg font-bold shadow-lg">
+                  1
+                </div>
+                <div className="flex items-center space-x-3 flex-1">
+                  <Building className="w-6 h-6 text-purple-600 flex-shrink-0" />
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm">Profil entreprise</p>
+                    <p className="text-xs text-gray-600">Décrivez votre activité</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="flex items-center space-x-4 p-4 bg-white rounded-2xl shadow-sm border border-purple-100">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full flex items-center justify-center flex-shrink-0 text-lg font-bold shadow-lg">
+                  2
+                </div>
+                <div className="flex items-center space-x-3 flex-1">
+                  <Upload className="w-6 h-6 text-purple-600 flex-shrink-0" />
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm">Upload contenus</p>
+                    <p className="text-xs text-gray-600">Photos, vidéos, notes</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div className="flex items-center space-x-4 p-4 bg-white rounded-2xl shadow-sm border border-purple-100">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full flex items-center justify-center flex-shrink-0 text-lg font-bold shadow-lg">
+                  3
+                </div>
+                <div className="flex items-center space-x-3 flex-1">
+                  <FileText className="w-6 h-6 text-purple-600 flex-shrink-0" />
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm">On génère & vous validez</p>
+                    <p className="text-xs text-gray-600">Posts optimisés à approuver</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 4 */}
+              <div className="flex items-center space-x-4 p-4 bg-white rounded-2xl shadow-sm border border-purple-100">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full flex items-center justify-center flex-shrink-0 text-lg font-bold shadow-lg">
+                  4
+                </div>
+                <div className="flex items-center space-x-3 flex-1">
+                  <Send className="w-6 h-6 text-purple-600 flex-shrink-0" />
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm">Publication automatique</p>
+                    <p className="text-xs text-gray-600">On s'occupe de tout !</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 text-center">
+              <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full font-bold shadow-lg">
+                <CheckCircle className="w-5 h-5 mr-2" />
+                Simple, efficace, et vous fait gagner du temps !
+              </div>
+            </div>
+          </div>
+
           {/* Feature Highlights */}
           <div className="grid sm:grid-cols-2 gap-6 pt-4">
             <div className="flex items-start space-x-4 p-4 bg-white/80 backdrop-blur-sm rounded-2xl border border-purple-100">

@@ -493,6 +493,7 @@ function MainApp() {
   const [activeTab, setActiveTab] = useState('entreprise');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeModalDismissed, setUpgradeModalDismissed] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
   
   // Hashtag management
   const [newPrimaryHashtag, setNewPrimaryHashtag] = useState('');

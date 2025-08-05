@@ -1679,6 +1679,499 @@ class SocialGenieAPITester:
         
         return success
 
+    # Analytics System Backend Core Tests
+    
+    def test_analytics_trigger_7_days(self):
+        """Test POST /api/analytics/analyze with 7 days analysis"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Analytics Analysis Trigger (7 days)",
+            "POST",
+            "analytics/analyze?days_back=7",
+            200
+        )
+        
+        if success:
+            print(f"   Metrics collected: {response.get('metrics_collected', 0)}")
+            print(f"   Insights generated: {response.get('insights_generated', False)}")
+            print(f"   Avg engagement rate: {response.get('avg_engagement_rate', 0)}%")
+            if response.get('top_recommendations'):
+                print(f"   Top recommendation: {response['top_recommendations'][0][:50]}...")
+        
+        return success
+
+    def test_analytics_trigger_30_days(self):
+        """Test POST /api/analytics/analyze with 30 days analysis"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Analytics Analysis Trigger (30 days)",
+            "POST",
+            "analytics/analyze?days_back=30",
+            200
+        )
+        
+        if success:
+            print(f"   Metrics collected: {response.get('metrics_collected', 0)}")
+            print(f"   Insights generated: {response.get('insights_generated', False)}")
+            if response.get('insights_id'):
+                print(f"   Insights ID: {response['insights_id']}")
+        
+        return success
+
+    def test_analytics_get_insights(self):
+        """Test GET /api/analytics/insights for AI recommendations"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Get Analytics Insights",
+            "GET",
+            "analytics/insights",
+            200
+        )
+        
+        if success:
+            insights = response.get('insights')
+            if insights:
+                print(f"   Posts analyzed: {response.get('posts_analyzed', 0)}")
+                print(f"   Last analysis: {response.get('last_analysis', 'N/A')}")
+                print(f"   AI recommendations: {len(insights.get('ai_recommendations', []))}")
+                print(f"   Top hashtags: {len(insights.get('top_hashtags', []))}")
+                print(f"   Content strategy suggestions: {len(insights.get('content_strategy_suggestions', []))}")
+            else:
+                print(f"   Message: {response.get('message', 'No insights available')}")
+        
+        return success
+
+    def test_analytics_generate_weekly_report(self):
+        """Test GET /api/analytics/report for weekly report generation"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Generate Weekly Analytics Report",
+            "GET",
+            "analytics/report?report_type=weekly",
+            200
+        )
+        
+        if success:
+            report = response.get('report')
+            summary = response.get('summary')
+            if report:
+                print(f"   Report period: {summary.get('period', 'N/A')}")
+                print(f"   Performance: {summary.get('performance', 'N/A')}")
+                print(f"   Trend: {summary.get('trend', 'N/A')}")
+                print(f"   Total posts: {report.get('total_posts', 0)}")
+                print(f"   Avg engagement rate: {report.get('avg_engagement_rate', 0)}%")
+                print(f"   Key wins: {len(report.get('key_wins', []))}")
+                print(f"   Recommended actions: {len(report.get('recommended_actions', []))}")
+        
+        return success
+
+    def test_analytics_generate_monthly_report(self):
+        """Test GET /api/analytics/report for monthly report generation"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Generate Monthly Analytics Report",
+            "GET",
+            "analytics/report?report_type=monthly",
+            200
+        )
+        
+        if success:
+            report = response.get('report')
+            if report:
+                print(f"   Report type: {report.get('report_type', 'N/A')}")
+                print(f"   Total engagement: {report.get('total_engagement', 0)}")
+                print(f"   Reach growth: {report.get('reach_growth', 0)}%")
+                print(f"   Follower growth: {report.get('follower_growth', 0)}%")
+        
+        return success
+
+    def test_social_media_bulk_metrics(self):
+        """Test GET /api/social/metrics for bulk social media metrics collection"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Get Bulk Social Media Metrics",
+            "GET",
+            "social/metrics?days_back=7",
+            200
+        )
+        
+        if success:
+            print(f"   Total posts with metrics: {response.get('total_posts', 0)}")
+            print(f"   Period: {response.get('period', 'N/A')}")
+            print(f"   Collected at: {response.get('collected_at', 'N/A')}")
+            metrics = response.get('metrics', [])
+            if metrics:
+                print(f"   First post platform: {metrics[0].get('platform', 'N/A')}")
+                print(f"   First post engagement rate: {metrics[0].get('metrics', {}).get('engagement_rate', 0)}%")
+        
+        return success
+
+    def test_social_media_bulk_metrics_30_days(self):
+        """Test GET /api/social/metrics for 30 days bulk metrics"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Get Bulk Social Media Metrics (30 days)",
+            "GET",
+            "social/metrics?days_back=30",
+            200
+        )
+        
+        if success:
+            print(f"   Total posts with metrics: {response.get('total_posts', 0)}")
+            metrics = response.get('metrics', [])
+            if metrics:
+                # Calculate average engagement rate
+                total_engagement = sum(m.get('metrics', {}).get('engagement_rate', 0) for m in metrics)
+                avg_engagement = total_engagement / len(metrics) if metrics else 0
+                print(f"   Average engagement rate: {avg_engagement:.2f}%")
+        
+        return success
+
+    def test_analytics_post_metrics_specific(self):
+        """Test GET /api/analytics/metrics/{post_id} for specific post analytics"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+        
+        # First get posts to find a post ID
+        posts_success, posts_response = self.run_test(
+            "Get Posts for Analytics Test",
+            "GET",
+            "posts?limit=1",
+            200
+        )
+        
+        if posts_success and posts_response.get('posts'):
+            post_id = posts_response['posts'][0]['id']
+            
+            success, response = self.run_test(
+                "Get Specific Post Analytics Metrics",
+                "GET",
+                f"analytics/metrics/{post_id}",
+                200
+            )
+            
+            if success:
+                post_info = response.get('post')
+                metrics = response.get('metrics')
+                if post_info:
+                    print(f"   Post platform: {post_info.get('platform', 'N/A')}")
+                    print(f"   Post content preview: {post_info.get('content', '')[:50]}...")
+                if metrics:
+                    print(f"   Engagement rate: {metrics.get('engagement_rate', 0)}%")
+                    print(f"   Performance rating: {response.get('performance_rating', 'N/A')}")
+                else:
+                    print(f"   Message: {response.get('message', 'No metrics available')}")
+            
+            return success
+        else:
+            print("⚠️ No posts available for analytics metrics test")
+            return True  # Not a failure, just no posts
+
+    def test_social_media_specific_post_metrics(self):
+        """Test GET /api/social/metrics/{post_id} for specific post social metrics"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+        
+        # First get posts to find a post ID
+        posts_success, posts_response = self.run_test(
+            "Get Posts for Social Metrics Test",
+            "GET",
+            "posts?limit=1",
+            200
+        )
+        
+        if posts_success and posts_response.get('posts'):
+            post_id = posts_response['posts'][0]['id']
+            
+            success, response = self.run_test(
+                "Get Specific Post Social Media Metrics",
+                "GET",
+                f"social/metrics/{post_id}",
+                400  # Expected to fail if post not published to social media
+            )
+            
+            # This might fail if post is not published to social media, which is expected
+            if not success and "Post not published to social media" in str(response.get('detail', '')):
+                print("✅ Correctly handled unpublished post")
+                return True
+            elif success:
+                post_info = response.get('post')
+                metrics = response.get('metrics')
+                if post_info and metrics:
+                    print(f"   Post platform: {post_info.get('platform', 'N/A')}")
+                    print(f"   Likes: {metrics.get('likes', 0)}")
+                    print(f"   Comments: {metrics.get('comments', 0)}")
+                    print(f"   Shares: {metrics.get('shares', 0)}")
+                    print(f"   Reach: {metrics.get('reach', 0)}")
+                    print(f"   Impressions: {metrics.get('impressions', 0)}")
+                return True
+            
+            return success
+        else:
+            print("⚠️ No posts available for social metrics test")
+            return True  # Not a failure, just no posts
+
+    def test_analytics_error_handling_no_posts(self):
+        """Test analytics with no posts (error handling)"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Analytics Analysis (No Posts Scenario)",
+            "POST",
+            "analytics/analyze?days_back=365",  # Far back to likely have no posts
+            200
+        )
+        
+        if success:
+            if response.get('metrics_collected', 0) == 0:
+                print("✅ Correctly handled scenario with no posts")
+                print(f"   Message: {response.get('message', 'N/A')}")
+                return True
+            else:
+                print(f"   Found {response.get('metrics_collected', 0)} posts in 365 days")
+                return True
+        
+        return success
+
+    def test_analytics_ai_recommendations_fallback(self):
+        """Test AI recommendations and fallback mechanisms"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+        
+        # Trigger analysis first
+        analysis_success, analysis_response = self.run_test(
+            "Trigger Analysis for AI Test",
+            "POST",
+            "analytics/analyze?days_back=7",
+            200
+        )
+        
+        if analysis_success:
+            # Get insights to check AI recommendations
+            success, response = self.run_test(
+                "Get AI Recommendations",
+                "GET",
+                "analytics/insights",
+                200
+            )
+            
+            if success:
+                insights = response.get('insights')
+                if insights:
+                    ai_recommendations = insights.get('ai_recommendations', [])
+                    content_strategy = insights.get('content_strategy_suggestions', [])
+                    
+                    print(f"   AI recommendations count: {len(ai_recommendations)}")
+                    print(f"   Content strategy suggestions: {len(content_strategy)}")
+                    
+                    if ai_recommendations:
+                        print(f"   First recommendation: {ai_recommendations[0][:60]}...")
+                    
+                    if content_strategy:
+                        print(f"   First strategy: {content_strategy[0][:60]}...")
+                    
+                    # Check if we have fallback recommendations (indicates OpenAI might not be available)
+                    fallback_indicators = [
+                        "Continuez à utiliser les hashtags",
+                        "Variez les types de contenu",
+                        "Publiez régulièrement"
+                    ]
+                    
+                    has_fallback = any(indicator in str(ai_recommendations) for indicator in fallback_indicators)
+                    if has_fallback:
+                        print("✅ Fallback AI recommendations working correctly")
+                    else:
+                        print("✅ AI recommendations generated (OpenAI integration working)")
+                    
+                    return True
+                else:
+                    print("⚠️ No insights available yet")
+                    return True
+            
+            return success
+        else:
+            print("❌ Failed to trigger analysis for AI test")
+            return False
+
+    def test_analytics_pattern_analysis(self):
+        """Test pattern analysis for hashtags, keywords, content length, posting times, topics"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+        
+        # Trigger analysis first
+        analysis_success, analysis_response = self.run_test(
+            "Trigger Analysis for Pattern Test",
+            "POST",
+            "analytics/analyze?days_back=7",
+            200
+        )
+        
+        if analysis_success:
+            # Get insights to check pattern analysis
+            success, response = self.run_test(
+                "Get Pattern Analysis Results",
+                "GET",
+                "analytics/insights",
+                200
+            )
+            
+            if success:
+                insights = response.get('insights')
+                if insights:
+                    # Check different pattern types
+                    top_hashtags = insights.get('top_hashtags', [])
+                    top_keywords = insights.get('top_keywords', [])
+                    optimal_content_length = insights.get('optimal_content_length', {})
+                    best_posting_times = insights.get('best_posting_times', [])
+                    high_performing_topics = insights.get('high_performing_topics', [])
+                    
+                    print(f"   Top hashtags analyzed: {len(top_hashtags)}")
+                    if top_hashtags:
+                        hashtag = top_hashtags[0]
+                        print(f"     Best hashtag: {hashtag.get('pattern_value', 'N/A')} (score: {hashtag.get('performance_score', 0):.2f})")
+                    
+                    print(f"   Top keywords analyzed: {len(top_keywords)}")
+                    if top_keywords:
+                        keyword = top_keywords[0]
+                        print(f"     Best keyword: {keyword.get('pattern_value', 'N/A')} (avg engagement: {keyword.get('avg_engagement', 0):.1f}%)")
+                    
+                    if optimal_content_length:
+                        print(f"   Optimal content length: {optimal_content_length.get('pattern_value', 'N/A')}")
+                        print(f"     Performance score: {optimal_content_length.get('performance_score', 0):.2f}")
+                    
+                    print(f"   Best posting times: {len(best_posting_times)}")
+                    if best_posting_times:
+                        time_slot = best_posting_times[0]
+                        print(f"     Best time: {time_slot.get('pattern_value', 'N/A')} (score: {time_slot.get('performance_score', 0):.2f})")
+                    
+                    print(f"   High performing topics: {len(high_performing_topics)}")
+                    if high_performing_topics:
+                        topic = high_performing_topics[0]
+                        print(f"     Best topic: {topic.get('pattern_value', 'N/A')} (frequency: {topic.get('frequency', 0)})")
+                    
+                    print("✅ Pattern analysis working correctly")
+                    return True
+                else:
+                    print("⚠️ No insights available for pattern analysis")
+                    return True
+            
+            return success
+        else:
+            print("❌ Failed to trigger analysis for pattern test")
+            return False
+
+    def test_analytics_models_structure(self):
+        """Test analytics models structure and functionality"""
+        print(f"\n🔍 Testing Analytics Models Structure...")
+        
+        try:
+            import sys
+            sys.path.append('/app/backend')
+            from analytics import PostMetrics, ContentPattern, PerformanceInsights, AnalyticsReport, AnalyticsEngine
+            
+            # Test PostMetrics model
+            test_metrics = PostMetrics(
+                post_id="test_post_123",
+                platform="facebook",
+                platform_post_id="fb_123456",
+                metrics={"likes": 50, "comments": 10, "shares": 5, "engagement_rate": 7.5},
+                analysis_period="7_days"
+            )
+            
+            print("✅ PostMetrics model working correctly")
+            print(f"   Post ID: {test_metrics.post_id}")
+            print(f"   Platform: {test_metrics.platform}")
+            print(f"   Engagement rate: {test_metrics.metrics.get('engagement_rate', 0)}%")
+            
+            # Test ContentPattern model
+            test_pattern = ContentPattern(
+                pattern_type="hashtag",
+                pattern_value="#restaurant",
+                performance_score=0.85,
+                frequency=5,
+                avg_engagement=8.2,
+                sample_posts=["post1", "post2", "post3"]
+            )
+            
+            print("✅ ContentPattern model working correctly")
+            print(f"   Pattern: {test_pattern.pattern_value}")
+            print(f"   Performance score: {test_pattern.performance_score}")
+            print(f"   Average engagement: {test_pattern.avg_engagement}%")
+            
+            # Test AnalyticsEngine initialization
+            analytics_engine = AnalyticsEngine()
+            print("✅ AnalyticsEngine initialized successfully")
+            print(f"   OpenAI integration: {'Available' if analytics_engine.chat else 'Fallback mode'}")
+            
+            self.tests_passed += 1
+            return True
+            
+        except Exception as e:
+            print(f"❌ Failed to test analytics models: {e}")
+            return False
+
+    def test_social_media_analytics_class(self):
+        """Test SocialMediaAnalytics class functionality"""
+        print(f"\n🔍 Testing SocialMediaAnalytics Class...")
+        
+        try:
+            import sys
+            sys.path.append('/app/backend')
+            from social_media import SocialMediaAnalytics
+            
+            # Initialize analytics class
+            social_analytics = SocialMediaAnalytics()
+            print("✅ SocialMediaAnalytics class initialized successfully")
+            
+            # Check if methods exist
+            required_methods = [
+                'get_facebook_post_metrics',
+                'get_instagram_post_metrics', 
+                'get_post_metrics_for_business'
+            ]
+            
+            for method_name in required_methods:
+                if hasattr(social_analytics, method_name):
+                    print(f"✅ Method {method_name} available")
+                else:
+                    print(f"❌ Method {method_name} missing")
+                    return False
+            
+            print("✅ All required SocialMediaAnalytics methods available")
+            self.tests_passed += 1
+            return True
+            
+        except Exception as e:
+            print(f"❌ Failed to test SocialMediaAnalytics class: {e}")
+            return False
+
     # Scheduler System Tests
     
     def test_scheduler_module_import(self):

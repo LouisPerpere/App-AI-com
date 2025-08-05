@@ -2707,6 +2707,15 @@ def main():
         # Business Profile Tests (for context)
         ("Create Business Profile", tester.test_create_business_profile),
         ("Get Business Profile", tester.test_get_business_profile),
+        ("Business Profile with Website URL", tester.test_business_profile_with_website_url),
+        
+        # NEW: Website Analysis Tests
+        ("Website Analysis Models Validation", tester.test_website_analysis_models_validation),
+        ("New Subscription Plans Validation", tester.test_new_subscription_plans_validation),
+        ("Website Analysis (Valid URL)", tester.test_website_analysis_with_valid_url),
+        ("Website Analysis (Invalid URL)", tester.test_website_analysis_invalid_url),
+        ("Get Website Analysis", tester.test_get_website_analysis),
+        ("Delete Website Analysis", tester.test_delete_website_analysis),
         
         # Content and Post Integration Tests (basic functionality)
         ("Upload Content Batch", tester.test_upload_content_batch),

@@ -625,7 +625,8 @@ function MainApp() {
               (tabValue === 'entreprise' && text.includes('entreprise')) ||
               (tabValue === 'notes' && text.includes('notes')) ||
               (tabValue === 'posts' && text.includes('posts')) ||
-              (tabValue === 'social' && text.includes('social'))) {
+              (tabValue === 'social' && text.includes('social')) ||
+              (tabValue === 'reglages' && text.includes('réglages'))) {
             activeTabElement = tab;
             break;
           }

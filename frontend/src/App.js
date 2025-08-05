@@ -1289,7 +1289,7 @@ function MainApp() {
           </TabsContent>
 
           {/* Subscription/Upgrade Interface */}
-          {user.subscription_status === 'trial' || user.subscription_status === 'expired' ? (
+          {user && (user.subscription_status === 'trial' || user.subscription_status === 'expired' || user.subscription_status === 'active') ? (
             <div className="mt-8">
               <SubscriptionUpgrade user={user} onUpgradeSuccess={() => window.location.reload()} />
             </div>

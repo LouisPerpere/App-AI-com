@@ -331,18 +331,39 @@ backend:
 
   - task: "Social Media Metrics Collection"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/social_media.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "✅ IMPLEMENTED: Extended social_media.py with SocialMediaAnalytics class for real metrics collection from Facebook/Instagram Graph APIs. Functions: get_facebook_post_metrics(), get_instagram_post_metrics(), get_post_metrics_for_business(). New endpoints: GET /api/social/metrics, GET /api/social/metrics/{post_id}. Retrieves likes, comments, shares, reach, impressions, engagement rates from actual social platforms."
-      - working: true
-        agent: "testing"
-        comment: "✅ TESTED: Social Media Metrics Collection working correctly. COMPREHENSIVE TESTING COMPLETED: (1) ✅ SocialMediaAnalytics Class - Initialized successfully with all required methods available (get_facebook_post_metrics, get_instagram_post_metrics, get_post_metrics_for_business), (2) ✅ GET /api/social/metrics - Working correctly for bulk metrics collection, properly handles 7 and 30 day periods, returns structured response with metrics array, total posts count, period info, and collection timestamp, (3) ✅ GET /api/social/metrics/{post_id} - Endpoint structure working correctly, properly validates post ownership and handles scenarios where posts are not published to social media, (4) ✅ Facebook/Instagram Graph API Integration - Methods properly structured to retrieve real metrics (likes, comments, shares, reach, impressions, engagement rates) from actual social platforms when connections exist, (5) ✅ Authentication & Business Scoping - All endpoints properly protected with user authentication and business profile validation, (6) ✅ Error Handling - Graceful handling of scenarios with no posts, no social connections, and unpublished posts, (7) ✅ Data Structure - Proper response formatting with metrics, collection timestamps, and period information. The social media metrics collection system is fully functional and ready to collect real-time analytics from Facebook and Instagram when social connections are established."
+
+  - task: "Scheduler Analytics Integration"
+    implemented: true
+    working: false
+    file: "/app/backend/scheduler.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ IMPLEMENTED: Phase 2 complete - Intelligent Scheduler Integration. Modified scheduler.py to analyze performance before each generation cycle. Added analyze_performance_before_generation() function that triggers 7-day analysis for weekly generation, 30-day analysis for monthly generation. Integrated with analytics_engine for metrics collection and pattern analysis. Creates performance_analysis_results collection for tracking insights usage."
+
+  - task: "Performance-Optimized Content Generation"
+    implemented: true
+    working: false
+    file: "/app/backend/scheduler.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ IMPLEMENTED: Created generate_performance_optimized_content() in AutoContentGenerator. Uses performance insights to optimize: hashtags (integrates top performers), keywords (uses high-performing words), content length (respects optimal length), topics (focuses on engaging subjects), AI recommendations. Generates posts with metadata tracking which insights were applied. Includes intelligent fallbacks when no performance data available."
 
   - task: "User Password Reset for lperpere@yahoo.fr"
     implemented: true

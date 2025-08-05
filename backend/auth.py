@@ -64,6 +64,7 @@ class UserResponse(BaseModel):
     first_name: str
     last_name: str
     is_active: bool
+    is_admin: bool
     business_profile_id: Optional[str]
     subscription_status: str
     subscription_plan: str

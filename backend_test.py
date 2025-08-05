@@ -2125,7 +2125,7 @@ class SocialGenieAPITester:
             print(f"   Performance score: {test_pattern.performance_score}")
             print(f"   Average engagement: {test_pattern.avg_engagement}%")
             
-            # Test AnalyticsEngine initialization
+            # Test AnalyticsEngine initialization (without LlmChat for now)
             analytics_engine = AnalyticsEngine()
             print("✅ AnalyticsEngine initialized successfully")
             print(f"   OpenAI integration: {'Available' if analytics_engine.chat else 'Fallback mode'}")

@@ -1767,9 +1767,9 @@ function MainApp() {
                                     </SelectTrigger>
                                     <SelectContent>
                                       <SelectItem value="daily">Quotidien</SelectItem>
-                                      <SelectItem value="3x/week">3 fois par semaine</SelectItem>
+                                      <SelectItem value="3x_week">3 fois par semaine</SelectItem>
                                       <SelectItem value="weekly">Hebdomadaire</SelectItem>
-                                      <SelectItem value="bi-weekly">Bi-hebdomadaire</SelectItem>
+                                      <SelectItem value="bi_weekly">Bi-hebdomadaire</SelectItem>
                                       <SelectItem value="monthly">Mensuel</SelectItem>
                                     </SelectContent>
                                   </Select>

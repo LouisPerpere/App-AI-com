@@ -934,7 +934,7 @@ function MainApp() {
                     <ImageIcon className="w-12 h-12 text-white" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-700 mb-4">Votre bibliothèque de contenus 📚</h3>
-                  <p className="text-xl text-gray-500">Uploadez vos premiers contenus pour voir la magie opérer ! 🪄</p>
+                  <p className="text-xl text-gray-500">Uploadez vos premiers contenus pour voir votre succès exploser ! 🚀</p>
                 </div>
               </CardContent>
             </Card>

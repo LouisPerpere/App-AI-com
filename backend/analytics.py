@@ -182,6 +182,91 @@ class AnalyticsEngine:
         }
         
         return metrics
+    
+    async def analyze_content_patterns(self, business_id: str, metrics_list: List[PostMetrics]) -> PerformanceInsights:
+        """Analyze content patterns and generate insights"""
+        try:
+            # Get the corresponding posts for analysis
+            post_ids = [m.post_id for m in metrics_list]
+            posts = await db.generated_posts.find({
+                "id": {"$in": post_ids},
+                "business_id": business_id
+            }).to_list(100)
+            
+            # Create post-metric mapping
+            post_metric_map = {m.post_id: m for m in metrics_list}
+            
+            # Analyze hashtags
+            hashtag_performance = self._analyze_hashtags(posts, post_metric_map)
+            
+            # Analyze keywords
+            keyword_performance = self._analyze_keywords(posts, post_metric_map)
+            
+            # Analyze content length
+            length_performance = self._analyze_content_length(posts, post_metric_map)
+            
+            # Analyze posting times (if available)
+            time_performance = self._analyze_posting_times(posts, post_metric_map)
+            
+            # Analyze topics
+            topic_performance = self._analyze_topics(posts, post_metric_map)
+            
+            # Calculate overall metrics
+            total_posts = len(posts)
+            avg_engagement = sum(m.metrics.get("engagement_rate", 0) for m in metrics_list) / max(1, len(metrics_list))
+            
+            # Find best and worst performing posts
+            best_post = max(metrics_list, key=lambda m: m.metrics.get("engagement_rate", 0)) if metrics_list else None
+            worst_post = min(metrics_list, key=lambda m: m.metrics.get("engagement_rate", 0)) if metrics_list else None
+            
+            # Generate AI recommendations
+            ai_recommendations = await self._generate_ai_recommendations(posts, metrics_list)
+            
+            # Create insights object
+            period_start = datetime.utcnow() - timedelta(days=7)  # TODO: Make this dynamic
+            period_end = datetime.utcnow()
+            
+            insights = PerformanceInsights(
+                user_id=posts[0]["user_id"] if posts else "",
+                business_id=business_id,
+                analysis_period_start=period_start,
+                analysis_period_end=period_end,
+                total_posts_analyzed=total_posts,
+                top_hashtags=hashtag_performance[:5],
+                top_keywords=keyword_performance[:5],
+                optimal_content_length=length_performance,
+                best_posting_times=time_performance[:3],
+                high_performing_topics=topic_performance[:5],
+                avg_engagement_rate=avg_engagement,
+                best_performing_post_id=best_post.post_id if best_post else None,
+                worst_performing_post_id=worst_post.post_id if worst_post else None,
+                ai_recommendations=ai_recommendations,
+                content_strategy_suggestions=await self._generate_content_strategy(hashtag_performance, keyword_performance, topic_performance)
+            )
+            
+            # Store insights in database
+            await db.performance_insights.insert_one(insights.dict())
+            
+            logging.info(f"Generated insights for {total_posts} posts with {avg_engagement:.2f}% avg engagement")
+            return insights
+            
+        except Exception as e:
+            logging.error(f"Error analyzing content patterns: {e}")
+            # Return empty insights object
+            return PerformanceInsights(
+                user_id="",
+                business_id=business_id,
+                analysis_period_start=datetime.utcnow() - timedelta(days=7),
+                analysis_period_end=datetime.utcnow(),
+                total_posts_analyzed=0,
+                optimal_content_length=ContentPattern(
+                    pattern_type="content_length",
+                    pattern_value="100-150_chars",
+                    performance_score=0.5,
+                    frequency=0,
+                    avg_engagement=0.0
+                )
+            )
 
 class PromptOptimizer:
     """Advanced prompt optimization system for continuous improvement"""

@@ -1468,8 +1468,8 @@ class SocialGenieAPITester:
         """Test that all 6 subscription packages are properly defined"""
         expected_packages = [
             "starter_monthly", "starter_yearly",
-            "pro_monthly", "pro_yearly", 
-            "enterprise_monthly", "enterprise_yearly"
+            "rocket_monthly", "rocket_yearly",
+            "pro_monthly", "pro_yearly"
         ]
         
         print(f"\n🔍 Testing Subscription Packages Validation...")

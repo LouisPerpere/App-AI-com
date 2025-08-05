@@ -519,11 +519,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Analytics System Backend Core"
-    - "Social Media Metrics Collection"
-    - "Notes API Endpoints"
-    - "Posts Generation from Notes"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

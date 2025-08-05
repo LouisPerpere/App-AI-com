@@ -6003,6 +6003,14 @@ def main():
         ("Get Business Profile", tester.test_get_business_profile),
         ("Business Profile with Website URL", tester.test_business_profile_with_website_url),
         
+        # PHASE 1: Business Profile Editing Tests
+        ("Business Profile Retrieval (lperpere@yahoo.fr)", tester.test_business_profile_retrieval),
+        ("Business Profile Update (All Fields)", tester.test_business_profile_update_all_fields),
+        ("Business Profile Partial Update", tester.test_business_profile_partial_update),
+        ("Business Profile Hashtags Arrays", tester.test_business_profile_hashtags_arrays),
+        ("Business Profile Field Validation", tester.test_business_profile_field_validation),
+        ("Business Profile Retrieve After Update", tester.test_business_profile_retrieve_after_update),
+        
         # NEW: Website Analysis Tests
         ("Website Analysis Models Validation", tester.test_website_analysis_models_validation),
         ("New Subscription Plans Validation", tester.test_new_subscription_plans_validation),

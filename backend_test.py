@@ -1455,13 +1455,25 @@ def main():
         ("Admin Revenue Analytics", tester.test_admin_revenue_analytics),
         ("Admin Unauthorized Access", tester.test_admin_unauthorized_access),
         
-        # Payment System Tests
+        # Payment System Tests (Legacy)
         ("Get Public Subscription Plans", tester.test_get_public_subscription_plans),
         ("Validate Promo Code (Invalid)", tester.test_validate_promo_code_invalid),
         ("Validate Created Promo Code", tester.test_validate_created_promo_code),
         ("Create Payment Intent (No Stripe)", tester.test_create_payment_intent_no_stripe),
         ("Get My Subscription", tester.test_get_my_subscription),
         ("Cancel Subscription", tester.test_cancel_subscription),
+        
+        # NEW: Stripe Payment Integration Tests (emergentintegrations)
+        ("Subscription Packages Validation", tester.test_subscription_packages_validation),
+        ("PaymentTransaction Model", tester.test_payment_transaction_model),
+        ("Create Checkout Session (Valid Package)", tester.test_create_checkout_session_valid_package),
+        ("Create Checkout Session (Invalid Package)", tester.test_create_checkout_session_invalid_package),
+        ("Create Checkout Session (With Promo Code)", tester.test_create_checkout_session_with_promo_code),
+        ("Get Checkout Status (Invalid Session)", tester.test_get_checkout_status_invalid_session),
+        ("Stripe Webhook Endpoint", tester.test_stripe_webhook_endpoint),
+        ("Promo Code Integration with Checkout", tester.test_promo_code_integration_with_checkout),
+        ("Origin URL Handling", tester.test_origin_url_handling),
+        ("Package Security Validation", tester.test_package_security_validation),
         
         # Business Profile Tests (for context)
         ("Create Business Profile", tester.test_create_business_profile),

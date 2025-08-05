@@ -519,6 +519,48 @@ function MainApp() {
     }
   };
 
+  const handleAddNote = async () => {
+    if (!noteForm.title || !noteForm.content) {
+      toast.error('Veuillez remplir tous les champs requis');
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${API}/notes`, {
+        title: noteForm.title,
+        content: noteForm.content,
+        priority: noteForm.priority
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        toast.success('Note ajoutée avec succès !');
+        setNoteForm({ title: '', content: '', priority: 'normal' });
+        loadNotes(); // Recharger la liste des notes
+      }
+    } catch (error) {
+      console.error('Error adding note:', error);
+      toast.error('Erreur lors de l\'ajout de la note');
+    }
+  };
+
+  const handleDeleteNote = async (noteId) => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette note ?')) {
+      return;
+    }
+
+    try {
+      const response = await axios.delete(`${API}/notes/${noteId}`);
+      
+      if (response.status === 200 || response.status === 204) {
+        toast.success('Note supprimée avec succès !');
+        loadNotes(); // Recharger la liste des notes
+      }
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      toast.error('Erreur lors de la suppression de la note');
+    }
+  };
+
   const loadSocialConnections = async () => {
     try {
       if (businessProfile?.id) {

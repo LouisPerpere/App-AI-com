@@ -31,12 +31,12 @@ payment_router = APIRouter(prefix="/payments")
 
 # Fixed subscription plans (server-side definition for security)
 SUBSCRIPTION_PACKAGES = {
-    "starter_monthly": {"name": "Starter", "amount": 19.99, "period": "monthly", "plan_id": "starter"},
-    "starter_yearly": {"name": "Starter", "amount": 199.99, "period": "yearly", "plan_id": "starter"},
-    "pro_monthly": {"name": "Pro", "amount": 49.99, "period": "monthly", "plan_id": "pro"},
-    "pro_yearly": {"name": "Pro", "amount": 499.99, "period": "yearly", "plan_id": "pro"},
-    "enterprise_monthly": {"name": "Enterprise", "amount": 99.99, "period": "monthly", "plan_id": "enterprise"},
-    "enterprise_yearly": {"name": "Enterprise", "amount": 999.99, "period": "yearly", "plan_id": "enterprise"},
+    "starter_monthly": {"name": "Starter", "amount": 14.99, "period": "monthly", "plan_id": "starter"},
+    "starter_yearly": {"name": "Starter", "amount": 149.99, "period": "yearly", "plan_id": "starter"},
+    "rocket_monthly": {"name": "Rocket", "amount": 29.99, "period": "monthly", "plan_id": "rocket"},
+    "rocket_yearly": {"name": "Rocket", "amount": 299.99, "period": "yearly", "plan_id": "rocket"},
+    "pro_monthly": {"name": "Pro", "amount": 199.99, "period": "monthly", "plan_id": "pro"},
+    "pro_yearly": {"name": "Pro", "amount": 1999.99, "period": "yearly", "plan_id": "pro"},
 }
 
 # Pydantic Models

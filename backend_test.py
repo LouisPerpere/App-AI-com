@@ -827,17 +827,11 @@ class SocialGenieAPITester:
             return False
             
         # Use a test promo code (this will likely fail but tests the endpoint)
-        promo_data = {
-            "code": "TESTCODE",
-            "plan_id": self.plan_id
-        }
-        
         success, response = self.run_test(
             "Validate Promo Code (Invalid)",
             "POST",
-            "payments/validate-promo-code",
+            "payments/validate-promo-code?code=TESTCODE&plan_id=" + self.plan_id,
             404,  # Expected to fail with invalid code
-            data=promo_data
         )
         return success
 

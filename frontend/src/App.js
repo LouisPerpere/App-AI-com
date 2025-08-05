@@ -758,6 +758,13 @@ function MainApp() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Subscription/Upgrade Interface */}
+          {user.subscription_status === 'trial' || user.subscription_status === 'expired' ? (
+            <div className="mt-8">
+              <SubscriptionUpgrade user={user} onUpgradeSuccess={() => window.location.reload()} />
+            </div>
+          ) : null}
         </Tabs>
       </div>
     </div>

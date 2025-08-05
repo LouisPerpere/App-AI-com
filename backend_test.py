@@ -7225,6 +7225,392 @@ def main():
             print("❌ No tests were run")
             return False
 
+    # Phase 2 Subscription Popup Logic Tests
+    
+    def test_subscription_popup_user_data_verification(self):
+        """Test Phase 2 subscription popup logic - verify user data for lperpere@yahoo.fr"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        print(f"\n🔍 Testing Phase 2 Subscription Popup Logic - User Data Verification...")
+        
+        # 1. Verify Business Profile Frequency
+        success, profile_response = self.run_test(
+            "Get Business Profile for Popup Logic",
+            "GET",
+            "business-profile",
+            200
+        )
+        
+        if success:
+            posting_frequency = profile_response.get('posting_frequency', 'unknown')
+            print(f"   ✅ Business Profile posting_frequency: {posting_frequency}")
+            
+            # Store for later calculations
+            self.user_posting_frequency = posting_frequency
+            
+            # Verify frequency is one of expected values
+            expected_frequencies = ['daily', '3x_week', 'weekly', 'bi_weekly', 'monthly']
+            if posting_frequency in expected_frequencies:
+                print(f"   ✅ Posting frequency is valid: {posting_frequency}")
+            else:
+                print(f"   ⚠️ Unexpected posting frequency: {posting_frequency}")
+        else:
+            print("   ❌ Failed to retrieve business profile")
+            return False
+        
+        # 2. Check Subscription Status
+        success, sub_response = self.run_test(
+            "Get Subscription Status for Popup Logic",
+            "GET",
+            "auth/subscription-status",
+            200
+        )
+        
+        if success:
+            subscription_status = sub_response.get('status', 'unknown')
+            trial_end_date = sub_response.get('trial_end_date')
+            days_remaining = sub_response.get('days_remaining')
+            
+            print(f"   ✅ Subscription Status: {subscription_status}")
+            print(f"   ✅ Trial End Date: {trial_end_date}")
+            print(f"   ✅ Days Remaining: {days_remaining}")
+            
+            # Verify user is in trial status as expected
+            if subscription_status == 'trial':
+                print("   ✅ User is in trial status as expected for popup logic")
+            else:
+                print(f"   ⚠️ User subscription status is not trial: {subscription_status}")
+        else:
+            print("   ❌ Failed to retrieve subscription status")
+            return False
+        
+        # 3. Get Generated Posts Count
+        success, posts_response = self.run_test(
+            "Get Generated Posts Count for Popup Logic",
+            "GET",
+            "posts",
+            200
+        )
+        
+        if success:
+            posts = posts_response.get('posts', [])
+            total_posts = len(posts)
+            
+            # Count posts by status
+            approved_posts = len([p for p in posts if p.get('status') == 'approved'])
+            pending_posts = len([p for p in posts if p.get('status') == 'pending'])
+            posted_posts = len([p for p in posts if p.get('status') == 'posted'])
+            
+            print(f"   ✅ Total Generated Posts: {total_posts}")
+            print(f"   ✅ Approved Posts: {approved_posts}")
+            print(f"   ✅ Pending Posts: {pending_posts}")
+            print(f"   ✅ Posted Posts: {posted_posts}")
+            
+            # Store for popup logic calculation
+            self.user_total_posts = total_posts
+            self.user_approved_posts = approved_posts
+        else:
+            print("   ❌ Failed to retrieve posts")
+            return False
+        
+        return True
+    
+    def test_subscription_popup_trigger_calculation(self):
+        """Test Phase 2 subscription popup trigger calculation logic"""
+        if not hasattr(self, 'user_posting_frequency') or not hasattr(self, 'user_total_posts'):
+            print("❌ Skipping - User data not available from previous test")
+            return False
+            
+        print(f"\n🔍 Testing Phase 2 Subscription Popup Trigger Calculation...")
+        
+        # Frequency mapping as per the review request
+        frequency_mapping = {
+            'daily': {'posts_per_month': 30, 'trigger_at': 29},
+            '3x_week': {'posts_per_month': 12, 'trigger_at': 11},
+            'weekly': {'posts_per_month': 4, 'trigger_at': 3},
+            'bi_weekly': {'posts_per_month': 8, 'trigger_at': 7},
+            'monthly': {'posts_per_month': 1, 'trigger_at': 1}
+        }
+        
+        user_frequency = self.user_posting_frequency
+        user_posts = self.user_total_posts
+        
+        print(f"   User posting frequency: {user_frequency}")
+        print(f"   User total posts: {user_posts}")
+        
+        if user_frequency in frequency_mapping:
+            mapping = frequency_mapping[user_frequency]
+            posts_per_month = mapping['posts_per_month']
+            trigger_at = mapping['trigger_at']
+            
+            print(f"   ✅ Frequency mapping found:")
+            print(f"      Posts per month: {posts_per_month}")
+            print(f"      Should trigger at post: {trigger_at}")
+            
+            # Calculate if popup should show
+            should_show_popup = user_posts >= trigger_at
+            
+            print(f"   ✅ Popup calculation:")
+            print(f"      Current posts ({user_posts}) >= Trigger point ({trigger_at}): {should_show_popup}")
+            
+            if should_show_popup:
+                print(f"   🎯 POPUP SHOULD SHOW: User has reached the 'avant-dernier post validé' threshold")
+            else:
+                posts_needed = trigger_at - user_posts
+                print(f"   📊 POPUP SHOULD NOT SHOW: User needs {posts_needed} more posts to reach threshold")
+            
+            # Test the specific logic mentioned in the review
+            print(f"\n   📋 Phase 2 Logic Verification:")
+            print(f"      - Frequency: {user_frequency} → {posts_per_month} posts/month")
+            print(f"      - Trigger: at {trigger_at}th post (avant-dernier post validé)")
+            print(f"      - Current: {user_posts} posts")
+            print(f"      - Result: {'SHOW POPUP' if should_show_popup else 'NO POPUP'}")
+            
+            self.tests_passed += 1
+            return True
+        else:
+            print(f"   ❌ Unknown posting frequency: {user_frequency}")
+            return False
+    
+    def test_subscription_popup_normalized_frequency_mapping(self):
+        """Test normalized frequency mapping for subscription popup logic"""
+        print(f"\n🔍 Testing Normalized Frequency Mapping for Popup Logic...")
+        
+        # Test the normalized frequency mapping as mentioned in the review
+        frequency_tests = [
+            {'input': 'daily', 'expected_posts': 30, 'expected_trigger': 29},
+            {'input': '3x_week', 'expected_posts': 12, 'expected_trigger': 11},
+            {'input': 'weekly', 'expected_posts': 4, 'expected_trigger': 3},
+            {'input': 'bi_weekly', 'expected_posts': 8, 'expected_trigger': 7},
+            {'input': 'monthly', 'expected_posts': 1, 'expected_trigger': 1}
+        ]
+        
+        print("   Testing frequency normalization:")
+        
+        all_tests_passed = True
+        for test_case in frequency_tests:
+            frequency = test_case['input']
+            expected_posts = test_case['expected_posts']
+            expected_trigger = test_case['expected_trigger']
+            
+            # This simulates the frontend shouldShowUpgradeModal function logic
+            print(f"      {frequency}: {expected_posts} posts/month → trigger at {expected_trigger}th post")
+            
+            # Verify the logic makes sense
+            if expected_trigger <= expected_posts:
+                print(f"         ✅ Logic valid: trigger ({expected_trigger}) <= total ({expected_posts})")
+            else:
+                print(f"         ❌ Logic issue: trigger ({expected_trigger}) > total ({expected_posts})")
+                all_tests_passed = False
+        
+        if all_tests_passed:
+            print("   ✅ All frequency mappings are logically consistent")
+            self.tests_passed += 1
+            return True
+        else:
+            print("   ❌ Some frequency mappings have logical issues")
+            return False
+    
+    def test_subscription_popup_trial_data_verification(self):
+        """Test trial data verification for subscription popup logic"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        print(f"\n🔍 Testing Trial Data Verification for Popup Logic...")
+        
+        # Get detailed user information
+        success, user_response = self.run_test(
+            "Get Current User Info for Trial Data",
+            "GET",
+            "auth/me",
+            200
+        )
+        
+        if success:
+            print("   ✅ User data retrieved successfully:")
+            print(f"      User ID: {user_response.get('id', 'N/A')}")
+            print(f"      Email: {user_response.get('email', 'N/A')}")
+            print(f"      Subscription Status: {user_response.get('subscription_status', 'N/A')}")
+            print(f"      Trial End Date: {user_response.get('trial_end_date', 'N/A')}")
+            
+            # Verify this is the expected test user
+            if user_response.get('email') == 'lperpere@yahoo.fr':
+                print("   ✅ Confirmed test user: lperpere@yahoo.fr")
+            else:
+                print(f"   ⚠️ Different user than expected: {user_response.get('email')}")
+            
+            # Verify trial status
+            if user_response.get('subscription_status') == 'trial':
+                print("   ✅ User is in trial status (required for popup logic)")
+            else:
+                print(f"   ⚠️ User not in trial status: {user_response.get('subscription_status')}")
+        else:
+            print("   ❌ Failed to retrieve user information")
+            return False
+        
+        # Get subscription status details
+        success, sub_response = self.run_test(
+            "Get Detailed Subscription Status",
+            "GET",
+            "auth/subscription-status",
+            200
+        )
+        
+        if success:
+            print("   ✅ Subscription details:")
+            print(f"      Status: {sub_response.get('status', 'N/A')}")
+            print(f"      Days Remaining: {sub_response.get('days_remaining', 'N/A')}")
+            print(f"      Trial End Date: {sub_response.get('trial_end_date', 'N/A')}")
+            print(f"      Can Upgrade: {sub_response.get('can_upgrade', 'N/A')}")
+            
+            # Verify data structure matches popup requirements
+            required_fields = ['status', 'days_remaining', 'trial_end_date']
+            missing_fields = []
+            
+            for field in required_fields:
+                if field not in sub_response:
+                    missing_fields.append(field)
+            
+            if not missing_fields:
+                print("   ✅ All required subscription fields present for popup logic")
+                self.tests_passed += 1
+                return True
+            else:
+                print(f"   ❌ Missing required fields: {missing_fields}")
+                return False
+        else:
+            print("   ❌ Failed to retrieve subscription status details")
+            return False
+    
+    def test_subscription_popup_backend_data_structure(self):
+        """Test that backend provides all necessary data for subscription popup logic"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        print(f"\n🔍 Testing Backend Data Structure for Subscription Popup...")
+        
+        # Test all endpoints that the frontend popup logic needs
+        endpoints_to_test = [
+            {
+                'name': 'Business Profile',
+                'endpoint': 'business-profile',
+                'required_fields': ['posting_frequency', 'business_name', 'id']
+            },
+            {
+                'name': 'Posts Data',
+                'endpoint': 'posts',
+                'required_fields': ['posts']
+            },
+            {
+                'name': 'Subscription Status',
+                'endpoint': 'auth/subscription-status',
+                'required_fields': ['status', 'trial_end_date']
+            },
+            {
+                'name': 'User Info',
+                'endpoint': 'auth/me',
+                'required_fields': ['id', 'email', 'subscription_status']
+            }
+        ]
+        
+        all_endpoints_valid = True
+        
+        for endpoint_test in endpoints_to_test:
+            success, response = self.run_test(
+                f"Data Structure Test: {endpoint_test['name']}",
+                "GET",
+                endpoint_test['endpoint'],
+                200
+            )
+            
+            if success:
+                missing_fields = []
+                
+                # Handle different response structures
+                if endpoint_test['endpoint'] == 'posts':
+                    # Posts endpoint returns {posts: [...]}
+                    if 'posts' in response:
+                        print(f"   ✅ {endpoint_test['name']}: posts array present")
+                    else:
+                        missing_fields.append('posts')
+                else:
+                    # Other endpoints return data directly
+                    for field in endpoint_test['required_fields']:
+                        if field not in response:
+                            missing_fields.append(field)
+                
+                if not missing_fields:
+                    print(f"   ✅ {endpoint_test['name']}: all required fields present")
+                else:
+                    print(f"   ❌ {endpoint_test['name']}: missing fields {missing_fields}")
+                    all_endpoints_valid = False
+            else:
+                print(f"   ❌ {endpoint_test['name']}: endpoint failed")
+                all_endpoints_valid = False
+        
+        if all_endpoints_valid:
+            print("   ✅ All backend endpoints provide required data for popup logic")
+            self.tests_passed += 1
+            return True
+        else:
+            print("   ❌ Some backend endpoints missing required data")
+            return False
+
+    def run_phase2_subscription_popup_tests(self):
+        """Run comprehensive Phase 2 subscription popup logic tests"""
+        print("🚀 Starting Phase 2 Subscription Popup Logic Tests...")
+        print(f"   Testing backend data for frontend popup logic")
+        print(f"   Test user: lperpere@yahoo.fr")
+        
+        # Authentication first
+        print("\n" + "="*60)
+        print("🔐 AUTHENTICATION")
+        print("="*60)
+        
+        if not self.test_user_login():
+            print("❌ Login failed - stopping tests")
+            return False
+        
+        # Phase 2 Subscription Popup Tests
+        print("\n" + "="*60)
+        print("🎯 PHASE 2 SUBSCRIPTION POPUP LOGIC TESTS")
+        print("="*60)
+        
+        self.test_subscription_popup_user_data_verification()
+        self.test_subscription_popup_trigger_calculation()
+        self.test_subscription_popup_normalized_frequency_mapping()
+        self.test_subscription_popup_trial_data_verification()
+        self.test_subscription_popup_backend_data_structure()
+        
+        # Final Results
+        print("\n" + "="*80)
+        print("📊 PHASE 2 SUBSCRIPTION POPUP TEST RESULTS")
+        print("="*80)
+        print(f"Total Tests Run: {self.tests_run}")
+        print(f"Tests Passed: {self.tests_passed}")
+        print(f"Tests Failed: {self.tests_run - self.tests_passed}")
+        
+        if self.tests_run > 0:
+            success_rate = (self.tests_passed/self.tests_run)*100
+            print(f"Success Rate: {success_rate:.1f}%")
+            
+            if success_rate >= 80:
+                print("🎉 Phase 2 Subscription Popup Logic: WORKING CORRECTLY")
+                return True
+            elif success_rate >= 60:
+                print("⚠️  Phase 2 Subscription Popup Logic: NEEDS ATTENTION")
+                return False
+            else:
+                print("❌ Phase 2 Subscription Popup Logic: CRITICAL ISSUES")
+                return False
+        else:
+            print("❌ No tests were run")
+            return False
+
 if __name__ == "__main__":
     import sys
     

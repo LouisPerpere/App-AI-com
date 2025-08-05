@@ -5,47 +5,49 @@ import axios from 'axios';
 import AuthPage from './Auth';
 import AdminDashboard from './AdminDashboard';
 import FacebookCallback from './FacebookCallback';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
+
+// Import UI components
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
 import { Textarea } from './components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/ui/select';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
 import { Badge } from './components/ui/badge';
-import { Calendar } from './components/ui/calendar';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog';
-import { Label } from './components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from './components/ui/avatar';
 import { Alert, AlertDescription } from './components/ui/alert';
-import { 
-  Upload, Calendar as CalendarIcon, Check, X, Edit, Sparkles, Target, TrendingUp, 
-  ChevronLeft, ChevronRight, Clock, Send, Image as ImageIcon, FileText, Building,
-  LogOut, User, Settings, Crown
-} from 'lucide-react';
-import { toast } from 'sonner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog';
+import { Label } from './components/ui/label';
+
+// Import icons
+import { Building, Sparkles, Crown, Upload, ImageIcon, FileText, X, Edit, CalendarIcon, Target, LogOut, Check, Send, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+
+// Import toast for notifications
+import { toast } from 'react-hot-toast';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 function MainApp() {
   const location = useLocation();
+  
+  // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
-  const [subscriptionStatus, setSubscriptionStatus] = useState(null);
   const [activeStep, setActiveStep] = useState('onboarding');
+  
+  // Business profile state
   const [businessProfile, setBusinessProfile] = useState(null);
-  const [generatedPosts, setGeneratedPosts] = useState([]);
+  const [subscriptionStatus, setSubscriptionStatus] = useState(null);
+  
+  // Content and posts state
   const [pendingContent, setPendingContent] = useState([]);
+  const [generatedPosts, setGeneratedPosts] = useState([]);
   const [notes, setNotes] = useState([]);
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isGeneratingPosts, setIsGeneratingPosts] = useState(false);
   const [currentPostIndex, setCurrentPostIndex] = useState(0);
   const [socialConnections, setSocialConnections] = useState([]);
-  const [isConnectingSocial, setIsConnectingSocial] = useState(false);
-
-  // Business profile form state
+  
+  // Form states
   const [profileForm, setProfileForm] = useState({
     business_name: '',
     business_type: '',
@@ -53,97 +55,98 @@ function MainApp() {
     brand_tone: '',
     posting_frequency: '',
     preferred_platforms: [],
-    budget_range: '',
     hashtags_primary: [],
-    hashtags_secondary: []
+    hashtags_secondary: [],
+    budget_range: ''
   });
-
-  // Note form state
+  
   const [noteForm, setNoteForm] = useState({
     title: '',
     content: '',
     priority: 'normal'
   });
-
-  // Hashtag management state
+  
+  // UI states
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isGeneratingPosts, setIsGeneratingPosts] = useState(false);
+  const [isConnectingSocial, setIsConnectingSocial] = useState(false);
+  
+  // Hashtag management
   const [newPrimaryHashtag, setNewPrimaryHashtag] = useState('');
   const [newSecondaryHashtag, setNewSecondaryHashtag] = useState('');
 
+  // Configure axios defaults
   useEffect(() => {
-    checkAuthStatus();
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
   }, []);
 
-  const checkAuthStatus = async () => {
-    try {
-      const token = localStorage.getItem('access_token');
-      if (!token) {
-        setIsLoading(false);
+  // Check authentication on mount
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  // Load data when authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (user.is_admin) {
+        // Admin users go to admin dashboard - handled by Auth component
         return;
       }
-
-      // Set axios default header
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-      // Check if token is valid and get user info
-      const userResponse = await axios.get(`${API}/auth/me`);
-      setUser(userResponse.data);
-      setIsAuthenticated(true);
-
-      // Check if user is admin
-      if (userResponse.data.is_admin) {
-        setActiveStep('admin');
-        setIsLoading(false);
-        return;
-      }
-
-      // Get subscription status
-      const subResponse = await axios.get(`${API}/auth/subscription-status`);
-      setSubscriptionStatus(subResponse.data);
-
-      // Check if user has business profile
-      try {
-        const profileResponse = await axios.get(`${API}/business-profile`);
-        setBusinessProfile(profileResponse.data);
+      
+      if (!businessProfile) {
+        loadBusinessProfile();
+      } else {
         setActiveStep('dashboard');
         loadGeneratedPosts();
         loadPendingContent();
         loadNotes();
         loadSocialConnections();
-      } catch (error) {
-        // No business profile found, show onboarding
-        setActiveStep('onboarding');
       }
+    }
+  }, [isAuthenticated, user, businessProfile]);
 
+  const checkAuth = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      setIsAuthenticated(false);
+      return;
+    }
+
+    try {
+      const response = await axios.get(`${API}/auth/me`);
+      setUser(response.data);
+      setIsAuthenticated(true);
+      
+      if (response.data.subscription_status) {
+        setSubscriptionStatus(response.data.subscription_status);
+      }
     } catch (error) {
-      console.log('Auth check failed:', error);
       localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
       delete axios.defaults.headers.common['Authorization'];
-    } finally {
-      setIsLoading(false);
+      setIsAuthenticated(false);
     }
   };
 
-  const handleAuthSuccess = () => {
-    setIsAuthenticated(true);
-    checkAuthStatus();
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    delete axios.defaults.headers.common['Authorization'];
-    setIsAuthenticated(false);
-    setUser(null);
-    setBusinessProfile(null);
-    setActiveStep('onboarding');
-    toast.success('Déconnexion réussie');
+  const loadBusinessProfile = async () => {
+    try {
+      const response = await axios.get(`${API}/business-profile`);
+      setBusinessProfile(response.data);
+      setActiveStep('dashboard');
+    } catch (error) {
+      if (error.response?.status === 404) {
+        setActiveStep('onboarding');
+      }
+    }
   };
 
   const loadGeneratedPosts = async () => {
     try {
-      const response = await axios.get(`${API}/generated-posts`);
-      setGeneratedPosts(response.data);
+      const response = await axios.get(`${API}/posts`);
+      setGeneratedPosts(response.data.posts || []);
     } catch (error) {
       console.error('Error loading posts:', error);
     }
@@ -151,8 +154,8 @@ function MainApp() {
 
   const loadPendingContent = async () => {
     try {
-      const response = await axios.get(`${API}/content/pending-description`);
-      setPendingContent(response.data);
+      const response = await axios.get(`${API}/content/pending`);
+      setPendingContent(response.data.content || []);
     } catch (error) {
       console.error('Error loading pending content:', error);
     }
@@ -176,6 +179,15 @@ function MainApp() {
     } catch (error) {
       console.error('Error loading social connections:', error);
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('access_token');
+    delete axios.defaults.headers.common['Authorization'];
+    setIsAuthenticated(false);
+    setUser(null);
+    setBusinessProfile(null);
+    setActiveStep('onboarding');
   };
 
   const connectFacebook = async () => {
@@ -224,55 +236,54 @@ function MainApp() {
     }
   };
 
-  const handleProfileSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post(`${API}/business-profile`, profileForm);
-      setBusinessProfile(response.data);
-      setActiveStep('dashboard');
-      toast.success('Profil d\'entreprise créé avec succès !');
-    } catch (error) {
-      console.error('Error creating profile:', error);
-      toast.error('Erreur lors de la création du profil');
-    }
-  };
+  const handleBatchUpload = async () => {
+    if (selectedFiles.length === 0) return;
 
-  const handleLogoUpload = async (file) => {
-    if (!file) return;
-
+    setIsUploading(true);
     const formData = new FormData();
-    formData.append('file', file);
+    
+    selectedFiles.forEach((file) => {
+      formData.append('files', file);
+    });
 
     try {
-      const response = await axios.post(`${API}/business-profile/logo`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      await axios.post(`${API}/content/batch-upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
       
-      setBusinessProfile({...businessProfile, logo_url: response.data.logo_url});
-      toast.success('Logo mis à jour !');
+      toast.success('Fichiers uploadés avec succès !');
+      setSelectedFiles([]);
+      loadPendingContent();
     } catch (error) {
-      console.error('Error uploading logo:', error);
-      toast.error('Erreur lors de l\'upload du logo');
+      toast.error('Erreur lors de l\'upload');
+      console.error('Upload error:', error);
+    } finally {
+      setIsUploading(false);
     }
   };
 
   const addHashtag = (type, hashtag) => {
-    if (hashtag.trim() && !hashtag.startsWith('#')) {
-      hashtag = '#' + hashtag.trim();
-    }
+    if (!hashtag.trim()) return;
     
-    if (type === 'primary' && hashtag && !profileForm.hashtags_primary.includes(hashtag)) {
-      setProfileForm({
-        ...profileForm,
-        hashtags_primary: [...profileForm.hashtags_primary, hashtag]
-      });
-      setNewPrimaryHashtag('');
-    } else if (type === 'secondary' && hashtag && !profileForm.hashtags_secondary.includes(hashtag)) {
-      setProfileForm({
-        ...profileForm,
-        hashtags_secondary: [...profileForm.hashtags_secondary, hashtag]
-      });
-      setNewSecondaryHashtag('');
+    const cleanHashtag = hashtag.replace('#', '').trim();
+    const currentHashtags = type === 'primary' ? profileForm.hashtags_primary : profileForm.hashtags_secondary;
+    
+    if (!currentHashtags.includes(cleanHashtag)) {
+      if (type === 'primary') {
+        setProfileForm({
+          ...profileForm,
+          hashtags_primary: [...currentHashtags, cleanHashtag]
+        });
+        setNewPrimaryHashtag('');
+      } else {
+        setProfileForm({
+          ...profileForm,
+          hashtags_secondary: [...currentHashtags, cleanHashtag]
+        });
+        setNewSecondaryHashtag('');
+      }
     }
   };
 
@@ -290,57 +301,25 @@ function MainApp() {
     }
   };
 
-  const handleBatchUpload = async () => {
-    if (selectedFiles.length === 0) {
-      toast.error('Veuillez sélectionner au moins un fichier');
-      return;
-    }
-
-    setIsUploading(true);
-    const formData = new FormData();
-    
-    selectedFiles.forEach(file => {
-      formData.append('files', file);
-    });
-
+  const handleProfileSubmit = async (e) => {
+    e.preventDefault();
     try {
-      await axios.post(`${API}/upload-content-batch`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      
-      toast.success(`${selectedFiles.length} fichiers uploadés avec succès !`);
-      setSelectedFiles([]);
-      loadPendingContent();
+      await axios.post(`${API}/business-profile`, profileForm);
+      toast.success('Profil créé avec succès !');
+      loadBusinessProfile();
     } catch (error) {
-      console.error('Error uploading files:', error);
-      toast.error('Erreur lors de l\'upload des fichiers');
-    } finally {
-      setIsUploading(false);
+      toast.error('Erreur lors de la création du profil');
+      console.error('Profile creation error:', error);
     }
   };
 
-  // Show loading screen
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl flex items-center justify-center mx-auto">
-            <Sparkles className="w-8 h-8 text-white animate-pulse" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">PostCraft</h1>
-          <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        </div>
-      </div>
-    );
-  }
-
   // Show auth page if not authenticated
   if (!isAuthenticated) {
-    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+    return <AuthPage onAuthSuccess={checkAuth} />;
   }
 
-  // Show admin dashboard if user is admin
-  if (user && user.is_admin && activeStep === 'admin') {
+  // Show admin dashboard for admin users
+  if (user?.is_admin) {
     return <AdminDashboard user={user} onLogout={handleLogout} />;
   }
 
@@ -476,7 +455,6 @@ function MainApp() {
               </div>
             </div>
 
-            {/* Hashtags Section */}
             <div className="space-y-6">
               <div className="space-y-4">
                 <Label className="text-gray-700 font-semibold">✨ Hashtags prioritaires (toujours inclus)</Label>
@@ -577,7 +555,6 @@ function MainApp() {
 
   const Dashboard = () => (
     <div className="min-h-screen bg-pattern">
-      {/* Header */}
       <div className="card-glass border-0 border-b border-purple-100/50">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
@@ -644,438 +621,33 @@ function MainApp() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Library Tab */}
           <TabsContent value="library" className="space-y-8">
-            {/* Galerie des contenus uploadés */}
-            {(pendingContent.length > 0 || generatedPosts.some(p => p.visual_url)) && (
-              <Card className="card-gradient">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-3 text-2xl">
-                    <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
-                      <ImageIcon className="w-6 h-6 text-white" />
-                    </div>
-                    <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                      Vos contenus magiques ✨
-                    </span>
-                  </CardTitle>
-                  <CardDescription className="text-lg text-gray-600">
-                    Cliquez sur une miniature pour ajouter du contexte et créer des posts extraordinaires
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                    {/* Contenus en attente de description */}
-                    {pendingContent.map((content) => (
-                      <Dialog key={content.id}>
-                        <DialogTrigger asChild>
-                          <div className="thumbnail-hover group relative aspect-square bg-gradient-to-br from-purple-50 to-pink-50 cursor-pointer">
-                            <img
-                              src={`${BACKEND_URL}${content.visual_url || '/uploads/' + content.file_path.split('/').pop()}`}
-                              alt="Contenu"
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
-                            <div className="absolute top-3 right-3">
-                              <Badge className="badge-warning animate-pulse">
-                                ✨ Nouveau
-                              </Badge>
-                            </div>
-                            <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                              <p className="text-white font-semibold text-sm">Cliquez pour décrire ✍️</p>
-                            </div>
-                          </div>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-6xl w-full h-[85vh] card-glass">
-                          <DialogHeader>
-                            <DialogTitle className="text-2xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                              🎨 Donnez vie à votre contenu
-                            </DialogTitle>
-                          </DialogHeader>
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
-                            {/* Image en grand */}
-                            <div className="flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl overflow-hidden">
-                              <img
-                                src={`${BACKEND_URL}${content.visual_url || '/uploads/' + content.file_path.split('/').pop()}`}
-                                alt="Contenu"
-                                className="max-w-full max-h-full object-contain rounded-2xl"
-                              />
-                            </div>
-                            
-                            {/* Zone de texte et actions */}
-                            <div className="flex flex-col space-y-6">
-                              <form onSubmit={async (e) => {
-                                e.preventDefault();
-                                const formData = new FormData(e.target);
-                                const description = formData.get('description');
-                                
-                                try {
-                                  setIsGeneratingPosts(true);
-                                  await axios.post(`${API}/content/${content.id}/describe`, { description });
-                                  toast.success('🎉 Posts créés avec succès !');
-                                  loadPendingContent();
-                                  loadGeneratedPosts();
-                                  // Fermer le dialog
-                                  document.querySelector('[data-state="open"]')?.click();
-                                } catch (error) {
-                                  toast.error('Erreur lors de la création');
-                                } finally {
-                                  setIsGeneratingPosts(false);
-                                }
-                              }} className="flex-1 flex flex-col space-y-6">
-                                <div className="space-y-3">
-                                  <Label htmlFor="description" className="text-xl font-semibold text-gray-700">
-                                    ✍️ Décrivez ce contenu
-                                  </Label>
-                                  <Textarea
-                                    id="description"
-                                    name="description"
-                                    placeholder="Décrivez en détail ce contenu : produit, service, événement, ambiance, personnes, lieu, contexte particulier... Plus vous donnez de détails, plus vos posts seront exceptionnels ! 🚀"
-                                    className="input-modern min-h-[200px] resize-none text-lg"
-                                    required
-                                  />
-                                </div>
-                                
-                                <div className="card-gradient p-6 rounded-2xl">
-                                  <h4 className="font-bold text-purple-900 mb-3 text-lg">💡 Conseils pour une description parfaite</h4>
-                                  <ul className="text-purple-700 space-y-2 font-medium">
-                                    <li>• 🎯 Décrivez le produit/service en détail</li>
-                                    <li>• 🌈 Mentionnez l'ambiance, les couleurs, l'émotion</li>
-                                    <li>• 🎪 Ajoutez le contexte (promotion, nouveauté, saison...)</li>
-                                    <li>• 👥 Précisez votre public cible pour ce contenu</li>
-                                  </ul>
-                                </div>
-                                
-                                <Button 
-                                  type="submit" 
-                                  disabled={isGeneratingPosts} 
-                                  className="w-full h-16 text-xl font-bold btn-gradient-primary"
-                                  size="lg"
-                                >
-                                  {isGeneratingPosts ? (
-                                    <>
-                                      <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin mr-3"></div>
-                                      ✨ Création en cours...
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Sparkles className="w-6 h-6 mr-3" />
-                                      🚀 Créer mes posts magiques
-                                    </>
-                                  )}
-                                </Button>
-                              </form>
-                            </div>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    ))}
-                    
-                    {/* Contenus déjà traités (posts générés) */}
-                    {generatedPosts
-                      .filter(post => post.visual_url)
-                      .slice(0, 12) // Limiter à 12 pour ne pas surcharger
-                      .map((post) => (
-                        <div key={post.id} className="thumbnail-hover group relative aspect-square">
-                          <img
-                            src={`${BACKEND_URL}${post.visual_url}`}
-                            alt="Contenu généré"
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
-                          <div className="absolute top-3 right-3">
-                            <Badge 
-                              className={`${
-                                post.status === 'posted' 
-                                  ? 'badge-success' 
-                                  : post.status === 'approved'
-                                  ? 'badge-info'
-                                  : 'badge-warning'
-                              }`}
-                            >
-                              {post.status === 'posted' ? '✅ Publié' : 
-                               post.status === 'approved' ? '👍 Approuvé' : 
-                               '⏳ En attente'}
-                            </Badge>
-                          </div>
-                        </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Section d'upload */}
             <Card className="card-gradient">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-3 text-2xl">
-                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center">
-                    <Upload className="w-6 h-6 text-white" />
+                  <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
+                    <ImageIcon className="w-6 h-6 text-white" />
                   </div>
-                  <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    Ajouter du contenu
+                  <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    Bibliothèque magique ✨
                   </span>
                 </CardTitle>
                 <CardDescription className="text-lg text-gray-600">
-                  Uploadez vos photos et vidéos pour créer de nouveaux posts spectaculaires 🎬
+                  Uploadez et gérez vos contenus pour créer des posts extraordinaires 🎨
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="upload-zone p-12 text-center">
-                  <div className="space-y-4">
-                    <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto animate-float">
-                      <ImageIcon className="w-10 h-10 text-white" />
-                    </div>
-                    <div className="space-y-3">
-                      <p className="text-2xl font-bold text-gray-700">
-                        Glissez vos fichiers ici ou
-                      </p>
-                      <Button
-                        variant="outline"
-                        onClick={() => document.getElementById('file-input').click()}
-                        className="btn-gradient-secondary text-lg px-8 py-4"
-                      >
-                        📁 Parcourir
-                      </Button>
-                      <input
-                        id="file-input"
-                        type="file"
-                        multiple
-                        accept="image/*,video/*"
-                        className="hidden"
-                        onChange={(e) => setSelectedFiles(Array.from(e.target.files))}
-                      />
-                    </div>
-                    <p className="text-lg text-gray-500 font-medium">
-                      📸 Formats supportés: JPG, PNG, MP4, MOV (max 10 fichiers)
-                    </p>
-                  </div>
-                </div>
-
-                {selectedFiles.length > 0 && (
-                  <div className="space-y-6">
-                    <h4 className="text-xl font-bold text-gray-700">
-                      📋 Fichiers sélectionnés ({selectedFiles.length})
-                    </h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                      {selectedFiles.map((file, index) => (
-                        <div key={index} className="relative thumbnail-hover">
-                          <div className="aspect-square bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl overflow-hidden">
-                            {file.type.startsWith('image/') ? (
-                              <img
-                                src={URL.createObjectURL(file)}
-                                alt={file.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100">
-                                <FileText className="w-12 h-12 text-purple-600" />
-                              </div>
-                            )}
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-red-500 text-white hover:bg-red-600 hover:scale-110"
-                            onClick={() => setSelectedFiles(selectedFiles.filter((_, i) => i !== index))}
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                          <p className="text-sm text-gray-600 mt-2 truncate font-medium">{file.name}</p>
-                        </div>
-                      ))}
-                    </div>
-                    <Button
-                      onClick={handleBatchUpload}
-                      disabled={isUploading}
-                      className="w-full h-16 text-xl font-bold btn-gradient-primary"
-                    >
-                      {isUploading ? '⏳ Upload en cours...' : `🚀 Uploader ${selectedFiles.length} fichier(s)`}
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Posts Tab */}
-          <TabsContent value="posts" className="space-y-6">
-          {/* Posts Tab */}
-          <TabsContent value="posts" className="space-y-8">
-            <Card className="card-gradient">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl flex items-center justify-center">
-                      <FileText className="w-6 h-6 text-white" />
-                    </div>
-                    <span className="text-2xl bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
-                      Posts générés automatiquement 🚀
-                    </span>
-                  </div>
-                  <Badge className="badge-info px-4 py-2 text-lg">
-                    {generatedPosts.length} posts créés
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
               <CardContent>
-                {generatedPosts.length > 0 ? (
-                  <div className="space-y-8">
-                    {/* Carousel Navigation */}
-                    <div className="flex items-center justify-between card-glass p-4 rounded-2xl">
-                      <Button
-                        variant="outline"
-                        size="lg"
-                        onClick={() => setCurrentPostIndex(Math.max(0, currentPostIndex - 1))}
-                        disabled={currentPostIndex === 0}
-                        className="btn-gradient-secondary"
-                      >
-                        <ChevronLeft className="w-5 h-5 mr-2" />
-                        Précédent
-                      </Button>
-                      <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                        📄 {currentPostIndex + 1} / {generatedPosts.length}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="lg"
-                        onClick={() => setCurrentPostIndex(Math.min(generatedPosts.length - 1, currentPostIndex + 1))}
-                        disabled={currentPostIndex === generatedPosts.length - 1}
-                        className="btn-gradient-secondary"
-                      >
-                        Suivant
-                        <ChevronRight className="w-5 h-5 ml-2" />
-                      </Button>
-                    </div>
-
-                    {/* Current Post */}
-                    {generatedPosts[currentPostIndex] && (
-                      <Card className="card-glass border-2 border-purple-200/50">
-                        <CardContent className="p-8">
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div className="space-y-6">
-                              <div className="flex items-center justify-between">
-                                <Badge 
-                                  className={`px-4 py-2 text-lg font-semibold ${
-                                    generatedPosts[currentPostIndex].platform === 'facebook' 
-                                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white' 
-                                      : generatedPosts[currentPostIndex].platform === 'instagram'
-                                      ? 'bg-gradient-to-r from-pink-500 to-red-500 text-white'
-                                      : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white'
-                                  }`}
-                                >
-                                  {generatedPosts[currentPostIndex].platform === 'facebook' ? '📘 Facebook' :
-                                   generatedPosts[currentPostIndex].platform === 'instagram' ? '📷 Instagram' : 
-                                   '💼 LinkedIn'}
-                                </Badge>
-                                <Badge className={`px-4 py-2 text-lg font-semibold ${
-                                  generatedPosts[currentPostIndex].status === 'pending' ? 'badge-warning' :
-                                  generatedPosts[currentPostIndex].status === 'approved' ? 'badge-info' :
-                                  generatedPosts[currentPostIndex].status === 'posted' ? 'badge-success' : 'badge-warning'
-                                }`}>
-                                  {generatedPosts[currentPostIndex].status === 'pending' ? '⏳ En attente' :
-                                   generatedPosts[currentPostIndex].status === 'approved' ? '👍 Approuvé' :
-                                   generatedPosts[currentPostIndex].status === 'posted' ? '✅ Publié' : 'En attente'}
-                                </Badge>
-                              </div>
-                              
-                              <div className="card-gradient p-6 rounded-2xl">
-                                <h4 className="text-xl font-bold mb-4 text-gray-800">✨ Contenu du post</h4>
-                                <p className="text-lg text-gray-700 whitespace-pre-wrap leading-relaxed">
-                                  {generatedPosts[currentPostIndex].post_text}
-                                </p>
-                              </div>
-
-                              <div>
-                                <h4 className="text-xl font-bold mb-4 text-gray-800">🏷️ Hashtags magiques</h4>
-                                <div className="flex flex-wrap gap-3">
-                                  {generatedPosts[currentPostIndex].hashtags?.map((hashtag, idx) => (
-                                    <Badge key={idx} className="badge-info text-base px-3 py-1">
-                                      #{hashtag}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              </div>
-
-                              <div className="flex items-center space-x-3 text-lg text-gray-600 card-glass p-4 rounded-2xl">
-                                <Clock className="w-6 h-6 text-purple-500" />
-                                <span className="font-medium">
-                                  📅 Programmé pour le {new Date(generatedPosts[currentPostIndex].scheduled_date).toLocaleDateString('fr-FR')} 
-                                  à {generatedPosts[currentPostIndex].scheduled_time}
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="space-y-6">
-                              {generatedPosts[currentPostIndex].visual_url && (
-                                <div className="aspect-square bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl overflow-hidden thumbnail-hover">
-                                  <img
-                                    src={`${BACKEND_URL}${generatedPosts[currentPostIndex].visual_url}`}
-                                    alt="Contenu"
-                                    className="w-full h-full object-cover"
-                                  />
-                                </div>
-                              )}
-
-                              <div className="flex flex-col space-y-4">
-                                {generatedPosts[currentPostIndex].status === 'pending' && (
-                                  <Button
-                                    size="lg"
-                                    className="btn-gradient-success h-14 text-xl font-bold"
-                                    onClick={async () => {
-                                      try {
-                                        await axios.put(`${API}/posts/${generatedPosts[currentPostIndex].id}/approve`);
-                                        toast.success('🎉 Post approuvé avec succès !');
-                                        loadGeneratedPosts();
-                                      } catch (error) {
-                                        toast.error('Erreur lors de l\'approbation');
-                                      }
-                                    }}
-                                  >
-                                    <Check className="w-6 h-6 mr-3" />
-                                    👍 Approuver ce post
-                                  </Button>
-                                )}
-                                
-                                {(generatedPosts[currentPostIndex].status === 'approved' || generatedPosts[currentPostIndex].status === 'pending') && (
-                                  <Button
-                                    variant="outline"
-                                    size="lg"
-                                    className="btn-gradient-primary h-14 text-xl font-bold"
-                                    onClick={async () => {
-                                      try {
-                                        await axios.post(`${API}/posts/${generatedPosts[currentPostIndex].id}/publish`);
-                                        toast.success('🚀 Post publié avec succès !');
-                                        loadGeneratedPosts();
-                                      } catch (error) {
-                                        toast.error('Erreur lors de la publication');
-                                      }
-                                    }}
-                                  >
-                                    <Send className="w-6 h-6 mr-3" />
-                                    🚀 Publier maintenant
-                                  </Button>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )}
+                <div className="text-center py-20 card-glass rounded-3xl">
+                  <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
+                    <ImageIcon className="w-12 h-12 text-white" />
                   </div>
-                ) : (
-                  <div className="text-center py-20 card-gradient rounded-3xl">
-                    <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
-                      <FileText className="w-12 h-12 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-700 mb-4">Aucun post créé pour le moment ✨</h3>
-                    <p className="text-xl text-gray-500">Uploadez du contenu dans la Bibliothèque pour commencer la magie ! 🎭</p>
-                  </div>
-                )}
+                  <h3 className="text-2xl font-bold text-gray-700 mb-4">Votre bibliothèque de contenus 📚</h3>
+                  <p className="text-xl text-gray-500">Uploadez vos premiers contenus pour voir la magie opérer ! 🪄</p>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Notes Tab */}
           <TabsContent value="notes" className="space-y-8">
             <Card className="card-gradient">
               <CardHeader>
@@ -1091,280 +663,42 @@ function MainApp() {
                   Ajoutez des informations importantes pour enrichir vos posts automatiquement 🎯
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <form onSubmit={async (e) => {
-                  e.preventDefault();
-                  try {
-                    await axios.post(`${API}/notes`, noteForm);
-                    setNoteForm({ title: '', content: '', priority: 'normal' });
-                    toast.success('✨ Note ajoutée avec succès !');
-                    loadNotes();
-                  } catch (error) {
-                    toast.error('Erreur lors de l\'ajout de la note');
-                  }
-                }} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Input
-                      placeholder="📝 Titre de la note"
-                      value={noteForm.title}
-                      onChange={(e) => setNoteForm({...noteForm, title: e.target.value})}
-                      required
-                      className="input-modern text-lg"
-                    />
-                    <Select 
-                      value={noteForm.priority} 
-                      onValueChange={(value) => setNoteForm({...noteForm, priority: value})}
-                    >
-                      <SelectTrigger className="input-modern">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="card-glass">
-                        <SelectItem value="high">🔥 Priorité haute</SelectItem>
-                        <SelectItem value="normal">⚡ Priorité normale</SelectItem>
-                        <SelectItem value="low">💫 Priorité basse</SelectItem>
-                      </SelectContent>
-                    </Select>
+              <CardContent>
+                <div className="text-center py-20 card-glass rounded-3xl">
+                  <div className="w-24 h-24 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
+                    <Edit className="w-12 h-12 text-white" />
                   </div>
-                  <Textarea
-                    placeholder="💬 Contenu de la note (ex: fermeture exceptionnelle, nouvelle offre, événement spécial...)"
-                    value={noteForm.content}
-                    onChange={(e) => setNoteForm({...noteForm, content: e.target.value})}
-                    required
-                    className="input-modern min-h-[120px] text-lg"
-                  />
-                  <Button type="submit" className="w-full h-14 text-xl font-bold btn-gradient-primary">
-                    <Edit className="w-6 h-6 mr-3" />
-                    ✨ Ajouter la note magique
-                  </Button>
-                </form>
+                  <h3 className="text-2xl font-bold text-gray-700 mb-4">Gestionnaire de notes 📝</h3>
+                  <p className="text-xl text-gray-500">Ajoutez vos premières notes pour personnaliser vos posts ! ✍️</p>
+                </div>
               </CardContent>
             </Card>
-
-            {notes.length > 0 && (
-              <Card className="card-gradient">
-                <CardHeader>
-                  <CardTitle className="text-2xl bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    📚 Vos notes enregistrées
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {notes.map((note) => (
-                      <div key={note.id} className="card-glass p-6 hover:shadow-2xl transition-all duration-300">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-3">
-                              <h4 className="text-xl font-bold text-gray-800">{note.title}</h4>
-                              <Badge 
-                                className={`${note.priority === 'high' ? 'badge-warning' : note.priority === 'normal' ? 'badge-info' : 'badge-success'}`}
-                              >
-                                {note.priority === 'high' ? '🔥 Haute' : note.priority === 'normal' ? '⚡ Normale' : '💫 Basse'}
-                              </Badge>
-                            </div>
-                            <p className="text-lg text-gray-700 leading-relaxed">{note.content}</p>
-                            <p className="text-sm text-gray-500 mt-4 font-medium">
-                              📅 {new Date(note.created_at).toLocaleDateString('fr-FR')}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </TabsContent>
 
-          {/* Calendar Tab */}
-          <TabsContent value="calendar" className="space-y-6">
-            <Card>
+          <TabsContent value="posts" className="space-y-8">
+            <Card className="card-gradient">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <CalendarIcon className="w-5 h-5" />
-                  <span>Calendrier de publication</span>
+                <CardTitle className="flex items-center space-x-3 text-2xl">
+                  <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl flex items-center justify-center">
+                    <FileText className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
+                    Posts générés automatiquement 🚀
+                  </span>
                 </CardTitle>
-                <CardDescription>
-                  Planifiez et gérez vos publications à venir
-                </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-12">
-                  <CalendarIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">Calendrier de publication</p>
-                  <p className="text-sm text-gray-400">Fonctionnalité en développement</p>
+                <div className="text-center py-20 card-glass rounded-3xl">
+                  <div className="w-24 h-24 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
+                    <FileText className="w-12 h-12 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-700 mb-4">Centre de gestion des posts 📊</h3>
+                  <p className="text-xl text-gray-500">Vos posts générés apparaîtront ici ! 🎪</p>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Social Tab */}
-          <TabsContent value="social" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Target className="w-5 h-5" />
-                  <span>Comptes sociaux connectés</span>
-                </CardTitle>
-                <CardDescription>
-                  Connectez vos comptes Facebook et Instagram pour publier automatiquement
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Connexion Facebook */}
-                <div className="border rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                        <span className="text-white font-bold text-lg">f</span>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">Facebook</h3>
-                        <p className="text-sm text-gray-500">Connectez vos pages Facebook</p>
-                      </div>
-                    </div>
-                    <Button
-                      onClick={connectFacebook}
-                      disabled={isConnectingSocial}
-                      className="bg-blue-600 hover:bg-blue-700"
-                    >
-                      {isConnectingSocial ? 'Connexion...' : 'Connecter Facebook'}
-                    </Button>
-                  </div>
-
-                  {/* Pages Facebook connectées */}
-                  {socialConnections.filter(conn => conn.platform === 'facebook').length > 0 && (
-                    <div className="space-y-3">
-                      <h4 className="font-medium text-sm text-gray-700">Pages connectées :</h4>
-                      {socialConnections
-                        .filter(conn => conn.platform === 'facebook')
-                        .map((connection) => (
-                          <div key={connection.id} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                <span className="text-blue-600 font-bold text-sm">f</span>
-                              </div>
-                              <div>
-                                <p className="font-medium">{connection.page_name}</p>
-                                <p className="text-xs text-gray-500">
-                                  Connecté le {new Date(connection.connected_at).toLocaleDateString('fr-FR')}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
-                                Actif
-                              </Badge>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => disconnectSocialAccount(connection.id)}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                              >
-                                <X className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Instagram */}
-                <div className="border rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                        <ImageIcon className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">Instagram</h3>
-                        <p className="text-sm text-gray-500">Connectez vos comptes Instagram Business</p>
-                      </div>
-                    </div>
-                    <Badge variant="secondary" className="bg-orange-100 text-orange-600">
-                      Via Facebook
-                    </Badge>
-                  </div>
-
-                  {/* Comptes Instagram connectés */}
-                  {socialConnections.filter(conn => conn.platform === 'instagram').length > 0 ? (
-                    <div className="space-y-3">
-                      <h4 className="font-medium text-sm text-gray-700">Comptes connectés :</h4>
-                      {socialConnections
-                        .filter(conn => conn.platform === 'instagram')
-                        .map((connection) => (
-                          <div key={connection.id} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-8 h-8 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center">
-                                <ImageIcon className="w-4 h-4 text-purple-600" />
-                              </div>
-                              <div>
-                                <p className="font-medium">@{connection.platform_username}</p>
-                                <p className="text-xs text-gray-500">
-                                  Connecté le {new Date(connection.connected_at).toLocaleDateString('fr-FR')}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
-                                Actif
-                              </Badge>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => disconnectSocialAccount(connection.id)}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                              >
-                                <X className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-6 text-gray-500">
-                      <p className="text-sm">Aucun compte Instagram connecté</p>
-                      <p className="text-xs mt-1">Connectez d'abord une page Facebook avec un compte Instagram Business lié</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Instructions */}
-                <Alert className="bg-blue-50 border-blue-200">
-                  <Target className="h-4 w-4 text-blue-600" />
-                  <AlertDescription className="text-blue-700">
-                    <strong>Comment connecter vos comptes :</strong>
-                    <br />
-                    1. Cliquez sur "Connecter Facebook" pour autoriser l'accès à vos pages
-                    <br />
-                    2. Les comptes Instagram Business liés à vos pages Facebook seront automatiquement connectés
-                    <br />
-                    3. Vous pourrez ensuite publier directement depuis l'onglet "Posts"
-                  </AlertDescription>
-                </Alert>
-
-                {/* État sans connexions */}
-                {socialConnections.length === 0 && (
-                  <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
-                    <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun compte connecté</h3>
-                    <p className="text-gray-500 mb-4">
-                      Connectez vos comptes Facebook et Instagram pour commencer à publier automatiquement
-                    </p>
-                    <Button
-                      onClick={connectFacebook}
-                      disabled={isConnectingSocial}
-                      className="bg-blue-600 hover:bg-blue-700"
-                    >
-                      {isConnectingSocial ? 'Connexion...' : 'Connecter mon premier compte'}
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Calendar Tab */}
           <TabsContent value="calendar" className="space-y-8">
             <Card className="card-gradient">
               <CardHeader>
@@ -1376,9 +710,6 @@ function MainApp() {
                     Calendrier de publication 📅
                   </span>
                 </CardTitle>
-                <CardDescription className="text-lg text-gray-600">
-                  Planifiez et gérez vos publications à venir comme un pro ! 🗓️
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-20 card-glass rounded-3xl">
@@ -1386,27 +717,12 @@ function MainApp() {
                     <CalendarIcon className="w-12 h-12 text-white" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-700 mb-4">Calendrier interactif 🎯</h3>
-                  <p className="text-xl text-gray-500">Bientôt disponible - Vue calendrier avec planification avancée ! 🚀</p>
-                  <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto">
-                    <div className="card-gradient p-6 rounded-2xl">
-                      <h4 className="font-bold text-orange-600 mb-2">📊 Statistiques</h4>
-                      <p className="text-gray-600">Analysez vos performances</p>
-                    </div>
-                    <div className="card-gradient p-6 rounded-2xl">
-                      <h4 className="font-bold text-red-600 mb-2">⏰ Planification</h4>
-                      <p className="text-gray-600">Programmez à l'avance</p>
-                    </div>
-                    <div className="card-gradient p-6 rounded-2xl">
-                      <h4 className="font-bold text-pink-600 mb-2">🎯 Optimisation</h4>
-                      <p className="text-gray-600">Meilleurs moments</p>
-                    </div>
-                  </div>
+                  <p className="text-xl text-gray-500">Planification avancée bientôt disponible ! 🚀</p>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Social Tab */}
           <TabsContent value="social" className="space-y-8">
             <Card className="card-gradient">
               <CardHeader>
@@ -1422,162 +738,23 @@ function MainApp() {
                   Connectez vos comptes Facebook et Instagram pour publier automatiquement ✨
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-8">
-                {/* Connexion Facebook */}
-                <div className="card-glass p-8 rounded-3xl">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-16 h-16 bg-blue-600 rounded-3xl flex items-center justify-center animate-glow">
-                        <span className="text-white font-bold text-2xl">f</span>
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-gray-800">Facebook</h3>
-                        <p className="text-lg text-gray-600">Connectez vos pages Facebook professionnelles</p>
-                      </div>
-                    </div>
-                    <Button
-                      onClick={connectFacebook}
-                      disabled={isConnectingSocial}
-                      className="btn-gradient-primary h-14 px-8 text-lg font-bold"
-                    >
-                      {isConnectingSocial ? '⏳ Connexion...' : '🔗 Connecter Facebook'}
-                    </Button>
+              <CardContent>
+                <div className="text-center py-20 card-glass rounded-3xl border-2 border-dashed border-purple-300">
+                  <div className="w-24 h-24 bg-gradient-to-r from-green-500 to-teal-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
+                    <Target className="w-12 h-12 text-white" />
                   </div>
-
-                  {/* Pages Facebook connectées */}
-                  {socialConnections.filter(conn => conn.platform === 'facebook').length > 0 && (
-                    <div className="space-y-4">
-                      <h4 className="text-xl font-bold text-gray-700">📘 Pages connectées :</h4>
-                      {socialConnections
-                        .filter(conn => conn.platform === 'facebook')
-                        .map((connection) => (
-                          <div key={connection.id} className="flex items-center justify-between card-gradient p-6 rounded-2xl hover:shadow-xl transition-all duration-300">
-                            <div className="flex items-center space-x-4">
-                              <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center">
-                                <span className="text-blue-600 font-bold text-lg">f</span>
-                              </div>
-                              <div>
-                                <p className="text-xl font-bold text-gray-800">{connection.page_name}</p>
-                                <p className="text-sm text-gray-500 font-medium">
-                                  🗓️ Connecté le {new Date(connection.connected_at).toLocaleDateString('fr-FR')}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                              <Badge className="badge-success px-4 py-2 text-base">
-                                ✅ Actif
-                              </Badge>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => disconnectSocialAccount(connection.id)}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50 p-3 rounded-xl"
-                              >
-                                <X className="w-5 h-5" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  )}
+                  <h3 className="text-3xl font-bold text-gray-900 mb-4">Connexions sociales 🌟</h3>
+                  <p className="text-xl text-gray-600 mb-8 max-w-lg mx-auto">
+                    Connectez vos comptes Facebook et Instagram pour faire exploser votre présence en ligne ! 🚀
+                  </p>
+                  <Button
+                    onClick={connectFacebook}
+                    disabled={isConnectingSocial}
+                    className="btn-gradient-primary h-16 px-12 text-xl font-bold"
+                  >
+                    {isConnectingSocial ? '⏳ Connexion en cours...' : '🔗 Connecter Facebook/Instagram'}
+                  </Button>
                 </div>
-
-                {/* Instagram */}
-                <div className="card-glass p-8 rounded-3xl">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center animate-glow">
-                        <ImageIcon className="w-8 h-8 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-gray-800">Instagram</h3>
-                        <p className="text-lg text-gray-600">Connectez vos comptes Instagram Business</p>
-                      </div>
-                    </div>
-                    <Badge className="badge-warning px-6 py-3 text-lg">
-                      🔗 Via Facebook
-                    </Badge>
-                  </div>
-
-                  {/* Comptes Instagram connectés */}
-                  {socialConnections.filter(conn => conn.platform === 'instagram').length > 0 ? (
-                    <div className="space-y-4">
-                      <h4 className="text-xl font-bold text-gray-700">📷 Comptes connectés :</h4>
-                      {socialConnections
-                        .filter(conn => conn.platform === 'instagram')
-                        .map((connection) => (
-                          <div key={connection.id} className="flex items-center justify-between card-gradient p-6 rounded-2xl hover:shadow-xl transition-all duration-300">
-                            <div className="flex items-center space-x-4">
-                              <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center">
-                                <ImageIcon className="w-6 h-6 text-purple-600" />
-                              </div>
-                              <div>
-                                <p className="text-xl font-bold text-gray-800">@{connection.platform_username}</p>
-                                <p className="text-sm text-gray-500 font-medium">
-                                  🗓️ Connecté le {new Date(connection.connected_at).toLocaleDateString('fr-FR')}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                              <Badge className="badge-success px-4 py-2 text-base">
-                                ✅ Actif
-                              </Badge>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => disconnectSocialAccount(connection.id)}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50 p-3 rounded-xl"
-                              >
-                                <X className="w-5 h-5" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12 card-gradient rounded-2xl">
-                      <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-4 animate-float">
-                        <ImageIcon className="w-10 h-10 text-white" />
-                      </div>
-                      <h4 className="text-xl font-bold text-gray-700 mb-2">Aucun compte Instagram connecté</h4>
-                      <p className="text-lg text-gray-500">Connectez d'abord une page Facebook avec un compte Instagram Business lié 🔗</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Instructions */}
-                <Alert className="card-gradient border-blue-200/50 p-6">
-                  <Target className="h-6 w-6 text-blue-600" />
-                  <AlertDescription className="text-blue-700 text-lg leading-relaxed">
-                    <strong className="text-xl">🎯 Comment connecter vos comptes :</strong>
-                    <br />
-                    <div className="mt-3 space-y-2">
-                      <p>1. 🚀 Cliquez sur "Connecter Facebook" pour autoriser l'accès à vos pages</p>
-                      <p>2. 📷 Les comptes Instagram Business liés à vos pages Facebook seront automatiquement connectés</p>
-                      <p>3. ✨ Vous pourrez ensuite publier directement depuis l'onglet "Posts"</p>
-                    </div>
-                  </AlertDescription>
-                </Alert>
-
-                {/* État sans connexions */}
-                {socialConnections.length === 0 && (
-                  <div className="text-center py-20 card-glass rounded-3xl border-2 border-dashed border-purple-300">
-                    <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
-                      <Target className="w-12 h-12 text-white" />
-                    </div>
-                    <h3 className="text-3xl font-bold text-gray-900 mb-4">Aucun compte connecté 🌟</h3>
-                    <p className="text-xl text-gray-600 mb-8 max-w-lg mx-auto">
-                      Connectez vos comptes Facebook et Instagram pour commencer à publier automatiquement et faire exploser votre présence en ligne ! 🚀
-                    </p>
-                    <Button
-                      onClick={connectFacebook}
-                      disabled={isConnectingSocial}
-                      className="btn-gradient-primary h-16 px-12 text-xl font-bold"
-                    >
-                      {isConnectingSocial ? '⏳ Connexion en cours...' : '🎯 Connecter mon premier compte'}
-                    </Button>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </TabsContent>

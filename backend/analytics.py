@@ -108,6 +108,80 @@ class AnalyticsEngine:
         else:
             self.chat = None
             logging.warning("OpenAI API key not found - AI insights will be limited")
+    
+    async def collect_post_metrics(self, business_id: str, days_back: int = 7) -> List[PostMetrics]:
+        """Collect metrics for all posts from the specified period"""
+        try:
+            # Calculate date range
+            end_date = datetime.utcnow()
+            start_date = end_date - timedelta(days=days_back)
+            
+            # Get published posts from the period
+            published_posts = await db.generated_posts.find({
+                "business_id": business_id,
+                "status": "posted",
+                "published_at": {"$gte": start_date, "$lte": end_date}
+            }).to_list(100)
+            
+            metrics_list = []
+            
+            for post in published_posts:
+                # TODO: In real implementation, this would call Facebook/Instagram Graph API
+                # For now, we'll simulate metrics based on post characteristics
+                simulated_metrics = await self._simulate_post_metrics(post)
+                
+                post_metrics = PostMetrics(
+                    post_id=post["id"],
+                    platform=post.get("platform", "facebook"),
+                    platform_post_id=post.get("platform_post_id", f"sim_{post['id'][:8]}"),
+                    metrics=simulated_metrics,
+                    analysis_period=f"{days_back}_days"
+                )
+                
+                # Store metrics in database
+                await db.post_metrics.insert_one(post_metrics.dict())
+                metrics_list.append(post_metrics)
+            
+            logging.info(f"Collected metrics for {len(metrics_list)} posts")
+            return metrics_list
+            
+        except Exception as e:
+            logging.error(f"Error collecting post metrics: {e}")
+            return []
+    
+    async def _simulate_post_metrics(self, post: Dict) -> Dict[str, Any]:
+        """Simulate realistic post metrics based on content characteristics"""
+        content = post.get("content", "")
+        platform = post.get("platform", "facebook")
+        
+        # Base metrics simulation
+        base_likes = 50 + len(content.split()) * 2  # More words = more engagement
+        base_comments = max(5, len(re.findall(r'[?!]', content)) * 3)  # Questions/exclamations drive comments
+        base_shares = max(2, len(re.findall(r'#\w+', content)))  # Hashtags encourage shares
+        
+        # Platform-specific adjustments
+        if platform == "instagram":
+            base_likes = int(base_likes * 1.5)  # Instagram typically has higher engagement
+            base_comments = int(base_comments * 1.2)
+        elif platform == "facebook":
+            base_shares = int(base_shares * 1.8)  # Facebook shares more
+        
+        # Add some randomness for realism
+        import random
+        variation = random.uniform(0.7, 1.5)
+        
+        metrics = {
+            "likes": int(base_likes * variation),
+            "comments": int(base_comments * variation),
+            "shares": int(base_shares * variation),
+            "reach": int((base_likes + base_comments * 2) * 5 * variation),
+            "impressions": int((base_likes + base_comments * 2) * 8 * variation),
+            "engagement_rate": round(((base_likes + base_comments + base_shares) / max(100, base_likes * 5)) * 100, 2),
+            "click_throughs": max(1, int(base_likes * 0.1 * variation)),
+            "saves": max(0, int(base_likes * 0.05 * variation)) if platform == "instagram" else 0
+        }
+        
+        return metrics
 
 class PromptOptimizer:
     """Advanced prompt optimization system for continuous improvement"""

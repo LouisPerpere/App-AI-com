@@ -135,8 +135,8 @@ const AuthPage = ({ onAuthSuccess }) => {
             </h2>
             
             <p className="text-xl text-gray-600 leading-relaxed max-w-2xl">
-              Créez, planifiez et publiez des contenus <strong>engageants</strong> qui convertissent. 
-              Boostez votre succès en quelques clics ! ⚡
+              Décrivez votre business, uploadez vos photos et vidéos, et <strong>laissez la magie opérer</strong> ! 
+              On crée les posts pour vous, vous les validez et on les programme directement ✨
             </p>
           </div>
 

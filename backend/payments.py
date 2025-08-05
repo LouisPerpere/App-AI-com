@@ -1,5 +1,5 @@
-from fastapi import APIRouter, HTTPException, Depends, status
-from typing import Optional
+from fastapi import APIRouter, HTTPException, Depends, status, Request
+from typing import Optional, Dict, Any
 from datetime import datetime, timedelta
 from pydantic import BaseModel, Field
 import uuid
@@ -10,6 +10,7 @@ from pathlib import Path
 import logging
 from motor.motor_asyncio import AsyncIOMotorClient
 from auth import get_current_active_user, User
+from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionResponse, CheckoutStatusResponse, CheckoutSessionRequest
 
 # Load environment variables
 ROOT_DIR = Path(__file__).parent

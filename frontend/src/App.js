@@ -1578,73 +1578,331 @@ function MainApp() {
               <CardContent>
                 {businessProfile ? (
                   <div className="space-y-6">
-                    {/* Current Business Profile Display */}
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center">
-                            <Building className="w-8 h-8 text-white" />
-                          </div>
-                          <div>
-                            <h3 className="text-2xl font-bold text-blue-800">{businessProfile.business_name}</h3>
-                            <p className="text-blue-600 capitalize">{businessProfile.business_type}</p>
-                          </div>
-                        </div>
-                        <Button
-                          onClick={handleEditProfile}
-                          className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
-                        >
-                          ⚙️ Modifier le profil
-                        </Button>
-                      </div>
-                      
-                      <div className="grid md:grid-cols-2 gap-6">
-                        <div>
-                          <h4 className="font-semibold text-blue-800 mb-2">📊 Informations générales</h4>
-                          <div className="space-y-2 text-sm">
-                            <p><span className="font-medium">Audience cible :</span> {businessProfile.target_audience}</p>
-                            <p><span className="font-medium">Ton de marque :</span> {businessProfile.brand_tone}</p>
-                            <p><span className="font-medium">Budget :</span> {businessProfile.budget_range}</p>
-                            {businessProfile.website_url && (
-                              <p><span className="font-medium">Site web :</span> 
-                                <a href={businessProfile.website_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">
-                                  {businessProfile.website_url}
-                                </a>
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <h4 className="font-semibold text-blue-800 mb-2">🌐 Stratégie digitale</h4>
-                          <div className="space-y-2 text-sm">
-                            <p><span className="font-medium">Fréquence :</span> {businessProfile.posting_frequency}</p>
-                            <div>
-                              <span className="font-medium">Réseaux sociaux :</span>
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {businessProfile.preferred_platforms?.map((platform, index) => (
-                                  <Badge key={index} className="bg-blue-100 text-blue-800 border-blue-300 text-xs">
-                                    {platform}
-                                  </Badge>
-                                ))}
+                    {!isEditingProfile ? (
+                      <>
+                        {/* Current Business Profile Display */}
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-center space-x-4">
+                              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center">
+                                <Building className="w-8 h-8 text-white" />
+                              </div>
+                              <div>
+                                <h3 className="text-2xl font-bold text-blue-800">{businessProfile.business_name}</h3>
+                                <p className="text-blue-600 capitalize">{businessProfile.business_type}</p>
                               </div>
                             </div>
-                            {businessProfile.hashtags_primary?.length > 0 && (
-                              <div>
-                                <span className="font-medium">Hashtags principaux :</span>
-                                <div className="flex flex-wrap gap-1 mt-1">
-                                  {businessProfile.hashtags_primary.slice(0, 3).map((tag, index) => (
-                                    <Badge key={index} className="bg-purple-100 text-purple-800 border-purple-300 text-xs">
-                                      #{tag}
-                                    </Badge>
-                                  ))}
-                                </div>
+                            <Button
+                              onClick={handleEditProfile}
+                              className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
+                            >
+                              ⚙️ Modifier le profil
+                            </Button>
+                          </div>
+                          
+                          <div className="grid md:grid-cols-2 gap-6">
+                            <div>
+                              <h4 className="font-semibold text-blue-800 mb-2">📊 Informations générales</h4>
+                              <div className="space-y-2 text-sm">
+                                <p><span className="font-medium">Audience cible :</span> {businessProfile.target_audience}</p>
+                                <p><span className="font-medium">Ton de marque :</span> {businessProfile.brand_tone}</p>
+                                <p><span className="font-medium">Budget :</span> {businessProfile.budget_range}</p>
+                                {businessProfile.email && (
+                                  <p><span className="font-medium">Email :</span> {businessProfile.email}</p>
+                                )}
+                                {businessProfile.website_url && (
+                                  <p><span className="font-medium">Site web :</span> 
+                                    <a href={businessProfile.website_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">
+                                      {businessProfile.website_url}
+                                    </a>
+                                  </p>
+                                )}
                               </div>
-                            )}
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold text-blue-800 mb-2">🌐 Stratégie digitale</h4>
+                              <div className="space-y-2 text-sm">
+                                <p><span className="font-medium">Fréquence :</span> {businessProfile.posting_frequency}</p>
+                                <div>
+                                  <span className="font-medium">Réseaux sociaux :</span>
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {businessProfile.preferred_platforms?.map((platform, index) => (
+                                      <Badge key={index} className="bg-blue-100 text-blue-800 border-blue-300 text-xs">
+                                        {platform}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </div>
+                                {businessProfile.hashtags_primary?.length > 0 && (
+                                  <div>
+                                    <span className="font-medium">Hashtags principaux :</span>
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                      {businessProfile.hashtags_primary.slice(0, 3).map((tag, index) => (
+                                        <Badge key={index} className="bg-purple-100 text-purple-800 border-purple-300 text-xs">
+                                          #{tag}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
+                      </>
+                    ) : (
+                      <>
+                        {/* Business Profile Edit Form */}
+                        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 border-2 border-purple-200">
+                          <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center">
+                                <Edit className="w-6 h-6 text-white" />
+                              </div>
+                              <div>
+                                <h3 className="text-2xl font-bold text-purple-800">Modifier le profil d'entreprise</h3>
+                                <p className="text-purple-600">Mettez à jour vos informations</p>
+                              </div>
+                            </div>
+                            <Button
+                              onClick={handleCancelEditProfile}
+                              variant="outline"
+                              className="border-purple-300 text-purple-700 hover:bg-purple-100"
+                            >
+                              ❌ Annuler
+                            </Button>
+                          </div>
+
+                          <form onSubmit={handleUpdateProfile} className="space-y-6">
+                            {/* Basic Information */}
+                            <div className="grid md:grid-cols-2 gap-6">
+                              <div className="space-y-4">
+                                <h4 className="font-semibold text-purple-800 mb-3">📊 Informations de base</h4>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="business_name" className="text-sm font-medium text-gray-700">
+                                    Nom de l'entreprise *
+                                  </Label>
+                                  <Input
+                                    id="business_name"
+                                    value={editProfileForm.business_name}
+                                    onChange={(e) => setEditProfileForm(prev => ({...prev, business_name: e.target.value}))}
+                                    placeholder="Nom de votre entreprise"
+                                    required
+                                  />
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="business_type" className="text-sm font-medium text-gray-700">
+                                    Type d'entreprise *
+                                  </Label>
+                                  <Select value={editProfileForm.business_type} onValueChange={(value) => setEditProfileForm(prev => ({...prev, business_type: value}))}>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Sélectionnez le type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="restaurant">Restaurant</SelectItem>
+                                      <SelectItem value="shop">Commerce</SelectItem>
+                                      <SelectItem value="service">Service</SelectItem>
+                                      <SelectItem value="freelance">Freelance</SelectItem>
+                                      <SelectItem value="agency">Agence</SelectItem>
+                                      <SelectItem value="ecommerce">E-commerce</SelectItem>
+                                      <SelectItem value="saas">SaaS</SelectItem>
+                                      <SelectItem value="consulting">Conseil</SelectItem>
+                                      <SelectItem value="healthcare">Santé</SelectItem>
+                                      <SelectItem value="education">Éducation</SelectItem>
+                                      <SelectItem value="fitness">Sport/Fitness</SelectItem>
+                                      <SelectItem value="beauty">Beauté</SelectItem>
+                                      <SelectItem value="other">Autre</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="target_audience" className="text-sm font-medium text-gray-700">
+                                    Audience cible *
+                                  </Label>
+                                  <Textarea
+                                    id="target_audience"
+                                    value={editProfileForm.target_audience}
+                                    onChange={(e) => setEditProfileForm(prev => ({...prev, target_audience: e.target.value}))}
+                                    placeholder="Décrivez votre audience cible"
+                                    rows={3}
+                                    required
+                                  />
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="brand_tone" className="text-sm font-medium text-gray-700">
+                                    Ton de marque *
+                                  </Label>
+                                  <Select value={editProfileForm.brand_tone} onValueChange={(value) => setEditProfileForm(prev => ({...prev, brand_tone: value}))}>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Sélectionnez le ton" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="professional">Professionnel</SelectItem>
+                                      <SelectItem value="casual">Décontracté</SelectItem>
+                                      <SelectItem value="friendly">Amical</SelectItem>
+                                      <SelectItem value="authoritative">Autoritaire</SelectItem>
+                                      <SelectItem value="playful">Enjoué</SelectItem>
+                                      <SelectItem value="inspiring">Inspirant</SelectItem>
+                                      <SelectItem value="educational">Éducatif</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+
+                              <div className="space-y-4">
+                                <h4 className="font-semibold text-purple-800 mb-3">🌐 Stratégie digitale</h4>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="posting_frequency" className="text-sm font-medium text-gray-700">
+                                    Fréquence de publication *
+                                  </Label>
+                                  <Select value={editProfileForm.posting_frequency} onValueChange={(value) => setEditProfileForm(prev => ({...prev, posting_frequency: value}))}>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Sélectionnez la fréquence" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="daily">Quotidien</SelectItem>
+                                      <SelectItem value="3x/week">3 fois par semaine</SelectItem>
+                                      <SelectItem value="weekly">Hebdomadaire</SelectItem>
+                                      <SelectItem value="bi-weekly">Bi-hebdomadaire</SelectItem>
+                                      <SelectItem value="monthly">Mensuel</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-gray-700">
+                                    Réseaux sociaux préférés *
+                                  </Label>
+                                  <div className="grid grid-cols-2 gap-2">
+                                    {['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'TikTok', 'YouTube'].map((platform) => (
+                                      <label key={platform} className="flex items-center space-x-2 cursor-pointer">
+                                        <input
+                                          type="checkbox"
+                                          checked={editProfileForm.preferred_platforms.includes(platform)}
+                                          onChange={() => handlePlatformToggle(platform)}
+                                          className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                                        />
+                                        <span className="text-sm text-gray-700">{platform}</span>
+                                      </label>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="budget_range" className="text-sm font-medium text-gray-700">
+                                    Budget marketing mensuel
+                                  </Label>
+                                  <Input
+                                    id="budget_range"
+                                    value={editProfileForm.budget_range}
+                                    onChange={(e) => setEditProfileForm(prev => ({...prev, budget_range: e.target.value}))}
+                                    placeholder="Ex: 500€, 1000-2000€, etc."
+                                  />
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Additional Information */}
+                            <div className="grid md:grid-cols-2 gap-6 pt-4 border-t border-purple-200">
+                              <div className="space-y-4">
+                                <h4 className="font-semibold text-purple-800 mb-3">📧 Contact & Web</h4>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                                    Email professionnel
+                                  </Label>
+                                  <Input
+                                    id="email"
+                                    type="email"
+                                    value={editProfileForm.email}
+                                    onChange={(e) => setEditProfileForm(prev => ({...prev, email: e.target.value}))}
+                                    placeholder="contact@entreprise.com"
+                                  />
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="website_url" className="text-sm font-medium text-gray-700">
+                                    Site web
+                                  </Label>
+                                  <Input
+                                    id="website_url"
+                                    type="url"
+                                    value={editProfileForm.website_url}
+                                    onChange={(e) => setEditProfileForm(prev => ({...prev, website_url: e.target.value}))}
+                                    placeholder="https://votre-site.com"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="space-y-4">
+                                <h4 className="font-semibold text-purple-800 mb-3">#️⃣ Hashtags</h4>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="hashtags_primary" className="text-sm font-medium text-gray-700">
+                                    Hashtags principaux
+                                  </Label>
+                                  <Input
+                                    id="hashtags_primary"
+                                    value={editProfileForm.hashtags_primary.join(', ')}
+                                    onChange={(e) => handleHashtagChange('hashtags_primary', e.target.value)}
+                                    placeholder="restaurant, gastronomie, paris"
+                                  />
+                                  <p className="text-xs text-gray-500">Séparez par des virgules</p>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="hashtags_secondary" className="text-sm font-medium text-gray-700">
+                                    Hashtags secondaires
+                                  </Label>
+                                  <Input
+                                    id="hashtags_secondary"
+                                    value={editProfileForm.hashtags_secondary.join(', ')}
+                                    onChange={(e) => handleHashtagChange('hashtags_secondary', e.target.value)}
+                                    placeholder="cuisine, chef, bistronomie"
+                                  />
+                                  <p className="text-xs text-gray-500">Hashtags complémentaires</p>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex justify-end space-x-4 pt-6 border-t border-purple-200">
+                              <Button
+                                type="button"
+                                onClick={handleCancelEditProfile}
+                                variant="outline"
+                                className="border-gray-300 text-gray-700 hover:bg-gray-100"
+                              >
+                                Annuler
+                              </Button>
+                              <Button
+                                type="submit"
+                                disabled={isUpdatingProfile}
+                                className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+                              >
+                                {isUpdatingProfile ? (
+                                  <>
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    Mise à jour...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Check className="w-4 h-4 mr-2" />
+                                    Sauvegarder les modifications
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </form>
+                        </div>
+                      </>
+                    )}
 
                     {/* Website Analysis Status */}
                     {websiteAnalysis && (

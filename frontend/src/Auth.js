@@ -54,7 +54,7 @@ const AuthPage = ({ onAuthSuccess }) => {
       toast.success('Connexion réussie ! 🎉');
       
       // Call auth success callback
-      await onAuthSuccess();
+      onAuthSuccess();
     } catch (error) {
       console.error('Login error:', error);
       setError(error.response?.data?.detail || 'Erreur de connexion');

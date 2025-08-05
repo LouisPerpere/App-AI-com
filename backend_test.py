@@ -548,6 +548,356 @@ class SocialGenieAPITester:
         )
         return success
 
+    # Admin Authentication Tests
+    
+    def test_admin_login(self):
+        """Test admin user login"""
+        login_data = {
+            "email": "admin@postcraft.com",
+            "password": "admin123"
+        }
+        
+        success, response = self.run_test(
+            "Admin Login",
+            "POST",
+            "auth/login",
+            200,
+            data=login_data
+        )
+        
+        if success and 'access_token' in response:
+            self.admin_access_token = response['access_token']
+            print(f"   Admin Access Token: {self.admin_access_token[:20]}...")
+            return True
+        return False
+
+    def test_admin_stats(self):
+        """Test admin dashboard statistics"""
+        if not self.admin_access_token:
+            print("❌ Skipping - No admin access token available")
+            return False
+            
+        # Temporarily store regular token and use admin token
+        regular_token = self.access_token
+        self.access_token = self.admin_access_token
+        
+        success, response = self.run_test(
+            "Admin Dashboard Stats",
+            "GET",
+            "admin/stats",
+            200
+        )
+        
+        if success:
+            print(f"   Total Users: {response.get('total_users', 0)}")
+            print(f"   Active Subscriptions: {response.get('active_subscriptions', 0)}")
+            print(f"   Trial Users: {response.get('trial_users', 0)}")
+            print(f"   MRR: €{response.get('mrr', 0)}")
+        
+        # Restore regular token
+        self.access_token = regular_token
+        return success
+
+    def test_admin_get_users(self):
+        """Test admin get all users"""
+        if not self.admin_access_token:
+            print("❌ Skipping - No admin access token available")
+            return False
+            
+        # Temporarily store regular token and use admin token
+        regular_token = self.access_token
+        self.access_token = self.admin_access_token
+        
+        success, response = self.run_test(
+            "Admin Get All Users",
+            "GET",
+            "admin/users?limit=10",
+            200
+        )
+        
+        if success and isinstance(response, list):
+            print(f"   Found {len(response)} users")
+            if response:
+                print(f"   First user: {response[0].get('email', 'N/A')}")
+        
+        # Restore regular token
+        self.access_token = regular_token
+        return success
+
+    def test_admin_get_subscription_plans(self):
+        """Test admin get subscription plans"""
+        if not self.admin_access_token:
+            print("❌ Skipping - No admin access token available")
+            return False
+            
+        # Temporarily store regular token and use admin token
+        regular_token = self.access_token
+        self.access_token = self.admin_access_token
+        
+        success, response = self.run_test(
+            "Admin Get Subscription Plans",
+            "GET",
+            "admin/subscription-plans",
+            200
+        )
+        
+        if success and isinstance(response, list):
+            print(f"   Found {len(response)} subscription plans")
+            if response:
+                self.plan_id = response[0].get('id')
+                print(f"   First plan: {response[0].get('name', 'N/A')} - €{response[0].get('price_monthly', 0)}/month")
+        
+        # Restore regular token
+        self.access_token = regular_token
+        return success
+
+    def test_admin_create_promo_code(self):
+        """Test admin create promo code"""
+        if not self.admin_access_token:
+            print("❌ Skipping - No admin access token available")
+            return False
+            
+        # Temporarily store regular token and use admin token
+        regular_token = self.access_token
+        self.access_token = self.admin_access_token
+        
+        promo_data = {
+            "code": f"TEST{datetime.now().strftime('%Y%m%d%H%M%S')}",
+            "discount_type": "percentage",
+            "discount_value": 20.0,
+            "max_uses": 100
+        }
+        
+        success, response = self.run_test(
+            "Admin Create Promo Code",
+            "POST",
+            "admin/promo-codes",
+            200,
+            data=promo_data
+        )
+        
+        if success and 'id' in response:
+            self.promo_code_id = response['id']
+            print(f"   Created promo code: {response.get('code', 'N/A')}")
+        
+        # Restore regular token
+        self.access_token = regular_token
+        return success
+
+    def test_admin_get_promo_codes(self):
+        """Test admin get promo codes"""
+        if not self.admin_access_token:
+            print("❌ Skipping - No admin access token available")
+            return False
+            
+        # Temporarily store regular token and use admin token
+        regular_token = self.access_token
+        self.access_token = self.admin_access_token
+        
+        success, response = self.run_test(
+            "Admin Get Promo Codes",
+            "GET",
+            "admin/promo-codes",
+            200
+        )
+        
+        if success and isinstance(response, list):
+            print(f"   Found {len(response)} promo codes")
+        
+        # Restore regular token
+        self.access_token = regular_token
+        return success
+
+    def test_admin_get_referrals(self):
+        """Test admin get referrals"""
+        if not self.admin_access_token:
+            print("❌ Skipping - No admin access token available")
+            return False
+            
+        # Temporarily store regular token and use admin token
+        regular_token = self.access_token
+        self.access_token = self.admin_access_token
+        
+        success, response = self.run_test(
+            "Admin Get Referrals",
+            "GET",
+            "admin/referrals",
+            200
+        )
+        
+        if success and isinstance(response, list):
+            print(f"   Found {len(response)} referrals")
+        
+        # Restore regular token
+        self.access_token = regular_token
+        return success
+
+    def test_admin_get_payments(self):
+        """Test admin get payments"""
+        if not self.admin_access_token:
+            print("❌ Skipping - No admin access token available")
+            return False
+            
+        # Temporarily store regular token and use admin token
+        regular_token = self.access_token
+        self.access_token = self.admin_access_token
+        
+        success, response = self.run_test(
+            "Admin Get Payments",
+            "GET",
+            "admin/payments",
+            200
+        )
+        
+        if success and isinstance(response, list):
+            print(f"   Found {len(response)} payments")
+        
+        # Restore regular token
+        self.access_token = regular_token
+        return success
+
+    def test_admin_revenue_analytics(self):
+        """Test admin revenue analytics"""
+        if not self.admin_access_token:
+            print("❌ Skipping - No admin access token available")
+            return False
+            
+        # Temporarily store regular token and use admin token
+        regular_token = self.access_token
+        self.access_token = self.admin_access_token
+        
+        success, response = self.run_test(
+            "Admin Revenue Analytics",
+            "GET",
+            "admin/analytics/revenue?period=month",
+            200
+        )
+        
+        if success:
+            print(f"   Total Revenue: €{response.get('total_revenue', 0)}")
+            print(f"   Total Transactions: {response.get('total_transactions', 0)}")
+        
+        # Restore regular token
+        self.access_token = regular_token
+        return success
+
+    def test_admin_unauthorized_access(self):
+        """Test admin routes with regular user (should fail)"""
+        if not self.access_token:
+            print("❌ Skipping - No regular access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Admin Stats (Unauthorized)",
+            "GET",
+            "admin/stats",
+            403  # Should fail with forbidden
+        )
+        return success
+
+    # Payment System Tests
+    
+    def test_get_public_subscription_plans(self):
+        """Test getting public subscription plans (no auth required)"""
+        # Temporarily remove auth token for public endpoint
+        temp_token = self.access_token
+        self.access_token = None
+        
+        success, response = self.run_test(
+            "Get Public Subscription Plans",
+            "GET",
+            "payments/subscription-plans",
+            200
+        )
+        
+        if success and isinstance(response, list):
+            print(f"   Found {len(response)} public plans")
+            if response and not self.plan_id:
+                self.plan_id = response[0].get('id')
+                print(f"   First plan: {response[0].get('name', 'N/A')}")
+        
+        # Restore auth token
+        self.access_token = temp_token
+        return success
+
+    def test_validate_promo_code(self):
+        """Test validating a promo code"""
+        if not self.access_token or not self.plan_id:
+            print("❌ Skipping - No access token or plan ID available")
+            return False
+            
+        # Use a test promo code (this will likely fail but tests the endpoint)
+        promo_data = {
+            "code": "TESTCODE",
+            "plan_id": self.plan_id
+        }
+        
+        success, response = self.run_test(
+            "Validate Promo Code (Invalid)",
+            "POST",
+            "payments/validate-promo-code",
+            404,  # Expected to fail with invalid code
+            data=promo_data
+        )
+        return success
+
+    def test_create_payment_intent_no_stripe(self):
+        """Test creating payment intent (will fail without Stripe key)"""
+        if not self.access_token or not self.plan_id:
+            print("❌ Skipping - No access token or plan ID available")
+            return False
+            
+        payment_data = {
+            "plan_id": self.plan_id,
+            "billing_period": "monthly"
+        }
+        
+        success, response = self.run_test(
+            "Create Payment Intent (No Stripe)",
+            "POST",
+            "payments/create-payment-intent",
+            400,  # Expected to fail without Stripe configuration
+            data=payment_data
+        )
+        return success
+
+    def test_get_my_subscription(self):
+        """Test getting current user's subscription"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Get My Subscription",
+            "GET",
+            "payments/my-subscription",
+            200
+        )
+        
+        if success:
+            print(f"   Subscription Status: {response.get('subscription_status', {}).get('status', 'N/A')}")
+            print(f"   Current Plan: {response.get('current_plan', 'N/A')}")
+        
+        return success
+
+    def test_cancel_subscription(self):
+        """Test cancelling subscription"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Cancel Subscription",
+            "POST",
+            "payments/cancel-subscription",
+            200
+        )
+        
+        if success:
+            print(f"   Message: {response.get('message', 'N/A')}")
+        
+        return success
+
     def test_social_post_invalid_platform(self):
         """Test creating post with invalid platform"""
         post_data = {

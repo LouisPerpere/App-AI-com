@@ -975,7 +975,7 @@ function MainApp() {
                     <FileText className="w-6 h-6 text-white" />
                   </div>
                   <span className="bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
-                    Posts générés automatiquement 🚀
+                    Posts engageants générés pour vous 🚀
                   </span>
                 </CardTitle>
               </CardHeader>

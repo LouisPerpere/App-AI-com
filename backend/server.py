@@ -922,7 +922,7 @@ async def publish_post_now(
 
 @api_router.post("/notes")
 async def create_content_note(
-    note_data: ContentNote,
+    note_data: dict,  # Accept simple dict with title, content, priority
     current_user: User = Depends(get_current_active_user)
 ):
     """Create a content note"""
@@ -931,10 +931,13 @@ async def create_content_note(
     if not business_profile:
         raise HTTPException(status_code=404, detail="Business profile not found")
     
+    # Create note with required fields
     note = ContentNote(
         user_id=current_user.id,
         business_id=business_profile["id"],
-        **{k: v for k, v in note_data.dict().items() if k not in ["id", "user_id", "business_id"]}
+        title=note_data.get("title"),
+        content=note_data.get("content"),
+        priority=note_data.get("priority", "normal")
     )
     
     await db.content_notes.insert_one(note.dict())
@@ -955,7 +958,130 @@ async def get_content_notes(
         "business_id": business_profile["id"]
     }).sort("created_at", -1).to_list(100)
     
-    return {"notes": notes}
+    # Return notes directly as a list (not wrapped in {"notes": notes})
+    return notes
+
+@api_router.delete("/notes/{note_id}")
+async def delete_content_note(
+    note_id: str,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Delete a content note"""
+    # Get user's business profile
+    business_profile = await db.business_profiles.find_one({"user_id": current_user.id})
+    if not business_profile:
+        raise HTTPException(status_code=404, detail="Business profile not found")
+    
+    # Delete the note (ensure it belongs to the current user)
+    result = await db.content_notes.delete_one({
+        "id": note_id,
+        "user_id": current_user.id,
+        "business_id": business_profile["id"]
+    })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Note not found")
+    
+    return {"message": "Note deleted successfully"}
+
+@api_router.post("/posts/generate")
+async def generate_posts_from_notes(
+    request_data: dict,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Generate posts from notes and business profile"""
+    try:
+        # Get user's business profile
+        business_profile = await db.business_profiles.find_one({"user_id": current_user.id})
+        if not business_profile:
+            raise HTTPException(status_code=404, detail="Business profile not found")
+        
+        # Get notes from request or fetch from database
+        notes = request_data.get("notes", [])
+        if not notes:
+            # Fetch notes from database if not provided
+            notes_cursor = await db.content_notes.find({
+                "user_id": current_user.id,
+                "business_id": business_profile["id"]
+            }).sort("created_at", -1).to_list(50)
+            notes = notes_cursor
+        
+        if not notes:
+            raise HTTPException(status_code=400, detail="No notes available for post generation")
+        
+        # Use LLM to generate posts
+        openai_api_key = os.environ.get('OPENAI_API_KEY')
+        if not openai_api_key:
+            raise HTTPException(status_code=500, detail="OpenAI API key not configured")
+        
+        chat = LlmChat(openai_api_key)
+        
+        # Create context for post generation
+        notes_context = "\n".join([f"- {note.get('title', '')}: {note.get('content', '')}" for note in notes])
+        business_context = f"""
+        Entreprise: {business_profile.get('business_name', '')}
+        Type: {business_profile.get('business_type', '')}
+        Audience cible: {business_profile.get('target_audience', '')}
+        Ton de marque: {business_profile.get('brand_tone', '')}
+        """
+        
+        prompt = f"""
+        Tu es un expert en marketing digital. Crée 3 posts engageants pour les réseaux sociaux basés sur ces informations :
+        
+        INFORMATIONS ENTREPRISE:
+        {business_context}
+        
+        NOTES À INTÉGRER:
+        {notes_context}
+        
+        Règles:
+        1. Crée 3 posts différents et attractifs
+        2. Utilise un langage moderne et engageant
+        3. Ajoute des emojis appropriés
+        4. Intègre les informations des notes de manière naturelle
+        5. Respecte le ton de marque
+        6. Chaque post doit être prêt à publier (150-250 caractères)
+        
+        Réponds uniquement avec un JSON : {{"posts": [{"title": "titre", "content": "contenu du post"}]}}
+        """
+        
+        response = await chat.send_message(UserMessage(content=prompt))
+        
+        try:
+            generated_data = json.loads(response.content)
+            posts_data = generated_data.get("posts", [])
+        except json.JSONDecodeError:
+            # Fallback if JSON parsing fails
+            posts_data = [
+                {"title": "Post généré", "content": response.content[:200] + "..."}
+            ]
+        
+        # Save generated posts to database
+        generated_posts = []
+        for i, post_data in enumerate(posts_data):
+            post = GeneratedPost(
+                user_id=current_user.id,
+                business_id=business_profile["id"],
+                platform="multi",  # Can be published to multiple platforms
+                content=post_data.get("content", ""),
+                visual_description=post_data.get("title", f"Post généré #{i+1}"),
+                status="pending_approval",
+                auto_generated=True,
+                generation_batch=str(uuid.uuid4())
+            )
+            
+            await db.generated_posts.insert_one(post.dict())
+            generated_posts.append(post)
+        
+        return {
+            "message": f"{len(generated_posts)} posts générés avec succès",
+            "posts": generated_posts,
+            "posts_count": len(generated_posts)
+        }
+        
+    except Exception as e:
+        logging.error(f"Error generating posts from notes: {e}")
+        raise HTTPException(status_code=500, detail=f"Error generating posts: {str(e)}")
 
 # Include routers in the main app
 app.include_router(api_router)

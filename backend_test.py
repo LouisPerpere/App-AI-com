@@ -1929,7 +1929,8 @@ class SocialGenieAPITester:
         except Exception as e:
             print(f"❌ Failed to validate new subscription plans: {e}")
             return False
-        """Test payment_transactions collection creation and structure"""
+
+    def test_payment_transactions_database(self):
         print(f"\n🔍 Testing Payment Transactions Database...")
         
         try:

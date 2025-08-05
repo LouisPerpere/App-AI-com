@@ -1827,12 +1827,140 @@ function MainApp() {
             </Card>
           </TabsContent>
 
-          {/* Subscription/Upgrade Interface */}
-          {user && (user.subscription_status === 'trial' || user.subscription_status === 'expired') ? (
-            <div className="mt-8">
-              <SubscriptionUpgrade user={user} onUpgradeSuccess={() => window.location.reload()} />
-            </div>
-          ) : null}
+          {/* Settings Tab */}
+          <TabsContent value="reglages" className="space-y-8">
+            <Card className="card-gradient">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-3 text-2xl">
+                  <div className="w-10 h-10 bg-gradient-to-r from-gray-500 to-gray-600 rounded-2xl flex items-center justify-center">
+                    <Settings className="w-6 h-6 text-white" />
+                  </div>
+                  <span>Réglages</span>
+                </CardTitle>
+                <CardDescription>
+                  Gérez votre profil, abonnement et paramètres de compte
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* User Profile Section */}
+                <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                      <Building className="w-4 h-4 text-blue-600" />
+                    </div>
+                    Informations personnelles
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="firstName">Prénom</Label>
+                      <Input
+                        id="firstName"
+                        value={user?.first_name || ''}
+                        onChange={(e) => setUser({...user, first_name: e.target.value})}
+                        className="mt-1"
+                        placeholder="Votre prénom"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="lastName">Nom</Label>
+                      <Input
+                        id="lastName"
+                        value={user?.last_name || ''}
+                        onChange={(e) => setUser({...user, last_name: e.target.value})}
+                        className="mt-1"
+                        placeholder="Votre nom"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={user?.email || ''}
+                        onChange={(e) => setUser({...user, email: e.target.value})}
+                        className="mt-1"
+                        placeholder="votre@email.com"
+                      />
+                    </div>
+                  </div>
+                  <Button className="mt-4 btn-gradient-primary">
+                    <Check className="w-4 h-4 mr-2" />
+                    Sauvegarder les modifications
+                  </Button>
+                </div>
+
+                {/* Subscription Section */}
+                <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                      <Crown className="w-4 h-4 text-purple-600" />
+                    </div>
+                    Abonnement actuel
+                  </h3>
+                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100">
+                    <div>
+                      <div className="font-semibold text-gray-900">
+                        {user?.subscription_plan === 'trial' ? 'Période d\'essai' : 
+                         user?.subscription_plan === 'starter' ? 'Plan Starter' :
+                         user?.subscription_plan === 'rocket' ? 'Plan Rocket' :
+                         user?.subscription_plan === 'pro' ? 'Plan Pro' : 'Plan Gratuit'}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {user?.subscription_status === 'trial' ? '1 mois gratuit' :
+                         user?.subscription_plan === 'starter' ? '€14.99/mois • 4 posts/mois • 1 réseau' :
+                         user?.subscription_plan === 'rocket' ? '€29.99/mois • Posts illimités • Tous réseaux' :
+                         user?.subscription_plan === 'pro' ? '€199.99/mois • Multi-comptes • Communautés' : 'Fonctionnalités limitées'}
+                      </div>
+                    </div>
+                    <Badge variant={user?.subscription_status === 'active' ? 'default' : 'secondary'}>
+                      {user?.subscription_status === 'active' ? 'Actif' : 
+                       user?.subscription_status === 'trial' ? 'Essai' : 'Inactif'}
+                    </Badge>
+                  </div>
+                  <Button className="mt-4 btn-gradient-primary w-full">
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Changer d'abonnement
+                  </Button>
+                </div>
+
+                {/* Payment Method Section */}
+                <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                      <CreditCard className="w-4 h-4 text-green-600" />
+                    </div>
+                    Moyen de paiement
+                  </h3>
+                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-6 bg-gradient-to-r from-blue-600 to-blue-800 rounded flex items-center justify-center">
+                          <span className="text-xs text-white font-bold">VISA</span>
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900">•••• •••• •••• 4242</div>
+                          <div className="text-sm text-gray-500">Expire 12/25</div>
+                        </div>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        Modifier
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="text-sm text-blue-800">
+                      💡 <strong>Sécurisé</strong> : Vos données de paiement sont chiffrées et protégées par Stripe.
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Subscription/Upgrade Interface - Now always visible */}
+          <div className="mt-8">
+            <SubscriptionUpgrade user={user} onUpgradeSuccess={() => window.location.reload()} />
+          </div>
         </Tabs>
       </div>
 

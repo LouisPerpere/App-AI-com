@@ -114,14 +114,14 @@ class SocialGenieAPITester:
         return False
 
     def test_user_login(self):
-        """Test user login"""
+        """Test user login with the specified credentials"""
         login_data = {
-            "email": "testuser@socialgenie.com",
-            "password": "SecurePassword123!"
+            "email": "lperpere@yahoo.fr",
+            "password": "L@Reunion974!"
         }
         
         success, response = self.run_test(
-            "User Login",
+            "User Login (lperpere@yahoo.fr)",
             "POST",
             "auth/login",
             200,

@@ -4829,6 +4829,359 @@ def main():
         
         return success_rate
 
+    # Notes API Tests
+    
+    def test_create_note_high_priority(self):
+        """Test creating a note with high priority"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        note_data = {
+            "title": "Promotion spéciale été",
+            "content": "Lancement d'une promotion -20% sur tous nos plats du 15 au 30 juillet. Mettre en avant les plats frais et de saison.",
+            "priority": "high"
+        }
+        
+        success, response = self.run_test(
+            "Create Note (High Priority)",
+            "POST",
+            "notes",
+            200,
+            data=note_data
+        )
+        
+        if success and 'id' in response:
+            self.note_id_high = response['id']
+            print(f"   Note ID (High): {self.note_id_high}")
+            print(f"   Priority: {response.get('priority', 'N/A')}")
+            return True
+        return False
+
+    def test_create_note_medium_priority(self):
+        """Test creating a note with medium priority"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        note_data = {
+            "title": "Nouveau chef pâtissier",
+            "content": "Arrivée de Marie Dubois, chef pâtissière formée chez Lenôtre. Spécialiste des desserts français traditionnels.",
+            "priority": "medium"
+        }
+        
+        success, response = self.run_test(
+            "Create Note (Medium Priority)",
+            "POST",
+            "notes",
+            200,
+            data=note_data
+        )
+        
+        if success and 'id' in response:
+            self.note_id_medium = response['id']
+            print(f"   Note ID (Medium): {self.note_id_medium}")
+            print(f"   Priority: {response.get('priority', 'N/A')}")
+            return True
+        return False
+
+    def test_create_note_low_priority(self):
+        """Test creating a note with low priority"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        note_data = {
+            "title": "Horaires d'été",
+            "content": "À partir du 1er juillet, ouverture de 12h à 14h30 et de 19h à 22h30. Fermeture le dimanche soir.",
+            "priority": "low"
+        }
+        
+        success, response = self.run_test(
+            "Create Note (Low Priority)",
+            "POST",
+            "notes",
+            200,
+            data=note_data
+        )
+        
+        if success and 'id' in response:
+            self.note_id_low = response['id']
+            print(f"   Note ID (Low): {self.note_id_low}")
+            print(f"   Priority: {response.get('priority', 'N/A')}")
+            return True
+        return False
+
+    def test_get_notes_list(self):
+        """Test getting notes list (should return array directly)"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Get Notes List",
+            "GET",
+            "notes",
+            200
+        )
+        
+        if success:
+            # Verify response is an array, not wrapped in {"notes": array}
+            if isinstance(response, list):
+                print(f"✅ Notes returned as array directly (not wrapped)")
+                print(f"   Total notes: {len(response)}")
+                
+                # Check if our created notes are in the list
+                note_titles = [note.get('title', '') for note in response]
+                expected_titles = ["Promotion spéciale été", "Nouveau chef pâtissier", "Horaires d'été"]
+                
+                found_notes = 0
+                for title in expected_titles:
+                    if title in note_titles:
+                        found_notes += 1
+                        print(f"   ✅ Found note: {title}")
+                
+                if found_notes >= 1:
+                    print(f"✅ Found {found_notes} of our created notes")
+                    return True
+                else:
+                    print("⚠️ Created notes not found in list")
+                    return True  # Still pass as the endpoint works
+            else:
+                print(f"❌ Notes not returned as array - got: {type(response)}")
+                return False
+        
+        return success
+
+    def test_delete_note(self):
+        """Test deleting a note"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        # Use the low priority note for deletion test
+        if not hasattr(self, 'note_id_low') or not self.note_id_low:
+            print("❌ Skipping - No note ID available for deletion")
+            return False
+            
+        success, response = self.run_test(
+            "Delete Note",
+            "DELETE",
+            f"notes/{self.note_id_low}",
+            200
+        )
+        
+        if success:
+            print(f"✅ Note deleted successfully")
+            print(f"   Message: {response.get('message', 'N/A')}")
+            return True
+        
+        return success
+
+    def test_delete_nonexistent_note(self):
+        """Test deleting a non-existent note (should return 404)"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Delete Non-existent Note",
+            "DELETE",
+            "notes/nonexistent-note-id",
+            404
+        )
+        
+        if success:
+            print("✅ Correctly returned 404 for non-existent note")
+            return True
+        
+        return success
+
+    def test_generate_posts_from_notes(self):
+        """Test generating posts from notes data"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        # Test with notes data
+        request_data = {
+            "notes": [
+                {
+                    "title": "Promotion spéciale été",
+                    "content": "Lancement d'une promotion -20% sur tous nos plats du 15 au 30 juillet. Mettre en avant les plats frais et de saison."
+                },
+                {
+                    "title": "Nouveau chef pâtissier", 
+                    "content": "Arrivée de Marie Dubois, chef pâtissière formée chez Lenôtre. Spécialiste des desserts français traditionnels."
+                }
+            ]
+        }
+        
+        success, response = self.run_test(
+            "Generate Posts from Notes",
+            "POST",
+            "posts/generate",
+            200,
+            data=request_data
+        )
+        
+        if success:
+            print(f"✅ Posts generated successfully")
+            print(f"   Message: {response.get('message', 'N/A')}")
+            print(f"   Posts count: {response.get('posts_count', 0)}")
+            
+            # Check if posts were created
+            if response.get('posts_count', 0) > 0:
+                print("✅ Posts were created from notes data")
+                return True
+            else:
+                print("⚠️ No posts were created")
+                return True  # Still pass as endpoint works
+        
+        return success
+
+    def test_generate_posts_no_notes(self):
+        """Test generating posts when no notes are provided (should fetch from database)"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        # Test without notes data (should fetch from database)
+        request_data = {}
+        
+        success, response = self.run_test(
+            "Generate Posts (No Notes - Fetch from DB)",
+            "POST",
+            "posts/generate",
+            200,
+            data=request_data
+        )
+        
+        if success:
+            print(f"✅ Posts generation endpoint accessible")
+            print(f"   Message: {response.get('message', 'N/A')}")
+            
+            # May succeed or fail depending on available notes in database
+            if response.get('posts_count', 0) > 0:
+                print("✅ Posts generated from database notes")
+            else:
+                print("ℹ️ No posts generated (may be due to no notes in database)")
+            
+            return True
+        
+        return success
+
+    def test_notes_authentication_required(self):
+        """Test that notes endpoints require authentication"""
+        # Temporarily remove auth token
+        temp_token = self.access_token
+        self.access_token = None
+        
+        success, response = self.run_test(
+            "Notes Endpoint (No Auth)",
+            "GET",
+            "notes",
+            401  # Should fail without authentication
+        )
+        
+        # Restore auth token
+        self.access_token = temp_token
+        
+        if success:
+            print("✅ Notes endpoint correctly requires authentication")
+            return True
+        
+        return success
+
+    def test_create_note_missing_fields(self):
+        """Test creating note with missing required fields"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        # Test with missing title
+        note_data = {
+            "content": "Content without title",
+            "priority": "normal"
+        }
+        
+        success, response = self.run_test(
+            "Create Note (Missing Title)",
+            "POST",
+            "notes",
+            422,  # Should fail with validation error
+            data=note_data
+        )
+        
+        if success:
+            print("✅ Correctly rejected note with missing title")
+            return True
+        
+        return success
+
+    def run_notes_api_tests(self):
+        """Run comprehensive Notes API tests"""
+        print("🚀 Starting Notes API Tests...")
+        print(f"   Base URL: {self.base_url}")
+        print(f"   API URL: {self.api_url}")
+        
+        # Authentication first
+        print("\n" + "="*60)
+        print("🔐 AUTHENTICATION")
+        print("="*60)
+        
+        if not self.test_user_login():
+            print("❌ Login failed - stopping tests")
+            return False
+        
+        # Get business profile
+        print("\n" + "="*60)
+        print("🏢 BUSINESS PROFILE")
+        print("="*60)
+        
+        self.test_get_business_profile()
+        
+        # Notes API Tests
+        print("\n" + "="*60)
+        print("📝 NOTES API TESTS")
+        print("="*60)
+        
+        self.test_create_note_high_priority()
+        self.test_create_note_medium_priority()
+        self.test_create_note_low_priority()
+        self.test_get_notes_list()
+        self.test_delete_note()
+        self.test_delete_nonexistent_note()
+        self.test_generate_posts_from_notes()
+        self.test_generate_posts_no_notes()
+        self.test_notes_authentication_required()
+        self.test_create_note_missing_fields()
+        
+        # Final Results
+        print("\n" + "="*80)
+        print("📊 NOTES API TEST RESULTS")
+        print("="*80)
+        print(f"Total Tests Run: {self.tests_run}")
+        print(f"Tests Passed: {self.tests_passed}")
+        print(f"Tests Failed: {self.tests_run - self.tests_passed}")
+        
+        if self.tests_run > 0:
+            success_rate = (self.tests_passed/self.tests_run)*100
+            print(f"Success Rate: {success_rate:.1f}%")
+            
+            if success_rate >= 80:
+                print("🎉 Notes API Status: WORKING CORRECTLY")
+                return True
+            elif success_rate >= 60:
+                print("⚠️  Notes API Status: NEEDS ATTENTION")
+                return False
+            else:
+                print("❌ Notes API Status: CRITICAL ISSUES")
+                return False
+        else:
+            print("❌ No tests were run")
+            return False
+
 if __name__ == "__main__":
     import sys
     

@@ -1166,6 +1166,33 @@ function MainApp() {
             </TabsList>
           </div>
 
+          <TabsContent value="entreprise" className="space-y-8">
+            <Card className="card-gradient">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-3 text-2xl">
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center">
+                    <Building className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    Profil d'entreprise ✨
+                  </span>
+                </CardTitle>
+                <CardDescription className="text-lg text-gray-600">
+                  Gérez les informations de votre entreprise et personnalisez votre stratégie 🎯
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-20 card-glass rounded-3xl">
+                  <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
+                    <Building className="w-12 h-12 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-700 mb-4">Gestion d'entreprise 🏢</h3>
+                  <p className="text-xl text-gray-500">Configurez votre profil d'entreprise pour des posts sur mesure ! 🚀</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="library" className="space-y-8">
             <Card className="card-gradient">
               <CardHeader>

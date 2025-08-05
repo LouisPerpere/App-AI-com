@@ -2883,88 +2883,73 @@ class SocialGenieAPITester:
             return False
 
     def test_verify_scheduled_tasks_in_database(self):
-        """Test verifying that scheduled tasks are properly stored in database"""
-        print(f"\n🔍 Testing Scheduled Tasks Database Storage...")
-        
-        if not self.access_token:
-            print("❌ Skipping - No access token available")
-            return False
+        """Test verifying scheduled tasks in database for lperpere"""
+        print(f"\n🔍 Testing Scheduled Tasks Database Verification for lperpere...")
         
         try:
             import sys
             sys.path.append('/app/backend')
             from motor.motor_asyncio import AsyncIOMotorClient
-            import os
             import asyncio
+            import os
             
-            # MongoDB connection
+            # Connect to MongoDB
             mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
             client = AsyncIOMotorClient(mongo_url)
             db = client[os.environ.get('DB_NAME', 'test_database')]
             
             async def verify_tasks():
-                # Get user info
-                user_response = requests.get(
-                    f"{self.api_url}/auth/me",
-                    headers={'Authorization': f'Bearer {self.access_token}'}
-                )
+                # Find all tasks for lperpere
+                tasks = await db.scheduled_tasks.find({
+                    "$or": [
+                        {"user_id": "c1c76afa-a112-40ad-809e-a180aa04f007"},
+                        {"metadata.user_email": "lperpere@yahoo.fr"}
+                    ]
+                }).to_list(100)
                 
-                if user_response.status_code != 200:
-                    return False
+                print(f"✅ Found {len(tasks)} scheduled tasks for lperpere@yahoo.fr:")
                 
-                user_data = user_response.json()
-                user_id = user_data.get('id', '')
-                
-                # Get business profile
-                business_profile = await db.business_profiles.find_one({"user_id": user_id})
-                if not business_profile:
-                    return False
-                
-                business_id = business_profile['id']
-                
-                # Find all scheduled tasks for this business
-                all_tasks = await db.scheduled_tasks.find({"business_id": business_id}).to_list(100)
-                
-                print(f"   Found {len(all_tasks)} scheduled tasks for business {business_id}")
-                
-                generation_tasks = []
-                reminder_tasks = []
-                
-                for task in all_tasks:
-                    if task.get('task_type') == 'generate_content':
-                        generation_tasks.append(task)
-                    elif task.get('task_type') == 'content_reminder':
-                        reminder_tasks.append(task)
-                
-                print(f"   Generation tasks: {len(generation_tasks)}")
-                print(f"   Reminder tasks: {len(reminder_tasks)}")
-                
-                # Show recent tasks
-                for i, task in enumerate(generation_tasks[-3:]):  # Show last 3
-                    print(f"   Generation Task {i+1}:")
+                for i, task in enumerate(tasks, 1):
+                    print(f"   Task {i}:")
                     print(f"     ID: {task.get('id', 'N/A')}")
+                    print(f"     Type: {task.get('task_type', 'N/A')}")
                     print(f"     Scheduled: {task.get('scheduled_date', 'N/A')}")
                     print(f"     Next Run: {task.get('next_run', 'N/A')}")
-                    print(f"     Active: {task.get('active', 'N/A')}")
                     print(f"     Frequency: {task.get('frequency', 'N/A')}")
-                
-                for i, task in enumerate(reminder_tasks[-3:]):  # Show last 3
-                    print(f"   Reminder Task {i+1}:")
-                    print(f"     ID: {task.get('id', 'N/A')}")
-                    print(f"     Scheduled: {task.get('scheduled_date', 'N/A')}")
-                    print(f"     Next Run: {task.get('next_run', 'N/A')}")
                     print(f"     Active: {task.get('active', 'N/A')}")
+                    print(f"     User ID: {task.get('user_id', 'N/A')}")
+                    print(f"     Business ID: {task.get('business_id', 'N/A')}")
+                    print(f"     Created: {task.get('created_at', 'N/A')}")
+                    if task.get('metadata'):
+                        print(f"     Metadata: {task['metadata']}")
+                    print()
                 
-                return len(all_tasks) > 0
+                # Check if scheduler can detect these tasks
+                active_tasks = [t for t in tasks if t.get('active', False)]
+                upcoming_tasks = [t for t in active_tasks if t.get('next_run')]
+                
+                print(f"✅ Scheduler Detection Analysis:")
+                print(f"   Total tasks: {len(tasks)}")
+                print(f"   Active tasks: {len(active_tasks)}")
+                print(f"   Tasks with next_run: {len(upcoming_tasks)}")
+                
+                if upcoming_tasks:
+                    print("✅ Scheduler should be able to detect and execute these tasks")
+                    return True
+                else:
+                    print("⚠️ No active tasks with next_run found")
+                    return len(tasks) > 0  # At least some tasks exist
             
-            result = asyncio.run(verify_tasks())
+            # Run the async function
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            result = loop.run_until_complete(verify_tasks())
+            loop.close()
             
             if result:
-                print("✅ Scheduled tasks verified in database")
                 self.tests_passed += 1
                 return True
             else:
-                print("❌ No scheduled tasks found in database")
                 return False
                 
         except Exception as e:

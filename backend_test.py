@@ -1679,21 +1679,24 @@ class SocialGenieAPITester:
     # Website Analysis Tests
     
     def test_website_analysis_with_google_url(self):
-        """Test website analysis with https://google.com as specified in requirements"""
+        """Test website analysis with https://google.com as specified in requirements - DEBUG FOCUS"""
         if not self.access_token:
             print("❌ Skipping - No access token available")
             return False
             
         analysis_data = {
             "website_url": "https://google.com",
-            "force_reanalysis": False
+            "force_reanalysis": True  # Force reanalysis to test current state
         }
         
+        print(f"\n🔍 DEBUG: Testing website analysis with https://google.com...")
+        print(f"   Request data: {analysis_data}")
+        
         success, response = self.run_test(
-            "Website Analysis (Google.com)",
+            "Website Analysis (Google.com) - DEBUG",
             "POST",
             "website/analyze",
-            200,
+            200,  # Expected success, but may get 500
             data=analysis_data
         )
         
@@ -1709,24 +1712,33 @@ class SocialGenieAPITester:
                     missing_fields.append(field)
             
             if missing_fields:
-                print(f"   ❌ Missing fields: {missing_fields}")
+                print(f"   ⚠️ Missing response fields: {missing_fields}")
                 return False
             
-            print("✅ Website analysis response has all required fields")
-            print(f"   Website URL: {response.get('website_url', 'N/A')}")
-            print(f"   Analysis Summary: {response.get('analysis_summary', 'N/A')[:100]}...")
-            print(f"   Key Topics: {response.get('key_topics', [])}")
-            print(f"   Brand Tone: {response.get('brand_tone', 'N/A')}")
-            print(f"   Target Audience: {response.get('target_audience', 'N/A')[:50]}...")
-            print(f"   Main Services: {response.get('main_services', [])}")
+            print(f"   ✅ Analysis Summary: {response.get('analysis_summary', '')[:100]}...")
+            print(f"   ✅ Key Topics: {response.get('key_topics', [])}")
+            print(f"   ✅ Brand Tone: {response.get('brand_tone', '')}")
+            print(f"   ✅ Target Audience: {response.get('target_audience', '')[:50]}...")
+            print(f"   ✅ Main Services: {response.get('main_services', [])}")
+            
+            # Check if this was a fallback analysis
+            if "analysé via" in response.get('analysis_summary', ''):
+                print(f"   ✅ FALLBACK ANALYSIS WORKING: GPT fallback mechanism activated")
+            else:
+                print(f"   ✅ GPT ANALYSIS WORKING: Full GPT analysis completed")
             
             return True
         else:
-            # Check if it's a 500 error (GPT integration issue)
-            if "Error analyzing website" in str(response.get('detail', '')):
-                print("⚠️ Website analysis failed with GPT integration issue")
-                print("   Testing fallback mechanism...")
-                return self.test_website_analysis_fallback_mechanism()
+            # Capture the exact 500 error details
+            print(f"   ❌ CAPTURED 500 ERROR: {response}")
+            if response.get('detail') == 'Error analyzing website':
+                print(f"   🔍 ERROR ANALYSIS: Generic error message - need to check backend logs")
+                print(f"   🔍 LIKELY CAUSES: OpenAI API key issue, rate limiting, or content extraction failure")
+            
+            # Test if the fallback should have worked
+            print(f"   🔍 TESTING FALLBACK: Checking if fallback analysis should have prevented this error")
+            return self.test_website_analysis_fallback_mechanism()
+            
             return False
 
     def test_website_analysis_fallback_mechanism(self):

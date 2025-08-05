@@ -439,7 +439,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Payment Integration Frontend"
     - "LinkedIn API Integration"
     - "LinkedIn Connection Interface"
   stuck_tasks: []

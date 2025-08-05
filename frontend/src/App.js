@@ -984,6 +984,94 @@ function MainApp() {
     }
   };
 
+  // Initialize edit form when entering edit mode
+  const initializeEditForm = () => {
+    if (businessProfile) {
+      setEditProfileForm({
+        business_name: businessProfile.business_name || '',
+        business_type: businessProfile.business_type || '',
+        target_audience: businessProfile.target_audience || '',
+        brand_tone: businessProfile.brand_tone || '',
+        posting_frequency: businessProfile.posting_frequency || '',
+        preferred_platforms: businessProfile.preferred_platforms || [],
+        budget_range: businessProfile.budget_range || '',
+        email: businessProfile.email || '',
+        website_url: businessProfile.website_url || '',
+        hashtags_primary: businessProfile.hashtags_primary || [],
+        hashtags_secondary: businessProfile.hashtags_secondary || []
+      });
+    }
+  };
+
+  // Handle profile editing
+  const handleEditProfile = () => {
+    initializeEditForm();
+    setIsEditingProfile(true);
+  };
+
+  // Handle profile update form submission
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      const response = await axios.put(`${API}/business-profile`, editProfileForm, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      
+      setBusinessProfile(response.data);
+      setIsEditingProfile(false);
+      toast.success('Profil mis à jour avec succès !');
+      
+      // If website URL changed, clear existing analysis
+      if (websiteAnalysis && editProfileForm.website_url !== businessProfile.website_url) {
+        setWebsiteAnalysis(null);
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('Erreur lors de la mise à jour du profil');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle cancelling profile edit
+  const handleCancelEditProfile = () => {
+    setIsEditingProfile(false);
+    setEditProfileForm({
+      business_name: '',
+      business_type: '',
+      target_audience: '',
+      brand_tone: '',
+      posting_frequency: '',
+      preferred_platforms: [],
+      budget_range: '',
+      email: '',
+      website_url: '',
+      hashtags_primary: [],
+      hashtags_secondary: []
+    });
+  };
+
+  // Handle platform selection in edit form
+  const handlePlatformToggle = (platform) => {
+    setEditProfileForm(prev => ({
+      ...prev,
+      preferred_platforms: prev.preferred_platforms.includes(platform)
+        ? prev.preferred_platforms.filter(p => p !== platform)
+        : [...prev.preferred_platforms, platform]
+    }));
+  };
+
+  // Handle hashtag input changes
+  const handleHashtagChange = (type, value) => {
+    const tags = value.split(',').map(tag => tag.trim().replace('#', ''));
+    setEditProfileForm(prev => ({
+      ...prev,
+      [type]: tags
+    }));
+  };
+
   // Website analysis functions
   const analyzeWebsite = async (forceReanalysis = false) => {
     if (!profileForm.website_url || !profileForm.website_url.trim()) {

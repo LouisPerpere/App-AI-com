@@ -608,13 +608,45 @@ function MainApp() {
     
     // Scroll to center the active tab in the horizontal navigation
     setTimeout(() => {
-      const activeTabElement = document.querySelector(`[role="tab"][value="${tabValue}"]`);
+      // Try multiple selectors to find the tab
+      let activeTabElement = document.querySelector(`[role="tab"][value="${tabValue}"]`) ||
+                           document.querySelector(`[data-value="${tabValue}"]`) ||
+                           document.querySelector(`[role="tab"]:has-text("${tabValue.charAt(0).toUpperCase() + tabValue.slice(1)}")`);
+      
+      if (!activeTabElement) {
+        // Fallback: find by text content
+        const tabElements = document.querySelectorAll('[role="tab"]');
+        for (let tab of tabElements) {
+          const text = tab.textContent.toLowerCase();
+          if (text.includes(tabValue) || 
+              (tabValue === 'bibliotheque' && text.includes('bibliothèque')) ||
+              (tabValue === 'calendar' && text.includes('calendrier'))) {
+            activeTabElement = tab;
+            break;
+          }
+        }
+      }
+      
       if (activeTabElement) {
-        activeTabElement.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'nearest', 
-          inline: 'center' 
-        });
+        // Scroll the tab container to center the active tab
+        const tabContainer = activeTabElement.closest('.overflow-x-auto');
+        if (tabContainer) {
+          const containerRect = tabContainer.getBoundingClientRect();
+          const tabRect = activeTabElement.getBoundingClientRect();
+          const scrollLeft = tabRect.left - containerRect.left - (containerRect.width / 2) + (tabRect.width / 2);
+          
+          tabContainer.scrollTo({
+            left: tabContainer.scrollLeft + scrollLeft,
+            behavior: 'smooth'
+          });
+        } else {
+          // Fallback to scrollIntoView
+          activeTabElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'nearest', 
+            inline: 'center' 
+          });
+        }
       }
     }, 100);
   };

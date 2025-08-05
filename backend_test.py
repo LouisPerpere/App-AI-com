@@ -7614,8 +7614,13 @@ def main():
 if __name__ == "__main__":
     import sys
     
+    # Check if we should run Phase 2 subscription popup tests
+    if len(sys.argv) > 1 and sys.argv[1] == "popup":
+        tester = SocialGenieAPITester()
+        success = tester.run_phase2_subscription_popup_tests()
+        sys.exit(0 if success else 1)
     # Check if we should run lperpere task creation tests
-    if len(sys.argv) > 1 and sys.argv[1] == "lperpere":
+    elif len(sys.argv) > 1 and sys.argv[1] == "lperpere":
         tester = SocialGenieAPITester()
         success = tester.run_lperpere_task_creation_tests()
         sys.exit(0 if success else 1)

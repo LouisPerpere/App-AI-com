@@ -495,6 +495,7 @@ function MainApp() {
   const [upgradeModalDismissed, setUpgradeModalDismissed] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [editProfileForm, setEditProfileForm] = useState({
     business_name: '',
     business_type: '',

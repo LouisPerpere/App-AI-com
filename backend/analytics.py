@@ -268,6 +268,14 @@ class PromptOptimizer:
             Répondez avec un JSON : {{"insights": ["insight 1", "insight 2", ...]}}
             """
             
+            # Initialize chat when needed
+            if not self.chat and self.openai_api_key:
+                self.chat = LlmChat(
+                    api_key=self.openai_api_key,
+                    session_id=f"prompt_insights_{uuid.uuid4()}",
+                    system_message="You are an AI optimization expert analyzing prompt performance data."
+                )
+            
             response = await self.chat.send_message(UserMessage(content=prompt))
             
             try:

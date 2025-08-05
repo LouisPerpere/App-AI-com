@@ -436,9 +436,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "SaaS Admin Dashboard Backend"
-    - "Stripe Payment System Backend"
-    - "SaaS Admin Dashboard Frontend"
     - "Payment Integration Frontend"
     - "LinkedIn API Integration"
     - "LinkedIn Connection Interface"

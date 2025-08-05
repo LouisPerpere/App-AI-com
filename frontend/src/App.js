@@ -610,17 +610,22 @@ function MainApp() {
     setTimeout(() => {
       // Try multiple selectors to find the tab
       let activeTabElement = document.querySelector(`[role="tab"][value="${tabValue}"]`) ||
-                           document.querySelector(`[data-value="${tabValue}"]`) ||
-                           document.querySelector(`[role="tab"]:has-text("${tabValue.charAt(0).toUpperCase() + tabValue.slice(1)}")`);
+                           document.querySelector(`[data-value="${tabValue}"]`);
       
       if (!activeTabElement) {
         // Fallback: find by text content
         const tabElements = document.querySelectorAll('[role="tab"]');
         for (let tab of tabElements) {
-          const text = tab.textContent.toLowerCase();
-          if (text.includes(tabValue) || 
+          const text = tab.textContent.toLowerCase().trim();
+          const searchValue = tabValue.toLowerCase();
+          
+          if (text.includes(searchValue) || 
               (tabValue === 'bibliotheque' && text.includes('bibliothèque')) ||
-              (tabValue === 'calendar' && text.includes('calendrier'))) {
+              (tabValue === 'calendar' && text.includes('calendrier')) ||
+              (tabValue === 'entreprise' && text.includes('entreprise')) ||
+              (tabValue === 'notes' && text.includes('notes')) ||
+              (tabValue === 'posts' && text.includes('posts')) ||
+              (tabValue === 'social' && text.includes('social'))) {
             activeTabElement = tab;
             break;
           }

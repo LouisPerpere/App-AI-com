@@ -1489,10 +1489,10 @@ function MainApp() {
                           </div>
                         </div>
                         <Button
-                          onClick={() => setShowWebsiteAnalysis(true)}
+                          onClick={() => setIsEditingProfile(true)}
                           className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
                         >
-                          ⚙️ Modifier
+                          ⚙️ Modifier le profil
                         </Button>
                       </div>
                       

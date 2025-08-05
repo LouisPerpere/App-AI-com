@@ -1187,17 +1187,15 @@ function MainApp() {
 
             <div className="space-y-3">
               <Label htmlFor="budget_range" className="text-gray-700 font-semibold">💰 Budget publicitaire mensuel</Label>
-              <Select onValueChange={(value) => setProfileForm({...profileForm, budget_range: value})}>
-                <SelectTrigger className="input-modern">
-                  <SelectValue placeholder="Sélectionnez..." />
-                </SelectTrigger>
-                <SelectContent className="card-glass">
-                  <SelectItem value="0-100">💵 0€ - 100€</SelectItem>
-                  <SelectItem value="100-500">💸 100€ - 500€</SelectItem>
-                  <SelectItem value="500-1000">💰 500€ - 1000€</SelectItem>
-                  <SelectItem value="1000+">🚀 1000€+</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input
+                id="budget_range"
+                type="text"
+                value={profileForm.budget_range}
+                onChange={(e) => setProfileForm({...profileForm, budget_range: e.target.value})}
+                placeholder="Ex: 500€, 1000€, 2500€..."
+                className="input-modern"
+              />
+              <p className="text-sm text-gray-500">Saisissez le montant que vous souhaitez investir en publicité par mois</p>
             </div>
 
             <Button type="submit" className="w-full h-14 text-lg font-bold btn-gradient-primary">

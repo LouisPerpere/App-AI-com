@@ -1703,6 +1703,466 @@ class SocialGenieAPITester:
         
         return success
 
+    # Phase 3: Adaptive Prompt Optimization System Tests
+    
+    def test_prompt_performance_analysis(self):
+        """Test POST /api/analytics/prompts/analyze - Analyze prompt performance"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Prompt Performance Analysis",
+            "POST",
+            "analytics/prompts/analyze?days_back=30",
+            200
+        )
+        
+        if success:
+            print(f"   Has data: {response.get('has_data', False)}")
+            if response.get('has_data'):
+                print(f"   Posts analyzed: {response.get('total_posts_analyzed', 0)}")
+                print(f"   Prompt versions tested: {response.get('prompt_versions_tested', 0)}")
+                if response.get('best_performing_prompt'):
+                    best = response['best_performing_prompt']
+                    print(f"   Best prompt version: {best.get('prompt_version', 'N/A')}")
+                    print(f"   Best performance score: {best.get('performance_score', 0):.2f}")
+                if response.get('optimization_insights'):
+                    print(f"   Optimization insights: {len(response['optimization_insights'])} insights")
+            else:
+                print(f"   Message: {response.get('message', 'No data available')}")
+        
+        return success
+    
+    def test_generate_optimized_prompt(self):
+        """Test POST /api/analytics/prompts/optimize - Generate optimized prompts"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        # First get business profile to use in optimization
+        business_success, business_response = self.run_test(
+            "Get Business Profile for Prompt Optimization",
+            "GET",
+            "business-profile",
+            200
+        )
+        
+        if not business_success:
+            print("❌ Cannot get business profile for prompt optimization")
+            return False
+        
+        # Get performance data first
+        perf_success, perf_response = self.run_test(
+            "Get Performance Data for Prompt Optimization",
+            "POST",
+            "analytics/analyze?days_back=7",
+            200
+        )
+        
+        if not perf_success:
+            print("❌ Cannot get performance data for prompt optimization")
+            return False
+        
+        optimization_data = {
+            "business_profile": business_response,
+            "performance_data": perf_response,
+            "prompt_type": "social_post"
+        }
+        
+        success, response = self.run_test(
+            "Generate Optimized Prompt",
+            "POST",
+            "analytics/prompts/optimize",
+            200,
+            data=optimization_data
+        )
+        
+        if success:
+            print(f"   Prompt version: {response.get('prompt_version', 'N/A')}")
+            print(f"   Prompt type: {response.get('prompt_type', 'N/A')}")
+            print(f"   Based on insights: {response.get('based_on_insights', False)}")
+            print(f"   Expected improvement: {response.get('expected_improvement', 0)}%")
+            if response.get('optimization_focus'):
+                focus = response['optimization_focus']
+                print(f"   Optimization focus: {focus.get('tone_adaptation', 'N/A')}")
+            if response.get('system_message'):
+                print(f"   System message length: {len(response['system_message'])} chars")
+            if response.get('user_prompt_template'):
+                print(f"   User prompt template length: {len(response['user_prompt_template'])} chars")
+        
+        return success
+    
+    def test_prompt_performance_history(self):
+        """Test GET /api/analytics/prompts/performance - Get prompt performance history"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Get Prompt Performance History",
+            "GET",
+            "analytics/prompts/performance",
+            200
+        )
+        
+        if success:
+            if isinstance(response, list):
+                print(f"   Performance records: {len(response)}")
+                if response:
+                    latest = response[0]
+                    print(f"   Latest analysis: {latest.get('created_at', 'N/A')}")
+                    if latest.get('analysis_data', {}).get('has_data'):
+                        analysis = latest['analysis_data']
+                        print(f"   Posts analyzed: {analysis.get('total_posts_analyzed', 0)}")
+                        print(f"   Prompt versions: {analysis.get('prompt_versions_tested', 0)}")
+            else:
+                print(f"   Response: {response}")
+        
+        return success
+    
+    def test_get_optimized_prompts(self):
+        """Test GET /api/analytics/prompts/optimized - Get optimized prompts"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Get Optimized Prompts",
+            "GET",
+            "analytics/prompts/optimized",
+            200
+        )
+        
+        if success:
+            if isinstance(response, list):
+                print(f"   Optimized prompts: {len(response)}")
+                if response:
+                    latest = response[0]
+                    print(f"   Latest prompt version: {latest.get('prompt_version', 'N/A')}")
+                    print(f"   Prompt type: {latest.get('prompt_type', 'N/A')}")
+                    print(f"   Expected improvement: {latest.get('expected_improvement', 0)}%")
+                    if latest.get('prompt_elements'):
+                        elements = latest['prompt_elements']
+                        print(f"   Tone adaptation: {elements.get('tone_adaptation', 'N/A')}")
+                        print(f"   Length optimization: {elements.get('length_optimization', 'N/A')}")
+                        print(f"   Hashtag strategy: {elements.get('hashtag_strategy', 'N/A')}")
+            else:
+                print(f"   Response: {response}")
+        
+        return success
+    
+    def test_adaptive_content_generation_metadata(self):
+        """Test that adaptive content generation includes comprehensive metadata"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+        
+        # First create a note to generate content from
+        note_data = {
+            "title": "Test Adaptive Content",
+            "content": "This is a test note for adaptive content generation with prompt optimization",
+            "priority": "high"
+        }
+        
+        note_success, note_response = self.run_test(
+            "Create Note for Adaptive Content Test",
+            "POST",
+            "notes",
+            200,
+            data=note_data
+        )
+        
+        if not note_success:
+            print("❌ Cannot create note for adaptive content test")
+            return False
+        
+        # Generate posts from notes (this should use adaptive prompts)
+        generate_data = {
+            "notes": [note_response]
+        }
+        
+        success, response = self.run_test(
+            "Generate Adaptive Content with Metadata",
+            "POST",
+            "posts/generate",
+            200,
+            data=generate_data
+        )
+        
+        if success:
+            posts = response.get('posts', [])
+            print(f"   Generated posts: {len(posts)}")
+            
+            if posts:
+                post = posts[0]
+                # Check for adaptive metadata
+                metadata_checks = [
+                    ('generation_type', 'Should have generation_type'),
+                    ('prompt_version', 'Should have prompt_version'),
+                    ('based_on_insights', 'Should have based_on_insights flag'),
+                    ('generation_metadata', 'Should have generation_metadata'),
+                ]
+                
+                for field, description in metadata_checks:
+                    if field in post:
+                        print(f"   ✅ {description}: {post.get(field)}")
+                    else:
+                        print(f"   ⚠️ Missing {description}")
+                
+                # Check generation_metadata details
+                if 'generation_metadata' in post:
+                    gen_meta = post['generation_metadata']
+                    meta_fields = ['prompt_version', 'prompt_type', 'prompt_elements', 
+                                 'optimization_focus', 'adaptive_features_used']
+                    for field in meta_fields:
+                        if field in gen_meta:
+                            print(f"   ✅ Metadata has {field}")
+                        else:
+                            print(f"   ⚠️ Metadata missing {field}")
+        
+        return success
+    
+    def test_prompt_optimization_fallback_system(self):
+        """Test prompt optimization fallback when no performance data exists"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+        
+        # Test with minimal data to trigger fallback
+        optimization_data = {
+            "business_profile": {
+                "id": "test_business",
+                "business_name": "Test Business",
+                "business_type": "restaurant",
+                "target_audience": "food lovers",
+                "brand_tone": "friendly"
+            },
+            "performance_data": {
+                "has_insights": False,
+                "avg_engagement_rate": 0,
+                "recommended_hashtags": [],
+                "high_performing_keywords": [],
+                "optimal_content_length": "",
+                "high_performing_topics": [],
+                "ai_recommendations": []
+            },
+            "prompt_type": "social_post"
+        }
+        
+        success, response = self.run_test(
+            "Test Prompt Optimization Fallback System",
+            "POST",
+            "analytics/prompts/optimize",
+            200,
+            data=optimization_data
+        )
+        
+        if success:
+            print(f"   Fallback prompt version: {response.get('prompt_version', 'N/A')}")
+            print(f"   Based on insights: {response.get('based_on_insights', 'N/A')}")
+            print(f"   Expected improvement: {response.get('expected_improvement', 0)}%")
+            
+            # Fallback should still provide a valid prompt structure
+            required_fields = ['system_message', 'user_prompt_template', 'optimization_focus']
+            for field in required_fields:
+                if field in response:
+                    print(f"   ✅ Fallback has {field}")
+                else:
+                    print(f"   ❌ Fallback missing {field}")
+        
+        return success
+    
+    def test_prompt_version_tracking(self):
+        """Test that prompt versions are properly tracked and correlated"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+        
+        # Generate multiple optimized prompts to test version tracking
+        business_success, business_response = self.run_test(
+            "Get Business Profile for Version Tracking",
+            "GET",
+            "business-profile",
+            200
+        )
+        
+        if not business_success:
+            print("❌ Cannot get business profile")
+            return False
+        
+        # Get performance data
+        perf_success, perf_response = self.run_test(
+            "Get Performance Data for Version Tracking",
+            "POST",
+            "analytics/analyze?days_back=7",
+            200
+        )
+        
+        if not perf_success:
+            print("❌ Cannot get performance data")
+            return False
+        
+        # Generate first optimized prompt
+        optimization_data = {
+            "business_profile": business_response,
+            "performance_data": perf_response,
+            "prompt_type": "social_post"
+        }
+        
+        success1, response1 = self.run_test(
+            "Generate First Optimized Prompt",
+            "POST",
+            "analytics/prompts/optimize",
+            200,
+            data=optimization_data
+        )
+        
+        if success1:
+            version1 = response1.get('prompt_version')
+            print(f"   First prompt version: {version1}")
+            
+            # Generate second optimized prompt (should have different version)
+            success2, response2 = self.run_test(
+                "Generate Second Optimized Prompt",
+                "POST",
+                "analytics/prompts/optimize",
+                200,
+                data=optimization_data
+            )
+            
+            if success2:
+                version2 = response2.get('prompt_version')
+                print(f"   Second prompt version: {version2}")
+                
+                if version1 != version2:
+                    print("   ✅ Prompt versions are unique")
+                else:
+                    print("   ⚠️ Prompt versions are identical (may be expected)")
+                
+                # Check that both prompts are stored
+                list_success, list_response = self.run_test(
+                    "List Optimized Prompts for Version Check",
+                    "GET",
+                    "analytics/prompts/optimized",
+                    200
+                )
+                
+                if list_success and isinstance(list_response, list):
+                    versions_found = [p.get('prompt_version') for p in list_response]
+                    print(f"   Total stored prompts: {len(list_response)}")
+                    if version1 in versions_found:
+                        print("   ✅ First prompt version stored")
+                    if version2 in versions_found:
+                        print("   ✅ Second prompt version stored")
+        
+        return success1
+    
+    def test_ai_optimization_insights_generation(self):
+        """Test AI-generated prompt optimization insights"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+        
+        # Test prompt performance analysis which should generate AI insights
+        success, response = self.run_test(
+            "Test AI Optimization Insights Generation",
+            "POST",
+            "analytics/prompts/analyze?days_back=30",
+            200
+        )
+        
+        if success:
+            if response.get('has_data'):
+                insights = response.get('optimization_insights', [])
+                print(f"   AI optimization insights generated: {len(insights)}")
+                
+                if insights:
+                    for i, insight in enumerate(insights[:3], 1):
+                        print(f"   Insight {i}: {insight[:60]}...")
+                    
+                    # Check insight quality (should be actionable recommendations)
+                    quality_keywords = ['optimis', 'amélio', 'recommand', 'test', 'adapt', 'perform']
+                    quality_found = any(keyword in ' '.join(insights).lower() for keyword in quality_keywords)
+                    
+                    if quality_found:
+                        print("   ✅ Insights contain optimization recommendations")
+                    else:
+                        print("   ⚠️ Insights may lack specific optimization guidance")
+                else:
+                    print("   ⚠️ No AI insights generated")
+            else:
+                print("   ℹ️ No performance data available for AI insights")
+        
+        return success
+    
+    def test_expected_improvement_calculations(self):
+        """Test expected improvement tracking and calculations"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+        
+        # Get business profile and performance data
+        business_success, business_response = self.run_test(
+            "Get Business Profile for Improvement Calculation",
+            "GET",
+            "business-profile",
+            200
+        )
+        
+        if not business_success:
+            print("❌ Cannot get business profile")
+            return False
+        
+        perf_success, perf_response = self.run_test(
+            "Get Performance Data for Improvement Calculation",
+            "POST",
+            "analytics/analyze?days_back=7",
+            200
+        )
+        
+        if not perf_success:
+            print("❌ Cannot get performance data")
+            return False
+        
+        # Generate optimized prompt and check expected improvement
+        optimization_data = {
+            "business_profile": business_response,
+            "performance_data": perf_response,
+            "prompt_type": "social_post"
+        }
+        
+        success, response = self.run_test(
+            "Test Expected Improvement Calculation",
+            "POST",
+            "analytics/prompts/optimize",
+            200,
+            data=optimization_data
+        )
+        
+        if success:
+            expected_improvement = response.get('expected_improvement', 0)
+            based_on_insights = response.get('based_on_insights', False)
+            
+            print(f"   Expected improvement: {expected_improvement}%")
+            print(f"   Based on insights: {based_on_insights}")
+            
+            # Validate improvement calculation logic
+            if based_on_insights and expected_improvement > 0:
+                print("   ✅ Positive improvement expected with insights")
+            elif not based_on_insights and expected_improvement >= 0:
+                print("   ✅ Baseline improvement expected without insights")
+            else:
+                print("   ⚠️ Unexpected improvement calculation")
+            
+            # Check if improvement is reasonable (should be between 0-50%)
+            if 0 <= expected_improvement <= 50:
+                print("   ✅ Expected improvement within reasonable range")
+            else:
+                print(f"   ⚠️ Expected improvement outside reasonable range: {expected_improvement}%")
+        
+        return success
+
     def test_analytics_trigger_30_days(self):
         """Test POST /api/analytics/analyze with 30 days analysis"""
         if not self.access_token:

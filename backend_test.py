@@ -1344,7 +1344,7 @@ class SocialGenieAPITester:
         return False
 
     def test_create_checkout_session_valid_package(self):
-        """Test creating checkout session with valid package (legacy test)"""
+        """Test creating checkout session with valid package"""
         if not self.access_token:
             print("❌ Skipping - No access token available")
             return False
@@ -1358,14 +1358,20 @@ class SocialGenieAPITester:
             "Create Checkout Session (Valid Package)",
             "POST",
             "payments/v1/checkout/session",
-            500,  # Expected to fail without Stripe API key
+            200,
             data=checkout_data
         )
         
-        # Check if it fails with proper error message about Stripe configuration
-        if not success and "Stripe API key not configured" in str(response.get('detail', '')):
-            print("✅ Correctly handled missing Stripe API key")
-            return True
+        if success:
+            # Check if it's demo mode or real Stripe
+            if response.get('demo_mode') == True:
+                print("✅ Demo mode activated - checkout session created")
+                if response.get('session_id', '').startswith('cs_test_demo_'):
+                    print("✅ Demo session ID format correct")
+            else:
+                print("✅ Real Stripe checkout session created")
+                if 'url' in response and 'session_id' in response:
+                    print("✅ Stripe checkout URL and session ID present")
         
         return success
 

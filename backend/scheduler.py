@@ -3,8 +3,8 @@ import logging
 from datetime import datetime, timedelta
 from typing import List
 import smtplib
-from email.mime.text import MimeText
-from email.mime.multipart import MimeMultipart
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
 import os
@@ -61,12 +61,12 @@ class EmailService:
                 logger.warning("Email credentials not configured")
                 return False
                 
-            msg = MimeMultipart('alternative')
+            msg = MIMEMultipart('alternative')
             msg['Subject'] = subject
             msg['From'] = EMAIL_FROM
             msg['To'] = to_email
             
-            html_part = MimeText(html_content, 'html')
+            html_part = MIMEText(html_content, 'html')
             msg.attach(html_part)
             
             server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)

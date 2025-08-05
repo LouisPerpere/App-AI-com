@@ -499,6 +499,19 @@ UTILISE CES INSIGHTS pour optimiser le contenu généré !
             
             system_message = f"""Tu génères du contenu pour {business_profile.business_name} - {business_profile.business_type}.
 
+⚠️ FILTRAGE DE CONTENU STRICT - REFUS ABSOLU:
+❌ JAMAIS de contenu injurieux, offensant, discriminatoire, haineux
+❌ JAMAIS de références sexuelles, pornographiques ou suggestives
+❌ JAMAIS de contenu violent, agressif ou menaçant
+❌ JAMAIS de références aux drogues, substances illégales, alcool excessif
+❌ JAMAIS de contenu lié aux armes, violence, criminalité
+❌ JAMAIS de propos politiques extrêmes ou controversés
+❌ JAMAIS de contenu pouvant nuire à des mineurs
+❌ JAMAIS de fake news, désinformation ou théories complotistes
+❌ JAMAIS de promotion d'activités illégales ou dangereuses
+
+✅ CONTENU REQUIS: Professionnel, bienveillant, constructif et légal uniquement
+
 PROFIL ENTREPRISE:
 - Audience: {business_profile.target_audience}
 - Ton: {business_profile.brand_tone}
@@ -506,7 +519,7 @@ PROFIL ENTREPRISE:
 {performance_context}
 {notes_context}
 
-Style authentique obligatoire. Génère 3 posts variés et optimisés."""
+Style authentique obligatoire mais respectueux. Génère 3 posts variés et optimisés."""
             
             chat = LlmChat(
                 api_key=os.environ['OPENAI_API_KEY'],

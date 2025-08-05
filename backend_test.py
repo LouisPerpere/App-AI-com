@@ -2228,4 +2228,12 @@ def main():
         return 1
 
 if __name__ == "__main__":
-    sys.exit(main())
+    import sys
+    
+    # Check if we should run the investigation
+    if len(sys.argv) > 1 and sys.argv[1] == "investigate":
+        email = sys.argv[2] if len(sys.argv) > 2 else "lperpere@yahoo.fr"
+        tester = SocialGenieAPITester()
+        tester.investigate_user_authentication(email)
+    else:
+        sys.exit(main())

@@ -454,11 +454,87 @@ metadata:
 
 test_plan:
   current_focus:
-    - "LinkedIn API Integration"
-    - "LinkedIn Connection Interface"
+    - "Website Analysis Routes"
+    - "New Subscription Plans"
+    - "Website Analysis Models"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
+
+  - task: "Website Analysis Routes"
+    implemented: true
+    working: true
+    file: "/app/backend/website_analyzer.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Website analysis routes implemented with POST /api/website/analyze, GET /api/website/analysis, DELETE /api/website/analysis endpoints. Includes HTML content extraction, GPT-4o-mini analysis, and MongoDB storage."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Website Analysis Routes working correctly. (1) POST /api/website/analyze - Endpoint accessible, validates URLs properly (422 for invalid URLs), handles unreachable URLs with 400 error, (2) GET /api/website/analysis - Returns null for users without analysis (expected behavior), (3) DELETE /api/website/analysis - Successfully deletes analysis records (0 deleted for new user), (4) URL VALIDATION: Properly rejects invalid URLs with pydantic validation, (5) ERROR HANDLING: Returns 500 for analysis errors (likely OpenAI API issue), but endpoint structure is correct. Routes are properly implemented and accessible."
+
+  - task: "Website Analysis Models"
+    implemented: true
+    working: true
+    file: "/app/backend/website_analyzer.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "WebsiteData and WebsiteAnalysisResponse models implemented with all required fields for website analysis functionality."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Website Analysis Models working correctly. (1) WebsiteData model has all required fields: id, user_id, business_id, website_url, content_text, analysis_summary, key_topics, brand_tone, target_audience, main_services, created_at, updated_at, next_analysis_due, (2) WebsiteAnalysisResponse model has all required fields: id, website_url, analysis_summary, key_topics, brand_tone, target_audience, main_services, last_analyzed, next_analysis_due, (3) Model instantiation working correctly with proper field validation, (4) UUID generation working for IDs, (5) Datetime fields properly initialized. Both models are fully functional and ready for production use."
+
+  - task: "New Subscription Plans"
+    implemented: true
+    working: true
+    file: "/app/backend/payments.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "New subscription plans implemented: starter (€14.99/€149.99), rocket (€29.99/€299.99), pro (€199.99/€1999.99) with monthly and yearly billing options."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: New Subscription Plans working correctly. All 6 packages properly defined: (1) starter_monthly: Starter - €14.99 (monthly), (2) starter_yearly: Starter - €149.99 (yearly), (3) rocket_monthly: Rocket - €29.99 (monthly), (4) rocket_yearly: Rocket - €299.99 (yearly), (5) pro_monthly: Pro - €199.99 (monthly), (6) pro_yearly: Pro - €1999.99 (yearly). All packages have correct pricing, names, and billing periods as specified in requirements. Package validation working correctly - invalid packages rejected with 400 error."
+
+  - task: "BusinessProfile Website URL Field"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "BusinessProfile model updated to include website_url field for storing analyzed website URLs."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: BusinessProfile website_url field working correctly. (1) Field properly added to BusinessProfile model, (2) Business profile update with website_url successful (PUT /api/business-profile), (3) Website URL stored and retrieved correctly: https://example.com, (4) Field validation working properly, (5) Integration with website analysis functionality ready. The website_url field is fully functional and integrated."
+
+  - task: "Website Analysis GPT Integration"
+    implemented: true
+    working: false
+    file: "/app/backend/website_analyzer.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "GPT-4o-mini integration implemented for website content analysis with summary, key topics, brand tone, target audience, and main services extraction."
+      - working: false
+        agent: "testing"
+        comment: "❌ TESTED: Website Analysis GPT Integration has issues. (1) POST /api/website/analyze returns 500 error for valid URLs like https://example.com, (2) Error message: 'Error analyzing website' suggests OpenAI API integration issue, (3) Endpoint structure is correct but analysis fails during processing, (4) Likely causes: OpenAI API key configuration, rate limiting, or content extraction issues, (5) HTML content extraction and GPT analysis pipeline needs debugging. The GPT integration requires fixing before full functionality is available."
 
   - task: "Demo Mode Stripe Payment Integration"
     implemented: true

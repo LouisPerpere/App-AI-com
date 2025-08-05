@@ -959,6 +959,7 @@ app.include_router(api_router)
 app.include_router(admin_router, prefix="/api")  # Admin routes
 app.include_router(payment_router, prefix="/api")  # Payment routes
 app.include_router(social_router, prefix="/api")  # Social media routes
+app.include_router(website_router, prefix="/api")  # Website analysis routes
 
 app.add_middleware(
     CORSMiddleware,

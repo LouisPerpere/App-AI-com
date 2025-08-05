@@ -5,6 +5,7 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from typing import Optional
 import os
+import logging
 from pydantic import BaseModel, EmailStr, Field
 import uuid
 from motor.motor_asyncio import AsyncIOMotorClient

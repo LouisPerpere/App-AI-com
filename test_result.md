@@ -346,15 +346,18 @@ backend:
 
   - task: "Scheduler Analytics Integration"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/scheduler.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "✅ IMPLEMENTED: Phase 2 complete - Intelligent Scheduler Integration. Modified scheduler.py to analyze performance before each generation cycle. Added analyze_performance_before_generation() function that triggers 7-day analysis for weekly generation, 30-day analysis for monthly generation. Integrated with analytics_engine for metrics collection and pattern analysis. Creates performance_analysis_results collection for tracking insights usage."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED SUCCESSFULLY: Phase 2 Scheduler Analytics Integration is fully functional. COMPREHENSIVE TESTING COMPLETED: (1) ✅ analyze_performance_before_generation() function working correctly with weekly/monthly analysis (7-day for weekly, 30-day for monthly), (2) ✅ Performance data structure includes all required keys (has_insights, analysis_type, metrics_collected, optimal_content_length, recommended_hashtags, high_performing_topics, ai_recommendations), (3) ✅ Fallback behavior working when no performance data available (4 fallback recommendations provided), (4) ✅ Analytics endpoints responding correctly (/api/analytics/analyze, /api/analytics/insights), (5) ✅ Database integration functional with generated_posts and scheduled_tasks collections active, (6) ✅ Intelligent 4-step workflow implemented and ready for production use. The scheduler analytics integration transforms PostCraft into a self-improving content generation system that learns from real social media performance data."
 
   - task: "Performance-Optimized Content Generation"
     implemented: true

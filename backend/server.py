@@ -77,6 +77,7 @@ class BusinessProfileCreate(BaseModel):
     preferred_platforms: List[str]
     budget_range: str
     email: Optional[str] = None
+    website_url: Optional[str] = None
     hashtags_primary: List[str] = []
     hashtags_secondary: List[str] = []
 

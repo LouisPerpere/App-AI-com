@@ -511,16 +511,6 @@ async def create_checkout_session(
         success_url = f"{request.origin_url.rstrip('/')}/?session_id={{CHECKOUT_SESSION_ID}}&payment_success=true"
         cancel_url = f"{request.origin_url.rstrip('/')}/?payment_cancelled=true"
         
-        # Prepare metadata
-        metadata = {
-            "user_id": current_user.id,
-            "package_id": request.package_id,
-            "plan_name": package["name"],
-            "billing_period": package["period"],
-            "original_amount": str(amount),
-            "promo_code": request.promo_code or ""
-        }
-        
         # Create checkout session
         checkout_request = CheckoutSessionRequest(
             amount=final_amount,

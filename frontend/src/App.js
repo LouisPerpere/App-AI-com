@@ -1953,60 +1953,42 @@ function MainApp() {
             <div className="absolute bottom-16 left-0 bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 min-w-[200px] animate-in slide-in-from-bottom-2">
               <div className="space-y-2">
                 <button
-                  onClick={() => {
-                    document.querySelector('[value="entreprise"]').click();
-                    setShowBurgerMenu(false);
-                  }}
+                  onClick={() => navigateToTab('entreprise')}
                   className="flex items-center w-full p-3 rounded-xl hover:bg-blue-50 text-left transition-colors group"
                 >
                   <Building className="w-5 h-5 text-blue-600 mr-3 group-hover:scale-110 transition-transform" />
                   <span className="font-medium text-gray-700">Entreprise</span>
                 </button>
                 <button
-                  onClick={() => {
-                    document.querySelector('[value="bibliotheque"]').click();
-                    setShowBurgerMenu(false);
-                  }}
+                  onClick={() => navigateToTab('bibliotheque')}
                   className="flex items-center w-full p-3 rounded-xl hover:bg-purple-50 text-left transition-colors group"
                 >
                   <ImageIcon className="w-5 h-5 text-purple-600 mr-3 group-hover:scale-110 transition-transform" />
                   <span className="font-medium text-gray-700">Bibliothèque</span>
                 </button>
                 <button
-                  onClick={() => {
-                    document.querySelector('[value="notes"]').click();
-                    setShowBurgerMenu(false);
-                  }}
+                  onClick={() => navigateToTab('notes')}
                   className="flex items-center w-full p-3 rounded-xl hover:bg-green-50 text-left transition-colors group"
                 >
                   <FileText className="w-5 h-5 text-green-600 mr-3 group-hover:scale-110 transition-transform" />
                   <span className="font-medium text-gray-700">Notes</span>
                 </button>
                 <button
-                  onClick={() => {
-                    document.querySelector('[value="posts"]').click();
-                    setShowBurgerMenu(false);
-                  }}
+                  onClick={() => navigateToTab('posts')}
                   className="flex items-center w-full p-3 rounded-xl hover:bg-orange-50 text-left transition-colors group"
                 >
                   <Send className="w-5 h-5 text-orange-600 mr-3 group-hover:scale-110 transition-transform" />
                   <span className="font-medium text-gray-700">Posts</span>
                 </button>
                 <button
-                  onClick={() => {
-                    document.querySelector('[value="calendrier"]').click();
-                    setShowBurgerMenu(false);
-                  }}
+                  onClick={() => navigateToTab('calendar')}
                   className="flex items-center w-full p-3 rounded-xl hover:bg-indigo-50 text-left transition-colors group"
                 >
                   <CalendarIcon className="w-5 h-5 text-indigo-600 mr-3 group-hover:scale-110 transition-transform" />
                   <span className="font-medium text-gray-700">Calendrier</span>
                 </button>
                 <button
-                  onClick={() => {
-                    document.querySelector('[value="social"]').click();
-                    setShowBurgerMenu(false);
-                  }}
+                  onClick={() => navigateToTab('social')}
                   className="flex items-center w-full p-3 rounded-xl hover:bg-red-50 text-left transition-colors group"
                 >
                   <Target className="w-5 h-5 text-red-600 mr-3 group-hover:scale-110 transition-transform" />

@@ -424,14 +424,12 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Social Media Connection UI"
-    - "OAuth Callback Handler" 
-    - "Post Publishing Interface"
-    - "Authentication Interface"
-    - "Main Dashboard with 5 Tabs"
-    - "Bibliothèque Tab (Gallery Interface)"
-    - "Notes Tab Interface"
-    - "Responsive Design"
+    - "SaaS Admin Dashboard Backend"
+    - "Stripe Payment System Backend"
+    - "SaaS Admin Dashboard Frontend"
+    - "Payment Integration Frontend"
+    - "LinkedIn API Integration"
+    - "LinkedIn Connection Interface"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

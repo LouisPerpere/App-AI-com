@@ -926,6 +926,14 @@ JSON format attendu : {{"posts": [{{"content": "...", "hashtags": [...], "optimi
             Répondez avec une liste JSON : {{"recommendations": ["recommandation 1", "recommandation 2", ...]}}
             """
             
+            # Initialize chat when needed
+            if not self.chat and self.openai_api_key:
+                self.chat = LlmChat(
+                    api_key=self.openai_api_key,
+                    session_id=f"ai_recommendations_{uuid.uuid4()}",
+                    system_message="You are a social media analytics expert providing actionable recommendations."
+                )
+            
             response = await self.chat.send_message(UserMessage(content=prompt))
             
             try:

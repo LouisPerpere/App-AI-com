@@ -602,6 +602,11 @@ function MainApp() {
     }
   };
 
+  const navigateToTab = (tabValue) => {
+    setActiveTab(tabValue);
+    setShowBurgerMenu(false);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('access_token');
     delete axios.defaults.headers.common['Authorization'];

@@ -720,15 +720,20 @@ function MainApp() {
     if (user.subscription_status === 'trial' && businessProfile) {
       const frequency = businessProfile.posting_frequency || 'weekly';
       
-      // Calculate total posts expected based on frequency
-      const postsPerMonth = {
-        'daily': 30,
-        '3x_week': 12,
-        'bi_weekly': 8,
-        'weekly': 4
+      // Calculate total posts expected based on frequency (normalized mapping)
+      const getPostsPerMonth = (freq) => {
+        const normalizedFreq = freq.toLowerCase().replace(/[/\s]/g, '_');
+        const postsPerMonth = {
+          'daily': 30,
+          '3x_week': 12,
+          'bi_weekly': 8,  // bi-weekly = 2x per month
+          'weekly': 4,
+          'monthly': 1
+        };
+        return postsPerMonth[normalizedFreq] || 4; // Default to weekly if unknown
       };
       
-      const totalExpectedPosts = postsPerMonth[frequency] || 4;
+      const totalExpectedPosts = getPostsPerMonth(frequency);
       const triggerAtPost = Math.max(1, totalExpectedPosts - 1); // Before last post
       
       const approvedPostsCount = generatedPosts.filter(post => post.status === 'approved').length;
@@ -737,11 +742,25 @@ function MainApp() {
         const hasShownForSecondLastPost = localStorage.getItem('upgradeModalShownForSecondLastPost');
         if (!hasShownForSecondLastPost) {
           localStorage.setItem('upgradeModalShownForSecondLastPost', 'true');
+          
+          // Create frequency display text
+          const getFrequencyText = (freq) => {
+            const normalizedFreq = freq.toLowerCase().replace(/[/\s]/g, '_');
+            const frequencyTexts = {
+              'daily': 'publication quotidienne',
+              '3x_week': '3 publications par semaine',
+              'bi_weekly': 'publication bi-hebdomadaire', 
+              'weekly': 'publication hebdomadaire',
+              'monthly': 'publication mensuelle'
+            };
+            return frequencyTexts[normalizedFreq] || 'publication hebdomadaire';
+          };
+          
           return { 
             show: true, 
             canClose: true, 
             title: `Plus qu'un post gratuit ! (${approvedPostsCount}/${totalExpectedPosts})`,
-            subtitle: `Avec ${frequency === 'daily' ? 'publication quotidienne' : frequency === '3x_week' ? '3 publications par semaine' : frequency === 'bi_weekly' ? 'publication bi-hebdomadaire' : 'publication hebdomadaire'}`
+            subtitle: `Avec ${getFrequencyText(frequency)}, vous approchez de la limite de votre essai gratuit.`
           };
         }
       }

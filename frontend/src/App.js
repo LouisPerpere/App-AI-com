@@ -124,7 +124,7 @@ const SubscriptionUpgrade = ({ user, onUpgradeSuccess }) => {
     setSelectedPlan(planId);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('access_token');
       const packageId = `${planId}_${isYearly ? 'yearly' : 'monthly'}`;
 
       const response = await axios.post(`${API}/payments/v1/checkout/session`, {

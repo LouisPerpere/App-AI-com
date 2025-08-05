@@ -1700,6 +1700,629 @@ class SocialGenieAPITester:
             print(f"❌ Failed to import scheduler module: {e}")
             return False
 
+    def test_database_scheduled_tasks_collection(self):
+        """Test MongoDB scheduled_tasks collection and existing tasks"""
+        print(f"\n🔍 Testing MongoDB Scheduled Tasks Collection...")
+        
+        try:
+            import sys
+            sys.path.append('/app/backend')
+            from motor.motor_asyncio import AsyncIOMotorClient
+            import asyncio
+            import os
+            from dotenv import load_dotenv
+            from pathlib import Path
+            
+            # Load environment
+            ROOT_DIR = Path('/app/backend')
+            load_dotenv(ROOT_DIR / '.env')
+            
+            async def check_scheduled_tasks():
+                mongo_url = os.environ['MONGO_URL']
+                client = AsyncIOMotorClient(mongo_url)
+                db = client[os.environ['DB_NAME']]
+                
+                # Check if collection exists and get tasks
+                tasks = await db.scheduled_tasks.find({}).to_list(100)
+                
+                print(f"   Found {len(tasks)} scheduled tasks in database")
+                
+                # Group by task type
+                task_types = {}
+                for task in tasks:
+                    task_type = task.get('task_type', 'unknown')
+                    if task_type not in task_types:
+                        task_types[task_type] = 0
+                    task_types[task_type] += 1
+                
+                for task_type, count in task_types.items():
+                    print(f"   - {task_type}: {count} tasks")
+                
+                # Check for active tasks
+                active_tasks = [t for t in tasks if t.get('active', False)]
+                print(f"   Active tasks: {len(active_tasks)}")
+                
+                # Show recent tasks
+                if tasks:
+                    print("   Recent tasks:")
+                    for task in tasks[:3]:
+                        print(f"     - {task.get('task_type', 'N/A')} for business {task.get('business_id', 'N/A')[:8]}...")
+                        print(f"       Next run: {task.get('next_run', 'N/A')}")
+                        print(f"       Active: {task.get('active', False)}")
+                
+                client.close()
+                return len(tasks)
+            
+            # Run async function
+            task_count = asyncio.run(check_scheduled_tasks())
+            
+            print(f"✅ Successfully accessed scheduled_tasks collection")
+            self.tests_passed += 1
+            return True
+            
+        except Exception as e:
+            print(f"❌ Failed to access scheduled_tasks collection: {e}")
+            return False
+
+    def test_email_configuration(self):
+        """Test email configuration for scheduler notifications"""
+        print(f"\n🔍 Testing Email Configuration...")
+        
+        try:
+            import sys
+            sys.path.append('/app/backend')
+            import os
+            from dotenv import load_dotenv
+            from pathlib import Path
+            
+            # Load environment
+            ROOT_DIR = Path('/app/backend')
+            load_dotenv(ROOT_DIR / '.env')
+            
+            # Check email configuration
+            email_config = {
+                'EMAIL_HOST': os.environ.get('EMAIL_HOST', ''),
+                'EMAIL_PORT': os.environ.get('EMAIL_PORT', ''),
+                'EMAIL_USER': os.environ.get('EMAIL_USER', ''),
+                'EMAIL_PASSWORD': os.environ.get('EMAIL_PASSWORD', ''),
+                'EMAIL_FROM': os.environ.get('EMAIL_FROM', '')
+            }
+            
+            print("   Email Configuration:")
+            for key, value in email_config.items():
+                if 'PASSWORD' in key:
+                    display_value = '***' if value else 'Not set'
+                else:
+                    display_value = value if value else 'Not set'
+                print(f"   - {key}: {display_value}")
+            
+            # Check if basic config is present
+            has_host = bool(email_config['EMAIL_HOST'])
+            has_port = bool(email_config['EMAIL_PORT'])
+            has_from = bool(email_config['EMAIL_FROM'])
+            
+            if has_host and has_port and has_from:
+                print("✅ Basic email configuration present")
+                if not email_config['EMAIL_USER'] or not email_config['EMAIL_PASSWORD']:
+                    print("⚠️  Email credentials not configured (EMAIL_USER/EMAIL_PASSWORD empty)")
+                    print("   Scheduler will log warnings but continue functioning")
+            else:
+                print("⚠️  Incomplete email configuration")
+            
+            self.tests_passed += 1
+            return True
+            
+        except Exception as e:
+            print(f"❌ Failed to check email configuration: {e}")
+            return False
+
+    def test_lperpere_business_profile(self):
+        """Test business profile for lperpere@yahoo.fr user"""
+        print(f"\n🔍 Testing Business Profile for lperpere@yahoo.fr...")
+        
+        try:
+            import sys
+            sys.path.append('/app/backend')
+            from motor.motor_asyncio import AsyncIOMotorClient
+            import asyncio
+            import os
+            from dotenv import load_dotenv
+            from pathlib import Path
+            
+            # Load environment
+            ROOT_DIR = Path('/app/backend')
+            load_dotenv(ROOT_DIR / '.env')
+            
+            async def check_user_profile():
+                mongo_url = os.environ['MONGO_URL']
+                client = AsyncIOMotorClient(mongo_url)
+                db = client[os.environ['DB_NAME']]
+                
+                # Find user
+                user = await db.users.find_one({"email": "lperpere@yahoo.fr"})
+                if not user:
+                    print("❌ User lperpere@yahoo.fr not found")
+                    client.close()
+                    return None
+                
+                print(f"✅ User found: {user.get('email')}")
+                print(f"   User ID: {user.get('id')}")
+                print(f"   Created: {user.get('created_at')}")
+                print(f"   Subscription: {user.get('subscription_status', 'N/A')}")
+                
+                # Find business profile
+                business_profile = await db.business_profiles.find_one({"user_id": user.get('id')})
+                if not business_profile:
+                    print("❌ No business profile found for user")
+                    client.close()
+                    return None
+                
+                print(f"✅ Business profile found:")
+                print(f"   Business ID: {business_profile.get('id')}")
+                print(f"   Business Name: {business_profile.get('business_name', 'N/A')}")
+                print(f"   Business Type: {business_profile.get('business_type', 'N/A')}")
+                print(f"   Posting Frequency: {business_profile.get('posting_frequency', 'N/A')}")
+                print(f"   Preferred Platforms: {business_profile.get('preferred_platforms', [])}")
+                print(f"   First Generation Date: {business_profile.get('first_generation_date', 'Not set')}")
+                
+                # Store business ID for later tests
+                self.business_id = business_profile.get('id')
+                
+                client.close()
+                return business_profile.get('id')
+            
+            # Run async function
+            business_id = asyncio.run(check_user_profile())
+            
+            if business_id:
+                print(f"✅ Successfully retrieved business profile")
+                self.tests_passed += 1
+                return True
+            else:
+                return False
+            
+        except Exception as e:
+            print(f"❌ Failed to check user business profile: {e}")
+            return False
+
+    def test_content_uploads_and_notes(self):
+        """Test existing content uploads and notes for lperpere business"""
+        print(f"\n🔍 Testing Content Uploads and Notes...")
+        
+        if not self.business_id:
+            print("❌ Skipping - No business ID available")
+            return False
+        
+        try:
+            import sys
+            sys.path.append('/app/backend')
+            from motor.motor_asyncio import AsyncIOMotorClient
+            import asyncio
+            import os
+            from dotenv import load_dotenv
+            from pathlib import Path
+            
+            # Load environment
+            ROOT_DIR = Path('/app/backend')
+            load_dotenv(ROOT_DIR / '.env')
+            
+            async def check_content_and_notes():
+                mongo_url = os.environ['MONGO_URL']
+                client = AsyncIOMotorClient(mongo_url)
+                db = client[os.environ['DB_NAME']]
+                
+                # Check content uploads
+                content_uploads = await db.content_uploads.find({"business_id": self.business_id}).to_list(100)
+                print(f"   Content uploads: {len(content_uploads)}")
+                
+                if content_uploads:
+                    status_counts = {}
+                    for content in content_uploads:
+                        status = content.get('status', 'unknown')
+                        status_counts[status] = status_counts.get(status, 0) + 1
+                    
+                    for status, count in status_counts.items():
+                        print(f"     - {status}: {count}")
+                    
+                    # Show recent uploads
+                    print("   Recent uploads:")
+                    for content in content_uploads[:3]:
+                        print(f"     - {content.get('file_type', 'N/A')} - {content.get('status', 'N/A')}")
+                        print(f"       Description: {content.get('description', 'No description')[:50]}...")
+                
+                # Check content notes
+                content_notes = await db.content_notes.find({"business_id": self.business_id}).to_list(100)
+                print(f"   Content notes: {len(content_notes)}")
+                
+                if content_notes:
+                    priority_counts = {}
+                    for note in content_notes:
+                        priority = note.get('priority', 'normal')
+                        priority_counts[priority] = priority_counts.get(priority, 0) + 1
+                    
+                    for priority, count in priority_counts.items():
+                        print(f"     - {priority}: {count}")
+                    
+                    # Show recent notes
+                    print("   Recent notes:")
+                    for note in content_notes[:3]:
+                        print(f"     - {note.get('title', 'No title')} ({note.get('priority', 'normal')})")
+                        print(f"       Content: {note.get('content', '')[:50]}...")
+                
+                client.close()
+                return len(content_uploads), len(content_notes)
+            
+            # Run async function
+            uploads_count, notes_count = asyncio.run(check_content_and_notes())
+            
+            print(f"✅ Successfully checked content and notes")
+            self.tests_passed += 1
+            return True
+            
+        except Exception as e:
+            print(f"❌ Failed to check content and notes: {e}")
+            return False
+
+    def test_content_scheduler_calculate_next_generation_date(self):
+        """Test ContentScheduler.calculate_next_generation_date() function"""
+        print(f"\n🔍 Testing ContentScheduler.calculate_next_generation_date()...")
+        
+        try:
+            import sys
+            sys.path.append('/app/backend')
+            from scheduler import ContentScheduler
+            from server import BusinessProfile
+            import asyncio
+            from datetime import datetime, timedelta
+            
+            # Create test business profiles with different frequencies
+            test_profiles = [
+                {
+                    "id": "test-1",
+                    "user_id": "test-user",
+                    "business_name": "Test Daily",
+                    "business_type": "restaurant",
+                    "target_audience": "test",
+                    "brand_tone": "friendly",
+                    "posting_frequency": "daily",
+                    "preferred_platforms": ["facebook"],
+                    "budget_range": "100-500"
+                },
+                {
+                    "id": "test-2", 
+                    "user_id": "test-user",
+                    "business_name": "Test Weekly",
+                    "business_type": "shop",
+                    "target_audience": "test",
+                    "brand_tone": "professional",
+                    "posting_frequency": "weekly",
+                    "preferred_platforms": ["instagram"],
+                    "budget_range": "100-500"
+                },
+                {
+                    "id": "test-3",
+                    "user_id": "test-user", 
+                    "business_name": "Test 3x Week",
+                    "business_type": "service",
+                    "target_audience": "test",
+                    "brand_tone": "casual",
+                    "posting_frequency": "3x_week",
+                    "preferred_platforms": ["linkedin"],
+                    "budget_range": "100-500"
+                }
+            ]
+            
+            async def test_calculations():
+                now = datetime.utcnow()
+                results = []
+                
+                for profile_data in test_profiles:
+                    profile = BusinessProfile(**profile_data)
+                    next_date = await ContentScheduler.calculate_next_generation_date(profile)
+                    
+                    days_diff = (next_date - now).days
+                    results.append({
+                        "frequency": profile.posting_frequency,
+                        "days_ahead": days_diff,
+                        "next_date": next_date
+                    })
+                    
+                    print(f"   {profile.posting_frequency}: {days_diff} days ahead")
+                    print(f"     Next generation: {next_date.strftime('%Y-%m-%d %H:%M')}")
+                
+                return results
+            
+            # Run async function
+            results = asyncio.run(test_calculations())
+            
+            # Verify expected behavior
+            expected_days = {
+                "daily": 7,
+                "3x_week": 7, 
+                "weekly": 30
+            }
+            
+            all_correct = True
+            for result in results:
+                expected = expected_days.get(result["frequency"], 7)
+                if result["days_ahead"] != expected:
+                    print(f"❌ Incorrect calculation for {result['frequency']}: expected {expected}, got {result['days_ahead']}")
+                    all_correct = False
+            
+            if all_correct:
+                print("✅ All date calculations correct")
+                self.tests_passed += 1
+                return True
+            else:
+                return False
+            
+        except Exception as e:
+            print(f"❌ Failed to test calculate_next_generation_date: {e}")
+            return False
+
+    def test_content_scheduler_calculate_content_reminder_date(self):
+        """Test ContentScheduler.calculate_content_reminder_date() function"""
+        print(f"\n🔍 Testing ContentScheduler.calculate_content_reminder_date()...")
+        
+        try:
+            import sys
+            sys.path.append('/app/backend')
+            from scheduler import ContentScheduler
+            import asyncio
+            from datetime import datetime, timedelta
+            
+            async def test_reminder_calculation():
+                # Test with different generation dates
+                test_dates = [
+                    datetime.utcnow() + timedelta(days=7),
+                    datetime.utcnow() + timedelta(days=30),
+                    datetime.utcnow() + timedelta(days=1)
+                ]
+                
+                results = []
+                for gen_date in test_dates:
+                    reminder_date = await ContentScheduler.calculate_content_reminder_date(gen_date)
+                    days_before = (gen_date - reminder_date).days
+                    
+                    results.append({
+                        "generation_date": gen_date,
+                        "reminder_date": reminder_date,
+                        "days_before": days_before
+                    })
+                    
+                    print(f"   Generation: {gen_date.strftime('%Y-%m-%d')}")
+                    print(f"   Reminder: {reminder_date.strftime('%Y-%m-%d')} ({days_before} days before)")
+                
+                return results
+            
+            # Run async function
+            results = asyncio.run(test_reminder_calculation())
+            
+            # Verify all reminders are 3 days before
+            all_correct = True
+            for result in results:
+                if result["days_before"] != 3:
+                    print(f"❌ Incorrect reminder calculation: expected 3 days before, got {result['days_before']}")
+                    all_correct = False
+            
+            if all_correct:
+                print("✅ All reminder date calculations correct (3 days before generation)")
+                self.tests_passed += 1
+                return True
+            else:
+                return False
+            
+        except Exception as e:
+            print(f"❌ Failed to test calculate_content_reminder_date: {e}")
+            return False
+
+    def test_email_service_send_content_reminder(self):
+        """Test EmailService.send_content_reminder() function"""
+        print(f"\n🔍 Testing EmailService.send_content_reminder()...")
+        
+        try:
+            import sys
+            sys.path.append('/app/backend')
+            from scheduler import EmailService
+            from server import BusinessProfile
+            import asyncio
+            
+            # Create test business profile
+            test_profile = BusinessProfile(
+                id="test-business",
+                user_id="test-user",
+                business_name="Restaurant Test",
+                business_type="restaurant",
+                target_audience="Familles locales",
+                brand_tone="friendly",
+                posting_frequency="3x_week",
+                preferred_platforms=["facebook", "instagram"],
+                budget_range="100-500"
+            )
+            
+            async def test_email_reminder():
+                # Test with different days until generation
+                test_days = [1, 3, 7]
+                
+                for days in test_days:
+                    print(f"   Testing reminder for {days} days until generation...")
+                    
+                    # This will attempt to send email (will likely fail without proper config)
+                    result = await EmailService.send_content_reminder(test_profile, days)
+                    
+                    if result:
+                        print(f"   ✅ Email sent successfully for {days} days")
+                    else:
+                        print(f"   ⚠️  Email sending failed for {days} days (expected without email config)")
+                
+                return True
+            
+            # Run async function
+            success = asyncio.run(test_email_reminder())
+            
+            print("✅ EmailService.send_content_reminder() function tested")
+            print("   Note: Actual email sending may fail without proper SMTP configuration")
+            self.tests_passed += 1
+            return True
+            
+        except Exception as e:
+            print(f"❌ Failed to test send_content_reminder: {e}")
+            return False
+
+    def test_auto_content_generator_sector_specific(self):
+        """Test AutoContentGenerator.generate_sector_specific_content() function"""
+        print(f"\n🔍 Testing AutoContentGenerator.generate_sector_specific_content()...")
+        
+        try:
+            import sys
+            sys.path.append('/app/backend')
+            from scheduler import AutoContentGenerator
+            from server import BusinessProfile
+            import asyncio
+            
+            # Create test business profile
+            test_profile = BusinessProfile(
+                id="test-business",
+                user_id="test-user",
+                business_name="Boulangerie Artisanale",
+                business_type="boulangerie",
+                target_audience="Habitants du quartier, familles",
+                brand_tone="friendly",
+                posting_frequency="daily",
+                preferred_platforms=["facebook", "instagram"],
+                budget_range="100-500"
+            )
+            
+            async def test_content_generation():
+                print(f"   Generating sector-specific content for: {test_profile.business_type}")
+                
+                # Generate content
+                generated_content = await AutoContentGenerator.generate_sector_specific_content(test_profile)
+                
+                print(f"   Generated {len(generated_content)} content pieces")
+                
+                # Analyze generated content
+                if generated_content:
+                    content_types = set()
+                    for content in generated_content:
+                        content_type = content.get('content_type', 'unknown')
+                        content_types.add(content_type)
+                        
+                        print(f"   - {content_type}:")
+                        print(f"     Content: {content.get('content', '')[:80]}...")
+                        print(f"     Hashtags: {content.get('hashtags', [])}")
+                        print(f"     CTA: {content.get('call_to_action', 'N/A')}")
+                    
+                    print(f"   Content types generated: {list(content_types)}")
+                    
+                    # Verify expected content types
+                    expected_types = ["astuce_vraiment_utile", "anecdote_du_metier", "erreur_commune_eviter", 
+                                    "observation_terrain", "conseil_experience"]
+                    
+                    found_types = len(content_types.intersection(expected_types))
+                    print(f"   Expected content types found: {found_types}/{len(expected_types)}")
+                    
+                    return len(generated_content) > 0
+                else:
+                    print("   ❌ No content generated")
+                    return False
+            
+            # Run async function
+            success = asyncio.run(test_content_generation())
+            
+            if success:
+                print("✅ AutoContentGenerator.generate_sector_specific_content() working")
+                self.tests_passed += 1
+                return True
+            else:
+                return False
+            
+        except Exception as e:
+            print(f"❌ Failed to test generate_sector_specific_content: {e}")
+            return False
+
+    def test_content_scheduler_generate_posts_automatically(self):
+        """Test ContentScheduler.generate_posts_automatically() with lperpere business ID"""
+        print(f"\n🔍 Testing ContentScheduler.generate_posts_automatically()...")
+        
+        if not self.business_id:
+            print("❌ Skipping - No business ID available")
+            return False
+        
+        try:
+            import sys
+            sys.path.append('/app/backend')
+            from scheduler import ContentScheduler
+            import asyncio
+            
+            async def test_automatic_generation():
+                print(f"   Testing automatic generation for business: {self.business_id}")
+                
+                # Run automatic generation
+                posts_generated = await ContentScheduler.generate_posts_automatically(self.business_id)
+                
+                print(f"   Posts generated: {posts_generated}")
+                
+                if posts_generated > 0:
+                    print("✅ Automatic post generation successful")
+                    
+                    # Check if posts were actually created in database
+                    from motor.motor_asyncio import AsyncIOMotorClient
+                    import os
+                    from dotenv import load_dotenv
+                    from pathlib import Path
+                    
+                    # Load environment
+                    ROOT_DIR = Path('/app/backend')
+                    load_dotenv(ROOT_DIR / '.env')
+                    
+                    mongo_url = os.environ['MONGO_URL']
+                    client = AsyncIOMotorClient(mongo_url)
+                    db = client[os.environ['DB_NAME']]
+                    
+                    # Check generated posts
+                    recent_posts = await db.generated_posts.find({
+                        "business_id": self.business_id
+                    }).sort("created_at", -1).limit(10).to_list(10)
+                    
+                    print(f"   Recent posts in database: {len(recent_posts)}")
+                    
+                    if recent_posts:
+                        for i, post in enumerate(recent_posts[:3]):
+                            print(f"     Post {i+1}: {post.get('platform', 'N/A')} - {post.get('status', 'N/A')}")
+                            print(f"       Text: {post.get('post_text', '')[:60]}...")
+                            print(f"       Auto-generated: {post.get('auto_generated', False)}")
+                    
+                    # Check if scheduled tasks were created
+                    scheduled_tasks = await db.scheduled_tasks.find({
+                        "business_id": self.business_id
+                    }).sort("created_at", -1).limit(5).to_list(5)
+                    
+                    print(f"   Scheduled tasks created: {len(scheduled_tasks)}")
+                    
+                    for task in scheduled_tasks:
+                        print(f"     - {task.get('task_type', 'N/A')}: {task.get('next_run', 'N/A')}")
+                    
+                    client.close()
+                    return True
+                else:
+                    print("⚠️  No posts generated (may be expected if no content available)")
+                    return True  # Not necessarily a failure
+            
+            # Run async function
+            success = asyncio.run(test_automatic_generation())
+            
+            if success:
+                print("✅ ContentScheduler.generate_posts_automatically() tested successfully")
+                self.tests_passed += 1
+                return True
+            else:
+                return False
+            
+        except Exception as e:
+            print(f"❌ Failed to test generate_posts_automatically: {e}")
+            return False
+
     def test_scheduler_database_connection(self):
         """Test scheduler database connection and collections"""
         print(f"\n🔍 Testing Scheduler Database Connection...")

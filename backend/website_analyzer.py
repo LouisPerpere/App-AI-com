@@ -117,10 +117,8 @@ def analyze_website_with_gpt(content_data: dict, website_url: str) -> dict:
     """Analyze website content using OpenAI GPT"""
     try:
         if not client:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="OpenAI API key not configured"
-            )
+            logging.warning("OpenAI client not configured, using fallback analysis")
+            return create_fallback_analysis(content_data, website_url)
         
         prompt = f"""
         Analysez le contenu de ce site web et fournissez une analyse structurée pour l'utilisation dans des posts sur les réseaux sociaux.
@@ -161,25 +159,66 @@ def analyze_website_with_gpt(content_data: dict, website_url: str) -> dict:
         
         return analysis_result
         
+    except RateLimitError as e:
+        logging.warning(f"OpenAI rate limit exceeded: {e}")
+        return create_fallback_analysis(content_data, website_url, "quota_exceeded")
+        
+    except (APIError, AuthenticationError) as e:
+        logging.warning(f"OpenAI API error: {e}")
+        return create_fallback_analysis(content_data, website_url, "api_error")
+        
     except json.JSONDecodeError as e:
         logging.error(f"Error parsing GPT response: {e}")
-        # Fallback analysis
-        return {
-            "analysis_summary": f"Site web analysé: {content_data['meta_title']}",
-            "key_topics": ["business", "services", "entreprise"],
-            "brand_tone": "professionnel",
-            "target_audience": "clients potentiels",
-            "main_services": ["services principaux"]
-        }
+        return create_fallback_analysis(content_data, website_url, "json_error")
+        
     except Exception as e:
-        logging.error(f"Error with GPT analysis: {e}")
-        # Return fallback instead of raising exception
+        logging.error(f"Unexpected error with GPT analysis: {e}")
+        return create_fallback_analysis(content_data, website_url, "unknown_error")
+
+def create_fallback_analysis(content_data: dict, website_url: str, reason: str = "fallback") -> dict:
+    """Create a fallback analysis when GPT is not available"""
+    
+    # Extract meaningful info from the content
+    title = content_data.get('meta_title', '').strip()
+    description = content_data.get('meta_description', '').strip()
+    h1_tags = content_data.get('h1_tags', [])
+    content_text = content_data.get('content_text', '')[:1000].strip()
+    
+    # Smart fallback analysis based on extracted content
+    if 'restaurant' in content_text.lower() or 'cuisine' in content_text.lower():
         return {
-            "analysis_summary": f"Analyse basique du site {website_url}",
-            "key_topics": ["business", "services"],
+            "analysis_summary": f"Restaurant analysé via {title}. Établissement culinaire proposant une expérience gastronomique.",
+            "key_topics": ["restaurant", "cuisine", "gastronomie", "service"],
+            "brand_tone": "convivial et professionnel",
+            "target_audience": "amateurs de gastronomie et familles",
+            "main_services": ["restauration", "service client", "expérience culinaire"]
+        }
+    elif 'shop' in content_text.lower() or 'store' in content_text.lower() or 'boutique' in content_text.lower():
+        return {
+            "analysis_summary": f"Commerce analysé via {title}. Boutique proposant une gamme de produits et services.",
+            "key_topics": ["commerce", "vente", "produits", "service client"],
+            "brand_tone": "commercial et accueillant",
+            "target_audience": "consommateurs et clients potentiels",
+            "main_services": ["vente", "conseil client", "livraison"]
+        }
+    elif 'service' in content_text.lower() or 'consulting' in content_text.lower():
+        return {
+            "analysis_summary": f"Entreprise de services analysée via {title}. Prestataire professionnel spécialisé.",
+            "key_topics": ["services", "expertise", "conseil", "professionnels"],
+            "brand_tone": "professionnel et expert",
+            "target_audience": "entreprises et professionnels",
+            "main_services": ["conseil", "accompagnement", "expertise"]
+        }
+    else:
+        # Generic fallback
+        main_topic = h1_tags[0] if h1_tags else title.split()[0] if title else "entreprise"
+        
+        return {
+            "analysis_summary": f"Entreprise analysée : {title or website_url}. {description[:100] if description else 'Activité professionnelle diversifiée.'}",
+            "key_topics": [main_topic.lower(), "services", "qualité", "client"],
             "brand_tone": "professionnel",
-            "target_audience": "clients potentiels", 
-            "main_services": ["services"]
+            "target_audience": "clients potentiels et prospects",
+            "main_services": ["services professionnels", "accompagnement client", "solutions sur mesure"]
         }
 
 @website_router.post("/analyze", response_model=WebsiteAnalysisResponse)

@@ -1309,7 +1309,7 @@ function MainApp() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="library" className="space-y-8">
+          <TabsContent value="bibliotheque" className="space-y-8">
             <Card className="card-gradient">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-3 text-2xl">

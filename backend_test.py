@@ -5249,6 +5249,22 @@ def main():
         ("Describe Content", tester.test_describe_content),
         ("Get Posts", tester.test_get_posts),
         ("Approve Post", tester.test_approve_post),
+        
+        # NEW: Analytics System Backend Core Tests
+        ("Analytics Models Structure", tester.test_analytics_models_structure),
+        ("SocialMediaAnalytics Class", tester.test_social_media_analytics_class),
+        ("Analytics Trigger (7 days)", tester.test_analytics_trigger_7_days),
+        ("Analytics Trigger (30 days)", tester.test_analytics_trigger_30_days),
+        ("Get Analytics Insights", tester.test_analytics_get_insights),
+        ("Generate Weekly Analytics Report", tester.test_analytics_generate_weekly_report),
+        ("Generate Monthly Analytics Report", tester.test_analytics_generate_monthly_report),
+        ("Get Bulk Social Media Metrics", tester.test_social_media_bulk_metrics),
+        ("Get Bulk Social Media Metrics (30 days)", tester.test_social_media_bulk_metrics_30_days),
+        ("Get Specific Post Analytics Metrics", tester.test_analytics_post_metrics_specific),
+        ("Get Specific Post Social Media Metrics", tester.test_social_media_specific_post_metrics),
+        ("Analytics Error Handling (No Posts)", tester.test_analytics_error_handling_no_posts),
+        ("AI Recommendations and Fallback", tester.test_analytics_ai_recommendations_fallback),
+        ("Pattern Analysis (Hashtags, Keywords, etc.)", tester.test_analytics_pattern_analysis),
     ]
     
     for test_name, test_func in tests:

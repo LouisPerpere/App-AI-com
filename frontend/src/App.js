@@ -1027,7 +1027,7 @@ function MainApp() {
                   </span>
                 </CardTitle>
                 <CardDescription className="text-lg text-gray-600">
-                  Connectez vos comptes Facebook et Instagram pour publier automatiquement ✨
+                  Connectez vos comptes Facebook et Instagram pour publier en mode turbo ⚡
                 </CardDescription>
               </CardHeader>
               <CardContent>

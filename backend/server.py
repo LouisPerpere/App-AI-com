@@ -505,12 +505,20 @@ async def setup_automatic_scheduling(business_id: str):
         logging.error(f"Error setting up automatic scheduling: {e}")
 
 # Authentication Routes
-@api_router.post("/auth/register", response_model=UserResponse)
+@api_router.post("/auth/register")
 async def register(user_data: UserCreate):
-    """Register a new user"""
+    """Register a new user with trial prevention"""
     try:
         user = await create_user(user_data)
-        return UserResponse(**user.dict())
+        return {
+            "message": "Utilisateur créé avec succès",
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "subscription_status": user.subscription_status,
+                "trial_end_date": user.trial_end_date.isoformat() if user.trial_end_date else None
+            }
+        }
     except HTTPException:
         raise
     except Exception as e:

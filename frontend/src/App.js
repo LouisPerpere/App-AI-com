@@ -35,7 +35,7 @@ const SUBSCRIPTION_PLANS = [
     name: 'Starter',
     monthlyPrice: 19.99,
     yearlyPrice: 199.99,
-    features: ['50 posts IA par mois', '2 réseaux sociaux', 'Programmation automatique', 'Support par email'],
+    features: ['50 contenus par mois', '2 réseaux sociaux', 'Programmation automatique', 'Support par email'],
     color: 'blue',
     popular: false
   },
@@ -44,7 +44,7 @@ const SUBSCRIPTION_PLANS = [
     name: 'Pro',
     monthlyPrice: 49.99,
     yearlyPrice: 499.99,
-    features: ['200 posts IA par mois', 'Tous les réseaux sociaux', 'Analytics avancés', 'Support prioritaire', 'Calendrier de contenu'],
+    features: ['200 contenus par mois', 'Tous les réseaux sociaux', 'Analytics avancés', 'Support prioritaire', 'Calendrier de contenu'],
     color: 'purple',
     popular: true
   },
@@ -53,7 +53,7 @@ const SUBSCRIPTION_PLANS = [
     name: 'Enterprise',
     monthlyPrice: 99.99,
     yearlyPrice: 999.99,
-    features: ['Posts IA illimités', 'Tous les réseaux sociaux', 'Branding personnalisé', 'Support dédié', 'Analytics complets', 'API access'],
+    features: ['Contenus illimités', 'Tous les réseaux sociaux', 'Branding personnalisé', 'Support dédié', 'Analytics complets', 'API access'],
     color: 'gold',
     popular: false
   }

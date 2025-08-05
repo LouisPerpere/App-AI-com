@@ -540,7 +540,11 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Scheduler Analytics Integration"
+    - "Performance-Optimized Content Generation"
+    - "Analytics System Backend Core"
+    - "Social Media Metrics Collection"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

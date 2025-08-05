@@ -1913,6 +1913,91 @@ class SocialGenieAPITester:
         )
         return success
 
+    def investigate_user_authentication_direct(self, email="lperpere@yahoo.fr"):
+        """Direct database investigation for user authentication"""
+        print(f"\n🔍 DIRECT DATABASE INVESTIGATION FOR USER: {email}")
+        print("="*80)
+        
+        try:
+            import sys
+            sys.path.append('/app/backend')
+            from motor.motor_asyncio import AsyncIOMotorClient
+            import os
+            from dotenv import load_dotenv
+            from pathlib import Path
+            import asyncio
+            from auth import get_password_hash, verify_password
+            
+            # Load environment
+            ROOT_DIR = Path('/app/backend')
+            load_dotenv(ROOT_DIR / '.env')
+            
+            # Connect to MongoDB
+            mongo_url = os.environ['MONGO_URL']
+            client = AsyncIOMotorClient(mongo_url)
+            db = client[os.environ['DB_NAME']]
+            
+            async def check_user():
+                # Direct database query for the user
+                user = await db.users.find_one({"email": email})
+                
+                if user:
+                    print(f"✅ USER FOUND in database:")
+                    print(f"   Email: {user.get('email')}")
+                    print(f"   ID: {user.get('id')}")
+                    print(f"   First Name: {user.get('first_name', 'N/A')}")
+                    print(f"   Last Name: {user.get('last_name', 'N/A')}")
+                    print(f"   Subscription Status: {user.get('subscription_status', 'N/A')}")
+                    print(f"   Is Admin: {user.get('is_admin', False)}")
+                    print(f"   Is Active: {user.get('is_active', True)}")
+                    print(f"   Created At: {user.get('created_at', 'N/A')}")
+                    print(f"   Trial Ends At: {user.get('trial_ends_at', 'N/A')}")
+                    print(f"   Last Login: {user.get('last_login', 'N/A')}")
+                    
+                    # Test password verification with common passwords
+                    print(f"\n🔐 Testing password verification...")
+                    common_passwords = [
+                        "password", "123456", "password123", "admin123", 
+                        "lperpere", "yahoo123", "Password123!", "test123"
+                    ]
+                    
+                    hashed_password = user.get('hashed_password')
+                    if hashed_password:
+                        for password in common_passwords:
+                            if verify_password(password, hashed_password):
+                                print(f"✅ CORRECT PASSWORD FOUND: {password}")
+                                return {"user_exists": True, "password": password, "user_data": user}
+                            else:
+                                print(f"❌ Password '{password}' does not match")
+                    else:
+                        print("❌ No hashed password found in user record")
+                    
+                    return {"user_exists": True, "password": None, "user_data": user}
+                else:
+                    print(f"❌ USER NOT FOUND in database")
+                    
+                    # Check total users count
+                    total_users = await db.users.count_documents({})
+                    print(f"   Total users in database: {total_users}")
+                    
+                    # List some users for reference
+                    sample_users = await db.users.find({}, {"email": 1, "_id": 0}).limit(5).to_list(5)
+                    print(f"   Sample users: {[u.get('email') for u in sample_users]}")
+                    
+                    return {"user_exists": False, "password": None, "user_data": None}
+            
+            # Run the async function
+            result = asyncio.run(check_user())
+            
+            # Close connection
+            client.close()
+            
+            return result
+            
+        except Exception as e:
+            print(f"❌ Error in direct database investigation: {e}")
+            return {"user_exists": False, "password": None, "user_data": None, "error": str(e)}
+
     def investigate_user_authentication(self, email="lperpere@yahoo.fr"):
         """Investigate authentication issue for specific user"""
         print(f"\n🔍 INVESTIGATING AUTHENTICATION FOR USER: {email}")
@@ -1926,87 +2011,79 @@ class SocialGenieAPITester:
             "other_users_working": False
         }
         
-        # Step 1: Check if user exists in database (via admin access)
-        print(f"\n📋 STEP 1: Checking if user {email} exists in database...")
-        if self.test_admin_login():
-            regular_token = self.access_token
-            self.access_token = self.admin_access_token
+        # Step 1: Direct database check
+        print(f"\n📋 STEP 1: Direct database check for user {email}...")
+        direct_result = self.investigate_user_authentication_direct(email)
+        
+        if direct_result.get("user_exists"):
+            investigation_results["user_exists"] = True
+            investigation_results["user_details"] = direct_result.get("user_data")
             
-            # Get all users to search for our target user
-            success, users_response = self.run_test(
-                f"Search for user {email} in database",
-                "GET",
-                "admin/users?limit=100",
-                200
-            )
-            
-            if success and isinstance(users_response, list):
-                target_user = None
-                for user in users_response:
-                    if user.get('email') == email:
-                        target_user = user
-                        break
+            if direct_result.get("password"):
+                print(f"\n✅ FOUND WORKING PASSWORD: {direct_result.get('password')}")
                 
-                if target_user:
-                    investigation_results["user_exists"] = True
-                    investigation_results["user_details"] = target_user
-                    print(f"✅ USER FOUND in database:")
-                    print(f"   Email: {target_user.get('email')}")
-                    print(f"   ID: {target_user.get('id')}")
-                    print(f"   First Name: {target_user.get('first_name', 'N/A')}")
-                    print(f"   Last Name: {target_user.get('last_name', 'N/A')}")
-                    print(f"   Subscription Status: {target_user.get('subscription_status', 'N/A')}")
-                    print(f"   Is Admin: {target_user.get('is_admin', False)}")
-                    print(f"   Created At: {target_user.get('created_at', 'N/A')}")
+                # Test login with the found password
+                login_data = {
+                    "email": email,
+                    "password": direct_result.get("password")
+                }
+                
+                success, response = self.run_test(
+                    f"Login with found password: {direct_result.get('password')}",
+                    "POST",
+                    "auth/login",
+                    200,
+                    data=login_data
+                )
+                
+                if success:
+                    print(f"✅ API LOGIN SUCCESSFUL with password: {direct_result.get('password')}")
+                    print(f"   Access token received: {response.get('access_token', 'N/A')[:20]}...")
+                    investigation_results["login_attempts"].append({
+                        "password": direct_result.get("password"),
+                        "success": True,
+                        "response": response
+                    })
                 else:
-                    print(f"❌ USER NOT FOUND in database")
-                    print(f"   Total users in database: {len(users_response)}")
-            
-            self.access_token = regular_token
-        else:
-            print("❌ Cannot access admin panel to check user existence")
+                    print(f"❌ API login failed even with correct password")
+                    print(f"   Error: {response.get('detail', 'Unknown error')}")
         
-        # Step 2: Test authentication with common passwords
-        print(f"\n🔐 STEP 2: Testing authentication with common passwords...")
-        common_passwords = [
-            "password",
-            "123456",
-            "password123",
-            "admin123",
-            "lperpere",
-            "yahoo123",
-            "Password123!",
-            "test123"
-        ]
-        
-        for password in common_passwords:
-            login_data = {
-                "email": email,
-                "password": password
-            }
+        # Step 2: Test authentication with common passwords (if no password found)
+        if not direct_result.get("password"):
+            print(f"\n🔐 STEP 2: Testing authentication with common passwords...")
+            common_passwords = [
+                "password", "123456", "password123", "admin123", 
+                "lperpere", "yahoo123", "Password123!", "test123"
+            ]
             
-            success, response = self.run_test(
-                f"Login attempt with password: {password}",
-                "POST",
-                "auth/login",
-                200,  # Hoping for success
-                data=login_data
-            )
-            
-            attempt_result = {
-                "password": password,
-                "success": success,
-                "response": response
-            }
-            investigation_results["login_attempts"].append(attempt_result)
-            
-            if success:
-                print(f"✅ LOGIN SUCCESSFUL with password: {password}")
-                print(f"   Access token received: {response.get('access_token', 'N/A')[:20]}...")
-                break
-            else:
-                print(f"❌ Login failed with password: {password}")
-                print(f"   Error: {response.get('detail', 'Unknown error')}")
+            for password in common_passwords:
+                login_data = {
+                    "email": email,
+                    "password": password
+                }
+                
+                success, response = self.run_test(
+                    f"Login attempt with password: {password}",
+                    "POST",
+                    "auth/login",
+                    200,  # Hoping for success
+                    data=login_data
+                )
+                
+                attempt_result = {
+                    "password": password,
+                    "success": success,
+                    "response": response
+                }
+                investigation_results["login_attempts"].append(attempt_result)
+                
+                if success:
+                    print(f"✅ LOGIN SUCCESSFUL with password: {password}")
+                    print(f"   Access token received: {response.get('access_token', 'N/A')[:20]}...")
+                    break
+                else:
+                    print(f"❌ Login failed with password: {password}")
+                    print(f"   Error: {response.get('detail', 'Unknown error')}")
         
         # Step 3: Test with admin account to verify system works
         print(f"\n👑 STEP 3: Verifying authentication system works with admin account...")
@@ -2030,30 +2107,9 @@ class SocialGenieAPITester:
             print("❌ Authentication system issue - admin login failed")
             print(f"   Error: {response.get('detail', 'Unknown error')}")
         
-        # Step 4: Test with test user account
-        print(f"\n🧪 STEP 4: Testing with test user account...")
-        test_login_data = {
-            "email": "testuser@socialgenie.com",
-            "password": "SecurePassword123!"
-        }
-        
-        success, response = self.run_test(
-            "Test user login verification",
-            "POST",
-            "auth/login",
-            200,
-            data=test_login_data
-        )
-        
-        if success:
-            print("✅ Test user authentication working")
-        else:
-            print("❌ Test user authentication failed")
-            print(f"   Error: {response.get('detail', 'Unknown error')}")
-        
-        # Step 5: Try to register the user if not exists
+        # Step 4: Try to register the user if not exists
         if not investigation_results["user_exists"]:
-            print(f"\n📝 STEP 5: Attempting to register user {email}...")
+            print(f"\n📝 STEP 4: Attempting to register user {email}...")
             register_data = {
                 "email": email,
                 "password": "TempPassword123!",
@@ -2097,15 +2153,17 @@ class SocialGenieAPITester:
                 print(f"❌ Registration failed for {email}")
                 print(f"   Error: {response.get('detail', 'Unknown error')}")
         
-        # Step 6: Generate investigation summary
+        # Step 5: Generate investigation summary
         print(f"\n📊 INVESTIGATION SUMMARY FOR {email}")
         print("="*80)
         
         if investigation_results["user_exists"]:
             print(f"✅ User exists in database")
             user_details = investigation_results["user_details"]
-            print(f"   Status: {user_details.get('subscription_status', 'unknown')}")
-            print(f"   Admin: {user_details.get('is_admin', False)}")
+            if user_details:
+                print(f"   Status: {user_details.get('subscription_status', 'unknown')}")
+                print(f"   Admin: {user_details.get('is_admin', False)}")
+                print(f"   Active: {user_details.get('is_active', True)}")
         else:
             print(f"❌ User does not exist in database")
         

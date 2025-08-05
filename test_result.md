@@ -594,8 +594,6 @@ test_plan:
   current_focus:
     - "Adaptive Prompt Optimization System"
     - "Prompt Performance API Endpoints"
-    - "Performance-Optimized Content Generation"
-    - "Scheduler Analytics Integration"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

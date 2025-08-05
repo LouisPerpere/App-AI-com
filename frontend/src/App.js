@@ -675,6 +675,95 @@ function MainApp() {
     }
   };
 
+  // Function to check if upgrade modal should be shown
+  const shouldShowUpgradeModal = () => {
+    if (!user || upgradeModalDismissed) return false;
+    
+    const now = new Date();
+    const trialEndDate = user.trial_end_date ? new Date(user.trial_end_date) : null;
+    
+    // Case 1: Trial expired - must show modal (no close button)
+    if (user.subscription_status === 'expired') {
+      return { show: true, canClose: false, title: "Votre essai gratuit a expiré" };
+    }
+    
+    // Case 2: Last week before expiration - show daily (with close button)
+    if (trialEndDate) {
+      const daysUntilExpiration = Math.ceil((trialEndDate - now) / (1000 * 60 * 60 * 24));
+      const lastShownToday = localStorage.getItem('upgradeModalLastShown');
+      const today = now.toDateString();
+      
+      if (daysUntilExpiration <= 7 && daysUntilExpiration > 0) {
+        if (lastShownToday !== today) {
+          localStorage.setItem('upgradeModalLastShown', today);
+          return { show: true, canClose: true, title: `Plus que ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''} d'essai gratuit` };
+        }
+      }
+    }
+    
+    // Case 3: Before validating second-to-last post of trial
+    const totalTrialPosts = 10; // Assuming 10 posts for trial
+    const approvedPostsCount = generatedPosts.filter(post => post.status === 'approved').length;
+    
+    if (user.subscription_status === 'trial' && approvedPostsCount >= totalTrialPosts - 1) {
+      const hasShownForSecondLastPost = localStorage.getItem('upgradeModalShownForSecondLastPost');
+      if (!hasShownForSecondLastPost) {
+        localStorage.setItem('upgradeModalShownForSecondLastPost', 'true');
+        return { show: true, canClose: true, title: "Dernier post gratuit validé !" };
+      }
+    }
+    
+    return { show: false };
+  };
+
+  // Function to check if feature is blocked
+  const isFeatureBlocked = (feature) => {
+    if (!user) return true;
+    
+    // If trial expired, block everything
+    if (user.subscription_status === 'expired') return true;
+    
+    // If on trial, allow everything
+    if (user.subscription_status === 'trial') return false;
+    
+    // Check plan limitations
+    const plan = user.subscription_plan;
+    
+    switch (feature) {
+      case 'upload':
+        return plan === 'free';
+      case 'post_creation':
+        if (plan === 'free') return true;
+        if (plan === 'starter') {
+          const monthlyPosts = generatedPosts.filter(post => {
+            const postDate = new Date(post.created_at);
+            const now = new Date();
+            return postDate.getMonth() === now.getMonth() && postDate.getFullYear() === now.getFullYear();
+          }).length;
+          return monthlyPosts >= 4;
+        }
+        return false;
+      case 'multi_platform':
+        return plan === 'starter' || plan === 'free';
+      case 'analytics':
+        return plan === 'free';
+      default:
+        return false;
+    }
+  };
+
+  // Check modal conditions on component mount and when user changes
+  useEffect(() => {
+    if (user) {
+      const modalCondition = shouldShowUpgradeModal();
+      if (modalCondition.show && !showUpgradeModal) {
+        setShowUpgradeModal(true);
+        // Store modal configuration in state or use context
+        window.upgradeModalConfig = modalCondition;
+      }
+    }
+  }, [user, generatedPosts, showUpgradeModal]);
+
   const navigateToTab = (tabValue) => {
     setActiveTab(tabValue);
     setShowBurgerMenu(false);

@@ -1124,7 +1124,7 @@ function MainApp() {
                 <Building className="w-5 h-5" />
                 <span className="ml-2 font-semibold">Entreprise</span>
               </TabsTrigger>
-              <TabsTrigger value="library" className="tab-sexy">
+              <TabsTrigger value="bibliotheque" className="tab-sexy">
                 <ImageIcon className="w-5 h-5" />
                 <span className="ml-2 font-semibold">Bibliothèque</span>
               </TabsTrigger>

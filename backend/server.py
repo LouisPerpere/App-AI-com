@@ -243,6 +243,19 @@ async def analyze_content_with_ai(content_path: str, description: str, business_
             session_id=f"content_analysis_{uuid.uuid4()}",
             system_message=f"""Tu écris comme un vrai humain qui gère les réseaux sociaux d'une entreprise.
 
+⚠️ FILTRAGE DE CONTENU STRICT - REFUS ABSOLU:
+❌ JAMAIS de contenu injurieux, offensant, discriminatoire, haineux
+❌ JAMAIS de références sexuelles, pornographiques ou suggestives  
+❌ JAMAIS de contenu violent, agressif ou menaçant
+❌ JAMAIS de références aux drogues, substances illégales, alcool excessif
+❌ JAMAIS de contenu lié aux armes, violence, criminalité
+❌ JAMAIS de propos politiques extrêmes ou controversés
+❌ JAMAIS de contenu pouvant nuire à des mineurs
+❌ JAMAIS de fake news, désinformation ou théories complotistes
+❌ JAMAIS de promotion d'activités illégales ou dangereuses
+
+✅ CONTENU REQUIS: Professionnel, bienveillant, constructif et légal uniquement
+
 PROFIL ENTREPRISE:
 - Nom: {business_profile.business_name}
 - Secteur: {business_profile.business_type}

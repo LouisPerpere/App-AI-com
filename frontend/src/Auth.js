@@ -195,6 +195,77 @@ const AuthPage = ({ onAuthSuccess }) => {
                 Connectez-vous ou créez votre compte pour commencer
               </CardDescription>
             </CardHeader>
+
+            {/* How It Works Section */}
+            <div className="px-6 pb-6">
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-100">
+                <h3 className="text-lg font-bold text-gray-900 mb-4 text-center flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 mr-2 text-purple-600" />
+                  Comment ça fonctionne ?
+                </h3>
+                
+                <div className="space-y-4">
+                  {/* Step 1 */}
+                  <div className="flex items-start space-x-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">
+                      1
+                    </div>
+                    <div className="flex items-center space-x-3 flex-1">
+                      <Building className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                      <p className="text-sm text-gray-700 font-medium">
+                        Vous donnez des éléments sur votre entreprise
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Step 2 */}
+                  <div className="flex items-start space-x-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">
+                      2
+                    </div>
+                    <div className="flex items-center space-x-3 flex-1">
+                      <Upload className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                      <p className="text-sm text-gray-700 font-medium">
+                        Vous uploadez des contenus (photos, vidéos, notes)
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Step 3 */}
+                  <div className="flex items-start space-x-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">
+                      3
+                    </div>
+                    <div className="flex items-center space-x-3 flex-1">
+                      <FileText className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                      <p className="text-sm text-gray-700 font-medium">
+                        On génère pour vous les contenus qu'il vous reste à valider
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Step 4 */}
+                  <div className="flex items-start space-x-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">
+                      4
+                    </div>
+                    <div className="flex items-center space-x-3 flex-1">
+                      <Send className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                      <p className="text-sm text-gray-700 font-medium">
+                        On s'occupe de les publier pour vous !
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-purple-200">
+                  <div className="flex items-center justify-center text-sm text-purple-700 font-medium">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Simple, efficace, et entièrement automatisé !
+                  </div>
+                </div>
+              </div>
+            </div>
             
             <CardContent>
               <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

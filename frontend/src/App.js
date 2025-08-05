@@ -371,6 +371,77 @@ const SubscriptionUpgrade = ({ user, onUpgradeSuccess }) => {
   );
 };
 
+// Upgrade Modal Component
+const UpgradeModal = ({ isOpen, onClose, user, canClose = true, title = "Débloquez PostCraft Premium" }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-3xl max-w-6xl w-full max-h-[90vh] overflow-y-auto relative">
+        {canClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-6 right-6 w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors z-10"
+          >
+            <X className="w-5 h-5 text-gray-600" />
+          </button>
+        )}
+
+        <div className="p-8">
+          {/* Header */}
+          <div className="text-center space-y-4 mb-8">
+            <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto">
+              <Crown className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              {title}
+            </h2>
+            {user?.subscription_status === 'expired' ? (
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
+                <p className="text-red-800 font-medium">
+                  ⚠️ Votre période d'essai a expiré. Choisissez un plan pour continuer à utiliser PostCraft.
+                </p>
+              </div>
+            ) : (
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Votre essai gratuit se termine bientôt ! Continuez à faire grandir votre présence en ligne sans interruption.
+              </p>
+            )}
+          </div>
+
+          {/* Benefits Section */}
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl">
+              <div className="w-12 h-12 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="font-bold text-gray-900 mb-2">Gain de temps</h3>
+              <p className="text-sm text-gray-600">Jusqu'à 10h économisées par semaine sur la gestion de vos réseaux sociaux</p>
+            </div>
+            <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl">
+              <div className="w-12 h-12 bg-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Target className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="font-bold text-gray-900 mb-2">Plus d'engagement</h3>
+              <p className="text-sm text-gray-600">Contenu optimisé par IA pour maximiser vos interactions et votre portée</p>
+            </div>
+            <div className="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl">
+              <div className="w-12 h-12 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="font-bold text-gray-900 mb-2">Croissance automatique</h3>
+              <p className="text-sm text-gray-600">Présence constante et professionnelle qui fait grandir votre business</p>
+            </div>
+          </div>
+
+          {/* Subscription Plans */}
+          <SubscriptionUpgrade user={user} onUpgradeSuccess={() => window.location.reload()} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 function MainApp() {
   const location = useLocation();
   

@@ -1317,7 +1317,7 @@ function MainApp() {
                     <ImageIcon className="w-6 h-6 text-white" />
                   </div>
                   <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    Bibliothèque magique ✨
+                    Bibliothèque de contenus ✨
                   </span>
                 </CardTitle>
                 <CardDescription className="text-lg text-gray-600">
@@ -1325,13 +1325,132 @@ function MainApp() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-20 card-glass rounded-3xl">
-                  <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
-                    <ImageIcon className="w-12 h-12 text-white" />
+                {/* Upload Section */}
+                <div className="mb-8">
+                  <div className="border-2 border-dashed border-purple-300 rounded-3xl p-8 text-center hover:border-purple-500 transition-colors bg-gradient-to-br from-purple-50 to-pink-50">
+                    <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Upload className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Uploadez vos contenus 📁</h3>
+                    <p className="text-gray-600 mb-6">Glissez-déposez vos fichiers ou cliquez pour sélectionner (images, vidéos, audio)</p>
+                    
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*,video/*,audio/*"
+                      onChange={(e) => setSelectedFiles(Array.from(e.target.files))}
+                      className="hidden"
+                      id="file-upload"
+                    />
+                    <label
+                      htmlFor="file-upload"
+                      className="btn-gradient-primary inline-flex items-center px-8 py-4 text-lg font-semibold cursor-pointer"
+                    >
+                      <ImageIcon className="w-5 h-5 mr-2" />
+                      Sélectionner des fichiers
+                    </label>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-700 mb-4">Votre bibliothèque de contenus 📚</h3>
-                  <p className="text-xl text-gray-500">Uploadez vos premiers contenus pour voir votre succès exploser ! 🚀</p>
+
+                  {/* Selected Files Preview */}
+                  {selectedFiles.length > 0 && (
+                    <div className="mt-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="text-lg font-semibold text-gray-900">
+                          {selectedFiles.length} fichier{selectedFiles.length > 1 ? 's' : ''} sélectionné{selectedFiles.length > 1 ? 's' : ''}
+                        </h4>
+                        <Button
+                          onClick={handleBatchUpload}
+                          disabled={isUploading}
+                          className="btn-gradient-primary"
+                        >
+                          {isUploading ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                              Upload en cours...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-4 h-4 mr-2" />
+                              Uploader {selectedFiles.length} fichier{selectedFiles.length > 1 ? 's' : ''}
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {selectedFiles.map((file, index) => (
+                          <div key={index} className="relative group">
+                            <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden border-2 border-purple-200">
+                              {file.type.startsWith('image/') ? (
+                                <img 
+                                  src={URL.createObjectURL(file)} 
+                                  alt={file.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
+                                  <FileText className="w-8 h-8 text-purple-600" />
+                                </div>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-600 mt-2 truncate">{file.name}</p>
+                            <button
+                              onClick={() => setSelectedFiles(prev => prev.filter((_, i) => i !== index))}
+                              className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
+
+                {/* Uploaded Content Gallery */}
+                {pendingContent.length > 0 && (
+                  <div>
+                    <h4 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                      <ImageIcon className="w-6 h-6 mr-2 text-purple-600" />
+                      Vos contenus ({pendingContent.length})
+                    </h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {pendingContent.map((content) => (
+                        <div key={content.id} className="relative group cursor-pointer">
+                          <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden border-2 border-purple-200 hover:border-purple-400 transition-colors">
+                            {content.file_type?.startsWith('image/') ? (
+                              <img 
+                                src={`data:${content.file_type};base64,${content.file_data}`}
+                                alt={content.filename}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
+                                <FileText className="w-8 h-8 text-purple-600" />
+                              </div>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600 mt-2 truncate">{content.filename}</p>
+                          {content.description && (
+                            <Badge className="mt-1 bg-green-100 text-green-800 text-xs">
+                              Avec description
+                            </Badge>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {pendingContent.length === 0 && selectedFiles.length === 0 && (
+                  <div className="text-center py-12 card-glass rounded-3xl border-2 border-dashed border-purple-300">
+                    <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
+                      <ImageIcon className="w-12 h-12 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-700 mb-4">Votre bibliothèque de contenus 📚</h3>
+                    <p className="text-xl text-gray-500">Uploadez vos premiers contenus pour voir votre succès exploser ! 🚀</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

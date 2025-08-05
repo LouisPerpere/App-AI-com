@@ -368,6 +368,118 @@ class ContentScheduler:
         }
     
     @staticmethod
+    async def analyze_performance_before_generation(business_id: str, frequency: str) -> Dict[str, Any]:
+        """Analyze post performance before generating new content"""
+        try:
+            logger.info(f"🔍 Starting performance analysis for business {business_id}")
+            
+            # Determine analysis period based on frequency
+            if frequency in ["weekly", "bi_weekly"]:
+                days_back = 7  # Analyze last week for weekly generation
+                analysis_type = "weekly"
+            elif frequency in ["daily", "3x_week"]:
+                days_back = 30  # Analyze last month for monthly generation  
+                analysis_type = "monthly"
+            else:
+                days_back = 7
+                analysis_type = "weekly"
+            
+            logger.info(f"📊 Analyzing last {days_back} days ({analysis_type} analysis)")
+            
+            # Collect metrics using analytics engine
+            metrics = await analytics_engine.collect_post_metrics(business_id, days_back)
+            
+            if not metrics:
+                logger.info("📈 No metrics found - using fallback recommendations")
+                return {
+                    "has_insights": False,
+                    "analysis_type": analysis_type,
+                    "metrics_collected": 0,
+                    "fallback_recommendations": [
+                        "Utilisez des hashtags pertinents pour votre secteur",
+                        "Variez entre contenu promotionnel et informatif",
+                        "Engagez avec votre audience via des questions",
+                        "Maintenez une cohérence dans votre ton de marque"
+                    ],
+                    "optimal_content_length": "100-150",
+                    "recommended_hashtags": [],
+                    "high_performing_topics": []
+                }
+            
+            # Analyze patterns and generate insights
+            insights = await analytics_engine.analyze_content_patterns(business_id, metrics)
+            
+            logger.info(f"✅ Analysis complete: {insights.total_posts_analyzed} posts analyzed, {insights.avg_engagement_rate:.2f}% avg engagement")
+            
+            # Extract actionable insights for content generation
+            performance_data = {
+                "has_insights": True,
+                "analysis_type": analysis_type,
+                "metrics_collected": len(metrics),
+                "total_posts_analyzed": insights.total_posts_analyzed,
+                "avg_engagement_rate": insights.avg_engagement_rate,
+                
+                # AI recommendations
+                "ai_recommendations": insights.ai_recommendations,
+                "content_strategy_suggestions": insights.content_strategy_suggestions,
+                
+                # Content optimization data
+                "optimal_content_length": insights.optimal_content_length.pattern_value if insights.optimal_content_length else "100-150",
+                "recommended_hashtags": [h.pattern_value for h in insights.top_hashtags[:5]],
+                "high_performing_keywords": [k.pattern_value for k in insights.top_keywords[:5]],
+                "high_performing_topics": [t.pattern_value for t in insights.high_performing_topics[:3]],
+                "best_posting_times": [t.pattern_value for t in insights.best_posting_times[:2]],
+                
+                # Performance benchmarks
+                "best_performing_post_id": insights.best_performing_post_id,
+                "performance_insights_id": insights.id,
+                
+                # Generation guidance
+                "content_generation_guidance": {
+                    "tone_suggestions": "Continuez avec votre ton actuel" if insights.avg_engagement_rate > 5.0 else "Essayez un ton plus engageant et personnel",
+                    "hashtag_strategy": f"Intégrez ces hashtags performants: {', '.join([h.pattern_value for h in insights.top_hashtags[:3]])}",
+                    "topic_focus": f"Concentrez-vous sur: {', '.join([t.pattern_value for t in insights.high_performing_topics[:2]])}" if insights.high_performing_topics else "Variez vos sujets pour maintenir l'intérêt",
+                    "length_optimization": f"Visez {insights.optimal_content_length.pattern_value.replace('_chars', ' caractères')}" if insights.optimal_content_length else "Gardez vos posts entre 100-150 caractères"
+                }
+            }
+            
+            # Store analysis results for use in generation
+            analysis_record = {
+                "id": str(uuid.uuid4()),
+                "business_id": business_id,
+                "analysis_date": datetime.utcnow(),
+                "analysis_type": analysis_type,
+                "performance_data": performance_data,
+                "insights_id": insights.id,
+                "used_for_generation": False,
+                "created_at": datetime.utcnow()
+            }
+            
+            await db.performance_analysis_results.insert_one(analysis_record)
+            
+            logger.info(f"💾 Performance analysis stored with ID: {analysis_record['id']}")
+            return performance_data
+            
+        except Exception as e:
+            logger.error(f"❌ Error in performance analysis: {e}")
+            # Return fallback data
+            return {
+                "has_insights": False,
+                "analysis_type": "fallback",
+                "metrics_collected": 0,
+                "error": str(e),
+                "fallback_recommendations": [
+                    "Focalisez-vous sur la qualité du contenu",
+                    "Utilisez des visuels attractifs",
+                    "Publiez régulièrement pour maintenir l'engagement",
+                    "Répondez aux commentaires pour créer une communauté"
+                ],
+                "optimal_content_length": "100-150",
+                "recommended_hashtags": [],
+                "high_performing_topics": []
+            }
+    
+    @staticmethod
     async def generate_posts_automatically(business_id: str):
         """Automatically generate posts for a business"""
         try:

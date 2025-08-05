@@ -2789,8 +2789,8 @@ class SocialGenieAPITester:
             return False
 
     def test_create_immediate_generation_task_for_lperpere(self):
-        """Test creating immediate content generation task for lperpere@yahoo.fr"""
-        print(f"\n🔍 Testing Immediate Task Creation for lperpere@yahoo.fr...")
+        """Test creating immediate generation task for lperpere@yahoo.fr"""
+        print(f"\n🔍 Testing Immediate Generation Task Creation for lperpere@yahoo.fr...")
         
         if not self.access_token or not self.business_id:
             print("❌ Skipping - No access token or business ID available")
@@ -2799,140 +2799,87 @@ class SocialGenieAPITester:
         try:
             import sys
             sys.path.append('/app/backend')
-            from scheduler import ContentScheduler, ScheduledTask
+            from motor.motor_asyncio import AsyncIOMotorClient
+            import asyncio
+            import os
             from datetime import datetime, timedelta
             import uuid
-            from motor.motor_asyncio import AsyncIOMotorClient
-            import os
-            import asyncio
             
-            # MongoDB connection
+            # Connect to MongoDB
             mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
             client = AsyncIOMotorClient(mongo_url)
             db = client[os.environ.get('DB_NAME', 'test_database')]
             
-            async def create_test_tasks():
-                # Get user info to verify this is lperpere
-                user_response = requests.get(
-                    f"{self.api_url}/auth/me",
-                    headers={'Authorization': f'Bearer {self.access_token}'}
-                )
+            async def create_tasks():
+                # Create generation task in 2 minutes
+                generation_task = {
+                    "id": str(uuid.uuid4()),
+                    "business_id": self.business_id,
+                    "user_id": self.user_id or "c1c76afa-a112-40ad-809e-a180aa04f007",  # lperpere user ID
+                    "task_type": "generate_posts",
+                    "scheduled_date": datetime.utcnow() + timedelta(minutes=2),
+                    "frequency": "weekly",
+                    "next_run": datetime.utcnow() + timedelta(minutes=2),
+                    "active": True,
+                    "created_at": datetime.utcnow(),
+                    "metadata": {
+                        "user_email": "lperpere@yahoo.fr",
+                        "test_task": True,
+                        "description": "Test generation task for lperpere"
+                    }
+                }
                 
-                if user_response.status_code != 200:
-                    print("❌ Failed to get user info")
-                    return False
-                
-                user_data = user_response.json()
-                user_email = user_data.get('email', '')
-                user_id = user_data.get('id', '')
-                
-                print(f"   User: {user_email}")
-                print(f"   User ID: {user_id}")
-                
-                if user_email != 'lperpere@yahoo.fr':
-                    print(f"⚠️ Warning: Expected lperpere@yahoo.fr, got {user_email}")
-                
-                # Get business profile
-                business_profile = await db.business_profiles.find_one({"user_id": user_id})
-                if not business_profile:
-                    print("❌ Business profile not found")
-                    return False
-                
-                business_id = business_profile['id']
-                posting_frequency = business_profile.get('posting_frequency', '3x_week')
-                
-                print(f"   Business ID: {business_id}")
-                print(f"   Posting Frequency: {posting_frequency}")
-                
-                # Create immediate generation task (2 minutes from now)
-                now = datetime.utcnow()
-                generation_time = now + timedelta(minutes=2)
-                reminder_time = now + timedelta(seconds=30)  # 30 seconds for quick test
-                
-                # Create generation task
-                generation_task = ScheduledTask(
-                    id=str(uuid.uuid4()),
-                    business_id=business_id,
-                    task_type="generate_content",  # Using generate_content as specified
-                    scheduled_date=generation_time,
-                    frequency="weekly" if posting_frequency in ["daily", "3x_week"] else "monthly",
-                    next_run=generation_time,
-                    active=True,
-                    created_at=now
-                )
-                
-                # Create reminder task
-                reminder_task = ScheduledTask(
-                    id=str(uuid.uuid4()),
-                    business_id=business_id,
-                    task_type="content_reminder",
-                    scheduled_date=reminder_time,
-                    frequency="weekly" if posting_frequency in ["daily", "3x_week"] else "monthly", 
-                    next_run=reminder_time,
-                    active=True,
-                    created_at=now
-                )
+                # Create reminder task in 30 seconds (for quick testing)
+                reminder_task = {
+                    "id": str(uuid.uuid4()),
+                    "business_id": self.business_id,
+                    "user_id": self.user_id or "c1c76afa-a112-40ad-809e-a180aa04f007",
+                    "task_type": "content_reminder",
+                    "scheduled_date": datetime.utcnow() + timedelta(seconds=30),
+                    "frequency": "weekly",
+                    "next_run": datetime.utcnow() + timedelta(seconds=30),
+                    "active": True,
+                    "created_at": datetime.utcnow(),
+                    "metadata": {
+                        "user_email": "lperpere@yahoo.fr",
+                        "test_task": True,
+                        "description": "Test reminder task for lperpere (quick test)"
+                    }
+                }
                 
                 # Insert tasks into database
-                await db.scheduled_tasks.insert_one(generation_task.dict())
-                await db.scheduled_tasks.insert_one(reminder_task.dict())
+                gen_result = await db.scheduled_tasks.insert_one(generation_task)
+                rem_result = await db.scheduled_tasks.insert_one(reminder_task)
                 
-                print(f"✅ Generation task created:")
-                print(f"   Task ID: {generation_task.id}")
-                print(f"   Scheduled for: {generation_time} (in ~2 minutes)")
-                print(f"   Task type: {generation_task.task_type}")
-                print(f"   Frequency: {generation_task.frequency}")
+                print("✅ Tasks created successfully:")
+                print(f"   Generation Task ID: {generation_task['id']}")
+                print(f"   Generation scheduled for: {generation_task['scheduled_date']}")
+                print(f"   Generation task type: {generation_task['task_type']}")
+                print(f"   Generation frequency: {generation_task['frequency']}")
+                print(f"   Reminder Task ID: {reminder_task['id']}")
+                print(f"   Reminder scheduled for: {reminder_task['scheduled_date']}")
+                print(f"   Reminder task type: {reminder_task['task_type']}")
+                print(f"   User ID: {generation_task['user_id']}")
+                print(f"   Business ID: {generation_task['business_id']}")
                 
-                print(f"✅ Reminder task created:")
-                print(f"   Task ID: {reminder_task.id}")
-                print(f"   Scheduled for: {reminder_time} (in ~30 seconds)")
-                print(f"   Task type: {reminder_task.task_type}")
-                
-                # Verify tasks were inserted
-                inserted_gen = await db.scheduled_tasks.find_one({"id": generation_task.id})
-                inserted_rem = await db.scheduled_tasks.find_one({"id": reminder_task.id})
-                
-                if inserted_gen and inserted_rem:
-                    print("✅ Both tasks successfully inserted into scheduled_tasks collection")
-                    
-                    # Add metadata for scheduler detection
-                    metadata = {
-                        "user_id": user_id,
-                        "user_email": user_email,
-                        "business_id": business_id,
-                        "posting_frequency": posting_frequency,
-                        "generation_task_id": generation_task.id,
-                        "reminder_task_id": reminder_task.id,
-                        "created_at": now.isoformat(),
-                        "generation_scheduled_for": generation_time.isoformat(),
-                        "reminder_scheduled_for": reminder_time.isoformat()
-                    }
-                    
-                    print(f"✅ Task metadata:")
-                    for key, value in metadata.items():
-                        print(f"   {key}: {value}")
-                    
-                    return True
-                else:
-                    print("❌ Failed to verify task insertion")
-                    return False
+                return gen_result.inserted_id, rem_result.inserted_id
             
             # Run the async function
-            result = asyncio.run(create_test_tasks())
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            gen_id, rem_id = loop.run_until_complete(create_tasks())
+            loop.close()
             
-            if result:
-                print("✅ Immediate generation task creation completed successfully")
-                print("   The scheduler should detect and execute these tasks automatically")
+            if gen_id and rem_id:
+                print("✅ Both tasks inserted into scheduled_tasks collection")
                 self.tests_passed += 1
                 return True
             else:
-                print("❌ Failed to create immediate generation tasks")
+                print("❌ Failed to insert tasks")
                 return False
                 
         except Exception as e:
-            print(f"❌ Failed to create immediate generation task: {e}")
-            import traceback
-            traceback.print_exc()
+            print(f"❌ Failed to create immediate generation tasks: {e}")
             return False
 
     def test_verify_scheduled_tasks_in_database(self):

@@ -177,7 +177,7 @@ const AuthPage = ({ onAuthSuccess }) => {
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="font-bold text-gray-900 mb-1">14 jours gratuits</h3>
+                <h3 className="font-bold text-gray-900 mb-1">1 mois offert</h3>
                 <p className="text-sm text-gray-600">Testez sans engagement, résultats garantis !</p>
               </div>
             </div>

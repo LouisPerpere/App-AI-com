@@ -141,30 +141,66 @@ async def get_user_by_id(user_id: str) -> Optional[User]:
     return None
 
 async def create_user(user_data: UserCreate) -> User:
-    """Create a new user"""
-    # Check if user already exists
-    existing_user = await get_user_by_email(user_data.email)
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Un compte avec cet email existe déjà"
+    """Create a new user with trial prevention"""
+    try:
+        # Check if email already exists in users table
+        existing_user = await get_user_by_email(user_data.email)
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Un compte existe déjà avec cet email"
+            )
+        
+        # Check if email exists in trial_emails_used collection (prevents re-trials)
+        used_email = await db.trial_emails_used.find_one({"email": user_data.email})
+        if used_email:
+            # User already had a trial, register but without trial status
+            subscription_status = "free"
+            subscription_plan = "free"
+            trial_end_date = None
+            trial_ends_at = None
+            max_posts_per_month = 0
+        else:
+            # First time registration, grant trial
+            subscription_status = "trial"
+            subscription_plan = "trial"
+            trial_end_date = datetime.utcnow() + timedelta(days=30)
+            trial_ends_at = trial_end_date
+            max_posts_per_month = 10
+            
+            # Record this email as having used trial
+            await db.trial_emails_used.insert_one({
+                "email": user_data.email,
+                "first_trial_date": datetime.utcnow(),
+                "created_at": datetime.utcnow()
+            })
+        
+        # Create user
+        user = User(
+            email=user_data.email,
+            hashed_password=get_password_hash(user_data.password),
+            first_name=user_data.first_name,
+            last_name=user_data.last_name,
+            subscription_status=subscription_status,
+            subscription_plan=subscription_plan,
+            trial_end_date=trial_end_date,
+            trial_ends_at=trial_ends_at,
+            posts_this_month=0,
+            max_posts_per_month=max_posts_per_month
         )
-    
-    # Set trial period (14 days)
-    trial_ends_at = datetime.utcnow() + timedelta(days=14)
-    
-    # Create user
-    user = User(
-        email=user_data.email,
-        hashed_password=get_password_hash(user_data.password),
-        first_name=user_data.first_name,
-        last_name=user_data.last_name,
-        trial_ends_at=trial_ends_at
-    )
-    
-    # Save to database
-    await db.users.insert_one(user.dict())
-    return user
+        
+        # Save to database
+        await db.users.insert_one(user.dict())
+        return user
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Registration error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erreur lors de la création du compte"
+        )
 
 async def authenticate_user(email: str, password: str) -> Optional[User]:
     """Authenticate user credentials"""

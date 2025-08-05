@@ -243,53 +243,93 @@ const SubscriptionUpgrade = ({ user, onUpgradeSuccess }) => {
         </div>
 
         {/* Plans grid */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          {SUBSCRIPTION_PLANS.map((plan) => {
-            const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
-            const monthlyEquivalent = isYearly ? plan.yearlyPrice / 12 : plan.monthlyPrice;
+        <div className="space-y-6 mb-8">
+          {/* Free Trial Plan */}
+          <div className="relative rounded-2xl p-6 border-4 border-green-400 bg-gradient-to-b from-green-50 to-white shadow-lg">
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+              <Badge className="bg-green-500 text-white px-4 py-2 text-sm font-bold">🎉 Actuellement actif</Badge>
+            </div>
             
-            return (
-              <div
-                key={plan.id}
-                className={`relative rounded-2xl p-6 border-2 cursor-pointer transition-all hover:shadow-lg ${
-                  plan.popular ? 'border-purple-500 bg-gradient-to-b from-purple-50 to-white' : 'border-gray-200 hover:border-purple-300'
-                } ${selectedPlan === plan.id ? 'ring-2 ring-purple-500' : ''}`}
-                onClick={() => setSelectedPlan(plan.id)}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-purple-500 text-white px-3 py-1">Plus populaire</Badge>
-                  </div>
-                )}
-                
-                <div className="text-center mb-4">
-                  <h3 className="text-xl font-bold text-gray-900">{plan.name}</h3>
-                  <div className="mt-2">
-                    <span className="text-3xl font-bold text-gray-900">
-                      {formatPrice(price)}
-                    </span>
-                    <span className="text-gray-500">
-                      {isYearly ? '/an' : '/mois'}
-                    </span>
-                    {isYearly && (
-                      <div className="text-sm text-green-600">
-                        {formatPrice(monthlyEquivalent)}/mois
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <ul className="space-y-3 mb-6">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start">
-                      <Check className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
-                      <span className="text-sm text-gray-700">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+            <div className="text-center mb-4">
+              <h3 className="text-2xl font-bold text-green-800">{FREE_TRIAL_PLAN.name}</h3>
+              <div className="mt-2">
+                <span className="text-3xl font-bold text-green-600">GRATUIT</span>
+                <span className="text-gray-500 ml-2">({FREE_TRIAL_PLAN.duration})</span>
               </div>
-            );
-          })}
+            </div>
+
+            <ul className="space-y-3 mb-6">
+              {FREE_TRIAL_PLAN.features.map((feature, index) => (
+                <li key={index} className="flex items-start">
+                  <Check className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+                  <span className="text-sm text-gray-700 font-medium">{feature}</span>
+                </li>
+              ))}
+            </ul>
+            
+            <div className="text-center">
+              <p className="text-sm text-green-700 font-medium">
+                Profitez de votre mois gratuit pour découvrir PostCraft ! 🚀
+              </p>
+            </div>
+          </div>
+
+          {/* Paid Plans */}
+          <div className="grid md:grid-cols-3 gap-6">
+            {SUBSCRIPTION_PLANS.map((plan) => {
+              const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+              const monthlyEquivalent = isYearly ? plan.yearlyPrice / 12 : plan.monthlyPrice;
+              
+              return (
+                <div
+                  key={plan.id}
+                  className={`relative rounded-2xl p-6 border-2 cursor-pointer transition-all hover:shadow-lg ${
+                    plan.popular ? 'border-purple-500 bg-gradient-to-b from-purple-50 to-white' : 
+                    plan.id === 'pro' ? 'border-yellow-400 bg-gradient-to-b from-yellow-50 to-white' :
+                    'border-gray-200 hover:border-purple-300'
+                  } ${selectedPlan === plan.id ? 'ring-2 ring-purple-500' : ''}`}
+                  onClick={() => setSelectedPlan(plan.id)}
+                >
+                  {plan.badge && (
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                      <Badge className={`px-3 py-1 text-white ${
+                        plan.popular ? 'bg-purple-500' : 
+                        plan.id === 'pro' ? 'bg-yellow-500' : 'bg-blue-500'
+                      }`}>
+                        {plan.badge}
+                      </Badge>
+                    </div>
+                  )}
+                  
+                  <div className="text-center mb-4">
+                    <h3 className="text-xl font-bold text-gray-900">{plan.name}</h3>
+                    <div className="mt-2">
+                      <span className="text-3xl font-bold text-gray-900">
+                        {formatPrice(price)}
+                      </span>
+                      <span className="text-gray-500">
+                        {isYearly ? '/an' : '/mois'}
+                      </span>
+                      {isYearly && (
+                        <div className="text-sm text-green-600">
+                          {formatPrice(monthlyEquivalent)}/mois
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <ul className="space-y-3 mb-6">
+                    {plan.features.map((feature, index) => (
+                      <li key={index} className="flex items-start">
+                        <Check className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+                        <span className="text-sm text-gray-700">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Promo code input */}

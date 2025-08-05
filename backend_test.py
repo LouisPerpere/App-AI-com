@@ -1120,6 +1120,7 @@ def main():
         ("Admin Get Subscription Plans", tester.test_admin_get_subscription_plans),
         ("Admin Create Promo Code", tester.test_admin_create_promo_code),
         ("Admin Get Promo Codes", tester.test_admin_get_promo_codes),
+        ("Admin Update User Subscription", tester.test_admin_update_user_subscription),
         ("Admin Get Referrals", tester.test_admin_get_referrals),
         ("Admin Get Payments", tester.test_admin_get_payments),
         ("Admin Revenue Analytics", tester.test_admin_revenue_analytics),

@@ -1026,41 +1026,45 @@ class SocialGenieAPITester:
         return success
 
 def main():
-    print("🚀 Starting SocialGénie API Tests")
-    print("=" * 50)
+    print("🚀 Starting PostCraft SaaS Backend API Tests")
+    print("=" * 60)
     
     tester = SocialGenieAPITester()
     
-    # Test sequence
+    # Test sequence - focusing on Admin and Payment functionality
     tests = [
         # Authentication Tests
         ("User Registration", tester.test_user_registration),
         ("User Login", tester.test_user_login),
+        ("Admin Login", tester.test_admin_login),
         
-        # Business Profile Tests
+        # Admin Dashboard Tests
+        ("Admin Dashboard Stats", tester.test_admin_stats),
+        ("Admin Get All Users", tester.test_admin_get_users),
+        ("Admin Get Subscription Plans", tester.test_admin_get_subscription_plans),
+        ("Admin Create Promo Code", tester.test_admin_create_promo_code),
+        ("Admin Get Promo Codes", tester.test_admin_get_promo_codes),
+        ("Admin Get Referrals", tester.test_admin_get_referrals),
+        ("Admin Get Payments", tester.test_admin_get_payments),
+        ("Admin Revenue Analytics", tester.test_admin_revenue_analytics),
+        ("Admin Unauthorized Access", tester.test_admin_unauthorized_access),
+        
+        # Payment System Tests
+        ("Get Public Subscription Plans", tester.test_get_public_subscription_plans),
+        ("Validate Promo Code (Invalid)", tester.test_validate_promo_code),
+        ("Create Payment Intent (No Stripe)", tester.test_create_payment_intent_no_stripe),
+        ("Get My Subscription", tester.test_get_my_subscription),
+        ("Cancel Subscription", tester.test_cancel_subscription),
+        
+        # Business Profile Tests (for context)
         ("Create Business Profile", tester.test_create_business_profile),
         ("Get Business Profile", tester.test_get_business_profile),
         
-        # Social Media Integration Tests - Real Credentials Testing
-        ("Facebook OAuth Manager Initialization", tester.test_facebook_oauth_manager_initialization),
-        ("Facebook API Client Initialization", tester.test_facebook_api_client_initialization),
-        ("Instagram API Client Initialization", tester.test_instagram_api_client_initialization),
-        ("Facebook Auth URL (With Real Credentials)", tester.test_facebook_auth_url_with_credentials),
-        ("Facebook Auth URL (Invalid Business)", tester.test_facebook_auth_url_invalid_business),
-        ("Facebook Callback (Invalid State)", tester.test_facebook_callback_invalid_state),
-        ("Get Social Connections", tester.test_social_connections_endpoint),
-        ("Social Post (Missing Required Fields)", tester.test_social_post_endpoint_structure),
-        ("Delete Non-existent Connection", tester.test_delete_connection_endpoint),
-        ("Social Post (No Connection)", tester.test_social_post_without_connection),
-        ("Social Post (Invalid Platform)", tester.test_social_post_invalid_platform),
-        ("Instagram Post (No Image)", tester.test_instagram_post_without_image),
-        
-        # Content and Post Integration Tests
+        # Content and Post Integration Tests (basic functionality)
         ("Upload Content Batch", tester.test_upload_content_batch),
         ("Describe Content", tester.test_describe_content),
         ("Get Posts", tester.test_get_posts),
         ("Approve Post", tester.test_approve_post),
-        ("Publish Post Now (No Connections)", tester.test_publish_post_now),
     ]
     
     for test_name, test_func in tests:

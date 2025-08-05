@@ -10,6 +10,7 @@ from openai import OpenAI
 from openai import RateLimitError, APIError, AuthenticationError
 import os
 import logging
+import json
 from motor.motor_asyncio import AsyncIOMotorClient
 from pathlib import Path
 from dotenv import load_dotenv

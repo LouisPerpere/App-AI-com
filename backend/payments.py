@@ -59,6 +59,26 @@ class WebhookEvent(BaseModel):
     type: str
     data: dict
 
+# New models for emergentintegrations Stripe checkout
+class CheckoutRequest(BaseModel):
+    package_id: str  # e.g., "starter_monthly", "pro_yearly"
+    origin_url: str  # Frontend origin URL
+    promo_code: Optional[str] = None
+
+class PaymentTransaction(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    session_id: str
+    payment_id: Optional[str] = None
+    package_id: str
+    amount: float
+    currency: str = "eur"
+    payment_status: str = "pending"  # pending, paid, failed, expired
+    status: str = "initiated"  # initiated, completed, cancelled
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
 # Payment Routes
 
 @payment_router.post("/create-payment-intent", response_model=PaymentIntentResponse)

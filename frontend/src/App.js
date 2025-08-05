@@ -1182,13 +1182,148 @@ function MainApp() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-20 card-glass rounded-3xl">
-                  <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
-                    <Building className="w-12 h-12 text-white" />
+                {businessProfile ? (
+                  <div className="space-y-6">
+                    {/* Current Business Profile Display */}
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center">
+                            <Building className="w-8 h-8 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="text-2xl font-bold text-blue-800">{businessProfile.business_name}</h3>
+                            <p className="text-blue-600 capitalize">{businessProfile.business_type}</p>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={() => setShowWebsiteAnalysis(true)}
+                          className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
+                        >
+                          ⚙️ Modifier
+                        </Button>
+                      </div>
+                      
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                          <h4 className="font-semibold text-blue-800 mb-2">📊 Informations générales</h4>
+                          <div className="space-y-2 text-sm">
+                            <p><span className="font-medium">Audience cible :</span> {businessProfile.target_audience}</p>
+                            <p><span className="font-medium">Ton de marque :</span> {businessProfile.brand_tone}</p>
+                            <p><span className="font-medium">Budget :</span> {businessProfile.budget_range}</p>
+                            {businessProfile.website_url && (
+                              <p><span className="font-medium">Site web :</span> 
+                                <a href={businessProfile.website_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">
+                                  {businessProfile.website_url}
+                                </a>
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-semibold text-blue-800 mb-2">🌐 Stratégie digitale</h4>
+                          <div className="space-y-2 text-sm">
+                            <p><span className="font-medium">Fréquence :</span> {businessProfile.posting_frequency}</p>
+                            <div>
+                              <span className="font-medium">Réseaux sociaux :</span>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {businessProfile.preferred_platforms?.map((platform, index) => (
+                                  <Badge key={index} className="bg-blue-100 text-blue-800 border-blue-300 text-xs">
+                                    {platform}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                            {businessProfile.hashtags_primary?.length > 0 && (
+                              <div>
+                                <span className="font-medium">Hashtags principaux :</span>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {businessProfile.hashtags_primary.slice(0, 3).map((tag, index) => (
+                                    <Badge key={index} className="bg-purple-100 text-purple-800 border-purple-300 text-xs">
+                                      #{tag}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Website Analysis Status */}
+                    {websiteAnalysis && (
+                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="font-semibold text-green-800 mb-2">🌐 Analyse du site web</h4>
+                            <p className="text-sm text-green-700">
+                              Dernière analyse : {new Date(websiteAnalysis.last_analyzed).toLocaleDateString('fr-FR')}
+                            </p>
+                            <p className="text-xs text-green-600 mt-1">
+                              Prochaine analyse automatique : {new Date(websiteAnalysis.next_analysis_due).toLocaleDateString('fr-FR')}
+                            </p>
+                          </div>
+                          <Button
+                            onClick={() => analyzeWebsite(true)}
+                            disabled={isAnalyzingWebsite}
+                            variant="outline"
+                            className="border-green-300 text-green-700 hover:bg-green-100"
+                          >
+                            {isAnalyzingWebsite ? (
+                              <>
+                                <div className="w-4 h-4 border-2 border-green-700 border-t-transparent rounded-full animate-spin mr-2"></div>
+                                Analyse...
+                              </>
+                            ) : (
+                              <>🔄 Relancer</>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Quick Actions */}
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <Button
+                        onClick={() => setShowWebsiteAnalysis(true)}
+                        className="h-16 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 flex-col"
+                      >
+                        <CreditCard className="w-6 h-6 mb-1" />
+                        Modifier profil
+                      </Button>
+                      <Button
+                        onClick={() => window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})}
+                        className="h-16 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 flex-col"
+                      >
+                        <Crown className="w-6 h-6 mb-1" />
+                        Voir abonnements
+                      </Button>
+                      <Button
+                        onClick={() => document.querySelector('[value="social"]').click()}
+                        className="h-16 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 flex-col"
+                      >
+                        <Target className="w-6 h-6 mb-1" />
+                        Gérer réseaux sociaux
+                      </Button>
+                    </div>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-700 mb-4">Gestion d'entreprise 🏢</h3>
-                  <p className="text-xl text-gray-500">Configurez votre profil d'entreprise pour des posts sur mesure ! 🚀</p>
-                </div>
+                ) : (
+                  <div className="text-center py-20 card-glass rounded-3xl">
+                    <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
+                      <Building className="w-12 h-12 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-700 mb-4">Créez votre profil d'entreprise 🏢</h3>
+                    <p className="text-xl text-gray-500 mb-8">Configurez votre profil pour des posts sur mesure ! 🚀</p>
+                    <Button
+                      onClick={() => setShowWebsiteAnalysis(true)}
+                      className="btn-gradient-primary h-14 px-8 text-lg font-bold"
+                    >
+                      🚀 Créer mon profil
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

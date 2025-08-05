@@ -494,6 +494,19 @@ function MainApp() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeModalDismissed, setUpgradeModalDismissed] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editProfileForm, setEditProfileForm] = useState({
+    business_name: '',
+    business_type: '',
+    target_audience: '',
+    brand_tone: '',
+    posting_frequency: '',
+    preferred_platforms: [],
+    budget_range: '',
+    email: '',
+    website_url: '',
+    hashtags_primary: [],
+    hashtags_secondary: []
+  });
   
   // Hashtag management
   const [newPrimaryHashtag, setNewPrimaryHashtag] = useState('');

@@ -1114,16 +1114,6 @@ function MainApp() {
               <Button
                 variant="outline"
                 size="lg"
-                onClick={() => setShowWebsiteAnalysis(true)}
-                className="text-purple-600 hover:text-purple-900 border-2 border-purple-200 hover:border-purple-300 rounded-xl px-6"
-              >
-                <CreditCard className="w-5 h-5 mr-2" />
-                Paramètres
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="lg"
                 onClick={handleLogout}
                 className="text-gray-600 hover:text-gray-900 border-2 rounded-xl px-6"
               >

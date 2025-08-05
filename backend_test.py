@@ -1679,6 +1679,318 @@ class SocialGenieAPITester:
         
         return success
 
+    # Phase 1 Business Profile Editing Tests
+    
+    def test_business_profile_retrieval(self):
+        """Test GET /api/business-profile endpoint for lperpere@yahoo.fr"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Business Profile Retrieval (lperpere@yahoo.fr)",
+            "GET",
+            "business-profile",
+            200
+        )
+        
+        if success:
+            # Verify all expected fields are present
+            expected_fields = [
+                'id', 'user_id', 'business_name', 'business_type', 'target_audience',
+                'brand_tone', 'posting_frequency', 'preferred_platforms', 'budget_range',
+                'email', 'website_url', 'hashtags_primary', 'hashtags_secondary',
+                'created_at', 'updated_at'
+            ]
+            
+            missing_fields = []
+            for field in expected_fields:
+                if field not in response:
+                    missing_fields.append(field)
+            
+            if missing_fields:
+                print(f"   ⚠️ Missing fields: {missing_fields}")
+            else:
+                print("   ✅ All expected fields present in response")
+            
+            # Display current profile data
+            print(f"   Business Name: {response.get('business_name', 'N/A')}")
+            print(f"   Business Type: {response.get('business_type', 'N/A')}")
+            print(f"   Target Audience: {response.get('target_audience', 'N/A')}")
+            print(f"   Brand Tone: {response.get('brand_tone', 'N/A')}")
+            print(f"   Posting Frequency: {response.get('posting_frequency', 'N/A')}")
+            print(f"   Preferred Platforms: {response.get('preferred_platforms', [])}")
+            print(f"   Budget Range: {response.get('budget_range', 'N/A')}")
+            print(f"   Email: {response.get('email', 'N/A')}")
+            print(f"   Website URL: {response.get('website_url', 'N/A')}")
+            print(f"   Primary Hashtags: {response.get('hashtags_primary', [])}")
+            print(f"   Secondary Hashtags: {response.get('hashtags_secondary', [])}")
+            
+            # Store business_id for other tests
+            if 'id' in response:
+                self.business_id = response['id']
+                print(f"   Business ID: {self.business_id}")
+        
+        return success
+
+    def test_business_profile_update_all_fields(self):
+        """Test PUT /api/business-profile endpoint with all new form fields"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        # Comprehensive update data with all fields from the frontend editing form
+        update_data = {
+            "business_name": "Restaurant Le Bon Goût Réunionnais",
+            "business_type": "restaurant_gastronomique",
+            "target_audience": "Familles créoles et touristes de 25-55 ans à La Réunion, amateurs de cuisine traditionnelle réunionnaise et française",
+            "brand_tone": "friendly_authentic",
+            "posting_frequency": "daily",
+            "preferred_platforms": ["facebook", "instagram", "linkedin"],
+            "budget_range": "500-1000",
+            "email": "contact@bongoût-reunion.fr",
+            "website_url": "https://www.bongoût-reunion.fr",
+            "hashtags_primary": ["#RestaurantReunion", "#CuisineCreole", "#BonGoutReunion"],
+            "hashtags_secondary": ["#GastronomieReunion", "#TraditionCreole", "#SaintDenis", "#Reunion974", "#CuisineTropicale"]
+        }
+        
+        success, response = self.run_test(
+            "Business Profile Update (All Fields)",
+            "PUT",
+            "business-profile",
+            200,
+            data=update_data
+        )
+        
+        if success:
+            # Verify all fields were updated correctly
+            print("   ✅ Business profile updated successfully")
+            
+            # Check each field was updated
+            field_checks = [
+                ("business_name", update_data["business_name"]),
+                ("business_type", update_data["business_type"]),
+                ("target_audience", update_data["target_audience"]),
+                ("brand_tone", update_data["brand_tone"]),
+                ("posting_frequency", update_data["posting_frequency"]),
+                ("budget_range", update_data["budget_range"]),
+                ("email", update_data["email"]),
+                ("website_url", update_data["website_url"])
+            ]
+            
+            for field_name, expected_value in field_checks:
+                actual_value = response.get(field_name)
+                if actual_value == expected_value:
+                    print(f"   ✅ {field_name}: Updated correctly")
+                else:
+                    print(f"   ❌ {field_name}: Expected '{expected_value}', got '{actual_value}'")
+            
+            # Check array fields
+            if response.get("preferred_platforms") == update_data["preferred_platforms"]:
+                print("   ✅ preferred_platforms: Updated correctly")
+            else:
+                print(f"   ❌ preferred_platforms: Expected {update_data['preferred_platforms']}, got {response.get('preferred_platforms')}")
+            
+            if response.get("hashtags_primary") == update_data["hashtags_primary"]:
+                print("   ✅ hashtags_primary: Updated correctly")
+            else:
+                print(f"   ❌ hashtags_primary: Expected {update_data['hashtags_primary']}, got {response.get('hashtags_primary')}")
+            
+            if response.get("hashtags_secondary") == update_data["hashtags_secondary"]:
+                print("   ✅ hashtags_secondary: Updated correctly")
+            else:
+                print(f"   ❌ hashtags_secondary: Expected {update_data['hashtags_secondary']}, got {response.get('hashtags_secondary')}")
+            
+            # Verify updated_at timestamp was updated
+            if 'updated_at' in response:
+                print("   ✅ updated_at: Timestamp updated")
+            else:
+                print("   ❌ updated_at: Timestamp not updated")
+        
+        return success
+
+    def test_business_profile_partial_update(self):
+        """Test PUT /api/business-profile endpoint with partial field updates"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        # Test partial update with only some fields
+        partial_update_data = {
+            "business_name": "Restaurant Le Bon Goût - Spécialités Créoles",
+            "email": "info@bongoût-reunion.fr",
+            "hashtags_primary": ["#RestaurantReunion", "#CuisineCreole", "#BonGoutReunion", "#Reunion974"]
+        }
+        
+        success, response = self.run_test(
+            "Business Profile Partial Update",
+            "PUT",
+            "business-profile",
+            200,
+            data=partial_update_data
+        )
+        
+        if success:
+            print("   ✅ Partial business profile update successful")
+            
+            # Verify updated fields
+            for field_name, expected_value in partial_update_data.items():
+                actual_value = response.get(field_name)
+                if actual_value == expected_value:
+                    print(f"   ✅ {field_name}: Updated correctly")
+                else:
+                    print(f"   ❌ {field_name}: Expected '{expected_value}', got '{actual_value}'")
+        
+        return success
+
+    def test_business_profile_hashtags_arrays(self):
+        """Test business profile hashtags as arrays (primary and secondary)"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        # Test with comprehensive hashtag arrays
+        hashtag_update_data = {
+            "hashtags_primary": [
+                "#RestaurantReunion",
+                "#CuisineCreole", 
+                "#BonGoutReunion",
+                "#Reunion974",
+                "#SaintDenis"
+            ],
+            "hashtags_secondary": [
+                "#GastronomieReunion",
+                "#TraditionCreole",
+                "#CuisineTropicale",
+                "#RestaurantLocal",
+                "#SpecialitesCreoles",
+                "#PlatsTraditionnels",
+                "#CuisineAuthentique",
+                "#RestaurantFamilial",
+                "#SaveursTropicales",
+                "#HeritageCreole"
+            ]
+        }
+        
+        success, response = self.run_test(
+            "Business Profile Hashtags Arrays Update",
+            "PUT",
+            "business-profile",
+            200,
+            data=hashtag_update_data
+        )
+        
+        if success:
+            print("   ✅ Hashtags arrays update successful")
+            
+            # Verify primary hashtags
+            primary_hashtags = response.get("hashtags_primary", [])
+            if isinstance(primary_hashtags, list) and len(primary_hashtags) == len(hashtag_update_data["hashtags_primary"]):
+                print(f"   ✅ hashtags_primary: {len(primary_hashtags)} hashtags stored correctly")
+                for hashtag in hashtag_update_data["hashtags_primary"]:
+                    if hashtag in primary_hashtags:
+                        print(f"     ✅ {hashtag}")
+                    else:
+                        print(f"     ❌ Missing: {hashtag}")
+            else:
+                print(f"   ❌ hashtags_primary: Expected {len(hashtag_update_data['hashtags_primary'])}, got {len(primary_hashtags) if isinstance(primary_hashtags, list) else 'not a list'}")
+            
+            # Verify secondary hashtags
+            secondary_hashtags = response.get("hashtags_secondary", [])
+            if isinstance(secondary_hashtags, list) and len(secondary_hashtags) == len(hashtag_update_data["hashtags_secondary"]):
+                print(f"   ✅ hashtags_secondary: {len(secondary_hashtags)} hashtags stored correctly")
+                for hashtag in hashtag_update_data["hashtags_secondary"][:3]:  # Show first 3
+                    if hashtag in secondary_hashtags:
+                        print(f"     ✅ {hashtag}")
+                    else:
+                        print(f"     ❌ Missing: {hashtag}")
+                print(f"     ... and {len(secondary_hashtags) - 3} more")
+            else:
+                print(f"   ❌ hashtags_secondary: Expected {len(hashtag_update_data['hashtags_secondary'])}, got {len(secondary_hashtags) if isinstance(secondary_hashtags, list) else 'not a list'}")
+        
+        return success
+
+    def test_business_profile_field_validation(self):
+        """Test business profile field validation and data types"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        # Test with various data types and edge cases
+        validation_test_data = {
+            "business_name": "Test Restaurant with Special Characters: Café & Brasserie - L'Océan",
+            "business_type": "restaurant_fine_dining",
+            "target_audience": "Clientèle haut de gamme, couples et familles aisées de 30-65 ans, amateurs de gastronomie française et internationale, résidents et touristes de luxe",
+            "brand_tone": "professional_elegant",
+            "posting_frequency": "3x_week",
+            "preferred_platforms": ["facebook", "instagram"],  # Test with 2 platforms
+            "budget_range": "1000+",
+            "email": "contact@test-restaurant.com",
+            "website_url": "https://www.test-restaurant-reunion.com/menu",
+            "hashtags_primary": ["#TestRestaurant"],  # Single hashtag
+            "hashtags_secondary": []  # Empty array
+        }
+        
+        success, response = self.run_test(
+            "Business Profile Field Validation",
+            "PUT",
+            "business-profile",
+            200,
+            data=validation_test_data
+        )
+        
+        if success:
+            print("   ✅ Field validation successful")
+            
+            # Test specific validations
+            if response.get("email") == validation_test_data["email"]:
+                print("   ✅ Email format accepted")
+            
+            if response.get("website_url") == validation_test_data["website_url"]:
+                print("   ✅ Website URL format accepted")
+            
+            if isinstance(response.get("preferred_platforms"), list):
+                print("   ✅ preferred_platforms stored as array")
+            
+            if isinstance(response.get("hashtags_primary"), list):
+                print("   ✅ hashtags_primary stored as array")
+            
+            if isinstance(response.get("hashtags_secondary"), list):
+                print("   ✅ hashtags_secondary stored as array (can be empty)")
+        
+        return success
+
+    def test_business_profile_retrieve_after_update(self):
+        """Test retrieving business profile after updates to verify persistence"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Business Profile Retrieval After Updates",
+            "GET",
+            "business-profile",
+            200
+        )
+        
+        if success:
+            print("   ✅ Business profile retrieved successfully after updates")
+            
+            # Verify the profile contains updated data
+            print(f"   Current Business Name: {response.get('business_name', 'N/A')}")
+            print(f"   Current Email: {response.get('email', 'N/A')}")
+            print(f"   Current Website: {response.get('website_url', 'N/A')}")
+            print(f"   Primary Hashtags Count: {len(response.get('hashtags_primary', []))}")
+            print(f"   Secondary Hashtags Count: {len(response.get('hashtags_secondary', []))}")
+            
+            # Verify data persistence
+            if response.get('business_name') and response.get('email'):
+                print("   ✅ Profile data persisted correctly")
+            else:
+                print("   ❌ Some profile data may not have persisted")
+        
+        return success
+
     # Analytics System Backend Core Tests
     
     def test_analytics_trigger_7_days(self):

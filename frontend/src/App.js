@@ -400,7 +400,8 @@ function MainApp() {
     preferred_platforms: [],
     hashtags_primary: [],
     hashtags_secondary: [],
-    budget_range: ''
+    budget_range: '',
+    website_url: ''
   });
   
   const [noteForm, setNoteForm] = useState({

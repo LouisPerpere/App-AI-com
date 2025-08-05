@@ -340,7 +340,7 @@ async def get_all_users(
     except Exception as e:
         logging.error(f"Error getting users: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=500,
             detail="Error retrieving users"
         )
 

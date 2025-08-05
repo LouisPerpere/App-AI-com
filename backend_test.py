@@ -4829,8 +4829,13 @@ def main():
 if __name__ == "__main__":
     import sys
     
+    # Check if we should run lperpere task creation tests
+    if len(sys.argv) > 1 and sys.argv[1] == "lperpere":
+        tester = SocialGenieAPITester()
+        success = tester.run_lperpere_task_creation_tests()
+        sys.exit(0 if success else 1)
     # Check if we should run only scheduler tests
-    if len(sys.argv) > 1 and sys.argv[1] == "scheduler":
+    elif len(sys.argv) > 1 and sys.argv[1] == "scheduler":
         tester = SocialGenieAPITester()
         tester.run_scheduler_tests()
     # Check if we should run the investigation

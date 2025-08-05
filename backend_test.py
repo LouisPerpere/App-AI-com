@@ -1913,6 +1913,203 @@ class SocialGenieAPITester:
         )
         return success
 
+    def test_login_response_structure_investigation(self):
+        """Investigate the exact structure of login API response for token field naming"""
+        print(f"\n🔍 LOGIN RESPONSE STRUCTURE INVESTIGATION")
+        print("=" * 60)
+        
+        # Test cases for investigation
+        test_users = [
+            {
+                "name": "lperpere@yahoo.fr (User with reset password)",
+                "email": "lperpere@yahoo.fr",
+                "password": "L@Reunion974!"
+            },
+            {
+                "name": "admin@postcraft.com (Admin user)",
+                "email": "admin@postcraft.com", 
+                "password": "admin123"
+            }
+        ]
+        
+        investigation_results = []
+        
+        for user_info in test_users:
+            print(f"\n🔍 Testing login for: {user_info['name']}")
+            print(f"   Email: {user_info['email']}")
+            print(f"   Password: {user_info['password']}")
+            
+            login_data = {
+                "email": user_info["email"],
+                "password": user_info["password"]
+            }
+            
+            # Make the login request
+            url = f"{self.api_url}/auth/login"
+            headers = {'Content-Type': 'application/json'}
+            
+            try:
+                response = requests.post(url, json=login_data, headers=headers)
+                
+                print(f"   Status Code: {response.status_code}")
+                
+                if response.status_code == 200:
+                    try:
+                        response_data = response.json()
+                        print(f"   ✅ LOGIN SUCCESSFUL")
+                        print(f"   📋 COMPLETE RESPONSE STRUCTURE:")
+                        print(f"   {json.dumps(response_data, indent=6)}")
+                        
+                        # Analyze token field names
+                        token_fields = []
+                        for key in response_data.keys():
+                            if 'token' in key.lower():
+                                token_fields.append(key)
+                        
+                        print(f"   🔑 TOKEN FIELDS FOUND: {token_fields}")
+                        
+                        # Check specific field names
+                        field_checks = {
+                            'access_token': 'access_token' in response_data,
+                            'refresh_token': 'refresh_token' in response_data,
+                            'token': 'token' in response_data,
+                            'token_type': 'token_type' in response_data,
+                            'user': 'user' in response_data
+                        }
+                        
+                        print(f"   📊 FIELD PRESENCE CHECK:")
+                        for field, present in field_checks.items():
+                            status = "✅ PRESENT" if present else "❌ MISSING"
+                            print(f"      {field}: {status}")
+                            if present and field in response_data:
+                                if field in ['access_token', 'refresh_token', 'token']:
+                                    # Show first 20 chars of token for verification
+                                    token_preview = str(response_data[field])[:20] + "..."
+                                    print(f"         Value: {token_preview}")
+                                else:
+                                    print(f"         Value: {response_data[field]}")
+                        
+                        investigation_results.append({
+                            'user': user_info['name'],
+                            'status': 'SUCCESS',
+                            'status_code': response.status_code,
+                            'response_structure': response_data,
+                            'token_fields': token_fields,
+                            'field_checks': field_checks
+                        })
+                        
+                        # Test authenticated endpoint with the token
+                        if 'access_token' in response_data:
+                            print(f"   🔐 TESTING AUTHENTICATED ENDPOINT...")
+                            auth_headers = {
+                                'Authorization': f'Bearer {response_data["access_token"]}',
+                                'Content-Type': 'application/json'
+                            }
+                            
+                            me_response = requests.get(f"{self.api_url}/auth/me", headers=auth_headers)
+                            print(f"      /auth/me Status: {me_response.status_code}")
+                            
+                            if me_response.status_code == 200:
+                                me_data = me_response.json()
+                                print(f"      ✅ Token works - User ID: {me_data.get('id', 'N/A')}")
+                                print(f"      User Email: {me_data.get('email', 'N/A')}")
+                                print(f"      Is Admin: {me_data.get('is_admin', False)}")
+                            else:
+                                print(f"      ❌ Token authentication failed")
+                        
+                    except json.JSONDecodeError as e:
+                        print(f"   ❌ JSON DECODE ERROR: {e}")
+                        print(f"   Raw Response: {response.text}")
+                        investigation_results.append({
+                            'user': user_info['name'],
+                            'status': 'JSON_ERROR',
+                            'status_code': response.status_code,
+                            'raw_response': response.text
+                        })
+                        
+                else:
+                    print(f"   ❌ LOGIN FAILED")
+                    try:
+                        error_data = response.json()
+                        print(f"   Error Response: {json.dumps(error_data, indent=6)}")
+                    except:
+                        print(f"   Raw Error: {response.text}")
+                    
+                    investigation_results.append({
+                        'user': user_info['name'],
+                        'status': 'FAILED',
+                        'status_code': response.status_code,
+                        'error': response.text
+                    })
+                    
+            except Exception as e:
+                print(f"   ❌ REQUEST ERROR: {str(e)}")
+                investigation_results.append({
+                    'user': user_info['name'],
+                    'status': 'ERROR',
+                    'error': str(e)
+                })
+        
+        # Summary of investigation
+        print(f"\n📋 INVESTIGATION SUMMARY")
+        print("=" * 60)
+        
+        successful_logins = [r for r in investigation_results if r['status'] == 'SUCCESS']
+        
+        if successful_logins:
+            print(f"✅ Successful logins: {len(successful_logins)}")
+            
+            # Compare response structures
+            if len(successful_logins) > 1:
+                print(f"\n🔍 COMPARING RESPONSE STRUCTURES:")
+                first_structure = successful_logins[0]['response_structure']
+                
+                for i, result in enumerate(successful_logins[1:], 1):
+                    print(f"\n   Comparing {successful_logins[0]['user']} vs {result['user']}:")
+                    
+                    # Check if structures are identical
+                    first_keys = set(first_structure.keys())
+                    current_keys = set(result['response_structure'].keys())
+                    
+                    if first_keys == current_keys:
+                        print(f"   ✅ Response structures are IDENTICAL")
+                        print(f"   Fields: {list(first_keys)}")
+                    else:
+                        print(f"   ❌ Response structures DIFFER")
+                        print(f"   First user fields: {list(first_keys)}")
+                        print(f"   Current user fields: {list(current_keys)}")
+                        print(f"   Missing in current: {first_keys - current_keys}")
+                        print(f"   Extra in current: {current_keys - first_keys}")
+            
+            # Determine the standard response structure
+            standard_structure = successful_logins[0]['response_structure']
+            print(f"\n🎯 STANDARD LOGIN RESPONSE STRUCTURE:")
+            print(f"   {json.dumps(list(standard_structure.keys()), indent=4)}")
+            
+            # Token field analysis
+            all_token_fields = set()
+            for result in successful_logins:
+                all_token_fields.update(result['token_fields'])
+            
+            print(f"\n🔑 TOKEN FIELDS ANALYSIS:")
+            print(f"   All token fields found: {list(all_token_fields)}")
+            
+            # Recommendations
+            print(f"\n💡 RECOMMENDATIONS FOR FRONTEND:")
+            if 'access_token' in all_token_fields:
+                print(f"   ✅ Use 'access_token' field for authentication token")
+            if 'refresh_token' in all_token_fields:
+                print(f"   ✅ Use 'refresh_token' field for token refresh")
+            if 'token_type' in all_token_fields:
+                print(f"   ✅ Use 'token_type' field for token type (should be 'bearer')")
+            
+        else:
+            print(f"❌ No successful logins - cannot determine response structure")
+        
+        # Mark test as passed if we got at least one successful login
+        self.tests_passed += 1 if successful_logins else 0
+        return len(successful_logins) > 0
+
     def investigate_user_authentication_direct(self, email="lperpere@yahoo.fr"):
         """Direct database investigation for user authentication"""
         print(f"\n🔍 DIRECT DATABASE INVESTIGATION FOR USER: {email}")

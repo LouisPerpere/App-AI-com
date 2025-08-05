@@ -1946,7 +1946,18 @@ def main():
         ("Get My Subscription", tester.test_get_my_subscription),
         ("Cancel Subscription", tester.test_cancel_subscription),
         
-        # NEW: Stripe Payment Integration Tests (emergentintegrations)
+        # NEW: Demo Mode Stripe Payment Integration Tests
+        ("Demo Mode Activation", tester.test_demo_mode_activation),
+        ("Demo Checkout Session (Starter Monthly)", tester.test_demo_checkout_session_starter_monthly),
+        ("Demo Checkout Session (Pro Yearly)", tester.test_demo_checkout_session_pro_yearly),
+        ("Demo Checkout Session (Enterprise Monthly)", tester.test_demo_checkout_session_enterprise_monthly),
+        ("Demo Payment with Promo Code", tester.test_demo_payment_with_promo_code),
+        ("Demo User Subscription Update", tester.test_demo_user_subscription_update),
+        ("Demo Payment Transaction Record", tester.test_demo_payment_transaction_record),
+        ("Demo Checkout URL Parameters", tester.test_demo_checkout_url_parameters),
+        ("Demo Invalid Package Handling", tester.test_demo_invalid_package_handling),
+        
+        # Legacy Stripe Payment Integration Tests (emergentintegrations)
         ("Subscription Packages Validation", tester.test_subscription_packages_validation),
         ("PaymentTransaction Model", tester.test_payment_transaction_model),
         ("Payment Transactions Database", tester.test_payment_transactions_database),

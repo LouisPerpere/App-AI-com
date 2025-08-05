@@ -24,9 +24,20 @@ db = client[os.environ['DB_NAME']]
 # Stripe configuration
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', '')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
+STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY', '')
 
 # Payment router
 payment_router = APIRouter(prefix="/payments")
+
+# Fixed subscription plans (server-side definition for security)
+SUBSCRIPTION_PACKAGES = {
+    "starter_monthly": {"name": "Starter", "amount": 19.99, "period": "monthly", "plan_id": "starter"},
+    "starter_yearly": {"name": "Starter", "amount": 199.99, "period": "yearly", "plan_id": "starter"},
+    "pro_monthly": {"name": "Pro", "amount": 49.99, "period": "monthly", "plan_id": "pro"},
+    "pro_yearly": {"name": "Pro", "amount": 499.99, "period": "yearly", "plan_id": "pro"},
+    "enterprise_monthly": {"name": "Enterprise", "amount": 99.99, "period": "monthly", "plan_id": "enterprise"},
+    "enterprise_yearly": {"name": "Enterprise", "amount": 999.99, "period": "yearly", "plan_id": "enterprise"},
+}
 
 # Pydantic Models
 class PaymentIntent(BaseModel):

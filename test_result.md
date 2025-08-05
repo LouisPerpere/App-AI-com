@@ -276,6 +276,41 @@ backend:
         comment: "✅ TESTED: Dependencies installation working correctly. All required dependencies (httpx for HTTP requests, pydantic for data validation) are properly installed and imported. No import errors or dependency conflicts detected."
 
 frontend:
+  - task: "SaaS Admin Dashboard Frontend"
+    implemented: partial
+    working: unknown
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: unknown
+        agent: "main"
+        comment: "Admin dashboard partially implemented in App.js with AdminDashboard component import. Need to verify if complete admin interface exists for user management, subscription plans, promo codes, analytics. Backend admin routes are ready at /api/admin/* endpoints."
+
+  - task: "Payment Integration Frontend"
+    implemented: false
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Payment integration frontend not implemented. Need to create subscription plans display, payment forms using Stripe Elements, promo code validation, subscription management interface. Backend payment routes ready at /api/payments/* endpoints."
+
+  - task: "LinkedIn Connection Interface"
+    implemented: false
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "LinkedIn connection interface not implemented in Social tab. Need to add LinkedIn OAuth button, connection status display, and posting interface alongside existing Facebook/Instagram functionality."
   - task: "Social Media Connection UI"
     implemented: true
     working: true

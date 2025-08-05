@@ -1591,7 +1591,7 @@ function MainApp() {
                           </div>
                         </div>
                         <Button
-                          onClick={() => setIsEditingProfile(true)}
+                          onClick={handleEditProfile}
                           className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
                         >
                           ⚙️ Modifier le profil

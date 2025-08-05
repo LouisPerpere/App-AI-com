@@ -1497,9 +1497,9 @@ class SocialGenieAPITester:
             
             # Verify pricing structure
             expected_prices = {
-                "starter_monthly": 19.99, "starter_yearly": 199.99,
-                "pro_monthly": 49.99, "pro_yearly": 499.99,
-                "enterprise_monthly": 99.99, "enterprise_yearly": 999.99
+                "starter_monthly": 14.99, "starter_yearly": 149.99,
+                "rocket_monthly": 29.99, "rocket_yearly": 299.99,
+                "pro_monthly": 199.99, "pro_yearly": 1999.99
             }
             
             for package_id, expected_price in expected_prices.items():

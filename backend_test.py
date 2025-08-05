@@ -1576,6 +1576,8 @@ def main():
         # NEW: Stripe Payment Integration Tests (emergentintegrations)
         ("Subscription Packages Validation", tester.test_subscription_packages_validation),
         ("PaymentTransaction Model", tester.test_payment_transaction_model),
+        ("Payment Transactions Database", tester.test_payment_transactions_database),
+        ("Stripe API Key Handling", tester.test_stripe_api_key_handling),
         ("Create Checkout Session (Valid Package)", tester.test_create_checkout_session_valid_package),
         ("Create Checkout Session (Invalid Package)", tester.test_create_checkout_session_invalid_package),
         ("Create Checkout Session (With Promo Code)", tester.test_create_checkout_session_with_promo_code),

@@ -418,3 +418,261 @@ async def cancel_subscription(current_user: User = Depends(get_current_active_us
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erreur lors de l'annulation de l'abonnement"
         )
+
+# New Emergentintegrations Stripe Checkout Routes
+
+@payment_router.post("/v1/checkout/session")
+async def create_checkout_session(
+    request: CheckoutRequest,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Create Stripe checkout session using emergentintegrations"""
+    try:
+        # Validate package
+        if request.package_id not in SUBSCRIPTION_PACKAGES:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid package selected"
+            )
+        
+        package = SUBSCRIPTION_PACKAGES[request.package_id]
+        amount = package["amount"]
+        
+        # Apply promo code if provided
+        final_amount = amount
+        if request.promo_code:
+            promo = await db.promo_codes.find_one({
+                "code": request.promo_code,
+                "active": True
+            })
+            
+            if promo:
+                # Check validity
+                if promo.get("expires_at") and promo["expires_at"] < datetime.utcnow():
+                    raise HTTPException(status_code=400, detail="Code promo expiré")
+                
+                if promo.get("max_uses") and promo["used_count"] >= promo["max_uses"]:
+                    raise HTTPException(status_code=400, detail="Code promo épuisé")
+                
+                # Calculate discount
+                if promo["discount_type"] == "percentage":
+                    discount_amount = amount * (promo["discount_value"] / 100)
+                else:  # fixed
+                    discount_amount = min(promo["discount_value"], amount)
+                
+                final_amount = amount - discount_amount
+        
+        # Initialize Stripe checkout (dummy request for webhook URL)
+        webhook_url = f"{request.origin_url.rstrip('/')}/api/webhook/stripe"
+        
+        if not STRIPE_API_KEY:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Stripe API key not configured"
+            )
+        
+        stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+        
+        # Create success and cancel URLs
+        success_url = f"{request.origin_url.rstrip('/')}/?session_id={{CHECKOUT_SESSION_ID}}&payment_success=true"
+        cancel_url = f"{request.origin_url.rstrip('/')}/?payment_cancelled=true"
+        
+        # Prepare metadata
+        metadata = {
+            "user_id": current_user.id,
+            "package_id": request.package_id,
+            "plan_name": package["name"],
+            "billing_period": package["period"],
+            "original_amount": str(amount),
+            "promo_code": request.promo_code or ""
+        }
+        
+        # Create checkout session
+        checkout_request = CheckoutSessionRequest(
+            amount=final_amount,
+            currency="eur",
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata=metadata
+        )
+        
+        session: CheckoutSessionResponse = await stripe_checkout.create_checkout_session(checkout_request)
+        
+        # Create payment transaction record
+        transaction = PaymentTransaction(
+            user_id=current_user.id,
+            session_id=session.session_id,
+            package_id=request.package_id,
+            amount=final_amount,
+            currency="eur",
+            payment_status="pending",
+            status="initiated",
+            metadata=metadata
+        )
+        
+        await db.payment_transactions.insert_one(transaction.dict())
+        
+        return {
+            "url": session.url,
+            "session_id": session.session_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error creating checkout session: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erreur lors de la création de la session de paiement"
+        )
+
+@payment_router.get("/v1/checkout/status/{session_id}")
+async def get_checkout_status(
+    session_id: str,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Get checkout session status and update payment record"""
+    try:
+        # Find payment transaction
+        transaction = await db.payment_transactions.find_one({
+            "session_id": session_id,
+            "user_id": current_user.id
+        })
+        
+        if not transaction:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Transaction not found"
+            )
+        
+        if not STRIPE_API_KEY:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Stripe API key not configured"
+            )
+        
+        # Initialize Stripe checkout
+        stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url="")
+        
+        # Get status from Stripe
+        checkout_status: CheckoutStatusResponse = await stripe_checkout.get_checkout_status(session_id)
+        
+        # Update transaction record only if status changed
+        if (checkout_status.payment_status != transaction["payment_status"] or 
+            checkout_status.status != transaction["status"]):
+            
+            await db.payment_transactions.update_one(
+                {"session_id": session_id},
+                {
+                    "$set": {
+                        "payment_status": checkout_status.payment_status,
+                        "status": checkout_status.status,
+                        "updated_at": datetime.utcnow()
+                    }
+                }
+            )
+            
+            # If payment successful, update user subscription
+            if checkout_status.payment_status == "paid" and transaction["payment_status"] != "paid":
+                await process_successful_payment(transaction, current_user)
+        
+        return {
+            "status": checkout_status.status,
+            "payment_status": checkout_status.payment_status,
+            "amount_total": checkout_status.amount_total,
+            "currency": checkout_status.currency,
+            "metadata": checkout_status.metadata
+        }
+        
+    except Exception as e:
+        logging.error(f"Error getting checkout status: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erreur lors de la vérification du statut de paiement"
+        )
+
+@payment_router.post("/webhook/stripe")
+async def stripe_webhook(request: Request):
+    """Handle Stripe webhooks"""
+    try:
+        body = await request.body()
+        signature = request.headers.get("Stripe-Signature")
+        
+        if not STRIPE_API_KEY:
+            raise HTTPException(status_code=500, detail="Stripe not configured")
+        
+        stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url="")
+        webhook_response = await stripe_checkout.handle_webhook(body, signature)
+        
+        # Process webhook based on event type
+        if webhook_response.event_type == "checkout.session.completed":
+            # Update payment transaction
+            await db.payment_transactions.update_one(
+                {"session_id": webhook_response.session_id},
+                {
+                    "$set": {
+                        "payment_status": webhook_response.payment_status,
+                        "updated_at": datetime.utcnow()
+                    }
+                }
+            )
+            
+        return {"received": True}
+        
+    except Exception as e:
+        logging.error(f"Webhook processing error: {e}")
+        raise HTTPException(status_code=400, detail="Webhook processing failed")
+
+async def process_successful_payment(transaction: dict, user: User):
+    """Process successful payment and update user subscription"""
+    try:
+        package = SUBSCRIPTION_PACKAGES[transaction["package_id"]]
+        
+        # Calculate subscription end date
+        now = datetime.utcnow()
+        if package["period"] == "yearly":
+            end_date = now + timedelta(days=365)
+        else:  # monthly
+            end_date = now + timedelta(days=30)
+        
+        # Update user subscription
+        await db.users.update_one(
+            {"id": user.id},
+            {
+                "$set": {
+                    "subscription_status": "active",
+                    "subscription_plan": package["plan_id"],
+                    "subscription_ends_at": end_date,
+                    "updated_at": now
+                }
+            }
+        )
+        
+        # Create payment record for admin tracking
+        payment = {
+            "id": str(uuid.uuid4()),
+            "user_id": user.id,
+            "stripe_payment_intent_id": transaction["session_id"],
+            "amount": transaction["amount"],
+            "currency": transaction["currency"],
+            "status": "succeeded",
+            "subscription_plan": package["name"],
+            "billing_period": package["period"],
+            "promo_code": transaction["metadata"].get("promo_code"),
+            "created_at": now
+        }
+        await db.payments.insert_one(payment)
+        
+        # Update promo code usage if applicable
+        promo_code = transaction["metadata"].get("promo_code")
+        if promo_code:
+            await db.promo_codes.update_one(
+                {"code": promo_code},
+                {"$inc": {"used_count": 1}}
+            )
+        
+        logging.info(f"Subscription activated for user {user.id}: {package['name']} {package['period']}")
+        
+    except Exception as e:
+        logging.error(f"Error processing successful payment: {e}")
+        raise

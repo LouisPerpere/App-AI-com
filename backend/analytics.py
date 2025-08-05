@@ -1173,3 +1173,167 @@ async def get_post_metrics(
     except Exception as e:
         logging.error(f"Error getting post metrics: {e}")
         raise HTTPException(status_code=500, detail=f"Erreur lors de la récupération des métriques: {str(e)}")
+
+# PHASE 3: PROMPT OPTIMIZATION ENDPOINTS
+
+@analytics_router.post("/prompts/analyze")
+async def analyze_prompt_performance(
+    days_back: int = 30,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Analyze prompt performance for optimization"""
+    try:
+        # Get user's business profile
+        business_profile = await db.business_profiles.find_one({"user_id": current_user.id})
+        if not business_profile:
+            raise HTTPException(status_code=404, detail="Business profile not found")
+        
+        # Analyze prompt performance
+        analysis_result = await prompt_optimizer.analyze_prompt_performance(
+            business_profile["id"], 
+            days_back
+        )
+        
+        return {
+            "message": "Analyse des prompts terminée",
+            "analysis": analysis_result,
+            "recommendations_count": len(analysis_result.get("optimization_insights", [])),
+            "prompt_versions_analyzed": analysis_result.get("prompt_versions_tested", 0)
+        }
+        
+    except Exception as e:
+        logging.error(f"Error in prompt analysis: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de l'analyse des prompts: {str(e)}")
+
+@analytics_router.post("/prompts/optimize")
+async def generate_optimized_prompt(
+    prompt_type: str = "social_post",
+    current_user: User = Depends(get_current_active_user)
+):
+    """Generate an optimized prompt based on performance insights"""
+    try:
+        # Get user's business profile
+        business_profile = await db.business_profiles.find_one({"user_id": current_user.id})
+        if not business_profile:
+            raise HTTPException(status_code=404, detail="Business profile not found")
+        
+        # Get latest performance data
+        latest_insights = await db.performance_insights.find_one(
+            {"business_id": business_profile["id"]},
+            sort=[("created_at", -1)]
+        )
+        
+        performance_data = {}
+        if latest_insights:
+            performance_data = {
+                "has_insights": True,
+                "avg_engagement_rate": latest_insights.get("avg_engagement_rate", 0),
+                "recommended_hashtags": [h.get("pattern_value", "") for h in latest_insights.get("top_hashtags", [])],
+                "high_performing_keywords": [k.get("pattern_value", "") for k in latest_insights.get("top_keywords", [])],
+                "optimal_content_length": latest_insights.get("optimal_content_length", {}).get("pattern_value", "100-150"),
+                "high_performing_topics": [t.get("pattern_value", "") for t in latest_insights.get("high_performing_topics", [])],
+                "ai_recommendations": latest_insights.get("ai_recommendations", [])
+            }
+        else:
+            performance_data = {"has_insights": False}
+        
+        # Generate optimized prompt
+        optimized_prompt = await prompt_optimizer.generate_optimized_prompt(
+            business_profile, 
+            performance_data, 
+            prompt_type
+        )
+        
+        return {
+            "message": "Prompt optimisé généré avec succès",
+            "optimized_prompt": optimized_prompt,
+            "version": optimized_prompt["prompt_version"],
+            "based_on_insights": optimized_prompt["based_on_insights"],
+            "expected_improvement": optimized_prompt.get("expected_improvement", 0)
+        }
+        
+    except Exception as e:
+        logging.error(f"Error generating optimized prompt: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la génération du prompt optimisé: {str(e)}")
+
+@analytics_router.get("/prompts/performance")
+async def get_prompt_performance_history(
+    current_user: User = Depends(get_current_active_user)
+):
+    """Get prompt performance history"""
+    try:
+        # Get user's business profile
+        business_profile = await db.business_profiles.find_one({"user_id": current_user.id})
+        if not business_profile:
+            raise HTTPException(status_code=404, detail="Business profile not found")
+        
+        # Get prompt performance analysis history
+        analysis_history = await db.prompt_performance_analysis.find(
+            {"business_id": business_profile["id"]}
+        ).sort("created_at", -1).to_list(10)
+        
+        if not analysis_history:
+            return {
+                "message": "Aucun historique d'analyse de prompts disponible",
+                "history": [],
+                "total_analyses": 0
+            }
+        
+        # Format history for frontend
+        formatted_history = []
+        for analysis in analysis_history:
+            analysis_data = analysis.get("analysis_data", {})
+            formatted_history.append({
+                "analysis_date": analysis["created_at"],
+                "prompt_versions_tested": analysis_data.get("prompt_versions_tested", 0),
+                "total_posts_analyzed": analysis_data.get("total_posts_analyzed", 0),
+                "best_performing_prompt": analysis_data.get("best_performing_prompt", {}),
+                "optimization_insights": analysis_data.get("optimization_insights", [])[:3],
+                "has_data": analysis_data.get("has_data", False)
+            })
+        
+        return {
+            "message": "Historique des analyses de prompts",
+            "history": formatted_history,
+            "total_analyses": len(analysis_history),
+            "latest_analysis": formatted_history[0] if formatted_history else None
+        }
+        
+    except Exception as e:
+        logging.error(f"Error getting prompt performance history: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la récupération de l'historique: {str(e)}")
+
+@analytics_router.get("/prompts/optimized")
+async def get_optimized_prompts(
+    limit: int = 10,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Get optimized prompts for a business"""
+    try:
+        # Get user's business profile
+        business_profile = await db.business_profiles.find_one({"user_id": current_user.id})
+        if not business_profile:
+            raise HTTPException(status_code=404, detail="Business profile not found")
+        
+        # Get optimized prompts
+        optimized_prompts = await db.optimized_prompts.find(
+            {"business_id": business_profile["id"]}
+        ).sort("created_at", -1).to_list(limit)
+        
+        if not optimized_prompts:
+            return {
+                "message": "Aucun prompt optimisé disponible",
+                "prompts": [],
+                "total": 0
+            }
+        
+        return {
+            "message": f"{len(optimized_prompts)} prompts optimisés trouvés",
+            "prompts": optimized_prompts,
+            "total": len(optimized_prompts),
+            "latest_version": optimized_prompts[0]["prompt_version"] if optimized_prompts else None
+        }
+        
+    except Exception as e:
+        logging.error(f"Error getting optimized prompts: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la récupération des prompts optimisés: {str(e)}")

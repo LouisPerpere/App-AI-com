@@ -157,8 +157,8 @@ const AuthPage = ({ onAuthSuccess }) => {
                 <Shield className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="font-bold text-gray-900 mb-1">Automatisation</h3>
-                <p className="text-sm text-gray-600">Programmation intelligente sur tous vos réseaux</p>
+                <h3 className="font-bold text-gray-900 mb-1">Boost Express</h3>
+                <p className="text-sm text-gray-600">Programmation ultra-rapide sur tous vos réseaux</p>
               </div>
             </div>
             

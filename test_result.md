@@ -577,10 +577,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Scheduler Analytics Integration"
+    - "Adaptive Prompt Optimization System"
+    - "Prompt Performance API Endpoints"
     - "Performance-Optimized Content Generation"
-    - "Analytics System Backend Core"
-    - "Social Media Metrics Collection"
+    - "Scheduler Analytics Integration"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

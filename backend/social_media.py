@@ -619,8 +619,8 @@ class SocialMediaAnalytics:
     """Functions to retrieve post metrics from social media platforms"""
     
     def __init__(self):
-        self.facebook_api = FacebookAPIClient()
-        self.instagram_api = InstagramAPIClient()
+        # Don't initialize API clients here - they need access tokens
+        pass
     
     async def get_facebook_post_metrics(self, post_id: str, access_token: str) -> Dict[str, Any]:
         """Retrieve metrics for a Facebook post"""

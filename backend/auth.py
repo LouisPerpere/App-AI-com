@@ -41,10 +41,13 @@ class User(BaseModel):
     is_active: bool = True
     is_admin: bool = False
     business_profile_id: Optional[str] = None
-    subscription_status: str = "trial"  # trial, active, expired, cancelled
-    subscription_plan: str = "starter"  # starter, pro, enterprise
+    subscription_status: str = "trial"  # trial, active, expired, cancelled, free
+    subscription_plan: str = "starter"  # starter, pro, enterprise, trial, free
     trial_ends_at: Optional[datetime] = None
+    trial_end_date: Optional[datetime] = None  # For compatibility
     subscription_ends_at: Optional[datetime] = None
+    posts_this_month: int = 0
+    max_posts_per_month: int = 10
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     last_login: Optional[datetime] = None

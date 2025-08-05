@@ -481,7 +481,7 @@ class AnalyticsEngine:
     
     async def _generate_ai_recommendations(self, posts: List[Dict], metrics_list: List[PostMetrics]) -> List[str]:
         """Generate AI-powered recommendations"""
-        if not self.chat:
+        if not self.openai_api_key:
             # Fallback recommendations when OpenAI is not available
             return [
                 "Continuez à utiliser les hashtags qui génèrent le plus d'engagement",
@@ -491,6 +491,14 @@ class AnalyticsEngine:
             ]
         
         try:
+            # Initialize LlmChat when needed
+            if not self.chat:
+                self.chat = LlmChat(
+                    api_key=self.openai_api_key,
+                    session_id=f"analytics_{uuid.uuid4()}",
+                    system_message="Tu es un expert en marketing digital et analytics des réseaux sociaux."
+                )
+            
             # Prepare data for AI analysis
             performance_summary = []
             for post in posts[:5]:  # Analyze top 5 posts

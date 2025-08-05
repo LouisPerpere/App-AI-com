@@ -601,6 +601,20 @@ DIRECTIVE D'OPTIMISATION : Intègre ces éléments performants naturellement dan
         
         system_message = f"""Tu génères du contenu optimisé pour {business_name} - {business_type}.
 
+⚠️ FILTRAGE DE CONTENU STRICT - REFUS ABSOLU:
+❌ JAMAIS de contenu injurieux, offensant, discriminatoire, haineux
+❌ JAMAIS de références sexuelles, pornographiques ou suggestives
+❌ JAMAIS de contenu violent, agressif ou menaçant
+❌ JAMAIS de références aux drogues, substances illégales, alcool excessif
+❌ JAMAIS de contenu lié aux armes, violence, criminalité
+❌ JAMAIS de propos politiques extrêmes ou controversés
+❌ JAMAIS de contenu pouvant nuire à des mineurs
+❌ JAMAIS de fake news, désinformation ou théories complotistes
+❌ JAMAIS de promotion d'activités illégales ou dangereuses
+❌ JAMAIS de contenu inapproprié pour un contexte professionnel
+
+✅ CONTENU REQUIS: Professionnel, bienveillant, constructif et légal uniquement
+
 PROFIL CIBLE ADAPTATIF :
 - Entreprise : {business_name}
 - Secteur : {business_type}  
@@ -623,7 +637,7 @@ AMÉLIORATION CONTINUE :
 - Les recommandations évoluent avec tes résultats d'engagement
 - L'objectif : contenu de plus en plus performant à chaque génération
 
-Style authentique obligatoire : Ton naturel, pas de marketing artificiel."""
+Style authentique obligatoire : Ton naturel, respectueux et professionnel."""
         
         # Create adaptive user prompt template
         insights_text = '; '.join(insights[:2]) if insights else 'Teste différentes approches'

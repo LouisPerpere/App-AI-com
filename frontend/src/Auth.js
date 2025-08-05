@@ -148,7 +148,7 @@ const AuthPage = ({ onAuthSuccess }) => {
                 Comment ça fonctionne ?
                 <Sparkles className="w-6 h-6 ml-3 text-purple-600" />
               </h3>
-              <p className="text-gray-600 font-medium">4 étapes simples pour automatiser vos réseaux sociaux</p>
+              <p className="text-gray-600 font-medium">4 étapes simples pour gagner du temps et de l'énergie</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

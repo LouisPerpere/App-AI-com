@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 from server import (
     BusinessProfile, ContentUpload, GeneratedPost, ContentNote,
-    analyze_content_with_ai, generate_automatic_content
+    analyze_content_with_ai
 )
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 import json

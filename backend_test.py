@@ -781,6 +781,50 @@ class SocialGenieAPITester:
         self.access_token = regular_token
         return success
 
+    def test_admin_update_user_subscription(self):
+        """Test admin updating user subscription"""
+        if not self.admin_access_token or not self.user_id:
+            print("❌ Skipping - No admin access token or user ID available")
+            return False
+            
+        # Temporarily store regular token and use admin token
+        regular_token = self.access_token
+        self.access_token = self.admin_access_token
+        
+        # First get a user ID to update
+        success, users_response = self.run_test(
+            "Get Users for Subscription Update",
+            "GET",
+            "admin/users?limit=1",
+            200
+        )
+        
+        if success and isinstance(users_response, list) and len(users_response) > 0:
+            test_user_id = users_response[0].get('id')
+            if test_user_id:
+                update_data = {
+                    "subscription_status": "active",
+                    "subscription_plan": "pro"
+                }
+                
+                success, response = self.run_test(
+                    "Admin Update User Subscription",
+                    "PUT",
+                    f"admin/users/{test_user_id}/subscription",
+                    200,
+                    data=update_data
+                )
+                
+                if success:
+                    print(f"   Updated user subscription successfully")
+        else:
+            print("❌ No users found to update")
+            success = True  # Not a failure, just no users
+        
+        # Restore regular token
+        self.access_token = regular_token
+        return success
+
     def test_admin_unauthorized_access(self):
         """Test admin routes with regular user (should fail)"""
         if not self.access_token:

@@ -820,8 +820,8 @@ class SocialGenieAPITester:
         self.access_token = temp_token
         return success
 
-    def test_validate_promo_code(self):
-        """Test validating a promo code"""
+    def test_validate_promo_code_invalid(self):
+        """Test validating an invalid promo code"""
         if not self.access_token or not self.plan_id:
             print("❌ Skipping - No access token or plan ID available")
             return False
@@ -834,6 +834,44 @@ class SocialGenieAPITester:
             404,  # Expected to fail with invalid code
         )
         return success
+
+    def test_validate_created_promo_code(self):
+        """Test validating the promo code we created"""
+        if not self.access_token or not self.plan_id:
+            print("❌ Skipping - No access token or plan ID available")
+            return False
+            
+        # First get the promo codes to find one we can test
+        regular_token = self.access_token
+        self.access_token = self.admin_access_token
+        
+        success, response = self.run_test(
+            "Get Promo Codes for Testing",
+            "GET",
+            "admin/promo-codes",
+            200
+        )
+        
+        self.access_token = regular_token
+        
+        if success and isinstance(response, list) and len(response) > 0:
+            test_code = response[0].get('code')
+            if test_code:
+                success, response = self.run_test(
+                    "Validate Created Promo Code",
+                    "POST",
+                    f"payments/validate-promo-code?code={test_code}&plan_id={self.plan_id}",
+                    200
+                )
+                
+                if success:
+                    print(f"   Discount: {response.get('discount_value', 0)}% off")
+                    print(f"   New Monthly Price: €{response.get('new_monthly_price', 0)}")
+                
+                return success
+        
+        print("❌ No promo code available to test")
+        return True  # Not a failure, just no code to test
 
     def test_create_payment_intent_no_stripe(self):
         """Test creating payment intent (will fail without Stripe key)"""

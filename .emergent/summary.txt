@@ -1,46 +1,35 @@
 <analysis>
-The AI engineer successfully initiated a PWA SaaS application for social media content automation, SocialGénie, later intended to be renamed. The development followed an iterative approach, starting with core AI-driven content generation, then enhancing the UI, adding automation features, and recently, authentication and back-office functionalities. Key decisions included using OpenAI for content generation, addressing its API specifics for image handling, and implementing an anti-repetition mechanism for posts. The engineer proactively sought API keys and user preferences, ensuring adherence to the prompt's architectural and UI guidelines (React, FastAPI, MongoDB, Tailwind, Shadcn UI). Debugging steps, such as checking supervisor logs and correcting missing imports/dependencies, were also documented. The development consistently moved towards a complete SaaS solution, incorporating user feedback at each stage.
+The AI engineer successfully built a PWA SaaS SocialGénie (now PostCraft) from scratch, focusing on social media content automation. The development was iterative, starting with core AI content generation, then UI enhancements, automation, and recently, authentication and back-office foundations. A major recent focus was integrating Facebook/Instagram APIs and redesigning the frontend for a sexy marketing-oriented look, removing AI mentions. The engineer tackled multiple JSX syntax errors in  during UI redesign, repeatedly debugging and attempting fixes, culminating in a persistent issue with an unclosed tag that required reconstructing parts of the file. The process involved direct user interaction for API keys and feature prioritization, demonstrating adaptability and a user-centric approach.
 </analysis>
 
 <product_requirements>
-The user requested a PWA SaaS application for small businesses and freelancers to automate social media communication. Key features include:
-1.  **Business Profile Setup:** Describe business, target audience, ad budget, tone for AI content generation. AI provides recommendations (publication rhythm, social networks, ad budget).
-2.  **Content Upload:** Upload photos/videos with comments (audio/text transcription). Batch upload and deferred description (click to describe).
-3.  **AI Analysis & Calendar:** AI analyzes content to propose a publication calendar for the next month. Textual notes for posts (e.g., closed May 8). AI generates content without classic ChatGPT markers (emojis, specific phrasing) and avoids repeating posts from the last 12 months.
-4.  **Notification & Validation:** App notifies when posts are ready. User validates, rejects, or modifies posts via a carousel with a Validate and Schedule button and editable date/time.
-5.  **Automated Publishing:** Validated posts are automatically sent to selected social networks (Facebook, Instagram, LinkedIn initially).
-6.  **Periodic Automation:** Monthly content generation (for weekly/bi-weekly posts), weekly generation (for daily/3x/week posts), triggered by launch anniversary.
-7.  **Reminders & Fallback:** Notifications (email) 3 days before generation to upload content, daily until sufficient content is uploaded. If insufficient, AI generates generic content (anecdotes, quotes, stock images).
-8.  **Branding:** Company logo upload and display.
-9.  **Social Media Connection:** User connects social media accounts (OAuth for Facebook/Instagram Business API, LinkedIn API).
-10. **Authentication:** User login/signup pages.
-11. **SaaS Back Office:** Admin dashboard for client/account management, subscriptions, discounts, referral system, and payment integration (Stripe, Apple Pay, Google Pay, PayPal).
+The product, PostCraft, is a PWA SaaS for small businesses and freelancers to automate social media. It requires business profile setup with AI recommendations, content upload (photos/videos with audio/text comments, batch upload, deferred description), and AI analysis to propose a monthly publication calendar, ensuring unique, non-repetitive content without ChatGPT markers. Notifications alert users for ready posts, allowing validation/modification via a carousel. Validated posts are automatically published to selected social networks (Facebook, Instagram, LinkedIn). The app includes periodic content generation and reminders for content upload, with fallback generic content if insufficient. Branding features include logo upload. Core functionalities also encompass user authentication (login/signup) and a comprehensive SaaS back office for client, subscription, and payment (Stripe, Apple Pay, Google Pay, PayPal) management.
 </product_requirements>
 
 <key_technical_concepts>
 -   **Full-stack Architecture:** React (frontend), FastAPI (backend), MongoDB (database).
--   **AI Integration:** OpenAI GPT-4 for content generation and analysis.
--   **UI/UX Frameworks:** Tailwind CSS for styling, Shadcn UI for components.
--   **Authentication:** JWT (JSON Web Tokens) for secure user sessions.
--   **Scheduling:** APScheduler for background cron-like tasks (content generation, notifications).
--   **Payment Processing:** Stripe for subscriptions (planned).
--   **Data Handling:** Base64 encoding for image uploads, UUIDs for database IDs.
+-   **AI Integration:** OpenAI GPT-4 for content generation.
+-   **UI/UX Frameworks:** Tailwind CSS for styling, Shadcn UI components.
+-   **Authentication:** JWT for user sessions.
+-   **Scheduling:** APScheduler for background tasks.
+-   **Payment Processing:** Stripe (planned).
+-   **Social Media APIs:** Facebook Graph API, Instagram Graph API, LinkedIn API.
 </key_technical_concepts>
 
 <code_architecture>
-The application follows a standard full-stack structure:
+The application has a standard full-stack structure:
 
 
 
--   **/app/backend/server.py**: The main FastAPI application.
-    -   **Importance:** Acts as the central hub for all backend API routes, database interactions, and middleware (CORS).
-    -   **Changes Made:** Initial setup, then modified to include OpenAI integration (handling image uploads as Base64), new endpoints for logo, notes, batch content upload, scheduling status, business profile creation, post validation/scheduling. It was further updated to integrate authentication routes () and admin/payment routes (, ).
--   **/app/backend/.env**: Environment variables for the backend.
-    -   **Importance:** Securely stores sensitive information like , , and email configuration (, , , ).
-    -   **Changes Made:** Added  provided by the user and placeholders for email credentials.
--   **/app/backend/requirements.txt**: Python dependencies for FastAPI.
-    -   **Importance:** Defines all necessary Python packages.
-    -   **Changes Made:** Added usage: openai [-h] [-v] [-b API_BASE] [-k API_KEY] [-p PROXY [PROXY ...]]
+-   **/app/backend/server.py**: Main FastAPI application.
+    -   **Importance:** Central hub for API routes, database, and middleware.
+    -   **Changes Made:** Integrated OpenAI, , ,  (placeholders). Recently updated to include  router and endpoints for Facebook/Instagram connection and posting, modifying  model structure.
+-   **/app/backend/.env**: Backend environment variables.
+    -   **Importance:** Stores sensitive keys (, , email, social media credentials).
+    -   **Changes Made:** Added , email configs, , , and .
+-   **/app/backend/requirements.txt**: Python dependencies.
+    -   **Importance:** Lists all necessary Python packages.
+    -   **Changes Made:** Added , ,  for social media integration, alongside existing usage: openai [-h] [-v] [-b API_BASE] [-k API_KEY] [-p PROXY [PROXY ...]]
               [-o ORGANIZATION] [-t {openai,azure}]
               [--api-version API_VERSION] [--azure-endpoint AZURE_ENDPOINT]
               [--azure-ad-token AZURE_AD_TOKEN] [-V]
@@ -77,43 +66,64 @@ options:
                         https://www.microsoft.com/en-
                         us/security/business/identity-access/microsoft-entra-
                         id
-  -V, --version         show program's version number and exit,  (for file uploads), ,  (for authentication), ,  (for async MongoDB), , , and  (implicitly needed for future payment integration).
--   **/app/backend/auth.py**: (New file) Handles all authentication logic.
-    -   **Importance:** Centralizes user registration, login, password hashing, JWT token generation (access and refresh), and route protection.
-    -   **Changes Made:** Implemented , , , , and  functions.
--   **/app/backend/scheduler.py**: (New file) Manages automated background tasks.
-    -   **Importance:** Orchestrates periodic content generation, reminder notifications, and fallback content creation.
-    -   **Changes Made:** Implemented logic for daily/weekly/monthly content generation, content sufficiency checks, and email notification triggers.
--   **/app/backend/admin.py**: (New file) Will contain administrative endpoints.
-    -   **Importance:** Designed to manage clients, subscriptions, and overall SaaS operations.
-    -   **Changes Made:** Created as a placeholder, its full implementation is pending.
--   **/app/backend/payments.py**: (New file) Will handle payment processing.
-    -   **Importance:** Designed to integrate with Stripe for subscriptions, manage webhooks, etc.
-    -   **Changes Made:** Created as a placeholder, its full implementation is pending.
--   **/app/frontend/src/App.js**: The main React component.
-    -   **Importance:** Defines the primary UI layout, routing, and state management for the application.
-    -   **Changes Made:** Transformed into a multi-tab interface (Upload, Posts, Notes, Calendar), integrated logo upload and display in the header, implemented carousel for posts, added description delayed logic, incorporated authentication flow (login/register forms) and redirects, and integrated the initial admin dashboard view.
--   **/app/frontend/src/App.css** & **/app/frontend/src/index.css**: CSS files for styling.
-    -   **Importance:** Provides global styles, Tailwind CSS integration, and custom themes (Shadcn UI variables).
-    -   **Changes Made:** Primarily for visual consistency, responsiveness, and implementing specific UI patterns (e.g., glass-morphism, custom spacing).
+  -V, --version         show program's version number and exit, , , , , , , .
+-   **/app/backend/auth.py**: Authentication logic.
+    -   **Importance:** Handles user registration, login, JWT.
+    -   **Changes Made:** Implemented core authentication functions.
+-   **/app/backend/scheduler.py**: Manages automated tasks.
+    -   **Importance:** Orchestrates content generation, notifications.
+    -   **Changes Made:** Logic for daily/weekly/monthly content generation.
+-   **/app/backend/admin.py**: Administrative endpoints.
+    -   **Importance:** Placeholder for client/subscription management.
+    -   **Changes Made:** Created as a placeholder.
+-   **/app/backend/payments.py**: Payment processing.
+    -   **Importance:** Placeholder for Stripe integration.
+    -   **Changes Made:** Created as a placeholder.
+-   **/app/backend/social_media.py**: (New file) Handles social media integration.
+    -   **Importance:** Centralizes Facebook/Instagram OAuth, token management, and posting logic.
+    -   **Changes Made:** Implemented , , , ,  functions.
+-   **/app/frontend/src/App.js**: Main React component.
+    -   **Importance:** Defines UI layout, routing, and state management.
+    -   **Changes Made:** Transformed into multi-tab interface (Upload, Posts, Notes, Calendar, Social), integrated logo upload, authentication flow, admin dashboard view. Significantly refactored to rename Upload to Bibliothèque, reorder tabs (Notes before Posts), implement a gallery view with modal for image description, and extensive styling updates for a sexy marketing look, removing AI mentions. Added React Router and  component integration. Repeatedly edited to fix JSX errors and structural issues.
+-   **/app/frontend/src/index.css**: Global CSS styles.
+    -   **Importance:** Global styles, Tailwind CSS, Shadcn UI theming.
+    -   **Changes Made:** Added new CSS variables and styles for gradient buttons, background effects, and overall sexy UI theme.
+-   **/app/frontend/src/App.css**: Custom CSS.
+    -   **Importance:** Specific UI patterns and responsiveness.
+    -   **Changes Made:** Visual consistency and responsiveness.
 -   **/app/frontend/src/components/ui/**: Shadcn UI components.
-    -   **Importance:** Provides a set of pre-built, modern, and accessible UI components (e.g., Button, Input, Card, Tabs, Carousel, Dialog) that adhere to design guidelines.
-    -   **Changes Made:** Used extensively throughout  and other potential frontend components.
+    -   **Importance:** Reusable UI components.
+    -   **Changes Made:** Used extensively.
+-   **/app/frontend/src/FacebookCallback.js**: (New file) Handles Facebook OAuth callback.
+    -   **Importance:** Processes the OAuth redirection from Facebook to exchange the authorization code for an access token.
+    -   **Changes Made:** Created to handle the Facebook OAuth flow client-side.
+-   **/app/frontend/.env**: Frontend environment variables.
+    -   **Importance:** Stores  and .
+    -   **Changes Made:** No direct changes to this file content as per strict instructions, but its values are used.
 </code_architecture>
 
 <pending_tasks>
 -   Complete the full implementation and testing of the SaaS back office (client management, subscriptions, discounts, referral system, Stripe/Apple Pay/Google Pay/PayPal integration).
--   Integrate real social media APIs (Facebook, Instagram, LinkedIn) for automatic posting.
+-   Integrate LinkedIn API for automatic posting.
 -   Finalize the application's international name.
 -   User testing and validation of current features.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer completed the implementation and initial testing of the comprehensive authentication system. This includes user login and registration pages, secure password hashing, JWT token generation for session management (access and refresh tokens), automatic 14-day trial period after registration, and route protection. The backend now has a dedicated  module handling all authentication logic, and the  file integrates these authentication routes. On the frontend,  was updated to display the modern authentication pages (Se connecter / Créer un compte) with responsive design, secure password visibility toggle, loading states, and clear French error messages. The UI also reflects the PostCraft branding.
+Immediately before this summary request, the AI engineer was heavily focused on enhancing the frontend UI/UX and ensuring the stability of the recently integrated Facebook/Instagram features.
 
-Following the successful authentication implementation, the AI engineer started working on the full SaaS back office. This involved creating new backend modules like  and  (though their full content is not yet visible in the trajectory, they were created). Crucially, the frontend's  was modified to integrate the admin dashboard, presumably to provide access points or UI elements for the upcoming back office functionalities. The current state is that the basic structure for the admin dashboard is integrated into the frontend, and the engineer is about to perform tests to verify its functionality and the newly added backend components.
+The previous core task involved completing the comprehensive authentication system (user login/registration, JWT tokens, route protection) and initiating the SaaS back office foundation (creating  and  backend modules and integrating an initial admin dashboard view in ).
+
+Following this, the engineer successfully implemented and thoroughly tested the backend for Facebook/Instagram integration. This included setting up OAuth, handling API calls for pages and posts, and managing tokens. The frontend  was then updated to restore the full multi-tab interface (Upload, Posts, Notes, Calendar, Social), which was inadvertently simplified during earlier development.
+
+The most recent work revolved around a major UI/UX overhaul, as requested by the user, to make the application sexy and marketing-oriented, and to remove all AI mentions. This involved:
+1.  Renaming the Upload tab to Bibliothèque and implementing an iPhone-like photo gallery with clickable thumbnails and a modal for adding contextual descriptions to images.
+2.  Reordering tabs: Bibliothèque, Notes, Posts, Calendar, Social.
+3.  Applying new, vibrant styles defined in  to  and other components, removing AI/IA references throughout the frontend.
+
+During this UI/UX redesign, the engineer encountered persistent JSX syntax errors, primarily . Multiple attempts were made to identify and fix these errors by examining  and checking supervisor logs. The last action was to attempt to fix a persistent JSX error by replacing the  file with a  version. The user then interrupted, reminding the engineer to fully resolve the error before changing focus.
 </current_work>
 
 <optional_next_step>
-Test the newly integrated back office and payment system.
+The next step is to verify that the persistent JSX error in  has been completely resolved and the UI is fully functional as intended after the last file replacement.
 </optional_next_step>

@@ -1463,7 +1463,7 @@ function MainApp() {
                     <Edit className="w-6 h-6 text-white" />
                   </div>
                   <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    Notes et informations magiques ✨
+                    Notes et informations ✨
                   </span>
                 </CardTitle>
                 <CardDescription className="text-lg text-gray-600">
@@ -1471,13 +1471,148 @@ function MainApp() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-20 card-glass rounded-3xl">
-                  <div className="w-24 h-24 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
-                    <Edit className="w-12 h-12 text-white" />
+                {/* Add New Note Section */}
+                <div className="mb-8">
+                  <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-6 border-2 border-indigo-200">
+                    <div className="flex items-center mb-4">
+                      <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center mr-3">
+                        <Edit className="w-5 h-5 text-white" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-900">Ajouter une nouvelle note</h3>
+                    </div>
+                    
+                    <form onSubmit={(e) => {
+                      e.preventDefault();
+                      handleAddNote();
+                    }} className="space-y-4">
+                      <div>
+                        <Label htmlFor="note-title" className="text-gray-700 font-medium">Titre de la note</Label>
+                        <Input
+                          id="note-title"
+                          placeholder="Ex: Nouvelle promotion, Événement spécial..."
+                          value={noteForm.title}
+                          onChange={(e) => setNoteForm({...noteForm, title: e.target.value})}
+                          className="mt-1 border-indigo-200 focus:border-indigo-500"
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="note-content" className="text-gray-700 font-medium">Contenu</Label>
+                        <textarea
+                          id="note-content"
+                          placeholder="Décrivez les détails importants que vous voulez voir apparaître dans vos posts..."
+                          value={noteForm.content}
+                          onChange={(e) => setNoteForm({...noteForm, content: e.target.value})}
+                          className="mt-1 w-full min-h-[120px] p-3 border border-indigo-200 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 resize-y"
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="note-priority" className="text-gray-700 font-medium">Priorité</Label>
+                        <select
+                          id="note-priority"
+                          value={noteForm.priority}
+                          onChange={(e) => setNoteForm({...noteForm, priority: e.target.value})}
+                          className="mt-1 w-full p-3 border border-indigo-200 rounded-lg focus:border-indigo-500"
+                        >
+                          <option value="low">🟢 Faible - Information complémentaire</option>
+                          <option value="medium">🟡 Moyenne - Information importante</option>
+                          <option value="high">🔴 Haute - À mentionner absolument</option>
+                        </select>
+                      </div>
+                      
+                      <Button
+                        type="submit"
+                        className="btn-gradient-primary w-full"
+                        disabled={!noteForm.title || !noteForm.content}
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Ajouter cette note
+                      </Button>
+                    </form>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-700 mb-4">Gestionnaire de notes 📝</h3>
-                  <p className="text-xl text-gray-500">Ajoutez vos premières notes pour personnaliser vos posts ! ✍️</p>
                 </div>
+
+                {/* Notes List */}
+                {notes.length > 0 && (
+                  <div>
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+                        <FileText className="w-6 h-6 mr-2 text-indigo-600" />
+                        Vos notes ({notes.length})
+                      </h3>
+                      <Button
+                        onClick={generatePosts}
+                        disabled={isGeneratingPosts || notes.length === 0}
+                        className="btn-gradient-secondary"
+                      >
+                        {isGeneratingPosts ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            Génération...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            Générer des posts
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    
+                    <div className="grid gap-4">
+                      {notes.map((note) => (
+                        <div key={note.id} className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition-all">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center space-x-3">
+                              <div className={`w-3 h-3 rounded-full ${
+                                note.priority === 'high' ? 'bg-red-500' :
+                                note.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                              }`}></div>
+                              <h4 className="text-lg font-semibold text-gray-900">{note.title}</h4>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Badge className={`text-xs ${
+                                note.priority === 'high' ? 'bg-red-100 text-red-800' :
+                                note.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
+                              }`}>
+                                {note.priority === 'high' ? '🔴 Haute' : 
+                                 note.priority === 'medium' ? '🟡 Moyenne' : '🟢 Faible'}
+                              </Badge>
+                              <Button
+                                onClick={() => handleDeleteNote(note.id)}
+                                variant="ghost"
+                                size="sm"
+                                className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          <p className="text-gray-700 leading-relaxed mb-3">{note.content}</p>
+                          
+                          <div className="text-xs text-gray-500 flex items-center">
+                            <Clock className="w-4 h-4 mr-1" />
+                            Ajoutée le {new Date(note.created_at).toLocaleDateString('fr-FR')} à {new Date(note.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {notes.length === 0 && (
+                  <div className="text-center py-12 card-glass rounded-3xl border-2 border-dashed border-indigo-300">
+                    <div className="w-24 h-24 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
+                      <Edit className="w-12 h-12 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-700 mb-4">Gestionnaire de notes 📝</h3>
+                    <p className="text-xl text-gray-500">Ajoutez vos premières notes pour personnaliser vos posts ! ✍️</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

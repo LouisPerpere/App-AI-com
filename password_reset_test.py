@@ -123,7 +123,7 @@ def test_authentication():
         print("=" * 60)
         
         # API endpoint
-        base_url = "https://517d3af0-c990-48c7-9557-b206f74fa495.preview.emergentagent.com"
+        base_url = "https://83c93e72-62da-4099-8f18-7d1effeee37d.preview.emergentagent.com"
         login_url = f"{base_url}/api/auth/login"
         
         # Login credentials
@@ -238,7 +238,7 @@ def test_subscription_status():
         print("=" * 60)
         
         # First login to get token
-        base_url = "https://517d3af0-c990-48c7-9557-b206f74fa495.preview.emergentagent.com"
+        base_url = "https://83c93e72-62da-4099-8f18-7d1effeee37d.preview.emergentagent.com"
         login_url = f"{base_url}/api/auth/login"
         
         login_data = {

@@ -155,7 +155,6 @@ def analyze_website_with_gpt(content_data: dict, website_url: str) -> dict:
             temperature=0.3
         )
         
-        import json
         analysis_result = json.loads(response.choices[0].message.content)
         
         return analysis_result

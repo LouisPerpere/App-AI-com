@@ -128,7 +128,7 @@ const AuthPage = ({ onAuthSuccess }) => {
           {/* Hero Content */}
           <div className="space-y-6">
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
-              Explosez votre présence sur les 
+              Libérez-vous des 
               <span className="block bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent animate-pulse">
                 réseaux sociaux 🚀
               </span>

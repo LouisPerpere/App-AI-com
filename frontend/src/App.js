@@ -702,15 +702,34 @@ function MainApp() {
       }
     }
     
-    // Case 3: Before validating second-to-last post of trial
-    const totalTrialPosts = 10; // Assuming 10 posts for trial
-    const approvedPostsCount = generatedPosts.filter(post => post.status === 'approved').length;
-    
-    if (user.subscription_status === 'trial' && approvedPostsCount >= totalTrialPosts - 1) {
-      const hasShownForSecondLastPost = localStorage.getItem('upgradeModalShownForSecondLastPost');
-      if (!hasShownForSecondLastPost) {
-        localStorage.setItem('upgradeModalShownForSecondLastPost', 'true');
-        return { show: true, canClose: true, title: "Dernier post gratuit validé !" };
+    // Case 3: Before validating second-to-last post of trial (based on posting frequency)
+    if (user.subscription_status === 'trial' && businessProfile) {
+      const frequency = businessProfile.posting_frequency || 'weekly';
+      
+      // Calculate total posts expected based on frequency
+      const postsPerMonth = {
+        'daily': 30,
+        '3x_week': 12,
+        'bi_weekly': 8,
+        'weekly': 4
+      };
+      
+      const totalExpectedPosts = postsPerMonth[frequency] || 4;
+      const triggerAtPost = Math.max(1, totalExpectedPosts - 1); // Before last post
+      
+      const approvedPostsCount = generatedPosts.filter(post => post.status === 'approved').length;
+      
+      if (approvedPostsCount >= triggerAtPost) {
+        const hasShownForSecondLastPost = localStorage.getItem('upgradeModalShownForSecondLastPost');
+        if (!hasShownForSecondLastPost) {
+          localStorage.setItem('upgradeModalShownForSecondLastPost', 'true');
+          return { 
+            show: true, 
+            canClose: true, 
+            title: `Plus qu'un post gratuit ! (${approvedPostsCount}/${totalExpectedPosts})`,
+            subtitle: `Avec ${frequency === 'daily' ? 'publication quotidienne' : frequency === '3x_week' ? '3 publications par semaine' : frequency === 'bi_weekly' ? 'publication bi-hebdomadaire' : 'publication hebdomadaire'}`
+          };
+        }
       }
     }
     

@@ -2125,6 +2125,21 @@ function MainApp() {
         </Tabs>
       </div>
 
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => {
+          const config = window.upgradeModalConfig || { canClose: true };
+          if (config.canClose) {
+            setShowUpgradeModal(false);
+            setUpgradeModalDismissed(true);
+          }
+        }}
+        user={user}
+        canClose={window.upgradeModalConfig?.canClose !== false}
+        title={window.upgradeModalConfig?.title || "Débloquez PostCraft Premium"}
+      />
+
       {/* Settings Modal for Website Analysis */}
       {showWebsiteAnalysis && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

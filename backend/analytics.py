@@ -103,7 +103,8 @@ class AnalyticsEngine:
     def __init__(self):
         self.openai_api_key = os.environ.get('OPENAI_API_KEY')
         if self.openai_api_key:
-            self.chat = LlmChat(self.openai_api_key)
+            # Initialize LlmChat with proper parameters when needed
+            self.chat = None  # Will be initialized when needed
         else:
             self.chat = None
             logging.warning("OpenAI API key not found - AI insights will be limited")

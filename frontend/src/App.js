@@ -2043,6 +2043,13 @@ function MainApp() {
                   <Target className="w-5 h-5 text-red-600 mr-3 group-hover:scale-110 transition-transform" />
                   <span className="font-medium text-gray-700">Social</span>
                 </button>
+                <button
+                  onClick={() => navigateToTab('reglages')}
+                  className="flex items-center w-full p-3 rounded-xl hover:bg-gray-50 text-left transition-colors group"
+                >
+                  <Settings className="w-5 h-5 text-gray-600 mr-3 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium text-gray-700">Réglages</span>
+                </button>
                 <hr className="my-2" />
                 <button
                   onClick={() => {

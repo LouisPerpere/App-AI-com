@@ -1013,7 +1013,7 @@ function MainApp() {
   // Handle profile update form submission
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsUpdatingProfile(true);
     
     try {
       const response = await axios.put(`${API}/business-profile`, editProfileForm, {
@@ -1032,7 +1032,7 @@ function MainApp() {
       console.error('Error updating profile:', error);
       toast.error('Erreur lors de la mise à jour du profil');
     } finally {
-      setIsLoading(false);
+      setIsUpdatingProfile(false);
     }
   };
 

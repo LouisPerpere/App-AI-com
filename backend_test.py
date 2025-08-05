@@ -3125,10 +3125,15 @@ def main():
         # NEW: Website Analysis Tests
         ("Website Analysis Models Validation", tester.test_website_analysis_models_validation),
         ("New Subscription Plans Validation", tester.test_new_subscription_plans_validation),
+        ("Website Analysis (Google.com)", tester.test_website_analysis_with_google_url),
         ("Website Analysis (Valid URL)", tester.test_website_analysis_with_valid_url),
         ("Website Analysis (Invalid URL)", tester.test_website_analysis_invalid_url),
+        ("Website Analysis (Unreachable URL)", tester.test_website_analysis_unreachable_url),
         ("Get Website Analysis", tester.test_get_website_analysis),
         ("Delete Website Analysis", tester.test_delete_website_analysis),
+        ("Business Profile Website URL Integration", tester.test_business_profile_website_url_integration),
+        ("Website Analysis Storage in MongoDB", tester.test_website_analysis_storage_in_mongodb),
+        ("Website Analysis Force Reanalysis", tester.test_website_analysis_force_reanalysis),
         
         # Content and Post Integration Tests (basic functionality)
         ("Upload Content Batch", tester.test_upload_content_batch),

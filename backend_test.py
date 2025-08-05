@@ -5725,6 +5725,17 @@ def main():
         ("Analytics Error Handling (No Posts)", tester.test_analytics_error_handling_no_posts),
         ("AI Recommendations and Fallback", tester.test_analytics_ai_recommendations_fallback),
         ("Pattern Analysis (Hashtags, Keywords, etc.)", tester.test_analytics_pattern_analysis),
+        
+        # PHASE 3: Adaptive Prompt Optimization System Tests
+        ("Prompt Performance Analysis", tester.test_prompt_performance_analysis),
+        ("Generate Optimized Prompt", tester.test_generate_optimized_prompt),
+        ("Prompt Performance History", tester.test_prompt_performance_history),
+        ("Get Optimized Prompts", tester.test_get_optimized_prompts),
+        ("Adaptive Content Generation Metadata", tester.test_adaptive_content_generation_metadata),
+        ("Prompt Optimization Fallback System", tester.test_prompt_optimization_fallback_system),
+        ("Prompt Version Tracking", tester.test_prompt_version_tracking),
+        ("AI Optimization Insights Generation", tester.test_ai_optimization_insights_generation),
+        ("Expected Improvement Calculations", tester.test_expected_improvement_calculations),
     ]
     
     for test_name, test_func in tests:

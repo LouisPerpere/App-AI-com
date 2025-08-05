@@ -452,6 +452,7 @@ function MainApp() {
         loadPendingContent();
         loadNotes();
         loadSocialConnections();
+        loadWebsiteAnalysis();
       }
     }
   }, [isAuthenticated, user, businessProfile]);

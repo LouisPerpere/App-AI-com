@@ -2579,6 +2579,117 @@ class SocialGenieAPITester:
         )
         return success
 
+    def test_upload_content_batch(self):
+        """Test uploading content batch"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+        
+        # Create a simple test image file
+        try:
+            import tempfile
+            with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as tmp_file:
+                # Write minimal JPEG data
+                tmp_file.write(b'\xff\xd8\xff\xe0\x10JFIF\x01\x01\x01HH\xff\xdbC\x08\x06\x06\x07\x06\x05\x08\x07\x07\x07\t\t\x08\n\x0c\x14\r\x0c\x0b\x0b\x0c\x19\x12\x13\x0f\x14\x1d\x1a\x1f\x1e\x1d\x1a\x1c\x1c $.\' ",#\x1c\x1c(7),01444\x1f\'9=82<.342\xff\xc0\x11\x08\x01\x01\x01\x01\x11\x02\x11\x01\x03\x11\x01\xff\xc4\x14\x01\x08\xff\xc4\x14\x10\x01\xff\xda\x0c\x03\x01\x02\x11\x03\x11\x3f\xaa\xff\xd9')
+                tmp_file_path = tmp_file.name
+
+            with open(tmp_file_path, 'rb') as f:
+                files = [('files', ('test_image.jpg', f, 'image/jpeg'))]
+                
+                success, response = self.run_test(
+                    "Upload Content Batch",
+                    "POST",
+                    "upload-content-batch",
+                    200,
+                    files=files
+                )
+                
+                if success:
+                    uploaded_count = len(response.get('uploaded_content', []))
+                    print(f"✅ Successfully uploaded {uploaded_count} files")
+                    if response.get('uploaded_content'):
+                        self.content_id = response['uploaded_content'][0].get('id')
+                        print(f"   First content ID: {self.content_id}")
+                    return True
+                    
+            # Clean up temp file
+            os.unlink(tmp_file_path)
+            return success
+            
+        except Exception as e:
+            print(f"❌ Error creating test content: {e}")
+            return False
+
+    def test_describe_content(self):
+        """Test describing uploaded content"""
+        if not self.access_token or not self.content_id:
+            print("❌ Skipping - No access token or content ID available")
+            return False
+            
+        # Use form data for this endpoint
+        data = {'description': 'Test restaurant dish - Coq au vin with seasonal vegetables'}
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        
+        success, response = self.run_test(
+            "Describe Content",
+            "POST",
+            f"content/{self.content_id}/describe",
+            200,
+            data=data,
+            headers=headers
+        )
+        
+        if success:
+            generated_posts = response.get('generated_posts', 0)
+            print(f"✅ Generated {generated_posts} posts from content description")
+            if response.get('posts'):
+                self.post_id = response['posts'][0].get('id')
+                print(f"   First post ID: {self.post_id}")
+            return True
+        return success
+
+    def test_get_posts(self):
+        """Test getting user posts"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        success, response = self.run_test(
+            "Get User Posts",
+            "GET",
+            "posts",
+            200
+        )
+        
+        if success:
+            posts_count = response.get('total', 0)
+            print(f"✅ Retrieved {posts_count} posts")
+            if response.get('posts') and len(response['posts']) > 0:
+                if not self.post_id:
+                    self.post_id = response['posts'][0].get('id')
+                    print(f"   First post ID: {self.post_id}")
+            return True
+        return success
+
+    def test_approve_post(self):
+        """Test approving a post"""
+        if not self.access_token or not self.post_id:
+            print("❌ Skipping - No access token or post ID available")
+            return False
+            
+        success, response = self.run_test(
+            "Approve Post",
+            "PUT",
+            f"posts/{self.post_id}/approve",
+            200
+        )
+        
+        if success:
+            print("✅ Post approved successfully")
+            print(f"   Message: {response.get('message', 'N/A')}")
+            return True
+        return success
+
     def test_login_response_structure_investigation(self):
         """Investigate the exact structure of login API response for token field naming"""
         print(f"\n🔍 LOGIN RESPONSE STRUCTURE INVESTIGATION")

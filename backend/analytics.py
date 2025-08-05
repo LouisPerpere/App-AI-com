@@ -969,6 +969,9 @@ JSON format attendu : {{"posts": [{{"content": "...", "hashtags": [...], "optimi
 # Initialize Analytics Engine
 analytics_engine = AnalyticsEngine()
 
+# Initialize Prompt Optimizer
+prompt_optimizer = PromptOptimizer()
+
 # API Endpoints
 @analytics_router.post("/analyze")
 async def trigger_performance_analysis(

@@ -508,8 +508,9 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Analytics System Backend Core"
+    - "Social Media Metrics Collection"
     - "Notes API Endpoints"
-    - "Notes Tab Interface"
     - "Posts Generation from Notes"
   stuck_tasks: []
   test_all: false

@@ -1615,6 +1615,101 @@ function MainApp() {
           </div>
         </div>
       )}
+
+      {/* Floating Burger Menu */}
+      <div className="fixed bottom-6 left-6 z-40">
+        <div className="relative">
+          <Button
+            onClick={() => setShowBurgerMenu(!showBurgerMenu)}
+            className="w-14 h-14 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110"
+          >
+            <div className="flex flex-col space-y-1">
+              <div className={`w-4 h-0.5 bg-white transition-all duration-300 ${showBurgerMenu ? 'rotate-45 translate-y-1.5' : ''}`}></div>
+              <div className={`w-4 h-0.5 bg-white transition-all duration-300 ${showBurgerMenu ? 'opacity-0' : ''}`}></div>
+              <div className={`w-4 h-0.5 bg-white transition-all duration-300 ${showBurgerMenu ? '-rotate-45 -translate-y-1.5' : ''}`}></div>
+            </div>
+          </Button>
+
+          {/* Menu Items */}
+          {showBurgerMenu && (
+            <div className="absolute bottom-16 left-0 bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 min-w-[200px] animate-in slide-in-from-bottom-2">
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    document.querySelector('[value="entreprise"]').click();
+                    setShowBurgerMenu(false);
+                  }}
+                  className="flex items-center w-full p-3 rounded-xl hover:bg-blue-50 text-left transition-colors group"
+                >
+                  <Building className="w-5 h-5 text-blue-600 mr-3 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium text-gray-700">Entreprise</span>
+                </button>
+                <button
+                  onClick={() => {
+                    document.querySelector('[value="bibliotheque"]').click();
+                    setShowBurgerMenu(false);
+                  }}
+                  className="flex items-center w-full p-3 rounded-xl hover:bg-purple-50 text-left transition-colors group"
+                >
+                  <ImageIcon className="w-5 h-5 text-purple-600 mr-3 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium text-gray-700">Bibliothèque</span>
+                </button>
+                <button
+                  onClick={() => {
+                    document.querySelector('[value="notes"]').click();
+                    setShowBurgerMenu(false);
+                  }}
+                  className="flex items-center w-full p-3 rounded-xl hover:bg-green-50 text-left transition-colors group"
+                >
+                  <FileText className="w-5 h-5 text-green-600 mr-3 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium text-gray-700">Notes</span>
+                </button>
+                <button
+                  onClick={() => {
+                    document.querySelector('[value="posts"]').click();
+                    setShowBurgerMenu(false);
+                  }}
+                  className="flex items-center w-full p-3 rounded-xl hover:bg-orange-50 text-left transition-colors group"
+                >
+                  <Send className="w-5 h-5 text-orange-600 mr-3 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium text-gray-700">Posts</span>
+                </button>
+                <button
+                  onClick={() => {
+                    document.querySelector('[value="calendrier"]').click();
+                    setShowBurgerMenu(false);
+                  }}
+                  className="flex items-center w-full p-3 rounded-xl hover:bg-indigo-50 text-left transition-colors group"
+                >
+                  <CalendarIcon className="w-5 h-5 text-indigo-600 mr-3 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium text-gray-700">Calendrier</span>
+                </button>
+                <button
+                  onClick={() => {
+                    document.querySelector('[value="social"]').click();
+                    setShowBurgerMenu(false);
+                  }}
+                  className="flex items-center w-full p-3 rounded-xl hover:bg-red-50 text-left transition-colors group"
+                >
+                  <Target className="w-5 h-5 text-red-600 mr-3 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium text-gray-700">Social</span>
+                </button>
+                <hr className="my-2" />
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setShowBurgerMenu(false);
+                  }}
+                  className="flex items-center w-full p-3 rounded-xl hover:bg-red-50 text-left transition-colors group"
+                >
+                  <LogOut className="w-5 h-5 text-red-600 mr-3 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium text-gray-700">Se déconnecter</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 

@@ -1111,16 +1111,6 @@ function MainApp() {
               <Badge className="badge-info px-4 py-2">
                 {generatedPosts.filter(p => p.status === 'pending').length} posts en attente
               </Badge>
-              
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={handleLogout}
-                className="text-gray-600 hover:text-gray-900 border-2 rounded-xl px-6"
-              >
-                <LogOut className="w-5 h-5 mr-2" />
-                Déconnexion
-              </Button>
             </div>
           </div>
         </div>

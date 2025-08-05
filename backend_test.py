@@ -18,6 +18,9 @@ class SocialGenieAPITester:
         self.user_id = None
         self.plan_id = None
         self.promo_code_id = None
+        self.note_id_high = None
+        self.note_id_medium = None
+        self.note_id_low = None
         self.tests_run = 0
         self.tests_passed = 0
 

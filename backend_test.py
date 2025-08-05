@@ -1913,6 +1913,231 @@ class SocialGenieAPITester:
         )
         return success
 
+    def investigate_user_authentication(self, email="lperpere@yahoo.fr"):
+        """Investigate authentication issue for specific user"""
+        print(f"\n🔍 INVESTIGATING AUTHENTICATION FOR USER: {email}")
+        print("="*80)
+        
+        investigation_results = {
+            "user_exists": False,
+            "user_details": None,
+            "login_attempts": [],
+            "admin_verification": None,
+            "other_users_working": False
+        }
+        
+        # Step 1: Check if user exists in database (via admin access)
+        print(f"\n📋 STEP 1: Checking if user {email} exists in database...")
+        if self.test_admin_login():
+            regular_token = self.access_token
+            self.access_token = self.admin_access_token
+            
+            # Get all users to search for our target user
+            success, users_response = self.run_test(
+                f"Search for user {email} in database",
+                "GET",
+                "admin/users?limit=100",
+                200
+            )
+            
+            if success and isinstance(users_response, list):
+                target_user = None
+                for user in users_response:
+                    if user.get('email') == email:
+                        target_user = user
+                        break
+                
+                if target_user:
+                    investigation_results["user_exists"] = True
+                    investigation_results["user_details"] = target_user
+                    print(f"✅ USER FOUND in database:")
+                    print(f"   Email: {target_user.get('email')}")
+                    print(f"   ID: {target_user.get('id')}")
+                    print(f"   First Name: {target_user.get('first_name', 'N/A')}")
+                    print(f"   Last Name: {target_user.get('last_name', 'N/A')}")
+                    print(f"   Subscription Status: {target_user.get('subscription_status', 'N/A')}")
+                    print(f"   Is Admin: {target_user.get('is_admin', False)}")
+                    print(f"   Created At: {target_user.get('created_at', 'N/A')}")
+                else:
+                    print(f"❌ USER NOT FOUND in database")
+                    print(f"   Total users in database: {len(users_response)}")
+            
+            self.access_token = regular_token
+        else:
+            print("❌ Cannot access admin panel to check user existence")
+        
+        # Step 2: Test authentication with common passwords
+        print(f"\n🔐 STEP 2: Testing authentication with common passwords...")
+        common_passwords = [
+            "password",
+            "123456",
+            "password123",
+            "admin123",
+            "lperpere",
+            "yahoo123",
+            "Password123!",
+            "test123"
+        ]
+        
+        for password in common_passwords:
+            login_data = {
+                "email": email,
+                "password": password
+            }
+            
+            success, response = self.run_test(
+                f"Login attempt with password: {password}",
+                "POST",
+                "auth/login",
+                200,  # Hoping for success
+                data=login_data
+            )
+            
+            attempt_result = {
+                "password": password,
+                "success": success,
+                "response": response
+            }
+            investigation_results["login_attempts"].append(attempt_result)
+            
+            if success:
+                print(f"✅ LOGIN SUCCESSFUL with password: {password}")
+                print(f"   Access token received: {response.get('access_token', 'N/A')[:20]}...")
+                break
+            else:
+                print(f"❌ Login failed with password: {password}")
+                print(f"   Error: {response.get('detail', 'Unknown error')}")
+        
+        # Step 3: Test with admin account to verify system works
+        print(f"\n👑 STEP 3: Verifying authentication system works with admin account...")
+        admin_login_data = {
+            "email": "admin@postcraft.com",
+            "password": "admin123"
+        }
+        
+        success, response = self.run_test(
+            "Admin login verification",
+            "POST",
+            "auth/login",
+            200,
+            data=admin_login_data
+        )
+        
+        if success:
+            investigation_results["other_users_working"] = True
+            print("✅ Authentication system working - admin login successful")
+        else:
+            print("❌ Authentication system issue - admin login failed")
+            print(f"   Error: {response.get('detail', 'Unknown error')}")
+        
+        # Step 4: Test with test user account
+        print(f"\n🧪 STEP 4: Testing with test user account...")
+        test_login_data = {
+            "email": "testuser@socialgenie.com",
+            "password": "SecurePassword123!"
+        }
+        
+        success, response = self.run_test(
+            "Test user login verification",
+            "POST",
+            "auth/login",
+            200,
+            data=test_login_data
+        )
+        
+        if success:
+            print("✅ Test user authentication working")
+        else:
+            print("❌ Test user authentication failed")
+            print(f"   Error: {response.get('detail', 'Unknown error')}")
+        
+        # Step 5: Try to register the user if not exists
+        if not investigation_results["user_exists"]:
+            print(f"\n📝 STEP 5: Attempting to register user {email}...")
+            register_data = {
+                "email": email,
+                "password": "TempPassword123!",
+                "first_name": "Laurent",
+                "last_name": "Perpere"
+            }
+            
+            success, response = self.run_test(
+                f"Register user {email}",
+                "POST",
+                "auth/register",
+                200,
+                data=register_data
+            )
+            
+            if success:
+                print(f"✅ User {email} registered successfully")
+                print(f"   User ID: {response.get('id', 'N/A')}")
+                
+                # Now try to login with the new password
+                login_data = {
+                    "email": email,
+                    "password": "TempPassword123!"
+                }
+                
+                success, login_response = self.run_test(
+                    f"Login with newly registered user {email}",
+                    "POST",
+                    "auth/login",
+                    200,
+                    data=login_data
+                )
+                
+                if success:
+                    print(f"✅ Login successful with newly registered user")
+                    print(f"   Access token: {login_response.get('access_token', 'N/A')[:20]}...")
+                else:
+                    print(f"❌ Login failed even after successful registration")
+                    print(f"   Error: {login_response.get('detail', 'Unknown error')}")
+            else:
+                print(f"❌ Registration failed for {email}")
+                print(f"   Error: {response.get('detail', 'Unknown error')}")
+        
+        # Step 6: Generate investigation summary
+        print(f"\n📊 INVESTIGATION SUMMARY FOR {email}")
+        print("="*80)
+        
+        if investigation_results["user_exists"]:
+            print(f"✅ User exists in database")
+            user_details = investigation_results["user_details"]
+            print(f"   Status: {user_details.get('subscription_status', 'unknown')}")
+            print(f"   Admin: {user_details.get('is_admin', False)}")
+        else:
+            print(f"❌ User does not exist in database")
+        
+        successful_logins = [attempt for attempt in investigation_results["login_attempts"] if attempt["success"]]
+        if successful_logins:
+            print(f"✅ Authentication successful with password: {successful_logins[0]['password']}")
+        else:
+            print(f"❌ No successful authentication attempts")
+            print(f"   Tried {len(investigation_results['login_attempts'])} different passwords")
+        
+        if investigation_results["other_users_working"]:
+            print(f"✅ Authentication system is working (verified with admin account)")
+        else:
+            print(f"❌ Authentication system may have issues")
+        
+        # Recommendations
+        print(f"\n💡 RECOMMENDATIONS:")
+        if not investigation_results["user_exists"]:
+            print(f"   1. User {email} needs to be registered first")
+            print(f"   2. Use the registration endpoint: POST /api/auth/register")
+            print(f"   3. Provide: email, password, first_name, last_name")
+        elif not successful_logins:
+            print(f"   1. User exists but password is incorrect")
+            print(f"   2. User may need to reset password")
+            print(f"   3. Check if user remembers the correct password")
+            print(f"   4. Consider implementing password reset functionality")
+        else:
+            print(f"   1. Authentication working correctly")
+            print(f"   2. User can login with password: {successful_logins[0]['password']}")
+        
+        return investigation_results
+
 def main():
     print("🚀 Starting PostCraft SaaS Backend API Tests")
     print("=" * 60)

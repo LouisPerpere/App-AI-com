@@ -1245,7 +1245,7 @@ function MainApp() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           <div className="overflow-x-auto">
-            <TabsList className="grid grid-cols-6 w-full max-w-4xl mx-auto bg-white/80 backdrop-blur-lg p-2 rounded-2xl shadow-xl min-w-max">
+            <TabsList className="grid grid-cols-7 w-full max-w-5xl mx-auto bg-white/80 backdrop-blur-lg p-2 rounded-2xl shadow-xl min-w-max">
               <TabsTrigger value="entreprise" className="tab-sexy">
                 <Building className="w-5 h-5" />
                 <span className="ml-2 font-semibold">Entreprise</span>
@@ -1269,6 +1269,10 @@ function MainApp() {
               <TabsTrigger value="social" className="tab-sexy">
                 <Target className="w-5 h-5" />
                 <span className="ml-2 font-semibold">Social</span>
+              </TabsTrigger>
+              <TabsTrigger value="reglages" className="tab-sexy">
+                <Settings className="w-5 h-5" />
+                <span className="ml-2 font-semibold">Réglages</span>
               </TabsTrigger>
             </TabsList>
           </div>

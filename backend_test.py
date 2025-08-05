@@ -1128,7 +1128,8 @@ def main():
         
         # Payment System Tests
         ("Get Public Subscription Plans", tester.test_get_public_subscription_plans),
-        ("Validate Promo Code (Invalid)", tester.test_validate_promo_code),
+        ("Validate Promo Code (Invalid)", tester.test_validate_promo_code_invalid),
+        ("Validate Created Promo Code", tester.test_validate_created_promo_code),
         ("Create Payment Intent (No Stripe)", tester.test_create_payment_intent_no_stripe),
         ("Get My Subscription", tester.test_get_my_subscription),
         ("Cancel Subscription", tester.test_cancel_subscription),

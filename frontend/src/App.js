@@ -1759,7 +1759,7 @@ function MainApp() {
                   <Button
                     onClick={connectFacebook}
                     disabled={isConnectingSocial}
-                    className="btn-gradient-primary h-16 px-12 text-xl font-bold"
+                    className="btn-gradient-primary h-14 px-6 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                   >
                     {isConnectingSocial ? '⏳ Connexion en cours...' : '🔗 Connecter Facebook/Instagram'}
                   </Button>

@@ -281,6 +281,21 @@ backend:
         agent: "testing"
         comment: "✅ TESTED: Dependencies installation working correctly. All required dependencies (httpx for HTTP requests, pydantic for data validation) are properly installed and imported. No import errors or dependency conflicts detected."
 
+  - task: "User Password Reset for lperpere@yahoo.fr"
+    implemented: true
+    working: true
+    file: "/app/backend/auth.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "user"
+        comment: "User requested password change for lperpere@yahoo.fr (ID: c1c76afa-a112-40ad-809e-a180aa04f007) to 'L@Reunion974!' using bcrypt hashing and database update."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPLETED: Password reset successfully completed for lperpere@yahoo.fr. PROCESS: (1) Verified user exists in database with correct ID c1c76afa-a112-40ad-809e-a180aa04f007, (2) Used get_password_hash() function from auth.py to hash new password 'L@Reunion974!' with bcrypt, (3) Updated hashed_password field in MongoDB users collection, (4) Verified password hash stored correctly in database, (5) Tested authentication with new credentials - login successful with 200 status, (6) Confirmed JWT token generation working (access_token and refresh_token), (7) Verified authenticated endpoint access (/api/auth/me) returns correct user data, (8) Confirmed subscription status endpoint working - user has trial status with 13 days remaining. Password change is complete and fully functional. User can now login with lperpere@yahoo.fr / L@Reunion974!"
+
 frontend:
   - task: "SaaS Admin Dashboard Frontend"
     implemented: true

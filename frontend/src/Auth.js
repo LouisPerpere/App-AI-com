@@ -136,7 +136,7 @@ const AuthPage = ({ onAuthSuccess }) => {
             
             <p className="text-xl text-gray-600 leading-relaxed max-w-2xl">
               Créez, planifiez et publiez des contenus <strong>engageants</strong> qui convertissent. 
-              Automatisez votre succès en quelques clics ! ⚡
+              Boostez votre succès en quelques clics ! ⚡
             </p>
           </div>
 

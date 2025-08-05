@@ -4470,11 +4470,66 @@ def main():
         print(f"⚠️  {tester.tests_run - tester.tests_passed} tests failed")
         return 1
 
+    def run_scheduler_tests(self):
+        """Run scheduler system tests specifically"""
+        print("🕐 Starting Scheduler System Tests...")
+        print(f"   Testing automatic generation and scheduler functionality")
+        
+        # Authentication first
+        print("\n" + "="*60)
+        print("🔐 AUTHENTICATION FOR SCHEDULER TESTS")
+        print("="*60)
+        
+        if not self.test_user_login():
+            print("❌ Cannot proceed without authentication")
+            return
+        
+        # Scheduler System Tests
+        print("\n" + "="*60)
+        print("🕐 SCHEDULER SYSTEM TESTS")
+        print("="*60)
+        
+        self.test_scheduler_module_import()
+        self.test_database_scheduled_tasks_collection()
+        self.test_email_configuration()
+        self.test_lperpere_business_profile()
+        self.test_content_uploads_and_notes()
+        self.test_content_scheduler_calculate_next_generation_date()
+        self.test_content_scheduler_calculate_content_reminder_date()
+        self.test_email_service_send_content_reminder()
+        self.test_auto_content_generator_sector_specific()
+        self.test_content_scheduler_generate_posts_automatically()
+        
+        # Print scheduler test results
+        print("\n" + "="*60)
+        print("📊 SCHEDULER TEST RESULTS")
+        print("="*60)
+        
+        success_rate = (self.tests_passed / self.tests_run) * 100 if self.tests_run > 0 else 0
+        
+        print(f"Total Scheduler Tests Run: {self.tests_run}")
+        print(f"Tests Passed: {self.tests_passed}")
+        print(f"Tests Failed: {self.tests_run - self.tests_passed}")
+        print(f"Success Rate: {success_rate:.1f}%")
+        
+        if success_rate >= 80:
+            print("🎉 Scheduler Status: WORKING CORRECTLY")
+        elif success_rate >= 60:
+            print("⚠️  Scheduler Status: NEEDS ATTENTION")
+        else:
+            print("❌ Scheduler Status: CRITICAL ISSUES")
+        
+        return success_rate
+
 if __name__ == "__main__":
     import sys
     
+    # Check if we should run only scheduler tests
+    if len(sys.argv) > 1 and sys.argv[1] == "scheduler":
+        tester = SocialGenieAPITester()
+        tester.run_scheduler_tests()
     # Check if we should run the investigation
-    if len(sys.argv) > 1 and sys.argv[1] == "investigate":
+    elif len(sys.argv) > 1 and sys.argv[1] == "investigate":
         email = sys.argv[2] if len(sys.argv) > 2 else "lperpere@yahoo.fr"
         tester = SocialGenieAPITester()
         tester.investigate_user_authentication(email)

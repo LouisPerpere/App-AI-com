@@ -95,15 +95,48 @@ code {
     justify-content: center;
     font-weight: 700;
     font-size: 1.2rem;
+    position: relative;
+    width: 32px;
+    height: 32px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
   }
 
   .logo-c {
-    color: #8B5CF6; /* purple-500 */
-    margin-right: -0.1em;
+    color: #ffffff;
+    margin-right: -0.15em;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
   }
 
   .logo-m {
-    color: #EC4899; /* pink-500 */
+    color: #ffffff;  
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+
+  /* Watch-like animation */
+  .logo-cm::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 1px;
+  }
+
+  .logo-cm::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 2px;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 1px;
   }
 
   /* Gradients sexy pour les boutons */

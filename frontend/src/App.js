@@ -916,6 +916,36 @@ function MainApp() {
     }
   };
 
+  // LinkedIn connection function
+  const connectLinkedIn = async () => {
+    try {
+      setIsConnectingSocial(true);
+      const response = await axios.get(`${API}/linkedin/auth-url`);
+      
+      // Open LinkedIn OAuth window
+      const popup = window.open(
+        response.data.auth_url,
+        'linkedin-auth',
+        'width=600,height=600,scrollbars=yes,resizable=yes'
+      );
+      
+      // Listen for popup closure or message
+      const checkClosed = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(checkClosed);
+          setIsConnectingSocial(false);
+          // Refresh social connections
+          fetchSocialConnections();
+        }
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Error connecting LinkedIn:', error);
+      toast.error('Erreur lors de la connexion LinkedIn');
+      setIsConnectingSocial(false);
+    }
+  };
+
   const disconnectSocialAccount = async (connectionId) => {
     try {
       await axios.delete(`${API}/social/connection/${connectionId}`);

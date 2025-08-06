@@ -2680,7 +2680,7 @@ function MainApp() {
         }}
         user={user}
         canClose={window.upgradeModalConfig?.canClose !== false}
-        title={window.upgradeModalConfig?.title || "Débloquez PostCraft Premium"}
+        title={window.upgradeModalConfig?.title || "Débloquez Claire et Marcus Premium"}
       />
 
       {/* Settings Modal for Website Analysis */}

@@ -269,7 +269,7 @@ const SubscriptionUpgrade = ({ user, onUpgradeSuccess }) => {
             
             <div className="text-center">
               <p className="text-sm text-green-700 font-medium">
-                Profitez de votre mois gratuit pour découvrir PostCraft ! 🚀
+                Profitez de votre mois gratuit pour découvrir Claire et Marcus ! 🚀
               </p>
             </div>
           </div>

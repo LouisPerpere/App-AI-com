@@ -8081,8 +8081,13 @@ def main():
 if __name__ == "__main__":
     import sys
     
+    # Check if we should run LinkedIn integration tests
+    if len(sys.argv) > 1 and sys.argv[1] == "linkedin":
+        tester = SocialGenieAPITester()
+        success = tester.run_linkedin_integration_tests()
+        sys.exit(0 if success else 1)
     # Check if we should run Phase 2 subscription popup tests
-    if len(sys.argv) > 1 and sys.argv[1] == "popup":
+    elif len(sys.argv) > 1 and sys.argv[1] == "popup":
         tester = SocialGenieAPITester()
         success = tester.run_phase2_subscription_popup_tests()
         sys.exit(0 if success else 1)

@@ -372,7 +372,7 @@ const SubscriptionUpgrade = ({ user, onUpgradeSuccess }) => {
 };
 
 // Upgrade Modal Component
-const UpgradeModal = ({ isOpen, onClose, user, canClose = true, title = "Débloquez PostCraft Premium" }) => {
+const UpgradeModal = ({ isOpen, onClose, user, canClose = true, title = "Débloquez Claire et Marcus Premium" }) => {
   if (!isOpen) return null;
 
   return (

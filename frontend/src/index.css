@@ -88,6 +88,24 @@ code {
 }
 
 @layer components {
+  /* Logo CM Styling */
+  .logo-cm {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+
+  .logo-c {
+    color: #8B5CF6; /* purple-500 */
+    margin-right: -0.1em;
+  }
+
+  .logo-m {
+    color: #EC4899; /* pink-500 */
+  }
+
   /* Gradients sexy pour les boutons */
   .btn-gradient-primary {
     @apply bg-gradient-to-r from-purple-600 via-pink-600 to-red-500;

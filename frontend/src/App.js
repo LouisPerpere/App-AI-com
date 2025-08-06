@@ -245,9 +245,9 @@ const SubscriptionUpgrade = ({ user, onUpgradeSuccess }) => {
         {/* Plans grid */}
         <div className="space-y-6 mb-8">
           {/* Free Trial Plan */}
-          <div className="relative rounded-2xl p-6 border-4 border-green-400 bg-gradient-to-b from-green-50 to-white shadow-lg">
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge className="bg-green-500 text-white px-4 py-2 text-sm font-bold">🎉 Actuellement actif</Badge>
+          <div className="relative rounded-2xl p-6 pt-8 border-4 border-green-400 bg-gradient-to-b from-green-50 to-white shadow-lg">
+            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 z-10">
+              <Badge className="bg-green-500 text-white px-4 py-1.5 text-xs font-bold rounded-full shadow-md">🎉 Actuellement actif</Badge>
             </div>
             
             <div className="text-center mb-4">

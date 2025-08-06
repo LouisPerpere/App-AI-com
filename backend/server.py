@@ -1106,6 +1106,102 @@ async def generate_posts_from_notes(
         logging.error(f"Error generating posts from notes: {e}")
         raise HTTPException(status_code=500, detail=f"Error generating posts: {str(e)}")
 
+# LinkedIn Integration Endpoints
+@api_router.get("/linkedin/auth-url")
+async def get_linkedin_auth_url():
+    """Get LinkedIn OAuth authorization URL"""
+    try:
+        auth_data = linkedin_auth.generate_auth_url()
+        return auth_data
+    except Exception as e:
+        logging.error(f"Error generating LinkedIn auth URL: {e}")
+        raise HTTPException(status_code=500, detail="Error generating authentication URL")
+
+@api_router.get("/linkedin/callback")
+async def linkedin_callback(code: str = None, state: str = None, error: str = None):
+    """Handle LinkedIn OAuth callback"""
+    if error:
+        logging.error(f"LinkedIn authentication error: {error}")
+        raise HTTPException(status_code=400, detail=f"LinkedIn authentication error: {error}")
+    
+    if not code or not state:
+        raise HTTPException(status_code=400, detail="Missing authorization code or state parameter")
+    
+    try:
+        # Exchange code for token
+        token_data = await linkedin_auth.exchange_code_for_token(code)
+        
+        # Get user profile
+        user_profile = await linkedin_profile.get_user_profile(token_data["access_token"])
+        
+        return {
+            "status": "success",
+            "message": "LinkedIn authentication successful",
+            "token_data": token_data,
+            "user_profile": user_profile
+        }
+    except Exception as e:
+        logging.error(f"LinkedIn callback error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/linkedin/profile")
+async def get_linkedin_profile_info(access_token: str):
+    """Get LinkedIn profile information"""
+    try:
+        profile = await linkedin_profile.get_user_profile(access_token)
+        return profile
+    except Exception as e:
+        logging.error(f"Error getting LinkedIn profile: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/linkedin/organizations")
+async def get_linkedin_organizations(access_token: str, member_urn: str):
+    """Get organizations where user can post"""
+    try:
+        organizations = await linkedin_profile.get_user_organizations(access_token, member_urn)
+        return organizations
+    except Exception as e:
+        logging.error(f"Error getting LinkedIn organizations: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/linkedin/post")
+async def create_linkedin_post(
+    access_token: str = Form(...),
+    author_urn: str = Form(...),
+    text_content: str = Form(...),
+    post_type: str = Form("text"),
+    article_url: Optional[str] = Form(None),
+    article_title: Optional[str] = Form(None),
+    article_description: Optional[str] = Form(None)
+):
+    """Create a LinkedIn post"""
+    try:
+        if post_type == "text":
+            result = await linkedin_posts.create_text_post(
+                access_token=access_token,
+                author_urn=author_urn,
+                text_content=text_content
+            )
+        elif post_type == "article":
+            if not article_url:
+                raise HTTPException(status_code=400, detail="Article URL required for article posts")
+            
+            result = await linkedin_posts.create_article_post(
+                access_token=access_token,
+                author_urn=author_urn,
+                text_content=text_content,
+                article_url=article_url,
+                article_title=article_title,
+                article_description=article_description
+            )
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported post type")
+        
+        return result
+    except Exception as e:
+        logging.error(f"Error creating LinkedIn post: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Include routers in the main app
 app.include_router(api_router)
 app.include_router(admin_router, prefix="/api")  # Admin routes

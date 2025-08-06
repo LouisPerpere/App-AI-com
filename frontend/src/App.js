@@ -2482,12 +2482,13 @@ function MainApp() {
                           </svg>
                         </div>
                         <h3 className="font-semibold text-gray-900 mb-2">LinkedIn</h3>
-                        <p className="text-sm text-gray-600 mb-4">Bientôt disponible</p>
+                        <p className="text-sm text-gray-600 mb-4">Publiez sur votre profil professionnel</p>
                         <Button
-                          disabled
-                          className="w-full bg-gradient-to-r from-gray-400 to-gray-500"
+                          onClick={connectLinkedIn}
+                          disabled={isConnectingSocial}
+                          className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
                         >
-                          🚧 En développement
+                          {isConnectingSocial ? '⏳ Connexion...' : '🔗 Connecter'}
                         </Button>
                       </div>
                     </div>

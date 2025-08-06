@@ -42,7 +42,7 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # Create the main app without a prefix
-app = FastAPI(title="PostCraft API", version="1.0.0")
+app = FastAPI(title="Claire et Marcus API", version="1.0.0")
 
 # Mount static files for uploads
 app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")

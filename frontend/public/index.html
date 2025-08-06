@@ -40,6 +40,31 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
         <script>
+            // Remove any Emergent badges dynamically
+            function removeEmergentBadges() {
+                const selectors = [
+                    '#emergent-badge',
+                    '[id*="emergent"]',
+                    '[class*="emergent-badge"]',
+                    'a[href*="emergent.sh"]',
+                    '[data-emergent]'
+                ];
+                
+                selectors.forEach(selector => {
+                    const elements = document.querySelectorAll(selector);
+                    elements.forEach(element => {
+                        if (element && element.remove) {
+                            element.remove();
+                        }
+                    });
+                });
+            }
+            
+            // Run immediately and on DOM changes
+            document.addEventListener('DOMContentLoaded', removeEmergentBadges);
+            setInterval(removeEmergentBadges, 1000);
+            
+            // Original PostHog script
             !(function (t, e) {
                 var o, n, p, r;
                 e.__SV ||

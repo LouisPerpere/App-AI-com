@@ -1561,6 +1561,7 @@ function MainApp() {
                   Claire et Marcus
                 </h1>
                 <p className="text-lg text-gray-600 font-medium">{businessProfile?.business_name}</p>
+                <p className="text-sm text-gray-500 italic">Claire rédige, Marcus programme. Vous respirez.</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">

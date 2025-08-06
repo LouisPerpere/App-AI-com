@@ -935,7 +935,7 @@ function MainApp() {
           clearInterval(checkClosed);
           setIsConnectingSocial(false);
           // Refresh social connections
-          fetchSocialConnections();
+          loadSocialConnections();
         }
       }, 1000);
       

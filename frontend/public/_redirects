@@ -1,0 +1,5 @@
+# Netlify Redirects for Claire et Marcus SPA
+/*    /index.html   200
+
+# API redirects (if you want to proxy API calls through Netlify)
+/api/*  https://votre-backend-url.com/api/:splat  200

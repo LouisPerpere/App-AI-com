@@ -125,7 +125,7 @@ const AuthPage = ({ onAuthSuccess }) => {
                 </h1>
                 <div className="text-sm text-gray-500 claire-marcus-subtitle">
                   <p>Claire rédige, Marcus programme.</p>
-                  <p className="text-purple-600 font-bold text-base mt-1">Vous respirez.</p>
+                  <p className="text-purple-600 font-bold text-base mt-1 breathing-text">Vous respirez.</p>
                 </div>
               </div>
             </div>

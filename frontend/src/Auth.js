@@ -114,13 +114,16 @@ const AuthPage = ({ onAuthSuccess }) => {
           <div className="space-y-4">
             <div className="inline-flex items-center space-x-3 bg-white p-4 rounded-2xl shadow-lg">
               <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center">
-                <Sparkles className="w-7 h-7 text-white animate-pulse" />
+                <div className="logo-cm">
+                  <span className="logo-c">C</span>
+                  <span className="logo-m">M</span>
+                </div>
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  PostCraft
+                  Claire et Marcus
                 </h1>
-                <p className="text-sm text-gray-500 font-medium">by SocialGénie</p>
+                <p className="text-sm text-gray-500 font-medium">Claire rédige, Marcus programme. Vous respirez.</p>
               </div>
             </div>
           </div>

@@ -1550,7 +1550,10 @@ function MainApp() {
               <Avatar className="w-16 h-16 ring-4 ring-purple-200/50">
                 <AvatarImage src={businessProfile?.logo_url ? `${BACKEND_URL}${businessProfile.logo_url}` : ""} />
                 <AvatarFallback className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 text-white text-xl font-bold">
-                  <Building className="w-8 h-8" />
+                  <div className="logo-cm text-white text-xl">
+                    <span className="logo-c">C</span>
+                    <span className="logo-m">M</span>
+                  </div>
                 </AvatarFallback>
               </Avatar>
               <div>

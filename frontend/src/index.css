@@ -88,7 +88,17 @@ code {
 }
 
 @layer components {
-  /* Dynamic Typography for Claire et Marcus */
+  /* Hide any emergent badges */
+#emergent-badge,
+[id*="emergent"],
+[class*="emergent-badge"],
+a[href*="emergent.sh"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Dynamic Typography for Claire et Marcus */
 .claire-marcus-title {
   font-family: 'Poppins', sans-serif;
   font-weight: 700;

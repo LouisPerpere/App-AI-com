@@ -399,7 +399,7 @@ const UpgradeModal = ({ isOpen, onClose, user, canClose = true, title = "Débloq
             {user?.subscription_status === 'expired' ? (
               <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
                 <p className="text-red-800 font-medium">
-                  ⚠️ Votre période d'essai a expiré. Choisissez un plan pour continuer à utiliser PostCraft.
+                  ⚠️ Votre période d'essai a expiré. Choisissez un plan pour continuer à utiliser Claire et Marcus.
                 </p>
               </div>
             ) : (

@@ -27,6 +27,7 @@ from payments import payment_router
 from social_media import social_router
 from website_analyzer import website_router
 from analytics import analytics_router
+from linkedin_integration import linkedin_auth, linkedin_profile, linkedin_posts
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')

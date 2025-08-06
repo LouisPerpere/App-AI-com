@@ -1555,7 +1555,7 @@ function MainApp() {
               </Avatar>
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 bg-clip-text text-transparent">
-                  PostCraft
+                  Claire et Marcus
                 </h1>
                 <p className="text-lg text-gray-600 font-medium">{businessProfile?.business_name}</p>
               </div>

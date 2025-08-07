@@ -598,7 +598,7 @@ async def create_checkout_session(
         cancel_url = f"{request.origin_url.rstrip('/')}/?payment_cancelled=true"
         
         # Create checkout session
-        checkout_request = CheckoutSessionRequest(
+        checkout_request = SimpleCheckoutSessionRequest(
             amount=final_amount,
             currency="eur",
             success_url=success_url,
@@ -606,7 +606,7 @@ async def create_checkout_session(
             metadata=metadata
         )
         
-        session: CheckoutSessionResponse = await stripe_checkout.create_checkout_session(checkout_request)
+        session: SimpleCheckoutSessionResponse = await stripe_checkout.create_checkout_session(checkout_request)
         
         # Create payment transaction record
         transaction = PaymentTransaction(

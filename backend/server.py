@@ -1106,6 +1106,16 @@ async def generate_posts_from_notes(
         logging.error(f"Error generating posts from notes: {e}")
         raise HTTPException(status_code=500, detail=f"Error generating posts: {str(e)}")
 
+# Basic health check endpoint
+@api_router.get("/health")
+async def health_check():
+    """Health check endpoint for monitoring"""
+    return {
+        "status": "healthy",
+        "service": "Claire et Marcus API",
+        "timestamp": datetime.now().isoformat()
+    }
+
 # LinkedIn Integration Endpoints
 @api_router.get("/linkedin/auth-url")
 async def get_linkedin_auth_url():

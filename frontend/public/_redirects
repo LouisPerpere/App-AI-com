@@ -1,5 +1,7 @@
 # Netlify Redirects for Claire et Marcus SPA
-/*    /index.html   200
 
-# API redirects (if you want to proxy API calls through Netlify)
+# API redirects (MUST be before /* rule)
 /api/*  https://claire-marcus-api.onrender.com/api/:splat  200
+
+# SPA fallback (MUST be last)
+/*    /index.html   200

@@ -80,13 +80,23 @@ const AuthPage = ({ onAuthSuccess }) => {
     }
 
     try {
+      console.log('🚀 REGISTRATION START - Making API call to:', `${API}/auth/register`);
+      console.log('🚀 REGISTRATION DATA:', {
+        email: registerForm.email,
+        password: registerForm.password.substring(0, 3) + '***',
+        business_name: `${registerForm.first_name} ${registerForm.last_name}`
+      });
+
       const response = await axios.post(`${API}/auth/register`, {
         email: registerForm.email,
         password: registerForm.password,
         business_name: `${registerForm.first_name} ${registerForm.last_name}`
       });
 
+      console.log('✅ REGISTRATION SUCCESS:', response.data);
       toast.success('Compte créé avec succès ! 🎉');
+      
+      console.log('🔄 AUTO-LOGIN START - Making API call to:', `${API}/auth/login`);
       
       // Auto login after registration
       const loginResponse = await axios.post(`${API}/auth/login`, {
@@ -94,12 +104,18 @@ const AuthPage = ({ onAuthSuccess }) => {
         password: registerForm.password
       });
 
+      console.log('✅ AUTO-LOGIN SUCCESS:', loginResponse.data);
+
+      // Store tokens
       localStorage.setItem('access_token', loginResponse.data.access_token || loginResponse.data.token);
       localStorage.setItem('refresh_token', loginResponse.data.refresh_token);
       
+      console.log('🎉 CALLING onAuthSuccess()');
       onAuthSuccess();
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('❌ REGISTRATION ERROR:', error);
+      console.error('❌ ERROR RESPONSE:', error.response?.data);
+      console.error('❌ ERROR STATUS:', error.response?.status);
       setError(error.response?.data?.detail || 'Erreur lors de la création du compte');
       toast.error('Erreur de création de compte');
     } finally {

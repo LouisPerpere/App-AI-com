@@ -711,7 +711,7 @@ async def stripe_webhook(request: Request):
         if not STRIPE_API_KEY:
             raise HTTPException(status_code=500, detail="Stripe not configured")
         
-        stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url="")
+        stripe_checkout = SimpleStripeCheckout(api_key=STRIPE_API_KEY, webhook_url="")
         webhook_response = await stripe_checkout.handle_webhook(body, signature)
         
         # Process webhook based on event type

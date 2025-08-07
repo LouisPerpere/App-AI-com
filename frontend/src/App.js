@@ -1179,6 +1179,20 @@ function MainApp() {
     return <AuthPage onAuthSuccess={checkAuth} />;
   }
 
+  // Show payment page if requested
+  if (showPaymentPage) {
+    return (
+      <PaymentPage 
+        onSuccess={() => {
+          setShowPaymentPage(false);
+          // Reload subscription data
+          checkAuth();
+        }}
+        onCancel={() => setShowPaymentPage(false)}
+      />
+    );
+  }
+
   // Show admin dashboard for admin users
   if (user?.is_admin) {
     return <AdminDashboard user={user} onLogout={handleLogout} />;

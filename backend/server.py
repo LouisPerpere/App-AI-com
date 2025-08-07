@@ -6,6 +6,15 @@ from datetime import datetime
 import os
 import uuid
 
+# Import the modern payments module
+try:
+    from payments_v2 import payments_router
+    PAYMENTS_V2_AVAILABLE = True
+    print("✅ Modern Stripe payments module loaded")
+except ImportError as e:
+    print(f"⚠️ Modern payments module not available: {e}")
+    PAYMENTS_V2_AVAILABLE = False
+
 # FastAPI app
 app = FastAPI(title="Claire et Marcus API", version="1.0.0")
 

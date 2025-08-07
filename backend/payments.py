@@ -3,14 +3,19 @@ from typing import Optional, Dict, Any
 from datetime import datetime, timedelta
 from pydantic import BaseModel, Field
 import uuid
-import stripe
 import os
 from dotenv import load_dotenv
 from pathlib import Path
 import logging
 from motor.motor_asyncio import AsyncIOMotorClient
 from auth import get_current_active_user, User
-from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionResponse, CheckoutStatusResponse, CheckoutSessionRequest
+
+# Simple Stripe integration without emergentintegrations
+try:
+    import stripe
+    STRIPE_AVAILABLE = True
+except ImportError:
+    STRIPE_AVAILABLE = False
 
 # Simple replacement classes for emergentintegrations
 class SimpleCheckoutSessionRequest(BaseModel):

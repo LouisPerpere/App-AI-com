@@ -2005,10 +2005,10 @@ function MainApp() {
                         Modifier profil
                       </Button>
                       <Button
-                        onClick={() => window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})}
+                        onClick={() => setShowPaymentPage(true)}
                         className="h-16 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 flex-col"
                       >
-                        <Crown className="w-6 h-6 mb-1" />
+                        <CreditCard className="w-6 h-6 mb-1" />
                         Voir abonnements
                       </Button>
                       <Button

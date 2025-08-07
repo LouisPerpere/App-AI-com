@@ -443,6 +443,8 @@ class ClaireEtMarcusPaymentTester:
             self.test_error_handling_malformed_request,
             self.test_french_error_messages,
             self.test_cors_headers,
+            self.test_webhook_endpoint_structure,
+            self.test_checkout_status_endpoint,
             self.test_security_server_side_validation
         ]
         

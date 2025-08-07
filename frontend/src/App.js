@@ -25,7 +25,7 @@ import { Building, Sparkles, Crown, Upload, ImageIcon, FileText, X, Edit, Calend
 // Import toast for notifications
 import { toast } from 'react-hot-toast';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://claire-marcus-api.onrender.com';
 const API = `${BACKEND_URL}/api`;
 
 // Subscription plans data

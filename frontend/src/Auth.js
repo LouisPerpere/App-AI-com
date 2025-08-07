@@ -79,8 +79,7 @@ const AuthPage = ({ onAuthSuccess }) => {
       const response = await axios.post(`${API}/auth/register`, {
         email: registerForm.email,
         password: registerForm.password,
-        first_name: registerForm.first_name,
-        last_name: registerForm.last_name
+        business_name: `${registerForm.first_name} ${registerForm.last_name}`
       });
 
       toast.success('Compte créé avec succès ! 🎉');
@@ -91,7 +90,7 @@ const AuthPage = ({ onAuthSuccess }) => {
         password: registerForm.password
       });
 
-      localStorage.setItem('access_token', loginResponse.data.access_token);
+      localStorage.setItem('access_token', loginResponse.data.access_token || loginResponse.data.token);
       localStorage.setItem('refresh_token', loginResponse.data.refresh_token);
       
       onAuthSuccess();

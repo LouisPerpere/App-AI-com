@@ -101,6 +101,20 @@ async def login(credentials: LoginRequest):
         "expires_in": 3600
     }
 
+@api_router.get("/auth/me")
+async def get_current_user():
+    """Get current user info (demo mode)"""
+    return {
+        "user_id": str(uuid.uuid4()),
+        "email": "demo@claire-marcus.com",
+        "first_name": "Demo",
+        "last_name": "User",
+        "business_name": "Demo Business",
+        "subscription_status": "trial",
+        "trial_days_remaining": 14,
+        "created_at": datetime.now().isoformat()
+    }
+
 # Business profile endpoints
 @api_router.get("/business-profile")
 async def get_business_profile():

@@ -441,6 +441,18 @@ backend:
         comment: "✅ FRONTEND TESTING COMPLETED: Phase 1 Business Profile Editing frontend functionality tested comprehensively and working perfectly. COMPLETE END-TO-END TESTING: (1) ✅ NAVIGATION - Successfully navigated to Réglages tab and accessed business profile section, (2) ✅ PROFILE DISPLAY - Business profile clearly displayed with all data (Restaurant Le Bon Goût Réunionnais), (3) ✅ EDIT ACTIVATION - 'Modifier le profil' button functional, seamless transition to edit mode with purple/indigo gradient styling, (4) ✅ FORM FIELDS - All 11 required fields present and properly initialized: business_name, business_type, target_audience, brand_tone, posting_frequency, preferred_platforms (checkboxes), budget_range, email, website_url, hashtags_primary, hashtags_secondary, (5) ✅ FIELD INTERACTIONS - Successfully tested typing, selecting, and checkbox toggling, (6) ✅ FORM SUBMISSION - Save button functional, data persists through backend API, form switches back to display mode, (7) ✅ CANCEL FUNCTIONALITY - Cancel button works correctly, changes discarded, returns to display mode, (8) ✅ UI/UX - Professional purple/indigo gradient theme, responsive design across desktop/tablet/mobile, clean modern interface, (9) ✅ DATA VALIDATION - Backend API confirmed working with user lperpere@yahoo.fr credentials. The complete Phase 1 business profile editing workflow is 100% functional end-to-end."
 
 frontend:
+  - task: "Claire et Marcus Live Registration Flow"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/Auth.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL FAILURE: Complete registration flow testing on live site https://claire-marcus.netlify.app reveals MAJOR AUTHENTICATION BYPASS ISSUE. DETAILED FINDINGS: (1) ❌ NO API CALLS - Registration form submission with email 'success.final@claire-marcus.com' and password 'FinalSuccess123!' makes ZERO network requests to production backend https://claire-marcus-api.onrender.com, (2) ❌ DEMO MODE ACTIVE - Site initially loads as authenticated without localStorage tokens, suggesting hardcoded demo authentication is active, (3) ❌ AUTHENTICATION BYPASS - Users can access dashboard without proper registration/login flow, completely bypassing authentication, (4) ✅ BACKEND URL CONFIGURED - Console logs confirm correct backend URL configuration (https://claire-marcus-api.onrender.com/api), (5) ❌ REGISTRATION BROKEN - Real user registration is impossible as no API calls are made to POST /api/auth/register, (6) ❌ LOGIN BROKEN - Auto-login after registration also fails as no API calls made to POST /api/auth/login, (7) ❌ AUTH/ME BROKEN - No calls to GET /api/auth/me for user verification. INVESTIGATION PROCESS: (a) Site initially appears authenticated, (b) Clearing localStorage correctly shows auth page, (c) Registration form fills and submits successfully, (d) User reaches dashboard without any API interaction, (e) Network monitoring confirms ZERO requests to production backend. ROOT CAUSE: Frontend appears to be running in demo mode that completely bypasses production API integration. IMMEDIATE ACTION REQUIRED: Frontend needs investigation to disable demo mode and enable proper API integration with production backend. Registration flow is completely non-functional for real users."
+
   - task: "SaaS Admin Dashboard Frontend"
     implemented: true
     working: true

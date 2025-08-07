@@ -1,0 +1,4 @@
+Fixed Netlify environment variable issue
+Removed .env.production file that was interfering
+Backend URL should now work: https://claire-marcus-api.onrender.com
+Force redeploy: 2025-08-07 20:45:00

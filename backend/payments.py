@@ -254,18 +254,19 @@ async def create_payment_intent(
             currency="EUR"
         )
         
-    except stripe.error.StripeError as e:
-        logging.error(f"Stripe error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Erreur de paiement: {str(e)}"
-        )
     except Exception as e:
-        logging.error(f"Payment intent creation error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erreur lors de la création du paiement"
-        )
+        if STRIPE_AVAILABLE and hasattr(e, '__module__') and 'stripe' in str(e.__module__):
+            logging.error(f"Stripe error: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Erreur de paiement: {str(e)}"
+            )
+        else:
+            logging.error(f"Payment intent creation error: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Erreur lors de la création du paiement"
+            )
 
 @payment_router.post("/confirm-subscription")
 async def confirm_subscription(

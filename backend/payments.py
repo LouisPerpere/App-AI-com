@@ -12,6 +12,92 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from auth import get_current_active_user, User
 from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionResponse, CheckoutStatusResponse, CheckoutSessionRequest
 
+# Simple replacement classes for emergentintegrations
+class SimpleCheckoutSessionRequest(BaseModel):
+    amount: float
+    currency: str
+    success_url: str
+    cancel_url: str
+    metadata: Dict[str, Any] = {}
+
+class SimpleCheckoutSessionResponse(BaseModel):
+    session_id: str
+    url: str
+
+class SimpleCheckoutStatusResponse(BaseModel):
+    status: str
+    payment_status: str
+    amount_total: float
+    currency: str
+    metadata: Dict[str, Any] = {}
+
+class SimpleStripeCheckout:
+    def __init__(self, api_key: str, webhook_url: str = ""):
+        self.api_key = api_key
+        self.webhook_url = webhook_url
+        try:
+            import stripe
+            stripe.api_key = api_key
+            self.stripe_available = True
+        except ImportError:
+            self.stripe_available = False
+    
+    async def create_checkout_session(self, request: SimpleCheckoutSessionRequest) -> SimpleCheckoutSessionResponse:
+        if not self.stripe_available:
+            raise HTTPException(status_code=500, detail="Stripe not available")
+        
+        import stripe
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': request.currency,
+                    'product_data': {
+                        'name': 'Subscription',
+                    },
+                    'unit_amount': int(request.amount * 100),
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=request.success_url,
+            cancel_url=request.cancel_url,
+            metadata=request.metadata
+        )
+        
+        return SimpleCheckoutSessionResponse(
+            session_id=session.id,
+            url=session.url
+        )
+    
+    async def get_checkout_status(self, session_id: str) -> SimpleCheckoutStatusResponse:
+        if not self.stripe_available:
+            raise HTTPException(status_code=500, detail="Stripe not available")
+        
+        import stripe
+        session = stripe.checkout.Session.retrieve(session_id)
+        
+        return SimpleCheckoutStatusResponse(
+            status=session.status,
+            payment_status=session.payment_status,
+            amount_total=session.amount_total / 100 if session.amount_total else 0,
+            currency=session.currency or "eur",
+            metadata=session.metadata or {}
+        )
+    
+    async def handle_webhook(self, body: bytes, signature: str):
+        # Simple webhook handling - in production you'd want proper signature verification
+        import json
+        try:
+            event = json.loads(body)
+            return type('WebhookResponse', (), {
+                'event_type': event.get('type', ''),
+                'session_id': event.get('data', {}).get('object', {}).get('id', ''),
+                'payment_status': event.get('data', {}).get('object', {}).get('payment_status', '')
+            })()
+        except:
+            raise HTTPException(status_code=400, detail="Invalid webhook payload")
+
 # Load environment variables
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')

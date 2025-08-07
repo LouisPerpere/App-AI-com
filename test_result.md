@@ -619,9 +619,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Adaptive Prompt Optimization System"
-    - "Prompt Performance API Endpoints"
-  stuck_tasks: []
+    - "Claire et Marcus Live Registration Flow"
+  stuck_tasks:
+    - "Claire et Marcus Live Registration Flow"
   test_all: false
   test_priority: "high_first"
 

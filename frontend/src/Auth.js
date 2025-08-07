@@ -12,6 +12,10 @@ import { toast } from 'sonner';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://claire-marcus-api.onrender.com';
 const API = `${BACKEND_URL}/api`;
 
+// Debug log (temporary)
+console.log('🔍 AUTH DEBUG - BACKEND_URL:', BACKEND_URL);
+console.log('🔍 AUTH DEBUG - API:', API);
+
 const AuthPage = ({ onAuthSuccess }) => {
   const [activeTab, setActiveTab] = useState('login');
   const [showPassword, setShowPassword] = useState(false);

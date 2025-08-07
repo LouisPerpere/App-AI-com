@@ -71,12 +71,22 @@ async def root():
 @api_router.post("/auth/register")
 async def register(user_data: RegisterRequest):
     """User registration (demo mode)"""
+    # Create a business name from first_name + last_name if not provided
+    business_name = user_data.business_name
+    if not business_name and user_data.first_name and user_data.last_name:
+        business_name = f"{user_data.first_name} {user_data.last_name}"
+    elif not business_name:
+        business_name = "Mon entreprise"
+    
     return {
         "message": "Registration successful (demo mode)",
         "user_id": str(uuid.uuid4()),
         "email": user_data.email,
-        "business_name": user_data.business_name,
-        "token": f"demo_token_{uuid.uuid4()}"
+        "business_name": business_name,
+        "first_name": user_data.first_name,
+        "last_name": user_data.last_name,
+        "access_token": f"demo_token_{uuid.uuid4()}",
+        "refresh_token": f"demo_refresh_{uuid.uuid4()}"
     }
 
 @api_router.post("/auth/login")

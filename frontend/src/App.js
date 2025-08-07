@@ -462,6 +462,7 @@ function MainApp() {
   const [notes, setNotes] = useState([]);
   const [currentPostIndex, setCurrentPostIndex] = useState(0);
   const [socialConnections, setSocialConnections] = useState([]);
+  const [showPaymentPage, setShowPaymentPage] = useState(false);
   
   // Form states
   const [profileForm, setProfileForm] = useState({

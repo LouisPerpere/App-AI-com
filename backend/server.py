@@ -37,7 +37,9 @@ class LoginRequest(BaseModel):
 class RegisterRequest(BaseModel):
     email: str
     password: str
-    business_name: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    business_name: Optional[str] = None
 
 # Basic health check endpoint
 @api_router.get("/health")

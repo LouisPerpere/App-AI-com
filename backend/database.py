@@ -44,7 +44,7 @@ class DatabaseManager:
     
     def _initialize_collections(self):
         """Initialize database collections with indexes"""
-        if not self.db:
+        if self.db is None:
             return
         
         collections = {

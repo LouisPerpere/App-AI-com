@@ -591,7 +591,7 @@ async def create_checkout_session(
                 "message": "Demo mode: Payment simulation successful"
             }
         
-        stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+        stripe_checkout = SimpleStripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
         
         # Create success and cancel URLs
         success_url = f"{request.origin_url.rstrip('/')}/?session_id={{CHECKOUT_SESSION_ID}}&payment_success=true"

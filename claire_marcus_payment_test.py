@@ -380,30 +380,45 @@ class ClaireEtMarcusPaymentTester:
         
         return success
 
-    def test_security_server_side_validation(self):
-        """Test that server-side package validation prevents price manipulation"""
-        # Try to send manipulated data that should be ignored
-        checkout_data = {
-            "package_id": "starter_monthly",
-            "origin_url": "https://claire-marcus.netlify.app",
-            "amount": 1.00,  # Try to manipulate price
-            "currency": "usd",  # Try to change currency
-            "fake_field": "should_be_ignored"
+    def test_webhook_endpoint_structure(self):
+        """Test POST /api/payments/webhook/stripe endpoint structure"""
+        webhook_data = {
+            "type": "checkout.session.completed",
+            "data": {"object": {"id": "cs_test_123"}}
         }
         
         success, response = self.run_test(
-            "Server-side Security Validation",
+            "Stripe Webhook Endpoint Structure",
             "POST",
-            "payments/v1/checkout/session",
+            "payments/webhook/stripe",
             503,  # Expected 503 due to emergentintegrations not available
-            data=checkout_data
+            data=webhook_data
         )
         
         if success:
             detail = response.get('detail', '')
-            if 'Payment system temporarily unavailable' in detail:
-                print("   ✅ Expected 503 error - emergentintegrations library not available")
-                print("   ✅ Endpoint accepts request structure (security validation will work when library available)")
+            if 'Webhook processing unavailable' in detail:
+                print("   ✅ Webhook endpoint accessible with proper error handling")
+                return True
+        
+        return success
+
+    def test_checkout_status_endpoint(self):
+        """Test GET /api/payments/v1/checkout/status/{session_id} endpoint"""
+        test_session_id = "cs_test_demo_123456789"
+        
+        success, response = self.run_test(
+            "Checkout Status Endpoint",
+            "GET",
+            f"payments/v1/checkout/status/{test_session_id}",
+            503,  # Expected 503 due to emergentintegrations not available
+            data=None
+        )
+        
+        if success:
+            detail = response.get('detail', '')
+            if 'Payment system unavailable' in detail:
+                print("   ✅ Checkout status endpoint accessible with proper error handling")
                 return True
         
         return success

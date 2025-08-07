@@ -349,18 +349,19 @@ async def confirm_subscription(
             "plan": plan["name"]
         }
         
-    except stripe.error.StripeError as e:
-        logging.error(f"Stripe error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Erreur Stripe: {str(e)}"
-        )
     except Exception as e:
-        logging.error(f"Subscription confirmation error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erreur lors de la confirmation de l'abonnement"
-        )
+        if STRIPE_AVAILABLE and hasattr(e, '__module__') and 'stripe' in str(e.__module__):
+            logging.error(f"Stripe error: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Erreur Stripe: {str(e)}"
+            )
+        else:
+            logging.error(f"Subscription confirmation error: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Erreur lors de la confirmation de l'abonnement"
+            )
 
 @payment_router.get("/subscription-plans")
 async def get_public_subscription_plans():

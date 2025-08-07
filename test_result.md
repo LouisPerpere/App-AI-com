@@ -628,6 +628,10 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+agent_communication:
+  - agent: "testing"
+    message: "🚨 CRITICAL BACKEND ISSUE IDENTIFIED: Claire et Marcus registration flow testing reveals that the backend API at https://claire-marcus-api.onrender.com is completely unresponsive. Frontend is correctly implemented and making proper API calls, but backend times out after 30+ seconds with no response. This is a production-critical issue that requires immediate backend service investigation and restart. The registration flow cannot function until the backend API is restored. Recommend checking Render.com service status, logs, and database connectivity."
+
   - task: "Website Analysis Routes"
     implemented: true
     working: true

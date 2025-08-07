@@ -446,6 +446,23 @@ const UpgradeModal = ({ isOpen, onClose, user, canClose = true, title = "Débloq
 function MainApp() {
   const location = useLocation();
   
+  // TEMPORARY DEBUG MODE - Remove after fixing
+  const [debugMode, setDebugMode] = useState(true);
+  
+  if (debugMode) {
+    return (
+      <div>
+        <div style={{ padding: '10px', backgroundColor: '#f0f0f0', borderBottom: '2px solid #ccc' }}>
+          <button onClick={() => setDebugMode(false)} style={{ padding: '5px 10px', marginRight: '10px' }}>
+            Exit Debug Mode
+          </button>
+          <strong>DEBUG MODE ACTIVE - Testing API Connection</strong>
+        </div>
+        <TestAuth />
+      </div>
+    );
+  }
+  
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);

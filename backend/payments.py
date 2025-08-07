@@ -113,7 +113,8 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # Stripe configuration
-stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', '')
+if STRIPE_AVAILABLE:
+    stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', '')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
 STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY', '')
 

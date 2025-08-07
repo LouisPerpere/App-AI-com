@@ -20,7 +20,7 @@ from datetime import datetime
 
 class Phase2Tester:
     def __init__(self):
-        self.base_url = "https://e48319d7-ea62-4fd4-b021-88f53f870d6a.preview.emergentagent.com"
+        self.base_url = "https://695df8b6-f35a-43f1-868e-76efa78021c5.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.business_id = None

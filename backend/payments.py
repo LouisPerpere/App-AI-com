@@ -226,6 +226,12 @@ async def create_payment_intent(
                 amount -= discount_amount
         
         # Create Stripe payment intent
+        if not STRIPE_AVAILABLE:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Stripe not available"
+            )
+        
         intent = stripe.PaymentIntent.create(
             amount=int(amount * 100),  # Stripe uses cents
             currency="eur",

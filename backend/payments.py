@@ -662,10 +662,10 @@ async def get_checkout_status(
             )
         
         # Initialize Stripe checkout
-        stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url="")
+        stripe_checkout = SimpleStripeCheckout(api_key=STRIPE_API_KEY, webhook_url="")
         
         # Get status from Stripe
-        checkout_status: CheckoutStatusResponse = await stripe_checkout.get_checkout_status(session_id)
+        checkout_status: SimpleCheckoutStatusResponse = await stripe_checkout.get_checkout_status(session_id)
         
         # Update transaction record only if status changed
         if (checkout_status.payment_status != transaction["payment_status"] or 

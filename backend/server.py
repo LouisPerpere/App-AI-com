@@ -115,6 +115,20 @@ async def get_current_user():
         "created_at": datetime.now().isoformat()
     }
 
+@api_router.get("/auth/me")
+async def get_current_user_info():
+    """Get current user information (demo mode)"""
+    return {
+        "user_id": str(uuid.uuid4()),
+        "email": "demo@claire-marcus.com",
+        "first_name": "Demo",
+        "last_name": "User", 
+        "business_name": "Demo Business",
+        "subscription_status": "trial",
+        "trial_days_remaining": 30,
+        "created_at": datetime.now().isoformat()
+    }
+
 # Business profile endpoints
 @api_router.get("/business-profile")
 async def get_business_profile():

@@ -4,6 +4,7 @@ import './App.css';
 import axios from 'axios';
 import AuthPage from './Auth';
 import TestAuth from './TestAuth';
+import PaymentPage from './PaymentPage';
 import AdminDashboard from './AdminDashboard';
 import FacebookCallback from './FacebookCallback';
 

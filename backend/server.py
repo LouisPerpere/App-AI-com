@@ -96,7 +96,8 @@ async def login(credentials: LoginRequest):
         "message": "Login successful (demo mode)",
         "user_id": str(uuid.uuid4()),
         "email": credentials.email,
-        "token": f"demo_token_{uuid.uuid4()}",
+        "access_token": f"demo_token_{uuid.uuid4()}",
+        "refresh_token": f"demo_refresh_{uuid.uuid4()}",
         "expires_in": 3600
     }
 

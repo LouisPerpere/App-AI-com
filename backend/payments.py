@@ -275,6 +275,12 @@ async def confirm_subscription(
     """Confirm subscription after successful payment"""
     try:
         # Verify payment intent
+        if not STRIPE_AVAILABLE:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Stripe not available"
+            )
+        
         intent = stripe.PaymentIntent.retrieve(subscription_data.payment_intent_id)
         
         if intent.status != "succeeded":

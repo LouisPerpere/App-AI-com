@@ -288,6 +288,13 @@ async def analyze_website(request: dict):
 # Include the API router
 app.include_router(api_router)
 
+# Include the modern payments router
+if PAYMENTS_V2_AVAILABLE:
+    app.include_router(payments_router)
+    print("✅ Modern Stripe payments endpoints added")
+else:
+    print("⚠️ Payments endpoints not available - running without Stripe integration")
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,

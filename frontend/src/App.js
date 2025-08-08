@@ -447,7 +447,13 @@ const UpgradeModal = ({ isOpen, onClose, user, canClose = true, title = "Débloq
 function MainApp() {
   const location = useLocation();
   
-  // Authentication state
+  // Optimized form handlers to prevent input bugs
+  const handleEditProfileChange = (field, value) => {
+    setEditProfileForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [activeStep, setActiveStep] = useState('onboarding');

@@ -1961,7 +1961,7 @@ function MainApp() {
                                   <textarea
                                     id="business_description_edit"
                                     value={editProfileForm.business_description || ''}
-                                    onChange={handleInputChange('business_description')}
+                                    onChange={stableHandlers.business_description}
                                     placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
                                     rows={3}
                                     required

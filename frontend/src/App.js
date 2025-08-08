@@ -463,6 +463,15 @@ function MainApp() {
       [field]: value
     }));
   }, []);
+
+  // Optimized note form handler
+  const handleNoteFormChange = useCallback((field, value) => {
+    console.log(`🔧 Note field changed: ${field} =`, value); // Debug log
+    setNoteForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  }, []);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [activeStep, setActiveStep] = useState('onboarding');

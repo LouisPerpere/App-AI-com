@@ -14,7 +14,7 @@ import tempfile
 from pathlib import Path
 
 class SchedulerSystemTester:
-    def __init__(self, base_url="https://695df8b6-f35a-43f1-868e-76efa78021c5.preview.emergentagent.com"):
+    def __init__(self, base_url="https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.access_token = None

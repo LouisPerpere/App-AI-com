@@ -2713,7 +2713,7 @@ function MainApp() {
                         id="email"
                         type="email"
                         value={user?.email || ''}
-                        onChange={(e) => setUser({...user, email: e.target.value})}
+                        onChange={(e) => handleUserChange('email', e.target.value)}
                         className="mt-1"
                         placeholder="votre@email.com"
                       />

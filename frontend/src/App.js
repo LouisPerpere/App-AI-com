@@ -1945,6 +1945,7 @@ function MainApp() {
                                     Site web
                                   </Label>
                                   <Input
+                                    key="website_url_input"
                                     id="website_url"
                                     type="url"
                                     value={editProfileForm.website_url}

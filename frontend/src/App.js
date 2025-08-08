@@ -1808,7 +1808,7 @@ function MainApp() {
                                   <Textarea
                                     id="target_audience"
                                     value={editProfileForm.target_audience}
-                                    onChange={(e) => setEditProfileForm(prev => ({...prev, target_audience: e.target.value}))}
+                                    onChange={(e) => handleEditProfileChange('target_audience', e.target.value)}
                                     placeholder="Décrivez votre audience cible"
                                     rows={3}
                                     required

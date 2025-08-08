@@ -1933,7 +1933,7 @@ function MainApp() {
                                     id="website_url"
                                     type="url"
                                     value={editProfileForm.website_url}
-                                    onChange={(e) => setEditProfileForm(prev => ({...prev, website_url: e.target.value}))}
+                                    onChange={(e) => handleEditProfileChange('website_url', e.target.value)}
                                     placeholder="https://votre-site.com"
                                   />
                                 </div>

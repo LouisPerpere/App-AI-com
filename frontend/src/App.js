@@ -1779,6 +1779,7 @@ function MainApp() {
                                     Nom de l'entreprise *
                                   </Label>
                                   <Input
+                                    key="business_name_input"
                                     id="business_name"
                                     value={editProfileForm.business_name}
                                     onChange={(e) => handleEditProfileChange('business_name', e.target.value)}

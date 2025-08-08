@@ -1148,20 +1148,14 @@ function MainApp() {
   // Handle cancelling profile edit
   const handleCancelEditProfile = () => {
     setIsEditingProfile(false);
-    setEditProfileForm({
-      business_name: '',
-      business_type: '',
-      business_description: '',
-      target_audience: '',
-      brand_tone: '',
-      posting_frequency: '',
-      preferred_platforms: [],
-      budget_range: '',
-      email: '',
-      website_url: '',
-      hashtags_primary: [],
-      hashtags_secondary: []
-    });
+    setEditBusinessName('');
+    setEditBusinessType('');
+    setEditBusinessDescription('');
+    setEditTargetAudience('');
+    setEditEmail('');
+    setEditWebsiteUrl('');
+    setEditBudgetRange('');
+    setEditPreferredPlatforms([]);
   };
 
   // Handle platform selection in edit form

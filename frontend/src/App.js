@@ -1868,8 +1868,8 @@ function MainApp() {
                               <Textarea
                                 id="target_audience_fix"
                                 placeholder="Décrivez votre audience cible"
-                                value={editProfileForm.target_audience}
-                                onChange={(e) => setEditProfileForm({ ...editProfileForm, target_audience: e.target.value })}
+                                value={editTargetAudience}
+                                onChange={(e) => setEditTargetAudience(e.target.value)}
                                 rows={3}
                                 required
                               />

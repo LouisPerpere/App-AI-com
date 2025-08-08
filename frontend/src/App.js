@@ -2075,6 +2075,68 @@ function MainApp() {
                     </Button>
                   </div>
                 )}
+
+                {/* Website Analysis Section */}
+                <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                      <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                        <Globe className="w-4 h-4 text-purple-600" />
+                      </div>
+                      Analyse de votre site web
+                    </h3>
+                    <Button
+                      onClick={() => setShowWebsiteAnalysis(true)}
+                      className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white"
+                      size="sm"
+                    >
+                      <Globe className="w-4 h-4 mr-2" />
+                      Analyser mon site
+                    </Button>
+                  </div>
+                  
+                  {websiteAnalysis ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-green-600">✅ Analyse terminée</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => analyzeWebsite(true)}
+                          disabled={isAnalyzingWebsite}
+                        >
+                          {isAnalyzingWebsite ? '🔄 Analyse...' : '🔄 Re-analyser'}
+                        </Button>
+                      </div>
+                      <p className="text-sm text-gray-600">
+                        Dernière analyse : {new Date(websiteAnalysis.analyzed_at).toLocaleDateString('fr-FR')}
+                      </p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowWebsiteAnalysis(true)}
+                        className="text-blue-600 hover:bg-blue-50"
+                      >
+                        👁️ Voir les détails
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-gray-600 text-sm mb-3">
+                        Analysez votre site web pour générer du contenu personnalisé
+                      </p>
+                      <Button
+                        onClick={() => setShowWebsiteAnalysis(true)}
+                        variant="outline"
+                        className="text-purple-600 border-purple-200 hover:bg-purple-50"
+                      >
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Commencer l'analyse
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
               </CardContent>
             </Card>
           </TabsContent>

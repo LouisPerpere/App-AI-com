@@ -1855,6 +1855,8 @@ function MainApp() {
                             <EditProfileForm 
                               editProfileForm={editProfileForm}
                               onFieldChange={handleEditProfileFieldChange}
+                              onPlatformToggle={handlePlatformToggle}
+                              onHashtagChange={handleHashtagChange}
                               businessTypes={[
                                 { value: "restaurant", label: "Restaurant" },
                                 { value: "shop", label: "Commerce" },

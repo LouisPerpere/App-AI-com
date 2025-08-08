@@ -1134,7 +1134,7 @@ function MainApp() {
     
     try {
       const response = await axios.put(`${API}/business-profile`, editProfileForm, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
       });
       
       setBusinessProfile(response.data);

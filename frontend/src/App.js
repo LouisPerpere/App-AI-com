@@ -1283,10 +1283,11 @@ function MainApp() {
               <div className="space-y-3">
                 <Label htmlFor="business_name" className="text-gray-700 font-semibold">Nom de l'entreprise</Label>
                 <Input
+                  key="onboarding_business_name_input"
                   id="business_name"
                   placeholder="Mon Restaurant"
                   value={profileForm.business_name}
-                  onChange={(e) => setProfileForm({...profileForm, business_name: e.target.value})}
+                  onChange={(e) => setProfileForm(prev => ({...prev, business_name: e.target.value}))}
                   required
                   className="input-modern"
                 />

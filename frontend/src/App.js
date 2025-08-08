@@ -2419,10 +2419,11 @@ function MainApp() {
                       <div>
                         <Label htmlFor="note-content" className="text-gray-700 font-medium">Contenu</Label>
                         <textarea
+                          key="note_content_input"
                           id="note-content"
                           placeholder="Décrivez les détails importants que vous voulez voir apparaître dans vos posts..."
                           value={noteForm.content}
-                          onChange={(e) => setNoteForm({...noteForm, content: e.target.value})}
+                          onChange={(e) => handleNoteFormChange('content', e.target.value)}
                           className="mt-1 w-full min-h-[120px] p-3 border border-indigo-200 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 resize-y"
                           required
                         />

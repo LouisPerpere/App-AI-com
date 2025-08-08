@@ -488,16 +488,6 @@ function MainApp() {
     website_url: ''
   });
   
-  // Business profile edit form - STATES SÉPARÉS comme dans Auth
-  const [editBusinessName, setEditBusinessName] = useState('');
-  const [editBusinessType, setEditBusinessType] = useState('');
-  const [editBusinessDescription, setEditBusinessDescription] = useState('');
-  const [editTargetAudience, setEditTargetAudience] = useState('');
-  const [editEmail, setEditEmail] = useState('');
-  const [editWebsiteUrl, setEditWebsiteUrl] = useState('');
-  const [editBudgetRange, setEditBudgetRange] = useState('');
-  const [editPreferredPlatforms, setEditPreferredPlatforms] = useState([]);
-
   // Note form - STATES SÉPARÉS
   const [noteTitle, setNoteTitle] = useState('');
   const [noteContent, setNoteContent] = useState('');

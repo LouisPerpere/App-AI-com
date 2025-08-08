@@ -1674,18 +1674,18 @@ function MainApp() {
                         {/* Current Business Profile Display */}
                         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
                           <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-center space-x-4">
-                              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center">
+                            <div className="flex items-center space-x-4 min-w-0 flex-1 mr-4">
+                              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center flex-shrink-0">
                                 <Building className="w-8 h-8 text-white" />
                               </div>
-                              <div>
-                                <h3 className="text-2xl font-bold text-blue-800">{businessProfile.business_name}</h3>
+                              <div className="min-w-0">
+                                <h3 className="text-2xl font-bold text-blue-800 break-words">{businessProfile.business_name}</h3>
                                 <p className="text-blue-600 capitalize">{businessProfile.business_type}</p>
                               </div>
                             </div>
                             <Button
                               onClick={handleEditProfile}
-                              className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 flex-shrink-0 whitespace-nowrap px-4 py-2 max-w-fit self-start"
+                              className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 flex-shrink-0 whitespace-nowrap"
                             >
                               ⚙️ Modifier le profil
                             </Button>

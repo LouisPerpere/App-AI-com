@@ -8305,4 +8305,48 @@ if __name__ == "__main__":
         tester = SocialGenieAPITester()
         tester.investigate_user_authentication(email)
     else:
-        sys.exit(main())
+        # Run business profile tests focusing on business_description field
+        print("🚀 Starting Business Profile Backend Testing")
+        print("=" * 60)
+        
+        tester = SocialGenieAPITester()
+        print(f"Testing API at: {tester.api_url}")
+        
+        # Test sequence focusing on business profile endpoints
+        tests_to_run = [
+            ("User Authentication (lperpere@yahoo.fr)", tester.test_user_login),
+            ("Business Description Field Integration", tester.test_business_description_field_integration),
+            ("Comprehensive Business Profile Fields", tester.test_business_profile_comprehensive_fields),
+        ]
+        
+        print(f"\n📋 Running {len(tests_to_run)} focused tests...")
+        
+        for test_name, test_func in tests_to_run:
+            print(f"\n{'='*60}")
+            print(f"🧪 {test_name}")
+            print(f"{'='*60}")
+            
+            try:
+                result = test_func()
+                if result:
+                    print(f"✅ {test_name} - PASSED")
+                else:
+                    print(f"❌ {test_name} - FAILED")
+            except Exception as e:
+                print(f"💥 {test_name} - ERROR: {str(e)}")
+                tester.tests_run += 1  # Count as run even if error
+        
+        # Final summary
+        print(f"\n{'='*60}")
+        print(f"📊 FINAL RESULTS")
+        print(f"{'='*60}")
+        print(f"Tests Run: {tester.tests_run}")
+        print(f"Tests Passed: {tester.tests_passed}")
+        print(f"Success Rate: {(tester.tests_passed/tester.tests_run*100):.1f}%" if tester.tests_run > 0 else "0%")
+        
+        if tester.tests_passed == tester.tests_run:
+            print("🎉 ALL TESTS PASSED! Business profile endpoints with business_description field are working correctly.")
+            sys.exit(0)
+        else:
+            print(f"⚠️  {tester.tests_run - tester.tests_passed} test(s) failed. Check the details above.")
+            sys.exit(1)

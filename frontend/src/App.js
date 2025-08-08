@@ -2460,11 +2460,7 @@ function MainApp() {
                                     type="text"
                                     placeholder="Ex: Nouvelle promotion, Événement spécial..."
                                     value={noteForm.title || ''}
-                                    onChange={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      handleNoteFormChange('title', e.target.value);
-                                    }}
+                                    onChange={noteStableHandler}
                                     required
                                     autoComplete="off"
                                     className="mt-1 border-indigo-200 focus:border-indigo-500 flex h-10 w-full rounded-md border bg-white px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2"

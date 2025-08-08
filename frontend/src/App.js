@@ -1731,8 +1731,8 @@ function MainApp() {
                               <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center flex-shrink-0">
                                 <Building className="w-8 h-8 text-white" />
                               </div>
-                              <div className="min-w-0">
-                                <h3 className="text-2xl font-bold text-blue-800 word-wrap break-all">{businessProfile.business_name}</h3>
+                              <div className="flex-1">
+                                <h3 className="text-2xl font-bold text-blue-800 overflow-wrap break-word">{businessProfile.business_name}</h3>
                                 <p className="text-blue-600 capitalize">{businessProfile.business_type}</p>
                               </div>
                             </div>

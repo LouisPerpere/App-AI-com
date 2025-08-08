@@ -1077,58 +1077,7 @@ function MainApp() {
 
 
 
-  // Handle profile update form submission
-  const handleUpdateProfile = async (e) => {
-    e.preventDefault();
-    setIsUpdatingProfile(true);
-    
-    const editProfileData = {
-      business_name: editBusinessName,
-      business_type: editBusinessType,
-      business_description: editBusinessDescription,
-      target_audience: editTargetAudience,
-      email: editEmail,
-      website_url: editWebsiteUrl,
-      budget_range: editBudgetRange,
-      preferred_platforms: editPreferredPlatforms
-    };
-    
-    console.log('🔍 SAVE DEBUG - editProfileData before save:', editProfileData);
-    
-    try {
-      const token = localStorage.getItem('access_token');
-      console.log('🔍 SAVE DEBUG - Token exists:', !!token);
-      
-      const response = await axios.put(`${API}/business-profile`, editProfileData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      console.log('🔍 SAVE DEBUG - Response received:', response.data);
-      
-      // SOLUTION TEMPORAIRE: Si le backend est en mode demo, on garde les données localement
-      if (response.data && response.data.business_name) {
-        setBusinessProfile(response.data);
-      } else {
-        // Si le backend retourne des données vides, on utilise editProfileData
-        setBusinessProfile({...editProfileData});
-      }
-      
-      setIsEditingProfile(false);
-      toast.success('Profil mis à jour avec succès !');
-      
-      // If website URL changed, clear existing analysis
-      if (websiteAnalysis && editWebsiteUrl !== businessProfile?.website_url) {
-        setWebsiteAnalysis(null);
-      }
-    } catch (error) {
-      console.error('❌ SAVE DEBUG - Error updating profile:', error);
-      console.error('❌ SAVE DEBUG - Error response:', error.response?.data);
-      console.error('❌ SAVE DEBUG - Error status:', error.response?.status);
-      toast.error(`Erreur lors de la mise à jour: ${error.response?.data?.detail || error.message}`);
-    } finally {
-      setIsUpdatingProfile(false);
-    }
-  };
+
 
   // Handle cancelling profile edit
   const handleCancelEditProfile = () => {

@@ -568,13 +568,24 @@ function MainApp() {
 
   const checkAuth = async () => {
     const token = localStorage.getItem('access_token');
+    console.log('🔍 APP DEBUG - Checking auth, token exists:', !!token);
+    
     if (!token) {
+      console.log('🔍 APP DEBUG - No token found, setting authenticated to false');
       setIsAuthenticated(false);
       return;
     }
 
+    // Set axios header before making request
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
     try {
-      const response = await axios.get(`${API}/auth/me`);
+      console.log('🔍 APP DEBUG - Making /auth/me request to:', `${API}/auth/me`);
+      const response = await axios.get(`${API}/auth/me`, {
+        timeout: 15000
+      });
+      
+      console.log('✅ APP DEBUG - Auth check successful:', response.data);
       setUser(response.data);
       setIsAuthenticated(true);
       
@@ -582,8 +593,18 @@ function MainApp() {
         setSubscriptionStatus(response.data.subscription_status);
       }
     } catch (error) {
-      localStorage.removeItem('access_token');
-      delete axios.defaults.headers.common['Authorization'];
+      console.error('❌ APP DEBUG - Auth check failed:', error);
+      console.error('❌ APP DEBUG - Error response:', error.response?.data);
+      console.error('❌ APP DEBUG - Error status:', error.response?.status);
+      
+      // Only remove token if it's actually invalid (not just network error)
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        console.log('🔍 APP DEBUG - Token invalid, removing from storage');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        delete axios.defaults.headers.common['Authorization'];
+      }
+      
       setIsAuthenticated(false);
     }
   };

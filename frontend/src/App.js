@@ -2322,8 +2322,8 @@ function MainApp() {
                         <Textarea
                           id="note_content_fix"
                           placeholder="Décrivez les détails importants que vous voulez voir apparaître dans vos posts..."
-                          value={noteForm.content}
-                          onChange={(e) => setNoteForm({ ...noteForm, content: e.target.value })}
+                          value={noteContent}
+                          onChange={(e) => setNoteContent(e.target.value)}
                           rows={4}
                           required
                         />

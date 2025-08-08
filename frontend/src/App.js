@@ -1913,9 +1913,10 @@ function MainApp() {
                                     Budget marketing mensuel
                                   </Label>
                                   <Input
+                                    key="budget_range_input"
                                     id="budget_range"
                                     value={editProfileForm.budget_range}
-                                    onChange={(e) => setEditProfileForm(prev => ({...prev, budget_range: e.target.value}))}
+                                    onChange={(e) => handleEditProfileChange('budget_range', e.target.value)}
                                     placeholder="Ex: 500€, 1000-2000€, etc."
                                   />
                                 </div>

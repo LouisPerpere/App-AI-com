@@ -670,9 +670,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Critical Bug Fixes Testing"
-  stuck_tasks:
-    - "Critical Bug Fixes Testing"
+    - "Business Profile Description Field Integration"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 

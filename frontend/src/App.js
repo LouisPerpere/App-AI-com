@@ -1073,19 +1073,7 @@ function MainApp() {
     }
   };
 
-  // Initialize edit form when entering edit mode
-  const initializeEditForm = () => {
-    if (businessProfile) {
-      setEditBusinessName(businessProfile.business_name || '');
-      setEditBusinessType(businessProfile.business_type || '');
-      setEditBusinessDescription(businessProfile.business_description || '');
-      setEditTargetAudience(businessProfile.target_audience || '');
-      setEditEmail(businessProfile.email || '');
-      setEditWebsiteUrl(businessProfile.website_url || '');
-      setEditBudgetRange(businessProfile.budget_range || '');
-      setEditPreferredPlatforms(businessProfile.preferred_platforms || []);
-    }
-  };
+
 
   // Handle profile editing
   const handleEditProfile = () => {

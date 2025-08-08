@@ -2430,14 +2430,20 @@ function MainApp() {
                     }} className="space-y-4">
                       <div>
                         <Label htmlFor="note-title" className="text-gray-700 font-medium">Titre de la note</Label>
-                        <IsolatedInput
-                          id="note-title"
-                          placeholder="Ex: Nouvelle promotion, Événement spécial..."
-                          value={noteForm.title}
-                          onChange={(value) => handleNoteFormChange('title', value)}
-                          className="mt-1 border-indigo-200 focus:border-indigo-500"
-                          required
-                        />
+                                  <input
+                                    id="note_title_edit"
+                                    type="text"
+                                    placeholder="Ex: Nouvelle promotion, Événement spécial..."
+                                    value={noteForm.title || ''}
+                                    onChange={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      handleNoteFormChange('title', e.target.value);
+                                    }}
+                                    required
+                                    autoComplete="off"
+                                    className="mt-1 border-indigo-200 focus:border-indigo-500 flex h-10 w-full rounded-md border bg-white px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2"
+                                  />
                       </div>
                       
                       <div>

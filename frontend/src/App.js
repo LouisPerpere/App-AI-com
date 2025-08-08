@@ -1313,10 +1313,11 @@ function MainApp() {
             <div className="space-y-3">
               <Label htmlFor="target_audience" className="text-gray-700 font-semibold">Audience cible</Label>
               <Textarea
+                key="onboarding_target_audience_input"
                 id="target_audience"
                 placeholder="Décrivez votre audience cible (âge, intérêts, localisation...)"
                 value={profileForm.target_audience}
-                onChange={(e) => setProfileForm({...profileForm, target_audience: e.target.value})}
+                onChange={(e) => setProfileForm(prev => ({...prev, target_audience: e.target.value}))}
                 required
                 className="input-modern min-h-[100px]"
               />

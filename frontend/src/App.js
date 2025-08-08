@@ -1715,74 +1715,181 @@ function MainApp() {
                       <>
                         {/* Current Business Profile Display */}
                         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
-                          <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-start justify-between mb-6">
                             <div className="flex items-center space-x-4 min-w-0 flex-1 mr-4">
                               <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center flex-shrink-0">
                                 <Building className="w-8 h-8 text-white" />
                               </div>
                               <div className="flex-1">
-                                <h3 className="text-2xl font-bold text-blue-800 overflow-wrap break-word">{businessProfile.business_name}</h3>
-                                <p className="text-blue-600 capitalize">{businessProfile.business_type}</p>
+                                <h3 className="text-lg font-bold text-blue-800 mb-2">Profil de l'entreprise</h3>
+                                <p className="text-blue-600 text-sm">Modifiez directement vos informations ci-dessous</p>
                               </div>
                             </div>
-                            <Button
-                              onClick={handleEditProfile}
-                              className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 flex-shrink-0 whitespace-nowrap"
-                            >
-                              ⚙️ Modifier le profil
-                            </Button>
                           </div>
-                          
-                          <div className="grid md:grid-cols-2 gap-6">
-                            <div>
-                              <h4 className="font-semibold text-blue-800 mb-2">📊 Informations générales</h4>
-                              <div className="space-y-2 text-sm">
-                                <p><span className="font-medium">Audience cible :</span> {businessProfile.target_audience}</p>
-                                {businessProfile.business_description && (
-                                  <p><span className="font-medium">Description :</span> {businessProfile.business_description}</p>
-                                )}
-                                <p><span className="font-medium">Ton de marque :</span> {businessProfile.brand_tone}</p>
-                                <p><span className="font-medium">Budget :</span> {businessProfile.budget_range}</p>
-                                {businessProfile.email && (
-                                  <p><span className="font-medium">Email :</span> {businessProfile.email}</p>
-                                )}
-                                {businessProfile.website_url && (
-                                  <p><span className="font-medium">Site web :</span> 
-                                    <a href={businessProfile.website_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">
-                                      {businessProfile.website_url}
-                                    </a>
-                                  </p>
-                                )}
+
+                          {/* Formulaire directement éditable */}
+                          <div className="space-y-6">
+                            <div className="grid md:grid-cols-2 gap-6">
+                              {/* Nom de l'entreprise */}
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium text-gray-700">Nom de l'entreprise</Label>
+                                <Input
+                                  value={businessProfile?.business_name || ''}
+                                  onChange={(e) => {
+                                    setBusinessProfile(prev => ({ ...prev, business_name: e.target.value }));
+                                  }}
+                                  className="bg-white"
+                                />
+                              </div>
+
+                              {/* Type d'entreprise */}
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium text-gray-700">Type d'entreprise</Label>
+                                <Select 
+                                  value={businessProfile?.business_type || ''} 
+                                  onValueChange={(value) => setBusinessProfile(prev => ({ ...prev, business_type: value }))}
+                                >
+                                  <SelectTrigger className="bg-white">
+                                    <SelectValue placeholder="Sélectionnez le type" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="restaurant">Restaurant</SelectItem>
+                                    <SelectItem value="shop">Commerce</SelectItem>
+                                    <SelectItem value="service">Service</SelectItem>
+                                    <SelectItem value="freelance">Freelance</SelectItem>
+                                    <SelectItem value="agency">Agence</SelectItem>
+                                    <SelectItem value="ecommerce">E-commerce</SelectItem>
+                                    <SelectItem value="saas">SaaS</SelectItem>
+                                    <SelectItem value="consulting">Conseil</SelectItem>
+                                    <SelectItem value="healthcare">Santé</SelectItem>
+                                    <SelectItem value="education">Éducation</SelectItem>
+                                    <SelectItem value="fitness">Sport/Fitness</SelectItem>
+                                    <SelectItem value="beauty">Beauté</SelectItem>
+                                    <SelectItem value="other">Autre</SelectItem>
+                                  </SelectContent>
+                                </Select>
                               </div>
                             </div>
-                            
-                            <div>
-                              <h4 className="font-semibold text-blue-800 mb-2">🌐 Stratégie digitale</h4>
-                              <div className="space-y-2 text-sm">
-                                <p><span className="font-medium">Fréquence :</span> {businessProfile.posting_frequency}</p>
-                                <div>
-                                  <span className="font-medium">Réseaux sociaux :</span>
-                                  <div className="flex flex-wrap gap-1 mt-1">
-                                    {businessProfile.preferred_platforms?.map((platform, index) => (
-                                      <Badge key={index} className="bg-blue-100 text-blue-800 border-blue-300 text-xs">
-                                        {platform}
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                </div>
-                                {businessProfile.hashtags_primary?.length > 0 && (
-                                  <div>
-                                    <span className="font-medium">Hashtags principaux :</span>
-                                    <div className="flex flex-wrap gap-1 mt-1">
-                                      {businessProfile.hashtags_primary.slice(0, 3).map((tag, index) => (
-                                        <Badge key={index} className="bg-purple-100 text-purple-800 border-purple-300 text-xs">
-                                          #{tag}
-                                        </Badge>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
+
+                            {/* Description de l'activité */}
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium text-gray-700">Description de l'activité</Label>
+                              <Textarea
+                                value={businessProfile?.business_description || ''}
+                                onChange={(e) => {
+                                  setBusinessProfile(prev => ({ ...prev, business_description: e.target.value }));
+                                }}
+                                placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
+                                rows={3}
+                                className="bg-white"
+                              />
+                            </div>
+
+                            {/* Audience cible */}
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium text-gray-700">Audience cible</Label>
+                              <Textarea
+                                value={businessProfile?.target_audience || ''}
+                                onChange={(e) => {
+                                  setBusinessProfile(prev => ({ ...prev, target_audience: e.target.value }));
+                                }}
+                                placeholder="Décrivez votre audience cible"
+                                rows={2}
+                                className="bg-white"
+                              />
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-6">
+                              {/* Email professionnel */}
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium text-gray-700">Email professionnel</Label>
+                                <Input
+                                  type="email"
+                                  value={businessProfile?.email || ''}
+                                  onChange={(e) => {
+                                    setBusinessProfile(prev => ({ ...prev, email: e.target.value }));
+                                  }}
+                                  placeholder="contact@entreprise.com"
+                                  className="bg-white"
+                                />
                               </div>
+
+                              {/* Site web */}
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium text-gray-700">Site web</Label>
+                                <Input
+                                  type="url"
+                                  value={businessProfile?.website_url || ''}
+                                  onChange={(e) => {
+                                    setBusinessProfile(prev => ({ ...prev, website_url: e.target.value }));
+                                  }}
+                                  placeholder="https://votre-site.com"
+                                  className="bg-white"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Plateformes préférées */}
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium text-gray-700">Plateformes préférées</Label>
+                              <div className="grid grid-cols-3 gap-4">
+                                {['Facebook', 'Instagram', 'LinkedIn'].map((platform) => (
+                                  <label key={platform} className="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      checked={businessProfile?.preferred_platforms?.includes(platform) || false}
+                                      onChange={(e) => {
+                                        const currentPlatforms = businessProfile?.preferred_platforms || [];
+                                        const updatedPlatforms = e.target.checked
+                                          ? [...currentPlatforms, platform]
+                                          : currentPlatforms.filter(p => p !== platform);
+                                        setBusinessProfile(prev => ({ ...prev, preferred_platforms: updatedPlatforms }));
+                                      }}
+                                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    />
+                                    <span className="text-sm text-gray-700">{platform}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Budget marketing */}
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium text-gray-700">Budget marketing mensuel</Label>
+                              <Input
+                                value={businessProfile?.budget_range || ''}
+                                onChange={(e) => {
+                                  setBusinessProfile(prev => ({ ...prev, budget_range: e.target.value }));
+                                }}
+                                placeholder="Ex: 500€, 1000-2000€, etc."
+                                className="bg-white"
+                              />
+                            </div>
+
+                            {/* Bouton de sauvegarde */}
+                            <div className="flex justify-end pt-4 border-t border-blue-200">
+                              <Button
+                                onClick={async () => {
+                                  try {
+                                    const response = await axios.put(`${API}/business-profile`, businessProfile, {
+                                      headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                                    });
+                                    
+                                    if (response.data && response.data.business_name) {
+                                      setBusinessProfile(response.data);
+                                    }
+                                    
+                                    toast.success('Profil sauvegardé avec succès !');
+                                  } catch (error) {
+                                    console.error('Error saving profile:', error);
+                                    toast.error('Erreur lors de la sauvegarde');
+                                  }
+                                }}
+                                className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
+                              >
+                                <Save className="w-4 h-4 mr-2" />
+                                Sauvegarder les modifications
+                              </Button>
                             </div>
                           </div>
                         </div>

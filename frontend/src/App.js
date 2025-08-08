@@ -457,6 +457,7 @@ function MainApp() {
 
   // Optimized form handlers to prevent input bugs
   const handleEditProfileChange = (field, value) => {
+    console.log(`🔧 Profile field changed: ${field} =`, value); // Debug log
     setEditProfileForm(prev => ({
       ...prev,
       [field]: value

@@ -1467,9 +1467,10 @@ function MainApp() {
               <Label className="text-gray-700 font-semibold">🌐 Site web de votre entreprise</Label>
               <div className="space-y-3">
                 <Input
+                  key="onboarding_website_url_input"
                   placeholder="https://monentreprise.com"
                   value={profileForm.website_url}
-                  onChange={(e) => setProfileForm({...profileForm, website_url: e.target.value})}
+                  onChange={(e) => setProfileForm(prev => ({...prev, website_url: e.target.value}))}
                   className="input-modern"
                   type="url"
                 />

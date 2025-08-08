@@ -57,26 +57,62 @@ const AuthPage = ({ onAuthSuccess }) => {
     setError('');
 
     try {
+      console.log('🚀 LOGIN START - API URL:', API);
+      console.log('🚀 LOGIN DATA:', { email: loginForm.email });
+
       const response = await axios.post(`${API}/auth/login`, {
         email: loginForm.email,
         password: loginForm.password
+      }, {
+        timeout: 15000,
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
-      // Store tokens
-      localStorage.setItem('access_token', response.data.access_token || response.data.token);
-      localStorage.setItem('refresh_token', response.data.refresh_token);
+      console.log('✅ LOGIN SUCCESS:', response.status, response.data);
+
+      // Store tokens with better error handling
+      const accessToken = response.data.access_token || response.data.token;
+      const refreshToken = response.data.refresh_token;
+
+      if (!accessToken) {
+        throw new Error('No access token received from server');
+      }
+
+      localStorage.setItem('access_token', accessToken);
+      if (refreshToken) {
+        localStorage.setItem('refresh_token', refreshToken);
+      }
       
       // Set axios default header immediately
-      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`;
+      axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
       
+      console.log('🎉 LOGIN COMPLETE - Calling onAuthSuccess()');
       toast.success('Connexion réussie ! 🎉');
       
       // Call auth success callback
       onAuthSuccess();
     } catch (error) {
-      console.error('Login error:', error);
-      setError(error.response?.data?.detail || 'Erreur de connexion');
-      toast.error('Erreur de connexion');
+      console.error('❌ LOGIN ERROR:', error);
+      console.error('❌ LOGIN ERROR RESPONSE:', error.response?.data);
+      console.error('❌ LOGIN ERROR STATUS:', error.response?.status);
+      
+      let errorMessage = 'Erreur de connexion';
+      
+      if (error.response) {
+        // Server responded with error
+        errorMessage = error.response.data?.detail || error.response.data?.message || `Erreur ${error.response.status}`;
+      } else if (error.request) {
+        // Request was made but no response
+        errorMessage = 'Impossible de contacter le serveur. Vérifiez votre connexion internet.';
+      } else {
+        // Something else happened
+        errorMessage = error.message || 'Erreur inattendue';
+      }
+      
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

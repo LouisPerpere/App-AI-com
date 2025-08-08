@@ -1408,6 +1408,7 @@ function MainApp() {
                 </div>
                 <div className="flex space-x-3">
                   <Input
+                    key="primary_hashtag_input"
                     placeholder="Ajouter un hashtag prioritaire"
                     value={newPrimaryHashtag}
                     onChange={(e) => setNewPrimaryHashtag(e.target.value)}

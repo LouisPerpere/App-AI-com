@@ -2406,10 +2406,11 @@ function MainApp() {
                       <div>
                         <Label htmlFor="note-title" className="text-gray-700 font-medium">Titre de la note</Label>
                         <Input
+                          key="note_title_input"
                           id="note-title"
                           placeholder="Ex: Nouvelle promotion, Événement spécial..."
                           value={noteForm.title}
-                          onChange={(e) => setNoteForm({...noteForm, title: e.target.value})}
+                          onChange={(e) => handleNoteFormChange('title', e.target.value)}
                           className="mt-1 border-indigo-200 focus:border-indigo-500"
                           required
                         />

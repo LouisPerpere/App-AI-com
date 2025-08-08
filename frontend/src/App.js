@@ -1818,8 +1818,8 @@ function MainApp() {
                                 id="business_name_fix"
                                 type="text"
                                 placeholder="Nom de votre entreprise"
-                                value={editProfileForm.business_name}
-                                onChange={(e) => setEditProfileForm({ ...editProfileForm, business_name: e.target.value })}
+                                value={editBusinessName}
+                                onChange={(e) => setEditBusinessName(e.target.value)}
                                 required
                               />
                             </div>

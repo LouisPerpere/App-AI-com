@@ -1044,6 +1044,7 @@ function MainApp() {
       setEditProfileForm({
         business_name: businessProfile.business_name || '',
         business_type: businessProfile.business_type || '',
+        business_description: businessProfile.business_description || '',
         target_audience: businessProfile.target_audience || '',
         brand_tone: businessProfile.brand_tone || '',
         posting_frequency: businessProfile.posting_frequency || '',

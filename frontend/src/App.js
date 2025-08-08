@@ -1615,10 +1615,8 @@ function MainApp() {
               <CardContent>
                 {businessProfile ? (
                   <div className="space-y-6">
-                    {!isEditingProfile ? (
-                      <>
-                        {/* Current Business Profile Display */}
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
+                    {/* Current Business Profile Display */}
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
                           <div className="flex items-start justify-between mb-6">
                             <div className="flex items-center space-x-4 min-w-0 flex-1 mr-4">
                               <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center flex-shrink-0">

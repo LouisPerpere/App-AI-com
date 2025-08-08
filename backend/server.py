@@ -25,6 +25,7 @@ api_router = APIRouter(prefix="/api")
 class BusinessProfile(BaseModel):
     business_name: str
     business_type: str
+    business_description: str
     target_audience: str
     brand_tone: str
     posting_frequency: str

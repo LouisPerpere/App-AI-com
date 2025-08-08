@@ -1732,7 +1732,7 @@ function MainApp() {
                                 <Building className="w-8 h-8 text-white" />
                               </div>
                               <div className="min-w-0">
-                                <h3 className="text-2xl font-bold text-blue-800 break-words">{businessProfile.business_name}</h3>
+                                <h3 className="text-2xl font-bold text-blue-800 word-wrap break-all">{businessProfile.business_name}</h3>
                                 <p className="text-blue-600 capitalize">{businessProfile.business_type}</p>
                               </div>
                             </div>

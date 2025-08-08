@@ -1081,15 +1081,7 @@ function MainApp() {
 
 
 
-  // Handle platform selection in edit form
-  const handlePlatformToggle = (platform) => {
-    const currentPlatforms = editPreferredPlatforms || [];
-    setEditPreferredPlatforms(
-      currentPlatforms.includes(platform)
-        ? currentPlatforms.filter(p => p !== platform)
-        : [...currentPlatforms, platform]
-    );
-  };
+
 
   // Website analysis functions
   const analyzeWebsite = async (forceReanalysis = false) => {

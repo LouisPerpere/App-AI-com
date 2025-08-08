@@ -1894,8 +1894,8 @@ function MainApp() {
                                 id="website_url_fix"
                                 type="url"
                                 placeholder="https://votre-site.com"
-                                value={editProfileForm.website_url}
-                                onChange={(e) => setEditProfileForm({ ...editProfileForm, website_url: e.target.value })}
+                                value={editWebsiteUrl}
+                                onChange={(e) => setEditWebsiteUrl(e.target.value)}
                               />
                             </div>
 
@@ -1905,8 +1905,8 @@ function MainApp() {
                               <Input
                                 id="budget_range_fix"
                                 placeholder="Ex: 500€, 1000-2000€, etc."
-                                value={editProfileForm.budget_range}
-                                onChange={(e) => setEditProfileForm({ ...editProfileForm, budget_range: e.target.value })}
+                                value={editBudgetRange}
+                                onChange={(e) => setEditBudgetRange(e.target.value)}
                               />
                             </div>
 
@@ -1918,7 +1918,7 @@ function MainApp() {
                                   <label key={platform} className="flex items-center space-x-2 cursor-pointer">
                                     <input
                                       type="checkbox"
-                                      checked={editProfileForm.preferred_platforms?.includes(platform)}
+                                      checked={editPreferredPlatforms?.includes(platform)}
                                       onChange={() => handlePlatformToggle(platform)}
                                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                     />

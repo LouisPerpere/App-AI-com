@@ -1828,6 +1828,23 @@ function MainApp() {
                                     </SelectContent>
                                   </Select>
                                 </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="business_description" className="text-sm font-medium text-gray-700">
+                                    Décrivez votre activité *
+                                  </Label>
+                                  <Textarea
+                                    id="business_description"
+                                    value={editProfileForm.business_description}
+                                    onChange={(e) => setEditProfileForm(prev => ({...prev, business_description: e.target.value}))}
+                                    placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
+                                    rows={3}
+                                    required
+                                  />
+                                  <p className="text-xs text-gray-500">
+                                    Cette description sera utilisée pour générer du contenu personnalisé
+                                  </p>
+                                </div>
                               </div>
 
                               <div className="space-y-4">

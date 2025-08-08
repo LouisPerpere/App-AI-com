@@ -1933,10 +1933,11 @@ function MainApp() {
                                     Email professionnel
                                   </Label>
                                   <Input
+                                    key="email_input"
                                     id="email"
                                     type="email"
                                     value={editProfileForm.email}
-                                    onChange={(e) => setEditProfileForm(prev => ({...prev, email: e.target.value}))}
+                                    onChange={(e) => handleEditProfileChange('email', e.target.value)}
                                     placeholder="contact@entreprise.com"
                                   />
                                 </div>

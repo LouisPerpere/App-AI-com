@@ -7,9 +7,26 @@ import tempfile
 from pathlib import Path
 
 class SocialGenieAPITester:
-    def __init__(self, base_url="https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com"):
-        self.base_url = base_url
-        self.api_url = f"{base_url}/api"
+    def __init__(self, base_url=None):
+        # Get backend URL from frontend .env file
+        try:
+            with open('/app/frontend/.env', 'r') as f:
+                env_content = f.read()
+                for line in env_content.split('\n'):
+                    if line.startswith('REACT_APP_BACKEND_URL='):
+                        self.base_url = line.split('=')[1].strip()
+                        break
+                else:
+                    # Fallback to default if not found
+                    self.base_url = "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com"
+        except:
+            # Fallback to default if file not found
+            self.base_url = "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com"
+        
+        if base_url:
+            self.base_url = base_url
+            
+        self.api_url = f"{self.base_url}/api"
         self.business_id = None
         self.content_id = None
         self.post_id = None

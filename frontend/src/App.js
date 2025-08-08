@@ -2348,7 +2348,7 @@ function MainApp() {
                       <Button
                         type="submit"
                         className="btn-gradient-primary w-full"
-                        disabled={!noteForm.title || !noteForm.content}
+                        disabled={!noteTitle || !noteContent}
                       >
                         <Edit className="w-4 h-4 mr-2" />
                         Ajouter cette note

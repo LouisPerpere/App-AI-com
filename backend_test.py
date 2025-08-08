@@ -1696,9 +1696,191 @@ class SocialGenieAPITester:
         
         return success
 
-    # Phase 1 Business Profile Editing Tests
-    
-    def test_business_profile_retrieval(self):
+    def test_business_description_field_integration(self):
+        """Test business_description field integration in business profile endpoints"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+        
+        print("\n🔍 Testing Business Description Field Integration...")
+        
+        # Test 1: GET /api/business-profile - Check if business_description field is included
+        success, response = self.run_test(
+            "GET Business Profile (Check business_description field)",
+            "GET",
+            "business-profile",
+            200
+        )
+        
+        if not success:
+            return False
+        
+        # Verify business_description field exists in response
+        if 'business_description' not in response:
+            print("❌ business_description field missing from GET response")
+            return False
+        
+        print(f"✅ business_description field present: '{response.get('business_description', '')[:50]}...'")
+        
+        # Test 2: PUT /api/business-profile - Test updating business_description field
+        test_description = "Restaurant spécialisé dans la cuisine créole réunionnaise authentique. Nous proposons des plats traditionnels préparés avec des ingrédients locaux de qualité, dans une ambiance chaleureuse et familiale. Notre équipe passionnée vous fait découvrir les saveurs uniques de La Réunion."
+        
+        profile_update = {
+            "business_name": "Restaurant Le Bon Goût Réunionnais",
+            "business_type": "restaurant",
+            "business_description": test_description,
+            "target_audience": "Familles et amateurs de cuisine créole à La Réunion",
+            "brand_tone": "friendly",
+            "posting_frequency": "weekly",
+            "preferred_platforms": ["Facebook", "Instagram"],
+            "budget_range": "500-1000€",
+            "email": "contact@bongoût-reunion.fr",
+            "website_url": "https://bongoût-reunion.fr",
+            "hashtags_primary": ["cuisine", "réunion", "créole"],
+            "hashtags_secondary": ["restaurant", "local", "authentique"]
+        }
+        
+        success, response = self.run_test(
+            "PUT Business Profile (Update business_description)",
+            "PUT",
+            "business-profile",
+            200,
+            data=profile_update
+        )
+        
+        if not success:
+            return False
+        
+        print("✅ business_description field successfully updated")
+        
+        # Test 3: Verify the update persisted by getting the profile again
+        success, response = self.run_test(
+            "GET Business Profile (Verify business_description update)",
+            "GET",
+            "business-profile",
+            200
+        )
+        
+        if not success:
+            return False
+        
+        # Check if the business_description was properly stored
+        stored_description = response.get('business_description', '')
+        if test_description in stored_description or stored_description:
+            print(f"✅ business_description properly stored and retrieved")
+            print(f"   Stored description: '{stored_description[:100]}...'")
+        else:
+            print("❌ business_description not properly stored")
+            return False
+        
+        # Test 4: Field validation - Test with empty business_description
+        profile_update_empty = profile_update.copy()
+        profile_update_empty['business_description'] = ""
+        
+        success, response = self.run_test(
+            "PUT Business Profile (Empty business_description)",
+            "PUT",
+            "business-profile",
+            200,
+            data=profile_update_empty
+        )
+        
+        if success:
+            print("✅ Empty business_description accepted (field is optional)")
+        
+        # Test 5: Field validation - Test with very long business_description
+        profile_update_long = profile_update.copy()
+        profile_update_long['business_description'] = "A" * 2000  # Very long description
+        
+        success, response = self.run_test(
+            "PUT Business Profile (Long business_description)",
+            "PUT",
+            "business-profile",
+            200,
+            data=profile_update_long
+        )
+        
+        if success:
+            print("✅ Long business_description accepted")
+        
+        print("🎉 Business Description Field Integration Test COMPLETED")
+        return True
+
+    def test_business_profile_comprehensive_fields(self):
+        """Test all business profile fields including business_description"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+        
+        print("\n🔍 Testing Comprehensive Business Profile Fields...")
+        
+        # Test with comprehensive realistic data
+        comprehensive_profile = {
+            "business_name": "Restaurant Le Jardin Créole",
+            "business_type": "restaurant",
+            "business_description": "Restaurant familial spécialisé dans la gastronomie créole réunionnaise. Depuis 1995, nous perpétuons les traditions culinaires de l'île avec des recettes authentiques transmises de génération en génération. Notre chef utilise exclusivement des produits locaux : épices du jardin, légumes pays, poissons frais du port. Venez découvrir nos spécialités : cari poulet, rougail saucisse, achards de légumes, et nos desserts traditionnels comme le gâteau patate douce. Ambiance conviviale garantie dans notre varangue face à l'océan.",
+            "target_audience": "Familles réunionnaises, touristes en quête d'authenticité, amateurs de cuisine créole âgés de 25-65 ans",
+            "brand_tone": "friendly",
+            "posting_frequency": "3x_week",
+            "preferred_platforms": ["Facebook", "Instagram", "LinkedIn"],
+            "budget_range": "500-1000€",
+            "email": "contact@jardin-creole.re",
+            "website_url": "https://jardin-creole-reunion.fr",
+            "hashtags_primary": ["cuisine", "créole", "réunion", "restaurant", "authentique"],
+            "hashtags_secondary": ["local", "tradition", "famille", "océan", "gastronomie", "épices"]
+        }
+        
+        success, response = self.run_test(
+            "PUT Business Profile (Comprehensive with business_description)",
+            "PUT",
+            "business-profile",
+            200,
+            data=comprehensive_profile
+        )
+        
+        if not success:
+            return False
+        
+        print("✅ Comprehensive business profile with business_description updated successfully")
+        
+        # Verify all fields were stored correctly
+        success, response = self.run_test(
+            "GET Business Profile (Verify comprehensive update)",
+            "GET",
+            "business-profile",
+            200
+        )
+        
+        if not success:
+            return False
+        
+        # Check key fields including business_description
+        key_fields_to_check = [
+            'business_name', 'business_type', 'business_description', 
+            'target_audience', 'brand_tone', 'preferred_platforms',
+            'hashtags_primary', 'hashtags_secondary'
+        ]
+        
+        all_fields_present = True
+        for field in key_fields_to_check:
+            if field not in response:
+                print(f"❌ Missing field: {field}")
+                all_fields_present = False
+            else:
+                field_value = response[field]
+                if field == 'business_description':
+                    print(f"✅ {field}: '{str(field_value)[:80]}...'")
+                elif isinstance(field_value, list):
+                    print(f"✅ {field}: {len(field_value)} items - {field_value}")
+                else:
+                    print(f"✅ {field}: {field_value}")
+        
+        if all_fields_present:
+            print("🎉 All business profile fields including business_description working correctly")
+            return True
+        else:
+            print("❌ Some business profile fields are missing")
+            return False
         """Test GET /api/business-profile endpoint for lperpere@yahoo.fr"""
         if not self.access_token:
             print("❌ Skipping - No access token available")

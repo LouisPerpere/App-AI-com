@@ -1108,13 +1108,24 @@ function MainApp() {
     e.preventDefault();
     setIsUpdatingProfile(true);
     
-    console.log('🔍 SAVE DEBUG - editProfileForm before save:', editProfileForm);
+    const editProfileData = {
+      business_name: editBusinessName,
+      business_type: editBusinessType,
+      business_description: editBusinessDescription,
+      target_audience: editTargetAudience,
+      email: editEmail,
+      website_url: editWebsiteUrl,
+      budget_range: editBudgetRange,
+      preferred_platforms: editPreferredPlatforms
+    };
+    
+    console.log('🔍 SAVE DEBUG - editProfileData before save:', editProfileData);
     
     try {
       const token = localStorage.getItem('access_token');
       console.log('🔍 SAVE DEBUG - Token exists:', !!token);
       
-      const response = await axios.put(`${API}/business-profile`, editProfileForm, {
+      const response = await axios.put(`${API}/business-profile`, editProfileData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -1124,15 +1135,15 @@ function MainApp() {
       if (response.data && response.data.business_name) {
         setBusinessProfile(response.data);
       } else {
-        // Si le backend retourne des données vides, on utilise editProfileForm
-        setBusinessProfile({...editProfileForm});
+        // Si le backend retourne des données vides, on utilise editProfileData
+        setBusinessProfile({...editProfileData});
       }
       
       setIsEditingProfile(false);
       toast.success('Profil mis à jour avec succès !');
       
       // If website URL changed, clear existing analysis
-      if (websiteAnalysis && editProfileForm.website_url !== businessProfile?.website_url) {
+      if (websiteAnalysis && editWebsiteUrl !== businessProfile?.website_url) {
         setWebsiteAnalysis(null);
       }
     } catch (error) {

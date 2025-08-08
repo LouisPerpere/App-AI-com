@@ -456,17 +456,6 @@ function MainApp() {
     }));
   }, []);
 
-  // Optimized form handlers to prevent input bugs
-  const handleEditProfileChange = useCallback((field, value) => {
-    console.log(`🔧 Profile field changed: ${field} =`, value); // Debug log
-    setEditProfileForm(prev => {
-      // Force une nouvelle référence avec la même structure pour éviter les re-rendus
-      return {
-        ...prev,
-        [field]: value
-      };
-    });
-  }, []);
 
   // Handlers simplifiés pour les nouveaux composants isolés
   const handleEditProfileFieldChange = useCallback((field, value) => {

@@ -1232,7 +1232,7 @@ function MainApp() {
 
   // Show auth page if not authenticated
   if (!isAuthenticated) {
-    return <AuthPage onAuthSuccess={checkAuth} />;
+    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
   }
 
   // Show payment page if requested

@@ -609,6 +609,23 @@ function MainApp() {
     }
   };
 
+  const handleAuthSuccess = async () => {
+    console.log('🎉 APP DEBUG - Auth success callback triggered');
+    
+    try {
+      // First check authentication
+      await checkAuth();
+      console.log('🔍 APP DEBUG - Auth check completed after success');
+      
+      // Then load business profile
+      await loadBusinessProfile();
+      console.log('🔍 APP DEBUG - Business profile load completed');
+      
+    } catch (error) {
+      console.error('❌ APP DEBUG - Error in handleAuthSuccess:', error);
+    }
+  };
+
   const loadBusinessProfile = async () => {
     try {
       const response = await axios.get(`${API}/business-profile`);

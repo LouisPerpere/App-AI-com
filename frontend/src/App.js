@@ -2366,10 +2366,47 @@ function MainApp() {
                       e.preventDefault();
                       handleAddNote();
                     }} className="space-y-4">
-                      <NoteForm 
-                        noteForm={noteForm}
-                        onFieldChange={handleNoteFieldChange}
-                      />
+                      {/* Titre de la note */}
+                      <div className="space-y-2">
+                        <Label htmlFor="note_title_fix" className="text-gray-700 font-medium">Titre de la note</Label>
+                        <Input
+                          id="note_title_fix"
+                          type="text"
+                          placeholder="Ex: Nouvelle promotion, Événement spécial..."
+                          value={noteForm.title}
+                          onChange={(e) => setNoteForm({ ...noteForm, title: e.target.value })}
+                          required
+                        />
+                      </div>
+                      
+                      {/* Contenu de la note */}
+                      <div className="space-y-2">
+                        <Label htmlFor="note_content_fix" className="text-gray-700 font-medium">Contenu</Label>
+                        <Textarea
+                          id="note_content_fix"
+                          placeholder="Décrivez les détails importants que vous voulez voir apparaître dans vos posts..."
+                          value={noteForm.content}
+                          onChange={(e) => setNoteForm({ ...noteForm, content: e.target.value })}
+                          rows={4}
+                          required
+                        />
+                      </div>
+                      
+                      {/* Priorité */}
+                      <div className="space-y-2">
+                        <Label htmlFor="note_priority_fix" className="text-gray-700 font-medium">Priorité</Label>
+                        <select
+                          id="note_priority_fix"
+                          value={noteForm.priority}
+                          onChange={(e) => setNoteForm({ ...noteForm, priority: e.target.value })}
+                          className="w-full p-3 border border-gray-200 rounded-lg focus:border-blue-500 bg-white"
+                        >
+                          <option value="low">Faible</option>
+                          <option value="normal">Normale</option>
+                          <option value="high">Élevée</option>
+                          <option value="urgent">Urgente</option>
+                        </select>
+                      </div>
                       
                       <Button
                         type="submit"

@@ -447,6 +447,14 @@ const UpgradeModal = ({ isOpen, onClose, user, canClose = true, title = "Débloq
 function MainApp() {
   const location = useLocation();
   
+  // Optimized user form handler
+  const handleUserChange = (field, value) => {
+    setUser(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   // Optimized form handlers to prevent input bugs
   const handleEditProfileChange = (field, value) => {
     setEditProfileForm(prev => ({

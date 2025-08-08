@@ -132,13 +132,16 @@ async def get_business_profile():
     return {
         "business_name": "Demo Business",
         "business_type": "service",
+        "business_description": "Exemple d'entreprise utilisant Claire et Marcus pour gérer ses réseaux sociaux",
         "target_audience": "Demo audience",
         "brand_tone": "professional",
         "posting_frequency": "weekly",
         "preferred_platforms": ["Facebook", "Instagram", "LinkedIn"],
         "budget_range": "500-1000€",
         "email": "demo@claire-marcus.com",
-        "hashtags_primary": ["demo", "claire", "marcus"]
+        "website_url": "",
+        "hashtags_primary": ["demo", "claire", "marcus"],
+        "hashtags_secondary": ["social", "media", "management"]
     }
 
 @api_router.put("/business-profile")

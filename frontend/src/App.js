@@ -1795,16 +1795,6 @@ function MainApp() {
                             </div>
                           </div>
                         </div>
-                      </>
-                    ) : (
-                      <div className="text-center py-12">
-                        <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <Building className="w-10 h-10 text-blue-600" />
-                        </div>
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">Profil non configuré</h3>
-                        <p className="text-gray-600 mb-6">Configurez votre profil d'entreprise pour commencer à générer du contenu</p>
-                      </div>
-                    )}
 
                     {/* Website Analysis Status */}
                     {websiteAnalysis && (

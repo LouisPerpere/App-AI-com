@@ -2698,6 +2698,7 @@ function MainApp() {
                     <div>
                       <Label htmlFor="firstName">Prénom</Label>
                       <Input
+                        key="first_name_input"
                         id="firstName"
                         value={user?.first_name || ''}
                         onChange={(e) => handleUserChange('first_name', e.target.value)}

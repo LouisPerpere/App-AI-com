@@ -2432,9 +2432,10 @@ function MainApp() {
                       <div>
                         <Label htmlFor="note-priority" className="text-gray-700 font-medium">Priorité</Label>
                         <select
+                          key="note_priority_select"
                           id="note-priority"
                           value={noteForm.priority}
-                          onChange={(e) => setNoteForm({...noteForm, priority: e.target.value})}
+                          onChange={(e) => handleNoteFormChange('priority', e.target.value)}
                           className="mt-1 w-full p-3 border border-indigo-200 rounded-lg focus:border-indigo-500"
                         >
                           <option value="low">🟢 Faible - Information complémentaire</option>

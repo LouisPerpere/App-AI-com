@@ -2334,8 +2334,8 @@ function MainApp() {
                         <Label htmlFor="note_priority_fix" className="text-gray-700 font-medium">Priorité</Label>
                         <select
                           id="note_priority_fix"
-                          value={noteForm.priority}
-                          onChange={(e) => setNoteForm({ ...noteForm, priority: e.target.value })}
+                          value={notePriority}
+                          onChange={(e) => setNotePriority(e.target.value)}
                           className="w-full p-3 border border-gray-200 rounded-lg focus:border-blue-500 bg-white"
                         >
                           <option value="low">Faible</option>

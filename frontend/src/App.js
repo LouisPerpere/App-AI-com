@@ -1445,6 +1445,7 @@ function MainApp() {
                 </div>
                 <div className="flex space-x-3">
                   <Input
+                    key="secondary_hashtag_input"
                     placeholder="Ajouter un hashtag secondaire"
                     value={newSecondaryHashtag}
                     onChange={(e) => setNewSecondaryHashtag(e.target.value)}

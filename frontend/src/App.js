@@ -1598,10 +1598,11 @@ function MainApp() {
             <div className="space-y-3">
               <Label htmlFor="budget_range" className="text-gray-700 font-semibold">💰 Budget publicitaire mensuel</Label>
               <Input
+                key="onboarding_budget_range_input"
                 id="budget_range"
                 type="text"
                 value={profileForm.budget_range}
-                onChange={(e) => setProfileForm({...profileForm, budget_range: e.target.value})}
+                onChange={(e) => setProfileForm(prev => ({...prev, budget_range: e.target.value}))}
                 placeholder="Ex: 500€, 1000€, 2500€..."
                 className="input-modern"
               />

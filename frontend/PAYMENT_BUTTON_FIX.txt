@@ -1,0 +1,4 @@
+Added always-visible payment button in Settings tab
+Button: "Voir Abonnements" with CreditCard icon
+Location: Settings page header, always visible
+Deploy trigger: 2025-08-07 21:00:00

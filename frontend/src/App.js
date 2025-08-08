@@ -1842,7 +1842,7 @@ function MainApp() {
                                   <Textarea
                                     id="business_description"
                                     value={editProfileForm.business_description}
-                                    onChange={(e) => setEditProfileForm(prev => ({...prev, business_description: e.target.value}))}
+                                    onChange={(e) => handleEditProfileChange('business_description', e.target.value)}
                                     placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
                                     rows={3}
                                     required

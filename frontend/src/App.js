@@ -1079,18 +1079,7 @@ function MainApp() {
 
 
 
-  // Handle cancelling profile edit
-  const handleCancelEditProfile = () => {
-    setIsEditingProfile(false);
-    setEditBusinessName('');
-    setEditBusinessType('');
-    setEditBusinessDescription('');
-    setEditTargetAudience('');
-    setEditEmail('');
-    setEditWebsiteUrl('');
-    setEditBudgetRange('');
-    setEditPreferredPlatforms([]);
-  };
+
 
   // Handle platform selection in edit form
   const handlePlatformToggle = (platform) => {

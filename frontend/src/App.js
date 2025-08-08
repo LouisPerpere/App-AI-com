@@ -1696,6 +1696,9 @@ function MainApp() {
                               <h4 className="font-semibold text-blue-800 mb-2">📊 Informations générales</h4>
                               <div className="space-y-2 text-sm">
                                 <p><span className="font-medium">Audience cible :</span> {businessProfile.target_audience}</p>
+                                {businessProfile.business_description && (
+                                  <p><span className="font-medium">Description :</span> {businessProfile.business_description}</p>
+                                )}
                                 <p><span className="font-medium">Ton de marque :</span> {businessProfile.brand_tone}</p>
                                 <p><span className="font-medium">Budget :</span> {businessProfile.budget_range}</p>
                                 {businessProfile.email && (

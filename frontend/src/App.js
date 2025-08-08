@@ -2270,47 +2270,10 @@ function MainApp() {
                       e.preventDefault();
                       handleAddNote();
                     }} className="space-y-4">
-                      <div>
-                        <Label htmlFor="note-title" className="text-gray-700 font-medium">Titre de la note</Label>
-                                  <input
-                                    id="note_title_edit"
-                                    type="text"
-                                    placeholder="Ex: Nouvelle promotion, Événement spécial..."
-                                    value={noteForm.title || ''}
-                                    onChange={noteStableHandler}
-                                    required
-                                    autoComplete="off"
-                                    className="mt-1 border-indigo-200 focus:border-indigo-500 flex h-10 w-full rounded-md border bg-white px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2"
-                                  />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="note-content" className="text-gray-700 font-medium">Contenu</Label>
-                        <textarea
-                          key="note_content_input"
-                          id="note-content"
-                          placeholder="Décrivez les détails importants que vous voulez voir apparaître dans vos posts..."
-                          value={noteForm.content}
-                          onChange={(e) => handleNoteFormChange('content', e.target.value)}
-                          className="mt-1 w-full min-h-[120px] p-3 border border-indigo-200 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 resize-y"
-                          required
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="note-priority" className="text-gray-700 font-medium">Priorité</Label>
-                        <select
-                          key="note_priority_select"
-                          id="note-priority"
-                          value={noteForm.priority}
-                          onChange={(e) => handleNoteFormChange('priority', e.target.value)}
-                          className="mt-1 w-full p-3 border border-indigo-200 rounded-lg focus:border-indigo-500"
-                        >
-                          <option value="low">🟢 Faible - Information complémentaire</option>
-                          <option value="medium">🟡 Moyenne - Information importante</option>
-                          <option value="high">🔴 Haute - À mentionner absolument</option>
-                        </select>
-                      </div>
+                      <NoteForm 
+                        noteForm={noteForm}
+                        onFieldChange={handleNoteFieldChange}
+                      />
                       
                       <Button
                         type="submit"

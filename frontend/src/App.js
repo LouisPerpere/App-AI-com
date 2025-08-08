@@ -1971,42 +1971,6 @@ function MainApp() {
                               </div>
                             </div>
 
-                                <div className="space-y-2">
-                                  <Label htmlFor="target_audience" className="text-sm font-medium text-gray-700">
-                                    Audience cible *
-                                  </Label>
-                                  <IsolatedInput
-                                    id="target_audience"
-                                    value={editProfileForm.target_audience}
-                                    onChange={(value) => handleEditProfileChange('target_audience', value)}
-                                    placeholder="Décrivez votre audience cible"
-                                    rows={3}
-                                    required
-                                  />
-                                </div>
-
-                                <div className="space-y-2">
-                                  <Label htmlFor="brand_tone" className="text-sm font-medium text-gray-700">
-                                    Ton de marque *
-                                  </Label>
-                                  <Select value={editProfileForm.brand_tone} onValueChange={(value) => setEditProfileForm(prev => ({...prev, brand_tone: value}))}>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Sélectionnez le ton" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="professional">Professionnel</SelectItem>
-                                      <SelectItem value="casual">Décontracté</SelectItem>
-                                      <SelectItem value="friendly">Amical</SelectItem>
-                                      <SelectItem value="authoritative">Autoritaire</SelectItem>
-                                      <SelectItem value="playful">Enjoué</SelectItem>
-                                      <SelectItem value="inspiring">Inspirant</SelectItem>
-                                      <SelectItem value="educational">Éducatif</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-
-
-
                             {/* Action Buttons */}
                             <div className="flex justify-end space-x-4 pt-6 border-t border-purple-200">
                               <Button

@@ -1685,7 +1685,7 @@ function MainApp() {
                             </div>
                             <Button
                               onClick={handleEditProfile}
-                              className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 flex-shrink-0 whitespace-nowrap px-4 py-2"
+                              className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 flex-shrink-0 whitespace-nowrap px-4 py-2 max-w-fit self-start"
                             >
                               ⚙️ Modifier le profil
                             </Button>

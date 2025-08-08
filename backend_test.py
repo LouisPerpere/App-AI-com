@@ -1806,6 +1806,133 @@ class SocialGenieAPITester:
         print("🎉 Business Description Field Integration Test COMPLETED")
         return True
 
+    def test_business_profile_save_button_data_erasure_issue(self):
+        """Test the specific issue where 'Sauvegarder les modifications' button erases all data"""
+        if not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+        
+        print("\n🔍 Testing Business Profile Save Button Data Erasure Issue...")
+        print("   User Report: 'Sauvegarder les modifications' button erases all data instead of saving")
+        
+        # Step 1: Get current business profile to establish baseline
+        success, current_profile = self.run_test(
+            "GET Current Business Profile (Baseline)",
+            "GET",
+            "business-profile",
+            200
+        )
+        
+        if not success:
+            print("❌ Failed to get current business profile")
+            return False
+        
+        print(f"   Current profile has {len(current_profile)} fields")
+        baseline_fields = list(current_profile.keys())
+        print(f"   Baseline fields: {baseline_fields}")
+        
+        # Step 2: Create comprehensive update data with all expected fields
+        comprehensive_update = {
+            "business_name": "Restaurant Le Bon Goût Réunionnais",
+            "business_type": "restaurant",
+            "business_description": "Restaurant traditionnel réunionnais proposant une cuisine authentique avec des produits locaux. Spécialités: cari, rougail, et desserts créoles. Ambiance familiale et chaleureuse.",
+            "target_audience": "Familles réunionnaises, touristes, amateurs de cuisine créole de 25-65 ans",
+            "brand_tone": "friendly",
+            "posting_frequency": "3x_week",
+            "preferred_platforms": ["Facebook", "Instagram", "LinkedIn"],
+            "budget_range": "500-1000€",
+            "email": "contact@bongoût.re",
+            "website_url": "https://www.bongoût.re",
+            "hashtags_primary": ["#cuisineréunionnaise", "#restaurant", "#974", "#créole", "#authentique"],
+            "hashtags_secondary": ["#familial", "#local", "#tradition", "#saveurs", "#réunion"]
+        }
+        
+        print(f"   Sending update with {len(comprehensive_update)} fields")
+        
+        # Step 3: Test PUT /api/business-profile with comprehensive data
+        success, update_response = self.run_test(
+            "PUT Business Profile (Comprehensive Update - Save Button Test)",
+            "PUT",
+            "business-profile",
+            200,
+            data=comprehensive_update
+        )
+        
+        if not success:
+            print("❌ Failed to update business profile")
+            return False
+        
+        # Step 4: Verify the response contains the updated data (not empty)
+        if 'profile' in update_response:
+            returned_profile = update_response['profile']
+            print(f"   Response contains profile with {len(returned_profile)} fields")
+            
+            # Check if any critical fields are missing or empty
+            critical_fields = ["business_name", "business_type", "business_description", "target_audience"]
+            missing_fields = []
+            empty_fields = []
+            
+            for field in critical_fields:
+                if field not in returned_profile:
+                    missing_fields.append(field)
+                elif not returned_profile[field] or returned_profile[field].strip() == "":
+                    empty_fields.append(field)
+            
+            if missing_fields:
+                print(f"❌ CRITICAL: Missing fields in response: {missing_fields}")
+                return False
+            
+            if empty_fields:
+                print(f"❌ CRITICAL: Empty fields in response: {empty_fields}")
+                return False
+            
+            print("✅ All critical fields present and non-empty in response")
+        else:
+            print("❌ CRITICAL: No 'profile' field in update response")
+            return False
+        
+        # Step 5: Verify data persistence by getting the profile again
+        success, verification_profile = self.run_test(
+            "GET Business Profile (Verify Persistence After Save)",
+            "GET",
+            "business-profile",
+            200
+        )
+        
+        if not success:
+            print("❌ Failed to verify profile persistence")
+            return False
+        
+        # Step 6: Compare verification profile with what we sent
+        print(f"   Verification profile has {len(verification_profile)} fields")
+        
+        # Check if the data was actually saved (not erased)
+        data_erased = False
+        field_comparison = {}
+        
+        for field, expected_value in comprehensive_update.items():
+            actual_value = verification_profile.get(field)
+            field_comparison[field] = {
+                'expected': expected_value,
+                'actual': actual_value,
+                'match': actual_value == expected_value
+            }
+            
+            if not actual_value or (isinstance(actual_value, str) and actual_value.strip() == ""):
+                data_erased = True
+                print(f"❌ FIELD ERASED: {field} - Expected: '{expected_value}', Got: '{actual_value}'")
+            elif actual_value != expected_value:
+                print(f"⚠️  FIELD MISMATCH: {field} - Expected: '{expected_value}', Got: '{actual_value}'")
+        
+        # Step 7: Final assessment
+        if data_erased:
+            print("❌ CRITICAL ISSUE CONFIRMED: Business profile data is being erased during save operation")
+            print("   ROOT CAUSE: PUT /api/business-profile endpoint or response handling is clearing field values")
+            return False
+        else:
+            print("✅ Business profile save operation working correctly - no data erasure detected")
+            return True
+
     def test_business_profile_comprehensive_fields(self):
         """Test all business profile fields including business_description"""
         if not self.access_token:

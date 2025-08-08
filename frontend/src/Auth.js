@@ -10,12 +10,25 @@ import { Eye, EyeOff, LogIn, UserPlus, Sparkles, Shield, Zap, Users, Building, U
 import { toast } from 'sonner';
 import DebugAuth from './DebugAuth';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://claire-marcus-api.onrender.com';
+// Ensure we always have a valid backend URL
+const getBackendURL = () => {
+  const envURL = process.env.REACT_APP_BACKEND_URL;
+  const fallbackURL = 'https://claire-marcus-api.onrender.com';
+  
+  console.log('🔍 AUTH DEBUG - Raw ENV:', process.env.REACT_APP_BACKEND_URL);
+  console.log('🔍 AUTH DEBUG - All REACT_APP vars:', Object.keys(process.env).filter(key => key.startsWith('REACT_APP_')));
+  
+  // Use env URL if it exists and is valid, otherwise use fallback
+  const finalURL = (envURL && envURL.trim() && envURL !== 'undefined') ? envURL : fallbackURL;
+  
+  console.log('🔍 AUTH DEBUG - Final Backend URL:', finalURL);
+  return finalURL;
+};
+
+const BACKEND_URL = getBackendURL();
 const API = `${BACKEND_URL}/api`;
 
-// Debug log (temporary)
-console.log('🔍 AUTH DEBUG - BACKEND_URL:', BACKEND_URL);
-console.log('🔍 AUTH DEBUG - API:', API);
+console.log('🔍 AUTH DEBUG - API URL:', API);
 
 const AuthPage = ({ onAuthSuccess }) => {
   const [activeTab, setActiveTab] = useState('login');

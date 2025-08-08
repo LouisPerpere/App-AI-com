@@ -1202,12 +1202,15 @@ function MainApp() {
 
   // Handle platform selection in edit form
   const handlePlatformToggle = (platform) => {
-    setEditProfileForm(prev => ({
-      ...prev,
-      preferred_platforms: prev.preferred_platforms.includes(platform)
-        ? prev.preferred_platforms.filter(p => p !== platform)
-        : [...prev.preferred_platforms, platform]
-    }));
+    setEditProfileForm(prev => {
+      const currentPlatforms = prev.preferred_platforms || [];
+      return {
+        ...prev,
+        preferred_platforms: currentPlatforms.includes(platform)
+          ? currentPlatforms.filter(p => p !== platform)
+          : [...currentPlatforms, platform]
+      };
+    });
   };
 
   // Handle hashtag input changes

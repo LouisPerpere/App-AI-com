@@ -2,11 +2,14 @@ import React, { useRef, useEffect } from 'react';
 import StableTextInput from './StableTextInput';
 import { Label } from './components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/ui/select';
+import { Input } from './components/ui/input';
 
 const EditProfileForm = ({ 
   editProfileForm, 
   onFieldChange, 
-  businessTypes = []
+  businessTypes = [],
+  onPlatformToggle,
+  onHashtagChange
 }) => {
   const inputRefs = useRef({});
 
@@ -20,7 +23,7 @@ const EditProfileForm = ({
       {/* Nom de l'entreprise */}
       <div className="space-y-2">
         <Label htmlFor="business_name_stable" className="text-sm font-medium text-gray-700">
-          Nom de l'entreprise
+          Nom de l'entreprise *
         </Label>
         <StableTextInput
           ref={el => inputRefs.current.business_name = el}
@@ -35,7 +38,7 @@ const EditProfileForm = ({
       {/* Type d'entreprise */}
       <div className="space-y-2">
         <Label htmlFor="business_type" className="text-sm font-medium text-gray-700">
-          Type d'entreprise
+          Type d'entreprise *
         </Label>
         <Select
           value={editProfileForm.business_type}
@@ -57,7 +60,7 @@ const EditProfileForm = ({
       {/* Description de l'activité */}
       <div className="space-y-2">
         <Label htmlFor="business_description_stable" className="text-sm font-medium text-gray-700">
-          Décrivez votre activité
+          Décrivez votre activité *
         </Label>
         <StableTextInput
           ref={el => inputRefs.current.business_description = el}
@@ -68,12 +71,15 @@ const EditProfileForm = ({
           rows={3}
           required
         />
+        <p className="text-xs text-gray-500">
+          Cette description sera utilisée pour générer du contenu personnalisé
+        </p>
       </div>
 
       {/* Audience cible */}
       <div className="space-y-2">
         <Label htmlFor="target_audience_stable" className="text-sm font-medium text-gray-700">
-          Audience cible
+          Audience cible *
         </Label>
         <StableTextInput
           ref={el => inputRefs.current.target_audience = el}
@@ -89,7 +95,7 @@ const EditProfileForm = ({
       {/* Ton de la marque */}
       <div className="space-y-2">
         <Label htmlFor="brand_tone" className="text-sm font-medium text-gray-700">
-          Ton de la marque
+          Ton de la marque *
         </Label>
         <Select
           value={editProfileForm.brand_tone}
@@ -99,11 +105,13 @@ const EditProfileForm = ({
             <SelectValue placeholder="Choisissez le ton" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="friendly">Amical</SelectItem>
             <SelectItem value="professional">Professionnel</SelectItem>
             <SelectItem value="casual">Décontracté</SelectItem>
-            <SelectItem value="elegant">Élégant</SelectItem>
-            <SelectItem value="energetic">Énergique</SelectItem>
+            <SelectItem value="friendly">Amical</SelectItem>
+            <SelectItem value="authoritative">Autoritaire</SelectItem>
+            <SelectItem value="playful">Enjoué</SelectItem>
+            <SelectItem value="inspiring">Inspirant</SelectItem>
+            <SelectItem value="educational">Éducatif</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -111,7 +119,7 @@ const EditProfileForm = ({
       {/* Fréquence de publication */}
       <div className="space-y-2">
         <Label htmlFor="posting_frequency" className="text-sm font-medium text-gray-700">
-          Fréquence de publication
+          Fréquence de publication *
         </Label>
         <Select
           value={editProfileForm.posting_frequency}
@@ -132,20 +140,14 @@ const EditProfileForm = ({
 
       {/* Plateformes préférées */}
       <div className="space-y-2">
-        <Label className="text-sm font-medium text-gray-700">Plateformes préférées</Label>
+        <Label className="text-sm font-medium text-gray-700">Plateformes préférées *</Label>
         <div className="grid grid-cols-3 gap-4">
           {['Facebook', 'Instagram', 'LinkedIn'].map((platform) => (
-            <label key={platform} className="flex items-center space-x-2">
+            <label key={platform} className="flex items-center space-x-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={editProfileForm.preferred_platforms?.includes(platform)}
-                onChange={(e) => {
-                  const current = editProfileForm.preferred_platforms || [];
-                  const updated = e.target.checked 
-                    ? [...current, platform]
-                    : current.filter(p => p !== platform);
-                  onFieldChange('preferred_platforms', updated);
-                }}
+                onChange={() => onPlatformToggle && onPlatformToggle(platform)}
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span className="text-sm text-gray-700">{platform}</span>
@@ -196,6 +198,35 @@ const EditProfileForm = ({
           onChange={handleFieldChange('website_url')}
           placeholder="https://votre-site.com"
         />
+      </div>
+
+      {/* Hashtags */}
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="hashtags_primary" className="text-sm font-medium text-gray-700">
+            Hashtags principaux
+          </Label>
+          <Input
+            id="hashtags_primary"
+            value={editProfileForm.hashtags_primary?.join(', ') || ''}
+            onChange={(e) => onHashtagChange && onHashtagChange('hashtags_primary', e.target.value)}
+            placeholder="restaurant, gastronomie, paris"
+          />
+          <p className="text-xs text-gray-500">Séparez par des virgules</p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="hashtags_secondary" className="text-sm font-medium text-gray-700">
+            Hashtags secondaires
+          </Label>
+          <Input
+            id="hashtags_secondary"
+            value={editProfileForm.hashtags_secondary?.join(', ') || ''}
+            onChange={(e) => onHashtagChange && onHashtagChange('hashtags_secondary', e.target.value)}
+            placeholder="cuisine, chef, bistronomie"
+          />
+          <p className="text-xs text-gray-500">Hashtags complémentaires</p>
+        </div>
       </div>
     </div>
   );

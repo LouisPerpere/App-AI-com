@@ -2720,6 +2720,7 @@ function MainApp() {
                     <div className="md:col-span-2">
                       <Label htmlFor="email">Email</Label>
                       <Input
+                        key="email_input"
                         id="email"
                         type="email"
                         value={user?.email || ''}

@@ -1769,7 +1769,7 @@ function MainApp() {
                                   <Input
                                     id="business_name"
                                     value={editProfileForm.business_name}
-                                    onChange={(e) => setEditProfileForm(prev => ({...prev, business_name: e.target.value}))}
+                                    onChange={(e) => handleEditProfileChange('business_name', e.target.value)}
                                     placeholder="Nom de votre entreprise"
                                     required
                                   />

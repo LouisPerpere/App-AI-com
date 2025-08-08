@@ -422,6 +422,18 @@ backend:
         agent: "testing"
         comment: "✅ COMPLETED: Password reset successfully completed for lperpere@yahoo.fr. PROCESS: (1) Verified user exists in database with correct ID c1c76afa-a112-40ad-809e-a180aa04f007, (2) Used get_password_hash() function from auth.py to hash new password 'L@Reunion974!' with bcrypt, (3) Updated hashed_password field in MongoDB users collection, (4) Verified password hash stored correctly in database, (5) Tested authentication with new credentials - login successful with 200 status, (6) Confirmed JWT token generation working (access_token and refresh_token), (7) Verified authenticated endpoint access (/api/auth/me) returns correct user data, (8) Confirmed subscription status endpoint working - user has trial status with 13 days remaining. Password change is complete and fully functional. User can now login with lperpere@yahoo.fr / L@Reunion974!"
 
+  - task: "Business Profile Data Persistence Issue"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL ISSUE CONFIRMED: Business profile 'Sauvegarder les modifications' button data erasure issue identified through comprehensive testing. DETAILED FINDINGS: (1) ✅ Authentication Working - User lperpere@yahoo.fr / L@Reunion974! successfully authenticates and receives valid demo tokens, (2) ✅ PUT /api/business-profile Endpoint - Accepts comprehensive business profile updates with all required fields (business_name, business_type, business_description, target_audience, brand_tone, posting_frequency, preferred_platforms, budget_range, email, website_url, hashtags_primary, hashtags_secondary), returns 200 success with updated profile data in response, (3) ❌ CRITICAL: No Data Persistence - GET /api/business-profile immediately after successful PUT returns original hardcoded demo data (Demo Business, service, demo@claire-marcus.com) instead of user's saved changes, (4) ❌ Demo Mode Root Cause - Backend running in demo mode with hardcoded responses, no database persistence implemented, (5) ❌ Field Validation Issue - PUT endpoint requires ALL required fields in single request, cannot perform partial updates (returns 422 validation errors for missing fields). TECHNICAL EVIDENCE: PUT response shows correct updated data (Restaurant Le Bon Goût Réunionnais, restaurant, contact@bongoût.re), but GET response immediately returns demo data (Demo Business, service, demo@claire-marcus.com). This creates user experience where data appears to be 'erased' after save. SOLUTION NEEDED: Backend requires production database integration to persist business profile changes instead of returning hardcoded demo responses."
+
   - task: "Phase 1 Business Profile Editing"
     implemented: true
     working: true

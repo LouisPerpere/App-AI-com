@@ -1933,13 +1933,15 @@ function MainApp() {
                                   <Label htmlFor="business_description" className="text-sm font-medium text-gray-700">
                                     Décrivez votre activité *
                                   </Label>
-                                  <IsolatedInput
-                                    id="business_description"
-                                    value={editProfileForm.business_description}
-                                    onChange={(value) => handleEditProfileChange('business_description', value)}
+                                  <textarea
+                                    id="business_description_edit"
+                                    value={editProfileForm.business_description || ''}
+                                    onChange={handleInputChange('business_description')}
                                     placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
                                     rows={3}
                                     required
+                                    autoComplete="off"
+                                    className="flex min-h-[80px] w-full rounded-md border border-input bg-white px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
                                   />
                                   <p className="text-xs text-gray-500">
                                     Cette description sera utilisée pour générer du contenu personnalisé

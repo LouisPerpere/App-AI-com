@@ -1882,8 +1882,8 @@ function MainApp() {
                                 id="email_fix"
                                 type="email"
                                 placeholder="contact@entreprise.com"
-                                value={editProfileForm.email}
-                                onChange={(e) => setEditProfileForm({ ...editProfileForm, email: e.target.value })}
+                                value={editEmail}
+                                onChange={(e) => setEditEmail(e.target.value)}
                               />
                             </div>
 

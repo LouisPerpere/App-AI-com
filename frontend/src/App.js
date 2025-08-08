@@ -1851,27 +1851,122 @@ function MainApp() {
                           </div>
 
                           <form onSubmit={handleUpdateProfile} className="space-y-6">
-                            <EditProfileForm 
-                              editProfileForm={editProfileForm}
-                              onFieldChange={handleEditProfileFieldChange}
-                              onPlatformToggle={handlePlatformToggle}
-                              onHashtagChange={handleHashtagChange}
-                              businessTypes={[
-                                { value: "restaurant", label: "Restaurant" },
-                                { value: "shop", label: "Commerce" },
-                                { value: "service", label: "Service" },
-                                { value: "freelance", label: "Freelance" },
-                                { value: "agency", label: "Agence" },
-                                { value: "ecommerce", label: "E-commerce" },
-                                { value: "saas", label: "SaaS" },
-                                { value: "consulting", label: "Conseil" },
-                                { value: "healthcare", label: "Santé" },
-                                { value: "education", label: "Éducation" },
-                                { value: "fitness", label: "Sport/Fitness" },
-                                { value: "beauty", label: "Beauté" },
-                                { value: "other", label: "Autre" }
-                              ]}
-                            />
+                            {/* Nom de l'entreprise */}
+                            <div className="space-y-2">
+                              <Label htmlFor="business_name_fix" className="text-gray-700 font-medium">Nom de l'entreprise</Label>
+                              <Input
+                                id="business_name_fix"
+                                type="text"
+                                placeholder="Nom de votre entreprise"
+                                value={editProfileForm.business_name}
+                                onChange={(e) => setEditProfileForm({ ...editProfileForm, business_name: e.target.value })}
+                                required
+                              />
+                            </div>
+
+                            {/* Type d'entreprise */}
+                            <div className="space-y-2">
+                              <Label htmlFor="business_type_fix" className="text-gray-700 font-medium">Type d'entreprise</Label>
+                              <Select value={editProfileForm.business_type} onValueChange={(value) => setEditProfileForm({...editProfileForm, business_type: value})}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Sélectionnez le type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="restaurant">Restaurant</SelectItem>
+                                  <SelectItem value="shop">Commerce</SelectItem>
+                                  <SelectItem value="service">Service</SelectItem>
+                                  <SelectItem value="freelance">Freelance</SelectItem>
+                                  <SelectItem value="agency">Agence</SelectItem>
+                                  <SelectItem value="ecommerce">E-commerce</SelectItem>
+                                  <SelectItem value="saas">SaaS</SelectItem>
+                                  <SelectItem value="consulting">Conseil</SelectItem>
+                                  <SelectItem value="healthcare">Santé</SelectItem>
+                                  <SelectItem value="education">Éducation</SelectItem>
+                                  <SelectItem value="fitness">Sport/Fitness</SelectItem>
+                                  <SelectItem value="beauty">Beauté</SelectItem>
+                                  <SelectItem value="other">Autre</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            {/* Description de l'activité */}
+                            <div className="space-y-2">
+                              <Label htmlFor="business_description_fix" className="text-gray-700 font-medium">Décrivez votre activité</Label>
+                              <Textarea
+                                id="business_description_fix"
+                                placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
+                                value={editProfileForm.business_description}
+                                onChange={(e) => setEditProfileForm({ ...editProfileForm, business_description: e.target.value })}
+                                rows={3}
+                                required
+                              />
+                            </div>
+
+                            {/* Audience cible */}
+                            <div className="space-y-2">
+                              <Label htmlFor="target_audience_fix" className="text-gray-700 font-medium">Audience cible</Label>
+                              <Textarea
+                                id="target_audience_fix"
+                                placeholder="Décrivez votre audience cible"
+                                value={editProfileForm.target_audience}
+                                onChange={(e) => setEditProfileForm({ ...editProfileForm, target_audience: e.target.value })}
+                                rows={3}
+                                required
+                              />
+                            </div>
+
+                            {/* Email professionnel */}
+                            <div className="space-y-2">
+                              <Label htmlFor="email_fix" className="text-gray-700 font-medium">Email professionnel</Label>
+                              <Input
+                                id="email_fix"
+                                type="email"
+                                placeholder="contact@entreprise.com"
+                                value={editProfileForm.email}
+                                onChange={(e) => setEditProfileForm({ ...editProfileForm, email: e.target.value })}
+                              />
+                            </div>
+
+                            {/* Site web */}
+                            <div className="space-y-2">
+                              <Label htmlFor="website_url_fix" className="text-gray-700 font-medium">Site web</Label>
+                              <Input
+                                id="website_url_fix"
+                                type="url"
+                                placeholder="https://votre-site.com"
+                                value={editProfileForm.website_url}
+                                onChange={(e) => setEditProfileForm({ ...editProfileForm, website_url: e.target.value })}
+                              />
+                            </div>
+
+                            {/* Budget marketing */}
+                            <div className="space-y-2">
+                              <Label htmlFor="budget_range_fix" className="text-gray-700 font-medium">Budget marketing mensuel</Label>
+                              <Input
+                                id="budget_range_fix"
+                                placeholder="Ex: 500€, 1000-2000€, etc."
+                                value={editProfileForm.budget_range}
+                                onChange={(e) => setEditProfileForm({ ...editProfileForm, budget_range: e.target.value })}
+                              />
+                            </div>
+
+                            {/* Plateformes préférées */}
+                            <div className="space-y-2">
+                              <Label className="text-gray-700 font-medium">Plateformes préférées</Label>
+                              <div className="grid grid-cols-3 gap-4">
+                                {['Facebook', 'Instagram', 'LinkedIn'].map((platform) => (
+                                  <label key={platform} className="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      checked={editProfileForm.preferred_platforms?.includes(platform)}
+                                      onChange={() => handlePlatformToggle(platform)}
+                                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    />
+                                    <span className="text-sm text-gray-700">{platform}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
 
                                 <div className="space-y-2">
                                   <Label htmlFor="target_audience" className="text-sm font-medium text-gray-700">

@@ -2559,15 +2559,27 @@ function MainApp() {
           <TabsContent value="reglages" className="space-y-8">
             <Card className="card-gradient">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-3 text-2xl">
-                  <div className="w-10 h-10 bg-gradient-to-r from-gray-500 to-gray-600 rounded-2xl flex items-center justify-center">
-                    <Settings className="w-6 h-6 text-white" />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center space-x-3 text-2xl">
+                      <div className="w-10 h-10 bg-gradient-to-r from-gray-500 to-gray-600 rounded-2xl flex items-center justify-center">
+                        <Settings className="w-6 h-6 text-white" />
+                      </div>
+                      <span>Réglages</span>
+                    </CardTitle>
+                    <CardDescription>
+                      Gérez votre profil, abonnement et paramètres de compte
+                    </CardDescription>
                   </div>
-                  <span>Réglages</span>
-                </CardTitle>
-                <CardDescription>
-                  Gérez votre profil, abonnement et paramètres de compte
-                </CardDescription>
+                  {/* Always visible payment button */}
+                  <Button
+                    onClick={() => setShowPaymentPage(true)}
+                    className="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white"
+                  >
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Voir Abonnements
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* User Profile Section */}

@@ -1871,15 +1871,13 @@ function MainApp() {
                                   <Label htmlFor="target_audience" className="text-sm font-medium text-gray-700">
                                     Audience cible *
                                   </Label>
-                                  <textarea
-                                    key="target_audience_input"
+                                  <IsolatedInput
                                     id="target_audience"
                                     value={editProfileForm.target_audience}
-                                    onChange={(e) => handleEditProfileChange('target_audience', e.target.value)}
+                                    onChange={(value) => handleEditProfileChange('target_audience', value)}
                                     placeholder="Décrivez votre audience cible"
                                     rows={3}
                                     required
-                                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                                   />
                                 </div>
 

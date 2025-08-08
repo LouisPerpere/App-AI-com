@@ -2400,13 +2400,12 @@ function MainApp() {
                     }} className="space-y-4">
                       <div>
                         <Label htmlFor="note-title" className="text-gray-700 font-medium">Titre de la note</Label>
-                        <input
-                          key="note_title_input"
+                        <IsolatedInput
                           id="note-title"
                           placeholder="Ex: Nouvelle promotion, Événement spécial..."
                           value={noteForm.title}
-                          onChange={(e) => handleNoteFormChange('title', e.target.value)}
-                          className="mt-1 border-indigo-200 focus:border-indigo-500 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          onChange={(value) => handleNoteFormChange('title', value)}
+                          className="mt-1 border-indigo-200 focus:border-indigo-500"
                           required
                         />
                       </div>

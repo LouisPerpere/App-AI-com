@@ -468,17 +468,35 @@ function MainApp() {
     });
   }, []);
 
-  // Version stable pour les inputs critiques
-  const handleInputChange = useCallback((field) => {
-    return (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const value = e.target.value;
-      setEditProfileForm(prev => ({
-        ...prev,
-        [field]: value
-      }));
+  // Version ultra-stable pour éviter le bug du clavier mobile
+  const createStableHandler = useCallback((fieldName) => {
+    return (event) => {
+      const value = event.target.value;
+      // Force immediate update without re-render
+      setEditProfileForm(prevForm => {
+        if (prevForm[fieldName] === value) return prevForm; // Avoid unnecessary updates
+        return { ...prevForm, [fieldName]: value };
+      });
     };
+  }, []);
+
+  // Create stable handlers for each field
+  const stableHandlers = useMemo(() => ({
+    business_name: createStableHandler('business_name'),
+    business_description: createStableHandler('business_description'),
+    target_audience: createStableHandler('target_audience'),
+    budget_range: createStableHandler('budget_range'),
+    email: createStableHandler('email'),
+    website_url: createStableHandler('website_url')
+  }), [createStableHandler]);
+
+  // Note form stable handler
+  const noteStableHandler = useCallback((event) => {
+    const value = event.target.value;
+    setNoteForm(prevForm => {
+      if (prevForm.title === value) return prevForm;
+      return { ...prevForm, title: value };
+    });
   }, []);
 
   // Optimized note form handler

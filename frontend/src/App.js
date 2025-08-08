@@ -1886,7 +1886,7 @@ function MainApp() {
                                     id="business_name_edit"
                                     type="text"
                                     value={editProfileForm.business_name || ''}
-                                    onChange={handleInputChange('business_name')}
+                                    onChange={stableHandlers.business_name}
                                     placeholder="Nom de votre entreprise"
                                     required
                                     autoComplete="off"

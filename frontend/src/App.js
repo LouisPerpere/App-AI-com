@@ -1852,52 +1852,25 @@ function MainApp() {
                           </div>
 
                           <form onSubmit={handleUpdateProfile} className="space-y-6">
-                            {/* Basic Information */}
-                            <div className="grid md:grid-cols-2 gap-6">
-                              <div className="space-y-4">
-                                <h4 className="font-semibold text-purple-800 mb-3">📊 Informations de base</h4>
-                                
-                                <div className="space-y-2">
-                                  <Label htmlFor="business_name" className="text-sm font-medium text-gray-700">
-                                    Nom de l'entreprise *
-                                  </Label>
-                                  <input
-                                    id="business_name_edit"
-                                    type="text"
-                                    value={editProfileForm.business_name || ''}
-                                    onChange={stableHandlers.business_name}
-                                    placeholder="Nom de votre entreprise"
-                                    required
-                                    autoComplete="off"
-                                    className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                                  />
-                                </div>
-
-                                <div className="space-y-2">
-                                  <Label htmlFor="business_type" className="text-sm font-medium text-gray-700">
-                                    Type d'entreprise *
-                                  </Label>
-                                  <Select value={editProfileForm.business_type} onValueChange={(value) => setEditProfileForm(prev => ({...prev, business_type: value}))}>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Sélectionnez le type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="restaurant">Restaurant</SelectItem>
-                                      <SelectItem value="shop">Commerce</SelectItem>
-                                      <SelectItem value="service">Service</SelectItem>
-                                      <SelectItem value="freelance">Freelance</SelectItem>
-                                      <SelectItem value="agency">Agence</SelectItem>
-                                      <SelectItem value="ecommerce">E-commerce</SelectItem>
-                                      <SelectItem value="saas">SaaS</SelectItem>
-                                      <SelectItem value="consulting">Conseil</SelectItem>
-                                      <SelectItem value="healthcare">Santé</SelectItem>
-                                      <SelectItem value="education">Éducation</SelectItem>
-                                      <SelectItem value="fitness">Sport/Fitness</SelectItem>
-                                      <SelectItem value="beauty">Beauté</SelectItem>
-                                      <SelectItem value="other">Autre</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
+                            <EditProfileForm 
+                              editProfileForm={editProfileForm}
+                              onFieldChange={handleEditProfileFieldChange}
+                              businessTypes={[
+                                { value: "restaurant", label: "Restaurant" },
+                                { value: "shop", label: "Commerce" },
+                                { value: "service", label: "Service" },
+                                { value: "freelance", label: "Freelance" },
+                                { value: "agency", label: "Agence" },
+                                { value: "ecommerce", label: "E-commerce" },
+                                { value: "saas", label: "SaaS" },
+                                { value: "consulting", label: "Conseil" },
+                                { value: "healthcare", label: "Santé" },
+                                { value: "education", label: "Éducation" },
+                                { value: "fitness", label: "Sport/Fitness" },
+                                { value: "beauty", label: "Beauté" },
+                                { value: "other", label: "Autre" }
+                              ]}
+                            />
 
                                 <div className="space-y-2">
                                   <Label htmlFor="target_audience" className="text-sm font-medium text-gray-700">

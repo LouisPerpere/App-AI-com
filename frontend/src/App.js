@@ -488,11 +488,20 @@ function MainApp() {
     website_url: ''
   });
   
-  const [noteForm, setNoteForm] = useState({
-    title: '',
-    content: '',
-    priority: 'normal'
-  });
+  // Business profile edit form - STATES SÉPARÉS comme dans Auth
+  const [editBusinessName, setEditBusinessName] = useState('');
+  const [editBusinessType, setEditBusinessType] = useState('');
+  const [editBusinessDescription, setEditBusinessDescription] = useState('');
+  const [editTargetAudience, setEditTargetAudience] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editWebsiteUrl, setEditWebsiteUrl] = useState('');
+  const [editBudgetRange, setEditBudgetRange] = useState('');
+  const [editPreferredPlatforms, setEditPreferredPlatforms] = useState([]);
+
+  // Note form - STATES SÉPARÉS
+  const [noteTitle, setNoteTitle] = useState('');
+  const [noteContent, setNoteContent] = useState('');
+  const [notePriority, setNotePriority] = useState('normal');
   
   // UI states
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -508,20 +517,6 @@ function MainApp() {
   const [upgradeModalDismissed, setUpgradeModalDismissed] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
-  const [editProfileForm, setEditProfileForm] = useState({
-    business_name: '',
-    business_type: '',
-    business_description: '',
-    target_audience: '',
-    brand_tone: '',
-    posting_frequency: '',
-    preferred_platforms: [],
-    budget_range: '',
-    email: '',
-    website_url: '',
-    hashtags_primary: [],
-    hashtags_secondary: []
-  });
   
   // Hashtag management
   const [newPrimaryHashtag, setNewPrimaryHashtag] = useState('');

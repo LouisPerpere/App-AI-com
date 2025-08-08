@@ -448,14 +448,25 @@ const UpgradeModal = ({ isOpen, onClose, user, canClose = true, title = "Débloq
 function MainApp() {
   const location = useLocation();
   
-  // Optimized user form handler
-  const handleUserChange = useCallback((field, value) => {
-    console.log(`🔧 User field changed: ${field} =`, value); // Debug log
-    setUser(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  }, []);
+  // Auto-save function
+  const autoSaveProfile = async (updatedProfile) => {
+    try {
+      const response = await axios.put(`${API}/business-profile`, updatedProfile, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      });
+      
+      if (response.data && response.data.business_name) {
+        setBusinessProfile(response.data);
+      }
+      
+      // Silent success - no toast to avoid interrupting user
+      console.log('✅ Profile auto-saved successfully');
+    } catch (error) {
+      console.error('❌ Auto-save error:', error);
+      // Only show error toast
+      toast.error('Erreur lors de la sauvegarde automatique');
+    }
+  };
 
   // Active step state
   const [isAuthenticated, setIsAuthenticated] = useState(false);

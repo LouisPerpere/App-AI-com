@@ -2702,7 +2702,7 @@ function MainApp() {
                       <Input
                         id="lastName"
                         value={user?.last_name || ''}
-                        onChange={(e) => setUser({...user, last_name: e.target.value})}
+                        onChange={(e) => handleUserChange('last_name', e.target.value)}
                         className="mt-1"
                         placeholder="Votre nom"
                       />

@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { Alert, AlertDescription } from './components/ui/alert';
 import { Eye, EyeOff, LogIn, UserPlus, Sparkles, Shield, Zap, Users, Building, Upload, FileText, Send, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import DebugAuth from './DebugAuth';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://claire-marcus-api.onrender.com';
 const API = `${BACKEND_URL}/api`;

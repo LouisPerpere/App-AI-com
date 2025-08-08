@@ -1075,11 +1075,7 @@ function MainApp() {
 
 
 
-  // Handle profile editing
-  const handleEditProfile = () => {
-    initializeEditForm();
-    setIsEditingProfile(true);
-  };
+
 
   // Handle profile update form submission
   const handleUpdateProfile = async (e) => {

@@ -459,10 +459,26 @@ function MainApp() {
   // Optimized form handlers to prevent input bugs
   const handleEditProfileChange = useCallback((field, value) => {
     console.log(`🔧 Profile field changed: ${field} =`, value); // Debug log
-    setEditProfileForm(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setEditProfileForm(prev => {
+      // Force une nouvelle référence avec la même structure pour éviter les re-rendus
+      return {
+        ...prev,
+        [field]: value
+      };
+    });
+  }, []);
+
+  // Version stable pour les inputs critiques
+  const handleInputChange = useCallback((field) => {
+    return (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const value = e.target.value;
+      setEditProfileForm(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    };
   }, []);
 
   // Optimized note form handler

@@ -649,8 +649,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Claire et Marcus Live Registration Flow"
-  stuck_tasks: []
+    - "Critical Bug Fixes Testing"
+  stuck_tasks:
+    - "Critical Bug Fixes Testing"
   test_all: false
   test_priority: "high_first"
 

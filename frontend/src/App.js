@@ -2915,9 +2915,10 @@ function MainApp() {
                 <h3 className="text-xl font-semibold text-gray-800">🌐 Analyse de votre site web</h3>
                 <div className="space-y-3">
                   <Input
+                    key="website_analysis_url_input"
                     placeholder="https://monentreprise.com"
                     value={profileForm.website_url || businessProfile?.website_url || ''}
-                    onChange={(e) => setProfileForm({...profileForm, website_url: e.target.value})}
+                    onChange={(e) => setProfileForm(prev => ({...prev, website_url: e.target.value}))}
                     className="input-modern"
                     type="url"
                   />

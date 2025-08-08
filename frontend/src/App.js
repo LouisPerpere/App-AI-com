@@ -1827,7 +1827,7 @@ function MainApp() {
                             {/* Type d'entreprise */}
                             <div className="space-y-2">
                               <Label htmlFor="business_type_fix" className="text-gray-700 font-medium">Type d'entreprise</Label>
-                              <Select value={editProfileForm.business_type} onValueChange={(value) => setEditProfileForm({...editProfileForm, business_type: value})}>
+                              <Select value={editBusinessType} onValueChange={(value) => setEditBusinessType(value)}>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Sélectionnez le type" />
                                 </SelectTrigger>

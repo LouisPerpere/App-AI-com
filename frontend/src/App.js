@@ -1857,12 +1857,15 @@ function MainApp() {
                                   <Label htmlFor="business_name" className="text-sm font-medium text-gray-700">
                                     Nom de l'entreprise *
                                   </Label>
-                                  <IsolatedInput
-                                    id="business_name"
-                                    value={editProfileForm.business_name}
-                                    onChange={(value) => handleEditProfileChange('business_name', value)}
+                                  <input
+                                    id="business_name_edit"
+                                    type="text"
+                                    value={editProfileForm.business_name || ''}
+                                    onChange={handleInputChange('business_name')}
                                     placeholder="Nom de votre entreprise"
                                     required
+                                    autoComplete="off"
+                                    className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                   />
                                 </div>
 

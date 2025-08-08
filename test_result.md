@@ -1009,8 +1009,10 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Business Profile Data Persistence Issue"
     - "Live Production Site Priority Fixes Testing"
-  stuck_tasks: []
+  stuck_tasks: 
+    - "Business Profile Data Persistence Issue"
   test_all: false
   test_priority: "high_first"
 

@@ -2004,13 +2004,14 @@ function MainApp() {
                                   <Label htmlFor="website_url" className="text-sm font-medium text-gray-700">
                                     Site web
                                   </Label>
-                                  <Input
+                                  <input
                                     key="website_url_input"
                                     id="website_url"
                                     type="url"
                                     value={editProfileForm.website_url}
                                     onChange={(e) => handleEditProfileChange('website_url', e.target.value)}
                                     placeholder="https://votre-site.com"
+                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                   />
                                 </div>
                               </div>

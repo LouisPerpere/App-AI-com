@@ -1947,7 +1947,7 @@ function MainApp() {
                                     Réseaux sociaux préférés *
                                   </Label>
                                   <div className="grid grid-cols-2 gap-2">
-                                    {['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'TikTok', 'YouTube'].map((platform) => (
+                                    {['Facebook', 'Instagram', 'LinkedIn'].map((platform) => (
                                       <label key={platform} className="flex items-center space-x-2 cursor-pointer">
                                         <input
                                           type="checkbox"

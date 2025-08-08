@@ -1819,6 +1819,7 @@ function MainApp() {
                                     Audience cible *
                                   </Label>
                                   <Textarea
+                                    key="target_audience_input"
                                     id="target_audience"
                                     value={editProfileForm.target_audience}
                                     onChange={(e) => handleEditProfileChange('target_audience', e.target.value)}

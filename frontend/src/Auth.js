@@ -130,7 +130,7 @@ const AuthPage = ({ onAuthSuccess }) => {
     }
 
     try {
-      console.log('🚀 REGISTRATION START - Making API call to:', `${API}/auth/register`);
+      console.log('🚀 REGISTRATION START - API URL:', API);
       console.log('🚀 REGISTRATION DATA:', {
         email: registerForm.email,
         password: registerForm.password.substring(0, 3) + '***',
@@ -141,9 +141,14 @@ const AuthPage = ({ onAuthSuccess }) => {
         email: registerForm.email,
         password: registerForm.password,
         business_name: `${registerForm.first_name} ${registerForm.last_name}`
+      }, {
+        timeout: 15000,
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
-      console.log('✅ REGISTRATION SUCCESS:', response.data);
+      console.log('✅ REGISTRATION SUCCESS:', response.status, response.data);
       toast.success('Compte créé avec succès ! 🎉');
       
       console.log('🔄 AUTO-LOGIN START - Making API call to:', `${API}/auth/login`);
@@ -152,22 +157,59 @@ const AuthPage = ({ onAuthSuccess }) => {
       const loginResponse = await axios.post(`${API}/auth/login`, {
         email: registerForm.email,
         password: registerForm.password
+      }, {
+        timeout: 15000,
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
-      console.log('✅ AUTO-LOGIN SUCCESS:', loginResponse.data);
+      console.log('✅ AUTO-LOGIN SUCCESS:', loginResponse.status, loginResponse.data);
 
-      // Store tokens
-      localStorage.setItem('access_token', loginResponse.data.access_token || loginResponse.data.token);
-      localStorage.setItem('refresh_token', loginResponse.data.refresh_token);
+      // Store tokens with better error handling
+      const accessToken = loginResponse.data.access_token || loginResponse.data.token;
+      const refreshToken = loginResponse.data.refresh_token;
+
+      if (!accessToken) {
+        throw new Error('No access token received after registration');
+      }
+
+      localStorage.setItem('access_token', accessToken);
+      if (refreshToken) {
+        localStorage.setItem('refresh_token', refreshToken);
+      }
       
-      console.log('🎉 CALLING onAuthSuccess()');
+      // Set axios default header
+      axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+      
+      console.log('🎉 REGISTRATION COMPLETE - Calling onAuthSuccess()');
       onAuthSuccess();
     } catch (error) {
       console.error('❌ REGISTRATION ERROR:', error);
-      console.error('❌ ERROR RESPONSE:', error.response?.data);
-      console.error('❌ ERROR STATUS:', error.response?.status);
-      setError(error.response?.data?.detail || 'Erreur lors de la création du compte');
-      toast.error('Erreur de création de compte');
+      console.error('❌ REGISTRATION ERROR RESPONSE:', error.response?.data);
+      console.error('❌ REGISTRATION ERROR STATUS:', error.response?.status);
+      
+      let errorMessage = 'Erreur lors de la création du compte';
+      
+      if (error.response) {
+        // Server responded with error
+        if (error.response.status === 422) {
+          errorMessage = 'Données invalides. Vérifiez vos informations.';
+        } else if (error.response.status === 409) {
+          errorMessage = 'Un compte existe déjà avec cette adresse email.';
+        } else {
+          errorMessage = error.response.data?.detail || error.response.data?.message || `Erreur ${error.response.status}`;
+        }
+      } else if (error.request) {
+        // Request was made but no response
+        errorMessage = 'Impossible de contacter le serveur. Vérifiez votre connexion internet.';
+      } else {
+        // Something else happened
+        errorMessage = error.message || 'Erreur inattendue lors de la création du compte';
+      }
+      
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

@@ -953,7 +953,15 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Phase 2 Scheduler Analytics Integration Complete"
-  stuck_tasks: []
+    - "Netlify Environment Variable Post-Redeployment Verification"
+  stuck_tasks:
+    - "Critical Bug Fixes Testing"
+    - "Netlify Environment Variable Post-Redeployment Verification"
   test_all: false
   test_priority: "high_first"
+
+agent_communication:
+    - agent: "main"
+      message: "Communication message between agents"
+    - agent: "testing"
+      message: "❌ CRITICAL DEPLOYMENT FAILURE: Netlify environment variable configuration and redeployment verification FAILED completely. Post-redeployment testing of https://claire-marcus.netlify.app reveals that REACT_APP_BACKEND_URL is still set to preview URL (https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com) instead of production URL (https://claire-marcus-api.onrender.com). Authentication flow completely broken - registration forms make zero API calls, no tokens stored, users cannot access dashboard. All verification criteria failed: environment variable not updated, backend connectivity to wrong URL, authentication non-functional, dashboard inaccessible. The redeployment did NOT resolve authentication issues. IMMEDIATE ACTION REQUIRED: Properly configure REACT_APP_BACKEND_URL=https://claire-marcus-api.onrender.com in Netlify environment variables and redeploy."

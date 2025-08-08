@@ -1831,13 +1831,14 @@ function MainApp() {
                                   <Label htmlFor="business_name" className="text-sm font-medium text-gray-700">
                                     Nom de l'entreprise *
                                   </Label>
-                                  <Input
+                                  <input
                                     key="business_name_input"
                                     id="business_name"
                                     value={editProfileForm.business_name}
                                     onChange={(e) => handleEditProfileChange('business_name', e.target.value)}
                                     placeholder="Nom de votre entreprise"
                                     required
+                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                   />
                                 </div>
 

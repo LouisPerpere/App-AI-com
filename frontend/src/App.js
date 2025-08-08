@@ -448,21 +448,21 @@ function MainApp() {
   const location = useLocation();
   
   // Optimized user form handler
-  const handleUserChange = (field, value) => {
+  const handleUserChange = useCallback((field, value) => {
     setUser(prev => ({
       ...prev,
       [field]: value
     }));
-  };
+  }, []);
 
   // Optimized form handlers to prevent input bugs
-  const handleEditProfileChange = (field, value) => {
+  const handleEditProfileChange = useCallback((field, value) => {
     console.log(`🔧 Profile field changed: ${field} =`, value); // Debug log
     setEditProfileForm(prev => ({
       ...prev,
       [field]: value
     }));
-  };
+  }, []);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [activeStep, setActiveStep] = useState('onboarding');

@@ -2310,8 +2310,8 @@ function MainApp() {
                           id="note_title_fix"
                           type="text"
                           placeholder="Ex: Nouvelle promotion, Événement spécial..."
-                          value={noteForm.title}
-                          onChange={(e) => setNoteForm({ ...noteForm, title: e.target.value })}
+                          value={noteTitle}
+                          onChange={(e) => setNoteTitle(e.target.value)}
                           required
                         />
                       </div>

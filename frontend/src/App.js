@@ -1853,6 +1853,7 @@ function MainApp() {
                                     Décrivez votre activité *
                                   </Label>
                                   <Textarea
+                                    key="business_description_input"
                                     id="business_description"
                                     value={editProfileForm.business_description}
                                     onChange={(e) => handleEditProfileChange('business_description', e.target.value)}

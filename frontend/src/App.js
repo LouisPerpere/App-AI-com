@@ -1160,12 +1160,19 @@ function MainApp() {
       
       console.log('🔍 SAVE DEBUG - Response received:', response.data);
       
-      setBusinessProfile(response.data);
+      // SOLUTION TEMPORAIRE: Si le backend est en mode demo, on garde les données localement
+      if (response.data && response.data.business_name) {
+        setBusinessProfile(response.data);
+      } else {
+        // Si le backend retourne des données vides, on utilise editProfileForm
+        setBusinessProfile({...editProfileForm});
+      }
+      
       setIsEditingProfile(false);
       toast.success('Profil mis à jour avec succès !');
       
       // If website URL changed, clear existing analysis
-      if (websiteAnalysis && editProfileForm.website_url !== businessProfile.website_url) {
+      if (websiteAnalysis && editProfileForm.website_url !== businessProfile?.website_url) {
         setWebsiteAnalysis(null);
       }
     } catch (error) {

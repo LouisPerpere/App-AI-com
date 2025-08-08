@@ -450,30 +450,14 @@ function MainApp() {
   
   // Optimized user form handler
   const handleUserChange = useCallback((field, value) => {
+    console.log(`🔧 User field changed: ${field} =`, value); // Debug log
     setUser(prev => ({
       ...prev,
       [field]: value
     }));
   }, []);
 
-
-  // Handlers simplifiés pour les nouveaux composants isolés
-  const handleEditProfileFieldChange = useCallback((field, value) => {
-    setEditProfileForm(prev => ({ ...prev, [field]: value }));
-  }, []);
-
-  const handleNoteFieldChange = useCallback((field, value) => {
-    setNoteForm(prev => ({ ...prev, [field]: value }));
-  }, []);
-
-  // Optimized note form handler
-  const handleNoteFormChange = useCallback((field, value) => {
-    console.log(`🔧 Note field changed: ${field} =`, value); // Debug log
-    setNoteForm(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  }, []);
+  // Active step state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [activeStep, setActiveStep] = useState('onboarding');

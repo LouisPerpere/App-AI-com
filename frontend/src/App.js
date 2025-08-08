@@ -656,21 +656,23 @@ function MainApp() {
   };
 
   const handleAddNote = async () => {
-    if (!noteForm.title || !noteForm.content) {
+    if (!noteTitle || !noteContent) {
       toast.error('Veuillez remplir tous les champs requis');
       return;
     }
 
     try {
       const response = await axios.post(`${API}/notes`, {
-        title: noteForm.title,
-        content: noteForm.content,
-        priority: noteForm.priority
+        title: noteTitle,
+        content: noteContent,
+        priority: notePriority
       });
 
       if (response.status === 200 || response.status === 201) {
         toast.success('Note ajoutée avec succès !');
-        setNoteForm({ title: '', content: '', priority: 'normal' });
+        setNoteTitle('');
+        setNoteContent('');
+        setNotePriority('normal');
         loadNotes(); // Recharger la liste des notes
       }
     } catch (error) {

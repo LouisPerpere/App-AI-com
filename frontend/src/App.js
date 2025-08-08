@@ -1168,15 +1168,6 @@ function MainApp() {
     );
   };
 
-  // Handle hashtag input changes
-  const handleHashtagChange = (type, value) => {
-    const tags = value.split(',').map(tag => tag.trim().replace('#', ''));
-    setEditProfileForm(prev => ({
-      ...prev,
-      [type]: tags
-    }));
-  };
-
   // Website analysis functions
   const analyzeWebsite = async (forceReanalysis = false) => {
     if (!profileForm.website_url || !profileForm.website_url.trim()) {

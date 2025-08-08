@@ -1132,10 +1132,17 @@ function MainApp() {
     e.preventDefault();
     setIsUpdatingProfile(true);
     
+    console.log('🔍 SAVE DEBUG - editProfileForm before save:', editProfileForm);
+    
     try {
+      const token = localStorage.getItem('access_token');
+      console.log('🔍 SAVE DEBUG - Token exists:', !!token);
+      
       const response = await axios.put(`${API}/business-profile`, editProfileForm, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+        headers: { Authorization: `Bearer ${token}` }
       });
+      
+      console.log('🔍 SAVE DEBUG - Response received:', response.data);
       
       setBusinessProfile(response.data);
       setIsEditingProfile(false);
@@ -1146,8 +1153,10 @@ function MainApp() {
         setWebsiteAnalysis(null);
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
-      toast.error('Erreur lors de la mise à jour du profil');
+      console.error('❌ SAVE DEBUG - Error updating profile:', error);
+      console.error('❌ SAVE DEBUG - Error response:', error.response?.data);
+      console.error('❌ SAVE DEBUG - Error status:', error.response?.status);
+      toast.error(`Erreur lors de la mise à jour: ${error.response?.data?.detail || error.message}`);
     } finally {
       setIsUpdatingProfile(false);
     }

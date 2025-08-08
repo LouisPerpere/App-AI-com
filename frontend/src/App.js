@@ -1086,20 +1086,14 @@ function MainApp() {
   // Initialize edit form when entering edit mode
   const initializeEditForm = () => {
     if (businessProfile) {
-      setEditProfileForm({
-        business_name: businessProfile.business_name || '',
-        business_type: businessProfile.business_type || '',
-        business_description: businessProfile.business_description || '',
-        target_audience: businessProfile.target_audience || '',
-        brand_tone: businessProfile.brand_tone || '',
-        posting_frequency: businessProfile.posting_frequency || '',
-        preferred_platforms: businessProfile.preferred_platforms || [],
-        budget_range: businessProfile.budget_range || '',
-        email: businessProfile.email || '',
-        website_url: businessProfile.website_url || '',
-        hashtags_primary: businessProfile.hashtags_primary || [],
-        hashtags_secondary: businessProfile.hashtags_secondary || []
-      });
+      setEditBusinessName(businessProfile.business_name || '');
+      setEditBusinessType(businessProfile.business_type || '');
+      setEditBusinessDescription(businessProfile.business_description || '');
+      setEditTargetAudience(businessProfile.target_audience || '');
+      setEditEmail(businessProfile.email || '');
+      setEditWebsiteUrl(businessProfile.website_url || '');
+      setEditBudgetRange(businessProfile.budget_range || '');
+      setEditPreferredPlatforms(businessProfile.preferred_platforms || []);
     }
   };
 

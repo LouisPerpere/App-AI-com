@@ -997,10 +997,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Netlify Environment Variable Post-Redeployment Verification"
-  stuck_tasks:
-    - "Critical Bug Fixes Testing"
-    - "Netlify Environment Variable Post-Redeployment Verification"
+    - "Live Production Site Priority Fixes Testing"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 

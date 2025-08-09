@@ -665,7 +665,7 @@ function MainApp() {
           if (emailRef.current && !emailRef.current.value) {
             emailRef.current.value = businessProfile.email || '';
           }
-          if (websiteUrlRef.current && !websiteUrlRef.current.value) {
+          if (websiteUrlRef.current && !websiteUrlRef.current.value && !isWebsiteFieldProtected) {
             websiteUrlRef.current.value = businessProfile.website_url || '';
             console.log('🔧 Initialized iOS website URL ref:', businessProfile.website_url);
           }

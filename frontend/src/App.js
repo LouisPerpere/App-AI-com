@@ -2429,7 +2429,7 @@ function MainApp() {
                       analysisStatus === 'error' ? 'text-red-700' :
                       'text-blue-700'
                     }`}>
-                      {websiteAnalysisMessage}
+                      {analysisMessage}
                     </p>
                   </div>
                 )}

@@ -1341,6 +1341,9 @@ function MainApp() {
       setAnalysisStatus('interrupted');
       setAnalysisMessage('Analyse interrompue');
       
+      // Désactiver la protection car l'utilisateur modifie activement
+      setIsWebsiteFieldProtected(false);
+      
       // Masquer le message après 3 secondes
       setTimeout(() => {
         setAnalysisStatus('');
@@ -1349,8 +1352,6 @@ function MainApp() {
       
       console.log('🛑 Analyse interrompue par modification URL:', newUrl);
     }
-    
-    // Pas besoin de copier immédiatement - sera fait au moment de l'analyse
   };
 
   const loadWebsiteAnalysis = async () => {

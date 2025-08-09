@@ -2351,6 +2351,7 @@ function MainApp() {
                                     className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                                     style={{ fontSize: '16px' }}
                                     defaultValue=""
+                                    defaultValue=""
                                     onBlur={() => handleVirtualKeyboardRefBlur('business_name', businessNameRef)}
                                   />
                                 ) : (
@@ -2404,6 +2405,7 @@ function MainApp() {
                                   rows={3}
                                   className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
                                   style={{ fontSize: '16px' }}
+                                    defaultValue=""
                                   placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
                                   
                                   onBlur={() => handleVirtualKeyboardRefBlur('business_description', businessDescriptionRef)}
@@ -2429,6 +2431,7 @@ function MainApp() {
                                   rows={2}
                                   className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
                                   style={{ fontSize: '16px' }}
+                                    defaultValue=""
                                   placeholder="Décrivez votre audience cible"
                                   
                                   onBlur={() => handleVirtualKeyboardRefBlur('target_audience', targetAudienceRef)}
@@ -2455,6 +2458,7 @@ function MainApp() {
                                     type="email"
                                     className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                                     style={{ fontSize: '16px' }}
+                                    defaultValue=""
                                     placeholder="contact@entreprise.com"
                                     
                                     onBlur={() => handleVirtualKeyboardRefBlur('email', emailRef)}
@@ -2480,6 +2484,7 @@ function MainApp() {
                                     type="url"
                                     className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                                     style={{ fontSize: '16px' }}
+                                    defaultValue=""
                                     placeholder="https://votre-site.com"
                                     defaultValue=""
                                     onBlur={() => {
@@ -2597,6 +2602,7 @@ function MainApp() {
                                   type="text"
                                   className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                                   style={{ fontSize: '16px' }}
+                                    defaultValue=""
                                   placeholder="Ex: 500€, 1000-2000€, etc."
                                   
                                   onBlur={() => handleVirtualKeyboardRefBlur('budget_range', budgetRangeRef)}
@@ -2893,6 +2899,7 @@ function MainApp() {
                             type="text"
                             className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                             style={{ fontSize: '16px' }}
+                                    defaultValue=""
                             placeholder="Ex: Nouvelle promotion, Événement spécial..."
                             onChange={() => handleNoteFieldChange('title', '', setNoteTitle, noteTitleRef)}
                             onBlur={() => handleNoteFieldBlur('title', noteTitleRef)}
@@ -2921,6 +2928,7 @@ function MainApp() {
                             rows={4}
                             className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
                             style={{ fontSize: '16px' }}
+                                    defaultValue=""
                             placeholder="Décrivez les détails importants que vous voulez voir apparaître dans vos posts..."
                             onChange={() => handleNoteFieldChange('content', '', setNoteContent, noteContentRef)}
                             onBlur={() => handleNoteFieldBlur('content', noteContentRef)}

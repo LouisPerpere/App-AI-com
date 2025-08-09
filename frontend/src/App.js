@@ -788,7 +788,42 @@ function MainApp() {
     }
   };
 
-  const loadBusinessProfile = async () => {
+  // Force reload business profile data when switching to Entreprise tab
+  const refreshBusinessProfileData = async () => {
+    if (!isAuthenticated || !user) return;
+    
+    try {
+      console.log('🔄 Refreshing business profile data for tab switch');
+      const response = await axios.get(`${API}/business-profile`);
+      setBusinessProfile(response.data);
+      
+      // Force re-initialize all fields with fresh data
+      if (isIOS) {
+        setTimeout(() => {
+          if (businessNameRef.current) businessNameRef.current.va
+ue = response.data.business_name || '';
+          if (businessDescriptionRef.current) businessDescriptionRef.current.value = response.data.business_description || '';
+          if (targetAudienceRef.current) targetAudienceRef.current.value = response.data.target_audience || '';
+          if (emailRef.current) emailRef.current.value = response.data.email || '';
+          if (websiteUrlRef.current) websiteUrlRef.current.value = response.data.website_url || '';
+          if (budgetRangeRef.current) budgetRangeRef.current.value = response.data.budget_range || '';
+          console.log('✅ iOS fields refreshed with fresh data');
+        }, 100);
+      } else {
+        setEditBusinessName(response.data.business_name || '');
+        setEditBusinessDescription(response.data.business_description || '');
+        setEditTargetAudience(response.data.target_audience || '');
+        setEditEmail(response.data.email || '');
+        setEditWebsiteUrl(response.data.website_url || '');
+        setEditBudgetRange(response.data.budget_range || '');
+        console.log('✅ Desktop fields refreshed with fresh data');
+      }
+      setEditBusinessType(response.data.business_type || '');
+      setEditPreferredPlatforms(response.data.preferred_platforms || []);
+    } catch (error) {
+      console.error('❌ Error refreshing business profile:', error);
+    }
+  };
     try {
       const response = await axios.get(`${API}/business-profile`);
       setBusinessProfile(response.data);

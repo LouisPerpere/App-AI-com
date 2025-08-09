@@ -940,8 +940,8 @@ function MainApp() {
       setterFunction(value);
     }
     
-    // Pour iOS, mettre à jour aussi le ref
-    if (isIOS) {
+    // Pour appareils avec clavier virtuel, mettre à jour aussi le ref
+    if (isVirtualKeyboardDevice) {
       switch (fieldName) {
         case 'business_name':
           if (businessNameRef.current) businessNameRef.current.value = value;

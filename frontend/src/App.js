@@ -597,6 +597,9 @@ function MainApp() {
   const [websiteAnalysis, setWebsiteAnalysis] = useState(null);
   const [isAnalyzingWebsite, setIsAnalyzingWebsite] = useState(false);
   const [showWebsiteAnalysis, setShowWebsiteAnalysis] = useState(false);
+  const [analysisStatus, setAnalysisStatus] = useState(''); // 'analyzing', 'success', 'error', 'interrupted'
+  const [analysisMessage, setAnalysisMessage] = useState('');
+  const [lastAnalysisDate, setLastAnalysisDate] = useState(null);
   const [showBurgerMenu, setShowBurgerMenu] = useState(false);
   const [activeTab, setActiveTab] = useState('entreprise');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);

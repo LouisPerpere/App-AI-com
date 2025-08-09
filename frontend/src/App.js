@@ -1340,6 +1340,8 @@ function MainApp() {
       
       console.log('🛑 Analyse interrompue par modification URL:', newUrl);
     }
+    
+    // Pas besoin de copier immédiatement - sera fait au moment de l'analyse
   };
 
   const loadWebsiteAnalysis = async () => {

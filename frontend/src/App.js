@@ -488,24 +488,22 @@ function MainApp() {
     }, delay);
   }, []);
 
-  // Gestionnaire de changement optimisé pour iOS avec refs
+  // Gestionnaire de changement avec localStorage
   const handleFieldChange = useCallback((field, value, setterFunction) => {
-    // Mettre à jour l'état immédiatement pour l'UI (Desktop uniquement)
-    if (!isIOS && setterFunction) {
-      setterFunction(value);
-    }
+    // Synchroniser immédiatement avec localStorage
+    syncFieldWithStorage(field, value, setterFunction);
     
     // Pour iOS, utiliser debounced onChange, pour desktop utiliser onBlur
     if (isIOS) {
       debouncedAutoSave(field, value, 800); // 800ms de délai pour iOS
     }
-    // Pour desktop, on gardera onBlur dans les composants
   }, [isIOS, debouncedAutoSave]);
 
-  // Gestionnaire spécial pour les refs iOS
+  // Gestionnaire spécial pour les refs iOS avec localStorage
   const handleIOSRefChange = useCallback((field, ref) => {
     if (ref && ref.current) {
       const value = ref.current.value;
+      syncFieldWithStorage(field, value);
       debouncedAutoSave(field, value, 800);
     }
   }, [debouncedAutoSave]);

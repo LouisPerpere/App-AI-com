@@ -561,6 +561,16 @@ function MainApp() {
         loadNotes();
         loadSocialConnections();
         loadWebsiteAnalysis();
+        
+        // Initialiser les champs d'édition avec les données du profil
+        setEditBusinessName(businessProfile.business_name || '');
+        setEditBusinessType(businessProfile.business_type || '');
+        setEditBusinessDescription(businessProfile.business_description || '');
+        setEditTargetAudience(businessProfile.target_audience || '');
+        setEditEmail(businessProfile.email || '');
+        setEditWebsiteUrl(businessProfile.website_url || '');
+        setEditBudgetRange(businessProfile.budget_range || '');
+        setEditPreferredPlatforms(businessProfile.preferred_platforms || []);
       }
     }
   }, [isAuthenticated, user, businessProfile]);

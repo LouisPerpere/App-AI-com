@@ -397,3 +397,37 @@ select:focus-visible {
     transform: rotate(360deg);
   }
 }
+
+/* iOS Keyboard Fix Styles */
+@supports (-webkit-appearance: none) {
+  /* iOS-specific input styling to prevent keyboard issues */
+  input[type="text"],
+  input[type="email"],
+  input[type="url"],
+  textarea {
+    -webkit-appearance: none;
+    -webkit-border-radius: 0;
+    border-radius: 0.375rem;
+  }
+}
+
+/* Prevent iOS zoom on input focus */
+@media screen and (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="url"],
+  input[type="password"],
+  textarea,
+  select {
+    font-size: 16px !important;
+    -webkit-appearance: none;
+    -webkit-border-radius: 0;
+  }
+}
+
+/* iOS viewport height fix for keyboard */
+@supports (-webkit-touch-callout: none) {
+  .min-h-screen {
+    min-height: -webkit-fill-available;
+  }
+}

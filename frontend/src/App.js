@@ -1318,6 +1318,13 @@ function MainApp() {
     setAnalysisStatus('analyzing');
     setAnalysisMessage('Analyse en cours...');
 
+    console.log('🚀 DÉBUT analyse site web');
+    console.log('📊 État avant analyse:', {
+      businessName: isIOS ? businessNameRef.current?.value : editBusinessName,
+      websiteUrl: websiteUrl,
+      isProtected: isWebsiteFieldProtected
+    });
+
     try {
       // Utiliser l'URL copiée pour l'analyse, pas l'URL du champ visible
       const response = await axios.post(`${API}/website/analyze`, {
@@ -1327,7 +1334,19 @@ function MainApp() {
         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
       });
 
+      console.log('📡 Réponse API reçue:', response.data);
+      console.log('📊 État AVANT setWebsiteAnalysis:', {
+        businessName: isIOS ? businessNameRef.current?.value : editBusinessName,
+        websiteUrl: isIOS ? websiteUrlRef.current?.value : editWebsiteUrl
+      });
+
       setWebsiteAnalysis(response.data);
+      
+      console.log('📊 État APRÈS setWebsiteAnalysis:', {
+        businessName: isIOS ? businessNameRef.current?.value : editBusinessName,
+        websiteUrl: isIOS ? websiteUrlRef.current?.value : editWebsiteUrl
+      });
+
       setAnalysisStatus('success');
       setAnalysisMessage('✅ Analyse réussie');
       setLastAnalysisDate(new Date().toLocaleString('fr-FR'));

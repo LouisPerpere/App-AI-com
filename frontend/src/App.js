@@ -1608,15 +1608,15 @@ function MainApp() {
 
       console.log('📡 Réponse API reçue:', response.data);
       console.log('📊 État AVANT setWebsiteAnalysis:', {
-        businessName: isIOS ? businessNameRef.current?.value : editBusinessName,
-        websiteUrl: isIOS ? websiteUrlRef.current?.value : editWebsiteUrl
+        businessName: isVirtualKeyboardDevice ? businessNameRef.current?.value : editBusinessName,
+        websiteUrl: isVirtualKeyboardDevice ? websiteUrlRef.current?.value : editWebsiteUrl
       });
 
       setWebsiteAnalysis(response.data);
       
       console.log('📊 État APRÈS setWebsiteAnalysis:', {
-        businessName: isIOS ? businessNameRef.current?.value : editBusinessName,
-        websiteUrl: isIOS ? websiteUrlRef.current?.value : editWebsiteUrl
+        businessName: isVirtualKeyboardDevice ? businessNameRef.current?.value : editBusinessName,
+        websiteUrl: isVirtualKeyboardDevice ? websiteUrlRef.current?.value : editWebsiteUrl
       });
 
       setAnalysisStatus('success');

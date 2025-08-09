@@ -679,7 +679,7 @@ function MainApp() {
         if (!editBusinessDescription) setEditBusinessDescription(businessProfile.business_description || '');
         if (!editTargetAudience) setEditTargetAudience(businessProfile.target_audience || '');
         if (!editEmail) setEditEmail(businessProfile.email || '');
-        if (!editWebsiteUrl) {
+        if (!editWebsiteUrl && !isWebsiteFieldProtected) {
           setEditWebsiteUrl(businessProfile.website_url || '');
           console.log('🔧 Initialized Desktop website URL state:', businessProfile.website_url);
         }

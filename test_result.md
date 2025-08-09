@@ -1102,7 +1102,9 @@ metadata:
 test_plan:
   current_focus:
     - "Backend verification completed after virtual keyboard bug fixes"
-  stuck_tasks: []
+  stuck_tasks:
+    - "Enhanced Virtual Keyboard Support for All Devices"
+    - "Business Profile Fields Virtual Keyboard Fix"
   test_all: false
   test_priority: "high_first"
 

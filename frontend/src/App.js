@@ -539,6 +539,11 @@ function MainApp() {
   const [editBudgetRange, setEditBudgetRange] = useState('');
   const [editPreferredPlatforms, setEditPreferredPlatforms] = useState([]);
   
+  // User profile editing - STATES SÉPARÉS pour éviter le bug clavier
+  const [editUserFirstName, setEditUserFirstName] = useState('');
+  const [editUserLastName, setEditUserLastName] = useState('');
+  const [editUserEmail, setEditUserEmail] = useState('');
+  
   // UI states
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);

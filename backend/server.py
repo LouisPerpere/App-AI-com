@@ -1,10 +1,13 @@
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 import os
 import uuid
+
+# Import database
+from database import get_database, DatabaseManager
 
 # Import the modern payments module
 try:
@@ -20,6 +23,9 @@ app = FastAPI(title="Claire et Marcus API", version="1.0.0")
 
 # API router with prefix
 api_router = APIRouter(prefix="/api")
+
+# Initialize database
+db = get_database()
 
 # Simple models
 class BusinessProfile(BaseModel):

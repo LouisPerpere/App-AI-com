@@ -472,6 +472,34 @@ function MainApp() {
     }
   };
 
+  // Détection iOS pour ajuster le comportement
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  
+  // Debounced auto-save pour iOS (évite les conflits avec le clavier virtuel)
+  const debounceTimers = useRef({});
+  
+  const debouncedAutoSave = useCallback((field, value, delay = 1000) => {
+    if (debounceTimers.current[field]) {
+      clearTimeout(debounceTimers.current[field]);
+    }
+    
+    debounceTimers.current[field] = setTimeout(() => {
+      autoSaveField(field, value);
+    }, delay);
+  }, []);
+
+  // Gestionnaire de changement optimisé pour iOS
+  const handleFieldChange = useCallback((field, value, setterFunction) => {
+    // Mettre à jour l'état immédiatement pour l'UI
+    setterFunction(value);
+    
+    // Pour iOS, utiliser debounced onChange, pour desktop utiliser onBlur
+    if (isIOS) {
+      debouncedAutoSave(field, value, 800); // 800ms de délai pour iOS
+    }
+    // Pour desktop, on gardera onBlur dans les composants
+  }, [isIOS, debouncedAutoSave]);
+
   // Auto-save function
   const autoSaveProfile = async (updatedProfile) => {
     try {

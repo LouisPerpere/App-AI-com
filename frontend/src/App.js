@@ -506,29 +506,24 @@ function MainApp() {
     }, delay);
   }, []);
 
-  // Gestionnaire de changement avec localStorage - VERSION CORRIGÉE
+  // Gestionnaire de changement avec localStorage - VERSION ULTIME CORRIGÉE
   const handleFieldChange = useCallback((field, value, setterFunction) => {
-    // IMPORTANT: Ne PAS appeler debouncedAutoSave sur onChange pour les appareils virtuels
-    // Cela cause le bug du clavier qui disparaît
-    
-    // Toujours synchroniser avec localStorage pour la persistence immédiate
+    // Pour desktop seulement : synchroniser avec localStorage et état
     syncFieldWithStorage(field, value, setterFunction);
-    
-    // Pour appareils virtuels: PAS d'auto-save sur onChange (cause le bug clavier)
-    // La sauvegarde se fera uniquement sur onBlur
-    console.log(`📝 Field ${field} changed, value:`, value);
+    console.log(`📝 Desktop Field ${field} changed:`, value);
   }, []);
 
-  // Gestionnaire spécial pour les refs avec clavier virtuel - VERSION CORRIGÉE
-  const handleVirtualKeyboardRefChange = useCallback((field, ref) => {
+  // Gestionnaire onInput pour les appareils virtuels (plus stable que onChange)
+  const handleVirtualKeyboardInput = useCallback((field, ref) => {
     if (ref && ref.current) {
       const value = ref.current.value;
       
-      // Synchroniser SEULEMENT avec localStorage, PAS d'auto-save
-      // L'auto-save sur onChange interrompt la saisie sur clavier virtuel
-      syncFieldWithStorage(field, value);
+      // Synchroniser SEULEMENT avec localStorage (pas d'état React pour éviter re-renders)
+      const currentData = loadFromLocalStorage() || {};
+      currentData[field] = value;
+      saveToLocalStorage(currentData);
       
-      console.log(`📱 Virtual keyboard ${field} changed (localStorage only):`, value);
+      console.log(`📱 Virtual keyboard ${field} input:`, value);
     }
   }, []);
 

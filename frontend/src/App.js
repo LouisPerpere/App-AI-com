@@ -488,10 +488,12 @@ function MainApp() {
     }, delay);
   }, []);
 
-  // Gestionnaire de changement optimisé pour iOS
+  // Gestionnaire de changement optimisé pour iOS avec refs
   const handleFieldChange = useCallback((field, value, setterFunction) => {
-    // Mettre à jour l'état immédiatement pour l'UI
-    setterFunction(value);
+    // Mettre à jour l'état immédiatement pour l'UI (Desktop uniquement)
+    if (!isIOS && setterFunction) {
+      setterFunction(value);
+    }
     
     // Pour iOS, utiliser debounced onChange, pour desktop utiliser onBlur
     if (isIOS) {
@@ -499,6 +501,14 @@ function MainApp() {
     }
     // Pour desktop, on gardera onBlur dans les composants
   }, [isIOS, debouncedAutoSave]);
+
+  // Gestionnaire spécial pour les refs iOS
+  const handleIOSRefChange = useCallback((field, ref) => {
+    if (ref && ref.current) {
+      const value = ref.current.value;
+      debouncedAutoSave(field, value, 800);
+    }
+  }, [debouncedAutoSave]);
 
   // Auto-save function
   const autoSaveProfile = async (updatedProfile) => {

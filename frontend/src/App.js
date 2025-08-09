@@ -746,9 +746,12 @@ function MainApp() {
         setSubscriptionStatus(response.data.subscription_status);
       }
       
-      // Load business profile after successful authentication
+      // Load business profile after successful authentication ONLY if not already loaded
       if (!businessProfile) {
+        console.log('🔄 Loading business profile - not loaded yet');
         loadBusinessProfile();
+      } else {
+        console.log('✅ Business profile already loaded, skipping reload to preserve user data');
       }
     } catch (error) {
       console.error('❌ APP DEBUG - Auth check failed:', error);

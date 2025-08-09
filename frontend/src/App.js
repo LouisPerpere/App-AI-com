@@ -3645,10 +3645,17 @@ function MainApp() {
                   <span className="font-medium text-gray-700">Entreprise</span>
                 </button>
                 <button
-                  onClick={() => navigateToTab('bibliotheque')}
+                  onClick={() => navigateToTab('analyse')}
                   className="flex items-center w-full p-3 rounded-xl hover:bg-purple-50 text-left transition-colors group"
                 >
-                  <ImageIcon className="w-5 h-5 text-purple-600 mr-3 group-hover:scale-110 transition-transform" />
+                  <Search className="w-5 h-5 text-purple-600 mr-3 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium text-gray-700">Analyse</span>
+                </button>
+                <button
+                  onClick={() => navigateToTab('bibliotheque')}
+                  className="flex items-center w-full p-3 rounded-xl hover:bg-indigo-50 text-left transition-colors group"
+                >
+                  <ImageIcon className="w-5 h-5 text-indigo-600 mr-3 group-hover:scale-110 transition-transform" />
                   <span className="font-medium text-gray-700">Bibliothèque</span>
                 </button>
                 <button

@@ -559,18 +559,32 @@ function MainApp() {
     }
   }, []);
 
-  // Gestionnaire pour Notes avec support clavier virtuel/Desktop
+  // Gestionnaire pour Notes avec support clavier virtuel/Desktop - VERSION CORRIGÉE
   const handleNoteFieldChange = useCallback((field, value, setterFunction, ref = null) => {
     if (isVirtualKeyboardDevice && ref && ref.current) {
       // Pour appareils avec clavier virtuel, la valeur vient du ref
       const actualValue = ref.current.value;
       setterFunction(actualValue);
       console.log(`📱 Virtual keyboard Note ${field}:`, actualValue);
+      // PAS d'auto-save sur onChange, uniquement localStorage
     } else {
       // Pour Desktop, utiliser la valeur normale
       setterFunction(value);
       console.log(`🖥️ Desktop Note ${field}:`, value);
+      // PAS d'auto-save sur onChange pour éviter le bug clavier
     }
+  }, [isVirtualKeyboardDevice]);
+
+  // Gestionnaire onBlur pour les notes
+  const handleNoteFieldBlur = useCallback((field, ref, value = null) => {
+    let actualValue;
+    if (isVirtualKeyboardDevice && ref && ref.current) {
+      actualValue = ref.current.value;
+    } else {
+      actualValue = value;
+    }
+    console.log(`💾 Saving note ${field} on blur:`, actualValue);
+    // Ici on pourrait ajouter une logique de sauvegarde spécifique aux notes si nécessaire
   }, [isVirtualKeyboardDevice]);
 
   // Auto-save function

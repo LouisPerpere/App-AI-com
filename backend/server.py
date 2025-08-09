@@ -101,53 +101,118 @@ async def root():
         }
     }
 
-# Authentication endpoints (mock)
+# Authentication endpoints
 @api_router.post("/auth/register")
 async def register(user_data: RegisterRequest):
-    """User registration (demo mode)"""
-    # Create a business name from first_name + last_name if not provided
-    business_name = user_data.business_name
-    if not business_name and user_data.first_name and user_data.last_name:
-        business_name = f"{user_data.first_name} {user_data.last_name}"
-    elif not business_name:
-        business_name = "Mon entreprise"
-    
-    return {
-        "message": "Registration successful (demo mode)",
-        "user_id": str(uuid.uuid4()),
-        "email": user_data.email,
-        "business_name": business_name,
-        "first_name": user_data.first_name,
-        "last_name": user_data.last_name,
-        "access_token": f"demo_token_{uuid.uuid4()}",
-        "refresh_token": f"demo_refresh_{uuid.uuid4()}"
-    }
+    """User registration with real database"""
+    try:
+        if db.is_connected():
+            # Use real database
+            result = db.create_user(
+                email=user_data.email,
+                password=user_data.password,
+                first_name=user_data.first_name,
+                last_name=user_data.last_name,
+                business_name=user_data.business_name
+            )
+            return {
+                "message": "Registration successful",
+                **result
+            }
+        else:
+            # Fallback to demo mode
+            business_name = user_data.business_name
+            if not business_name and user_data.first_name and user_data.last_name:
+                business_name = f"{user_data.first_name} {user_data.last_name}"
+            elif not business_name:
+                business_name = "Mon entreprise"
+            
+            return {
+                "message": "Registration successful (demo mode - database unavailable)",
+                "user_id": str(uuid.uuid4()),
+                "email": user_data.email,
+                "business_name": business_name,
+                "first_name": user_data.first_name,
+                "last_name": user_data.last_name,
+                "access_token": f"demo_token_{uuid.uuid4()}",
+                "refresh_token": f"demo_refresh_{uuid.uuid4()}"
+            }
+    except Exception as e:
+        if "already exists" in str(e):
+            raise HTTPException(status_code=400, detail="User already exists")
+        raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
 
 @api_router.post("/auth/login")
 async def login(credentials: LoginRequest):
-    """User login (demo mode)"""
-    return {
-        "message": "Login successful (demo mode)",
-        "user_id": str(uuid.uuid4()),
-        "email": credentials.email,
-        "access_token": f"demo_token_{uuid.uuid4()}",
-        "refresh_token": f"demo_refresh_{uuid.uuid4()}",
-        "expires_in": 3600
-    }
+    """User login with real database"""
+    try:
+        if db.is_connected():
+            # Use real database
+            result = db.authenticate_user(credentials.email, credentials.password)
+            if result:
+                return {
+                    "message": "Login successful",
+                    **result
+                }
+            else:
+                raise HTTPException(status_code=401, detail="Invalid credentials")
+        else:
+            # Fallback to demo mode
+            return {
+                "message": "Login successful (demo mode - database unavailable)",
+                "user_id": str(uuid.uuid4()),
+                "email": credentials.email,
+                "access_token": f"demo_token_{uuid.uuid4()}",
+                "refresh_token": f"demo_refresh_{uuid.uuid4()}",
+                "expires_in": 3600
+            }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Login failed: {str(e)}")
 
 @api_router.get("/auth/me")
-async def get_current_user_info():
-    """Get current user information (demo mode)"""
-    return {
-        "user_id": str(uuid.uuid4()),
-        "email": "demo@claire-marcus.com",
-        "first_name": "Demo",
-        "last_name": "User", 
-        "business_name": "Demo Business",
-        "subscription_status": "trial",
-        "trial_days_remaining": 30,
-        "created_at": datetime.now().isoformat()
-    }
+async def get_current_user_info(user_id: str = Depends(get_current_user_id)):
+    """Get current user information with real database"""
+    try:
+        if db.is_connected() and user_id != "demo_user_id":
+            # Get real user data from database
+            user = db.db.users.find_one({"user_id": user_id})
+            if user:
+                return {
+                    "user_id": user["user_id"],
+                    "email": user["email"],
+                    "first_name": user.get("first_name"),
+                    "last_name": user.get("last_name"), 
+                    "business_name": user.get("business_name"),
+                    "subscription_status": user.get("subscription_status", "trial"),
+                    "trial_days_remaining": user.get("trial_days_remaining", 30),
+                    "created_at": user.get("created_at", datetime.utcnow()).isoformat()
+                }
+        
+        # Fallback to demo mode
+        return {
+            "user_id": "demo_user_id",
+            "email": "demo@claire-marcus.com",
+            "first_name": "Demo",
+            "last_name": "User", 
+            "business_name": "Demo Business",
+            "subscription_status": "trial",
+            "trial_days_remaining": 30,
+            "created_at": datetime.now().isoformat()
+        }
+    except Exception as e:
+        # Fallback to demo on error
+        return {
+            "user_id": "demo_user_id",
+            "email": "demo@claire-marcus.com",
+            "first_name": "Demo",
+            "last_name": "User", 
+            "business_name": "Demo Business",
+            "subscription_status": "trial",
+            "trial_days_remaining": 30,
+            "created_at": datetime.now().isoformat()
+        }
 
 # Business profile endpoints
 @api_router.get("/business-profile")

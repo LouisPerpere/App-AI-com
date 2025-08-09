@@ -1053,8 +1053,8 @@ agent_communication:
 
 metadata:
   created_by: "main_agent"
-  version: "2.0"
-  test_sequence: 15
+  version: "2.1"
+  test_sequence: 16
   run_ui: false
 
 test_plan:

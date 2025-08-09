@@ -2481,11 +2481,11 @@ function MainApp() {
                                     className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                                     style={{ fontSize: '16px' }}
                                     placeholder="https://votre-site.com"
-                                    onChange={() => {
-                                      handleVirtualKeyboardInput('website_url', websiteUrlRef);
+                                    defaultValue=""
+                                    onBlur={() => {
+                                      handleVirtualKeyboardRefBlur('website_url', websiteUrlRef);
                                       handleWebsiteUrlChange(websiteUrlRef.current?.value || '');
                                     }}
-                                    onBlur={() => handleVirtualKeyboardRefBlur('website_url', websiteUrlRef)}
                                   />
                                 ) : (
                                   <Input

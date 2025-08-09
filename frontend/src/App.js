@@ -824,7 +824,10 @@ ue = response.data.business_name || '';
       console.error('❌ Error refreshing business profile:', error);
     }
   };
+
+  const loadBusinessProfile = async () => {
     try {
+      console.log('🔄 Loading business profile from database');
       const response = await axios.get(`${API}/business-profile`);
       setBusinessProfile(response.data);
       
@@ -838,6 +841,7 @@ ue = response.data.business_name || '';
           if (emailRef.current) emailRef.current.value = response.data.email || '';
           if (websiteUrlRef.current) websiteUrlRef.current.value = response.data.website_url || '';
           if (budgetRangeRef.current) budgetRangeRef.current.value = response.data.budget_range || '';
+          console.log('✅ iOS fields initialized from database');
         }, 100);
       } else {
         // Pour Desktop, utiliser les states
@@ -847,6 +851,7 @@ ue = response.data.business_name || '';
         setEditEmail(response.data.email || '');
         setEditWebsiteUrl(response.data.website_url || '');
         setEditBudgetRange(response.data.budget_range || '');
+        console.log('✅ Desktop fields initialized from database');
       }
       setEditBusinessType(response.data.business_type || '');
       setEditPreferredPlatforms(response.data.preferred_platforms || []);

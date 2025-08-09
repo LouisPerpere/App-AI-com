@@ -2405,7 +2405,7 @@ function MainApp() {
                                   className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
                                   style={{ fontSize: '16px' }}
                                   placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
-                                  onInput={() => handleVirtualKeyboardInput('business_description', businessDescriptionRef)}
+                                  
                                   onBlur={() => handleVirtualKeyboardRefBlur('business_description', businessDescriptionRef)}
                                 />
                               ) : (
@@ -2430,7 +2430,7 @@ function MainApp() {
                                   className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
                                   style={{ fontSize: '16px' }}
                                   placeholder="Décrivez votre audience cible"
-                                  onInput={() => handleVirtualKeyboardInput('target_audience', targetAudienceRef)}
+                                  
                                   onBlur={() => handleVirtualKeyboardRefBlur('target_audience', targetAudienceRef)}
                                 />
                               ) : (
@@ -2456,7 +2456,7 @@ function MainApp() {
                                     className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                                     style={{ fontSize: '16px' }}
                                     placeholder="contact@entreprise.com"
-                                    onInput={() => handleVirtualKeyboardInput('email', emailRef)}
+                                    
                                     onBlur={() => handleVirtualKeyboardRefBlur('email', emailRef)}
                                   />
                                 ) : (
@@ -2598,7 +2598,7 @@ function MainApp() {
                                   className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                                   style={{ fontSize: '16px' }}
                                   placeholder="Ex: 500€, 1000-2000€, etc."
-                                  onInput={() => handleVirtualKeyboardInput('budget_range', budgetRangeRef)}
+                                  
                                   onBlur={() => handleVirtualKeyboardRefBlur('budget_range', budgetRangeRef)}
                                 />
                               ) : (

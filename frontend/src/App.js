@@ -472,8 +472,26 @@ function MainApp() {
     }
   };
 
-  // Détection iOS pour ajuster le comportement
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  // Détection améliorée pour tous appareils avec clavier virtuel (iOS, iPadOS, Android tablets)
+  const detectVirtualKeyboard = () => {
+    // Détection iOS/iPadOS robuste (inclut iPadOS 18+ qui peut masquer l'user agent)
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
+                       /Mac.*OS.*Touch/.test(navigator.userAgent);
+    
+    // Détection Android tablets et autres appareils tactiles
+    const isAndroidTablet = /Android.*Mobile|Android.*Tablet/.test(navigator.userAgent);
+    
+    // Détection générale d'appareils tactiles
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    // Détection de la taille d'écran typique des tablets/mobiles
+    const isSmallScreen = window.innerWidth <= 1024;
+    
+    return isIOSDevice || isAndroidTablet || (isTouchDevice && isSmallScreen);
+  };
+  
+  const isVirtualKeyboardDevice = detectVirtualKeyboard();
   
   // Debounced auto-save pour iOS (évite les conflits avec le clavier virtuel)
   const debounceTimers = useRef({});

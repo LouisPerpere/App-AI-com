@@ -1701,10 +1701,9 @@ function MainApp() {
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Nom de l'entreprise</Label>
                                 <Input
-                                  value={businessProfile?.business_name || ''}
-                                  onChange={(e) => {
-                                    setBusinessProfile(prev => ({ ...prev, business_name: e.target.value }));
-                                  }}
+                                  value={editBusinessName}
+                                  onChange={(e) => setEditBusinessName(e.target.value)}
+                                  onBlur={(e) => autoSaveField('business_name', e.target.value)}
                                   className="bg-white"
                                 />
                               </div>
@@ -1713,8 +1712,11 @@ function MainApp() {
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Type d'entreprise</Label>
                                 <Select 
-                                  value={businessProfile?.business_type || ''} 
-                                  onValueChange={(value) => setBusinessProfile(prev => ({ ...prev, business_type: value }))}
+                                  value={editBusinessType} 
+                                  onValueChange={(value) => {
+                                    setEditBusinessType(value);
+                                    autoSaveField('business_type', value);
+                                  }}
                                 >
                                   <SelectTrigger className="bg-white">
                                     <SelectValue placeholder="Sélectionnez le type" />
@@ -1742,10 +1744,9 @@ function MainApp() {
                             <div className="space-y-2">
                               <Label className="text-sm font-medium text-gray-700">Description de l'activité</Label>
                               <Textarea
-                                value={businessProfile?.business_description || ''}
-                                onChange={(e) => {
-                                  setBusinessProfile(prev => ({ ...prev, business_description: e.target.value }));
-                                }}
+                                value={editBusinessDescription}
+                                onChange={(e) => setEditBusinessDescription(e.target.value)}
+                                onBlur={(e) => autoSaveField('business_description', e.target.value)}
                                 placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
                                 rows={3}
                                 className="bg-white"
@@ -1756,10 +1757,9 @@ function MainApp() {
                             <div className="space-y-2">
                               <Label className="text-sm font-medium text-gray-700">Audience cible</Label>
                               <Textarea
-                                value={businessProfile?.target_audience || ''}
-                                onChange={(e) => {
-                                  setBusinessProfile(prev => ({ ...prev, target_audience: e.target.value }));
-                                }}
+                                value={editTargetAudience}
+                                onChange={(e) => setEditTargetAudience(e.target.value)}
+                                onBlur={(e) => autoSaveField('target_audience', e.target.value)}
                                 placeholder="Décrivez votre audience cible"
                                 rows={2}
                                 className="bg-white"
@@ -1772,10 +1772,9 @@ function MainApp() {
                                 <Label className="text-sm font-medium text-gray-700">Email professionnel</Label>
                                 <Input
                                   type="email"
-                                  value={businessProfile?.email || ''}
-                                  onChange={(e) => {
-                                    setBusinessProfile(prev => ({ ...prev, email: e.target.value }));
-                                  }}
+                                  value={editEmail}
+                                  onChange={(e) => setEditEmail(e.target.value)}
+                                  onBlur={(e) => autoSaveField('email', e.target.value)}
                                   placeholder="contact@entreprise.com"
                                   className="bg-white"
                                 />
@@ -1786,10 +1785,9 @@ function MainApp() {
                                 <Label className="text-sm font-medium text-gray-700">Site web</Label>
                                 <Input
                                   type="url"
-                                  value={businessProfile?.website_url || ''}
-                                  onChange={(e) => {
-                                    setBusinessProfile(prev => ({ ...prev, website_url: e.target.value }));
-                                  }}
+                                  value={editWebsiteUrl}
+                                  onChange={(e) => setEditWebsiteUrl(e.target.value)}
+                                  onBlur={(e) => autoSaveField('website_url', e.target.value)}
                                   placeholder="https://votre-site.com"
                                   className="bg-white"
                                 />
@@ -1804,13 +1802,13 @@ function MainApp() {
                                   <label key={platform} className="flex items-center space-x-2 cursor-pointer">
                                     <input
                                       type="checkbox"
-                                      checked={businessProfile?.preferred_platforms?.includes(platform) || false}
+                                      checked={editPreferredPlatforms.includes(platform)}
                                       onChange={(e) => {
-                                        const currentPlatforms = businessProfile?.preferred_platforms || [];
                                         const updatedPlatforms = e.target.checked
-                                          ? [...currentPlatforms, platform]
-                                          : currentPlatforms.filter(p => p !== platform);
-                                        setBusinessProfile(prev => ({ ...prev, preferred_platforms: updatedPlatforms }));
+                                          ? [...editPreferredPlatforms, platform]
+                                          : editPreferredPlatforms.filter(p => p !== platform);
+                                        setEditPreferredPlatforms(updatedPlatforms);
+                                        autoSaveField('preferred_platforms', updatedPlatforms);
                                       }}
                                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                     />
@@ -1824,39 +1822,20 @@ function MainApp() {
                             <div className="space-y-2">
                               <Label className="text-sm font-medium text-gray-700">Budget marketing mensuel</Label>
                               <Input
-                                value={businessProfile?.budget_range || ''}
-                                onChange={(e) => {
-                                  setBusinessProfile(prev => ({ ...prev, budget_range: e.target.value }));
-                                }}
+                                value={editBudgetRange}
+                                onChange={(e) => setEditBudgetRange(e.target.value)}
+                                onBlur={(e) => autoSaveField('budget_range', e.target.value)}
                                 placeholder="Ex: 500€, 1000-2000€, etc."
                                 className="bg-white"
                               />
                             </div>
 
-                            {/* Bouton de sauvegarde */}
-                            <div className="flex justify-end pt-4 border-t border-blue-200">
-                              <Button
-                                onClick={async () => {
-                                  try {
-                                    const response = await axios.put(`${API}/business-profile`, businessProfile, {
-                                      headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
-                                    });
-                                    
-                                    if (response.data && response.data.business_name) {
-                                      setBusinessProfile(response.data);
-                                    }
-                                    
-                                    toast.success('Profil sauvegardé avec succès !');
-                                  } catch (error) {
-                                    console.error('Error saving profile:', error);
-                                    toast.error('Erreur lors de la sauvegarde');
-                                  }
-                                }}
-                                className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
-                              >
-                                <Save className="w-4 h-4 mr-2" />
-                                Sauvegarder les modifications
-                              </Button>
+                            {/* Indicateur de sauvegarde automatique */}
+                            <div className="flex justify-center pt-4 border-t border-blue-200">
+                              <div className="text-sm text-green-600 flex items-center">
+                                <Check className="w-4 h-4 mr-2" />
+                                Sauvegarde automatique activée
+                              </div>
                             </div>
                           </div>
                         </div>

@@ -506,40 +506,33 @@ function MainApp() {
     }, delay);
   }, []);
 
-  // Gestionnaire de changement avec localStorage - VERSION ULTIME CORRIGÉE
-  const handleFieldChange = useCallback((field, value, setterFunction) => {
-    // Pour desktop seulement : synchroniser avec localStorage et état
-    syncFieldWithStorage(field, value, setterFunction);
-    console.log(`📝 Desktop Field ${field} changed:`, value);
-  }, []);
-
-  // Gestionnaire onInput pour les appareils virtuels (plus stable que onChange)
-  const handleVirtualKeyboardInput = useCallback((field, ref) => {
-    if (ref && ref.current) {
-      const value = ref.current.value;
-      
-      // Synchroniser SEULEMENT avec localStorage (pas d'état React pour éviter re-renders)
-      const currentData = loadFromLocalStorage() || {};
-      currentData[field] = value;
-      saveToLocalStorage(currentData);
-      
-      console.log(`📱 Virtual keyboard ${field} input:`, value);
-    }
-  }, []);
-
-  // Gestionnaire onBlur pour la sauvegarde finale (ne cause pas de bug clavier)
-  const handleFieldBlur = useCallback((field, value) => {
-    console.log(`💾 Saving field ${field} on blur:`, value);
-    autoSaveField(field, value);
-  }, []);
-
-  // Gestionnaire pour blur sur les refs des appareils virtuels
+  // Approche RADICALE: Inputs complètement non contrôlés pour appareils virtuels
+  // Aucun gestionnaire d'événement pendant la saisie - seulement onBlur pour la sauvegarde
   const handleVirtualKeyboardRefBlur = useCallback((field, ref) => {
     if (ref && ref.current) {
       const value = ref.current.value;
       console.log(`💾 Saving virtual keyboard ${field} on blur:`, value);
+      
+      // Synchroniser avec localStorage
+      const currentData = loadFromLocalStorage() || {};
+      currentData[field] = value;
+      saveToLocalStorage(currentData);
+      
+      // Sauvegarder en base de données
       autoSaveField(field, value);
     }
+  }, []);
+
+  // Gestionnaire pour desktop (état contrôlé normal)
+  const handleFieldChange = useCallback((field, value, setterFunction) => {
+    setterFunction(value);
+    syncFieldWithStorage(field, value, setterFunction);
+    console.log(`🖥️ Desktop Field ${field} changed:`, value);
+  }, []);
+
+  const handleFieldBlur = useCallback((field, value) => {
+    console.log(`💾 Saving desktop field ${field} on blur:`, value);
+    autoSaveField(field, value);
   }, []);
 
   // Gestionnaire spécial pour les Notes sur clavier virtuel

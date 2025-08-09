@@ -1259,7 +1259,7 @@ function MainApp() {
 
   // Enhanced website analysis functions
   const analyzeWebsite = async (forceReanalysis = false) => {
-    // Obtenir l'URL du site selon l'approche (iOS refs ou desktop state)
+    // Copier l'URL actuelle dans le champ invisible pour l'analyse
     let websiteUrl;
     if (isIOS && websiteUrlRef.current) {
       websiteUrl = websiteUrlRef.current.value;
@@ -1278,11 +1278,16 @@ function MainApp() {
       return;
     }
 
+    // Copier l'URL dans le champ invisible pour l'analyse (ne pas toucher au champ visible)
+    setWebsiteUrlForAnalysis(websiteUrl);
+    console.log('📋 URL copiée pour analyse (champ invisible):', websiteUrl);
+
     setIsAnalyzingWebsite(true);
     setAnalysisStatus('analyzing');
     setAnalysisMessage('Analyse en cours...');
 
     try {
+      // Utiliser l'URL copiée pour l'analyse, pas l'URL du champ visible
       const response = await axios.post(`${API}/website/analyze`, {
         website_url: websiteUrl,
         force_reanalysis: forceReanalysis
@@ -1295,19 +1300,11 @@ function MainApp() {
       setAnalysisMessage('✅ Analyse réussie');
       setLastAnalysisDate(new Date().toLocaleString('fr-FR'));
       
-      // Sauvegarder l'URL analysée dans le profil business pour qu'elle reste visible et soit utilisée pour la génération
+      // Sauvegarder l'URL analysée dans le profil business
       await autoSaveField('website_url', websiteUrl);
       
-      // IMPORTANT: S'assurer que l'URL reste visible dans le champ après analyse
-      if (isIOS && websiteUrlRef.current) {
-        // Pour iOS, forcer la valeur dans le ref (il peut avoir été vidé par un re-render)
-        websiteUrlRef.current.value = websiteUrl;
-        console.log('✅ URL restaurée dans le ref iOS:', websiteUrl);
-      } else {
-        // Pour Desktop, s'assurer que l'état est à jour
-        setEditWebsiteUrl(websiteUrl);
-        console.log('✅ URL restaurée dans l\'état Desktop:', websiteUrl);
-      }
+      // Le champ visible reste intouché - l'analyse utilise le champ invisible
+      console.log('✅ Analyse terminée, champ visible préservé');
       
       // Masquer le message de succès après 5 secondes
       setTimeout(() => {

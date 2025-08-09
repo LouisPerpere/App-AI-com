@@ -1979,18 +1979,74 @@ function MainApp() {
                                     className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                                     style={{ fontSize: '16px' }}
                                     placeholder="https://votre-site.com"
-                                    onChange={() => handleIOSRefChange('website_url', websiteUrlRef)}
+                                    onChange={() => {
+                                      handleIOSRefChange('website_url', websiteUrlRef);
+                                      handleWebsiteUrlChange(websiteUrlRef.current?.value || '');
+                                    }}
                                   />
                                 ) : (
                                   <Input
                                     type="url"
                                     value={editWebsiteUrl}
-                                    onChange={(e) => handleFieldChange('website_url', e.target.value, setEditWebsiteUrl)}
+                                    onChange={(e) => {
+                                      handleFieldChange('website_url', e.target.value, setEditWebsiteUrl);
+                                      handleWebsiteUrlChange(e.target.value);
+                                    }}
                                     onBlur={(e) => autoSaveField('website_url', e.target.value)}
                                     placeholder="https://votre-site.com"
                                     className="bg-white"
                                   />
                                 )}
+                                
+                                {/* Bouton d'analyse du site - déplacé en dessous du champ */}
+                                <div className="space-y-2">
+                                  <Button
+                                    type="button"
+                                    onClick={() => analyzeWebsite(false)}
+                                    disabled={isAnalyzingWebsite}
+                                    variant="outline"
+                                    size="sm"
+                                    className={`w-full flex items-center justify-center space-x-2 ${
+                                      isAnalyzingWebsite 
+                                        ? 'bg-gray-100 text-gray-500 cursor-not-allowed' 
+                                        : 'hover:bg-blue-50 hover:border-blue-300'
+                                    }`}
+                                  >
+                                    <Globe className="w-4 h-4" />
+                                    <span>Analyser le site web</span>
+                                  </Button>
+                                  
+                                  {/* Messages d'état et animations */}
+                                  {analysisMessage && (
+                                    <div className="flex items-center justify-center space-x-2 text-sm">
+                                      {analysisStatus === 'analyzing' && (
+                                        <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                      )}
+                                      <span className={`${
+                                        analysisStatus === 'success' ? 'text-green-600' :
+                                        analysisStatus === 'error' ? 'text-red-600' :
+                                        analysisStatus === 'interrupted' ? 'text-orange-600' :
+                                        'text-blue-600'
+                                      }`}>
+                                        {analysisMessage}
+                                      </span>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Popup d'erreur pour site web manquant */}
+                                  {analysisStatus === 'error' && analysisMessage.includes('Complétez') && (
+                                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm animate-pulse">
+                                      {analysisMessage}
+                                    </div>
+                                  )}
+                                  
+                                  {/* Date de dernière analyse */}
+                                  {lastAnalysisDate && !analysisMessage && (
+                                    <div className="text-xs text-gray-500 italic text-center">
+                                      Dernière analyse : {lastAnalysisDate}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </div>
 

@@ -2217,13 +2217,13 @@ function MainApp() {
                               {/* Nom de l'entreprise */}
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Nom de l'entreprise</Label>
-                                {isIOS ? (
+                                {isVirtualKeyboardDevice ? (
                                   <input
                                     ref={businessNameRef}
                                     type="text"
                                     className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                                     style={{ fontSize: '16px' }}
-                                    onChange={() => handleIOSRefChange('business_name', businessNameRef)}
+                                    onChange={() => handleVirtualKeyboardRefChange('business_name', businessNameRef)}
                                   />
                                 ) : (
                                   <Input

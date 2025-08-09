@@ -1790,12 +1790,22 @@ function MainApp() {
                               {/* Nom de l'entreprise */}
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Nom de l'entreprise</Label>
-                                <Input
-                                  value={editBusinessName}
-                                  onChange={(e) => handleFieldChange('business_name', e.target.value, setEditBusinessName)}
-                                  onBlur={!isIOS ? (e) => autoSaveField('business_name', e.target.value) : undefined}
-                                  className="bg-white"
-                                />
+                                {isIOS ? (
+                                  <input
+                                    ref={businessNameRef}
+                                    type="text"
+                                    className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                                    style={{ fontSize: '16px' }}
+                                    onChange={() => handleIOSRefChange('business_name', businessNameRef)}
+                                  />
+                                ) : (
+                                  <Input
+                                    value={editBusinessName}
+                                    onChange={(e) => handleFieldChange('business_name', e.target.value, setEditBusinessName)}
+                                    onBlur={(e) => autoSaveField('business_name', e.target.value)}
+                                    className="bg-white"
+                                  />
+                                )}
                               </div>
 
                               {/* Type d'entreprise */}
@@ -1833,54 +1843,98 @@ function MainApp() {
                             {/* Description de l'activité */}
                             <div className="space-y-2">
                               <Label className="text-sm font-medium text-gray-700">Description de l'activité</Label>
-                              <Textarea
-                                value={editBusinessDescription}
-                                onChange={(e) => handleFieldChange('business_description', e.target.value, setEditBusinessDescription)}
-                                onBlur={!isIOS ? (e) => autoSaveField('business_description', e.target.value) : undefined}
-                                placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
-                                rows={3}
-                                className="bg-white"
-                              />
+                              {isIOS ? (
+                                <textarea
+                                  ref={businessDescriptionRef}
+                                  rows={3}
+                                  className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
+                                  style={{ fontSize: '16px' }}
+                                  placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
+                                  onChange={() => handleIOSRefChange('business_description', businessDescriptionRef)}
+                                />
+                              ) : (
+                                <Textarea
+                                  value={editBusinessDescription}
+                                  onChange={(e) => handleFieldChange('business_description', e.target.value, setEditBusinessDescription)}
+                                  onBlur={(e) => autoSaveField('business_description', e.target.value)}
+                                  placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
+                                  rows={3}
+                                  className="bg-white"
+                                />
+                              )}
                             </div>
 
                             {/* Audience cible */}
                             <div className="space-y-2">
                               <Label className="text-sm font-medium text-gray-700">Audience cible</Label>
-                              <Textarea
-                                value={editTargetAudience}
-                                onChange={(e) => handleFieldChange('target_audience', e.target.value, setEditTargetAudience)}
-                                onBlur={!isIOS ? (e) => autoSaveField('target_audience', e.target.value) : undefined}
-                                placeholder="Décrivez votre audience cible"
-                                rows={2}
-                                className="bg-white"
-                              />
+                              {isIOS ? (
+                                <textarea
+                                  ref={targetAudienceRef}
+                                  rows={2}
+                                  className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
+                                  style={{ fontSize: '16px' }}
+                                  placeholder="Décrivez votre audience cible"
+                                  onChange={() => handleIOSRefChange('target_audience', targetAudienceRef)}
+                                />
+                              ) : (
+                                <Textarea
+                                  value={editTargetAudience}
+                                  onChange={(e) => handleFieldChange('target_audience', e.target.value, setEditTargetAudience)}
+                                  onBlur={(e) => autoSaveField('target_audience', e.target.value)}
+                                  placeholder="Décrivez votre audience cible"
+                                  rows={2}
+                                  className="bg-white"
+                                />
+                              )}
                             </div>
 
                             <div className="grid md:grid-cols-2 gap-6">
                               {/* Email professionnel */}
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Email professionnel</Label>
-                                <Input
-                                  type="email"
-                                  value={editEmail}
-                                  onChange={(e) => handleFieldChange('email', e.target.value, setEditEmail)}
-                                  onBlur={!isIOS ? (e) => autoSaveField('email', e.target.value) : undefined}
-                                  placeholder="contact@entreprise.com"
-                                  className="bg-white"
-                                />
+                                {isIOS ? (
+                                  <input
+                                    ref={emailRef}
+                                    type="email"
+                                    className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                                    style={{ fontSize: '16px' }}
+                                    placeholder="contact@entreprise.com"
+                                    onChange={() => handleIOSRefChange('email', emailRef)}
+                                  />
+                                ) : (
+                                  <Input
+                                    type="email"
+                                    value={editEmail}
+                                    onChange={(e) => handleFieldChange('email', e.target.value, setEditEmail)}
+                                    onBlur={(e) => autoSaveField('email', e.target.value)}
+                                    placeholder="contact@entreprise.com"
+                                    className="bg-white"
+                                  />
+                                )}
                               </div>
 
                               {/* Site web */}
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Site web</Label>
-                                <Input
-                                  type="url"
-                                  value={editWebsiteUrl}
-                                  onChange={(e) => handleFieldChange('website_url', e.target.value, setEditWebsiteUrl)}
-                                  onBlur={!isIOS ? (e) => autoSaveField('website_url', e.target.value) : undefined}
-                                  placeholder="https://votre-site.com"
-                                  className="bg-white"
-                                />
+                                {isIOS ? (
+                                  <input
+                                    ref={websiteUrlRef}
+                                    type="url"
+                                    className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                                    style={{ fontSize: '16px' }}
+                                    placeholder="https://votre-site.com"
+                                    onChange={() => handleIOSRefChange('website_url', websiteUrlRef)}
+                                  />
+                                ) : (
+                                  <Input
+                                    type="url"
+                                    value={editWebsiteUrl}
+                                    onChange={(e) => handleFieldChange('website_url', e.target.value, setEditWebsiteUrl)}
+                                    onBlur={(e) => autoSaveField('website_url', e.target.value)}
+                                    placeholder="https://votre-site.com"
+                                    className="bg-white"
+                                  />
+                                )}
                               </div>
                             </div>
 
@@ -1911,20 +1965,31 @@ function MainApp() {
                             {/* Budget marketing */}
                             <div className="space-y-2">
                               <Label className="text-sm font-medium text-gray-700">Budget marketing mensuel</Label>
-                              <Input
-                                value={editBudgetRange}
-                                onChange={(e) => handleFieldChange('budget_range', e.target.value, setEditBudgetRange)}
-                                onBlur={!isIOS ? (e) => autoSaveField('budget_range', e.target.value) : undefined}
-                                placeholder="Ex: 500€, 1000-2000€, etc."
-                                className="bg-white"
-                              />
+                              {isIOS ? (
+                                <input
+                                  ref={budgetRangeRef}
+                                  type="text"
+                                  className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                                  style={{ fontSize: '16px' }}
+                                  placeholder="Ex: 500€, 1000-2000€, etc."
+                                  onChange={() => handleIOSRefChange('budget_range', budgetRangeRef)}
+                                />
+                              ) : (
+                                <Input
+                                  value={editBudgetRange}
+                                  onChange={(e) => handleFieldChange('budget_range', e.target.value, setEditBudgetRange)}
+                                  onBlur={(e) => autoSaveField('budget_range', e.target.value)}
+                                  placeholder="Ex: 500€, 1000-2000€, etc."
+                                  className="bg-white"
+                                />
+                              )}
                             </div>
 
                             {/* Indicateur de sauvegarde automatique */}
                             <div className="flex justify-center pt-4 border-t border-blue-200">
                               <div className="text-sm text-green-600 flex items-center">
                                 <Check className="w-4 h-4 mr-2" />
-                                {isIOS ? 'Auto-save iOS optimisé' : 'Sauvegarde automatique activée'}
+                                {isIOS ? 'Auto-save iOS avec refs (bypass React)' : 'Sauvegarde automatique activée'}
                               </div>
                             </div>
                           </div>

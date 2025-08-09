@@ -1283,6 +1283,10 @@ function MainApp() {
     setWebsiteUrlForAnalysis(websiteUrl);
     console.log('📋 URL copiée pour analyse (champ invisible):', websiteUrl);
 
+    // PROTECTION : Empêcher toute modification du champ pendant l'analyse
+    setIsWebsiteFieldProtected(true);
+    console.log('🛡️ Protection du champ URL activée');
+
     setIsAnalyzingWebsite(true);
     setAnalysisStatus('analyzing');
     setAnalysisMessage('Analyse en cours...');
@@ -1301,11 +1305,9 @@ function MainApp() {
       setAnalysisMessage('✅ Analyse réussie');
       setLastAnalysisDate(new Date().toLocaleString('fr-FR'));
       
-      // Sauvegarder l'URL analysée dans le profil business
-      await autoSaveField('website_url', websiteUrl);
-      
-      // Le champ visible reste intouché - l'analyse utilise le champ invisible
-      console.log('✅ Analyse terminée, champ visible préservé');
+      // Ne PAS sauvegarder l'URL pour éviter les re-renders qui vident le champ
+      // await autoSaveField('website_url', websiteUrl);
+      console.log('✅ Analyse terminée, URL préservée par protection');
       
       // Masquer le message de succès après 5 secondes
       setTimeout(() => {
@@ -1323,6 +1325,12 @@ function MainApp() {
       }, 5000);
     } finally {
       setIsAnalyzingWebsite(false);
+      
+      // Désactiver la protection après un délai pour éviter les interférences
+      setTimeout(() => {
+        setIsWebsiteFieldProtected(false);
+        console.log('🛡️ Protection du champ URL désactivée');
+      }, 1000);
     }
   };
 

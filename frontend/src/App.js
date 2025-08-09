@@ -1904,7 +1904,19 @@ function MainApp() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+        <Tabs 
+            value={activeTab} 
+            onValueChange={(value) => {
+              console.log('🔄 Tab changed to:', value);
+              setActiveTab(value);
+              
+              // Refresh data when switching to Entreprise tab
+              if (value === 'entreprise' && businessProfile) {
+                refreshBusinessProfileData();
+              }
+            }} 
+            className="space-y-8"
+          >
           <div className="overflow-x-auto">
             <TabsList className="grid grid-cols-7 w-full max-w-5xl mx-auto bg-white/80 backdrop-blur-lg p-2 rounded-2xl shadow-xl min-w-max">
               <TabsTrigger value="entreprise" className="tab-sexy">

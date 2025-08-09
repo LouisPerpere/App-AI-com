@@ -637,13 +637,26 @@ function MainApp() {
         loadWebsiteAnalysis();
         
         // Initialiser les champs d'édition avec les données du profil
-        setEditBusinessName(businessProfile.business_name || '');
+        if (isIOS) {
+          // Pour iOS, initialiser les refs
+          setTimeout(() => {
+            if (businessNameRef.current) businessNameRef.current.value = businessProfile.business_name || '';
+            if (businessDescriptionRef.current) businessDescriptionRef.current.value = businessProfile.business_description || '';
+            if (targetAudienceRef.current) targetAudienceRef.current.value = businessProfile.target_audience || '';
+            if (emailRef.current) emailRef.current.value = businessProfile.email || '';
+            if (websiteUrlRef.current) websiteUrlRef.current.value = businessProfile.website_url || '';
+            if (budgetRangeRef.current) budgetRangeRef.current.value = businessProfile.budget_range || '';
+          }, 100);
+        } else {
+          // Pour Desktop, utiliser les states
+          setEditBusinessName(businessProfile.business_name || '');
+          setEditBusinessDescription(businessProfile.business_description || '');
+          setEditTargetAudience(businessProfile.target_audience || '');
+          setEditEmail(businessProfile.email || '');
+          setEditWebsiteUrl(businessProfile.website_url || '');
+          setEditBudgetRange(businessProfile.budget_range || '');
+        }
         setEditBusinessType(businessProfile.business_type || '');
-        setEditBusinessDescription(businessProfile.business_description || '');
-        setEditTargetAudience(businessProfile.target_audience || '');
-        setEditEmail(businessProfile.email || '');
-        setEditWebsiteUrl(businessProfile.website_url || '');
-        setEditBudgetRange(businessProfile.budget_range || '');
         setEditPreferredPlatforms(businessProfile.preferred_platforms || []);
         
         // Initialiser les champs utilisateur

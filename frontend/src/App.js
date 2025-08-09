@@ -1282,14 +1282,15 @@ function MainApp() {
       // Sauvegarder l'URL analysée dans le profil business pour qu'elle reste visible et soit utilisée pour la génération
       await autoSaveField('website_url', websiteUrl);
       
-      // S'assurer que l'URL reste dans le champ après analyse
+      // IMPORTANT: S'assurer que l'URL reste visible dans le champ après analyse
       if (isIOS && websiteUrlRef.current) {
-        // Pour iOS, l'URL est déjà dans le ref, pas besoin de la mettre à jour
+        // Pour iOS, forcer la valeur dans le ref (il peut avoir été vidé par un re-render)
+        websiteUrlRef.current.value = websiteUrl;
+        console.log('✅ URL restaurée dans le ref iOS:', websiteUrl);
       } else {
         // Pour Desktop, s'assurer que l'état est à jour
-        if (editWebsiteUrl !== websiteUrl) {
-          setEditWebsiteUrl(websiteUrl);
-        }
+        setEditWebsiteUrl(websiteUrl);
+        console.log('✅ URL restaurée dans l\'état Desktop:', websiteUrl);
       }
       
       // Masquer le message de succès après 5 secondes

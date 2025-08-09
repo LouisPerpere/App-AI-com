@@ -2597,12 +2597,13 @@ function MainApp() {
                                   style={{ fontSize: '16px' }}
                                   placeholder="Ex: 500€, 1000-2000€, etc."
                                   onChange={() => handleVirtualKeyboardRefChange('budget_range', budgetRangeRef)}
+                                  onBlur={() => handleVirtualKeyboardRefBlur('budget_range', budgetRangeRef)}
                                 />
                               ) : (
                                 <Input
                                   value={editBudgetRange}
                                   onChange={(e) => handleFieldChange('budget_range', e.target.value, setEditBudgetRange)}
-                                  onBlur={(e) => autoSaveField('budget_range', e.target.value)}
+                                  onBlur={(e) => handleFieldBlur('budget_range', e.target.value)}
                                   placeholder="Ex: 500€, 1000-2000€, etc."
                                   className="bg-white"
                                 />

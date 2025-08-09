@@ -984,8 +984,8 @@ function MainApp() {
     if (cached.budget_range) setEditBudgetRange(cached.budget_range);
     if (cached.preferred_platforms) setEditPreferredPlatforms(cached.preferred_platforms);
     
-    // Restaurer les refs iOS
-    if (isIOS) {
+    // Restaurer les refs pour appareils avec clavier virtuel
+    if (isVirtualKeyboardDevice) {
       setTimeout(() => {
         if (businessNameRef.current && cached.business_name) businessNameRef.current.value = cached.business_name;
         if (businessDescriptionRef.current && cached.business_description) businessDescriptionRef.current.value = cached.business_description;
@@ -993,7 +993,7 @@ function MainApp() {
         if (emailRef.current && cached.email) emailRef.current.value = cached.email;
         if (websiteUrlRef.current && cached.website_url) websiteUrlRef.current.value = cached.website_url;
         if (budgetRangeRef.current && cached.budget_range) budgetRangeRef.current.value = cached.budget_range;
-        console.log('✅ Refs iOS restaurés depuis localStorage');
+        console.log('✅ Refs virtual keyboard restaurés depuis localStorage');
       }, 100);
     }
     

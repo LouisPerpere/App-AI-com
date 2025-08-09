@@ -639,6 +639,17 @@ function MainApp() {
     try {
       const response = await axios.get(`${API}/business-profile`);
       setBusinessProfile(response.data);
+      
+      // Initialiser les champs d'édition
+      setEditBusinessName(response.data.business_name || '');
+      setEditBusinessType(response.data.business_type || '');
+      setEditBusinessDescription(response.data.business_description || '');
+      setEditTargetAudience(response.data.target_audience || '');
+      setEditEmail(response.data.email || '');
+      setEditWebsiteUrl(response.data.website_url || '');
+      setEditBudgetRange(response.data.budget_range || '');
+      setEditPreferredPlatforms(response.data.preferred_platforms || []);
+      
       setActiveStep('dashboard');
     } catch (error) {
       if (error.response?.status === 404) {

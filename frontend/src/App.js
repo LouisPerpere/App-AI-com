@@ -601,6 +601,11 @@ function MainApp() {
         setEditWebsiteUrl(businessProfile.website_url || '');
         setEditBudgetRange(businessProfile.budget_range || '');
         setEditPreferredPlatforms(businessProfile.preferred_platforms || []);
+        
+        // Initialiser les champs utilisateur
+        setEditUserFirstName(user?.first_name || '');
+        setEditUserLastName(user?.last_name || '');
+        setEditUserEmail(user?.email || '');
       }
     }
   }, [isAuthenticated, user, businessProfile]);

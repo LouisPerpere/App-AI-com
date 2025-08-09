@@ -566,11 +566,11 @@ frontend:
 
   - task: "Data Persistence on Tab Switch/Page Load"
     implemented: true
-    working: true
+    working: "NA"
     file: "/app/frontend/src/App.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: false
         agent: "user"
@@ -581,6 +581,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "✅ BACKEND VERIFICATION COMPLETED: Data persistence backend functionality verified working perfectly. Business profile data persistence tested extensively with PUT /api/business-profile operations correctly storing data and GET /api/business-profile operations immediately retrieving updated data. MongoDB integration working correctly, no data loss during tab switching simulation (multiple consecutive GET requests return consistent data). Backend supports the enhanced frontend data persistence system with proper database storage and retrieval. The forceLoadBusinessProfileAndNotes() function will work correctly with backend API responses."
+      - working: "NA"
+        agent: "testing"
+        comment: "⚠️ DATA PERSISTENCE TESTING LIMITED: Could not fully test tab switching and data persistence due to navigation limitations. TESTING CONSTRAINTS: (1) Unable to access multiple tabs (Notes, Posts, etc.) to test actual tab switching, (2) Only business profile section accessible during testing, (3) Virtual keyboard bug preventing proper text input makes persistence testing unreliable. PARTIAL TESTING: Simulated focus changes and delays showed some data retention issues, but this may be related to the underlying virtual keyboard bug rather than persistence logic. RECOMMENDATION: Fix virtual keyboard issues first, then retest data persistence across actual tab navigation once full dashboard access is available."
   - task: "Social Media Connection UI"
     implemented: true
     working: true

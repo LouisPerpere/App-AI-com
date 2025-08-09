@@ -7,7 +7,7 @@ from datetime import datetime
 
 class FocusedBackendTester:
     def __init__(self):
-        self.base_url = "http://localhost:8001"
+        self.base_url = "https://9d9abc32-ca1b-47b1-bc5e-c34b81138b90.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.tests_run = 0

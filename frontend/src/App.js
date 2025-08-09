@@ -609,6 +609,14 @@ function MainApp() {
   const [newPrimaryHashtag, setNewPrimaryHashtag] = useState('');
   const [newSecondaryHashtag, setNewSecondaryHashtag] = useState('');
 
+  // Restaurer les données depuis localStorage au chargement
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      console.log('🔄 Utilisateur connecté, restauration localStorage');
+      restoreFieldsFromStorage();
+    }
+  }, [isAuthenticated, user]);
+
   // Initialize user fields when user data is loaded
   useEffect(() => {
     if (user) {

@@ -759,32 +759,32 @@ function MainApp() {
         return;
       }
       
-      if (isIOS) {
-        // Pour iOS, initialiser les refs seulement si ils sont vides
+      if (isVirtualKeyboardDevice) {
+        // Pour appareils avec clavier virtuel, initialiser les refs seulement si ils sont vides
         setTimeout(() => {
           if (businessNameRef.current && !businessNameRef.current.value && !isWebsiteFieldProtected) {
             businessNameRef.current.value = businessProfile.business_name || '';
-            console.log('🔧 Init iOS business name:', businessProfile.business_name);
+            console.log('🔧 Init virtual keyboard business name:', businessProfile.business_name);
           }
           if (businessDescriptionRef.current && !businessDescriptionRef.current.value && !isWebsiteFieldProtected) {
             businessDescriptionRef.current.value = businessProfile.business_description || '';
-            console.log('🔧 Init iOS business description');
+            console.log('🔧 Init virtual keyboard business description');
           }
           if (targetAudienceRef.current && !targetAudienceRef.current.value && !isWebsiteFieldProtected) {
             targetAudienceRef.current.value = businessProfile.target_audience || '';
-            console.log('🔧 Init iOS target audience');
+            console.log('🔧 Init virtual keyboard target audience');
           }
           if (emailRef.current && !emailRef.current.value && !isWebsiteFieldProtected) {
             emailRef.current.value = businessProfile.email || '';
-            console.log('🔧 Init iOS email');
+            console.log('🔧 Init virtual keyboard email');
           }
           if (websiteUrlRef.current && !websiteUrlRef.current.value && !isWebsiteFieldProtected) {
             websiteUrlRef.current.value = businessProfile.website_url || '';
-            console.log('🔧 Init iOS website URL ref:', businessProfile.website_url);
+            console.log('🔧 Init virtual keyboard website URL ref:', businessProfile.website_url);
           }
           if (budgetRangeRef.current && !budgetRangeRef.current.value && !isWebsiteFieldProtected) {
             budgetRangeRef.current.value = businessProfile.budget_range || '';
-            console.log('🔧 Init iOS budget range');
+            console.log('🔧 Init virtual keyboard budget range');
           }
         }, 100);
       } else {

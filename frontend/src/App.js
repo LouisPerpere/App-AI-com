@@ -1103,7 +1103,7 @@ function MainApp() {
     // Obtenir les valeurs selon l'approche (iOS refs ou Desktop states)
     let titleValue, contentValue;
     
-    if (isIOS) {
+    if (isVirtualKeyboardDevice) {
       titleValue = noteTitleRef.current?.value || '';
       contentValue = noteContentRef.current?.value || '';
     } else {

@@ -8,7 +8,7 @@ import json
 import sys
 
 class BusinessProfileEditingTester:
-    def __init__(self, base_url="https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com"):
+    def __init__(self, base_url="https://9d9abc32-ca1b-47b1-bc5e-c34b81138b90.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.access_token = None

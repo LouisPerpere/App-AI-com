@@ -554,12 +554,14 @@ async def analyze_website(request: dict, user_id: str = Depends(get_current_user
 
 @api_router.get("/website/analysis")
 async def get_website_analysis(user_id: str = Depends(get_current_user_id)):
-    """Get stored website analysis"""
+    """Get stored website analysis - SÉPARÉ du business profile"""
     try:
         if db.is_connected() and user_id != "demo_user_id":
-            profile = db.get_business_profile(user_id)
-            if profile and "website_analysis" in profile:
-                return profile["website_analysis"]
+            # Charger depuis la collection séparée
+            analysis = db.db.website_analyses.find_one({"user_id": user_id})
+            if analysis:
+                analysis.pop('_id', None)  # Remove MongoDB _id
+                return analysis["analysis_result"]
         
         # No analysis found
         raise HTTPException(status_code=404, detail="No website analysis found")
@@ -572,15 +574,12 @@ async def get_website_analysis(user_id: str = Depends(get_current_user_id)):
 
 @api_router.delete("/website/analysis")
 async def delete_website_analysis(user_id: str = Depends(get_current_user_id)):
-    """Delete website analysis"""
+    """Delete website analysis - SÉPARÉ du business profile"""
     try:
         if db.is_connected() and user_id != "demo_user_id":
-            # Remove analysis from business profile
-            result = db.db.business_profiles.update_one(
-                {"user_id": user_id},
-                {"$unset": {"website_analysis": "", "last_website_analysis": ""}}
-            )
-            if result.modified_count > 0:
+            # Supprimer depuis la collection séparée
+            result = db.db.website_analyses.delete_one({"user_id": user_id})
+            if result.deleted_count > 0:
                 return {"message": "Website analysis deleted successfully"}
             else:
                 raise HTTPException(status_code=404, detail="No analysis found to delete")

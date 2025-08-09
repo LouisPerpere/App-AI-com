@@ -2758,67 +2758,6 @@ function MainApp() {
                                     className="bg-white"
                                   />
                                 )}
-                                
-                                {/* Bouton d'analyse du site - déplacé en dessous du champ */}
-                                <div className="space-y-2">
-                                  <Button
-                                    type="button"
-                                    onClick={() => analyzeWebsite(false)}
-                                    disabled={isAnalyzingWebsite}
-                                    variant="outline"
-                                    size="sm"
-                                    className={`w-full flex items-center justify-center space-x-2 ${
-                                      isAnalyzingWebsite 
-                                        ? 'bg-gray-100 text-gray-500 cursor-not-allowed' 
-                                        : 'hover:bg-blue-50 hover:border-blue-300'
-                                    }`}
-                                  >
-                                    <Globe className="w-4 h-4" />
-                                    <span>Analyser le site web</span>
-                                  </Button>
-                                  
-                                  {/* Messages d'état et animations */}
-                                  {analysisMessage && (
-                                    <div className="flex items-center justify-center space-x-2 text-sm">
-                                      {analysisStatus === 'analyzing' && (
-                                        <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                                      )}
-                                      <span className={`${
-                                        analysisStatus === 'success' ? 'text-green-600' :
-                                        analysisStatus === 'error' ? 'text-red-600' :
-                                        analysisStatus === 'interrupted' ? 'text-orange-600' :
-                                        'text-blue-600'
-                                      }`}>
-                                        {analysisMessage}
-                                      </span>
-                                    </div>
-                                  )}
-                                  
-                                  {/* Popup d'erreur pour site web manquant */}
-                                  {analysisStatus === 'error' && analysisMessage.includes('Complétez') && (
-                                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm animate-pulse">
-                                      {analysisMessage}
-                                    </div>
-                                  )}
-                                  
-                                  {/* Date de dernière analyse */}
-                                  {lastAnalysisDate && !analysisMessage && (
-                                    <div className="text-xs text-gray-500 italic text-center">
-                                      Dernière analyse : {lastAnalysisDate}
-                                    </div>
-                                  )}
-                                  
-                                  {/* Debug: Indicateur localStorage (visible en mode développement) */}
-                                  {process.env.NODE_ENV === 'development' && (
-                                    <div className="text-xs text-green-500 italic text-center border border-green-200 rounded p-1 space-y-1">
-                                      <div>💾 localStorage: ACTIF</div>
-                                      <div>🛡️ Protection : {isWebsiteFieldProtected ? 'ACTIVE' : 'Inactive'}</div>
-                                      {websiteUrlForAnalysis && (
-                                        <div>🔧 URL pour analyse : {websiteUrlForAnalysis}</div>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
                               </div>
                             </div>
 

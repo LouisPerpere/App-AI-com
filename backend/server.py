@@ -523,14 +523,19 @@ async def analyze_website(request: dict, user_id: str = Depends(get_current_user
         # Store analysis in database if connected
         if db.is_connected() and user_id != "demo_user_id":
             try:
-                # Store website analysis result in user's business profile
+                # IMPORTANT: Store website analysis result AND update the website_url in business profile
                 analysis_data = {
                     "website_analysis": analysis_result,
                     "last_website_analysis": datetime.utcnow(),
-                    "website_url": website_url
+                    "website_url": website_url  # Ensure URL is preserved in profile
                 }
-                db.update_business_profile(user_id, analysis_data)
-                print(f"✅ Website analysis stored for user {user_id}")
+                success = db.update_business_profile(user_id, analysis_data)
+                if success:
+                    print(f"✅ Website analysis AND URL stored for user {user_id}")
+                    # Add the URL to the response so frontend knows it's saved
+                    analysis_result["website_url_saved"] = website_url
+                else:
+                    print(f"⚠️ Failed to store analysis for user {user_id}")
             except Exception as e:
                 print(f"⚠️ Failed to store analysis: {e}")
         

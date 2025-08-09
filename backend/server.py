@@ -63,6 +63,7 @@ class BusinessProfile(BaseModel):
 class ContentNote(BaseModel):
     content: str
     description: Optional[str] = None
+    priority: Optional[str] = "normal"
 
 class LoginRequest(BaseModel):
     email: str

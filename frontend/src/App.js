@@ -1034,24 +1034,44 @@ function MainApp() {
   };
 
   const handleAddNote = async () => {
-    if (!noteTitle || !noteContent) {
+    // Obtenir les valeurs selon l'approche (iOS refs ou Desktop states)
+    let titleValue, contentValue;
+    
+    if (isIOS) {
+      titleValue = noteTitleRef.current?.value || '';
+      contentValue = noteContentRef.current?.value || '';
+    } else {
+      titleValue = noteTitle;
+      contentValue = noteContent;
+    }
+
+    if (!titleValue || !contentValue) {
       toast.error('Veuillez remplir tous les champs requis');
       return;
     }
 
     try {
       const response = await axios.post(`${API}/notes`, {
-        title: noteTitle,
-        content: noteContent,
+        title: titleValue,
+        content: contentValue,
         priority: notePriority
       });
 
       if (response.status === 200 || response.status === 201) {
         toast.success('Note ajoutée avec succès !');
-        setNoteTitle('');
-        setNoteContent('');
+        
+        // Réinitialiser les champs selon l'approche
+        if (isIOS) {
+          if (noteTitleRef.current) noteTitleRef.current.value = '';
+          if (noteContentRef.current) noteContentRef.current.value = '';
+        } else {
+          setNoteTitle('');
+          setNoteContent('');
+        }
         setNotePriority('normal');
+        
         loadNotes(); // Recharger la liste des notes
+        console.log('✅ Note ajoutée et champs réinitialisés (iOS compatible)');
       }
     } catch (error) {
       console.error('Error adding note:', error);

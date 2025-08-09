@@ -739,6 +739,9 @@ function MainApp() {
     if (!isVirtualKeyboardDevice) return;
     
     const handleResize = () => {
+      // Ajuster la hauteur du body dynamiquement pour les PWA sur iPad
+      document.body.style.height = `${window.innerHeight}px`;
+      
       // Scroll to focused input when keyboard appears/disappears
       const activeElement = document.activeElement;
       if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
@@ -753,6 +756,9 @@ function MainApp() {
         // Add specific class for focused state
         e.target.classList.add('virtual-keyboard-focused');
         
+        // Ajuster la hauteur immédiatement
+        document.body.style.height = `${window.innerHeight}px`;
+        
         // Ensure element is visible above keyboard
         setTimeout(() => {
           e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -763,6 +769,11 @@ function MainApp() {
     const handleFocusOut = (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
         e.target.classList.remove('virtual-keyboard-focused');
+        
+        // Restaurer la hauteur normale
+        setTimeout(() => {
+          document.body.style.height = '100vh';
+        }, 300);
       }
     };
     
@@ -771,10 +782,16 @@ function MainApp() {
     document.addEventListener('focusin', handleFocusIn);
     document.addEventListener('focusout', handleFocusOut);
     
+    // Initialiser la hauteur
+    document.body.style.height = `${window.innerHeight}px`;
+    
     return () => {
       window.removeEventListener('resize', handleResize);
       document.removeEventListener('focusin', handleFocusIn);
       document.removeEventListener('focusout', handleFocusOut);
+      
+      // Restaurer la hauteur normale
+      document.body.style.height = '100vh';
     };
   }, [isVirtualKeyboardDevice]);
 

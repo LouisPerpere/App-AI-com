@@ -1324,6 +1324,8 @@ function MainApp() {
         setAnalysisStatus('');
         setAnalysisMessage('');
       }, 3000);
+      
+      console.log('🛑 Analyse interrompue par modification URL:', newUrl);
     }
   };
 

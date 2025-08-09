@@ -493,7 +493,7 @@ function MainApp() {
   
   const isVirtualKeyboardDevice = detectVirtualKeyboard();
   
-  // Debounced auto-save pour iOS (évite les conflits avec le clavier virtuel)
+  // Debounced auto-save pour appareils avec clavier virtuel (évite les conflits)
   const debounceTimers = useRef({});
   
   const debouncedAutoSave = useCallback((field, value, delay = 1000) => {
@@ -511,14 +511,14 @@ function MainApp() {
     // Synchroniser immédiatement avec localStorage
     syncFieldWithStorage(field, value, setterFunction);
     
-    // Pour iOS, utiliser debounced onChange, pour desktop utiliser onBlur
-    if (isIOS) {
-      debouncedAutoSave(field, value, 800); // 800ms de délai pour iOS
+    // Pour appareils avec clavier virtuel, utiliser debounced onChange, pour desktop utiliser onBlur
+    if (isVirtualKeyboardDevice) {
+      debouncedAutoSave(field, value, 800); // 800ms de délai pour clavier virtuel
     }
-  }, [isIOS, debouncedAutoSave]);
+  }, [isVirtualKeyboardDevice, debouncedAutoSave]);
 
-  // Gestionnaire spécial pour les refs iOS avec localStorage
-  const handleIOSRefChange = useCallback((field, ref) => {
+  // Gestionnaire spécial pour les refs avec clavier virtuel avec localStorage
+  const handleVirtualKeyboardRefChange = useCallback((field, ref) => {
     if (ref && ref.current) {
       const value = ref.current.value;
       syncFieldWithStorage(field, value);
@@ -526,8 +526,8 @@ function MainApp() {
     }
   }, [debouncedAutoSave]);
 
-  // Gestionnaire spécial pour les Notes iOS
-  const handleNotesIOSRefChange = useCallback((field, ref, setterFunction) => {
+  // Gestionnaire spécial pour les Notes sur clavier virtuel
+  const handleNotesVirtualKeyboardRefChange = useCallback((field, ref, setterFunction) => {
     if (ref && ref.current) {
       const value = ref.current.value;
       // Pour les notes, on met aussi à jour l'état React car il est utilisé ailleurs
@@ -538,19 +538,19 @@ function MainApp() {
     }
   }, []);
 
-  // Gestionnaire pour Notes avec support iOS/Desktop
+  // Gestionnaire pour Notes avec support clavier virtuel/Desktop
   const handleNoteFieldChange = useCallback((field, value, setterFunction, ref = null) => {
-    if (isIOS && ref && ref.current) {
-      // Pour iOS, la valeur vient du ref
+    if (isVirtualKeyboardDevice && ref && ref.current) {
+      // Pour appareils avec clavier virtuel, la valeur vient du ref
       const actualValue = ref.current.value;
       setterFunction(actualValue);
-      console.log(`📱 iOS Note ${field}:`, actualValue);
+      console.log(`📱 Virtual keyboard Note ${field}:`, actualValue);
     } else {
       // Pour Desktop, utiliser la valeur normale
       setterFunction(value);
       console.log(`🖥️ Desktop Note ${field}:`, value);
     }
-  }, [isIOS]);
+  }, [isVirtualKeyboardDevice]);
 
   // Auto-save function
   const autoSaveProfile = async (updatedProfile) => {

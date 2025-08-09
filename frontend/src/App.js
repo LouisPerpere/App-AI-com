@@ -2349,12 +2349,13 @@ function MainApp() {
                                     className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                                     style={{ fontSize: '16px' }}
                                     onChange={() => handleVirtualKeyboardRefChange('business_name', businessNameRef)}
+                                    onBlur={() => handleVirtualKeyboardRefBlur('business_name', businessNameRef)}
                                   />
                                 ) : (
                                   <Input
                                     value={editBusinessName}
                                     onChange={(e) => handleFieldChange('business_name', e.target.value, setEditBusinessName)}
-                                    onBlur={(e) => autoSaveField('business_name', e.target.value)}
+                                    onBlur={(e) => handleFieldBlur('business_name', e.target.value)}
                                     className="bg-white"
                                   />
                                 )}

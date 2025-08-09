@@ -800,8 +800,7 @@ function MainApp() {
       // Force re-initialize all fields with fresh data
       if (isIOS) {
         setTimeout(() => {
-          if (businessNameRef.current) businessNameRef.current.va
-ue = response.data.business_name || '';
+          if (businessNameRef.current) businessNameRef.current.value = response.data.business_name || '';
           if (businessDescriptionRef.current) businessDescriptionRef.current.value = response.data.business_description || '';
           if (targetAudienceRef.current) targetAudienceRef.current.value = response.data.target_audience || '';
           if (emailRef.current) emailRef.current.value = response.data.email || '';

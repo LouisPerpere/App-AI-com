@@ -2089,9 +2089,12 @@ function MainApp() {
                                   )}
                                   
                                   {/* Debug: Champ invisible pour l'analyse (visible en mode développement) */}
-                                  {process.env.NODE_ENV === 'development' && websiteUrlForAnalysis && (
-                                    <div className="text-xs text-blue-500 italic text-center border border-blue-200 rounded p-1">
-                                      🔧 URL pour analyse : {websiteUrlForAnalysis}
+                                  {process.env.NODE_ENV === 'development' && (
+                                    <div className="text-xs text-blue-500 italic text-center border border-blue-200 rounded p-1 space-y-1">
+                                      {websiteUrlForAnalysis && (
+                                        <div>🔧 URL pour analyse : {websiteUrlForAnalysis}</div>
+                                      )}
+                                      <div>🛡️ Protection : {isWebsiteFieldProtected ? 'ACTIVE' : 'Inactive'}</div>
                                     </div>
                                   )}
                                 </div>

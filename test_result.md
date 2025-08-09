@@ -529,7 +529,7 @@ frontend:
     implemented: true
     working: false
     file: "/app/frontend/src/App.js"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -545,6 +545,9 @@ frontend:
       - working: false
         agent: "testing"
         comment: "❌ BUSINESS PROFILE VIRTUAL KEYBOARD BUG CONFIRMED: Extensive testing confirms the virtual keyboard bug is still present in ALL business profile fields on iPad viewport (1024x768). SPECIFIC FIELD FAILURES: (1) ❌ business_name: Only retains 'V' instead of full text 'Virtual keyboard test 1 - iPadOS 18 fix validation', (2) ❌ business_description: Textarea fails with same issue, (3) ❌ target_audience: Text truncation to single character, (4) ❌ email: Email field affected by same bug, (5) ❌ website_url: URL field shows same pattern, (6) ❌ budget_range: Budget field also failing. TECHNICAL ANALYSIS: The virtual keyboard detection logic is triggering but the field handling is causing severe text truncation. All fields show 'V' as the only preserved character, suggesting the typing simulation is being interrupted by the virtual keyboard handling code. The auto-save debouncing (800ms) and focus management are interfering with text input. SUCCESS ON OTHER VIEWPORTS: Mobile (390x844) and Desktop (1920x1080) work correctly, confirming the issue is specific to iPad-sized virtual keyboard scenarios."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL FAILURE CONFIRMED: Re-tested all business profile fields on iPad viewport (1024x768) after latest corrections. DEVASTATING RESULTS: (1) ❌ business_name field: FAIL_FIRST_CHAR_ONLY - only 'R' preserved from 'Restaurant Le Bon Goût', (2) ❌ email field: FAIL_FIRST_CHAR_ONLY - only 't' preserved from 'test@restaurant.fr', (3) ❌ website_url field: FAIL_FIRST_CHAR_ONLY - only 'h' preserved from 'https://restaurant-test.fr', (4) ❌ business_description textarea: FAIL_FIRST_CHAR_ONLY - only 'R' preserved from full description. TECHNICAL EVIDENCE: Console logs prove the root cause remains unfixed - handleFieldChange() and syncFieldWithStorage() are STILL being called on every keystroke despite claims that auto-save was removed from onChange events. The system shows '📝 Field email changed, value: R' and '🔄 email synchronisé: R' proving onChange interference is still active. VERDICT: 0/4 success rate. The virtual keyboard bug fix has completely failed. The core issue (onChange auto-save interference) is NOT resolved despite multiple correction attempts."
 
   - task: "Notes Fields Virtual Keyboard Fix"
     implemented: true

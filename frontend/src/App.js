@@ -1007,8 +1007,8 @@ function MainApp() {
       setBusinessProfile(response.data);
       
       // Initialiser les champs d'édition ET sauvegarder dans localStorage
-      if (isIOS) {
-        // Pour iOS, initialiser les refs
+      if (isVirtualKeyboardDevice) {
+        // Pour appareils avec clavier virtuel, initialiser les refs
         setTimeout(() => {
           if (businessNameRef.current) {
             businessNameRef.current.value = response.data.business_name || '';
@@ -1034,7 +1034,7 @@ function MainApp() {
             budgetRangeRef.current.value = response.data.budget_range || '';
             syncFieldWithStorage('budget_range', response.data.budget_range || '');
           }
-          console.log('✅ iOS fields initialized from database AND cached');
+          console.log('✅ Virtual keyboard fields initialized from database AND cached');
         }, 100);
       } else {
         // Pour Desktop, utiliser les states ET localStorage

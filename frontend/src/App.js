@@ -1846,6 +1846,9 @@ function MainApp() {
     }
   };
 
+  // Alias pour la nouvelle page d'analyse
+  const handleAnalyzeWebsite = analyzeWebsite;
+
   // Show auth page if not authenticated
   if (!isAuthenticated) {
     return <AuthPage onAuthSuccess={handleAuthSuccess} />;

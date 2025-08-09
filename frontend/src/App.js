@@ -506,25 +506,46 @@ function MainApp() {
     }, delay);
   }, []);
 
-  // Gestionnaire de changement avec localStorage
+  // Gestionnaire de changement avec localStorage - VERSION CORRIGÉE
   const handleFieldChange = useCallback((field, value, setterFunction) => {
-    // Synchroniser immédiatement avec localStorage
+    // IMPORTANT: Ne PAS appeler debouncedAutoSave sur onChange pour les appareils virtuels
+    // Cela cause le bug du clavier qui disparaît
+    
+    // Toujours synchroniser avec localStorage pour la persistence immédiate
     syncFieldWithStorage(field, value, setterFunction);
     
-    // Pour appareils avec clavier virtuel, utiliser debounced onChange, pour desktop utiliser onBlur
-    if (isVirtualKeyboardDevice) {
-      debouncedAutoSave(field, value, 800); // 800ms de délai pour clavier virtuel
-    }
-  }, [isVirtualKeyboardDevice, debouncedAutoSave]);
+    // Pour appareils virtuels: PAS d'auto-save sur onChange (cause le bug clavier)
+    // La sauvegarde se fera uniquement sur onBlur
+    console.log(`📝 Field ${field} changed, value:`, value);
+  }, []);
 
-  // Gestionnaire spécial pour les refs avec clavier virtuel avec localStorage
+  // Gestionnaire spécial pour les refs avec clavier virtuel - VERSION CORRIGÉE
   const handleVirtualKeyboardRefChange = useCallback((field, ref) => {
     if (ref && ref.current) {
       const value = ref.current.value;
+      
+      // Synchroniser SEULEMENT avec localStorage, PAS d'auto-save
+      // L'auto-save sur onChange interrompt la saisie sur clavier virtuel
       syncFieldWithStorage(field, value);
-      debouncedAutoSave(field, value, 800);
+      
+      console.log(`📱 Virtual keyboard ${field} changed (localStorage only):`, value);
     }
-  }, [debouncedAutoSave]);
+  }, []);
+
+  // Gestionnaire onBlur pour la sauvegarde finale (ne cause pas de bug clavier)
+  const handleFieldBlur = useCallback((field, value) => {
+    console.log(`💾 Saving field ${field} on blur:`, value);
+    autoSaveField(field, value);
+  }, []);
+
+  // Gestionnaire pour blur sur les refs des appareils virtuels
+  const handleVirtualKeyboardRefBlur = useCallback((field, ref) => {
+    if (ref && ref.current) {
+      const value = ref.current.value;
+      console.log(`💾 Saving virtual keyboard ${field} on blur:`, value);
+      autoSaveField(field, value);
+    }
+  }, []);
 
   // Gestionnaire spécial pour les Notes sur clavier virtuel
   const handleNotesVirtualKeyboardRefChange = useCallback((field, ref, setterFunction) => {

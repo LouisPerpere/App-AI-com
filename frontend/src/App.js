@@ -2327,6 +2327,208 @@ function MainApp() {
             </TabsList>
           </div>
 
+          <TabsContent value="analyse" className="space-y-8">
+            <Card className="card-gradient">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-3 text-2xl">
+                  <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
+                    <Search className="w-6 h-6 text-white" />
+                  </div>
+                  🌐 Analyse de Site Web
+                </CardTitle>
+                <CardDescription>
+                  Analysez votre site web pour optimiser votre contenu et stratégie social media
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Champ URL du site */}
+                <div className="space-y-2">
+                  <Label htmlFor="website_analysis_url" className="text-gray-700 font-medium">
+                    URL de votre site web
+                  </Label>
+                  {isVirtualKeyboardDevice ? (
+                    <input
+                      ref={websiteUrlRef}
+                      id="website_analysis_url"
+                      type="url"
+                      className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none"
+                      style={{ fontSize: '16px' }}
+                      autoCorrect={false}
+                      autoComplete="off"
+                      spellCheck={false}
+                      autoCapitalize="off"
+                      defaultValue=""
+                      placeholder="https://votre-site.com"
+                      onBlur={() => {
+                        handleVirtualKeyboardRefBlur('website_url', websiteUrlRef);
+                        handleWebsiteUrlChange(websiteUrlRef.current?.value || '');
+                      }}
+                    />
+                  ) : (
+                    <Input
+                      id="website_analysis_url"
+                      type="url"
+                      value={editWebsiteUrl}
+                      onChange={(e) => {
+                        handleFieldChange('website_url', e.target.value, setEditWebsiteUrl);
+                        handleWebsiteUrlChange(e.target.value);
+                      }}
+                      onBlur={(e) => handleFieldBlur('website_url', e.target.value)}
+                      placeholder="https://votre-site.com"
+                      className="bg-white focus:border-purple-500 focus:ring-purple-500"
+                    />
+                  )}
+                </div>
+
+                {/* Bouton d'analyse */}
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    onClick={handleAnalyzeWebsite}
+                    disabled={isAnalyzingWebsite || !editWebsiteUrl}
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2"
+                  >
+                    {isAnalyzingWebsite ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <span>Analyse en cours...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Search className="w-4 h-4" />
+                        <span>Analyser le site</span>
+                      </>
+                    )}
+                  </Button>
+                  
+                  {websiteAnalysis && (
+                    <Button
+                      type="button"
+                      onClick={() => handleAnalyzeWebsite(true)}
+                      disabled={isAnalyzingWebsite}
+                      variant="outline"
+                      className="border-purple-300 text-purple-600 hover:bg-purple-50"
+                    >
+                      🔄 Re-analyser
+                    </Button>
+                  )}
+                </div>
+
+                {/* Message d'état */}
+                {analysisStatus && (
+                  <div className={`p-3 rounded-lg ${
+                    analysisStatus === 'success' ? 'bg-green-50 border border-green-200' :
+                    analysisStatus === 'error' ? 'bg-red-50 border border-red-200' :
+                    'bg-blue-50 border border-blue-200'
+                  }`}>
+                    <p className={`text-sm ${
+                      analysisStatus === 'success' ? 'text-green-700' :
+                      analysisStatus === 'error' ? 'text-red-700' :
+                      'text-blue-700'
+                    }`}>
+                      {websiteAnalysisMessage}
+                    </p>
+                  </div>
+                )}
+
+                {/* Informations d'analyse */}
+                {websiteAnalysis && (
+                  <div className="space-y-4 bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200">
+                    {/* En-tête avec dates */}
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-lg font-semibold text-purple-800 mb-2">
+                          Résultats de l'analyse
+                        </h3>
+                        <div className="text-sm text-purple-600 space-y-1">
+                          <p>
+                            📅 <strong>Dernière analyse :</strong> {lastAnalysisDate ? new Date(lastAnalysisDate).toLocaleString('fr-FR') : 'Inconnue'}
+                          </p>
+                          <p>
+                            ⏰ <strong>Prochaine analyse :</strong> {websiteAnalysis.next_analysis_due ? new Date(websiteAnalysis.next_analysis_due).toLocaleString('fr-FR') : 'À définir'}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={deleteWebsiteAnalysis}
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 border-red-300 hover:bg-red-50"
+                      >
+                        🗑️ Supprimer
+                      </Button>
+                    </div>
+
+                    {/* Résumé de l'analyse */}
+                    <div className="space-y-4">
+                      <div>
+                        <span className="font-semibold text-purple-800">Résumé :</span>
+                        <p className="text-purple-700 mt-1 leading-relaxed">{websiteAnalysis.analysis_summary}</p>
+                      </div>
+                      
+                      <div>
+                        <span className="font-semibold text-purple-800">Sujets clés :</span>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {websiteAnalysis.key_topics.map((topic, index) => (
+                            <Badge key={index} className="bg-purple-100 text-purple-800 border-purple-300">
+                              {topic}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <span className="font-semibold text-purple-800">Ton de marque :</span>
+                          <span className="text-purple-700 ml-2 capitalize">{websiteAnalysis.brand_tone}</span>
+                        </div>
+                        
+                        <div>
+                          <span className="font-semibold text-purple-800">Audience cible :</span>
+                          <p className="text-purple-700 mt-1">{websiteAnalysis.target_audience}</p>
+                        </div>
+                      </div>
+                      
+                      {websiteAnalysis.main_services && websiteAnalysis.main_services.length > 0 && (
+                        <div>
+                          <span className="font-semibold text-purple-800">Services principaux :</span>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {websiteAnalysis.main_services.map((service, index) => (
+                              <Badge key={index} className="bg-pink-100 text-pink-800 border-pink-300">
+                                {service}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {websiteAnalysis.content_suggestions && (
+                        <div>
+                          <span className="font-semibold text-purple-800">Suggestions de contenu :</span>
+                          <ul className="text-purple-700 mt-2 space-y-1 ml-4">
+                            {websiteAnalysis.content_suggestions.map((suggestion, index) => (
+                              <li key={index} className="list-disc">{suggestion}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Message si pas d'analyse */}
+                {!websiteAnalysis && !isAnalyzingWebsite && (
+                  <div className="text-center py-8 text-gray-500">
+                    <Search className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                    <p className="text-lg mb-2">Aucune analyse disponible</p>
+                    <p className="text-sm">Entrez l'URL de votre site web et cliquez sur "Analyser le site" pour commencer</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="entreprise" className="space-y-8">
             <Card className="card-gradient">
               <CardHeader>

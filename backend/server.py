@@ -357,38 +357,76 @@ async def generate_posts(request: dict):
 
 # Notes endpoints
 @api_router.get("/notes")
-async def get_notes():
-    """Get notes (demo mode)"""
-    return {
-        "notes": [
-            {
-                "id": "demo-note-1",
-                "content": "Note de démonstration - Claire et Marcus",
-                "description": "Exemple de note",
-                "created_at": datetime.now().isoformat()
-            }
-        ]
-    }
+async def get_notes(user_id: str = Depends(get_current_user_id)):
+    """Get notes with real database persistence"""
+    try:
+        if db.is_connected() and user_id != "demo_user_id":
+            # Get real notes from database
+            notes = db.get_notes(user_id)
+            return {"notes": notes}
+        
+        # Fallback to demo mode
+        return {
+            "notes": [
+                {
+                    "note_id": "demo-note-1",
+                    "content": "Note de démonstration - Claire et Marcus",
+                    "description": "Exemple de note",
+                    "priority": "normal",
+                    "created_at": datetime.now().isoformat()
+                }
+            ]
+        }
+    except Exception as e:
+        print(f"❌ Error getting notes: {e}")
+        return {"notes": []}
 
 @api_router.post("/notes")
-async def create_note(note: ContentNote):
-    """Create note (demo mode)"""
-    return {
-        "message": "Note created successfully",
-        "note": {
-            "id": str(uuid.uuid4()),
-            "content": note.content,
-            "description": note.description,
-            "created_at": datetime.now().isoformat()
+async def create_note(note: ContentNote, user_id: str = Depends(get_current_user_id)):
+    """Create note with real database persistence"""
+    try:
+        if db.is_connected() and user_id != "demo_user_id":
+            # Create real note in database
+            created_note = db.create_note(user_id, note.content, note.description)
+            return {
+                "message": "Note created successfully",
+                "note": created_note
+            }
+        
+        # Fallback to demo mode
+        return {
+            "message": "Note created successfully (demo mode)",
+            "note": {
+                "note_id": str(uuid.uuid4()),
+                "content": note.content,
+                "description": note.description,
+                "priority": "normal",
+                "created_at": datetime.now().isoformat()
+            }
         }
-    }
+    except Exception as e:
+        print(f"❌ Error creating note: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to create note: {str(e)}")
 
 @api_router.delete("/notes/{note_id}")
-async def delete_note(note_id: str):
-    """Delete note (demo mode)"""
-    return {
-        "message": f"Note {note_id} deleted successfully"
-    }
+async def delete_note(note_id: str, user_id: str = Depends(get_current_user_id)):
+    """Delete note with real database persistence"""
+    try:
+        if db.is_connected() and user_id != "demo_user_id":
+            # Delete real note from database
+            success = db.delete_note(user_id, note_id)
+            if success:
+                return {"message": f"Note {note_id} deleted successfully"}
+            else:
+                raise HTTPException(status_code=404, detail="Note not found")
+        
+        # Fallback to demo mode
+        return {"message": f"Note {note_id} deleted successfully (demo mode)"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error deleting note: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete note: {str(e)}")
 
 # Bibliotheque endpoints
 @api_router.get("/bibliotheque")

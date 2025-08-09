@@ -2,9 +2,44 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-/* Custom styles for SocialGénie */
+/* Custom styles for Claire et Marcus */
 .App {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* Virtual Keyboard Fixes for iOS, iPadOS, Android tablets */
+/* Prevent zoom on input focus for mobile/tablet devices */
+@media screen and (max-width: 1024px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="url"],
+  textarea {
+    font-size: 16px !important; /* Prevent iOS zoom */
+    -webkit-appearance: none; /* Remove default iOS styling */
+    border-radius: 8px; /* Consistent border radius */
+  }
+  
+  /* Ensure stable layout during keyboard appearance */
+  .main-container {
+    min-height: 100vh;
+    min-height: 100svh; /* Use small viewport height for better mobile experience */
+  }
+  
+  /* Virtual keyboard optimizations */
+  input:focus,
+  textarea:focus {
+    scroll-margin-top: 100px; /* Ensure focused field is visible above keyboard */
+    transform: translateZ(0); /* Force hardware acceleration */
+    backface-visibility: hidden; /* Improve rendering performance */
+  }
+}
+
+/* Specific fixes for iPadOS and modern tablet browsers */
+@media screen and (max-width: 1024px) and (orientation: landscape) {
+  input:focus,
+  textarea:focus {
+    scroll-margin-top: 60px; /* Smaller margin in landscape */
+  }
 }
 
 /* Enhanced animations */

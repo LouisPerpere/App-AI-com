@@ -679,7 +679,7 @@ function MainApp() {
               setBusinessProfile(response.data);
               
               // Re-sync avec localStorage ET champs
-              if (isIOS) {
+              if (isVirtualKeyboardDevice) {
                 setTimeout(() => {
                   if (businessNameRef.current) businessNameRef.current.value = response.data.business_name || '';
                   if (businessDescriptionRef.current) businessDescriptionRef.current.value = response.data.business_description || '';
@@ -687,7 +687,7 @@ function MainApp() {
                   if (emailRef.current) emailRef.current.value = response.data.email || '';
                   if (websiteUrlRef.current) websiteUrlRef.current.value = response.data.website_url || '';
                   if (budgetRangeRef.current) budgetRangeRef.current.value = response.data.budget_range || '';
-                  console.log('✅ iOS refs synced with fresh DB data');
+                  console.log('✅ Virtual keyboard refs synced with fresh DB data');
                 }, 100);
               } else {
                 setEditBusinessName(response.data.business_name || '');

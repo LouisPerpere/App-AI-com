@@ -775,9 +775,10 @@ function MainApp() {
       await checkAuth();
       console.log('🔍 APP DEBUG - Auth check completed after success');
       
-      // Then load business profile
-      await loadBusinessProfile();
-      console.log('🔍 APP DEBUG - Business profile load completed');
+      // Don't reload business profile here - it's already loaded in checkAuth
+      // await loadBusinessProfile(); // REMOVED - This was causing data reload
+      console.log('🔍 APP DEBUG - Business profile already loaded in checkAuth');
+      
       
     } catch (error) {
       console.error('❌ APP DEBUG - Error in handleAuthSuccess:', error);

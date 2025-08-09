@@ -601,6 +601,7 @@ function MainApp() {
   const [analysisMessage, setAnalysisMessage] = useState('');
   const [lastAnalysisDate, setLastAnalysisDate] = useState(null);
   const [websiteUrlForAnalysis, setWebsiteUrlForAnalysis] = useState(''); // Champ invisible pour l'analyse
+  const [isWebsiteFieldProtected, setIsWebsiteFieldProtected] = useState(false); // Protection contre les re-renders
   const [showBurgerMenu, setShowBurgerMenu] = useState(false);
   const [activeTab, setActiveTab] = useState('entreprise');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);

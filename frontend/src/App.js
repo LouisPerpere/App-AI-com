@@ -2077,6 +2077,13 @@ function MainApp() {
                                       Dernière analyse : {lastAnalysisDate}
                                     </div>
                                   )}
+                                  
+                                  {/* Debug: Champ invisible pour l'analyse (visible en mode développement) */}
+                                  {process.env.NODE_ENV === 'development' && websiteUrlForAnalysis && (
+                                    <div className="text-xs text-blue-500 italic text-center border border-blue-200 rounded p-1">
+                                      🔧 URL pour analyse : {websiteUrlForAnalysis}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             </div>

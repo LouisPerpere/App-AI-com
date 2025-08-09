@@ -1748,8 +1748,8 @@ function MainApp() {
                                 <Label className="text-sm font-medium text-gray-700">Nom de l'entreprise</Label>
                                 <Input
                                   value={editBusinessName}
-                                  onChange={(e) => setEditBusinessName(e.target.value)}
-                                  onBlur={(e) => autoSaveField('business_name', e.target.value)}
+                                  onChange={(e) => handleFieldChange('business_name', e.target.value, setEditBusinessName)}
+                                  onBlur={!isIOS ? (e) => autoSaveField('business_name', e.target.value) : undefined}
                                   className="bg-white"
                                 />
                               </div>
@@ -1791,8 +1791,8 @@ function MainApp() {
                               <Label className="text-sm font-medium text-gray-700">Description de l'activité</Label>
                               <Textarea
                                 value={editBusinessDescription}
-                                onChange={(e) => setEditBusinessDescription(e.target.value)}
-                                onBlur={(e) => autoSaveField('business_description', e.target.value)}
+                                onChange={(e) => handleFieldChange('business_description', e.target.value, setEditBusinessDescription)}
+                                onBlur={!isIOS ? (e) => autoSaveField('business_description', e.target.value) : undefined}
                                 placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
                                 rows={3}
                                 className="bg-white"
@@ -1804,8 +1804,8 @@ function MainApp() {
                               <Label className="text-sm font-medium text-gray-700">Audience cible</Label>
                               <Textarea
                                 value={editTargetAudience}
-                                onChange={(e) => setEditTargetAudience(e.target.value)}
-                                onBlur={(e) => autoSaveField('target_audience', e.target.value)}
+                                onChange={(e) => handleFieldChange('target_audience', e.target.value, setEditTargetAudience)}
+                                onBlur={!isIOS ? (e) => autoSaveField('target_audience', e.target.value) : undefined}
                                 placeholder="Décrivez votre audience cible"
                                 rows={2}
                                 className="bg-white"
@@ -1819,8 +1819,8 @@ function MainApp() {
                                 <Input
                                   type="email"
                                   value={editEmail}
-                                  onChange={(e) => setEditEmail(e.target.value)}
-                                  onBlur={(e) => autoSaveField('email', e.target.value)}
+                                  onChange={(e) => handleFieldChange('email', e.target.value, setEditEmail)}
+                                  onBlur={!isIOS ? (e) => autoSaveField('email', e.target.value) : undefined}
                                   placeholder="contact@entreprise.com"
                                   className="bg-white"
                                 />
@@ -1832,8 +1832,8 @@ function MainApp() {
                                 <Input
                                   type="url"
                                   value={editWebsiteUrl}
-                                  onChange={(e) => setEditWebsiteUrl(e.target.value)}
-                                  onBlur={(e) => autoSaveField('website_url', e.target.value)}
+                                  onChange={(e) => handleFieldChange('website_url', e.target.value, setEditWebsiteUrl)}
+                                  onBlur={!isIOS ? (e) => autoSaveField('website_url', e.target.value) : undefined}
                                   placeholder="https://votre-site.com"
                                   className="bg-white"
                                 />
@@ -1869,8 +1869,8 @@ function MainApp() {
                               <Label className="text-sm font-medium text-gray-700">Budget marketing mensuel</Label>
                               <Input
                                 value={editBudgetRange}
-                                onChange={(e) => setEditBudgetRange(e.target.value)}
-                                onBlur={(e) => autoSaveField('budget_range', e.target.value)}
+                                onChange={(e) => handleFieldChange('budget_range', e.target.value, setEditBudgetRange)}
+                                onBlur={!isIOS ? (e) => autoSaveField('budget_range', e.target.value) : undefined}
                                 placeholder="Ex: 500€, 1000-2000€, etc."
                                 className="bg-white"
                               />
@@ -1880,7 +1880,7 @@ function MainApp() {
                             <div className="flex justify-center pt-4 border-t border-blue-200">
                               <div className="text-sm text-green-600 flex items-center">
                                 <Check className="w-4 h-4 mr-2" />
-                                Sauvegarde automatique activée
+                                {isIOS ? 'Auto-save iOS optimisé' : 'Sauvegarde automatique activée'}
                               </div>
                             </div>
                           </div>

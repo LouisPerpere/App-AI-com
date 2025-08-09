@@ -475,7 +475,7 @@ function MainApp() {
   // Détection améliorée pour tous appareils avec clavier virtuel (iOS, iPadOS, Android tablets)
   const detectVirtualKeyboard = () => {
     // Détection iOS/iPadOS robuste (inclut iPadOS 18+ qui peut masquer l'user agent)
-    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+    const isVirtualKeyboardDeviceDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
                        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
                        /Mac.*OS.*Touch/.test(navigator.userAgent);
     
@@ -488,7 +488,7 @@ function MainApp() {
     // Détection de la taille d'écran typique des tablets/mobiles
     const isSmallScreen = window.innerWidth <= 1024;
     
-    return isIOSDevice || isAndroidTablet || (isTouchDevice && isSmallScreen);
+    return isVirtualKeyboardDeviceDevice || isAndroidTablet || (isTouchDevice && isSmallScreen);
   };
   
   const isVirtualKeyboardDevice = detectVirtualKeyboard();
@@ -2270,7 +2270,7 @@ function MainApp() {
                             {/* Description de l'activité */}
                             <div className="space-y-2">
                               <Label className="text-sm font-medium text-gray-700">Description de l'activité</Label>
-                              {isIOS ? (
+                              {isVirtualKeyboardDevice ? (
                                 <textarea
                                   ref={businessDescriptionRef}
                                   rows={3}
@@ -2294,7 +2294,7 @@ function MainApp() {
                             {/* Audience cible */}
                             <div className="space-y-2">
                               <Label className="text-sm font-medium text-gray-700">Audience cible</Label>
-                              {isIOS ? (
+                              {isVirtualKeyboardDevice ? (
                                 <textarea
                                   ref={targetAudienceRef}
                                   rows={2}
@@ -2319,7 +2319,7 @@ function MainApp() {
                               {/* Email professionnel */}
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Email professionnel</Label>
-                                {isIOS ? (
+                                {isVirtualKeyboardDevice ? (
                                   <input
                                     ref={emailRef}
                                     type="email"
@@ -2343,7 +2343,7 @@ function MainApp() {
                               {/* Site web */}
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Site web</Label>
-                                {isIOS ? (
+                                {isVirtualKeyboardDevice ? (
                                   <input
                                     ref={websiteUrlRef}
                                     type="url"
@@ -2459,7 +2459,7 @@ function MainApp() {
                             {/* Budget marketing */}
                             <div className="space-y-2">
                               <Label className="text-sm font-medium text-gray-700">Budget marketing mensuel</Label>
-                              {isIOS ? (
+                              {isVirtualKeyboardDevice ? (
                                 <input
                                   ref={budgetRangeRef}
                                   type="text"
@@ -2753,7 +2753,7 @@ function MainApp() {
                       {/* Titre de la note */}
                       <div className="space-y-2">
                         <Label htmlFor="note_title_fix" className="text-gray-700 font-medium">Titre de la note</Label>
-                        {isIOS ? (
+                        {isVirtualKeyboardDevice ? (
                           <input
                             ref={noteTitleRef}
                             id="note_title_fix"
@@ -2779,7 +2779,7 @@ function MainApp() {
                       {/* Contenu de la note */}
                       <div className="space-y-2">
                         <Label htmlFor="note_content_fix" className="text-gray-700 font-medium">Contenu</Label>
-                        {isIOS ? (
+                        {isVirtualKeyboardDevice ? (
                           <textarea
                             ref={noteContentRef}
                             id="note_content_fix"

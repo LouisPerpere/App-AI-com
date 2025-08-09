@@ -636,6 +636,8 @@ function MainApp() {
   // Initialize business fields when business profile is loaded (only on first load, not on updates)
   useEffect(() => {
     if (isAuthenticated && user && businessProfile) {
+      console.log('🔄 useEffect businessProfile triggered - Protection status:', isWebsiteFieldProtected);
+      
       if (user.is_admin) {
         // Admin users go to admin dashboard - handled by Auth component
         return;
@@ -648,42 +650,67 @@ function MainApp() {
       loadSocialConnections();
       loadWebsiteAnalysis();
       
-      // IMPORTANT: Initialiser les champs d'édition SEULEMENT si ils sont vides
+      // IMPORTANT: Initialiser les champs d'édition SEULEMENT si ils sont vides ET pas protégés
       // Cela évite d'écraser les valeurs pendant l'édition/analyse
+      if (isWebsiteFieldProtected) {
+        console.log('🛡️ Champs protégés - initialisation ignorée');
+        return;
+      }
+      
       if (isIOS) {
         // Pour iOS, initialiser les refs seulement si ils sont vides
         setTimeout(() => {
-          if (businessNameRef.current && !businessNameRef.current.value) {
+          if (businessNameRef.current && !businessNameRef.current.value && !isWebsiteFieldProtected) {
             businessNameRef.current.value = businessProfile.business_name || '';
+            console.log('🔧 Init iOS business name:', businessProfile.business_name);
           }
-          if (businessDescriptionRef.current && !businessDescriptionRef.current.value) {
+          if (businessDescriptionRef.current && !businessDescriptionRef.current.value && !isWebsiteFieldProtected) {
             businessDescriptionRef.current.value = businessProfile.business_description || '';
+            console.log('🔧 Init iOS business description');
           }
-          if (targetAudienceRef.current && !targetAudienceRef.current.value) {
+          if (targetAudienceRef.current && !targetAudienceRef.current.value && !isWebsiteFieldProtected) {
             targetAudienceRef.current.value = businessProfile.target_audience || '';
+            console.log('🔧 Init iOS target audience');
           }
-          if (emailRef.current && !emailRef.current.value) {
+          if (emailRef.current && !emailRef.current.value && !isWebsiteFieldProtected) {
             emailRef.current.value = businessProfile.email || '';
+            console.log('🔧 Init iOS email');
           }
           if (websiteUrlRef.current && !websiteUrlRef.current.value && !isWebsiteFieldProtected) {
             websiteUrlRef.current.value = businessProfile.website_url || '';
-            console.log('🔧 Initialized iOS website URL ref:', businessProfile.website_url);
+            console.log('🔧 Init iOS website URL ref:', businessProfile.website_url);
           }
-          if (budgetRangeRef.current && !budgetRangeRef.current.value) {
+          if (budgetRangeRef.current && !budgetRangeRef.current.value && !isWebsiteFieldProtected) {
             budgetRangeRef.current.value = businessProfile.budget_range || '';
+            console.log('🔧 Init iOS budget range');
           }
         }, 100);
       } else {
         // Pour Desktop, initialiser les states seulement si ils sont vides
-        if (!editBusinessName) setEditBusinessName(businessProfile.business_name || '');
-        if (!editBusinessDescription) setEditBusinessDescription(businessProfile.business_description || '');
-        if (!editTargetAudience) setEditTargetAudience(businessProfile.target_audience || '');
-        if (!editEmail) setEditEmail(businessProfile.email || '');
+        if (!editBusinessName && !isWebsiteFieldProtected) {
+          setEditBusinessName(businessProfile.business_name || '');
+          console.log('🔧 Init Desktop business name:', businessProfile.business_name);
+        }
+        if (!editBusinessDescription && !isWebsiteFieldProtected) {
+          setEditBusinessDescription(businessProfile.business_description || '');
+          console.log('🔧 Init Desktop business description');
+        }
+        if (!editTargetAudience && !isWebsiteFieldProtected) {
+          setEditTargetAudience(businessProfile.target_audience || '');
+          console.log('🔧 Init Desktop target audience');
+        }
+        if (!editEmail && !isWebsiteFieldProtected) {
+          setEditEmail(businessProfile.email || '');
+          console.log('🔧 Init Desktop email');
+        }
         if (!editWebsiteUrl && !isWebsiteFieldProtected) {
           setEditWebsiteUrl(businessProfile.website_url || '');
-          console.log('🔧 Initialized Desktop website URL state:', businessProfile.website_url);
+          console.log('🔧 Init Desktop website URL state:', businessProfile.website_url);
         }
-        if (!editBudgetRange) setEditBudgetRange(businessProfile.budget_range || '');
+        if (!editBudgetRange && !isWebsiteFieldProtected) {
+          setEditBudgetRange(businessProfile.budget_range || '');
+          console.log('🔧 Init Desktop budget range');
+        }
       }
       
       // Ces champs peuvent être réinitialisés sans problème

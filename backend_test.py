@@ -8,20 +8,8 @@ from pathlib import Path
 
 class SocialGenieAPITester:
     def __init__(self, base_url=None):
-        # Get backend URL from frontend .env file
-        try:
-            with open('/app/frontend/.env', 'r') as f:
-                env_content = f.read()
-                for line in env_content.split('\n'):
-                    if line.startswith('REACT_APP_BACKEND_URL='):
-                        self.base_url = line.split('=')[1].strip()
-                        break
-                else:
-                    # Fallback to default if not found
-                    self.base_url = "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com"
-        except:
-            # Fallback to default if file not found
-            self.base_url = "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com"
+        # Use local backend URL since we're testing in the container
+        self.base_url = "http://localhost:8001"
         
         if base_url:
             self.base_url = base_url

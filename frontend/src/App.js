@@ -556,7 +556,15 @@ function MainApp() {
   const [noteContent, setNoteContent] = useState('');
   const [notePriority, setNotePriority] = useState('normal');
   
-  // Business profile editing - STATES SÉPARÉS pour éviter le bug clavier
+  // Business profile editing - REFS pour iOS (bypass React state)
+  const businessNameRef = useRef(null);
+  const businessDescriptionRef = useRef(null);
+  const targetAudienceRef = useRef(null);
+  const emailRef = useRef(null);
+  const websiteUrlRef = useRef(null);
+  const budgetRangeRef = useRef(null);
+  
+  // Business profile editing - STATES SÉPARÉS pour Desktop
   const [editBusinessName, setEditBusinessName] = useState('');
   const [editBusinessType, setEditBusinessType] = useState('');
   const [editBusinessDescription, setEditBusinessDescription] = useState('');

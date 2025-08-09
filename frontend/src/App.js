@@ -600,6 +600,7 @@ function MainApp() {
   const [analysisStatus, setAnalysisStatus] = useState(''); // 'analyzing', 'success', 'error', 'interrupted'
   const [analysisMessage, setAnalysisMessage] = useState('');
   const [lastAnalysisDate, setLastAnalysisDate] = useState(null);
+  const [websiteUrlForAnalysis, setWebsiteUrlForAnalysis] = useState(''); // Champ invisible pour l'analyse
   const [showBurgerMenu, setShowBurgerMenu] = useState(false);
   const [activeTab, setActiveTab] = useState('entreprise');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);

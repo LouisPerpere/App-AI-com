@@ -524,9 +524,9 @@ frontend:
 
   - task: "Business Profile Fields Virtual Keyboard Fix"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/src/App.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -539,6 +539,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "✅ BACKEND VERIFICATION COMPLETED: Business profile backend endpoints verified working perfectly after virtual keyboard fixes. GET /api/business-profile and PUT /api/business-profile endpoints tested with comprehensive data including all fields mentioned in user report (business_name, business_description, target_audience, email, website_url, budget_range). Data persistence verified with MongoDB integration - PUT operations store data correctly, GET operations retrieve updated data immediately. All 12 business profile fields functional with proper validation and user scoping. Backend ready to support enhanced virtual keyboard functionality for business profile fields."
+      - working: false
+        agent: "testing"
+        comment: "❌ BUSINESS PROFILE VIRTUAL KEYBOARD BUG CONFIRMED: Extensive testing confirms the virtual keyboard bug is still present in ALL business profile fields on iPad viewport (1024x768). SPECIFIC FIELD FAILURES: (1) ❌ business_name: Only retains 'V' instead of full text 'Virtual keyboard test 1 - iPadOS 18 fix validation', (2) ❌ business_description: Textarea fails with same issue, (3) ❌ target_audience: Text truncation to single character, (4) ❌ email: Email field affected by same bug, (5) ❌ website_url: URL field shows same pattern, (6) ❌ budget_range: Budget field also failing. TECHNICAL ANALYSIS: The virtual keyboard detection logic is triggering but the field handling is causing severe text truncation. All fields show 'V' as the only preserved character, suggesting the typing simulation is being interrupted by the virtual keyboard handling code. The auto-save debouncing (800ms) and focus management are interfering with text input. SUCCESS ON OTHER VIEWPORTS: Mobile (390x844) and Desktop (1920x1080) work correctly, confirming the issue is specific to iPad-sized virtual keyboard scenarios."
 
   - task: "Notes Fields Virtual Keyboard Fix"
     implemented: true

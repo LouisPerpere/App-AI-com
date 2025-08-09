@@ -1432,6 +1432,12 @@ function MainApp() {
     setActiveTab(tabValue);
     setShowBurgerMenu(false);
     
+    // Force reload business profile and notes when switching to "Entreprise" tab
+    if (tabValue === 'entreprise') {
+      console.log('📂 Switching to Entreprise tab - force loading data');
+      forceLoadBusinessProfileAndNotes();
+    }
+    
     // Scroll to center the active tab in the horizontal navigation
     setTimeout(() => {
       // Try multiple selectors to find the tab

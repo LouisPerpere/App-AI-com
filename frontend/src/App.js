@@ -504,6 +504,16 @@ function MainApp() {
   const [noteContent, setNoteContent] = useState('');
   const [notePriority, setNotePriority] = useState('normal');
   
+  // Business profile editing - STATES SÉPARÉS pour éviter le bug clavier
+  const [editBusinessName, setEditBusinessName] = useState('');
+  const [editBusinessType, setEditBusinessType] = useState('');
+  const [editBusinessDescription, setEditBusinessDescription] = useState('');
+  const [editTargetAudience, setEditTargetAudience] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editWebsiteUrl, setEditWebsiteUrl] = useState('');
+  const [editBudgetRange, setEditBudgetRange] = useState('');
+  const [editPreferredPlatforms, setEditPreferredPlatforms] = useState([]);
+  
   // UI states
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);

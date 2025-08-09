@@ -2907,6 +2907,7 @@ function MainApp() {
                             style={{ fontSize: '16px' }}
                             placeholder="Ex: Nouvelle promotion, Événement spécial..."
                             onChange={() => handleNoteFieldChange('title', '', setNoteTitle, noteTitleRef)}
+                            onBlur={() => handleNoteFieldBlur('title', noteTitleRef)}
                             required
                           />
                         ) : (
@@ -2916,6 +2917,7 @@ function MainApp() {
                             placeholder="Ex: Nouvelle promotion, Événement spécial..."
                             value={noteTitle}
                             onChange={(e) => handleNoteFieldChange('title', e.target.value, setNoteTitle)}
+                            onBlur={(e) => handleNoteFieldBlur('title', null, e.target.value)}
                             required
                           />
                         )}

@@ -1241,36 +1241,86 @@ function MainApp() {
 
 
 
-  // Website analysis functions
+  // Enhanced website analysis functions
   const analyzeWebsite = async (forceReanalysis = false) => {
-    if (!profileForm.website_url || !profileForm.website_url.trim()) {
-      toast.error('Veuillez d\'abord renseigner l\'URL de votre site web');
+    // Obtenir l'URL du site selon l'approche (iOS refs ou desktop state)
+    let websiteUrl;
+    if (isIOS && websiteUrlRef.current) {
+      websiteUrl = websiteUrlRef.current.value;
+    } else {
+      websiteUrl = editWebsiteUrl;
+    }
+
+    if (!websiteUrl || !websiteUrl.trim()) {
+      // Afficher popup d'erreur temporaire
+      setAnalysisStatus('error');
+      setAnalysisMessage('Complétez d\'abord votre site web pour lancer une analyse');
+      setTimeout(() => {
+        setAnalysisStatus('');
+        setAnalysisMessage('');
+      }, 3000);
       return;
     }
 
     setIsAnalyzingWebsite(true);
+    setAnalysisStatus('analyzing');
+    setAnalysisMessage('Analyse en cours...');
+
     try {
       const response = await axios.post(`${API}/website/analyze`, {
-        website_url: profileForm.website_url,
+        website_url: websiteUrl,
         force_reanalysis: forceReanalysis
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
       });
 
       setWebsiteAnalysis(response.data);
-      setShowWebsiteAnalysis(true);
-      toast.success('Analyse du site web terminée ! ✨');
+      setAnalysisStatus('success');
+      setAnalysisMessage('✅ Analyse réussie');
+      setLastAnalysisDate(new Date().toLocaleString('fr-FR'));
+      
+      // Masquer le message de succès après 5 secondes
+      setTimeout(() => {
+        setAnalysisMessage('');
+      }, 5000);
+
     } catch (error) {
       console.error('Website analysis error:', error);
-      toast.error(error.response?.data?.detail || 'Erreur lors de l\'analyse du site web');
+      setAnalysisStatus('error');
+      setAnalysisMessage('❌ Analyse non concluante, vérifiez votre site web');
+      
+      // Masquer le message d'erreur après 5 secondes
+      setTimeout(() => {
+        setAnalysisMessage('');
+      }, 5000);
     } finally {
       setIsAnalyzingWebsite(false);
     }
   };
 
+  // Interrompre l'analyse si l'URL change
+  const handleWebsiteUrlChange = (newUrl) => {
+    if (isAnalyzingWebsite) {
+      setIsAnalyzingWebsite(false);
+      setAnalysisStatus('interrupted');
+      setAnalysisMessage('Analyse interrompue');
+      
+      // Masquer le message après 3 secondes
+      setTimeout(() => {
+        setAnalysisStatus('');
+        setAnalysisMessage('');
+      }, 3000);
+    }
+  };
+
   const loadWebsiteAnalysis = async () => {
     try {
-      const response = await axios.get(`${API}/website/analysis`);
+      const response = await axios.get(`${API}/website/analysis`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      });
       if (response.data) {
         setWebsiteAnalysis(response.data);
+        setLastAnalysisDate(new Date(response.data.last_analyzed).toLocaleString('fr-FR'));
       }
     } catch (error) {
       // Ignore error if no analysis exists
@@ -1280,9 +1330,12 @@ function MainApp() {
 
   const deleteWebsiteAnalysis = async () => {
     try {
-      await axios.delete(`${API}/website/analysis`);
+      await axios.delete(`${API}/website/analysis`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      });
       setWebsiteAnalysis(null);
       setShowWebsiteAnalysis(false);
+      setLastAnalysisDate(null);
       toast.success('Analyse supprimée');
     } catch (error) {
       console.error('Error deleting analysis:', error);

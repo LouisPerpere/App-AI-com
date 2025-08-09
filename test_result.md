@@ -545,11 +545,11 @@ frontend:
 
   - task: "Notes Fields Virtual Keyboard Fix"
     implemented: true
-    working: true
+    working: "NA"
     file: "/app/frontend/src/App.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: false
         agent: "user"
@@ -560,6 +560,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "✅ BACKEND VERIFICATION COMPLETED: Notes backend endpoints verified working perfectly after virtual keyboard fixes. GET /api/notes, POST /api/notes, and DELETE /api/notes/{note_id} endpoints tested with comprehensive French content including special characters and realistic note data. CRUD operations functional with proper user scoping, note creation and deletion working correctly, realistic content handling verified. Backend ready to support enhanced virtual keyboard functionality for notes fields (title and content)."
+      - working: "NA"
+        agent: "testing"
+        comment: "⚠️ NOTES FIELDS TESTING INCOMPLETE: Could not access Notes tab or Notes input fields during testing session. NAVIGATION ISSUE: After successful login and accessing business profile section, no Notes navigation was found using selectors: button:has-text('Notes'), [role='tab']:has-text('Notes'), [data-value='notes']. IMPACT: Unable to verify if the virtual keyboard bug fix works for Notes fields (note title and note content). RECOMMENDATION: Main agent should verify Notes tab navigation is working and ensure Notes fields are accessible in the main dashboard. Given that business profile fields are failing virtual keyboard tests, Notes fields likely have the same issues and need retesting once navigation is fixed."
 
   - task: "Data Persistence on Tab Switch/Page Load"
     implemented: true

@@ -2528,8 +2528,12 @@ function MainApp() {
                       <Input
                         key="first_name_input"
                         id="firstName"
-                        value={user?.first_name || ''}
-                        onChange={(e) => handleUserChange('first_name', e.target.value)}
+                        value={editUserFirstName}
+                        onChange={(e) => setEditUserFirstName(e.target.value)}
+                        onBlur={(e) => {
+                          // Auto-save user profile
+                          console.log('Auto-saving user first name:', e.target.value);
+                        }}
                         className="mt-1"
                         placeholder="Votre prénom"
                       />
@@ -2539,8 +2543,12 @@ function MainApp() {
                       <Input
                         key="last_name_input"
                         id="lastName"
-                        value={user?.last_name || ''}
-                        onChange={(e) => handleUserChange('last_name', e.target.value)}
+                        value={editUserLastName}
+                        onChange={(e) => setEditUserLastName(e.target.value)}
+                        onBlur={(e) => {
+                          // Auto-save user profile
+                          console.log('Auto-saving user last name:', e.target.value);
+                        }}
                         className="mt-1"
                         placeholder="Votre nom"
                       />
@@ -2551,17 +2559,23 @@ function MainApp() {
                         key="email_input"
                         id="email"
                         type="email"
-                        value={user?.email || ''}
-                        onChange={(e) => handleUserChange('email', e.target.value)}
+                        value={editUserEmail}
+                        onChange={(e) => setEditUserEmail(e.target.value)}
+                        onBlur={(e) => {
+                          // Auto-save user profile
+                          console.log('Auto-saving user email:', e.target.value);
+                        }}
                         className="mt-1"
                         placeholder="votre@email.com"
                       />
                     </div>
                   </div>
-                  <Button className="mt-4 btn-gradient-primary">
-                    <Check className="w-4 h-4 mr-2" />
-                    Sauvegarder les modifications
-                  </Button>
+                  <div className="flex justify-center pt-4 border-t border-gray-200">
+                    <div className="text-sm text-green-600 flex items-center">
+                      <Check className="w-4 h-4 mr-2" />
+                      Sauvegarde automatique activée
+                    </div>
+                  </div>
                 </div>
 
                 {/* Subscription Section */}

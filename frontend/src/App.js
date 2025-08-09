@@ -1561,7 +1561,7 @@ function MainApp() {
   const analyzeWebsite = async (forceReanalysis = false) => {
     // Copier l'URL actuelle dans le champ invisible pour l'analyse
     let websiteUrl;
-    if (isIOS && websiteUrlRef.current) {
+    if (isVirtualKeyboardDevice && websiteUrlRef.current) {
       websiteUrl = websiteUrlRef.current.value;
     } else {
       websiteUrl = editWebsiteUrl;

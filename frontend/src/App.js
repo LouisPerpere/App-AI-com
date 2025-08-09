@@ -2483,6 +2483,7 @@ function MainApp() {
                                       handleVirtualKeyboardRefChange('website_url', websiteUrlRef);
                                       handleWebsiteUrlChange(websiteUrlRef.current?.value || '');
                                     }}
+                                    onBlur={() => handleVirtualKeyboardRefBlur('website_url', websiteUrlRef)}
                                   />
                                 ) : (
                                   <Input
@@ -2492,7 +2493,7 @@ function MainApp() {
                                       handleFieldChange('website_url', e.target.value, setEditWebsiteUrl);
                                       handleWebsiteUrlChange(e.target.value);
                                     }}
-                                    onBlur={(e) => autoSaveField('website_url', e.target.value)}
+                                    onBlur={(e) => handleFieldBlur('website_url', e.target.value)}
                                     placeholder="https://votre-site.com"
                                     className="bg-white"
                                   />

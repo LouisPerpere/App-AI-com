@@ -2455,13 +2455,14 @@ function MainApp() {
                                     style={{ fontSize: '16px' }}
                                     placeholder="contact@entreprise.com"
                                     onChange={() => handleVirtualKeyboardRefChange('email', emailRef)}
+                                    onBlur={() => handleVirtualKeyboardRefBlur('email', emailRef)}
                                   />
                                 ) : (
                                   <Input
                                     type="email"
                                     value={editEmail}
                                     onChange={(e) => handleFieldChange('email', e.target.value, setEditEmail)}
-                                    onBlur={(e) => autoSaveField('email', e.target.value)}
+                                    onBlur={(e) => handleFieldBlur('email', e.target.value)}
                                     placeholder="contact@entreprise.com"
                                     className="bg-white"
                                   />

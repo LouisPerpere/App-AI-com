@@ -2350,7 +2350,7 @@ function MainApp() {
                                     type="text"
                                     className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                                     style={{ fontSize: '16px' }}
-                                    onInput={() => handleVirtualKeyboardInput('business_name', businessNameRef)}
+                                    defaultValue=""
                                     onBlur={() => handleVirtualKeyboardRefBlur('business_name', businessNameRef)}
                                   />
                                 ) : (

@@ -639,11 +639,59 @@ function MainApp() {
   const [newPrimaryHashtag, setNewPrimaryHashtag] = useState('');
   const [newSecondaryHashtag, setNewSecondaryHashtag] = useState('');
 
-  // Restaurer les données depuis localStorage au chargement
+  // Restaurer les données depuis localStorage au chargement ET forcer le rechargement depuis la DB
   useEffect(() => {
     if (isAuthenticated && user) {
-      console.log('🔄 Utilisateur connecté, restauration localStorage');
+      console.log('🔄 Utilisateur connecté, restauration localStorage + rechargement DB');
+      
+      // D'abord restaurer depuis localStorage pour une réponse immédiate
       restoreFieldsFromStorage();
+      
+      // Puis recharger depuis la DB pour s'assurer que les données sont à jour
+      setTimeout(() => {
+        if (!businessProfile) {
+          console.log('📡 Force loading business profile from database');
+          loadBusinessProfile();
+        } else {
+          console.log('📡 Force refresh business profile from database');
+          const forceRefreshProfile = async () => {
+            try {
+              const response = await axios.get(`${API}/business-profile`);
+              console.log('🔄 Fresh data from DB:', response.data);
+              setBusinessProfile(response.data);
+              
+              // Re-sync avec localStorage ET champs
+              if (isIOS) {
+                setTimeout(() => {
+                  if (businessNameRef.current) businessNameRef.current.value = response.data.business_name || '';
+                  if (businessDescriptionRef.current) businessDescriptionRef.current.value = response.data.business_description || '';
+                  if (targetAudienceRef.current) targetAudienceRef.current.value = response.data.target_audience || '';
+                  if (emailRef.current) emailRef.current.value = response.data.email || '';
+                  if (websiteUrlRef.current) websiteUrlRef.current.value = response.data.website_url || '';
+                  if (budgetRangeRef.current) budgetRangeRef.current.value = response.data.budget_range || '';
+                  console.log('✅ iOS refs synced with fresh DB data');
+                }, 100);
+              } else {
+                setEditBusinessName(response.data.business_name || '');
+                setEditBusinessDescription(response.data.business_description || '');
+                setEditTargetAudience(response.data.target_audience || '');
+                setEditEmail(response.data.email || '');
+                setEditWebsiteUrl(response.data.website_url || '');
+                setEditBudgetRange(response.data.budget_range || '');
+                console.log('✅ Desktop states synced with fresh DB data');
+              }
+              setEditBusinessType(response.data.business_type || '');
+              setEditPreferredPlatforms(response.data.preferred_platforms || []);
+              
+              // Mettre à jour localStorage avec les données fraîches
+              saveToLocalStorage(response.data);
+            } catch (error) {
+              console.error('❌ Error force refreshing profile:', error);
+            }
+          };
+          forceRefreshProfile();
+        }
+      }, 1000); // Délai de 1 seconde pour laisser le temps à localStorage de se charger
     }
   }, [isAuthenticated, user]);
 

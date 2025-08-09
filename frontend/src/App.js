@@ -2824,38 +2824,6 @@ function MainApp() {
                           </div>
                         </div>
 
-                    {/* Website Analysis Status */}
-                    {websiteAnalysis && (
-                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h4 className="font-semibold text-green-800 mb-2">🌐 Analyse du site web</h4>
-                            <p className="text-sm text-green-700">
-                              Dernière analyse : {new Date(websiteAnalysis.last_analyzed).toLocaleDateString('fr-FR')}
-                            </p>
-                            <p className="text-xs text-green-600 mt-1">
-                              Prochaine analyse automatique : {new Date(websiteAnalysis.next_analysis_due).toLocaleDateString('fr-FR')}
-                            </p>
-                          </div>
-                          <Button
-                            onClick={() => analyzeWebsite(true)}
-                            disabled={isAnalyzingWebsite}
-                            variant="outline"
-                            className="border-green-300 text-green-700 hover:bg-green-100"
-                          >
-                            {isAnalyzingWebsite ? (
-                              <>
-                                <div className="w-4 h-4 border-2 border-green-700 border-t-transparent rounded-full animate-spin mr-2"></div>
-                                Analyse...
-                              </>
-                            ) : (
-                              <>🔄 Relancer</>
-                            )}
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-
                     {/* Quick Actions */}
                     <div className="grid md:grid-cols-2 gap-4">
                       <Button

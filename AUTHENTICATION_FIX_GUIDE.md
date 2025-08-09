@@ -55,7 +55,7 @@ Le site de production https://claire-marcus.netlify.app avait des problèmes d'a
 
 **Local (fonctionne) :**
 ```
-REACT_APP_BACKEND_URL=https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com
 USING_FALLBACK: false
 ```
 

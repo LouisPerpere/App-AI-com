@@ -18,10 +18,10 @@ class SocialGenieAPITester:
                         break
                 else:
                     # Fallback to default if not found
-                    self.base_url = "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com"
+                    self.base_url = "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com"
         except:
             # Fallback to default if file not found
-            self.base_url = "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com"
+            self.base_url = "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com"
         
         if base_url:
             self.base_url = base_url
@@ -1028,7 +1028,7 @@ class SocialGenieAPITester:
             
         checkout_data = {
             "package_id": "starter_monthly",
-            "origin_url": "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com"
+            "origin_url": "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com"
         }
         
         success, response = self.run_test(
@@ -1071,7 +1071,7 @@ class SocialGenieAPITester:
             
         checkout_data = {
             "package_id": "pro_yearly",
-            "origin_url": "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com"
+            "origin_url": "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com"
         }
         
         success, response = self.run_test(
@@ -1103,7 +1103,7 @@ class SocialGenieAPITester:
             
         checkout_data = {
             "package_id": "enterprise_monthly",
-            "origin_url": "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com"
+            "origin_url": "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com"
         }
         
         success, response = self.run_test(
@@ -1158,7 +1158,7 @@ class SocialGenieAPITester:
                 # Now test checkout with promo code
                 checkout_data = {
                     "package_id": "starter_monthly",
-                    "origin_url": "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com",
+                    "origin_url": "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com",
                     "promo_code": promo_code
                 }
                 
@@ -1198,7 +1198,7 @@ class SocialGenieAPITester:
             # Create demo checkout session (which should immediately process payment)
             checkout_data = {
                 "package_id": "pro_monthly",
-                "origin_url": "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com"
+                "origin_url": "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com"
             }
             
             checkout_success, checkout_response = self.run_test(
@@ -1243,7 +1243,7 @@ class SocialGenieAPITester:
         # Create demo checkout session
         checkout_data = {
             "package_id": "starter_monthly",
-            "origin_url": "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com"
+            "origin_url": "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com"
         }
         
         success, response = self.run_test(
@@ -1298,7 +1298,7 @@ class SocialGenieAPITester:
             
         checkout_data = {
             "package_id": "pro_monthly",
-            "origin_url": "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com"
+            "origin_url": "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com"
         }
         
         success, response = self.run_test(
@@ -1346,7 +1346,7 @@ class SocialGenieAPITester:
             
         checkout_data = {
             "package_id": "invalid_package",
-            "origin_url": "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com"
+            "origin_url": "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com"
         }
         
         success, response = self.run_test(
@@ -1371,7 +1371,7 @@ class SocialGenieAPITester:
             
         checkout_data = {
             "package_id": "starter_monthly",
-            "origin_url": "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com"
+            "origin_url": "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com"
         }
         
         success, response = self.run_test(
@@ -1403,7 +1403,7 @@ class SocialGenieAPITester:
             
         checkout_data = {
             "package_id": "invalid_package",
-            "origin_url": "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com"
+            "origin_url": "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com"
         }
         
         success, response = self.run_test(
@@ -1428,7 +1428,7 @@ class SocialGenieAPITester:
             
         checkout_data = {
             "package_id": "pro_monthly",
-            "origin_url": "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com",
+            "origin_url": "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com",
             "promo_code": "TESTCODE"
         }
         
@@ -1610,7 +1610,7 @@ class SocialGenieAPITester:
             # Now test checkout with the promo code
             checkout_data = {
                 "package_id": "starter_monthly",
-                "origin_url": "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com",
+                "origin_url": "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com",
                 "promo_code": promo_data["code"]
             }
             
@@ -1636,8 +1636,8 @@ class SocialGenieAPITester:
             return False
         
         test_origins = [
-            "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com",
-            "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com/",  # with trailing slash
+            "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com",
+            "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com/",  # with trailing slash
             "http://localhost:3000",
             "https://custom-domain.com"
         ]
@@ -1675,7 +1675,7 @@ class SocialGenieAPITester:
         # The server should only use server-side package definitions
         checkout_data = {
             "package_id": "starter_monthly",  # Valid package
-            "origin_url": "https://aabc4a5d-e73b-49c3-a4b9-0db6cce27bd8.preview.emergentagent.com",
+            "origin_url": "https://81122b8a-16ad-4551-bfac-5d567214c753.preview.emergentagent.com",
             # These fields should be ignored by server (if they were included)
             "amount": 1.00,  # Trying to manipulate price
             "currency": "usd"  # Trying to change currency

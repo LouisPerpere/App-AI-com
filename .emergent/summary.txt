@@ -1,185 +1,81 @@
 <analysis>
-The AI engineer has successfully guided the PostCraft application from its initial MVP phase through significant feature enhancements and a complete rebranding, culminating in a stable deployment setup on Netlify (frontend) and Render.com (backend). The work involved extensive UI/UX refinement, implementation of core functionalities like content management and AI-powered analytics, and critical infrastructure setup including payment processing and social media integrations. Challenges encountered primarily revolved around deployment configurations and dependency management, especially with  and Node.js/Python versioning issues across different hosting environments. The AI engineer adeptly troubleshooted these, often simplifying the backend to achieve successful deployment before re-integrating complex features. The focus has now shifted to guiding the user through the final deployment configuration, specifically connecting the deployed Render backend to the Netlify frontend.
+The AI engineer's work primarily focused on stabilizing and enhancing the Claire et Marcus SaaS application after its initial MVP build. Key challenges involved resolving persistent frontend UI/input bugs, debugging complex authentication issues stemming from environment variable misconfigurations across Netlify and Render.com, and refining backend-frontend data flow. The engineer employed a methodical, iterative approach, first diagnosing issues via logs and testing agents, then attempting various fixes for the keyboard disappearing bug, button width issues, and data save problems. Although many minor issues were resolved, the keyboard bug proved highly elusive, leading to multiple architectural refactorings of input handling. The process highlighted the complexity of deploying full-stack applications with inter-service dependencies and environment specific behaviors.
 </analysis>
 
 <product_requirements>
-PostCraft, now rebranded as Claire et Marcus, is a PWA SaaS designed to automate social media for small businesses and freelancers. It enables users to establish a business profile (with AI recommendations), upload various content types (photos, videos, text, batch uploads, deferred descriptions), and receive AI-generated monthly publication calendars. The core promise is unique, non-repetitive content without ChatGPT markers, which users can validate before automated publishing to Facebook, Instagram, and LinkedIn. Key features include periodic content generation, upload reminders, fallback generic content, logo branding, and a comprehensive SaaS back office for client, subscription, and payment management (initially planned for Stripe, Apple Pay, Google Pay, PayPal).
-
-Recent enhancements included new subscription plans (1-month free; Starter: €14.99/month, 4 posts/month, 1 network; Rocket: €29.99/month, unlimited posts, all networks; Pro: €199.99/month, unlimited posts, multi-accounts) and a website analysis feature (with ChatGPT) for content generation, including quarterly analysis and manual re-analysis. The application's UI was refined for a sexy marketing aesthetic, emphasizing time-saving benefits. A smart paywall system with conditional pop-ups and feature blocking based on subscription status was introduced, along with measures to prevent multiple free trials. User requests also explicitly included making all elements in the business profile editable and dynamically displaying the subscription pop-up based on the user's selected publication rhythm (e.g., after the second-to-last validated post). The final major user request was a complete rebranding to Claire et Marcus, including logo and slogan integration, and dynamic typography.
+Claire et Marcus (formerly PostCraft) is a PWA SaaS designed to automate social media management for small businesses. Its core functionality revolves around AI-powered content generation, allowing users to create AI-recommended business profiles and generate monthly publication calendars. The application emphasizes unique, non-repetitive content, validated by users before publishing to platforms like Facebook, Instagram, and LinkedIn. Essential features include content generation, upload reminders, fallback content, and a planned SaaS back office for client/subscription/payment management. Recent enhancements have introduced various subscription tiers (1-month free; Starter €14.99; Rocket €29.99; Pro €199.99), a ChatGPT-powered website analysis feature (quarterly/manual), a refined sexy marketing UI, intelligent paywall logic (conditional pop-ups, trial prevention), and full business profile editability. The application has also undergone a complete rebranding to Claire et Marcus, including a new logo, slogan, and dynamic typography.
 </product_requirements>
 
 <key_technical_concepts>
--   **Full-stack:** React (frontend), FastAPI (backend), MongoDB (database).
--   **AI/LLM:** OpenAI GPT-4 for content generation, website analysis, and prompt optimization.
--   **UI/UX:** Tailwind CSS, Shadcn UI, custom gradients, responsive design, Google Fonts (Poppins, Montserrat), custom animations.
--   **Auth:** JWT for user sessions, trial prevention mechanism.
--   **Deployment:** Netlify (frontend hosting), Render.com (backend hosting), Railway.app (previously considered), OVH (DNS management).
--   **Social Media:** Facebook/Instagram Graph API, LinkedIn integration (OAuth 2.0).
--   **Package Management:** npm/yarn (frontend), pip (backend).
--   **Utilities:** BeautifulSoup (HTML parsing).
+- **Full-stack:** React (frontend), FastAPI (backend), MongoDB (database).
+- **AI/LLM:** OpenAI GPT-4 for content and analysis.
+- **UI/UX:** Tailwind CSS, Shadcn UI, custom animations.
+- **Auth:** JWT-based authentication, trial prevention.
+- **Deployment:** Netlify (frontend), Render.com (backend).
+- **Social Media:** Facebook/Instagram Graph API, LinkedIn OAuth 2.0.
+- **Payments:** Stripe (via ).
 </key_technical_concepts>
 
 <code_architecture>
 
 
--   ****: Main FastAPI application.
-    -   **Importance:** Central API routes.
-    -   **Changes Made:** Initially integrated website analyzer and analytics. Updated  models. Corrected Notes API. Crucially, due to deployment issues, this file was heavily simplified/replaced with  to remove  imports, direct  (MongoDB) imports, and  dependencies to enable successful Render deployment. It now runs as a highly stripped-down version.
--   ****: Backend environment variables.
-    -   **Importance:** Stores sensitive keys.
-    -   **Changes Made:** Added , , , , , .
--   ****: Python dependencies.
-    -   **Importance:** Lists all necessary Python packages.
-    -   **Changes Made:** Added , , , , , usage: openai [-h] [-v] [-b API_BASE] [-k API_KEY] [-p PROXY [PROXY ...]]
-              [-o ORGANIZATION] [-t {openai,azure}]
-              [--api-version API_VERSION] [--azure-endpoint AZURE_ENDPOINT]
-              [--azure-ad-token AZURE_AD_TOKEN] [-V]
-              {api,tools,migrate,grit} ...
-
-positional arguments:
-  {api,tools,migrate,grit}
-    api                 Direct API calls
-    tools               Client side tools for convenience
-
-options:
-  -h, --help            show this help message and exit
-  -v, --verbose         Set verbosity.
-  -b API_BASE, --api-base API_BASE
-                        What API base url to use.
-  -k API_KEY, --api-key API_KEY
-                        What API key to use.
-  -p PROXY [PROXY ...], --proxy PROXY [PROXY ...]
-                        What proxy to use.
-  -o ORGANIZATION, --organization ORGANIZATION
-                        Which organization to run as (will use your default
-                        organization if not specified)
-  -t {openai,azure}, --api-type {openai,azure}
-                        The backend API to call, must be `openai` or `azure`
-  --api-version API_VERSION
-                        The Azure API version, e.g.
-                        'https://learn.microsoft.com/en-us/azure/ai-
-                        services/openai/reference#rest-api-versioning'
-  --azure-endpoint AZURE_ENDPOINT
-                        The Azure endpoint, e.g.
-                        'https://endpoint.openai.azure.com'
-  --azure-ad-token AZURE_AD_TOKEN
-                        A token from Azure Active Directory,
-                        https://www.microsoft.com/en-
-                        us/security/business/identity-access/microsoft-entra-
-                        id
-  -V, --version         show program's version number and exit.  was removed due to deployment issues.
--   ****: Authentication logic.
-    -   **Importance:** Handles user registration, login, JWT, and anti-trial measures.
-    -   **Changes Made:** Implemented core authentication and re-trial prevention. (Note: Currently not directly imported by the minimal  on Render.)
--   ****: Manages automated tasks.
-    -   **Importance:** Orchestrates content generation and notifications.
-    -   **Changes Made:** Modified  to include analytics, performance-optimized content generation with strict content filters.
--   ****: Payment processing.
-    -   **Importance:** Handles Stripe integration.
-    -   **Changes Made:** Initially integrated . Later simplified to remove  for Render deployment, functioning as a basic Stripe demo.
--   ****: Handles social media integration.
-    -   **Importance:** Centralizes Facebook/Instagram OAuth, token management, and posting.
-    -   **Changes Made:** Implemented Facebook/Instagram connection and posting, including metrics retrieval.
--   ****: Handles website content analysis.
-    -   **Importance:** Fetches website content, analyzes it with OpenAI GPT, stores results.
-    -   **Changes Made:** Implemented , ,  endpoints with intelligent fallback.
--   ****: (New file) Handles post performance analytics and prompt optimization.
-    -   **Importance:** Core for intelligent analytics system. Defines models and logic for AI analysis.
-    -   **Changes Made:** Created  class and related API endpoints.
--   ****: (New file) Handles LinkedIn OAuth and posting.
-    -   **Importance:** New LinkedIn integration module.
-    -   **Changes Made:** Created with OAuth 2.0 authentication, profile, organizations, and post endpoints.
--   **, , **: New files for Render deployment configuration.
-    -   **Importance:** Essential for Render to correctly build and run the backend.
--   ****: Main React component.
-    -   **Importance:** Defines UI layout, routing, state management.
-    -   **Changes Made:** Extensive refactoring for sexy marketing look, removed AI mentions. Implemented new subscription plans, website analysis, Settings modal, redesigned navigation. Restored content upload zones. Implemented , , . Refactored burger menu navigation. Added new Réglages tab. Implemented  logic. **Crucially, implemented full business profile editability ( state, form, save/cancel functions). Refined subscription pop-up logic (). Updated social section to include Facebook, Instagram, and LinkedIn buttons. Rebranded to Claire et Marcus with logo, slogan, and dynamic Poppins typography with breathing animation. Fixed actuellement actif button positioning.**
--   ****: Global CSS styles.
-    -   **Importance:** Global styles, Tailwind CSS, Shadcn UI theming.
-    -   **Changes Made:** Added new CSS variables, gradient buttons, background effects, sexy UI theme. **Added styles for CM logo, new font families (Poppins, Montserrat), and breathing animation for slogan. Added CSS to force hide Made with Emergent badge.**
--   ****: Handles user authentication UI.
-    -   **Importance:** Login and registration forms.
-    -   **Changes Made:** Major UI overhaul to be sexy and marketing-oriented, removed AI mentions, fixed  storage, updated messaging, added How it works section. **Rebranded to Claire et Marcus, applied Poppins font, and styled slogan with bold/color.**
--   ****: Handles Facebook OAuth callback.
-    -   **Importance:** Processes the OAuth redirection from Facebook.
-    -   **Changes Made:** Created to handle client-side Facebook OAuth flow.
--   ****: (New file) React component for subscription upgrade pop-up.
-    -   **Importance:** Displays subscription offers and handles conversion.
-    -   **Changes Made:** Created to house the logic and UI for the intelligent upgrade pop-up.
--   **, , , **: New files for Netlify frontend deployment.
-    -   **Importance:** Configuration for Netlify to correctly build and deploy the React app.  explicitly sets Node.js 20.
--   **🚀 Déploiement Claire et Marcus
-📦 Build du frontend...
-
-> frontend@0.1.0 build
-> craco build
-
-Creating an optimized production build...
-Compiled successfully.
-
-File sizes after gzip:
-
-  163.09 kB  build/static/js/main.1b9807ff.js
-  17.4 kB    build/static/css/main.5911dbf3.css
-
-The project was built assuming it is hosted at /.
-You can control this with the homepage field in your package.json.
-
-The build folder is ready to be deployed.
-You may serve it with a static server:
-
-  yarn global add serve
-  serve -s build
-
-Find out more about deployment here:
-
-  https://cra.link/deployment
-
-✅ Build réussi!
-📁 Taille du build:
-692K	build/
-📋 Fichiers dans build/:
-total 24
-drwxr-xr-x 3 root root 4096 Aug  7 12:19 .
-drwxr-xr-x 6 root root 4096 Aug  7 12:17 ..
--rw-r--r-- 1 root root  188 Aug  7 12:18 _redirects
--rw-r--r-- 1 root root  240 Aug  7 12:19 asset-manifest.json
--rw-r--r-- 1 root root 3188 Aug  7 12:19 index.html
-drwxr-xr-x 4 root root 4096 Aug  7 12:19 static
-
-🌐 INSTRUCTIONS DE DÉPLOIEMENT NETLIFY:
-1. Glissez-déposez le dossier 'build' sur netlify.com
-2. Ou connectez votre repo GitHub à Netlify
-3. Configurez votre domaine claire-marcus.com
-
-⚠️  N'OUBLIEZ PAS:
-• Configurer REACT_APP_BACKEND_URL dans Netlify
-• Héberger votre backend FastAPI séparément
-• Configurer MongoDB Atlas
-• Ajouter les DNS sur OVH, , , **: New deployment-related scripts and guides.
-    -   **Importance:** Provide clear instructions for setting up hosting environments.
+- ****: Main FastAPI application.
+    - **Importance**: Central API routes for the application.
+    - **Changes Made**: Initially simplified for Render deployment by removing  and local module imports. Authentication endpoints were later re-added and debugged.  was added to  model and API responses. A duplicated  endpoint was removed. The  router was integrated for Stripe functionality. CORS configuration  was confirmed.
+- ****: Backend environment variables.
+    - **Importance**: Stores sensitive API keys and database connection strings.
+    - **Changes Made**: Added , , , , , .
+- ****: (New file) Modern Stripe integration.
+    - **Importance**: Implements the secure Stripe checkout flow, manages packages, webhooks, and subscriptions for Starter, Rocket, and Pro plans. Uses .
+    - **Changes Made**: Created to handle complete Stripe integration, including security features and webhook handling.
+- ****: (New file) MongoDB database connection logic.
+    - **Importance**: Manages connection to MongoDB, replacing any demo mode data persistence.
+    - **Changes Made**: Created to set up  and handle database connection, providing client/database instances.
+- ****: Main React component.
+    - **Importance**: Defines UI layout, routing, and primary state management for the application.
+    - **Changes Made**: Extensive UI refactoring for Claire et Marcus branding. Integrated  and . Persistent debugging and refactoring for input fields: initially memoized  handlers, added  props, experimented with , , and wrapper components (, ). Ultimately, the approach shifted to using separate  variables for each input field to prevent re-renders, and the Modifier le profil button and its modal were removed in favor of direct inline editing for better UX and to resolve the keyboard bug. Social media platform options (Twitter, TikTok, YouTube) were removed from preferred platforms.
+- ****: Handles user authentication UI.
+    - **Importance**: Manages login and registration forms and their interactions with the backend.
+    - **Changes Made**: Major UI overhaul. Debugged  storage and API calls to match backend expectations. The simple state management pattern used here for inputs (direct object spread ) became the reference for fixing the persistent keyboard bug in . Error handling was also improved.
+- ****: Frontend environment variables.
+    - **Importance**: Stores frontend configuration, notably  for backend API calls.
+    - **Changes Made**:  was initially updated to point to Render.com, then temporarily cleared/commented out to debug Netlify environment variable interference. Later, the  definition was removed from this file as it was found to interfere with Netlify dashboard variables.
+- ****: Git ignore rules for frontend.
+    - **Importance**: Specifies files and directories that Git should ignore.
+    - **Changes Made**: Added  to prevent local environment variables from being committed and interfering with deployment environments.
+- ****: (New file) A markdown file created to document steps for fixing authentication issues on Netlify.
+    - **Importance**: Provides a guide for troubleshooting Netlify deployments related to authentication.
+    - **Changes Made**: Created to outline potential causes and solutions for authentication failures in the deployed environment.
+- ****: (New file) A temporary React component for debugging authentication issues.
+    - **Importance**: Used to display environment variables and backend health checks in the UI for debugging purposes.
+    - **Changes Made**: Created to provide visual feedback on the  and backend connectivity. Later removed once the debugging purpose was served.
+- ****: (New file) Example environment variables for frontend.
+    - **Importance**: Provides a template for required environment variables without exposing sensitive data.
+    - **Changes Made**: Created to list the necessary environment variables for the frontend setup, ensuring consistency across environments.
+- ****: (New file) Temporary file to force Netlify redeployment.
+    - **Importance**: Used as a dummy file to trigger a redeployment on Netlify, essential for applying environment variable changes.
+    - **Changes Made**: Created for the specific purpose of forcing a Netlify deployment.
 </code_architecture>
 
 <pending_tasks>
--   Complete the full implementation and testing of the SaaS back office, including the full suite of payment providers (Apple Pay, Google Pay, PayPal), as only basic Stripe (simplified due to  issues) is currently in place.
--   Re-integrate and fully enable backend modules like , , and  into the deployed  on Render.com, as the current deployed  is an ultra-minimal version that bypasses these to achieve initial deployment. This includes proper MongoDB connection.
+- Complete the full implementation and testing of the SaaS back office for client, subscription, and payment management, including additional payment providers (Apple Pay, Google Pay, PayPal). (Basic Stripe is integrated in demo mode).
+- Re-integrate and fully enable backend modules like  and  into the deployed  on Render.com, as the current deployed  is still a minimal version (though  and payments are integrated). This includes a fully working MongoDB connection.
+- Configure and test advanced social media integrations beyond basic posting.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was guiding the user through the process of deploying the Claire et Marcus application.
-The frontend has been successfully deployed on Netlify, and the user has just confirmed that the backend (after multiple troubleshooting steps) has also been successfully deployed on Render.com with the URL .
+Immediately before this summary request, the AI engineer was deep into resolving the highly persistent keyboard disappearing on text input bug in the frontend, which caused users to type only one character at a time. This bug continued to plague the application despite multiple attempts at fixing it, including:
+1.  **Initial attempts**: Implementing memoized  handlers (, ) and adding  props to input elements in  to prevent excessive re-renders.
+2.  **Native HTML inputs**: Replacing Shadcn UI  and  components with native HTML elements in  to rule out component-specific issues.
+3.  **Isolated Components**: Creating and using dedicated , , , and  components to encapsulate input fields and manage their state independently, aiming to prevent parent component re-renders. These attempts were later reverted.
+4.  **Auth.js pattern replication**: Reverting to the simple state management pattern observed in , where individual fields are managed by separate  variables rather than a single complex object state. This involved significant refactoring in  to use , , etc.
+5.  **Direct Inline Editing**: The most recent major change was to eliminate the Modifier le profil button and its associated modal entirely. Instead, the business profile fields on the main company page in  were made directly editable. This was done to simplify the UI flow and mitigate the re-rendering issues by removing the complexity of a modal and separate edit state.
 
-The main challenge addressed in the recent messages was getting the backend to deploy on Render.com, which involved:
-1.  **Addressing Node.js version incompatibility on Netlify:** The AI engineer updated  and added a  file to force Netlify to use Node.js 20, resolving build issues.
-2.  **Migrating backend hosting from Railway to Render.com:** Due to Railway's new paid plan requirement for applications, Render.com was chosen as a free alternative.
-3.  **Troubleshooting Render.com deployment errors:** This was a multi-step process:
-    *   Initially,  library caused a  because it's not publicly available on PyPI. The AI engineer removed this library from  and simplified  and  to remove its dependencies.
-    *   A subsequent error, , indicated an issue with the MongoDB connection string, likely due to an unconfigured or improperly escaped  in Render's environment variables, or an attempt by  to connect too early.
-    *   To finally achieve deployment success, the AI engineer created an ultra-minimal  that removes all imports of local modules (like , , ) and thus, any direct MongoDB connection at startup. This ensures the FastAPI server can start on Render without immediate dependency failures. This effectively puts the backend into a demo mode.
+Despite these extensive efforts, the user explicitly stated in the last message (Chat Message 442) that the keyboard bug subsists even with the improved direct editing interface. The user also praised the new interface (L’interface est bien mieux comme ça) and requested the removal of the save button, with automatic saving on field edit completion. The save bug, which caused data to be erased, was previously identified as a backend demo mode issue, returning hardcoded data instead of persisting changes.
 
-The user has confirmed the Render deployment is successful and has asked for instructions on where to put this backend URL in Netlify. The AI engineer has provided precise instructions to set the  environment variable in the Netlify dashboard to .
+At this point, the AI engineer is acknowledging the persistent keyboard bug and the request for auto-save, and is planning to try yet another approach for the keyboard bug, specifically using React refs to entirely bypass React's state-driven re-renders for the problematic input fields, alongside implementing the auto-save functionality.
 </current_work>
 
 <optional_next_step>
-Confirm with the user that the  has been set in Netlify, and then offer to perform a full end-to-end test of the deployed application.
+Implement automatic saving on field edit completion and attempt to resolve the persistent keyboard bug by leveraging React refs to manage input field values directly.
 </optional_next_step>

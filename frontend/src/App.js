@@ -2979,13 +2979,12 @@ function MainApp() {
                             rows={4}
                             className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
                             style={{ fontSize: '16px' }}
-                                    autoCorrect={false}
-                                    autoComplete="off"
-                                    spellCheck={false}
-                                    autoCapitalize="off"
-                                    defaultValue=""
+                            autoCorrect={false}
+                            autoComplete="off"
+                            spellCheck={false}
+                            autoCapitalize="off"
+                            defaultValue=""
                             placeholder="Décrivez les détails importants que vous voulez voir apparaître dans vos posts..."
-                            onChange={() => handleNoteFieldChange('content', '', setNoteContent, noteContentRef)}
                             onBlur={() => handleNoteFieldBlur('content', noteContentRef)}
                             required
                           />

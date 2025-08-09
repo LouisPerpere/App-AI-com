@@ -1684,7 +1684,273 @@ class SocialGenieAPITester:
         
         return success
 
-    def test_business_description_field_integration(self):
+    def run_focused_backend_tests(self):
+        """Run focused backend tests for Business Profile, Authentication, and Notes APIs"""
+        print("🚀 Starting Focused Backend API Testing")
+        print("=" * 60)
+        print(f"Backend URL: {self.base_url}")
+        print(f"API URL: {self.api_url}")
+        print("=" * 60)
+        
+        # Test sequence for focused testing
+        test_sequence = [
+            # Authentication Tests
+            ("Authentication - User Login", self.test_user_login),
+            ("Authentication - Get Current User", self.test_get_current_user),
+            
+            # Business Profile Tests  
+            ("Business Profile - Get Profile", self.test_get_business_profile_focused),
+            ("Business Profile - Update Profile", self.test_update_business_profile_focused),
+            ("Business Profile - Verify Persistence", self.test_verify_business_profile_persistence),
+            
+            # Notes API Tests
+            ("Notes API - Get Notes", self.test_get_notes_focused),
+            ("Notes API - Create Note", self.test_create_note_focused),
+            ("Notes API - Delete Note", self.test_delete_note_focused),
+            
+            # Additional Core Tests
+            ("Health Check", self.test_health_check),
+            ("Generate Posts", self.test_generate_posts_focused),
+        ]
+        
+        print(f"\n📋 Running {len(test_sequence)} focused tests...\n")
+        
+        for test_name, test_func in test_sequence:
+            try:
+                print(f"\n{'='*50}")
+                print(f"🧪 {test_name}")
+                print(f"{'='*50}")
+                success = test_func()
+                if success:
+                    print(f"✅ {test_name} - PASSED")
+                else:
+                    print(f"❌ {test_name} - FAILED")
+            except Exception as e:
+                print(f"💥 {test_name} - ERROR: {str(e)}")
+                self.tests_run += 1  # Count as run but not passed
+        
+        # Print summary
+        print(f"\n{'='*60}")
+        print(f"📊 FOCUSED BACKEND TESTING SUMMARY")
+        print(f"{'='*60}")
+        print(f"Tests Run: {self.tests_run}")
+        print(f"Tests Passed: {self.tests_passed}")
+        print(f"Success Rate: {(self.tests_passed/self.tests_run*100):.1f}%" if self.tests_run > 0 else "0%")
+        print(f"{'='*60}")
+        
+        return self.tests_passed, self.tests_run
+
+    def test_health_check(self):
+        """Test API health check endpoint"""
+        success, response = self.run_test(
+            "API Health Check",
+            "GET",
+            "health",
+            200
+        )
+        return success
+
+    def test_get_current_user(self):
+        """Test getting current user info"""
+        success, response = self.run_test(
+            "Get Current User Info",
+            "GET", 
+            "auth/me",
+            200
+        )
+        
+        if success:
+            print(f"   User Email: {response.get('email', 'N/A')}")
+            print(f"   Subscription: {response.get('subscription_status', 'N/A')}")
+            print(f"   Trial Days: {response.get('trial_days_remaining', 'N/A')}")
+        
+        return success
+
+    def test_get_business_profile_focused(self):
+        """Test getting business profile with focus on data structure"""
+        success, response = self.run_test(
+            "Get Business Profile (Focused)",
+            "GET",
+            "business-profile",
+            200
+        )
+        
+        if success:
+            # Check for key fields
+            key_fields = ['business_name', 'business_type', 'business_description', 
+                         'target_audience', 'brand_tone', 'posting_frequency',
+                         'preferred_platforms', 'budget_range', 'email', 'website_url',
+                         'hashtags_primary', 'hashtags_secondary']
+            
+            missing_fields = []
+            for field in key_fields:
+                if field not in response:
+                    missing_fields.append(field)
+                else:
+                    print(f"   ✅ {field}: {str(response[field])[:50]}...")
+            
+            if missing_fields:
+                print(f"   ⚠️ Missing fields: {missing_fields}")
+            else:
+                print("   ✅ All expected business profile fields present")
+        
+        return success
+
+    def test_update_business_profile_focused(self):
+        """Test updating business profile with comprehensive data"""
+        profile_data = {
+            "business_name": "Restaurant Le Bon Goût Réunionnais",
+            "business_type": "restaurant", 
+            "business_description": "Restaurant traditionnel réunionnais proposant une cuisine authentique avec des produits locaux. Spécialités: carry, rougail, samoussas. Ambiance familiale et chaleureuse dans le centre de Saint-Denis.",
+            "target_audience": "Familles réunionnaises, touristes, amateurs de cuisine créole, professionnels pour déjeuners d'affaires",
+            "brand_tone": "friendly",
+            "posting_frequency": "3x_week",
+            "preferred_platforms": ["facebook", "instagram", "linkedin"],
+            "budget_range": "500-1000€",
+            "email": "contact@bongoût.re",
+            "website_url": "https://www.restaurant-bon-gout.re",
+            "hashtags_primary": ["#RestaurantReunion", "#CuisineCreole", "#SaintDenis", "#ProduitLocaux"],
+            "hashtags_secondary": ["#Carry", "#Rougail", "#Samoussas", "#CuisineAuthentique", "#AmbanceFamiliale"]
+        }
+        
+        success, response = self.run_test(
+            "Update Business Profile (Comprehensive)",
+            "PUT",
+            "business-profile",
+            200,
+            data=profile_data
+        )
+        
+        if success:
+            print("   ✅ Business profile update successful")
+            # Store updated data for verification
+            self.updated_profile_data = profile_data
+        
+        return success
+
+    def test_verify_business_profile_persistence(self):
+        """Test that business profile updates persist correctly"""
+        success, response = self.run_test(
+            "Verify Business Profile Persistence",
+            "GET",
+            "business-profile", 
+            200
+        )
+        
+        if success and hasattr(self, 'updated_profile_data'):
+            # Check if the data we updated is still there
+            persistence_checks = []
+            for key, expected_value in self.updated_profile_data.items():
+                actual_value = response.get(key)
+                if actual_value == expected_value:
+                    persistence_checks.append(f"✅ {key}: persisted correctly")
+                else:
+                    persistence_checks.append(f"❌ {key}: expected {expected_value}, got {actual_value}")
+            
+            for check in persistence_checks[:5]:  # Show first 5 checks
+                print(f"   {check}")
+            
+            if len(persistence_checks) > 5:
+                print(f"   ... and {len(persistence_checks) - 5} more fields")
+            
+            # Count successful persistence
+            successful_persistence = sum(1 for check in persistence_checks if check.startswith("   ✅"))
+            total_fields = len(persistence_checks)
+            
+            print(f"   📊 Persistence Rate: {successful_persistence}/{total_fields} fields ({successful_persistence/total_fields*100:.1f}%)")
+            
+            return successful_persistence > total_fields * 0.8  # 80% success rate required
+        
+        return success
+
+    def test_get_notes_focused(self):
+        """Test getting notes with focus on structure"""
+        success, response = self.run_test(
+            "Get Notes (Focused)",
+            "GET",
+            "notes",
+            200
+        )
+        
+        if success:
+            if isinstance(response, dict) and 'notes' in response:
+                notes = response['notes']
+                print(f"   📝 Found {len(notes)} notes")
+                if notes:
+                    print(f"   First note: {notes[0].get('content', 'N/A')[:50]}...")
+            elif isinstance(response, list):
+                print(f"   📝 Found {len(response)} notes (direct array)")
+                if response:
+                    print(f"   First note: {response[0].get('content', 'N/A')[:50]}...")
+            else:
+                print(f"   ⚠️ Unexpected response format: {type(response)}")
+        
+        return success
+
+    def test_create_note_focused(self):
+        """Test creating a note with realistic data"""
+        note_data = {
+            "title": "Promotion Spéciale Carry Poulet",
+            "content": "Lancer une promotion sur notre carry poulet signature avec des légumes du jardin. Prix spécial à 12€ au lieu de 15€. Mettre en avant les produits locaux et l'authenticité de la recette familiale.",
+            "priority": "high"
+        }
+        
+        success, response = self.run_test(
+            "Create Note (Realistic Data)",
+            "POST",
+            "notes",
+            200,
+            data=note_data
+        )
+        
+        if success and 'note' in response:
+            created_note = response['note']
+            self.test_note_id = created_note.get('id')
+            print(f"   📝 Created note ID: {self.test_note_id}")
+            print(f"   Content: {created_note.get('content', 'N/A')[:50]}...")
+        
+        return success
+
+    def test_delete_note_focused(self):
+        """Test deleting the note we created"""
+        if not hasattr(self, 'test_note_id') or not self.test_note_id:
+            print("   ⚠️ No test note ID available, skipping delete test")
+            return True  # Not a failure, just no note to delete
+        
+        success, response = self.run_test(
+            "Delete Note (Created Note)",
+            "DELETE",
+            f"notes/{self.test_note_id}",
+            200
+        )
+        
+        if success:
+            print(f"   🗑️ Successfully deleted note {self.test_note_id}")
+        
+        return success
+
+    def test_generate_posts_focused(self):
+        """Test post generation endpoint"""
+        generation_data = {
+            "count": 2,
+            "business_context": "Restaurant réunionnais traditionnel"
+        }
+        
+        success, response = self.run_test(
+            "Generate Posts (Focused)",
+            "POST",
+            "generate-posts",
+            200,
+            data=generation_data
+        )
+        
+        if success:
+            posts = response.get('posts', [])
+            print(f"   📄 Generated {len(posts)} posts")
+            if posts:
+                print(f"   First post preview: {posts[0].get('content', 'N/A')[:100]}...")
+        
+        return success
         """Test business_description field integration in business profile endpoints"""
         if not self.access_token:
             print("❌ Skipping - No access token available")

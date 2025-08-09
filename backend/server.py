@@ -27,6 +27,24 @@ api_router = APIRouter(prefix="/api")
 # Initialize database
 db = get_database()
 
+# Dependency to get current user
+def get_current_user_id(authorization: str = Header(None)):
+    """Extract user ID from JWT token"""
+    if not authorization or not authorization.startswith("Bearer "):
+        # For demo mode compatibility, return a demo user ID
+        return "demo_user_id"
+    
+    token = authorization.replace("Bearer ", "")
+    
+    if db.is_connected():
+        # Try to get real user from database
+        user_data = db.get_user_by_token(token)
+        if user_data:
+            return user_data["user_id"]
+    
+    # Fallback to demo mode for invalid/expired tokens
+    return "demo_user_id"
+
 # Simple models
 class BusinessProfile(BaseModel):
     business_name: str

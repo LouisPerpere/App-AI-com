@@ -2947,13 +2947,12 @@ function MainApp() {
                             type="text"
                             className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                             style={{ fontSize: '16px' }}
-                                    autoCorrect={false}
-                                    autoComplete="off"
-                                    spellCheck={false}
-                                    autoCapitalize="off"
-                                    defaultValue=""
+                            autoCorrect={false}
+                            autoComplete="off"
+                            spellCheck={false}
+                            autoCapitalize="off"
+                            defaultValue=""
                             placeholder="Ex: Nouvelle promotion, Événement spécial..."
-                            onChange={() => handleNoteFieldChange('title', '', setNoteTitle, noteTitleRef)}
                             onBlur={() => handleNoteFieldBlur('title', noteTitleRef)}
                             required
                           />

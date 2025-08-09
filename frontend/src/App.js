@@ -508,6 +508,32 @@ function MainApp() {
     }
   }, [debouncedAutoSave]);
 
+  // Gestionnaire spécial pour les Notes iOS
+  const handleNotesIOSRefChange = useCallback((field, ref, setterFunction) => {
+    if (ref && ref.current) {
+      const value = ref.current.value;
+      // Pour les notes, on met aussi à jour l'état React car il est utilisé ailleurs
+      if (setterFunction) {
+        setterFunction(value);
+      }
+      console.log(`📝 Note ${field} updated:`, value);
+    }
+  }, []);
+
+  // Gestionnaire pour Notes avec support iOS/Desktop
+  const handleNoteFieldChange = useCallback((field, value, setterFunction, ref = null) => {
+    if (isIOS && ref && ref.current) {
+      // Pour iOS, la valeur vient du ref
+      const actualValue = ref.current.value;
+      setterFunction(actualValue);
+      console.log(`📱 iOS Note ${field}:`, actualValue);
+    } else {
+      // Pour Desktop, utiliser la valeur normale
+      setterFunction(value);
+      console.log(`🖥️ Desktop Note ${field}:`, value);
+    }
+  }, [isIOS]);
+
   // Auto-save function
   const autoSaveProfile = async (updatedProfile) => {
     try {

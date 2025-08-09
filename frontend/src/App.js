@@ -910,30 +910,63 @@ function MainApp() {
       const response = await axios.get(`${API}/business-profile`);
       setBusinessProfile(response.data);
       
-      // Initialiser les champs d'édition
+      // Initialiser les champs d'édition ET sauvegarder dans localStorage
       if (isIOS) {
         // Pour iOS, initialiser les refs
         setTimeout(() => {
-          if (businessNameRef.current) businessNameRef.current.value = response.data.business_name || '';
-          if (businessDescriptionRef.current) businessDescriptionRef.current.value = response.data.business_description || '';
-          if (targetAudienceRef.current) targetAudienceRef.current.value = response.data.target_audience || '';
-          if (emailRef.current) emailRef.current.value = response.data.email || '';
-          if (websiteUrlRef.current) websiteUrlRef.current.value = response.data.website_url || '';
-          if (budgetRangeRef.current) budgetRangeRef.current.value = response.data.budget_range || '';
-          console.log('✅ iOS fields initialized from database');
+          if (businessNameRef.current) {
+            businessNameRef.current.value = response.data.business_name || '';
+            syncFieldWithStorage('business_name', response.data.business_name || '');
+          }
+          if (businessDescriptionRef.current) {
+            businessDescriptionRef.current.value = response.data.business_description || '';
+            syncFieldWithStorage('business_description', response.data.business_description || '');
+          }
+          if (targetAudienceRef.current) {
+            targetAudienceRef.current.value = response.data.target_audience || '';
+            syncFieldWithStorage('target_audience', response.data.target_audience || '');
+          }
+          if (emailRef.current) {
+            emailRef.current.value = response.data.email || '';
+            syncFieldWithStorage('email', response.data.email || '');
+          }
+          if (websiteUrlRef.current) {
+            websiteUrlRef.current.value = response.data.website_url || '';
+            syncFieldWithStorage('website_url', response.data.website_url || '');
+          }
+          if (budgetRangeRef.current) {
+            budgetRangeRef.current.value = response.data.budget_range || '';
+            syncFieldWithStorage('budget_range', response.data.budget_range || '');
+          }
+          console.log('✅ iOS fields initialized from database AND cached');
         }, 100);
       } else {
-        // Pour Desktop, utiliser les states
+        // Pour Desktop, utiliser les states ET localStorage
         setEditBusinessName(response.data.business_name || '');
+        syncFieldWithStorage('business_name', response.data.business_name || '');
+        
         setEditBusinessDescription(response.data.business_description || '');
+        syncFieldWithStorage('business_description', response.data.business_description || '');
+        
         setEditTargetAudience(response.data.target_audience || '');
+        syncFieldWithStorage('target_audience', response.data.target_audience || '');
+        
         setEditEmail(response.data.email || '');
+        syncFieldWithStorage('email', response.data.email || '');
+        
         setEditWebsiteUrl(response.data.website_url || '');
+        syncFieldWithStorage('website_url', response.data.website_url || '');
+        
         setEditBudgetRange(response.data.budget_range || '');
-        console.log('✅ Desktop fields initialized from database');
+        syncFieldWithStorage('budget_range', response.data.budget_range || '');
+        
+        console.log('✅ Desktop fields initialized from database AND cached');
       }
       setEditBusinessType(response.data.business_type || '');
+      syncFieldWithStorage('business_type', response.data.business_type || '');
+      
       setEditPreferredPlatforms(response.data.preferred_platforms || []);
+      syncFieldWithStorage('preferred_platforms', response.data.preferred_platforms || []);
       
       setActiveStep('dashboard');
     } catch (error) {

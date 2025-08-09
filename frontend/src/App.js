@@ -2404,12 +2404,13 @@ function MainApp() {
                                   style={{ fontSize: '16px' }}
                                   placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
                                   onChange={() => handleVirtualKeyboardRefChange('business_description', businessDescriptionRef)}
+                                  onBlur={() => handleVirtualKeyboardRefBlur('business_description', businessDescriptionRef)}
                                 />
                               ) : (
                                 <Textarea
                                   value={editBusinessDescription}
                                   onChange={(e) => handleFieldChange('business_description', e.target.value, setEditBusinessDescription)}
-                                  onBlur={(e) => autoSaveField('business_description', e.target.value)}
+                                  onBlur={(e) => handleFieldBlur('business_description', e.target.value)}
                                   placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
                                   rows={3}
                                   className="bg-white"

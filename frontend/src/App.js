@@ -559,7 +559,11 @@ function MainApp() {
     website_url: ''
   });
   
-  // Note form - STATES SÉPARÉS
+  // Note form - REFS pour iOS (bypass React state)
+  const noteTitleRef = useRef(null);
+  const noteContentRef = useRef(null);
+  
+  // Note form - STATES SÉPARÉS pour Desktop
   const [noteTitle, setNoteTitle] = useState('');
   const [noteContent, setNoteContent] = useState('');
   const [notePriority, setNotePriority] = useState('normal');

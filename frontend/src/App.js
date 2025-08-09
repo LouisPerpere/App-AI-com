@@ -648,7 +648,7 @@ function MainApp() {
       loadPendingContent();
       loadNotes();
       loadSocialConnections();
-      loadWebsiteAnalysis();
+      // loadWebsiteAnalysis(); // REMOVED - This was causing data reload after analysis
       
       // IMPORTANT: Initialiser les champs d'édition SEULEMENT si ils sont vides ET pas protégés
       // Cela évite d'écraser les valeurs pendant l'édition/analyse

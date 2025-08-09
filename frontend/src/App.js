@@ -716,6 +716,11 @@ function MainApp() {
       if (response.data.subscription_status) {
         setSubscriptionStatus(response.data.subscription_status);
       }
+      
+      // Load business profile after successful authentication
+      if (!businessProfile) {
+        loadBusinessProfile();
+      }
     } catch (error) {
       console.error('❌ APP DEBUG - Auth check failed:', error);
       console.error('❌ APP DEBUG - Error response:', error.response?.data);

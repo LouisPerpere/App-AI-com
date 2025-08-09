@@ -1127,7 +1127,7 @@ function MainApp() {
         toast.success('Note ajoutée avec succès !');
         
         // Réinitialiser les champs selon l'approche
-        if (isIOS) {
+        if (isVirtualKeyboardDevice) {
           if (noteTitleRef.current) noteTitleRef.current.value = '';
           if (noteContentRef.current) noteContentRef.current.value = '';
         } else {

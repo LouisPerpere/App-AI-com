@@ -2935,6 +2935,7 @@ function MainApp() {
                             style={{ fontSize: '16px' }}
                             placeholder="Décrivez les détails importants que vous voulez voir apparaître dans vos posts..."
                             onChange={() => handleNoteFieldChange('content', '', setNoteContent, noteContentRef)}
+                            onBlur={() => handleNoteFieldBlur('content', noteContentRef)}
                             required
                           />
                         ) : (
@@ -2943,6 +2944,7 @@ function MainApp() {
                             placeholder="Décrivez les détails importants que vous voulez voir apparaître dans vos posts..."
                             value={noteContent}
                             onChange={(e) => handleNoteFieldChange('content', e.target.value, setNoteContent)}
+                            onBlur={(e) => handleNoteFieldBlur('content', null, e.target.value)}
                             rows={4}
                             required
                           />

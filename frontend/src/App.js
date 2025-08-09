@@ -2667,27 +2667,53 @@ function MainApp() {
                       {/* Titre de la note */}
                       <div className="space-y-2">
                         <Label htmlFor="note_title_fix" className="text-gray-700 font-medium">Titre de la note</Label>
-                        <Input
-                          id="note_title_fix"
-                          type="text"
-                          placeholder="Ex: Nouvelle promotion, Événement spécial..."
-                          value={noteTitle}
-                          onChange={(e) => setNoteTitle(e.target.value)}
-                          required
-                        />
+                        {isIOS ? (
+                          <input
+                            ref={noteTitleRef}
+                            id="note_title_fix"
+                            type="text"
+                            className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                            style={{ fontSize: '16px' }}
+                            placeholder="Ex: Nouvelle promotion, Événement spécial..."
+                            onChange={() => handleNoteFieldChange('title', '', setNoteTitle, noteTitleRef)}
+                            required
+                          />
+                        ) : (
+                          <Input
+                            id="note_title_fix"
+                            type="text"
+                            placeholder="Ex: Nouvelle promotion, Événement spécial..."
+                            value={noteTitle}
+                            onChange={(e) => handleNoteFieldChange('title', e.target.value, setNoteTitle)}
+                            required
+                          />
+                        )}
                       </div>
                       
                       {/* Contenu de la note */}
                       <div className="space-y-2">
                         <Label htmlFor="note_content_fix" className="text-gray-700 font-medium">Contenu</Label>
-                        <Textarea
-                          id="note_content_fix"
-                          placeholder="Décrivez les détails importants que vous voulez voir apparaître dans vos posts..."
-                          value={noteContent}
-                          onChange={(e) => setNoteContent(e.target.value)}
-                          rows={4}
-                          required
-                        />
+                        {isIOS ? (
+                          <textarea
+                            ref={noteContentRef}
+                            id="note_content_fix"
+                            rows={4}
+                            className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
+                            style={{ fontSize: '16px' }}
+                            placeholder="Décrivez les détails importants que vous voulez voir apparaître dans vos posts..."
+                            onChange={() => handleNoteFieldChange('content', '', setNoteContent, noteContentRef)}
+                            required
+                          />
+                        ) : (
+                          <Textarea
+                            id="note_content_fix"
+                            placeholder="Décrivez les détails importants que vous voulez voir apparaître dans vos posts..."
+                            value={noteContent}
+                            onChange={(e) => handleNoteFieldChange('content', e.target.value, setNoteContent)}
+                            rows={4}
+                            required
+                          />
+                        )}
                       </div>
                       
                       {/* Priorité */}

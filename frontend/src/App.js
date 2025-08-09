@@ -1592,7 +1592,7 @@ function MainApp() {
 
     console.log('🚀 DÉBUT analyse site web');
     console.log('📊 État avant analyse:', {
-      businessName: isIOS ? businessNameRef.current?.value : editBusinessName,
+      businessName: isVirtualKeyboardDevice ? businessNameRef.current?.value : editBusinessName,
       websiteUrl: websiteUrl,
       isProtected: isWebsiteFieldProtected
     });

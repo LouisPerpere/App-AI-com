@@ -2302,13 +2302,14 @@ function MainApp() {
                                     </div>
                                   )}
                                   
-                                  {/* Debug: Champ invisible pour l'analyse (visible en mode développement) */}
+                                  {/* Debug: Indicateur localStorage (visible en mode développement) */}
                                   {process.env.NODE_ENV === 'development' && (
-                                    <div className="text-xs text-blue-500 italic text-center border border-blue-200 rounded p-1 space-y-1">
+                                    <div className="text-xs text-green-500 italic text-center border border-green-200 rounded p-1 space-y-1">
+                                      <div>💾 localStorage: ACTIF</div>
+                                      <div>🛡️ Protection : {isWebsiteFieldProtected ? 'ACTIVE' : 'Inactive'}</div>
                                       {websiteUrlForAnalysis && (
                                         <div>🔧 URL pour analyse : {websiteUrlForAnalysis}</div>
                                       )}
-                                      <div>🛡️ Protection : {isWebsiteFieldProtected ? 'ACTIVE' : 'Inactive'}</div>
                                     </div>
                                   )}
                                 </div>

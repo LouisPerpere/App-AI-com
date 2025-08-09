@@ -460,9 +460,8 @@ function MainApp() {
         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
       });
       
-      if (response.data && response.data.business_name) {
-        setBusinessProfile(response.data);
-      }
+      // NE PAS mettre à jour businessProfile ici pour éviter le re-render qui cause le bug clavier
+      // Les états d'édition séparés maintiennent déjà les valeurs actuelles
       
       // Silent success - no toast to avoid interrupting user
       console.log(`✅ Field ${field} auto-saved successfully`);

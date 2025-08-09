@@ -788,40 +788,114 @@ function MainApp() {
     }
   };
 
-  // Force reload business profile data when switching to Entreprise tab
-  const refreshBusinessProfileData = async () => {
-    if (!isAuthenticated || !user) return;
-    
+  // Nouvelle approche : Persistence locale avec localStorage
+  const LOCAL_STORAGE_KEY = 'claire_marcus_business_profile_cache';
+  
+  // Sauvegarder les données dans localStorage immédiatement
+  const saveToLocalStorage = (data) => {
     try {
-      console.log('🔄 Refreshing business profile data for tab switch');
-      const response = await axios.get(`${API}/business-profile`);
-      setBusinessProfile(response.data);
-      
-      // Force re-initialize all fields with fresh data
-      if (isIOS) {
-        setTimeout(() => {
-          if (businessNameRef.current) businessNameRef.current.value = response.data.business_name || '';
-          if (businessDescriptionRef.current) businessDescriptionRef.current.value = response.data.business_description || '';
-          if (targetAudienceRef.current) targetAudienceRef.current.value = response.data.target_audience || '';
-          if (emailRef.current) emailRef.current.value = response.data.email || '';
-          if (websiteUrlRef.current) websiteUrlRef.current.value = response.data.website_url || '';
-          if (budgetRangeRef.current) budgetRangeRef.current.value = response.data.budget_range || '';
-          console.log('✅ iOS fields refreshed with fresh data');
-        }, 100);
-      } else {
-        setEditBusinessName(response.data.business_name || '');
-        setEditBusinessDescription(response.data.business_description || '');
-        setEditTargetAudience(response.data.target_audience || '');
-        setEditEmail(response.data.email || '');
-        setEditWebsiteUrl(response.data.website_url || '');
-        setEditBudgetRange(response.data.budget_range || '');
-        console.log('✅ Desktop fields refreshed with fresh data');
-      }
-      setEditBusinessType(response.data.business_type || '');
-      setEditPreferredPlatforms(response.data.preferred_platforms || []);
+      const timestamp = new Date().toISOString();
+      const cachedData = {
+        ...data,
+        cached_at: timestamp,
+        user_id: user?.user_id || 'anonymous'
+      };
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cachedData));
+      console.log('💾 Données sauvées dans localStorage:', Object.keys(data));
     } catch (error) {
-      console.error('❌ Error refreshing business profile:', error);
+      console.error('❌ Erreur sauvegarde localStorage:', error);
     }
+  };
+
+  // Charger les données depuis localStorage
+  const loadFromLocalStorage = () => {
+    try {
+      const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (cached) {
+        const data = JSON.parse(cached);
+        console.log('📂 Données chargées depuis localStorage:', Object.keys(data));
+        return data;
+      }
+    } catch (error) {
+      console.error('❌ Erreur chargement localStorage:', error);
+    }
+    return null;
+  };
+
+  // Synchroniser un champ avec localStorage ET état React
+  const syncFieldWithStorage = (fieldName, value, setterFunction = null) => {
+    // Charger les données actuelles
+    const currentData = loadFromLocalStorage() || {};
+    
+    // Mettre à jour avec la nouvelle valeur
+    currentData[fieldName] = value;
+    
+    // Sauvegarder immédiatement
+    saveToLocalStorage(currentData);
+    
+    // Mettre à jour l'état React si fourni
+    if (setterFunction) {
+      setterFunction(value);
+    }
+    
+    // Pour iOS, mettre à jour aussi le ref
+    if (isIOS) {
+      switch (fieldName) {
+        case 'business_name':
+          if (businessNameRef.current) businessNameRef.current.value = value;
+          break;
+        case 'business_description':
+          if (businessDescriptionRef.current) businessDescriptionRef.current.value = value;
+          break;
+        case 'target_audience':
+          if (targetAudienceRef.current) targetAudienceRef.current.value = value;
+          break;
+        case 'email':
+          if (emailRef.current) emailRef.current.value = value;
+          break;
+        case 'website_url':
+          if (websiteUrlRef.current) websiteUrlRef.current.value = value;
+          break;
+        case 'budget_range':
+          if (budgetRangeRef.current) budgetRangeRef.current.value = value;
+          break;
+      }
+    }
+    
+    console.log(`🔄 ${fieldName} synchronisé:`, value);
+  };
+
+  // Restaurer tous les champs depuis localStorage
+  const restoreFieldsFromStorage = () => {
+    const cached = loadFromLocalStorage();
+    if (!cached) return;
+    
+    console.log('🔄 Restauration complète depuis localStorage');
+    
+    // Restaurer les states React
+    if (cached.business_name) setEditBusinessName(cached.business_name);
+    if (cached.business_type) setEditBusinessType(cached.business_type);
+    if (cached.business_description) setEditBusinessDescription(cached.business_description);
+    if (cached.target_audience) setEditTargetAudience(cached.target_audience);
+    if (cached.email) setEditEmail(cached.email);
+    if (cached.website_url) setEditWebsiteUrl(cached.website_url);
+    if (cached.budget_range) setEditBudgetRange(cached.budget_range);
+    if (cached.preferred_platforms) setEditPreferredPlatforms(cached.preferred_platforms);
+    
+    // Restaurer les refs iOS
+    if (isIOS) {
+      setTimeout(() => {
+        if (businessNameRef.current && cached.business_name) businessNameRef.current.value = cached.business_name;
+        if (businessDescriptionRef.current && cached.business_description) businessDescriptionRef.current.value = cached.business_description;
+        if (targetAudienceRef.current && cached.target_audience) targetAudienceRef.current.value = cached.target_audience;
+        if (emailRef.current && cached.email) emailRef.current.value = cached.email;
+        if (websiteUrlRef.current && cached.website_url) websiteUrlRef.current.value = cached.website_url;
+        if (budgetRangeRef.current && cached.budget_range) budgetRangeRef.current.value = cached.budget_range;
+        console.log('✅ Refs iOS restaurés depuis localStorage');
+      }, 100);
+    }
+    
+    console.log('✅ Tous les champs restaurés depuis localStorage');
   };
 
   const loadBusinessProfile = async () => {

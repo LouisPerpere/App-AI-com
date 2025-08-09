@@ -7,6 +7,25 @@
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
+/* PWA and Virtual Keyboard Optimization for iPad */
+html {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+#root {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 /* Virtual Keyboard Fixes for iOS, iPadOS, Android tablets */
 /* Prevent zoom on input focus for mobile/tablet devices */
 @media screen and (max-width: 1024px) {
@@ -31,6 +50,17 @@
     scroll-margin-top: 100px; /* Ensure focused field is visible above keyboard */
     transform: translateZ(0); /* Force hardware acceleration */
     backface-visibility: hidden; /* Improve rendering performance */
+  }
+  
+  /* PWA-specific optimizations for iPad */
+  @supports (-webkit-touch-callout: none) {
+    body {
+      height: -webkit-fill-available;
+    }
+    
+    .main-container {
+      min-height: -webkit-fill-available;
+    }
   }
 }
 

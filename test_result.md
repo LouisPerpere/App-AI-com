@@ -452,6 +452,18 @@ backend:
         agent: "testing"
         comment: "❌ CRITICAL ISSUE CONFIRMED: Business profile 'Sauvegarder les modifications' button data erasure issue identified through comprehensive testing. DETAILED FINDINGS: (1) ✅ Authentication Working - User lperpere@yahoo.fr / L@Reunion974! successfully authenticates and receives valid demo tokens, (2) ✅ PUT /api/business-profile Endpoint - Accepts comprehensive business profile updates with all required fields (business_name, business_type, business_description, target_audience, brand_tone, posting_frequency, preferred_platforms, budget_range, email, website_url, hashtags_primary, hashtags_secondary), returns 200 success with updated profile data in response, (3) ❌ CRITICAL: No Data Persistence - GET /api/business-profile immediately after successful PUT returns original hardcoded demo data (Demo Business, service, demo@claire-marcus.com) instead of user's saved changes, (4) ❌ Demo Mode Root Cause - Backend running in demo mode with hardcoded responses, no database persistence implemented, (5) ❌ Field Validation Issue - PUT endpoint requires ALL required fields in single request, cannot perform partial updates (returns 422 validation errors for missing fields). TECHNICAL EVIDENCE: PUT response shows correct updated data (Restaurant Le Bon Goût Réunionnais, restaurant, contact@bongoût.re), but GET response immediately returns demo data (Demo Business, service, demo@claire-marcus.com). This creates user experience where data appears to be 'erased' after save. SOLUTION NEEDED: Backend requires production database integration to persist business profile changes instead of returning hardcoded demo responses."
 
+  - task: "Website Analysis Field Clearing Issue"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL ROOT CAUSE IDENTIFIED: Website analysis field clearing issue diagnosed through comprehensive testing. DETAILED DIAGNOSTIC FINDINGS: (1) ✅ POST /api/website/analyze - Endpoint working correctly, returns proper analysis response with insights and suggestions, does NOT modify business profile data, (2) ✅ Analysis Response Clean - Response contains only analysis data (message, insights, suggestions), no business profile fields or suspicious patterns detected, (3) ❌ ROOT CAUSE CONFIRMED: Demo Mode Data Persistence Issue - Backend accepts PUT /api/business-profile updates (returns 200) but immediately returns hardcoded demo data on subsequent GET requests, (4) ❌ USER EXPERIENCE IMPACT: User fills fields → Frontend calls PUT (appears successful) → User clicks 'Analyser le site web' → Frontend refreshes data with GET → Backend returns demo data → Fields appear 'cleared', (5) ✅ Website Analysis Innocent - The analysis endpoint itself is NOT causing the field clearing, it's the underlying demo mode data persistence issue. TECHNICAL EVIDENCE: Comprehensive before/after testing shows business profile data unchanged by website analysis call. The issue occurs because backend doesn't persist user data changes, so any subsequent GET request returns hardcoded demo values, creating the illusion that analysis 'cleared' the fields. SOLUTION: Fix backend data persistence to store and retrieve actual user data instead of demo responses."
+
   - task: "Phase 1 Business Profile Editing"
     implemented: true
     working: true

@@ -1984,9 +1984,9 @@ function MainApp() {
               console.log('🔄 Tab changed to:', value);
               setActiveTab(value);
               
-              // Refresh data when switching to Entreprise tab
-              if (value === 'entreprise' && businessProfile) {
-                refreshBusinessProfileData();
+              // Restore data when switching to Entreprise tab
+              if (value === 'entreprise') {
+                restoreFieldsFromStorage();
               }
             }} 
             className="space-y-8"

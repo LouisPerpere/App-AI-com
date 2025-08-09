@@ -1279,6 +1279,19 @@ function MainApp() {
       setAnalysisMessage('✅ Analyse réussie');
       setLastAnalysisDate(new Date().toLocaleString('fr-FR'));
       
+      // Sauvegarder l'URL analysée dans le profil business pour qu'elle reste visible et soit utilisée pour la génération
+      await autoSaveField('website_url', websiteUrl);
+      
+      // S'assurer que l'URL reste dans le champ après analyse
+      if (isIOS && websiteUrlRef.current) {
+        // Pour iOS, l'URL est déjà dans le ref, pas besoin de la mettre à jour
+      } else {
+        // Pour Desktop, s'assurer que l'état est à jour
+        if (editWebsiteUrl !== websiteUrl) {
+          setEditWebsiteUrl(websiteUrl);
+        }
+      }
+      
       // Masquer le message de succès après 5 secondes
       setTimeout(() => {
         setAnalysisMessage('');

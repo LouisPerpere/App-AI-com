@@ -520,22 +520,29 @@ async def analyze_website(request: dict, user_id: str = Depends(get_current_user
             "status": "success"
         }
         
-        # Store analysis in database if connected
+        # Store analysis in database if connected - SÉPARÉ du business profile !
         if db.is_connected() and user_id != "demo_user_id":
             try:
-                # IMPORTANT: Store website analysis result AND update the website_url in business profile
-                analysis_data = {
-                    "website_analysis": analysis_result,
-                    "last_website_analysis": datetime.utcnow(),
-                    "website_url": website_url  # Ensure URL is preserved in profile
+                # CORRECTION CRITIQUE : Ne pas toucher au business profile !
+                # Créer une collection séparée pour l'analyse
+                analysis_doc = {
+                    "user_id": user_id,
+                    "website_url": website_url,
+                    "analysis_result": analysis_result,
+                    "analyzed_at": datetime.utcnow(),
+                    "analysis_id": str(uuid.uuid4())
                 }
-                success = db.update_business_profile(user_id, analysis_data)
-                if success:
-                    print(f"✅ Website analysis AND URL stored for user {user_id}")
-                    # Add the URL to the response so frontend knows it's saved
-                    analysis_result["website_url_saved"] = website_url
-                else:
-                    print(f"⚠️ Failed to store analysis for user {user_id}")
+                
+                # Stocker dans une collection séparée
+                db.db.website_analyses.replace_one(
+                    {"user_id": user_id}, 
+                    analysis_doc,
+                    upsert=True
+                )
+                
+                print(f"✅ Website analysis stored separately for user {user_id}")
+                # Add the URL to the response so frontend knows it's saved
+                analysis_result["website_url_saved"] = website_url
             except Exception as e:
                 print(f"⚠️ Failed to store analysis: {e}")
         

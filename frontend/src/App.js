@@ -631,52 +631,62 @@ function MainApp() {
     checkAuth();
   }, []);
 
-  // Load data when authenticated
+  // Initialize business fields when business profile is loaded (only on first load, not on updates)
   useEffect(() => {
-    if (isAuthenticated && user) {
+    if (isAuthenticated && user && businessProfile) {
       if (user.is_admin) {
         // Admin users go to admin dashboard - handled by Auth component
         return;
       }
       
-      if (!businessProfile) {
-        loadBusinessProfile();
+      setActiveStep('dashboard');
+      loadGeneratedPosts();
+      loadPendingContent();
+      loadNotes();
+      loadSocialConnections();
+      loadWebsiteAnalysis();
+      
+      // IMPORTANT: Initialiser les champs d'édition SEULEMENT si ils sont vides
+      // Cela évite d'écraser les valeurs pendant l'édition/analyse
+      if (isIOS) {
+        // Pour iOS, initialiser les refs seulement si ils sont vides
+        setTimeout(() => {
+          if (businessNameRef.current && !businessNameRef.current.value) {
+            businessNameRef.current.value = businessProfile.business_name || '';
+          }
+          if (businessDescriptionRef.current && !businessDescriptionRef.current.value) {
+            businessDescriptionRef.current.value = businessProfile.business_description || '';
+          }
+          if (targetAudienceRef.current && !targetAudienceRef.current.value) {
+            targetAudienceRef.current.value = businessProfile.target_audience || '';
+          }
+          if (emailRef.current && !emailRef.current.value) {
+            emailRef.current.value = businessProfile.email || '';
+          }
+          if (websiteUrlRef.current && !websiteUrlRef.current.value) {
+            websiteUrlRef.current.value = businessProfile.website_url || '';
+            console.log('🔧 Initialized iOS website URL ref:', businessProfile.website_url);
+          }
+          if (budgetRangeRef.current && !budgetRangeRef.current.value) {
+            budgetRangeRef.current.value = businessProfile.budget_range || '';
+          }
+        }, 100);
       } else {
-        setActiveStep('dashboard');
-        loadGeneratedPosts();
-        loadPendingContent();
-        loadNotes();
-        loadSocialConnections();
-        loadWebsiteAnalysis();
-        
-        // Initialiser les champs d'édition avec les données du profil
-        if (isIOS) {
-          // Pour iOS, initialiser les refs
-          setTimeout(() => {
-            if (businessNameRef.current) businessNameRef.current.value = businessProfile.business_name || '';
-            if (businessDescriptionRef.current) businessDescriptionRef.current.value = businessProfile.business_description || '';
-            if (targetAudienceRef.current) targetAudienceRef.current.value = businessProfile.target_audience || '';
-            if (emailRef.current) emailRef.current.value = businessProfile.email || '';
-            if (websiteUrlRef.current) websiteUrlRef.current.value = businessProfile.website_url || '';
-            if (budgetRangeRef.current) budgetRangeRef.current.value = businessProfile.budget_range || '';
-          }, 100);
-        } else {
-          // Pour Desktop, utiliser les states
-          setEditBusinessName(businessProfile.business_name || '');
-          setEditBusinessDescription(businessProfile.business_description || '');
-          setEditTargetAudience(businessProfile.target_audience || '');
-          setEditEmail(businessProfile.email || '');
+        // Pour Desktop, initialiser les states seulement si ils sont vides
+        if (!editBusinessName) setEditBusinessName(businessProfile.business_name || '');
+        if (!editBusinessDescription) setEditBusinessDescription(businessProfile.business_description || '');
+        if (!editTargetAudience) setEditTargetAudience(businessProfile.target_audience || '');
+        if (!editEmail) setEditEmail(businessProfile.email || '');
+        if (!editWebsiteUrl) {
           setEditWebsiteUrl(businessProfile.website_url || '');
-          setEditBudgetRange(businessProfile.budget_range || '');
+          console.log('🔧 Initialized Desktop website URL state:', businessProfile.website_url);
         }
-        setEditBusinessType(businessProfile.business_type || '');
-        setEditPreferredPlatforms(businessProfile.preferred_platforms || []);
-        
-        // Initialiser les champs utilisateur
-        setEditUserFirstName(user?.first_name || '');
-        setEditUserLastName(user?.last_name || '');
-        setEditUserEmail(user?.email || '');
+        if (!editBudgetRange) setEditBudgetRange(businessProfile.budget_range || '');
       }
+      
+      // Ces champs peuvent être réinitialisés sans problème
+      if (!editBusinessType) setEditBusinessType(businessProfile.business_type || '');
+      if (editPreferredPlatforms.length === 0) setEditPreferredPlatforms(businessProfile.preferred_platforms || []);
     }
   }, [isAuthenticated, user, businessProfile]);
 

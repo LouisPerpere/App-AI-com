@@ -561,6 +561,15 @@ function MainApp() {
   const [newPrimaryHashtag, setNewPrimaryHashtag] = useState('');
   const [newSecondaryHashtag, setNewSecondaryHashtag] = useState('');
 
+  // Initialize user fields when user data is loaded
+  useEffect(() => {
+    if (user) {
+      setEditUserFirstName(user.first_name || '');
+      setEditUserLastName(user.last_name || '');
+      setEditUserEmail(user.email || '');
+    }
+  }, [user]);
+
   // Configure axios defaults
   useEffect(() => {
     const token = localStorage.getItem('access_token');

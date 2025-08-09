@@ -2429,12 +2429,13 @@ function MainApp() {
                                   style={{ fontSize: '16px' }}
                                   placeholder="Décrivez votre audience cible"
                                   onChange={() => handleVirtualKeyboardRefChange('target_audience', targetAudienceRef)}
+                                  onBlur={() => handleVirtualKeyboardRefBlur('target_audience', targetAudienceRef)}
                                 />
                               ) : (
                                 <Textarea
                                   value={editTargetAudience}
                                   onChange={(e) => handleFieldChange('target_audience', e.target.value, setEditTargetAudience)}
-                                  onBlur={(e) => autoSaveField('target_audience', e.target.value)}
+                                  onBlur={(e) => handleFieldBlur('target_audience', e.target.value)}
                                   placeholder="Décrivez votre audience cible"
                                   rows={2}
                                   className="bg-white"

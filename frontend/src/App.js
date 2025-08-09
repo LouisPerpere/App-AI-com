@@ -2114,7 +2114,7 @@ function MainApp() {
                             <div className="flex justify-center pt-4 border-t border-blue-200">
                               <div className="text-sm text-green-600 flex items-center">
                                 <Check className="w-4 h-4 mr-2" />
-                                {isIOS ? 'Auto-save iOS avec refs (bypass React)' : 'Sauvegarde automatique activée'}
+                                Sauvegarde automatique activée
                               </div>
                             </div>
                           </div>

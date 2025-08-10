@@ -1736,7 +1736,7 @@ function MainApp() {
 
     console.log('🚀 DÉBUT analyse site web');
     console.log('📊 État avant analyse:', {
-      businessName: isVirtualKeyboardDevice ? businessNameRef.current?.value : editBusinessName,
+      businessName: isVirtualKeyboardDevice ? (businessNameRef.current?.value || '') : editBusinessName,
       websiteUrl: websiteUrl,
       isProtected: isWebsiteFieldProtected
     });
@@ -1752,15 +1752,15 @@ function MainApp() {
 
       console.log('📡 Réponse API reçue:', response.data);
       console.log('📊 État AVANT setWebsiteAnalysis:', {
-        businessName: isVirtualKeyboardDevice ? businessNameRef.current?.value : editBusinessName,
-        websiteUrl: isVirtualKeyboardDevice ? websiteUrlRef.current?.value : editWebsiteUrl
+        businessName: isVirtualKeyboardDevice ? (businessNameRef.current?.value || '') : editBusinessName,
+        websiteUrl: isVirtualKeyboardDevice ? (websiteUrlRef.current?.value || '') : editWebsiteUrl
       });
 
       setWebsiteAnalysis(response.data);
       
       console.log('📊 État APRÈS setWebsiteAnalysis:', {
-        businessName: isVirtualKeyboardDevice ? businessNameRef.current?.value : editBusinessName,
-        websiteUrl: isVirtualKeyboardDevice ? websiteUrlRef.current?.value : editWebsiteUrl
+        businessName: isVirtualKeyboardDevice ? (businessNameRef.current?.value || '') : editBusinessName,
+        websiteUrl: isVirtualKeyboardDevice ? (websiteUrlRef.current?.value || '') : editWebsiteUrl
       });
 
       setAnalysisStatus('success');

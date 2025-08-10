@@ -2600,32 +2600,24 @@ function MainApp() {
                               {/* Type d'entreprise */}
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Type d'entreprise</Label>
-                                <Select 
-                                  value={editBusinessType} 
-                                  onValueChange={(value) => {
-                                    setEditBusinessType(value);
-                                    autoSaveField('business_type', value);
-                                  }}
-                                >
-                                  <SelectTrigger className="bg-white">
-                                    <SelectValue placeholder="Sélectionnez le type" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="restaurant">Restaurant</SelectItem>
-                                    <SelectItem value="shop">Commerce</SelectItem>
-                                    <SelectItem value="service">Service</SelectItem>
-                                    <SelectItem value="freelance">Freelance</SelectItem>
-                                    <SelectItem value="agency">Agence</SelectItem>
-                                    <SelectItem value="ecommerce">E-commerce</SelectItem>
-                                    <SelectItem value="saas">SaaS</SelectItem>
-                                    <SelectItem value="consulting">Conseil</SelectItem>
-                                    <SelectItem value="healthcare">Santé</SelectItem>
-                                    <SelectItem value="education">Éducation</SelectItem>
-                                    <SelectItem value="fitness">Sport/Fitness</SelectItem>
-                                    <SelectItem value="beauty">Beauté</SelectItem>
-                                    <SelectItem value="other">Autre</SelectItem>
-                                  </SelectContent>
-                                </Select>
+                                <div className="grid grid-cols-3 gap-4">
+                                  {['services', 'artisan', 'commerçant'].map((type) => (
+                                    <label key={type} className="flex items-center space-x-2 cursor-pointer p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                      <input
+                                        type="radio"
+                                        name="business_type"
+                                        value={type}
+                                        checked={editBusinessType === type}
+                                        onChange={(e) => {
+                                          setEditBusinessType(e.target.value);
+                                          autoSaveField('business_type', e.target.value);
+                                        }}
+                                        className="text-blue-600 focus:ring-blue-500"
+                                      />
+                                      <span className="text-sm text-gray-700 capitalize">{type}</span>
+                                    </label>
+                                  ))}
+                                </div>
                               </div>
                             </div>
 

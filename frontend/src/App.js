@@ -3111,18 +3111,29 @@ function MainApp() {
                       
                       {/* Priorité */}
                       <div className="space-y-2">
-                        <Label htmlFor="note_priority_fix" className="text-gray-700 font-medium">Priorité</Label>
-                        <select
-                          id="note_priority_fix"
-                          value={notePriority}
-                          onChange={(e) => setNotePriority(e.target.value)}
-                          className="w-full p-3 border border-gray-200 rounded-lg focus:border-blue-500 bg-white"
-                        >
-                          <option value="low">Faible</option>
-                          <option value="normal">Normale</option>
-                          <option value="high">Élevée</option>
-                          <option value="urgent">Urgente</option>
-                        </select>
+                        <Label className="text-gray-700 font-medium">Priorité</Label>
+                        <div className="grid grid-cols-2 gap-3">
+                          {[
+                            { value: 'low', label: 'Faible', color: 'bg-green-100 text-green-800 border-green-300' },
+                            { value: 'normal', label: 'Normale', color: 'bg-blue-100 text-blue-800 border-blue-300' },
+                            { value: 'high', label: 'Élevée', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
+                            { value: 'urgent', label: 'Urgente', color: 'bg-red-100 text-red-800 border-red-300' }
+                          ].map((priority) => (
+                            <label key={priority.value} className={`flex items-center space-x-2 cursor-pointer p-3 border-2 rounded-lg hover:shadow-sm transition-all ${
+                              notePriority === priority.value ? priority.color : 'border-gray-200 hover:bg-gray-50'
+                            }`}>
+                              <input
+                                type="radio"
+                                name="note_priority"
+                                value={priority.value}
+                                checked={notePriority === priority.value}
+                                onChange={(e) => setNotePriority(e.target.value)}
+                                className="text-indigo-600 focus:ring-indigo-500"
+                              />
+                              <span className="text-sm font-medium">{priority.label}</span>
+                            </label>
+                          ))}
+                        </div>
                       </div>
                       
                       <Button

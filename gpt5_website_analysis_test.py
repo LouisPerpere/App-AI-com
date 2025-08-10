@@ -14,8 +14,8 @@ import time
 
 class GPT5WebsiteAnalysisComprehensiveTester:
     def __init__(self):
-        # Use production backend URL from frontend/.env
-        self.base_url = "https://9d9abc32-ca1b-47b1-bc5e-c34b81138b90.preview.emergentagent.com"
+        # Use local backend URL for testing
+        self.base_url = "http://localhost:8001"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.user_id = None

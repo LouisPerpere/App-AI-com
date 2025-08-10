@@ -25,7 +25,7 @@ from auth import (
 from admin import admin_router, init_admin_data
 from payments import payment_router
 from social_media import social_router
-from website_analyzer import website_router
+from website_analyzer_gpt5 import website_router  # Using GPT-5 version
 from analytics import analytics_router
 from linkedin_integration import linkedin_auth, linkedin_profile, linkedin_posts
 

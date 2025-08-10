@@ -9,6 +9,15 @@ import uuid
 # Import database
 from database import get_database, DatabaseManager
 
+# Import GPT-5 website analyzer
+try:
+    from website_analyzer_gpt5 import website_router
+    WEBSITE_ANALYZER_AVAILABLE = True
+    print("✅ GPT-5 Website Analyzer module loaded")
+except ImportError as e:
+    print(f"⚠️ GPT-5 Website Analyzer module not available: {e}")
+    WEBSITE_ANALYZER_AVAILABLE = False
+
 # Import the modern payments module
 try:
     from payments_v2 import payments_router

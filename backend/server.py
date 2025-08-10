@@ -604,6 +604,13 @@ async def delete_website_analysis(user_id: str = Depends(get_current_user_id)):
 # Include the API router
 app.include_router(api_router)
 
+# Include GPT-5 Website Analyzer
+if WEBSITE_ANALYZER_AVAILABLE:
+    app.include_router(website_router, prefix="/api")
+    print("✅ GPT-5 Website Analyzer endpoints added")
+else:
+    print("⚠️ Website Analyzer endpoints not available - old endpoints remain active")
+
 # Include the modern payments router
 if PAYMENTS_V2_AVAILABLE:
     app.include_router(payments_router)

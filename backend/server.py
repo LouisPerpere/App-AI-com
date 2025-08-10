@@ -503,103 +503,12 @@ async def create_linkedin_post(post_data: dict):
         "platform": "linkedin"
     }
 
-# Website analyzer endpoints
-@api_router.post("/website/analyze")
-async def analyze_website(request: dict, user_id: str = Depends(get_current_user_id)):
-    """Analyze website with database storage"""
-    website_url = request.get("website_url")
-    force_reanalysis = request.get("force_reanalysis", False)
-    
-    if not website_url:
-        raise HTTPException(status_code=400, detail="Website URL is required")
-    
-    try:
-        # For now, return demo analysis (later can integrate real analysis)
-        analysis_result = {
-            "message": "Website analysis completed successfully",
-            "website_url": website_url,
-            "insights": f"Analyse de {website_url} : Site web professionnel avec une bonne structure. Suggestions de contenu basées sur votre secteur d'activité.",
-            "suggestions": [
-                "Créez un post sur vos services principaux",
-                "Partagez des témoignages clients authentiques", 
-                "Montrez votre équipe et votre expertise",
-                "Présentez vos réalisations récentes"
-            ],
-            "analyzed_at": datetime.now().isoformat(),
-            "status": "success"
-        }
-        
-        # Store analysis in database if connected - SÉPARÉ du business profile !
-        if db.is_connected() and user_id != "demo_user_id":
-            try:
-                # CORRECTION CRITIQUE : Ne pas toucher au business profile !
-                # Créer une collection séparée pour l'analyse
-                analysis_doc = {
-                    "user_id": user_id,
-                    "website_url": website_url,
-                    "analysis_result": analysis_result,
-                    "analyzed_at": datetime.utcnow(),
-                    "analysis_id": str(uuid.uuid4())
-                }
-                
-                # Stocker dans une collection séparée
-                db.db.website_analyses.replace_one(
-                    {"user_id": user_id}, 
-                    analysis_doc,
-                    upsert=True
-                )
-                
-                print(f"✅ Website analysis stored separately for user {user_id}")
-                # Add the URL to the response so frontend knows it's saved
-                analysis_result["website_url_saved"] = website_url
-            except Exception as e:
-                print(f"⚠️ Failed to store analysis: {e}")
-        
-        return analysis_result
-        
-    except Exception as e:
-        print(f"❌ Error analyzing website: {e}")
-        raise HTTPException(status_code=500, detail=f"Website analysis failed: {str(e)}")
-
-@api_router.get("/website/analysis")
-async def get_website_analysis(user_id: str = Depends(get_current_user_id)):
-    """Get stored website analysis - SÉPARÉ du business profile"""
-    try:
-        if db.is_connected() and user_id != "demo_user_id":
-            # Charger depuis la collection séparée
-            analysis = db.db.website_analyses.find_one({"user_id": user_id})
-            if analysis:
-                analysis.pop('_id', None)  # Remove MongoDB _id
-                return analysis["analysis_result"]
-        
-        # No analysis found
-        raise HTTPException(status_code=404, detail="No website analysis found")
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        print(f"❌ Error getting website analysis: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get website analysis")
-
-@api_router.delete("/website/analysis")
-async def delete_website_analysis(user_id: str = Depends(get_current_user_id)):
-    """Delete website analysis - SÉPARÉ du business profile"""
-    try:
-        if db.is_connected() and user_id != "demo_user_id":
-            # Supprimer depuis la collection séparée
-            result = db.db.website_analyses.delete_one({"user_id": user_id})
-            if result.deleted_count > 0:
-                return {"message": "Website analysis deleted successfully"}
-            else:
-                raise HTTPException(status_code=404, detail="No analysis found to delete")
-        
-        return {"message": "Analysis deleted successfully (demo mode)"}
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        print(f"❌ Error deleting website analysis: {e}")
-        raise HTTPException(status_code=500, detail="Failed to delete website analysis")
+# Website analyzer endpoints - REPLACED BY GPT-5 MODULE
+# Old demo endpoints commented out to use GPT-5 version
+# @api_router.post("/website/analyze")
+# @api_router.get("/website/analysis") 
+# @api_router.delete("/website/analysis")
+# (See website_analyzer_gpt5.py for new GPT-5 implementation)
 
 # Include the API router
 app.include_router(api_router)

@@ -3128,19 +3128,26 @@ function MainApp() {
                             { value: 'high', label: 'Élevée', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
                             { value: 'urgent', label: 'Urgente', color: 'bg-red-100 text-red-800 border-red-300' }
                           ].map((priority) => (
-                            <label key={priority.value} className={`flex items-center space-x-2 cursor-pointer p-3 border-2 rounded-lg hover:shadow-sm transition-all ${
-                              notePriority === priority.value ? priority.color : 'border-gray-200 hover:bg-gray-50'
-                            }`}>
-                              <input
-                                type="radio"
-                                name="note_priority"
-                                value={priority.value}
-                                checked={notePriority === priority.value}
-                                onChange={(e) => setNotePriority(e.target.value)}
-                                className="text-indigo-600 focus:ring-indigo-500"
-                              />
+                            <button
+                              key={priority.value}
+                              type="button"
+                              onClick={() => setNotePriority(priority.value)}
+                              className={`flex items-center space-x-2 p-3 border-2 rounded-lg transition-all duration-200 text-left ${
+                                notePriority === priority.value 
+                                  ? `${priority.color} shadow-md border-opacity-100` 
+                                  : 'border-gray-200 hover:bg-gray-50 text-gray-700'
+                              }`}
+                            >
+                              <div className={`w-3 h-3 rounded-full border-2 ${
+                                notePriority === priority.value
+                                  ? priority.value === 'low' ? 'border-green-500 bg-green-500'
+                                    : priority.value === 'normal' ? 'border-blue-500 bg-blue-500'
+                                    : priority.value === 'high' ? 'border-yellow-500 bg-yellow-500'
+                                    : 'border-red-500 bg-red-500'
+                                  : 'border-gray-300'
+                              }`}></div>
                               <span className="text-sm font-medium">{priority.label}</span>
-                            </label>
+                            </button>
                           ))}
                         </div>
                       </div>

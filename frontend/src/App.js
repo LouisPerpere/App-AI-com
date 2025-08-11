@@ -3120,35 +3120,28 @@ function MainApp() {
                       {/* Priorité */}
                       <div className="space-y-2">
                         <Label className="text-gray-700 font-medium">Priorité</Label>
-                        <div className="grid grid-cols-2 gap-3">
-                          {[
-                            { value: 'low', label: 'Faible', color: 'bg-green-100 text-green-800 border-green-300' },
-                            { value: 'normal', label: 'Normale', color: 'bg-blue-100 text-blue-800 border-blue-300' },
-                            { value: 'high', label: 'Élevée', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
-                            { value: 'urgent', label: 'Urgente', color: 'bg-red-100 text-red-800 border-red-300' }
-                          ].map((priority) => (
-                            <button
-                              key={priority.value}
-                              type="button"
-                              onClick={() => setNotePriority(priority.value)}
-                              className={`flex items-center space-x-2 p-3 border-2 rounded-lg transition-all duration-200 text-left ${
-                                notePriority === priority.value 
-                                  ? `${priority.color} shadow-md border-opacity-100` 
-                                  : 'border-gray-200 hover:bg-gray-50 text-gray-700'
-                              }`}
-                            >
-                              <div className={`w-3 h-3 rounded-full border-2 ${
-                                notePriority === priority.value
-                                  ? priority.value === 'low' ? 'border-green-500 bg-green-500'
-                                    : priority.value === 'normal' ? 'border-blue-500 bg-blue-500'
-                                    : priority.value === 'high' ? 'border-yellow-500 bg-yellow-500'
-                                    : 'border-red-500 bg-red-500'
-                                  : 'border-gray-300'
-                              }`}></div>
-                              <span className="text-sm font-medium">{priority.label}</span>
-                            </button>
-                          ))}
-                        </div>
+                        {isVirtualKeyboardDevice ? (
+                          <input
+                            type="text"
+                            className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                            style={{ fontSize: '16px' }}
+                            autoCorrect={false}
+                            autoComplete="off"
+                            spellCheck={false}
+                            autoCapitalize="off"
+                            defaultValue=""
+                            placeholder="faible / normale / élevée / urgente"
+                            onBlur={(e) => setNotePriority(e.target.value)}
+                          />
+                        ) : (
+                          <Input
+                            type="text"
+                            value={notePriority}
+                            onChange={(e) => setNotePriority(e.target.value)}
+                            placeholder="faible / normale / élevée / urgente"
+                            className="bg-white"
+                          />
+                        )}
                       </div>
                       
                       <Button

@@ -3135,13 +3135,21 @@ function MainApp() {
                             autoCapitalize="off"
                             defaultValue=""
                             placeholder="faible / normale / élevée / urgente"
-                            onBlur={(e) => setNotePriority(e.target.value)}
+                            onBlur={(e) => {
+                              setNotePriority(e.target.value);
+                              // PAS d'auto-save - pas nécessaire pour la priorité des notes
+                              console.log('Priorité définie (sans auto-save):', e.target.value);
+                            }}
                           />
                         ) : (
                           <Input
                             type="text"
                             value={notePriority}
                             onChange={(e) => setNotePriority(e.target.value)}
+                            onBlur={(e) => {
+                              console.log('Priorité définie (desktop, sans auto-save):', e.target.value);
+                              // PAS d'auto-save - pas nécessaire pour la priorité des notes
+                            }}
                             placeholder="faible / normale / élevée / urgente"
                             className="bg-white"
                           />

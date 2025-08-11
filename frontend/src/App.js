@@ -2627,8 +2627,12 @@ function MainApp() {
                                     value={editBusinessType}
                                     onChange={(e) => setEditBusinessType(e.target.value)}
                                     onBlur={(e) => {
-                                      console.log('Type d\'entreprise défini (desktop, sans auto-save):', e.target.value);
+                                      console.log('🔥 HANDLER DÉCLENCHÉ - Type entreprise (desktop):', e.target.value);
                                       // PAS d'auto-save - cette fonction cause l'effacement du formulaire
+                                      // Test avec alert pour vérifier que le handler fonctionne
+                                      if (e.target.value) {
+                                        setTimeout(() => alert(`Type défini (desktop): ${e.target.value} (SANS auto-save)`), 100);
+                                      }
                                     }}
                                     placeholder="artisan / commerçant / service"
                                     className="bg-white"

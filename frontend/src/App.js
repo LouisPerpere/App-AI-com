@@ -2613,7 +2613,8 @@ function MainApp() {
                                     placeholder="artisan / commerçant / service"
                                     onBlur={(e) => {
                                       setEditBusinessType(e.target.value);
-                                      autoSaveField('business_type', e.target.value);
+                                      // PAS d'auto-save - cette fonction cause l'effacement du formulaire
+                                      console.log('Type d\'entreprise défini (sans auto-save):', e.target.value);
                                     }}
                                   />
                                 ) : (
@@ -2621,7 +2622,10 @@ function MainApp() {
                                     type="text"
                                     value={editBusinessType}
                                     onChange={(e) => setEditBusinessType(e.target.value)}
-                                    onBlur={(e) => autoSaveField('business_type', e.target.value)}
+                                    onBlur={(e) => {
+                                      console.log('Type d\'entreprise défini (desktop, sans auto-save):', e.target.value);
+                                      // PAS d'auto-save - cette fonction cause l'effacement du formulaire
+                                    }}
                                     placeholder="artisan / commerçant / service"
                                     className="bg-white"
                                   />

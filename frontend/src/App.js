@@ -2612,13 +2612,19 @@ function MainApp() {
                                     defaultValue=""
                                     placeholder="artisan / commerçant / service"
                                     onBlur={(e) => {
-                                      console.log('🔥 HANDLER DÉCLENCHÉ - Type entreprise (virtual keyboard):', e.target.value);
+                                      console.log('🔥 onBlur DÉCLENCHÉ - Type entreprise (virtual keyboard):', e.target.value);
                                       setEditBusinessType(e.target.value);
-                                      // PAS d'auto-save - cette fonction cause l'effacement du formulaire
-                                      // Test avec alert pour vérifier que le handler fonctionne
-                                      if (e.target.value) {
-                                        setTimeout(() => alert(`Type défini: ${e.target.value} (SANS auto-save)`), 100);
-                                      }
+                                    }}
+                                    onTouchEnd={(e) => {
+                                      // Workaround pour iPadOS 18 - onBlur ne marche pas toujours
+                                      console.log('📱 onTouchEnd DÉCLENCHÉ - Type entreprise:', e.target.value);
+                                      setEditBusinessType(e.target.value);
+                                      setTimeout(() => alert(`TouchEnd: ${e.target.value} (SANS auto-save)`), 100);
+                                    }}
+                                    onFocusOut={(e) => {
+                                      // Alternative pour iPadOS
+                                      console.log('👀 onFocusOut DÉCLENCHÉ - Type entreprise:', e.target.value);
+                                      setEditBusinessType(e.target.value);
                                     }}
                                   />
                                 ) : (

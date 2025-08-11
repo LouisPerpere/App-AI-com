@@ -2600,33 +2600,32 @@ function MainApp() {
                               {/* Type d'entreprise */}
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Type d'entreprise</Label>
-                                <div className="grid grid-cols-3 gap-4">
-                                  {['services', 'artisan', 'commerçant'].map((type) => (
-                                    <button
-                                      key={type}
-                                      type="button"
-                                      onClick={() => {
-                                        setEditBusinessType(type);
-                                        // Sauvegarde différée pour éviter les conflits
-                                        setTimeout(() => autoSaveField('business_type', type), 100);
-                                      }}
-                                      className={`p-3 border-2 rounded-lg transition-all duration-200 text-sm font-medium text-left ${
-                                        editBusinessType === type
-                                          ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-md'
-                                          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
-                                      }`}
-                                    >
-                                      <div className="flex items-center space-x-2">
-                                        <div className={`w-3 h-3 rounded-full border-2 ${
-                                          editBusinessType === type
-                                            ? 'border-blue-500 bg-blue-500'
-                                            : 'border-gray-300'
-                                        }`}></div>
-                                        <span className="capitalize">{type}</span>
-                                      </div>
-                                    </button>
-                                  ))}
-                                </div>
+                                {isVirtualKeyboardDevice ? (
+                                  <input
+                                    type="text"
+                                    className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                                    style={{ fontSize: '16px' }}
+                                    autoCorrect={false}
+                                    autoComplete="off"
+                                    spellCheck={false}
+                                    autoCapitalize="off"
+                                    defaultValue=""
+                                    placeholder="artisan / commerçant / service"
+                                    onBlur={(e) => {
+                                      setEditBusinessType(e.target.value);
+                                      autoSaveField('business_type', e.target.value);
+                                    }}
+                                  />
+                                ) : (
+                                  <Input
+                                    type="text"
+                                    value={editBusinessType}
+                                    onChange={(e) => setEditBusinessType(e.target.value)}
+                                    onBlur={(e) => autoSaveField('business_type', e.target.value)}
+                                    placeholder="artisan / commerçant / service"
+                                    className="bg-white"
+                                  />
+                                )}
                               </div>
                             </div>
 

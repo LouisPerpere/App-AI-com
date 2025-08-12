@@ -3159,8 +3159,11 @@ function MainApp() {
                             value={notePriority}
                             onChange={(e) => setNotePriority(e.target.value)}
                             onBlur={(e) => {
-                              console.log('Priorité définie (desktop, sans auto-save):', e.target.value);
-                              // PAS d'auto-save - pas nécessaire pour la priorité des notes
+                              console.log('🔥 onBlur - Priorité note (desktop):', e.target.value);
+                            }}
+                            onTouchEnd={(e) => {
+                              // Solution iPadOS 18 aussi pour desktop au cas où
+                              console.log('📱 onTouchEnd - Priorité note (desktop):', e.target.value);
                             }}
                             placeholder="faible / normale / élevée / urgente"
                             className="bg-white"

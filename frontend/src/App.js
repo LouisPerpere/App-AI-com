@@ -2698,6 +2698,11 @@ function MainApp() {
                                   placeholder="Décrivez votre audience cible"
                                   
                                   onBlur={() => handleVirtualKeyboardRefBlur('target_audience', targetAudienceRef)}
+                                  onTouchEnd={() => {
+                                    // Solution iPadOS 18 - onTouchEnd pour target_audience
+                                    console.log('📱 onTouchEnd - Target Audience (SOLUTION iPadOS 18)');
+                                    handleVirtualKeyboardRefBlur('target_audience', targetAudienceRef);
+                                  }}
                                 />
                               ) : (
                                 <Textarea

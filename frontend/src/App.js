@@ -3113,6 +3113,11 @@ function MainApp() {
                             defaultValue=""
                             placeholder="Ex: Nouvelle promotion, Événement spécial..."
                             onBlur={() => handleNoteFieldBlur('title', noteTitleRef)}
+                            onTouchEnd={() => {
+                              // Solution iPadOS 18 - onTouchEnd pour note title
+                              console.log('📱 onTouchEnd - Note Title (SOLUTION iPadOS 18)');
+                              handleNoteFieldBlur('title', noteTitleRef);
+                            }}
                             required
                           />
                         ) : (

@@ -3157,7 +3157,7 @@ function MainApp() {
                             autoComplete="off"
                             spellCheck={false}
                             autoCapitalize="off"
-                            defaultValue={noteContent || ""}
+                            defaultValue={loadFromLocalStorage()?.note_content || noteContent || ""}
                             placeholder="Décrivez les détails importants que vous voulez voir apparaître dans vos posts..."
                             onBlur={() => handleNoteFieldBlur('content', noteContentRef)}
                             onTouchEnd={() => {

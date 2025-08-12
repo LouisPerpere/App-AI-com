@@ -3120,7 +3120,7 @@ function MainApp() {
                             autoComplete="off"
                             spellCheck={false}
                             autoCapitalize="off"
-                            defaultValue={noteTitle || ""}
+                            defaultValue={loadFromLocalStorage()?.note_title || noteTitle || ""}
                             placeholder="Ex: Nouvelle promotion, Événement spécial..."
                             onBlur={() => handleNoteFieldBlur('title', noteTitleRef)}
                             onTouchEnd={() => {

@@ -3192,7 +3192,7 @@ function MainApp() {
                             autoComplete="off"
                             spellCheck={false}
                             autoCapitalize="off"
-                            defaultValue={notePriority || loadFromLocalStorage()?.note_priority || ""}
+                            defaultValue={loadFromLocalStorage()?.note_priority || notePriority || ""}
                             placeholder="faible / normale / élevée / urgente"
                             onBlur={(e) => {
                               console.log('🔥 onBlur - Priorité note (virtual keyboard):', e.target.value);

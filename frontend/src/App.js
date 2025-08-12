@@ -1122,6 +1122,9 @@ function MainApp() {
     if (cached.budget_range) setEditBudgetRange(cached.budget_range);
     if (cached.preferred_platforms) setEditPreferredPlatforms(cached.preferred_platforms);
     
+    // Restaurer les champs de notes
+    if (cached.note_priority) setNotePriority(cached.note_priority);
+    
     // Restaurer les refs pour appareils avec clavier virtuel
     if (isVirtualKeyboardDevice) {
       setTimeout(() => {

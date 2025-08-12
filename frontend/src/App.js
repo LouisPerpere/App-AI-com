@@ -2734,6 +2734,11 @@ function MainApp() {
                                     placeholder="contact@entreprise.com"
                                     
                                     onBlur={() => handleVirtualKeyboardRefBlur('email', emailRef)}
+                                    onTouchEnd={() => {
+                                      // Solution iPadOS 18 - onTouchEnd pour email
+                                      console.log('📱 onTouchEnd - Email (SOLUTION iPadOS 18)');
+                                      handleVirtualKeyboardRefBlur('email', emailRef);
+                                    }}
                                   />
                                 ) : (
                                   <Input

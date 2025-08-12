@@ -3150,6 +3150,11 @@ function MainApp() {
                             defaultValue=""
                             placeholder="Décrivez les détails importants que vous voulez voir apparaître dans vos posts..."
                             onBlur={() => handleNoteFieldBlur('content', noteContentRef)}
+                            onTouchEnd={() => {
+                              // Solution iPadOS 18 - onTouchEnd pour note content
+                              console.log('📱 onTouchEnd - Note Content (SOLUTION iPadOS 18)');
+                              handleNoteFieldBlur('content', noteContentRef);
+                            }}
                             required
                           />
                         ) : (

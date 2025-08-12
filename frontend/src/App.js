@@ -2840,6 +2840,11 @@ function MainApp() {
                                   placeholder="Ex: 500€, 1000-2000€, etc."
                                   
                                   onBlur={() => handleVirtualKeyboardRefBlur('budget_range', budgetRangeRef)}
+                                  onTouchEnd={() => {
+                                    // Solution iPadOS 18 - onTouchEnd pour budget_range
+                                    console.log('📱 onTouchEnd - Budget Range (SOLUTION iPadOS 18)');
+                                    handleVirtualKeyboardRefBlur('budget_range', budgetRangeRef);
+                                  }}
                                 />
                               ) : (
                                 <Input

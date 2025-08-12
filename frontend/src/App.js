@@ -2615,16 +2615,30 @@ function MainApp() {
                                     placeholder="artisan / commerçant / service"
                                     onBlur={(e) => {
                                       console.log('🔥 onBlur - Type entreprise (virtual keyboard):', e.target.value);
-                                      setEditBusinessType(e.target.value);
+                                      const newValue = e.target.value;
+                                      setEditBusinessType(newValue);
+                                      
+                                      // Sauvegarder immédiatement en localStorage pour éviter la perte
+                                      const currentData = loadFromLocalStorage() || {};
+                                      currentData.business_type = newValue;
+                                      saveToLocalStorage(currentData);
+                                      
                                       // Auto-save to database
-                                      autoSaveField('business_type', e.target.value);
+                                      autoSaveField('business_type', newValue);
                                     }}
                                     onTouchEnd={(e) => {
                                       // Solution iPadOS 18 - onTouchEnd fonctionne quand onBlur échoue
                                       console.log('📱 onTouchEnd - Type entreprise (SOLUTION iPadOS 18):', e.target.value);
-                                      setEditBusinessType(e.target.value);
+                                      const newValue = e.target.value;
+                                      setEditBusinessType(newValue);
+                                      
+                                      // Sauvegarder immédiatement en localStorage pour éviter la perte
+                                      const currentData = loadFromLocalStorage() || {};
+                                      currentData.business_type = newValue;
+                                      saveToLocalStorage(currentData);
+                                      
                                       // Auto-save to database
-                                      autoSaveField('business_type', e.target.value);
+                                      autoSaveField('business_type', newValue);
                                     }}
                                   />
                                 ) : (

@@ -2586,6 +2586,11 @@ function MainApp() {
                                     spellCheck={false}
                                     autoCapitalize="off"
                                     onBlur={() => handleVirtualKeyboardRefBlur('business_name', businessNameRef)}
+                                    onTouchEnd={() => {
+                                      // Solution iPadOS 18 - onTouchEnd pour business_name
+                                      console.log('📱 onTouchEnd - Business Name (SOLUTION iPadOS 18)');
+                                      handleVirtualKeyboardRefBlur('business_name', businessNameRef);
+                                    }}
                                   />
                                 ) : (
                                   <Input

@@ -1135,6 +1135,8 @@ function MainApp() {
     
     // Restaurer les champs de notes
     if (cached.note_priority) setNotePriority(cached.note_priority);
+    if (cached.note_title) setNoteTitle(cached.note_title);
+    if (cached.note_content) setNoteContent(cached.note_content);
     
     // Restaurer les refs pour appareils avec clavier virtuel
     if (isVirtualKeyboardDevice) {

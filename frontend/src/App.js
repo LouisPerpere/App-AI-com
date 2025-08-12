@@ -2580,7 +2580,7 @@ function MainApp() {
                                     autoComplete="off"
                                     spellCheck={false}
                                     autoCapitalize="off"
-                                    defaultValue=""
+                                    defaultValue={businessProfile?.business_name || loadFromLocalStorage()?.business_name || ""}
                                     onBlur={() => {
                                       console.log('💾 Blur - Saving business name');
                                       handleVirtualKeyboardRefBlur('business_name', businessNameRef);

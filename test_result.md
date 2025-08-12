@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "User reported persistent keyboard disappearing bug on iPadOS18 in all business profile fields (Entreprise tab) and Notes fields, plus field clearing bug when launching website analysis. SOLUTION IMPLEMENTED: (1) Revolutionary PWA viewport dynamic height management approach with comprehensive fallback strategies for virtual keyboard stability, (2) MAJOR UX IMPROVEMENT: Created dedicated 'Analyse' page/tab to completely separate website analysis from business profile fields, preventing field clearing conflicts."
+user_problem_statement: "CRITICAL DATA DISAPPEARING BUG: User-entered data disappears after 0.25 seconds in form fields, particularly affecting iPadOS 18 virtual keyboard devices. ROOT CAUSE IDENTIFIED: Input fields using defaultValue='' instead of actual business profile/localStorage data, causing fields to reset on re-renders. SOLUTION IMPLEMENTED: Updated all virtual keyboard input fields to use dynamic defaultValue from businessProfile or localStorage instead of empty strings. This prevents data loss during component re-renders triggered by API calls or state changes."
 
 backend:
   - task: "SaaS Admin Dashboard Backend"

@@ -2688,7 +2688,7 @@ function MainApp() {
                                     autoComplete="off"
                                     spellCheck={false}
                                     autoCapitalize="off"
-                                    defaultValue=""
+                                    defaultValue={businessProfile?.target_audience || loadFromLocalStorage()?.target_audience || ""}
                                   placeholder="Décrivez votre audience cible"
                                   
                                   onBlur={() => handleVirtualKeyboardRefBlur('target_audience', targetAudienceRef)}

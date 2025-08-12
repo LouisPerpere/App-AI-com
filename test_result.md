@@ -523,7 +523,7 @@ frontend:
     implemented: true
     working: false
     file: "/app/frontend/src/App.js"
-    stuck_count: 6
+    stuck_count: 7
     priority: "high"
     needs_retesting: false
     status_history:

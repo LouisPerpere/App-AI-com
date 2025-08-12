@@ -460,11 +460,13 @@ function MainApp() {
         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
       });
       
-      // NE PAS mettre à jour businessProfile ici pour éviter le re-render qui cause le bug clavier
-      // Les états d'édition séparés maintiennent déjà les valeurs actuelles
+      // Mettre à jour businessProfile avec les données de la réponse pour maintenir la cohérence
+      if (response.data) {
+        setBusinessProfile(response.data);
+      }
       
       // Silent success - no toast to avoid interrupting user
-      console.log(`✅ Field ${field} auto-saved successfully`);
+      console.log(`✅ Field ${field} auto-saved successfully and businessProfile updated`);
     } catch (error) {
       console.error(`❌ Auto-save error for field ${field}:`, error);
       // Only show error toast

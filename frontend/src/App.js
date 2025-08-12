@@ -2608,7 +2608,7 @@ function MainApp() {
                                     autoComplete="off"
                                     spellCheck={false}
                                     autoCapitalize="off"
-                                    defaultValue=""
+                                    defaultValue={businessProfile?.business_type || loadFromLocalStorage()?.business_type || ""}
                                     placeholder="artisan / commerçant / service"
                                     onBlur={(e) => {
                                       console.log('🔥 onBlur - Type entreprise (virtual keyboard):', e.target.value);

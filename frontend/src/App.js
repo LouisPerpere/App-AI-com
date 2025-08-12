@@ -2360,7 +2360,7 @@ function MainApp() {
                       autoComplete="off"
                       spellCheck={false}
                       autoCapitalize="off"
-                      defaultValue=""
+                      defaultValue={businessProfile?.website_url || loadFromLocalStorage()?.website_url || ""}
                       placeholder="https://votre-site.com"
                       onBlur={() => {
                         handleVirtualKeyboardRefBlur('website_url', websiteUrlRef);

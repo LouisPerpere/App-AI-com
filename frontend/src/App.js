@@ -2627,12 +2627,12 @@ function MainApp() {
                                     value={editBusinessType}
                                     onChange={(e) => setEditBusinessType(e.target.value)}
                                     onBlur={(e) => {
-                                      console.log('🔥 HANDLER DÉCLENCHÉ - Type entreprise (desktop):', e.target.value);
+                                      console.log('🔥 onBlur - Type entreprise (desktop):', e.target.value);
                                       // PAS d'auto-save - cette fonction cause l'effacement du formulaire
-                                      // Test avec alert pour vérifier que le handler fonctionne
-                                      if (e.target.value) {
-                                        setTimeout(() => alert(`Type défini (desktop): ${e.target.value} (SANS auto-save)`), 100);
-                                      }
+                                    }}
+                                    onTouchEnd={(e) => {
+                                      // Solution iPadOS 18 aussi pour desktop au cas où
+                                      console.log('📱 onTouchEnd - Type entreprise (desktop):', e.target.value);
                                     }}
                                     placeholder="artisan / commerçant / service"
                                     className="bg-white"

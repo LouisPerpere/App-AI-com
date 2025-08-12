@@ -3180,11 +3180,19 @@ function MainApp() {
                             onBlur={(e) => {
                               console.log('🔥 onBlur - Priorité note (virtual keyboard):', e.target.value);
                               setNotePriority(e.target.value);
+                              // Save note priority separately (not part of business profile)
+                              const currentData = loadFromLocalStorage() || {};
+                              currentData.note_priority = e.target.value;
+                              saveToLocalStorage(currentData);
                             }}
                             onTouchEnd={(e) => {
                               // Solution iPadOS 18 - onTouchEnd fonctionne quand onBlur échoue
                               console.log('📱 onTouchEnd - Priorité note (SOLUTION iPadOS 18):', e.target.value);
                               setNotePriority(e.target.value);
+                              // Save note priority separately (not part of business profile)
+                              const currentData = loadFromLocalStorage() || {};
+                              currentData.note_priority = e.target.value;
+                              saveToLocalStorage(currentData);
                             }}
                           />
                         ) : (

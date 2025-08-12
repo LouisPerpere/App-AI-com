@@ -2612,18 +2612,12 @@ function MainApp() {
                                     defaultValue=""
                                     placeholder="artisan / commerçant / service"
                                     onBlur={(e) => {
-                                      console.log('🔥 onBlur DÉCLENCHÉ - Type entreprise (virtual keyboard):', e.target.value);
+                                      console.log('🔥 onBlur - Type entreprise (virtual keyboard):', e.target.value);
                                       setEditBusinessType(e.target.value);
                                     }}
                                     onTouchEnd={(e) => {
-                                      // Workaround pour iPadOS 18 - onBlur ne marche pas toujours
-                                      console.log('📱 onTouchEnd DÉCLENCHÉ - Type entreprise:', e.target.value);
-                                      setEditBusinessType(e.target.value);
-                                      setTimeout(() => alert(`TouchEnd: ${e.target.value} (SANS auto-save)`), 100);
-                                    }}
-                                    onFocusOut={(e) => {
-                                      // Alternative pour iPadOS
-                                      console.log('👀 onFocusOut DÉCLENCHÉ - Type entreprise:', e.target.value);
+                                      // Solution iPadOS 18 - onTouchEnd fonctionne quand onBlur échoue
+                                      console.log('📱 onTouchEnd - Type entreprise (SOLUTION iPadOS 18):', e.target.value);
                                       setEditBusinessType(e.target.value);
                                     }}
                                   />

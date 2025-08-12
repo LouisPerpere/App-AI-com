@@ -3144,9 +3144,13 @@ function MainApp() {
                             defaultValue=""
                             placeholder="faible / normale / élevée / urgente"
                             onBlur={(e) => {
+                              console.log('🔥 onBlur - Priorité note (virtual keyboard):', e.target.value);
                               setNotePriority(e.target.value);
-                              // PAS d'auto-save - pas nécessaire pour la priorité des notes
-                              console.log('Priorité définie (sans auto-save):', e.target.value);
+                            }}
+                            onTouchEnd={(e) => {
+                              // Solution iPadOS 18 - onTouchEnd fonctionne quand onBlur échoue
+                              console.log('📱 onTouchEnd - Priorité note (SOLUTION iPadOS 18):', e.target.value);
+                              setNotePriority(e.target.value);
                             }}
                           />
                         ) : (

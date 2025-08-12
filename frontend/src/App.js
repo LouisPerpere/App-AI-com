@@ -2825,7 +2825,7 @@ function MainApp() {
                                     autoComplete="off"
                                     spellCheck={false}
                                     autoCapitalize="off"
-                                    defaultValue=""
+                                    defaultValue={businessProfile?.budget_range || loadFromLocalStorage()?.budget_range || ""}
                                   placeholder="Ex: 500€, 1000-2000€, etc."
                                   
                                   onBlur={() => handleVirtualKeyboardRefBlur('budget_range', budgetRangeRef)}

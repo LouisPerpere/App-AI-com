@@ -2653,7 +2653,7 @@ function MainApp() {
                                     autoComplete="off"
                                     spellCheck={false}
                                     autoCapitalize="off"
-                                    defaultValue=""
+                                    defaultValue={businessProfile?.business_description || loadFromLocalStorage()?.business_description || ""}
                                   placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
                                   
                                   onBlur={() => handleVirtualKeyboardRefBlur('business_description', businessDescriptionRef)}

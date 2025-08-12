@@ -12,7 +12,7 @@ from datetime import datetime
 class WebsiteAnalysisAPITester:
     def __init__(self):
         # Use the production backend URL from frontend/.env
-        self.base_url = "https://9d9abc32-ca1b-47b1-bc5e-c34b81138b90.preview.emergentagent.com"
+        self.base_url = "https://48eac9a4-1f29-46f1-b3a6-a75e871ef31d.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.user_id = None

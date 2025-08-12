@@ -2581,10 +2581,13 @@ function MainApp() {
                                     spellCheck={false}
                                     autoCapitalize="off"
                                     defaultValue=""
-                                    autoCorrect={false}
-                                    autoComplete="off"
-                                    spellCheck={false}
-                                    autoCapitalize="off"
+                                    onFocus={(e) => {
+                                      // iPadOS 18 fix: délai avant activation
+                                      setTimeout(() => {
+                                        console.log('🔥 Focus delayed activation (iPadOS 18 fix)');
+                                        e.target.readOnly = false;
+                                      }, 150);
+                                    }}
                                     onBlur={() => handleVirtualKeyboardRefBlur('business_name', businessNameRef)}
                                     onTouchEnd={() => {
                                       // Solution iPadOS 18 - onTouchEnd pour business_name

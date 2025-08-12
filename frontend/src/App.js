@@ -2581,6 +2581,16 @@ function MainApp() {
                                     spellCheck={false}
                                     autoCapitalize="off"
                                     defaultValue=""
+                                    readOnly={true}
+                                    onTouchStart={(e) => {
+                                      // iPadOS 18 solution: touchstart to focus
+                                      console.log('👆 TouchStart - Preparing input (iPadOS 18)');
+                                      setTimeout(() => {
+                                        e.target.readOnly = false;
+                                        e.target.focus();
+                                        console.log('🔥 Input activated after touchstart (iPadOS 18)');
+                                      }, 200);
+                                    }}
                                     onFocus={(e) => {
                                       // iPadOS 18 fix: délai avant activation
                                       setTimeout(() => {
@@ -2588,11 +2598,15 @@ function MainApp() {
                                         e.target.readOnly = false;
                                       }, 150);
                                     }}
-                                    onBlur={() => handleVirtualKeyboardRefBlur('business_name', businessNameRef)}
-                                    onTouchEnd={() => {
-                                      // Solution iPadOS 18 - onTouchEnd pour business_name
-                                      console.log('📱 onTouchEnd - Business Name (SOLUTION iPadOS 18)');
+                                    onBlur={() => {
+                                      console.log('💾 Blur - Saving business name');
                                       handleVirtualKeyboardRefBlur('business_name', businessNameRef);
+                                      // Remettre en readonly pour éviter les bugs
+                                      setTimeout(() => {
+                                        if (businessNameRef.current) {
+                                          businessNameRef.current.readOnly = true;
+                                        }
+                                      }, 100);
                                     }}
                                   />
                                 ) : (

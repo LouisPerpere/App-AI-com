@@ -572,7 +572,18 @@ function MainApp() {
       actualValue = value;
     }
     console.log(`💾 Saving note ${field} on blur:`, actualValue);
-    // Ici on pourrait ajouter une logique de sauvegarde spécifique aux notes si nécessaire
+    
+    // Sauvegarder en localStorage pour éviter la perte de données
+    const currentData = loadFromLocalStorage() || {};
+    currentData[`note_${field}`] = actualValue;
+    saveToLocalStorage(currentData);
+    
+    // Mettre à jour l'état React aussi
+    if (field === 'title') {
+      setNoteTitle(actualValue);
+    } else if (field === 'content') {
+      setNoteContent(actualValue);
+    }
   }, [isVirtualKeyboardDevice]);
 
   // Auto-save function

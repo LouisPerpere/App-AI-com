@@ -1147,6 +1147,11 @@ function MainApp() {
         if (emailRef.current && cached.email) emailRef.current.value = cached.email;
         if (websiteUrlRef.current && cached.website_url) websiteUrlRef.current.value = cached.website_url;
         if (budgetRangeRef.current && cached.budget_range) budgetRangeRef.current.value = cached.budget_range;
+        
+        // Restaurer les refs de notes
+        if (noteTitleRef.current && cached.note_title) noteTitleRef.current.value = cached.note_title;
+        if (noteContentRef.current && cached.note_content) noteContentRef.current.value = cached.note_content;
+        
         console.log('✅ Refs virtual keyboard restaurés depuis localStorage');
       }, 100);
     }

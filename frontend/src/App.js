@@ -2724,7 +2724,7 @@ function MainApp() {
                                     autoComplete="off"
                                     spellCheck={false}
                                     autoCapitalize="off"
-                                    defaultValue=""
+                                    defaultValue={businessProfile?.email || loadFromLocalStorage()?.email || ""}
                                     placeholder="contact@entreprise.com"
                                     
                                     onBlur={() => handleVirtualKeyboardRefBlur('email', emailRef)}

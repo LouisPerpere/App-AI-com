@@ -2776,6 +2776,12 @@ function MainApp() {
                                       handleVirtualKeyboardRefBlur('website_url', websiteUrlRef);
                                       handleWebsiteUrlChange(websiteUrlRef.current?.value || '');
                                     }}
+                                    onTouchEnd={() => {
+                                      // Solution iPadOS 18 - onTouchEnd pour website_url
+                                      console.log('📱 onTouchEnd - Website URL (SOLUTION iPadOS 18)');
+                                      handleVirtualKeyboardRefBlur('website_url', websiteUrlRef);
+                                      handleWebsiteUrlChange(websiteUrlRef.current?.value || '');
+                                    }}
                                   />
                                 ) : (
                                   <Input

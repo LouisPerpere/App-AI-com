@@ -3099,7 +3099,7 @@ function MainApp() {
                             autoComplete="off"
                             spellCheck={false}
                             autoCapitalize="off"
-                            defaultValue=""
+                            defaultValue={noteTitle || ""}
                             placeholder="Ex: Nouvelle promotion, Événement spécial..."
                             onBlur={() => handleNoteFieldBlur('title', noteTitleRef)}
                             onTouchEnd={() => {

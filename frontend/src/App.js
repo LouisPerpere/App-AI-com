@@ -3136,7 +3136,7 @@ function MainApp() {
                             autoComplete="off"
                             spellCheck={false}
                             autoCapitalize="off"
-                            defaultValue=""
+                            defaultValue={noteContent || ""}
                             placeholder="Décrivez les détails importants que vous voulez voir apparaître dans vos posts..."
                             onBlur={() => handleNoteFieldBlur('content', noteContentRef)}
                             onTouchEnd={() => {

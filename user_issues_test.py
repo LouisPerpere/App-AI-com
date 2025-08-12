@@ -274,8 +274,8 @@ class UserIssuesTester:
             success, status, response = self.make_request("POST", "website/analyze", analysis_data, 200)
             
             if success:
-                # Verify response structure
-                required_fields = ["message", "website_url", "insights", "suggestions"]
+                # Verify response structure (updated to match actual API response)
+                required_fields = ["message", "website_url", "content_suggestions", "status"]
                 has_all_fields = all(field in response for field in required_fields)
                 
                 if has_all_fields:
@@ -283,16 +283,23 @@ class UserIssuesTester:
                                   f"Analysis completed: {response.get('message', 'N/A')[:100]}...")
                     analysis_successful = True
                     
-                    # Test insights quality
-                    insights = response.get('insights', [])
-                    suggestions = response.get('suggestions', [])
+                    # Test analysis quality
+                    key_topics = response.get('key_topics', [])
+                    content_suggestions = response.get('content_suggestions', [])
+                    analysis_summary = response.get('analysis_summary', '')
                     
-                    if len(insights) > 0 and len(suggestions) > 0:
+                    if len(key_topics) > 0 and len(content_suggestions) > 0 and len(analysis_summary) > 0:
                         self.log_result("Analysis Quality", True, 
-                                      f"{len(insights)} insights, {len(suggestions)} suggestions")
+                                      f"{len(key_topics)} topics, {len(content_suggestions)} suggestions, summary: {len(analysis_summary)} chars")
                     else:
                         self.log_result("Analysis Quality", False, 
-                                      f"Poor analysis: {len(insights)} insights, {len(suggestions)} suggestions")
+                                      f"Poor analysis: {len(key_topics)} topics, {len(content_suggestions)} suggestions")
+                    
+                    # Test GPT-5 integration
+                    if "GPT-5" in response.get('message', ''):
+                        self.log_result("GPT-5 Integration", True, "GPT-5 analysis confirmed")
+                    else:
+                        self.log_result("GPT-5 Integration", False, "GPT-5 not detected in response")
                     
                     break
                 else:

@@ -2663,6 +2663,11 @@ function MainApp() {
                                   placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
                                   
                                   onBlur={() => handleVirtualKeyboardRefBlur('business_description', businessDescriptionRef)}
+                                  onTouchEnd={() => {
+                                    // Solution iPadOS 18 - onTouchEnd pour business_description
+                                    console.log('📱 onTouchEnd - Business Description (SOLUTION iPadOS 18)');
+                                    handleVirtualKeyboardRefBlur('business_description', businessDescriptionRef);
+                                  }}
                                 />
                               ) : (
                                 <Textarea

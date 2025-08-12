@@ -3196,19 +3196,23 @@ function MainApp() {
                             placeholder="faible / normale / élevée / urgente"
                             onBlur={(e) => {
                               console.log('🔥 onBlur - Priorité note (virtual keyboard):', e.target.value);
-                              setNotePriority(e.target.value);
-                              // Save note priority separately (not part of business profile)
+                              const newValue = e.target.value;
+                              setNotePriority(newValue);
+                              
+                              // Sauvegarder immédiatement en localStorage pour éviter la perte
                               const currentData = loadFromLocalStorage() || {};
-                              currentData.note_priority = e.target.value;
+                              currentData.note_priority = newValue;
                               saveToLocalStorage(currentData);
                             }}
                             onTouchEnd={(e) => {
                               // Solution iPadOS 18 - onTouchEnd fonctionne quand onBlur échoue
                               console.log('📱 onTouchEnd - Priorité note (SOLUTION iPadOS 18):', e.target.value);
-                              setNotePriority(e.target.value);
-                              // Save note priority separately (not part of business profile)
+                              const newValue = e.target.value;
+                              setNotePriority(newValue);
+                              
+                              // Sauvegarder immédiatement en localStorage pour éviter la perte
                               const currentData = loadFromLocalStorage() || {};
-                              currentData.note_priority = e.target.value;
+                              currentData.note_priority = newValue;
                               saveToLocalStorage(currentData);
                             }}
                           />

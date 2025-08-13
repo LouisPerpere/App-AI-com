@@ -2864,8 +2864,7 @@ function MainApp() {
                                     type="url"
                                     value={editWebsiteUrl}
                                     onChange={(e) => {
-                                      handleFieldChange('website_url', e.target.value, setEditWebsiteUrl);
-                                      handleWebsiteUrlChange(e.target.value);
+                                      setEditWebsiteUrl(e.target.value);
                                     }}
                                     onBlur={(e) => handleFieldBlur('website_url', e.target.value)}
                                     placeholder="https://votre-site.com"

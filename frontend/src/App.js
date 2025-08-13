@@ -831,6 +831,9 @@ function MainApp() {
               console.log('🔄 Fresh data from DB:', response.data);
               setBusinessProfile(response.data);
               
+              // ✅ IMPORTANT: Sauvegarder aussi en localStorage pour la persistance
+              saveToLocalStorage(response.data);
+              
               // Re-sync avec localStorage ET champs
               if (isVirtualKeyboardDevice) {
                 setTimeout(() => {

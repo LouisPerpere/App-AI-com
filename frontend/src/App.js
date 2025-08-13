@@ -2710,15 +2710,8 @@ function MainApp() {
                                   <Input
                                     type="text"
                                     value={editBusinessType}
-                                    onChange={(e) => setEditBusinessType(e.target.value)}
-                                    onBlur={(e) => {
-                                      console.log('🔥 onBlur - Type entreprise (desktop):', e.target.value);
-                                      // PAS d'auto-save - cette fonction cause l'effacement du formulaire
-                                    }}
-                                    onTouchEnd={(e) => {
-                                      // Solution iPadOS 18 aussi pour desktop au cas où
-                                      console.log('📱 onTouchEnd - Type entreprise (desktop):', e.target.value);
-                                    }}
+                                    onChange={(e) => handleFieldChange('business_type', e.target.value, setEditBusinessType)}
+                                    onBlur={(e) => handleFieldBlur('business_type', e.target.value)}
                                     placeholder="artisan / commerçant / service"
                                     className="bg-white"
                                   />

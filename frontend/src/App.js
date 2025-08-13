@@ -2845,8 +2845,12 @@ function MainApp() {
                                     autoComplete="off"
                                     spellCheck={false}
                                     autoCapitalize="off"
-                                    defaultValue={businessProfile?.website_url || loadFromLocalStorage()?.website_url || ""}
+                                    value={editWebsiteUrl}
                                     placeholder="https://votre-site.com"
+                                    onChange={(e) => {
+                                      setEditWebsiteUrl(e.target.value);
+                                      handleWebsiteUrlChange(e.target.value);
+                                    }}
                                     onBlur={() => {
                                       handleVirtualKeyboardRefBlur('website_url', websiteUrlRef);
                                       handleWebsiteUrlChange(websiteUrlRef.current?.value || '');

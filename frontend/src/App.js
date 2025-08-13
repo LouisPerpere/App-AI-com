@@ -1157,6 +1157,7 @@ function MainApp() {
     if (isVirtualKeyboardDevice) {
       setTimeout(() => {
         if (businessNameRef.current && cached.business_name) businessNameRef.current.value = cached.business_name;
+        if (businessTypeRef.current && cached.business_type) businessTypeRef.current.value = cached.business_type;
         if (businessDescriptionRef.current && cached.business_description) businessDescriptionRef.current.value = cached.business_description;
         if (targetAudienceRef.current && cached.target_audience) targetAudienceRef.current.value = cached.target_audience;
         if (emailRef.current && cached.email) emailRef.current.value = cached.email;

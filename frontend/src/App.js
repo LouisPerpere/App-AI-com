@@ -2862,7 +2862,10 @@ function MainApp() {
                                     onChange={(e) => {
                                       setEditWebsiteUrl(e.target.value);
                                     }}
-                                    onBlur={(e) => handleFieldBlur('website_url', e.target.value)}
+                                    onBlur={(e) => {
+                                      console.log('💾 Desktop Website URL onBlur:', e.target.value);
+                                      autoSaveField('website_url', e.target.value);
+                                    }}}
                                     placeholder="https://votre-site.com"
                                     className="bg-white"
                                   />

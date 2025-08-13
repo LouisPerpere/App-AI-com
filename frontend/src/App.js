@@ -537,6 +537,13 @@ function MainApp() {
 
   const handleFieldBlur = useCallback((field, value) => {
     console.log(`💾 Saving desktop field ${field} on blur:`, value);
+    
+    // Synchroniser avec localStorage pour la persistance
+    const currentData = loadFromLocalStorage() || {};
+    currentData[field] = value;
+    saveToLocalStorage(currentData);
+    
+    // Sauvegarder en base de données
     autoSaveField(field, value);
   }, []);
 

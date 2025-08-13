@@ -844,6 +844,7 @@ function MainApp() {
               if (isVirtualKeyboardDevice) {
                 setTimeout(() => {
                   if (businessNameRef.current) businessNameRef.current.value = response.data.business_name || '';
+                  if (businessTypeRef.current) businessTypeRef.current.value = response.data.business_type || '';
                   if (businessDescriptionRef.current) businessDescriptionRef.current.value = response.data.business_description || '';
                   if (targetAudienceRef.current) targetAudienceRef.current.value = response.data.target_audience || '';
                   if (emailRef.current) emailRef.current.value = response.data.email || '';

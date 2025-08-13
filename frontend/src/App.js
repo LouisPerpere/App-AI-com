@@ -1313,7 +1313,10 @@ function MainApp() {
       if (response.status === 200 || response.status === 201) {
         toast.success('Note ajoutée avec succès !');
         
-        // Réinitialiser les champs selon l'approche
+        // D'abord recharger la liste des notes
+        loadNotes(); 
+        
+        // PUIS réinitialiser les champs selon l'approche
         if (isVirtualKeyboardDevice) {
           if (noteTitleRef.current) noteTitleRef.current.value = '';
           if (noteContentRef.current) noteContentRef.current.value = '';
@@ -1321,16 +1324,15 @@ function MainApp() {
           setNoteTitle('');
           setNoteContent('');
         }
-        setNotePriority('normal');
+        setNotePriority('normale'); // Valeur par défaut plus logique
         
         // Nettoyer localStorage aussi
         const currentData = loadFromLocalStorage() || {};
         currentData.note_title = '';
         currentData.note_content = '';
-        currentData.note_priority = 'normal';
+        currentData.note_priority = 'normale';
         saveToLocalStorage(currentData);
         
-        loadNotes(); // Recharger la liste des notes
         console.log('✅ Note ajoutée et champs réinitialisés (iOS compatible)');
       }
     } catch (error) {

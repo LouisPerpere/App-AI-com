@@ -2671,6 +2671,7 @@ function MainApp() {
                                 <Label className="text-sm font-medium text-gray-700">Type d'entreprise</Label>
                                 {isVirtualKeyboardDevice ? (
                                   <input
+                                    ref={businessTypeRef}
                                     type="text"
                                     className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                                     style={{ fontSize: '16px' }}
@@ -2680,22 +2681,14 @@ function MainApp() {
                                     autoCapitalize="off"
                                     defaultValue={businessProfile?.business_type || loadFromLocalStorage()?.business_type || ""}
                                     placeholder="artisan / commerçant / service"
-                                    onBlur={(e) => {
-                                      console.log('🔥 onBlur - Type entreprise (virtual keyboard):', e.target.value);
-                                      setEditBusinessType(e.target.value);
-                                      // Sauvegarder avec localStorage
-                                      const currentData = loadFromLocalStorage() || {};
-                                      currentData.business_type = e.target.value;
-                                      saveToLocalStorage(currentData);
+                                    onBlur={() => {
+                                      console.log('💾 Blur - Saving business type');
+                                      handleVirtualKeyboardRefBlur('business_type', businessTypeRef);
                                     }}
-                                    onTouchEnd={(e) => {
-                                      // Solution iPadOS 18 - onTouchEnd 
-                                      console.log('📱 onTouchEnd - Type entreprise (SOLUTION iPadOS 18):', e.target.value);
-                                      setEditBusinessType(e.target.value);
-                                      // Sauvegarder avec localStorage
-                                      const currentData = loadFromLocalStorage() || {};
-                                      currentData.business_type = e.target.value;
-                                      saveToLocalStorage(currentData);
+                                    onTouchEnd={() => {
+                                      // Solution iPadOS 18 - onTouchEnd fonctionne quand onBlur échoue
+                                      console.log('📱 onTouchEnd - Business Type (SOLUTION iPadOS 18)');
+                                      handleVirtualKeyboardRefBlur('business_type', businessTypeRef);
                                     }}
                                   />
                                 ) : (

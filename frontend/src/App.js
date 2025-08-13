@@ -2846,17 +2846,13 @@ function MainApp() {
                                       setEditWebsiteUrl(e.target.value);
                                     }}
                                     onBlur={() => {
-                                      const currentValue = editWebsiteUrl;
-                                      console.log('💾 Website URL onBlur:', currentValue);
-                                      handleWebsiteUrlChange(currentValue);
-                                      autoSaveField('website_url', currentValue);
+                                      console.log('💾 Website URL onBlur:', editWebsiteUrl);
+                                      autoSaveField('website_url', editWebsiteUrl);
                                     }}
                                     onTouchEnd={() => {
                                       // Solution iPadOS 18 - onTouchEnd pour website_url
-                                      const currentValue = editWebsiteUrl;
-                                      console.log('📱 onTouchEnd - Website URL (SOLUTION iPadOS 18):', currentValue);
-                                      handleWebsiteUrlChange(currentValue);
-                                      autoSaveField('website_url', currentValue);
+                                      console.log('📱 onTouchEnd - Website URL (SOLUTION iPadOS 18):', editWebsiteUrl);
+                                      autoSaveField('website_url', editWebsiteUrl);
                                     }}
                                   />
                                 ) : (

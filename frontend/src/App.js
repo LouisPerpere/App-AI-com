@@ -463,6 +463,8 @@ function MainApp() {
       // Mettre à jour businessProfile avec les données de la réponse pour maintenir la cohérence
       if (response.data) {
         setBusinessProfile(response.data);
+        // Aussi sauvegarder en localStorage pour la persistance
+        saveToLocalStorage(response.data);
       }
       
       // Silent success - no toast to avoid interrupting user

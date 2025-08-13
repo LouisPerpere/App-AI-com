@@ -1826,14 +1826,28 @@ function MainApp() {
       }, 5000);
 
     } catch (error) {
-      console.error('Website analysis error:', error);
-      setAnalysisStatus('error');
-      setAnalysisMessage('❌ Analyse non concluante, vérifiez votre site web');
+      console.error('❌ Website analysis error:', error);
+      console.error('❌ Error response:', error.response?.data);
+      console.error('❌ Error status:', error.response?.status);
       
-      // Masquer le message d'erreur après 5 secondes
+      let errorMessage = '❌ Analyse non concluante, vérifiez votre site web';
+      
+      // Plus de détails sur l'erreur pour debug
+      if (error.response?.status === 401) {
+        errorMessage = '❌ Erreur d\'authentification - Reconnectez-vous';
+      } else if (error.response?.status === 400) {
+        errorMessage = '❌ URL invalide - Vérifiez le format (https://...)';
+      } else if (error.response?.data?.detail) {
+        errorMessage = `❌ ${error.response.data.detail}`;
+      }
+      
+      setAnalysisStatus('error');
+      setAnalysisMessage(errorMessage);
+      
+      // Masquer le message d'erreur après 8 secondes pour avoir le temps de lire
       setTimeout(() => {
         setAnalysisMessage('');
-      }, 5000);
+      }, 8000);
     } finally {
       setIsAnalyzingWebsite(false);
       

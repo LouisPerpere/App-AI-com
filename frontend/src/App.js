@@ -2847,14 +2847,17 @@ function MainApp() {
                                       handleWebsiteUrlChange(e.target.value);
                                     }}
                                     onBlur={() => {
-                                      handleVirtualKeyboardRefBlur('website_url', websiteUrlRef);
-                                      handleWebsiteUrlChange(websiteUrlRef.current?.value || '');
+                                      const currentValue = editWebsiteUrl;
+                                      console.log('💾 Website URL onBlur:', currentValue);
+                                      handleWebsiteUrlChange(currentValue);
+                                      autoSaveField('website_url', currentValue);
                                     }}
                                     onTouchEnd={() => {
                                       // Solution iPadOS 18 - onTouchEnd pour website_url
-                                      console.log('📱 onTouchEnd - Website URL (SOLUTION iPadOS 18)');
-                                      handleVirtualKeyboardRefBlur('website_url', websiteUrlRef);
-                                      handleWebsiteUrlChange(websiteUrlRef.current?.value || '');
+                                      const currentValue = editWebsiteUrl;
+                                      console.log('📱 onTouchEnd - Website URL (SOLUTION iPadOS 18):', currentValue);
+                                      handleWebsiteUrlChange(currentValue);
+                                      autoSaveField('website_url', currentValue);
                                     }}
                                   />
                                 ) : (

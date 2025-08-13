@@ -532,6 +532,7 @@ function MainApp() {
     setterFunction(value);
     syncFieldWithStorage(field, value, setterFunction);
     console.log(`🖥️ Desktop Field ${field} changed:`, value);
+    console.log(`🔍 localStorage after change:`, loadFromLocalStorage());
   }, []);
 
   const handleFieldBlur = useCallback((field, value) => {

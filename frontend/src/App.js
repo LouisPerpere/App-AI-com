@@ -895,13 +895,7 @@ function MainApp() {
     checkAuth();
   }, []);
 
-  // Load notes when user is authenticated
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      console.log('🔄 Loading notes for authenticated user');
-      loadNotes();
-    }
-  }, [isAuthenticated, user]);
+
 
   // Initialize business fields when business profile is loaded (only on first load, not on updates)
   useEffect(() => {

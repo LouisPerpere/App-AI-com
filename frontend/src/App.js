@@ -1261,10 +1261,15 @@ function MainApp() {
 
   const loadNotes = async () => {
     try {
-      const response = await axios.get(`${API}/notes`);  
+      console.log('🔄 Loading notes...');
+      const response = await axios.get(`${API}/notes`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      });  
+      console.log('📝 Notes loaded:', response.data);
       setNotes(response.data);
     } catch (error) {
-      console.error('Error loading notes:', error);
+      console.error('❌ Error loading notes:', error);
+      console.error('❌ Error response:', error.response?.data);
     }
   };
 

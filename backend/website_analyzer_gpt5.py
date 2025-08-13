@@ -156,22 +156,13 @@ def extract_website_content(url: str) -> dict:
         raise HTTPException(status_code=500, detail="Error processing website content")
 
 async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
-    """Analyze website content using GPT-5 via emergentintegrations"""
+    """Analyze website content using GPT-5 via emergentintegrations (with OpenAI fallback)"""
     
     if not API_KEY:
         logging.warning("No API key available, using fallback analysis")
         return create_fallback_analysis(content_data, website_url, "no_api_key")
     
     try:
-        # Initialize GPT-5 chat
-        chat = LlmChat(
-            api_key=API_KEY,
-            session_id=f"website_analysis_{uuid.uuid4()}",
-            system_message="""Tu es un expert en analyse de contenu web et marketing digital. 
-            Tu analyses les sites web pour comprendre leur positionnement, leurs services, et leur audience cible.
-            Tu réponds UNIQUEMENT avec du JSON valide selon le format demandé."""
-        ).with_model("openai", "gpt-5")  # Using GPT-5!
-        
         # Prepare analysis prompt
         prompt = f"""
         Analyse ce site web et génère une analyse marketing complète en JSON:
@@ -198,26 +189,72 @@ async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
         }}
         """
         
-        # Create user message
-        user_message = UserMessage(text=prompt)
-        
-        # Send message to GPT-5
-        response = await chat.send_message(user_message)
+        # Try emergentintegrations first, fallback to OpenAI
+        if EMERGENT_AVAILABLE:
+            try:
+                # Use emergentintegrations GPT-5
+                logging.info("🚀 Using emergentintegrations GPT-5")
+                chat = LlmChat(
+                    api_key=API_KEY,
+                    session_id=f"website_analysis_{uuid.uuid4()}",
+                    system_message="""Tu es un expert en analyse de contenu web et marketing digital. 
+                    Tu analyses les sites web pour comprendre leur positionnement, leurs services, et leur audience cible.
+                    Tu réponds UNIQUEMENT avec du JSON valide selon le format demandé."""
+                ).with_model("openai", "gpt-4o")  # Using GPT-4o (latest available)
+                
+                # Create user message
+                user_message = UserMessage(text=prompt)
+                
+                # Send message to GPT
+                response = await chat.send_message(user_message)
+                
+                logging.info("✅ emergentintegrations GPT analysis completed")
+                
+            except Exception as e:
+                logging.warning(f"emergentintegrations failed: {e}, falling back to OpenAI")
+                response = await analyze_with_openai_direct(prompt)
+        else:
+            # Use direct OpenAI
+            logging.info("🔄 Using direct OpenAI integration")
+            response = await analyze_with_openai_direct(prompt)
         
         # Parse JSON response
         analysis_result = json.loads(response)
         
-        logging.info(f"✅ GPT-5 analysis completed for {website_url}")
+        logging.info(f"✅ GPT analysis completed for {website_url}")
         return analysis_result
         
     except json.JSONDecodeError as e:
-        logging.error(f"❌ GPT-5 JSON parsing error: {e}")
+        logging.error(f"❌ JSON parsing error: {e}")
         logging.error(f"Raw response: {response}")
         return create_fallback_analysis(content_data, website_url, "json_error")
         
     except Exception as e:
-        logging.error(f"❌ GPT-5 analysis error: {e}")
-        return create_fallback_analysis(content_data, website_url, "gpt5_error")
+        logging.error(f"❌ GPT analysis error: {e}")
+        return create_fallback_analysis(content_data, website_url, "gpt_error")
+
+async def analyze_with_openai_direct(prompt: str) -> str:
+    """Direct OpenAI API call as fallback"""
+    try:
+        client = OpenAI(api_key=API_KEY)
+        
+        response = client.chat.completions.create(
+            model="gpt-4o",  # Use latest available model
+            messages=[
+                {"role": "system", "content": """Tu es un expert en analyse de contenu web et marketing digital. 
+                Tu analyses les sites web pour comprendre leur positionnement, leurs services, et leur audience cible.
+                Tu réponds UNIQUEMENT avec du JSON valide selon le format demandé."""},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=1500
+        )
+        
+        return response.choices[0].message.content.strip()
+        
+    except Exception as e:
+        logging.error(f"Direct OpenAI call failed: {e}")
+        raise
 
 def create_fallback_analysis(content_data: dict, website_url: str, reason: str = "fallback") -> dict:
     """Create a smart fallback analysis when GPT-5 is not available"""

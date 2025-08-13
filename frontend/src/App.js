@@ -1755,8 +1755,13 @@ function MainApp() {
 
   // Enhanced website analysis functions
   const analyzeWebsite = async (forceReanalysis = false) => {
-    // Utiliser directement editWebsiteUrl qui est maintenant unifié pour tous les appareils
-    const websiteUrl = editWebsiteUrl;
+    // Lire l'URL selon l'approche (refs pour virtual keyboard, state pour desktop)
+    let websiteUrl;
+    if (isVirtualKeyboardDevice && websiteUrlRef.current) {
+      websiteUrl = websiteUrlRef.current.value;
+    } else {
+      websiteUrl = editWebsiteUrl;
+    }
     
     console.log('🔍 Website Analysis - URL to analyze:', websiteUrl);
 

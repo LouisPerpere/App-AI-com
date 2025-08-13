@@ -19,8 +19,19 @@ from dotenv import load_dotenv
 from fastapi import Header
 from typing import Optional
 
-# Import emergentintegrations for GPT-5
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+# Import emergentintegrations for GPT-5 (with fallback to OpenAI)
+try:
+    from emergentintegrations.llm.chat import LlmChat, UserMessage
+    EMERGENT_AVAILABLE = True
+    print("✅ emergentintegrations module imported successfully")
+except ImportError as e:
+    print(f"⚠️ emergentintegrations not available: {e}")
+    print("📌 Falling back to direct OpenAI integration")
+    EMERGENT_AVAILABLE = False
+    
+    # Fallback imports for OpenAI
+    import openai
+    from openai import OpenAI
 
 # Simple User model for compatibility
 class User:

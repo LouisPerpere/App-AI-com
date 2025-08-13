@@ -818,8 +818,12 @@ function MainApp() {
       // D'abord restaurer depuis localStorage pour une réponse immédiate
       restoreFieldsFromStorage();
       
+      // Charger les notes immédiatement
+      console.log('🔄 Loading notes for authenticated user');
+      loadNotes();
+      
       // Puis recharger depuis la DB pour s'assurer que les données sont à jour
-      setTimeout(() => {
+      setTimeout(async () => {
         if (!businessProfile) {
           console.log('📡 Force loading business profile from database');
           loadBusinessProfile();

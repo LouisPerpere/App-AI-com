@@ -12,6 +12,7 @@ from pymongo.errors import ConnectionFailure, OperationFailure
 import bcrypt
 import jwt
 from bson import ObjectId
+import urllib.parse
 
 class DatabaseManager:
     """MongoDB database manager for Claire et Marcus"""
@@ -19,6 +20,29 @@ class DatabaseManager:
     def __init__(self):
         """Initialize database connection"""
         self.mongo_url = os.getenv("MONGO_URL", "mongodb://localhost:27017")
+        
+        # Fix MongoDB URL encoding for special characters (Render compatibility)
+        if "mongodb+srv://" in self.mongo_url or "@" in self.mongo_url:
+            # Parse and re-encode URL components to handle special characters
+            try:
+                from urllib.parse import urlparse, urlunparse, quote_plus
+                parsed = urlparse(self.mongo_url)
+                if parsed.username and parsed.password:
+                    # Re-encode username and password
+                    encoded_username = quote_plus(parsed.username)
+                    encoded_password = quote_plus(parsed.password)
+                    # Reconstruct URL with encoded credentials
+                    netloc = f"{encoded_username}:{encoded_password}@{parsed.hostname}"
+                    if parsed.port:
+                        netloc += f":{parsed.port}"
+                    self.mongo_url = urlunparse((
+                        parsed.scheme, netloc, parsed.path, 
+                        parsed.params, parsed.query, parsed.fragment
+                    ))
+                    print(f"✅ MongoDB URL credentials encoded for RFC 3986 compliance")
+            except Exception as e:
+                print(f"⚠️ MongoDB URL encoding warning: {e}")
+        
         self.db_name = os.getenv("DB_NAME", "claire_marcus")
         self.jwt_secret = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-this-in-production")
         

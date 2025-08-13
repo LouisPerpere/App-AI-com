@@ -1285,6 +1285,8 @@ function MainApp() {
       contentValue = noteContent;
     }
 
+    console.log('📝 Adding note:', { titleValue, contentValue, priority: notePriority });
+
     if (!titleValue || !contentValue) {
       toast.error('Veuillez remplir tous les champs requis');
       return;
@@ -1295,7 +1297,11 @@ function MainApp() {
         title: titleValue,
         content: contentValue,
         priority: notePriority
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
       });
+
+      console.log('✅ Note added successfully:', response.data);
 
       if (response.status === 200 || response.status === 201) {
         toast.success('Note ajoutée avec succès !');
@@ -1309,6 +1315,13 @@ function MainApp() {
           setNoteContent('');
         }
         setNotePriority('normal');
+        
+        // Nettoyer localStorage aussi
+        const currentData = loadFromLocalStorage() || {};
+        currentData.note_title = '';
+        currentData.note_content = '';
+        currentData.note_priority = 'normal';
+        saveToLocalStorage(currentData);
         
         loadNotes(); // Recharger la liste des notes
         console.log('✅ Note ajoutée et champs réinitialisés (iOS compatible)');

@@ -3,7 +3,7 @@ services:
     name: claire-marcus-api
     env: python
     region: oregon
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install --extra-index-url https://d33sy5i8bnduwe.cloudfront.net/simple/ -r requirements.txt
     startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
     plan: free
     healthCheckPath: /api/health

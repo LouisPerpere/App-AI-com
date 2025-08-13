@@ -2844,7 +2844,6 @@ function MainApp() {
                                     placeholder="https://votre-site.com"
                                     onChange={(e) => {
                                       setEditWebsiteUrl(e.target.value);
-                                      handleWebsiteUrlChange(e.target.value);
                                     }}
                                     onBlur={() => {
                                       const currentValue = editWebsiteUrl;

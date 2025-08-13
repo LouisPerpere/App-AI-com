@@ -2840,32 +2840,24 @@ function MainApp() {
                                     autoComplete="off"
                                     spellCheck={false}
                                     autoCapitalize="off"
-                                    value={editWebsiteUrl}
+                                    defaultValue={businessProfile?.website_url || loadFromLocalStorage()?.website_url || ""}
                                     placeholder="https://votre-site.com"
-                                    onChange={(e) => {
-                                      setEditWebsiteUrl(e.target.value);
-                                    }}
                                     onBlur={() => {
-                                      console.log('💾 Website URL onBlur:', editWebsiteUrl);
-                                      autoSaveField('website_url', editWebsiteUrl);
+                                      console.log('💾 Blur - Saving website URL');
+                                      handleVirtualKeyboardRefBlur('website_url', websiteUrlRef);
                                     }}
                                     onTouchEnd={() => {
                                       // Solution iPadOS 18 - onTouchEnd pour website_url
-                                      console.log('📱 onTouchEnd - Website URL (SOLUTION iPadOS 18):', editWebsiteUrl);
-                                      autoSaveField('website_url', editWebsiteUrl);
+                                      console.log('📱 onTouchEnd - Website URL (SOLUTION iPadOS 18)');
+                                      handleVirtualKeyboardRefBlur('website_url', websiteUrlRef);
                                     }}
                                   />
                                 ) : (
                                   <Input
                                     type="url"
                                     value={editWebsiteUrl}
-                                    onChange={(e) => {
-                                      setEditWebsiteUrl(e.target.value);
-                                    }}
-                                    onBlur={(e) => {
-                                      console.log('💾 Desktop Website URL onBlur:', e.target.value);
-                                      autoSaveField('website_url', e.target.value);
-                                    }}
+                                    onChange={(e) => handleFieldChange('website_url', e.target.value, setEditWebsiteUrl)}
+                                    onBlur={(e) => handleFieldBlur('website_url', e.target.value)}
                                     placeholder="https://votre-site.com"
                                     className="bg-white"
                                   />

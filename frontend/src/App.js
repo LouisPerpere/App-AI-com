@@ -653,6 +653,7 @@ function MainApp() {
   
   // Business profile editing - REFS pour iOS (bypass React state)
   const businessNameRef = useRef(null);
+  const businessTypeRef = useRef(null);
   const businessDescriptionRef = useRef(null);
   const targetAudienceRef = useRef(null);
   const emailRef = useRef(null);

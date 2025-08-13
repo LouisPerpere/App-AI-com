@@ -2677,34 +2677,24 @@ function MainApp() {
                                     autoComplete="off"
                                     spellCheck={false}
                                     autoCapitalize="off"
-                                    defaultValue={loadFromLocalStorage()?.business_type || businessProfile?.business_type || ""}
+                                    defaultValue={businessProfile?.business_type || loadFromLocalStorage()?.business_type || ""}
                                     placeholder="artisan / commerçant / service"
                                     onBlur={(e) => {
                                       console.log('🔥 onBlur - Type entreprise (virtual keyboard):', e.target.value);
-                                      const newValue = e.target.value;
-                                      setEditBusinessType(newValue);
-                                      
-                                      // Sauvegarder immédiatement en localStorage pour éviter la perte
+                                      setEditBusinessType(e.target.value);
+                                      // Sauvegarder avec localStorage
                                       const currentData = loadFromLocalStorage() || {};
-                                      currentData.business_type = newValue;
+                                      currentData.business_type = e.target.value;
                                       saveToLocalStorage(currentData);
-                                      
-                                      // Auto-save to database
-                                      autoSaveField('business_type', newValue);
                                     }}
                                     onTouchEnd={(e) => {
-                                      // Solution iPadOS 18 - onTouchEnd fonctionne quand onBlur échoue
+                                      // Solution iPadOS 18 - onTouchEnd 
                                       console.log('📱 onTouchEnd - Type entreprise (SOLUTION iPadOS 18):', e.target.value);
-                                      const newValue = e.target.value;
-                                      setEditBusinessType(newValue);
-                                      
-                                      // Sauvegarder immédiatement en localStorage pour éviter la perte
+                                      setEditBusinessType(e.target.value);
+                                      // Sauvegarder avec localStorage
                                       const currentData = loadFromLocalStorage() || {};
-                                      currentData.business_type = newValue;
+                                      currentData.business_type = e.target.value;
                                       saveToLocalStorage(currentData);
-                                      
-                                      // Auto-save to database
-                                      autoSaveField('business_type', newValue);
                                     }}
                                   />
                                 ) : (

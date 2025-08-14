@@ -1334,24 +1334,32 @@ function MainApp() {
           console.log('✅ Virtual keyboard fields initialized from database AND cached');
         }, 100);
       } else {
-        // Pour Desktop, utiliser les states ET localStorage
-        setEditBusinessName(response.data.business_name || '');
-        syncFieldWithStorage('business_name', response.data.business_name || '');
+        // Pour Desktop, utiliser les states ET localStorage avec logique de protection
+        const currentData = loadFromLocalStorage() || {};
         
-        setEditBusinessDescription(response.data.business_description || '');
-        syncFieldWithStorage('business_description', response.data.business_description || '');
+        const businessName = response.data.business_name || editBusinessName || currentData.business_name || '';
+        setEditBusinessName(businessName);
+        syncFieldWithStorage('business_name', businessName);
         
-        setEditTargetAudience(response.data.target_audience || '');
-        syncFieldWithStorage('target_audience', response.data.target_audience || '');
+        const businessDescription = response.data.business_description || editBusinessDescription || currentData.business_description || '';
+        setEditBusinessDescription(businessDescription);
+        syncFieldWithStorage('business_description', businessDescription);
         
-        setEditEmail(response.data.email || '');
-        syncFieldWithStorage('email', response.data.email || '');
+        const targetAudience = response.data.target_audience || editTargetAudience || currentData.target_audience || '';
+        setEditTargetAudience(targetAudience);
+        syncFieldWithStorage('target_audience', targetAudience);
         
-        setEditWebsiteUrl(response.data.website_url || '');
-        syncFieldWithStorage('website_url', response.data.website_url || '');
+        const email = response.data.email || editEmail || currentData.email || '';
+        setEditEmail(email);
+        syncFieldWithStorage('email', email);
         
-        setEditBudgetRange(response.data.budget_range || '');
-        syncFieldWithStorage('budget_range', response.data.budget_range || '');
+        const websiteUrl = response.data.website_url || editWebsiteUrl || currentData.website_url || '';
+        setEditWebsiteUrl(websiteUrl);
+        syncFieldWithStorage('website_url', websiteUrl);
+        
+        const budgetRange = response.data.budget_range || editBudgetRange || currentData.budget_range || '';
+        setEditBudgetRange(budgetRange);
+        syncFieldWithStorage('budget_range', budgetRange);
         
         console.log('✅ Desktop fields initialized from database AND cached');
       }

@@ -1402,7 +1402,9 @@ function MainApp() {
 
   const loadPendingContent = async () => {
     try {
-      const response = await axios.get(`${API}/content/pending`);
+      const response = await axios.get(`${API}/content/pending`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      });
       setPendingContent(response.data.content || []);
     } catch (error) {
       console.error('Error loading pending content:', error);

@@ -1210,8 +1210,12 @@ function MainApp() {
             syncFieldWithStorage('email', response.data.email || '');
           }
           if (websiteUrlRef.current) {
-            websiteUrlRef.current.value = response.data.website_url || '';
-            syncFieldWithStorage('website_url', response.data.website_url || '');
+            const currentValue = websiteUrlRef.current.value;
+            const dbValue = response.data.website_url || '';
+            const localValue = loadFromLocalStorage()?.website_url || '';
+            // Only update if database has a value or current field is empty
+            websiteUrlRef.current.value = dbValue || currentValue || localValue;
+            syncFieldWithStorage('website_url', websiteUrlRef.current.value);
           }
           if (budgetRangeRef.current) {
             budgetRangeRef.current.value = response.data.budget_range || '';

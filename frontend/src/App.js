@@ -1331,6 +1331,14 @@ function MainApp() {
             budgetRangeRef.current.value = dbValue || currentValue || localValue;
             syncFieldWithStorage('budget_range', budgetRangeRef.current.value);
           }
+          if (businessTypeRef.current) {
+            const currentValue = businessTypeRef.current.value;
+            const dbValue = response.data.business_type || '';
+            const localValue = loadFromLocalStorage()?.business_type || '';
+            // Only update if database has a value or current field is empty
+            businessTypeRef.current.value = dbValue || currentValue || localValue;
+            syncFieldWithStorage('business_type', businessTypeRef.current.value);
+          }
           console.log('✅ Virtual keyboard fields initialized from database AND cached');
         }, 100);
       } else {

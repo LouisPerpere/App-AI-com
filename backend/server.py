@@ -270,6 +270,8 @@ async def get_business_profile(user_id: str = Depends(get_current_user_id)):
         
         # Fallback to demo mode
         print(f"⚠️ Returning demo business profile for user_id: {user_id}")
+        print(f"⚠️ Database connected: {db.is_connected()}")
+        print(f"⚠️ User ID type: {type(user_id)}, value: {user_id}")
         return {
             "business_name": "Demo Business",
             "business_type": "service",

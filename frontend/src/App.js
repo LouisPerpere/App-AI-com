@@ -1338,8 +1338,8 @@ function MainApp() {
       if (response.status === 200 || response.status === 201) {
         toast.success('Note ajoutée avec succès !');
         
-        // D'abord recharger la liste des notes
-        loadNotes(); 
+        // D'abord recharger la liste des notes (AVEC await pour éviter race condition)
+        await loadNotes(); 
         
         // PUIS réinitialiser les champs selon l'approche
         if (isVirtualKeyboardDevice) {

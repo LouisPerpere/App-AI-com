@@ -1917,7 +1917,9 @@ function MainApp() {
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API}/business-profile`, profileForm);
+      await axios.post(`${API}/business-profile`, profileForm, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      });
       toast.success('Profil créé avec succès !');
       loadBusinessProfile();
     } catch (error) {

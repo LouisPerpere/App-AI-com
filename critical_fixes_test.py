@@ -20,8 +20,8 @@ from datetime import datetime
 
 class CriticalFixesTester:
     def __init__(self):
-        # Use the production backend URL from frontend/.env
-        self.base_url = "https://48eac9a4-1f29-46f1-b3a6-a75e871ef31d.preview.emergentagent.com"
+        # Use the local backend URL for testing
+        self.base_url = "http://localhost:8001"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.user_id = None

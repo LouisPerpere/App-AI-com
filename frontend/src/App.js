@@ -1282,6 +1282,28 @@ function MainApp() {
     }
   };
 
+  // Function to normalize priority values
+  const normalizePriority = (priority) => {
+    if (!priority) return 'medium';
+    const lowercasePriority = priority.toLowerCase().trim();
+    
+    // French to English mapping
+    const mapping = {
+      'faible': 'low',
+      'basse': 'low',
+      'normale': 'medium',
+      'normal': 'medium',
+      'moyenne': 'medium',
+      'élevée': 'high',
+      'elevee': 'high',
+      'haute': 'high',
+      'urgente': 'high',
+      'urgent': 'high'
+    };
+    
+    return mapping[lowercasePriority] || lowercasePriority;
+  };
+
   const handleAddNote = async () => {
     // Obtenir les valeurs selon l'approche (iOS refs ou Desktop states)
     let titleValue, contentValue;

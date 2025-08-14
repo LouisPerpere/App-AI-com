@@ -1284,20 +1284,36 @@ function MainApp() {
         // Pour appareils avec clavier virtuel, initialiser les refs
         setTimeout(() => {
           if (businessNameRef.current) {
-            businessNameRef.current.value = response.data.business_name || '';
-            syncFieldWithStorage('business_name', response.data.business_name || '');
+            const currentValue = businessNameRef.current.value;
+            const dbValue = response.data.business_name || '';
+            const localValue = loadFromLocalStorage()?.business_name || '';
+            // Only update if database has a value or current field is empty
+            businessNameRef.current.value = dbValue || currentValue || localValue;
+            syncFieldWithStorage('business_name', businessNameRef.current.value);
           }
           if (businessDescriptionRef.current) {
-            businessDescriptionRef.current.value = response.data.business_description || '';
-            syncFieldWithStorage('business_description', response.data.business_description || '');
+            const currentValue = businessDescriptionRef.current.value;
+            const dbValue = response.data.business_description || '';
+            const localValue = loadFromLocalStorage()?.business_description || '';
+            // Only update if database has a value or current field is empty
+            businessDescriptionRef.current.value = dbValue || currentValue || localValue;
+            syncFieldWithStorage('business_description', businessDescriptionRef.current.value);
           }
           if (targetAudienceRef.current) {
-            targetAudienceRef.current.value = response.data.target_audience || '';
-            syncFieldWithStorage('target_audience', response.data.target_audience || '');
+            const currentValue = targetAudienceRef.current.value;
+            const dbValue = response.data.target_audience || '';
+            const localValue = loadFromLocalStorage()?.target_audience || '';
+            // Only update if database has a value or current field is empty
+            targetAudienceRef.current.value = dbValue || currentValue || localValue;
+            syncFieldWithStorage('target_audience', targetAudienceRef.current.value);
           }
           if (emailRef.current) {
-            emailRef.current.value = response.data.email || '';
-            syncFieldWithStorage('email', response.data.email || '');
+            const currentValue = emailRef.current.value;
+            const dbValue = response.data.email || '';
+            const localValue = loadFromLocalStorage()?.email || '';
+            // Only update if database has a value or current field is empty
+            emailRef.current.value = dbValue || currentValue || localValue;
+            syncFieldWithStorage('email', emailRef.current.value);
           }
           if (websiteUrlRef.current) {
             const currentValue = websiteUrlRef.current.value;

@@ -1,4 +1,4 @@
-CRITICAL FIXES COMPLETED - Both 300-credit issues definitively resolved
-URL persistence race condition fixed + Website analysis JWT authentication integrated
-Version: 3.0 FINAL - Ready for Production
-Timestamp: 2025-01-13 17:45:00
+SOCIAL MEDIA PREFERENCES SECTION REMOVED - No more form reset issues
+Removed "Plateformes préférées" checkboxes from both onboarding and profile editing
+Version: 3.1 with UI Cleanup
+Timestamp: 2025-01-13 18:30:00

@@ -41,17 +41,25 @@ def get_current_user_id(authorization: str = Header(None)):
     """Extract user ID from JWT token"""
     if not authorization or not authorization.startswith("Bearer "):
         # For demo mode compatibility, return a demo user ID
+        print(f"⚠️ No Authorization header found, falling back to demo mode")
         return "demo_user_id"
     
     token = authorization.replace("Bearer ", "")
+    print(f"🔍 Processing token: {token[:20]}..." if len(token) > 20 else f"🔍 Processing token: {token}")
     
     if db.is_connected():
         # Try to get real user from database
         user_data = db.get_user_by_token(token)
         if user_data:
+            print(f"✅ Token validation successful for user: {user_data['email']}")
             return user_data["user_id"]
+        else:
+            print(f"❌ Token validation failed - invalid or expired token")
+    else:
+        print(f"❌ Database not connected - falling back to demo mode")
     
     # Fallback to demo mode for invalid/expired tokens
+    print(f"⚠️ Falling back to demo_user_id")
     return "demo_user_id"
 
 # Simple models

@@ -2863,30 +2863,6 @@ function MainApp() {
                               </div>
                             </div>
 
-                            {/* Plateformes préférées */}
-                            <div className="space-y-2">
-                              <Label className="text-sm font-medium text-gray-700">Plateformes préférées</Label>
-                              <div className="grid grid-cols-3 gap-4">
-                                {['Facebook', 'Instagram', 'LinkedIn'].map((platform) => (
-                                  <label key={platform} className="flex items-center space-x-2 cursor-pointer">
-                                    <input
-                                      type="checkbox"
-                                      checked={editPreferredPlatforms.includes(platform)}
-                                      onChange={(e) => {
-                                        const updatedPlatforms = e.target.checked
-                                          ? [...editPreferredPlatforms, platform]
-                                          : editPreferredPlatforms.filter(p => p !== platform);
-                                        setEditPreferredPlatforms(updatedPlatforms);
-                                        autoSaveField('preferred_platforms', updatedPlatforms);
-                                      }}
-                                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                    />
-                                    <span className="text-sm text-gray-700">{platform}</span>
-                                  </label>
-                                ))}
-                              </div>
-                            </div>
-
                             {/* Budget marketing */}
                             <div className="space-y-2">
                               <Label className="text-sm font-medium text-gray-700">Budget marketing mensuel</Label>

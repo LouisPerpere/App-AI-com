@@ -1332,7 +1332,7 @@ function MainApp() {
         const currentData = loadFromLocalStorage() || {};
         currentData.note_title = '';
         currentData.note_content = '';
-        currentData.note_priority = 'normale';
+        currentData.note_priority = 'medium';
         saveToLocalStorage(currentData);
         
         console.log('✅ Note ajoutée et champs réinitialisés (iOS compatible)');

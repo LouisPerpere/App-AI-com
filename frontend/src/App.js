@@ -1391,7 +1391,9 @@ function MainApp() {
 
   const loadGeneratedPosts = async () => {
     try {
-      const response = await axios.get(`${API}/posts`);
+      const response = await axios.get(`${API}/posts`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      });
       setGeneratedPosts(response.data.posts || []);
     } catch (error) {
       console.error('Error loading posts:', error);

@@ -3258,7 +3258,7 @@ function MainApp() {
                 </div>
 
                 {/* Notes List */}
-                {notes.length > 0 ? (
+                {notes.length > 0 && (
                   <div>
                     <div className="flex items-center justify-between mb-6">
                       <h3 className="text-xl font-semibold text-gray-900 flex items-center">

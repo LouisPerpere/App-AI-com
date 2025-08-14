@@ -28,8 +28,12 @@ def test_specific_scenario():
     )
     
     print(f"Login Status: {login_response.status_code}")
-    login_data = login_response.json()
-    print(f"Login Response: {json.dumps(login_data, indent=2)}")
+    try:
+        login_data = login_response.json()
+        print(f"Login Response: {json.dumps(login_data, indent=2)}")
+    except:
+        print(f"Login Response Text: {login_response.text}")
+        login_data = {}
     
     if login_response.status_code != 200 or 'access_token' not in login_data:
         print("❌ LOGIN FAILED")

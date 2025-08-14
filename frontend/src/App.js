@@ -866,7 +866,6 @@ function MainApp() {
                 console.log('✅ Desktop states synced with fresh DB data');
               }
               setEditBusinessType(response.data.business_type || '');
-              setEditPreferredPlatforms(response.data.preferred_platforms || []);
               
               // Mettre à jour localStorage avec les données fraîches
               saveToLocalStorage(response.data);

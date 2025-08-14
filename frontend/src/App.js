@@ -745,7 +745,6 @@ function MainApp() {
         }
         
         setEditBusinessType(response.data.business_type || '');
-        setEditPreferredPlatforms(response.data.preferred_platforms || []);
         
         // Reload notes as well
         await loadNotes();

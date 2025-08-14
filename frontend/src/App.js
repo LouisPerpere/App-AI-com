@@ -3216,7 +3216,7 @@ function MainApp() {
                               // Solution iPadOS 18 aussi pour desktop au cas où
                               console.log('📱 onTouchEnd - Priorité note (desktop):', e.target.value);
                             }}
-                            placeholder="faible / normale / élevée / urgente"
+                            placeholder="low / medium / high"
                             className="bg-white"
                           />
                         )}

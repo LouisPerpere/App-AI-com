@@ -54,8 +54,12 @@ def test_specific_scenario():
     )
     
     print(f"Business Profile Status: {profile_response.status_code}")
-    profile_data = profile_response.json()
-    print(f"Business Profile Response: {json.dumps(profile_data, indent=2)}")
+    try:
+        profile_data = profile_response.json()
+        print(f"Business Profile Response: {json.dumps(profile_data, indent=2)}")
+    except:
+        print(f"Business Profile Response Text: {profile_response.text}")
+        profile_data = {}
     
     # Step 4: Analyze the response
     print(f"\nSTEP 4: ANALYSIS")

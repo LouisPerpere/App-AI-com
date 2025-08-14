@@ -1807,7 +1807,9 @@ function MainApp() {
   const connectLinkedIn = async () => {
     try {
       setIsConnectingSocial(true);
-      const response = await axios.get(`${API}/linkedin/auth-url`);
+      const response = await axios.get(`${API}/linkedin/auth-url`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      });
       
       // Open LinkedIn OAuth window
       const popup = window.open(

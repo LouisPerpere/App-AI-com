@@ -1361,10 +1361,13 @@ function MainApp() {
         setEditBudgetRange(budgetRange);
         syncFieldWithStorage('budget_range', budgetRange);
         
+        // Business type avec protection aussi
+        const businessType = response.data.business_type || editBusinessType || currentData.business_type || '';
+        setEditBusinessType(businessType);
+        syncFieldWithStorage('business_type', businessType);
+        
         console.log('✅ Desktop fields initialized from database AND cached');
       }
-      setEditBusinessType(response.data.business_type || '');
-      syncFieldWithStorage('business_type', response.data.business_type || '');
       
       setActiveStep('dashboard');
     } catch (error) {

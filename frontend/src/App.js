@@ -1242,9 +1242,6 @@ function MainApp() {
       setEditBusinessType(response.data.business_type || '');
       syncFieldWithStorage('business_type', response.data.business_type || '');
       
-      setEditPreferredPlatforms(response.data.preferred_platforms || []);
-      syncFieldWithStorage('preferred_platforms', response.data.preferred_platforms || []);
-      
       setActiveStep('dashboard');
     } catch (error) {
       if (error.response?.status === 404) {

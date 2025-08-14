@@ -1774,7 +1774,9 @@ function MainApp() {
 
     try {
       setIsConnectingSocial(true);
-      const response = await axios.get(`${API}/social/facebook/auth-url?business_id=${businessProfile.id}`);
+      const response = await axios.get(`${API}/social/facebook/auth-url?business_id=${businessProfile.id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      });
       
       // Ouvrir la fenêtre d'authentification Facebook
       window.open(response.data.authorization_url, 'facebook-auth', 'width=600,height=600');

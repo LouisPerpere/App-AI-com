@@ -642,7 +642,6 @@ function MainApp() {
     target_audience: '',
     brand_tone: '',
     posting_frequency: '',
-    preferred_platforms: [],
     hashtags_primary: [],
     hashtags_secondary: [],
     budget_range: '',

@@ -1837,7 +1837,9 @@ function MainApp() {
 
   const disconnectSocialAccount = async (connectionId) => {
     try {
-      await axios.delete(`${API}/social/connection/${connectionId}`);
+      await axios.delete(`${API}/social/connection/${connectionId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      });
       toast.success('Compte déconnecté');
       loadSocialConnections();
     } catch (error) {

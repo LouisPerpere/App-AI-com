@@ -2059,39 +2059,6 @@ function MainApp() {
               </div>
             </div>
 
-            <div className="space-y-4">
-              <Label className="text-gray-700 font-semibold">Réseaux sociaux préférés</Label>
-              <div className="flex flex-wrap gap-4">
-                {['facebook', 'instagram', 'linkedin'].map((platform) => (
-                  <label key={platform} className="flex items-center space-x-3 cursor-pointer card-gradient p-4 rounded-2xl hover:shadow-lg transition-all duration-200">
-                    <input
-                      type="checkbox"
-                      checked={profileForm.preferred_platforms.includes(platform)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setProfileForm({
-                            ...profileForm,
-                            preferred_platforms: [...profileForm.preferred_platforms, platform]
-                          });
-                        } else {
-                          setProfileForm({
-                            ...profileForm,
-                            preferred_platforms: profileForm.preferred_platforms.filter(p => p !== platform)
-                          });
-                        }
-                      }}
-                      className="rounded-lg w-5 h-5 text-purple-600"
-                    />
-                    <span className="capitalize font-semibold text-gray-700">
-                      {platform === 'facebook' ? '📘 Facebook' : 
-                       platform === 'instagram' ? '📷 Instagram' : 
-                       '💼 LinkedIn'}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
             <div className="space-y-6">
               <div className="space-y-4">
                 <Label className="text-gray-700 font-semibold">✨ Hashtags prioritaires (toujours inclus)</Label>

@@ -1324,8 +1324,12 @@ function MainApp() {
             syncFieldWithStorage('website_url', websiteUrlRef.current.value);
           }
           if (budgetRangeRef.current) {
-            budgetRangeRef.current.value = response.data.budget_range || '';
-            syncFieldWithStorage('budget_range', response.data.budget_range || '');
+            const currentValue = budgetRangeRef.current.value;
+            const dbValue = response.data.budget_range || '';
+            const localValue = loadFromLocalStorage()?.budget_range || '';
+            // Only update if database has a value or current field is empty
+            budgetRangeRef.current.value = dbValue || currentValue || localValue;
+            syncFieldWithStorage('budget_range', budgetRangeRef.current.value);
           }
           console.log('✅ Virtual keyboard fields initialized from database AND cached');
         }, 100);

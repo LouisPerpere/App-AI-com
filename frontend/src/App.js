@@ -847,28 +847,124 @@ function MainApp() {
               // Re-sync avec localStorage ET champs
               if (isVirtualKeyboardDevice) {
                 setTimeout(() => {
-                  if (businessNameRef.current) businessNameRef.current.value = response.data.business_name || '';
-                  if (businessTypeRef.current) businessTypeRef.current.value = response.data.business_type || '';
-                  if (businessDescriptionRef.current) businessDescriptionRef.current.value = response.data.business_description || '';
-                  if (targetAudienceRef.current) targetAudienceRef.current.value = response.data.target_audience || '';
-                  if (emailRef.current) emailRef.current.value = response.data.email || '';
-                  if (websiteUrlRef.current) websiteUrlRef.current.value = response.data.website_url || '';
-                  if (budgetRangeRef.current) budgetRangeRef.current.value = response.data.budget_range || '';
-                  console.log('✅ Virtual keyboard refs synced with fresh DB data');
+                  if (businessNameRef.current) {
+                    const dbValue = response.data.business_name || '';
+                    const currentValue = businessNameRef.current.value;
+                    const localValue = loadFromLocalStorage()?.business_name || '';
+                    businessNameRef.current.value = dbValue || currentValue || localValue;
+                    // Sync only if we have a meaningful value
+                    if (businessNameRef.current.value) {
+                      syncFieldWithStorage('business_name', businessNameRef.current.value);
+                    }
+                  }
+                  if (businessTypeRef.current) {
+                    const dbValue = response.data.business_type || '';
+                    const currentValue = businessTypeRef.current.value;
+                    const localValue = loadFromLocalStorage()?.business_type || '';
+                    businessTypeRef.current.value = dbValue || currentValue || localValue;
+                    if (businessTypeRef.current.value) {
+                      syncFieldWithStorage('business_type', businessTypeRef.current.value);
+                    }
+                  }
+                  if (businessDescriptionRef.current) {
+                    const dbValue = response.data.business_description || '';
+                    const currentValue = businessDescriptionRef.current.value;
+                    const localValue = loadFromLocalStorage()?.business_description || '';
+                    businessDescriptionRef.current.value = dbValue || currentValue || localValue;
+                    if (businessDescriptionRef.current.value) {
+                      syncFieldWithStorage('business_description', businessDescriptionRef.current.value);
+                    }
+                  }
+                  if (targetAudienceRef.current) {
+                    const dbValue = response.data.target_audience || '';
+                    const currentValue = targetAudienceRef.current.value;
+                    const localValue = loadFromLocalStorage()?.target_audience || '';
+                    targetAudienceRef.current.value = dbValue || currentValue || localValue;
+                    if (targetAudienceRef.current.value) {
+                      syncFieldWithStorage('target_audience', targetAudienceRef.current.value);
+                    }
+                  }
+                  if (emailRef.current) {
+                    const dbValue = response.data.email || '';
+                    const currentValue = emailRef.current.value;
+                    const localValue = loadFromLocalStorage()?.email || '';
+                    emailRef.current.value = dbValue || currentValue || localValue;
+                    if (emailRef.current.value) {
+                      syncFieldWithStorage('email', emailRef.current.value);
+                    }
+                  }
+                  if (websiteUrlRef.current) {
+                    const dbValue = response.data.website_url || '';
+                    const currentValue = websiteUrlRef.current.value;
+                    const localValue = loadFromLocalStorage()?.website_url || '';
+                    websiteUrlRef.current.value = dbValue || currentValue || localValue;
+                    if (websiteUrlRef.current.value) {
+                      syncFieldWithStorage('website_url', websiteUrlRef.current.value);
+                    }
+                  }
+                  if (budgetRangeRef.current) {
+                    const dbValue = response.data.budget_range || '';
+                    const currentValue = budgetRangeRef.current.value;
+                    const localValue = loadFromLocalStorage()?.budget_range || '';
+                    budgetRangeRef.current.value = dbValue || currentValue || localValue;
+                    if (budgetRangeRef.current.value) {
+                      syncFieldWithStorage('budget_range', budgetRangeRef.current.value);
+                    }
+                  }
+                  console.log('✅ Virtual keyboard refs synced with best available data (DB → Current → LocalStorage)');
                 }, 100);
               } else {
-                setEditBusinessName(response.data.business_name || '');
-                setEditBusinessDescription(response.data.business_description || '');
-                setEditTargetAudience(response.data.target_audience || '');
-                setEditEmail(response.data.email || '');
-                setEditWebsiteUrl(response.data.website_url || '');
-                setEditBudgetRange(response.data.budget_range || '');
-                console.log('✅ Desktop states synced with fresh DB data');
+                // Desktop mode - preserve data with priority: DB → Current → LocalStorage
+                const currentData = loadFromLocalStorage() || {};
+                
+                const businessName = response.data.business_name || editBusinessName || currentData.business_name || '';
+                const businessDescription = response.data.business_description || editBusinessDescription || currentData.business_description || '';
+                const targetAudience = response.data.target_audience || editTargetAudience || currentData.target_audience || '';
+                const email = response.data.email || editEmail || currentData.email || '';
+                const websiteUrl = response.data.website_url || editWebsiteUrl || currentData.website_url || '';
+                const budgetRange = response.data.budget_range || editBudgetRange || currentData.budget_range || '';
+                
+                setEditBusinessName(businessName);
+                setEditBusinessDescription(businessDescription);
+                setEditTargetAudience(targetAudience);
+                setEditEmail(email);
+                setEditWebsiteUrl(websiteUrl);
+                setEditBudgetRange(budgetRange);
+                
+                // Sync to localStorage only if we have meaningful values
+                if (businessName) syncFieldWithStorage('business_name', businessName);
+                if (businessDescription) syncFieldWithStorage('business_description', businessDescription);
+                if (targetAudience) syncFieldWithStorage('target_audience', targetAudience);
+                if (email) syncFieldWithStorage('email', email);
+                if (websiteUrl) syncFieldWithStorage('website_url', websiteUrl);
+                if (budgetRange) syncFieldWithStorage('budget_range', budgetRange);
+                
+                console.log('✅ Desktop states synced with best available data (DB → Current → LocalStorage)');
               }
-              setEditBusinessType(response.data.business_type || '');
               
-              // Mettre à jour localStorage avec les données fraîches
-              saveToLocalStorage(response.data);
+              // Business type (works for both desktop and virtual keyboard)
+              const businessType = response.data.business_type || editBusinessType || loadFromLocalStorage()?.business_type || '';
+              setEditBusinessType(businessType);
+              if (businessType) {
+                syncFieldWithStorage('business_type', businessType);
+              }
+              
+              // Only update localStorage with actual data, not empty database response
+              const meaningfulData = Object.keys(response.data).reduce((acc, key) => {
+                if (response.data[key]) {  // Only include non-empty values
+                  acc[key] = response.data[key];
+                }
+                return acc;
+              }, {});
+              
+              if (Object.keys(meaningfulData).length > 0) {
+                console.log('✅ Updating localStorage with meaningful database data:', meaningfulData);
+                // Merge with existing localStorage data, don't overwrite everything
+                const existingData = loadFromLocalStorage() || {};
+                saveToLocalStorage({ ...existingData, ...meaningfulData });
+              } else {
+                console.log('⚠️ Database returned empty data, preserving localStorage');
+              }
             } catch (error) {
               console.error('❌ Error force refreshing profile:', error);
             }

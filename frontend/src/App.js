@@ -3181,7 +3181,7 @@ function MainApp() {
                             spellCheck={false}
                             autoCapitalize="off"
                             defaultValue={loadFromLocalStorage()?.note_priority || notePriority || ""}
-                            placeholder="faible / normale / élevée / urgente"
+                            placeholder="low / medium / high"
                             onBlur={(e) => {
                               console.log('🔥 onBlur - Priorité note (virtual keyboard):', e.target.value);
                               const newValue = e.target.value;

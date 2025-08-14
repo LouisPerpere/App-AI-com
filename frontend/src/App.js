@@ -655,7 +655,7 @@ function MainApp() {
   // Note form - STATES SÉPARÉS pour Desktop
   const [noteTitle, setNoteTitle] = useState('');
   const [noteContent, setNoteContent] = useState('');
-  const [notePriority, setNotePriority] = useState('normal');
+  const [notePriority, setNotePriority] = useState('medium');
   
   // Business profile editing - REFS pour iOS (bypass React state)
   const businessNameRef = useRef(null);

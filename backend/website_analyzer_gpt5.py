@@ -98,7 +98,7 @@ if mongo_url and ("mongodb+srv://" in mongo_url or "@" in mongo_url):
         print(f"⚠️ Website Analyzer MongoDB URL encoding warning: {e}")
 
 mongo_client = AsyncIOMotorClient(mongo_url)
-db = mongo_client[os.environ.get('DB_NAME', 'socialgenie')]
+db = mongo_client[os.environ.get('DB_NAME', 'claire_marcus')]
 
 # Router setup
 website_router = APIRouter(prefix="/website")

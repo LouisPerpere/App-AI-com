@@ -60,7 +60,7 @@ def get_current_user_id(authorization: str = Header(None)) -> str:
         try:
             # Use same JWT logic as main server
             db_manager = DatabaseManager()
-            user_data = db_manager.verify_token(token)
+            user_data = db_manager.get_user_by_token(token)
             if user_data:
                 return user_data.get("user_id", "")
             else:

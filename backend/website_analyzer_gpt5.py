@@ -73,8 +73,30 @@ API_KEY = EMERGENT_LLM_KEY if EMERGENT_LLM_KEY else OPENAI_API_KEY
 if not API_KEY:
     logging.warning("No API key found for GPT-5. Website analysis will use fallback mode.")
 
-# MongoDB connection
+# MongoDB connection with URL encoding fix
 mongo_url = os.environ.get('MONGO_URL')
+
+# Fix MongoDB URL encoding for special characters (same as in database.py)
+if mongo_url and ("mongodb+srv://" in mongo_url or "@" in mongo_url):
+    try:
+        from urllib.parse import urlparse, urlunparse, quote_plus
+        parsed = urlparse(mongo_url)
+        if parsed.username and parsed.password:
+            # Re-encode username and password
+            encoded_username = quote_plus(parsed.username)
+            encoded_password = quote_plus(parsed.password)
+            # Reconstruct URL with encoded credentials
+            netloc = f"{encoded_username}:{encoded_password}@{parsed.hostname}"
+            if parsed.port:
+                netloc += f":{parsed.port}"
+            mongo_url = urlunparse((
+                parsed.scheme, netloc, parsed.path, 
+                parsed.params, parsed.query, parsed.fragment
+            ))
+            print(f"✅ Website Analyzer MongoDB URL credentials encoded for RFC 3986 compliance")
+    except Exception as e:
+        print(f"⚠️ Website Analyzer MongoDB URL encoding warning: {e}")
+
 mongo_client = AsyncIOMotorClient(mongo_url)
 db = mongo_client[os.environ.get('DB_NAME', 'socialgenie')]
 

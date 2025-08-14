@@ -1,81 +1,101 @@
 <analysis>
-The AI engineer's work primarily focused on stabilizing and enhancing the Claire et Marcus SaaS application after its initial MVP build. Key challenges involved resolving persistent frontend UI/input bugs, debugging complex authentication issues stemming from environment variable misconfigurations across Netlify and Render.com, and refining backend-frontend data flow. The engineer employed a methodical, iterative approach, first diagnosing issues via logs and testing agents, then attempting various fixes for the keyboard disappearing bug, button width issues, and data save problems. Although many minor issues were resolved, the keyboard bug proved highly elusive, leading to multiple architectural refactorings of input handling. The process highlighted the complexity of deploying full-stack applications with inter-service dependencies and environment specific behaviors.
+The AI engineer's trajectory involved a complex debugging and feature refinement process for the Claire et Marcus PWA. Initially, efforts focused on resolving critical frontend issues: a keyboard disappearing bug on virtual keyboards and pervasive data persistence failures, alongside refactoring the website analysis module.
+
+Early attempts to fix data persistence involved iterating through various React event handlers (, , ),  management, and  integration. A key challenge was differentiating behavior for virtual vs. physical keyboards, leading to  attributes and  for uncontrolled inputs. The  function was repeatedly identified as a culprit for data erasure, particularly for dropdowns/radio buttons, leading to their conversion to text inputs and the disabling of  for these specific fields.
+
+The conversation then expanded to include issues with notes functionality (not appearing, priority resetting) and the website analysis module (not functioning, authentication issues). The AI engineer frequently utilized the  to identify deeper, architectural root causes, revealing race conditions in data loading, inconsistent state management between  and API responses, and authentication mismatches.
+
+Significant efforts were made to unify data loading/saving logic across all form fields, ensuring  and API synchronization. Backend issues, such as missing  and unescaped MongoDB URL characters, repeatedly caused deployment failures on Render, requiring fixes in , , , and a fallback mechanism for the website analyzer. The final persistent issue of demo business data overriding user input pointed to hardcoded demo data in backend files, a fundamental architectural flaw identified by the . The trajectory concludes with the diagnosis of this backend issue and the plan to fix it.
 </analysis>
 
 <product_requirements>
-Claire et Marcus (formerly PostCraft) is a PWA SaaS designed to automate social media management for small businesses. Its core functionality revolves around AI-powered content generation, allowing users to create AI-recommended business profiles and generate monthly publication calendars. The application emphasizes unique, non-repetitive content, validated by users before publishing to platforms like Facebook, Instagram, and LinkedIn. Essential features include content generation, upload reminders, fallback content, and a planned SaaS back office for client/subscription/payment management. Recent enhancements have introduced various subscription tiers (1-month free; Starter €14.99; Rocket €29.99; Pro €199.99), a ChatGPT-powered website analysis feature (quarterly/manual), a refined sexy marketing UI, intelligent paywall logic (conditional pop-ups, trial prevention), and full business profile editability. The application has also undergone a complete rebranding to Claire et Marcus, including a new logo, slogan, and dynamic typography.
+Claire et Marcus (formerly PostCraft) is a PWA SaaS for small businesses, automating social media content generation using AI. It features AI-powered content, business profile creation, and publication calendars for Facebook, Instagram, and LinkedIn. Key enhancements include tiered subscriptions, a ChatGPT-powered website analysis, a sexy marketing UI, intelligent paywall, and full business profile editability, along with a rebranding.
+
+The immediate focus of the previous work involved resolving critical UI/data bugs:
+1.  **Keyboard disappearing bug:** Persistent issue on text input fields, especially on iOS/iPadOS 18, impacting both Entreprise and Notes pages. The user explicitly requested ensuring the fix applies to all virtual keyboard devices.
+2.  **Data persistence issue:** User-entered data would disappear on page reload or tab switch, specifically within the Entreprise tab.
+3.  **Website Analysis Module Refactoring:** The module needed its UI moved to a dedicated section (separate tab/page) to prevent interference with other form fields, improve user feedback, and prevent accidental data overwrites on the main business profile.
+4.  **Dropdown/Radio Button Erasure:** Selecting options in type d’entreprise (Enterprise page) and priorité (Notes page) dropdowns/radio buttons caused entire forms to erase. The user requested replacement with either checkboxes or free text fields.
+5.  **Website Analysis Functionality:** Ensure the website analysis module functions correctly and returns valid analysis.
+6.  **ChatGPT Model Upgrade:** Migrate the AI backend for website analysis to ChatGPT 5.
 </product_requirements>
 
 <key_technical_concepts>
-- **Full-stack:** React (frontend), FastAPI (backend), MongoDB (database).
-- **AI/LLM:** OpenAI GPT-4 for content and analysis.
-- **UI/UX:** Tailwind CSS, Shadcn UI, custom animations.
-- **Auth:** JWT-based authentication, trial prevention.
-- **Deployment:** Netlify (frontend), Render.com (backend).
-- **Social Media:** Facebook/Instagram Graph API, LinkedIn OAuth 2.0.
-- **Payments:** Stripe (via ).
+-   **Full-stack Architecture:** React (frontend), FastAPI (backend), MongoDB (database).
+-   **AI Integration:** OpenAI GPT-4/GPT-5 via  or direct OpenAI API.
+-   **UI/UX Frameworks:** Tailwind CSS, Shadcn UI.
+-   **Authentication:** JWT-based.
+-   **Client-side Persistence:** .
+-   **React Hooks:** , , , .
+-   **Event Handling:** , , , , debouncing.
+-   **PWA Specifics:** Viewport meta tags, dynamic viewport resizing.
+-   **Deployment:** Netlify (frontend), Render.com (backend).
+-   **Database Access:**  (AsyncIOMotorClient) for MongoDB.
 </key_technical_concepts>
 
 <code_architecture>
 
 
-- ****: Main FastAPI application.
-    - **Importance**: Central API routes for the application.
-    - **Changes Made**: Initially simplified for Render deployment by removing  and local module imports. Authentication endpoints were later re-added and debugged.  was added to  model and API responses. A duplicated  endpoint was removed. The  router was integrated for Stripe functionality. CORS configuration  was confirmed.
-- ****: Backend environment variables.
-    - **Importance**: Stores sensitive API keys and database connection strings.
-    - **Changes Made**: Added , , , , , .
-- ****: (New file) Modern Stripe integration.
-    - **Importance**: Implements the secure Stripe checkout flow, manages packages, webhooks, and subscriptions for Starter, Rocket, and Pro plans. Uses .
-    - **Changes Made**: Created to handle complete Stripe integration, including security features and webhook handling.
-- ****: (New file) MongoDB database connection logic.
-    - **Importance**: Manages connection to MongoDB, replacing any demo mode data persistence.
-    - **Changes Made**: Created to set up  and handle database connection, providing client/database instances.
-- ****: Main React component.
-    - **Importance**: Defines UI layout, routing, and primary state management for the application.
-    - **Changes Made**: Extensive UI refactoring for Claire et Marcus branding. Integrated  and . Persistent debugging and refactoring for input fields: initially memoized  handlers, added  props, experimented with , , and wrapper components (, ). Ultimately, the approach shifted to using separate  variables for each input field to prevent re-renders, and the Modifier le profil button and its modal were removed in favor of direct inline editing for better UX and to resolve the keyboard bug. Social media platform options (Twitter, TikTok, YouTube) were removed from preferred platforms.
-- ****: Handles user authentication UI.
-    - **Importance**: Manages login and registration forms and their interactions with the backend.
-    - **Changes Made**: Major UI overhaul. Debugged  storage and API calls to match backend expectations. The simple state management pattern used here for inputs (direct object spread ) became the reference for fixing the persistent keyboard bug in . Error handling was also improved.
-- ****: Frontend environment variables.
-    - **Importance**: Stores frontend configuration, notably  for backend API calls.
-    - **Changes Made**:  was initially updated to point to Render.com, then temporarily cleared/commented out to debug Netlify environment variable interference. Later, the  definition was removed from this file as it was found to interfere with Netlify dashboard variables.
-- ****: Git ignore rules for frontend.
-    - **Importance**: Specifies files and directories that Git should ignore.
-    - **Changes Made**: Added  to prevent local environment variables from being committed and interfering with deployment environments.
-- ****: (New file) A markdown file created to document steps for fixing authentication issues on Netlify.
-    - **Importance**: Provides a guide for troubleshooting Netlify deployments related to authentication.
-    - **Changes Made**: Created to outline potential causes and solutions for authentication failures in the deployed environment.
-- ****: (New file) A temporary React component for debugging authentication issues.
-    - **Importance**: Used to display environment variables and backend health checks in the UI for debugging purposes.
-    - **Changes Made**: Created to provide visual feedback on the  and backend connectivity. Later removed once the debugging purpose was served.
-- ****: (New file) Example environment variables for frontend.
-    - **Importance**: Provides a template for required environment variables without exposing sensitive data.
-    - **Changes Made**: Created to list the necessary environment variables for the frontend setup, ensuring consistency across environments.
-- ****: (New file) Temporary file to force Netlify redeployment.
-    - **Importance**: Used as a dummy file to trigger a redeployment on Netlify, essential for applying environment variable changes.
-    - **Changes Made**: Created for the specific purpose of forcing a Netlify deployment.
+-   ****: The main FastAPI application entry point.
+    -   **Importance**: Defines all API routes, connects to the database, and integrates various backend modules.
+    -   **Changes Made**: Integrated  router. Adjusted authentication endpoints for GPT-5 module compatibility.
+-   ****: Manages MongoDB connection and CRUD operations.
+    -   **Importance**: Abstracts database interactions, providing a clean interface for .
+    -   **Changes Made**: Introduced  collection. Fixed  to . Added  for MongoDB URL encoding to handle special characters in credentials.
+-   ****: Backend environment variables.
+    -   **Importance**: Stores database connection string ().
+    -   **Changes Made**:  corrected to .  was temporarily added/removed, and  was considered.
+-   ****: The primary React component, housing most of the application's UI and logic.
+    -   **Importance**: Controls global state, routing, and renders main features, including business profile editing and notes. Central to UI/UX.
+    -   **Changes Made**:
+        *   Extensive refactoring for keyboard/data persistence across , , , , , , , , , .
+        *   Implemented  detection and used  for uncontrolled inputs on virtual keyboards.
+        *   Used  for immediate client-side persistence (, , ).
+        *   Refactored Website Analysis UI to a dedicated Analyse tab, removing it from onboarding.
+        *   Replaced Type dentreprise" and "Priorité" dropdowns/radio buttons with text inputs due to field-erasing bugs.
+        *   Crucially, `autoSaveField` calls were adjusted, disabled, and re-enabled carefully, as it was often identified as a culprit.
+        *   `onTouchEnd` and `onBlur` event listeners implemented for auto-save.
+        *   Removed `readOnly` attribute from inputs to allow keyboard appearance.
+        *   Unified data loading logic in `loadBusinessProfile` and `forceRefreshProfile` to prioritize `dbValue || currentValue || localValue` to prevent data overwrites.
+        *   Added `useEffect` for `loadNotes` and ensured `await` was used when calling it in `handleAddNote`.
+        *   Standardized `notePriority` values to English (`low`, `medium`, `high`) internally with French to English mapping for user input, and updated default and reset values.
+        *   Deleted "Preferred social media platforms" section and all related state variables and logic.
+        *   Corrected `handleVirtualKeyboardRefBlur` and `handleFieldBlur` to ensure both `localStorage` and database updates.
+        *   Added `businessTypeRef` for consistent handling of `business_type` field.
+-   **`/app/frontend/src/App.css`**: Frontend CSS file.
+    -   **Importance**: Defines application-wide styles.
+    -   **Changes Made**: Added CSS for virtual keyboard display adjustments and PWA viewport handling.
+-   **`/app/frontend/.env`**: Frontend environment variables.
+    -   **Importance**: Defines `REACT_APP_BACKEND_URL` for API calls.
+    -   **Changes Made**: Corrected `REACT_APP_BACKEND_URL` from preview to local backend URL (`http://localhost:8001`) to ensure API calls succeed.
+-   **`/app/frontend/public/index.html`**: Main HTML file for the React application.
+    -   **Importance**: Root HTML structure and viewport settings.
+    -   **Changes Made**: Verified correct viewport meta tag configuration for PWA behavior.
+-   **`/app/backend/website_analyzer_gpt5.py`**: New module for GPT-5 powered website analysis.
+    -   **Importance**: Encapsulates AI-driven website content analysis.
+    -   **Changes Made**: Created from scratch. Integrated `emergentintegrations` with a fallback to direct OpenAI API calls (using `gpt-4o`) if `emergentintegrations` is not available. Includes an API router. Adjusted authentication flow to use proper JWT token verification (`get_user_by_token`) instead of hardcoded `demo_user_id`. Fixed direct MongoDB connection to include URL encoding (`urllib.parse.quote_plus`) and set the correct database name (`claire_marcus`).
+-   **`/app/backend/requirements.txt`**: Python dependencies for the backend.
+    -   **Importance**: Lists all necessary Python libraries.
+    -   **Changes Made**: Added `emergentintegrations>=0.1.0` then temporarily removed it, and then re-added as optional import within code for Render build stability.
+-   **`/app/backend/render.yaml`**: Deployment configuration for Render.com.
+    -   **Importance**: Defines build and deploy commands for the backend.
+    -   **Changes Made**: Modified `buildCommand` to include `--extra-index-url` for `emergentintegrations` and then reverted to standard `pip install -r requirements.txt` due to Render build issues, relying on the optional import in `website_analyzer_gpt5.py`.
 </code_architecture>
 
 <pending_tasks>
-- Complete the full implementation and testing of the SaaS back office for client, subscription, and payment management, including additional payment providers (Apple Pay, Google Pay, PayPal). (Basic Stripe is integrated in demo mode).
-- Re-integrate and fully enable backend modules like  and  into the deployed  on Render.com, as the current deployed  is still a minimal version (though  and payments are integrated). This includes a fully working MongoDB connection.
-- Configure and test advanced social media integrations beyond basic posting.
+-   Complete full implementation and testing of the SaaS back office (client, subscription, payment management beyond Stripe, including Apple Pay, Google Pay, PayPal).
+-   Fully enable and test backend modules like `analytics.py` and `scheduler.py` into the deployed `server.py` on Render.com, as the current deployed `server.py` is still a minimal version with core features only.
+-   Configure and test advanced social media integrations beyond basic posting.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was deep into resolving the highly persistent keyboard disappearing on text input bug in the frontend, which caused users to type only one character at a time. This bug continued to plague the application despite multiple attempts at fixing it, including:
-1.  **Initial attempts**: Implementing memoized  handlers (, ) and adding  props to input elements in  to prevent excessive re-renders.
-2.  **Native HTML inputs**: Replacing Shadcn UI  and  components with native HTML elements in  to rule out component-specific issues.
-3.  **Isolated Components**: Creating and using dedicated , , , and  components to encapsulate input fields and manage their state independently, aiming to prevent parent component re-renders. These attempts were later reverted.
-4.  **Auth.js pattern replication**: Reverting to the simple state management pattern observed in , where individual fields are managed by separate  variables rather than a single complex object state. This involved significant refactoring in  to use , , etc.
-5.  **Direct Inline Editing**: The most recent major change was to eliminate the Modifier le profil button and its associated modal entirely. Instead, the business profile fields on the main company page in  were made directly editable. This was done to simplify the UI flow and mitigate the re-rendering issues by removing the complexity of a modal and separate edit state.
+Immediately before this summary request, the AI engineer was deep into resolving a critical and persistent data persistence issue on the "Entreprise" page. Despite numerous fixes to the frontend (`App.js`) to unify data loading and saving logic across fields (e.g., ensuring `dbValue || currentValue || localValue` prioritization), the user reported that most fields (e.g., "Nom de lentreprise) would revert to Démo Business on page reload, while the Site web field *did* persist correctly.
 
-Despite these extensive efforts, the user explicitly stated in the last message (Chat Message 442) that the keyboard bug subsists even with the improved direct editing interface. The user also praised the new interface (L’interface est bien mieux comme ça) and requested the removal of the save button, with automatic saving on field edit completion. The save bug, which caused data to be erased, was previously identified as a backend demo mode issue, returning hardcoded data instead of persisting changes.
+This led to another invocation of the , which identified the root cause: the  field was being handled *outside* of the unified data protection logic in  (lines 1366-1367 in ), causing it to always overwrite with demo values and potentially affecting other fields. The engineer had just applied a fix to bring  under the same protective loading logic as  and other fields, for both virtual keyboard and desktop modes.
 
-At this point, the AI engineer is acknowledging the persistent keyboard bug and the request for auto-save, and is planning to try yet another approach for the keyboard bug, specifically using React refs to entirely bypass React's state-driven re-renders for the problematic input fields, alongside implementing the auto-save functionality.
+The backend testing agent was then used to confirm this fix, which reported 100% persistence for all fields. However, the very last user message () stated: Non il y a toujours quelquechose qui fait que démo business revient à la place du nom modifié. This indicates the issue is still not fully resolved, and the current hypothesis from the  (invoked in ) is that the problem is not in the frontend logic but in the backend, which might be systematically returning demo data due to failing fallbacks.
 </current_work>
 
 <optional_next_step>
-Implement automatic saving on field edit completion and attempt to resolve the persistent keyboard bug by leveraging React refs to manage input field values directly.
+Investigate hardcoded demo fallbacks in backend files, starting with backend logs and relevant files identified by the .
 </optional_next_step>

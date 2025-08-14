@@ -11,7 +11,7 @@ import time
 def test_specific_endpoints():
     """Test the exact endpoints mentioned in the review request"""
     
-    base_url = "https://48eac9a4-1f29-46f1-b3a6-a75e871ef31d.preview.emergentagent.com"
+    base_url = "https://virtual-keyboard-fix.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     # Test credentials from review request

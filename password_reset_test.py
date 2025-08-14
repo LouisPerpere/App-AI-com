@@ -123,7 +123,7 @@ def test_authentication():
         print("=" * 60)
         
         # API endpoint
-        base_url = "https://48eac9a4-1f29-46f1-b3a6-a75e871ef31d.preview.emergentagent.com"
+        base_url = "https://virtual-keyboard-fix.preview.emergentagent.com"
         login_url = f"{base_url}/api/auth/login"
         
         # Login credentials
@@ -238,7 +238,7 @@ def test_subscription_status():
         print("=" * 60)
         
         # First login to get token
-        base_url = "https://48eac9a4-1f29-46f1-b3a6-a75e871ef31d.preview.emergentagent.com"
+        base_url = "https://virtual-keyboard-fix.preview.emergentagent.com"
         login_url = f"{base_url}/api/auth/login"
         
         login_data = {

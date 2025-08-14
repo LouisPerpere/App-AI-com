@@ -1326,7 +1326,7 @@ function MainApp() {
           setNoteTitle('');
           setNoteContent('');
         }
-        setNotePriority('normale'); // Valeur par défaut plus logique
+        setNotePriority('medium'); // Valeur par défaut standardisée
         
         // Nettoyer localStorage aussi
         const currentData = loadFromLocalStorage() || {};

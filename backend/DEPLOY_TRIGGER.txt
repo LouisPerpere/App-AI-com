@@ -1,4 +1,4 @@
-CRITICAL API URL FIX - Frontend now points to correct backend URL
-Fixed REACT_APP_BACKEND_URL from dead preview environment to working backend
-Version: 3.3 with API Connection Fix  
-Timestamp: 2025-01-13 19:30:00
+FIELD PERSISTENCE FINALLY FIXED - Applied website_url protection logic to ALL fields
+All business profile fields now use: dbValue || currentValue || localValue pattern
+Version: 3.4 FINAL PERSISTENCE FIX
+Timestamp: 2025-01-13 20:00:00

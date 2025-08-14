@@ -1862,6 +1862,7 @@ function MainApp() {
       await axios.post(`${API}/content/batch-upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`
         },
       });
       

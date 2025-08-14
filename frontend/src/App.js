@@ -1316,7 +1316,8 @@ function MainApp() {
       contentValue = noteContent;
     }
 
-    console.log('📝 Adding note:', { titleValue, contentValue, priority: notePriority });
+    const normalizedPriority = normalizePriority(notePriority);
+    console.log('📝 Adding note:', { titleValue, contentValue, priority: normalizedPriority });
 
     if (!titleValue || !contentValue) {
       toast.error('Veuillez remplir tous les champs requis');
@@ -1327,7 +1328,7 @@ function MainApp() {
       const response = await axios.post(`${API}/notes`, {
         title: titleValue,
         content: contentValue,
-        priority: notePriority
+        priority: normalizedPriority
       }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
       });

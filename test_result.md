@@ -1171,7 +1171,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "ULTRA-SIMPLE Text Input Solution for Business Type and Note Priority - COMPLETED"
+    - "Demo Business Data Override Issue Testing"
   stuck_tasks:
     - "Enhanced Virtual Keyboard Support for All Devices"
     - "Business Profile Fields Virtual Keyboard Fix"

@@ -837,7 +837,9 @@ function MainApp() {
           console.log('📡 Force refresh business profile from database');
           const forceRefreshProfile = async () => {
             try {
-              const response = await axios.get(`${API}/business-profile`);
+              const response = await axios.get(`${API}/business-profile`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+              });
               console.log('🔄 Fresh data from DB:', response.data);
               setBusinessProfile(response.data);
               

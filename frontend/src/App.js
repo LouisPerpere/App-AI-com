@@ -1559,7 +1559,9 @@ function MainApp() {
   const loadSocialConnections = async () => {
     try {
       if (businessProfile?.id) {
-        const response = await axios.get(`${API}/social/connections?business_id=${businessProfile.id}`);
+        const response = await axios.get(`${API}/social/connections?business_id=${businessProfile.id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+        });
         setSocialConnections(response.data.connections || []);
       }
     } catch (error) {

@@ -674,7 +674,6 @@ function MainApp() {
   const [editEmail, setEditEmail] = useState('');
   const [editWebsiteUrl, setEditWebsiteUrl] = useState('');
   const [editBudgetRange, setEditBudgetRange] = useState('');
-  const [editPreferredPlatforms, setEditPreferredPlatforms] = useState([]);
   
   // User profile editing - STATES SÉPARÉS pour éviter le bug clavier
   const [editUserFirstName, setEditUserFirstName] = useState('');

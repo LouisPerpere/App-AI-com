@@ -40,19 +40,37 @@ class User:
         self.email = email
 
 # Compatible authentication function matching server.py
+# Import JWT authentication from main server
+try:
+    from database import DatabaseManager
+    JWT_AVAILABLE = True
+    print("✅ JWT authentication imported successfully")
+except ImportError as e:
+    print(f"⚠️ JWT authentication not available: {e}")
+    JWT_AVAILABLE = False
+
 def get_current_user_id(authorization: str = Header(None)) -> str:
     """Extract user ID from JWT token - compatible with server.py"""
     if not authorization or not authorization.startswith("Bearer "):
-        return "demo_user_id"
+        raise HTTPException(status_code=401, detail="Missing or invalid authorization header")
     
     token = authorization.replace("Bearer ", "")
     
-    # For now, extract from demo tokens or return demo
-    if token.startswith("demo_token"):
-        return "demo_user_id"
-    
-    # TODO: Add proper JWT decoding when needed
-    return "demo_user_id"
+    if JWT_AVAILABLE:
+        try:
+            # Use same JWT logic as main server
+            db_manager = DatabaseManager()
+            user_data = db_manager.verify_token(token)
+            if user_data:
+                return user_data.get("user_id", "")
+            else:
+                raise HTTPException(status_code=401, detail="Invalid token")
+        except Exception as e:
+            print(f"JWT verification error: {e}")
+            raise HTTPException(status_code=401, detail="Token verification failed")
+    else:
+        # Fallback mode
+        raise HTTPException(status_code=401, detail="Authentication system not available")
 
 def get_current_active_user(authorization: str = Header(None)) -> User:
     """Get current active user - compatible with server.py"""

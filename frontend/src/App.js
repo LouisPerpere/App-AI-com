@@ -1278,7 +1278,9 @@ function MainApp() {
   const loadBusinessProfile = async () => {
     try {
       console.log('🔄 Loading business profile from database');
-      const response = await axios.get(`${API}/business-profile`);
+      const response = await axios.get(`${API}/business-profile`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      });
       setBusinessProfile(response.data);
       
       // Initialiser les champs d'édition ET sauvegarder dans localStorage

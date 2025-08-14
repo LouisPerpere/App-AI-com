@@ -1149,7 +1149,6 @@ function MainApp() {
     if (cached.email) setEditEmail(cached.email);
     if (cached.website_url) setEditWebsiteUrl(cached.website_url);
     if (cached.budget_range) setEditBudgetRange(cached.budget_range);
-    if (cached.preferred_platforms) setEditPreferredPlatforms(cached.preferred_platforms);
     
     // Restaurer les champs de notes
     if (cached.note_priority) setNotePriority(cached.note_priority);

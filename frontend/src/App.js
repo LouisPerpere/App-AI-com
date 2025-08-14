@@ -985,7 +985,6 @@ function MainApp() {
       
       // Ces champs peuvent être réinitialisés sans problème
       if (!editBusinessType) setEditBusinessType(businessProfile.business_type || '');
-      if (editPreferredPlatforms.length === 0) setEditPreferredPlatforms(businessProfile.preferred_platforms || []);
     }
   }, [isAuthenticated, user, businessProfile]);
 

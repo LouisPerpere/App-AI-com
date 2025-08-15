@@ -1360,7 +1360,15 @@ function MainApp() {
   const loadBusinessProfile = async () => {
     // CRITICAL FIX: Don't fetch if auth is not ready (ChatGPT solution)
     const token = localStorage.getItem('access_token');
-    if (!token || !isAuthenticated || !user) {
+    if (!token) {
+      console.log('⚠️ No token - skipping business profile fetch');
+      return;
+    }
+    
+    // Allow fetch during checkAuth process (user might not be set yet)
+    if (!isAuthenticated && !user && token) {
+      console.log('🔍 Token exists but auth state not set yet - allowing fetch (during checkAuth)');
+    } else if (!token || !isAuthenticated || !user) {
       console.log('⚠️ Auth not ready - skipping business profile fetch');
       console.log('  token:', !!token, 'isAuthenticated:', isAuthenticated, 'user:', !!user);
       return;

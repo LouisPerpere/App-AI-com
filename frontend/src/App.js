@@ -1084,30 +1084,48 @@ function MainApp() {
           }
         }, 100);
       } else {
-        // Pour Desktop, initialiser les states seulement si ils sont vides
+        // Pour Desktop, utiliser la même logique de protection que loadBusinessProfile
         if (!editBusinessName && !isWebsiteFieldProtected) {
-          setEditBusinessName(businessProfile.business_name || '');
-          console.log('🔧 Init Desktop business name:', businessProfile.business_name);
+          const currentData = loadFromLocalStorage() || {};
+          const finalValue = businessProfile.business_name || editBusinessName || currentData.business_name || '';
+          setEditBusinessName(finalValue);
+          syncFieldWithStorage('business_name', finalValue);
+          console.log('🔧 Init Desktop business name:', finalValue);
         }
         if (!editBusinessDescription && !isWebsiteFieldProtected) {
-          setEditBusinessDescription(businessProfile.business_description || '');
-          console.log('🔧 Init Desktop business description');
+          const currentData = loadFromLocalStorage() || {};
+          const finalValue = businessProfile.business_description || editBusinessDescription || currentData.business_description || '';
+          setEditBusinessDescription(finalValue);
+          syncFieldWithStorage('business_description', finalValue);
+          console.log('🔧 Init Desktop business description:', finalValue);
         }
         if (!editTargetAudience && !isWebsiteFieldProtected) {
-          setEditTargetAudience(businessProfile.target_audience || '');
-          console.log('🔧 Init Desktop target audience');
+          const currentData = loadFromLocalStorage() || {};
+          const finalValue = businessProfile.target_audience || editTargetAudience || currentData.target_audience || '';
+          setEditTargetAudience(finalValue);
+          syncFieldWithStorage('target_audience', finalValue);
+          console.log('🔧 Init Desktop target audience:', finalValue);
         }
         if (!editEmail && !isWebsiteFieldProtected) {
-          setEditEmail(businessProfile.email || '');
-          console.log('🔧 Init Desktop email');
+          const currentData = loadFromLocalStorage() || {};
+          const finalValue = businessProfile.email || editEmail || currentData.email || '';
+          setEditEmail(finalValue);
+          syncFieldWithStorage('email', finalValue);
+          console.log('🔧 Init Desktop email:', finalValue);
         }
         if (!editWebsiteUrl && !isWebsiteFieldProtected) {
-          setEditWebsiteUrl(businessProfile.website_url || '');
-          console.log('🔧 Init Desktop website URL state:', businessProfile.website_url);
+          const currentData = loadFromLocalStorage() || {};
+          const finalValue = businessProfile.website_url || editWebsiteUrl || currentData.website_url || '';
+          setEditWebsiteUrl(finalValue);
+          syncFieldWithStorage('website_url', finalValue);
+          console.log('🔧 Init Desktop website URL state:', finalValue);
         }
         if (!editBudgetRange && !isWebsiteFieldProtected) {
-          setEditBudgetRange(businessProfile.budget_range || '');
-          console.log('🔧 Init Desktop budget range');
+          const currentData = loadFromLocalStorage() || {};
+          const finalValue = businessProfile.budget_range || editBudgetRange || currentData.budget_range || '';
+          setEditBudgetRange(finalValue);
+          syncFieldWithStorage('budget_range', finalValue);
+          console.log('🔧 Init Desktop budget range:', finalValue);
         }
       }
       

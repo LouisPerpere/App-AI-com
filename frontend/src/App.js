@@ -1906,6 +1906,9 @@ function MainApp() {
   };
 
   const handleLogout = () => {
+    console.log('🚨 LOGOUT TRIGGERED - handleLogout called');
+    console.log('🚨 Stack trace:', new Error().stack);
+    
     localStorage.removeItem('access_token');
     delete axios.defaults.headers.common['Authorization'];
     setIsAuthenticated(false);

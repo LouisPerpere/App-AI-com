@@ -263,10 +263,13 @@ class DatabaseManager:
             "user_id": user_id,
             "business_name": business_name,
             "business_type": "service",
+            "business_description": "",  # Ajouté pour correspondre au modèle Pydantic
             "target_audience": "Clients locaux",
             "brand_tone": "professionnel",
             "posting_frequency": "weekly",
             "preferred_platforms": ["Facebook", "Instagram"],
+            "budget_range": "",  # Ajouté pour correspondre au modèle Pydantic
+            "email": "",  # Ajouté pour correspondre au modèle Pydantic
             "hashtags_primary": [],
             "hashtags_secondary": [],
             "website_url": "",

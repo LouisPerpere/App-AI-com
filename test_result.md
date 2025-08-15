@@ -57,8 +57,8 @@
 ##   test_priority: "high_first"  # or "sequential" or "stuck_first"
 ##
 ## agent_communication:
-##     -agent: "main"  # or "testing" or "user"
-##     -message: "Communication message between agents"
+##   - agent: "main"
+##     message: "Phase 1: Test de bugs prioritaires - Vérification de l'état actuel des corrections de persistance de données business profile et module d'analyse de site web. Tests backend requis pour valider les corrections récentes avant implémentation de nouvelles fonctionnalités."
 
 # Protocol Guidelines for Main agent
 #

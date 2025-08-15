@@ -1026,31 +1026,61 @@ function MainApp() {
       }
       
       if (isVirtualKeyboardDevice) {
-        // Pour appareils avec clavier virtuel, initialiser les refs seulement si ils sont vides
+        // Pour appareils avec clavier virtuel, utiliser la même logique de protection que loadBusinessProfile
         setTimeout(() => {
           if (businessNameRef.current && !businessNameRef.current.value && !isWebsiteFieldProtected) {
-            businessNameRef.current.value = businessProfile.business_name || '';
-            console.log('🔧 Init virtual keyboard business name:', businessProfile.business_name);
+            const currentValue = businessNameRef.current.value;
+            const dbValue = businessProfile.business_name || '';
+            const localValue = loadFromLocalStorage()?.business_name || '';
+            const finalValue = dbValue || currentValue || localValue;
+            businessNameRef.current.value = finalValue;
+            syncFieldWithStorage('business_name', finalValue);
+            console.log('🔧 Init virtual keyboard business name:', finalValue);
           }
           if (businessDescriptionRef.current && !businessDescriptionRef.current.value && !isWebsiteFieldProtected) {
-            businessDescriptionRef.current.value = businessProfile.business_description || '';
-            console.log('🔧 Init virtual keyboard business description');
+            const currentValue = businessDescriptionRef.current.value;
+            const dbValue = businessProfile.business_description || '';
+            const localValue = loadFromLocalStorage()?.business_description || '';
+            const finalValue = dbValue || currentValue || localValue;
+            businessDescriptionRef.current.value = finalValue;
+            syncFieldWithStorage('business_description', finalValue);
+            console.log('🔧 Init virtual keyboard business description:', finalValue);
           }
           if (targetAudienceRef.current && !targetAudienceRef.current.value && !isWebsiteFieldProtected) {
-            targetAudienceRef.current.value = businessProfile.target_audience || '';
-            console.log('🔧 Init virtual keyboard target audience');
+            const currentValue = targetAudienceRef.current.value;
+            const dbValue = businessProfile.target_audience || '';
+            const localValue = loadFromLocalStorage()?.target_audience || '';
+            const finalValue = dbValue || currentValue || localValue;
+            targetAudienceRef.current.value = finalValue;
+            syncFieldWithStorage('target_audience', finalValue);
+            console.log('🔧 Init virtual keyboard target audience:', finalValue);
           }
           if (emailRef.current && !emailRef.current.value && !isWebsiteFieldProtected) {
-            emailRef.current.value = businessProfile.email || '';
-            console.log('🔧 Init virtual keyboard email');
+            const currentValue = emailRef.current.value;
+            const dbValue = businessProfile.email || '';
+            const localValue = loadFromLocalStorage()?.email || '';
+            const finalValue = dbValue || currentValue || localValue;
+            emailRef.current.value = finalValue;
+            syncFieldWithStorage('email', finalValue);
+            console.log('🔧 Init virtual keyboard email:', finalValue);
           }
           if (websiteUrlRef.current && !websiteUrlRef.current.value && !isWebsiteFieldProtected) {
-            websiteUrlRef.current.value = businessProfile.website_url || '';
-            console.log('🔧 Init virtual keyboard website URL ref:', businessProfile.website_url);
+            const currentValue = websiteUrlRef.current.value;
+            const dbValue = businessProfile.website_url || '';
+            const localValue = loadFromLocalStorage()?.website_url || '';
+            const finalValue = dbValue || currentValue || localValue;
+            websiteUrlRef.current.value = finalValue;
+            syncFieldWithStorage('website_url', finalValue);
+            console.log('🔧 Init virtual keyboard website URL ref:', finalValue);
           }
           if (budgetRangeRef.current && !budgetRangeRef.current.value && !isWebsiteFieldProtected) {
-            budgetRangeRef.current.value = businessProfile.budget_range || '';
-            console.log('🔧 Init virtual keyboard budget range');
+            const currentValue = budgetRangeRef.current.value;
+            const dbValue = businessProfile.budget_range || '';
+            const localValue = loadFromLocalStorage()?.budget_range || '';
+            const finalValue = dbValue || currentValue || localValue;
+            budgetRangeRef.current.value = finalValue;
+            syncFieldWithStorage('budget_range', finalValue);
+            console.log('🔧 Init virtual keyboard budget range:', finalValue);
           }
         }, 100);
       } else {

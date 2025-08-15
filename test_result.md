@@ -1179,10 +1179,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Demo Business Data Override Issue Testing"
-  stuck_tasks:
-    - "Enhanced Virtual Keyboard Support for All Devices"
-    - "Business Profile Fields Virtual Keyboard Fix"
+    - "Business Profile Data Persistence Issue"
+    - "Website Analysis Field Clearing Issue"
+    - "Enhanced Website Analysis API Backend"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 

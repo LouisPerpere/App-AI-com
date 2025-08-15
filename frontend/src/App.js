@@ -1004,6 +1004,24 @@ function MainApp() {
     const lastCleanup = localStorage.getItem('last_cleanup');
     const now = Date.now();
     
+    // iOS Safari specific: Check if localStorage is working
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if (isIOS) {
+      console.log('📱 iOS detected - checking localStorage reliability');
+      try {
+        localStorage.setItem('ios_test', 'working');
+        const test = localStorage.getItem('ios_test');
+        if (test !== 'working') {
+          console.log('⚠️ iOS localStorage issue detected');
+        } else {
+          console.log('✅ iOS localStorage working');
+        }
+        localStorage.removeItem('ios_test');
+      } catch (e) {
+        console.log('❌ iOS localStorage error:', e);
+      }
+    }
+    
     // Clean localStorage if it's older than 1 hour or if no cleanup record
     if (!lastCleanup || (now - parseInt(lastCleanup)) > 3600000) {
       console.log('🧹 Cleaning old localStorage data to prevent cache conflicts');

@@ -84,8 +84,9 @@ const AuthPage = ({ onAuthSuccess }) => {
         localStorage.setItem('refresh_token', refreshToken);
       }
       
-      // Set axios default header immediately
+      // Set axios default header and credentials for cross-site requests (ChatGPT fix)
       axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+      axios.defaults.withCredentials = true;
       
       console.log('🎉 LOGIN COMPLETE - Calling onAuthSuccess()');
       toast.success('Connexion réussie ! 🎉');

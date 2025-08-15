@@ -1292,6 +1292,7 @@ function MainApp() {
             const currentValue = businessNameRef.current.value;
             const dbValue = response.data.business_name || '';
             const localValue = loadFromLocalStorage()?.business_name || '';
+            console.log('🔍 DEBUG business_name:', { dbValue, currentValue, localValue, final: dbValue || currentValue || localValue });
             // Only update if database has a value or current field is empty
             businessNameRef.current.value = dbValue || currentValue || localValue;
             syncFieldWithStorage('business_name', businessNameRef.current.value);
@@ -1300,6 +1301,7 @@ function MainApp() {
             const currentValue = businessDescriptionRef.current.value;
             const dbValue = response.data.business_description || '';
             const localValue = loadFromLocalStorage()?.business_description || '';
+            console.log('🔍 DEBUG business_description:', { dbValue, currentValue, localValue, final: dbValue || currentValue || localValue });
             // Only update if database has a value or current field is empty
             businessDescriptionRef.current.value = dbValue || currentValue || localValue;
             syncFieldWithStorage('business_description', businessDescriptionRef.current.value);
@@ -1308,6 +1310,7 @@ function MainApp() {
             const currentValue = targetAudienceRef.current.value;
             const dbValue = response.data.target_audience || '';
             const localValue = loadFromLocalStorage()?.target_audience || '';
+            console.log('🔍 DEBUG target_audience:', { dbValue, currentValue, localValue, final: dbValue || currentValue || localValue });
             // Only update if database has a value or current field is empty
             targetAudienceRef.current.value = dbValue || currentValue || localValue;
             syncFieldWithStorage('target_audience', targetAudienceRef.current.value);
@@ -1316,6 +1319,7 @@ function MainApp() {
             const currentValue = emailRef.current.value;
             const dbValue = response.data.email || '';
             const localValue = loadFromLocalStorage()?.email || '';
+            console.log('🔍 DEBUG email:', { dbValue, currentValue, localValue, final: dbValue || currentValue || localValue });
             // Only update if database has a value or current field is empty
             emailRef.current.value = dbValue || currentValue || localValue;
             syncFieldWithStorage('email', emailRef.current.value);
@@ -1324,6 +1328,7 @@ function MainApp() {
             const currentValue = websiteUrlRef.current.value;
             const dbValue = response.data.website_url || '';
             const localValue = loadFromLocalStorage()?.website_url || '';
+            console.log('🔍 DEBUG website_url:', { dbValue, currentValue, localValue, final: dbValue || currentValue || localValue });
             // Only update if database has a value or current field is empty
             websiteUrlRef.current.value = dbValue || currentValue || localValue;
             syncFieldWithStorage('website_url', websiteUrlRef.current.value);

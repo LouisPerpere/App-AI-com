@@ -30,6 +30,17 @@ except ImportError as e:
 # FastAPI app
 app = FastAPI(title="Claire et Marcus API", version="1.0.0")
 
+# Add anti-cache middleware for API responses (fix PWA/Service Worker cache issues)
+@app.middleware("http")
+async def add_no_cache_headers(request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith("/api"):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, proxy-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        response.headers["Surrogate-Control"] = "no-store"
+    return response
+
 # API router with prefix
 api_router = APIRouter(prefix="/api")
 

@@ -719,9 +719,11 @@ function MainApp() {
         console.log('📡 Fresh business profile data loaded:', response.data);
         setBusinessProfile(response.data);
         
-        // Update both localStorage and field values
+        // CRITICAL: Always sync fresh backend data to localStorage to prevent stale cache
+        console.log('🔄 Syncing fresh backend data to localStorage');
         saveToLocalStorage(response.data);
         
+        // Force update all fields with fresh backend data to override any stale values
         if (isVirtualKeyboardDevice) {
           // Update refs for virtual keyboard devices
           setTimeout(() => {

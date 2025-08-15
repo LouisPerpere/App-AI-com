@@ -8,6 +8,9 @@ import PaymentPage from './PaymentPage';
 import AdminDashboard from './AdminDashboard';
 import FacebookCallback from './FacebookCallback';
 
+// Configure axios for cross-site authentication (ChatGPT fix)
+axios.defaults.withCredentials = true;
+
 // Import UI components
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';

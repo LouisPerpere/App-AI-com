@@ -1169,7 +1169,8 @@ function MainApp() {
 
   const checkAuth = async () => {
     const token = localStorage.getItem('access_token');
-    console.log('🔍 APP DEBUG - Checking auth, token exists:', !!token);
+    console.log('🔍 checkAuth called - token exists:', !!token);
+    console.log('🔍 checkAuth stack trace:', new Error().stack);
     
     if (!token) {
       console.log('🔍 APP DEBUG - No token found, setting authenticated to false');

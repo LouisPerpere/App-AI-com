@@ -1528,8 +1528,9 @@ function MainApp() {
         console.log('📝 No business profile found - redirecting to onboarding');
         setActiveStep('onboarding');
       } else {
-        console.log('⚠️ Profile fetch failed - staying on current step');
-        // NO DEMO FALLBACK - just log the error
+        console.log('⚠️ Profile fetch failed but keeping user authenticated');
+        // DON'T reset auth state on network/server errors
+        setActiveStep('dashboard');
       }
     }
   };

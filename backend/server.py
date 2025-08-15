@@ -553,12 +553,17 @@ if PAYMENTS_V2_AVAILABLE:
 else:
     print("⚠️ Payments endpoints not available - running without Stripe integration")
 
-# CORS middleware
+# CORS middleware - FIX for cross-site authentication (ChatGPT solution)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origins=[
+        "https://claire-marcus.com",
+        "https://www.claire-marcus.com", 
+        "http://localhost:3000",
+        "http://10.64.167.140:3000"
+    ],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 

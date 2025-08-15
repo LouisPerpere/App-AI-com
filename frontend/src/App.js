@@ -1508,8 +1508,20 @@ function MainApp() {
       
       setActiveStep('dashboard');
     } catch (error) {
-      if (error.response?.status === 404) {
+      console.log('❌ Business profile fetch error:', error.response?.status, error.response?.data);
+      
+      if (error.response?.status === 401) {
+        console.log('🔓 Authentication failed - redirecting to login');
+        localStorage.removeItem('access_token');
+        setIsAuthenticated(false);
+        setUser(null);
+        setActiveStep('login');
+      } else if (error.response?.status === 404) {
+        console.log('📝 No business profile found - redirecting to onboarding');
         setActiveStep('onboarding');
+      } else {
+        console.log('⚠️ Profile fetch failed - staying on current step');
+        // NO DEMO FALLBACK - just log the error
       }
     }
   };

@@ -45,7 +45,7 @@ Au lieu de:
 ### 5. TEST FINAL
 Une fois corrigé:
 ```
-curl https://1442dd46-c101-4718-bee5-2cd4e16f3de3.preview.emergentagent.com/api/diag
+curl https://datafix-1.preview.emergentagent.com/api/diag
 ```
 
 Devrait retourner: `"database_connected": true`

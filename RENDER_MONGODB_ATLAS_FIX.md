@@ -35,7 +35,7 @@ DB_NAME=claire_marcus
 
 Une fois redéployé, tester:
 ```bash
-curl https://1442dd46-c101-4718-bee5-2cd4e16f3de3.preview.emergentagent.com/api/diag
+curl https://datafix-1.preview.emergentagent.com/api/diag
 ```
 
 **Résultat attendu**: `"database_connected": true`
@@ -46,7 +46,7 @@ Si le frontend Netlify ne pointe pas vers le bon backend:
 
 **Netlify Dashboard** → **Site Settings** → **Environment Variables**
 ```
-REACT_APP_BACKEND_URL=https://1442dd46-c101-4718-bee5-2cd4e16f3de3.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://datafix-1.preview.emergentagent.com
 ```
 
 ### 6. TEST FINAL

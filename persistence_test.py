@@ -12,7 +12,7 @@ from datetime import datetime
 class BusinessProfilePersistenceTest:
     def __init__(self):
         # Use the frontend environment URL for testing
-        self.base_url = "https://virtual-keyboard-fix.preview.emergentagent.com"
+        self.base_url = "https://datafix-1.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.tests_run = 0

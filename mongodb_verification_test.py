@@ -16,7 +16,7 @@ sys.path.append('/app/backend')
 
 class MongoDBVerificationTester:
     def __init__(self):
-        self.base_url = "https://1442dd46-c101-4718-bee5-2cd4e16f3de3.preview.emergentagent.com"
+        self.base_url = "https://datafix-1.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.user_id = None

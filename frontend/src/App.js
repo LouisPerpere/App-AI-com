@@ -995,7 +995,38 @@ function MainApp() {
   }, []);
 
   // Check authentication on mount
+  // Force clean localStorage on first load to avoid cache conflicts
   useEffect(() => {
+    // Check if this is a fresh session (no access_token but page just loaded)
+    const token = localStorage.getItem('access_token');
+    const lastCleanup = localStorage.getItem('last_cleanup');
+    const now = Date.now();
+    
+    // Clean localStorage if it's older than 1 hour or if no cleanup record
+    if (!lastCleanup || (now - parseInt(lastCleanup)) > 3600000) {
+      console.log('🧹 Cleaning old localStorage data to prevent cache conflicts');
+      const keysToClean = [
+        'claire_marcus_business_profile_cache',
+        'business_name', 
+        'business_description',
+        'target_audience', 
+        'email',
+        'website_url',
+        'budget_range'
+      ];
+      
+      keysToClean.forEach(key => {
+        const oldValue = localStorage.getItem(key);
+        if (oldValue) {
+          console.log(`🗑️ Cleaning old cache: ${key} = ${oldValue}`);
+          localStorage.removeItem(key);
+        }
+      });
+      
+      localStorage.setItem('last_cleanup', now.toString());
+      console.log('✅ localStorage cleanup completed');
+    }
+    
     checkAuth();
   }, []);
 

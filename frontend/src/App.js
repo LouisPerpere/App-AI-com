@@ -1515,7 +1515,9 @@ function MainApp() {
     }
 
     try {
-      const response = await axios.delete(`${API}/notes/${noteId}`);
+      const response = await axios.delete(`${API}/notes/${noteId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      });
       
       if (response.status === 200 || response.status === 204) {
         toast.success('Note supprimée avec succès !');

@@ -370,6 +370,14 @@ async def get_business_profile(user_id: str = Depends(get_current_user_id)):
 async def update_business_profile(profile: BusinessProfile, user_id: str = Depends(get_current_user_id)):
     """Update business profile with real database persistence"""
     try:
+        # RENDER FIX: Try to ensure DB connection before checking
+        if not db.is_connected():
+            print(f"⚠️ DB not connected during PUT, attempting to reconnect...")
+            try:
+                db = get_database()  # Try to get fresh connection
+            except:
+                pass
+        
         if db.is_connected() and user_id != "demo_user_id":
             # Update real business profile in database
             profile_data = profile.dict()
@@ -397,6 +405,8 @@ async def update_business_profile(profile: BusinessProfile, user_id: str = Depen
                         "profile": profile_data,
                         "updated_at": profile_data["updated_at"].isoformat()
                     }
+        else:
+            print(f"❌ DB connection failed during PUT: connected={db.is_connected()}, user_id={user_id}")
         
         # Fallback to demo mode (still return success for frontend compatibility)
         print(f"⚠️ Demo mode: Profile update simulated for user_id: {user_id}")

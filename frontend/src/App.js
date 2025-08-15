@@ -1102,7 +1102,8 @@ function MainApp() {
     try {
       console.log('🔍 APP DEBUG - Making /auth/me request to:', `${API}/auth/me`);
       const response = await axios.get(`${API}/auth/me`, {
-        timeout: 15000
+        timeout: 15000,
+        headers: { Authorization: `Bearer ${token}` }
       });
       
       console.log('✅ APP DEBUG - Auth check successful:', response.data);

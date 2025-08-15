@@ -370,13 +370,9 @@ async def get_business_profile(user_id: str = Depends(get_current_user_id)):
 async def update_business_profile(profile: BusinessProfile, user_id: str = Depends(get_current_user_id)):
     """Update business profile with real database persistence"""
     try:
-        # RENDER FIX: Try to ensure DB connection before checking
+        # Check database connection
         if not db.is_connected():
-            print(f"⚠️ DB not connected during PUT, attempting to reconnect...")
-            try:
-                db = get_database()  # Try to get fresh connection
-            except:
-                pass
+            print(f"⚠️ DB not connected during PUT for user {user_id}")
         
         if db.is_connected() and user_id != "demo_user_id":
             # Update real business profile in database
@@ -394,17 +390,7 @@ async def update_business_profile(profile: BusinessProfile, user_id: str = Depen
                     "updated_at": profile_data["updated_at"].isoformat()
                 }
             else:
-                print(f"⚠️ No profile found to update for user {user_id}, creating new one")
-                # Create new profile if update failed (profile doesn't exist)
-                db._create_default_business_profile(user_id, profile.business_name)
-                # Try update again
-                success = db.update_business_profile(user_id, profile_data)
-                if success:
-                    return {
-                        "message": "Profile created and updated successfully", 
-                        "profile": profile_data,
-                        "updated_at": profile_data["updated_at"].isoformat()
-                    }
+                print(f"⚠️ Profile update failed for user {user_id}")
         else:
             print(f"❌ DB connection failed during PUT: connected={db.is_connected()}, user_id={user_id}")
         

@@ -292,25 +292,47 @@ async def get_business_profile(user_id: str = Depends(get_current_user_id)):
                     profile.pop('profile_id', None)
                     return profile
         
-        # Return demo profile for authenticated users without business profile (WORKING BEHAVIOR RESTORED)
+        # AUTO-CREATE business profile for authenticated users without one (FIX DEMO DATA ISSUE)
         if user_id == "demo_user_id":
             print(f"⚠️ Unauthenticated request - returning demo profile")
+            business_name = "Demo Business"
+            email = "demo@claire-marcus.com"
         else:
-            print(f"⚠️ Authenticated user {user_id} has no business profile - returning demo profile as placeholder")
+            print(f"🔧 Authenticated user {user_id} has no business profile - auto-creating one")
+            
+            # Get user info to create personalized profile
+            user_data = db.db.users.find_one({"user_id": user_id})
+            business_name = user_data.get("business_name", "Mon Entreprise") if user_data else "Mon Entreprise"
+            email = user_data.get("email", "") if user_data else ""
+            
+            # Create business profile for this user
+            try:
+                db._create_default_business_profile(user_id, business_name)
+                print(f"✅ Auto-created business profile for user {user_id}")
+                
+                # Now fetch the newly created profile
+                profile = db.get_business_profile(user_id)
+                if profile:
+                    print(f"✅ Returning newly created profile for user {user_id}")
+                    return profile
+                
+            except Exception as create_error:
+                print(f"❌ Failed to auto-create profile: {create_error}")
         
+        # Only fallback to demo if it's actually a demo user or creation failed
         return {
-            "business_name": "Demo Business",
+            "business_name": business_name,
             "business_type": "service", 
-            "business_description": "Exemple d'entreprise utilisant Claire et Marcus pour gérer ses réseaux sociaux",
-            "target_audience": "Demo audience",
+            "business_description": "",
+            "target_audience": "Clients locaux",
             "brand_tone": "professional",
             "posting_frequency": "weekly",
-            "preferred_platforms": ["Facebook", "Instagram", "LinkedIn"],
-            "budget_range": "500-1000€",
-            "email": "demo@claire-marcus.com",
+            "preferred_platforms": ["Facebook", "Instagram"],
+            "budget_range": "",
+            "email": email,
             "website_url": "",
-            "hashtags_primary": ["demo", "claire", "marcus"],
-            "hashtags_secondary": ["social", "media", "management"]
+            "hashtags_primary": [],
+            "hashtags_secondary": []
         }
     except Exception as e:
         print(f"❌ Error getting business profile: {e}")

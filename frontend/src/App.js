@@ -1530,7 +1530,8 @@ function MainApp() {
         setActiveStep('onboarding');
       } else {
         console.log('⚠️ Profile fetch failed but keeping user authenticated');
-        // DON'T reset auth state on network/server errors
+        // DON'T reset auth state on network/server errors - ESPECIALLY ON iOS
+        console.log('📱 iOS Protection: Not resetting auth on profile fetch error');
         setActiveStep('dashboard');
       }
     }

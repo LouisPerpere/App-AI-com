@@ -116,6 +116,18 @@ async def health_check():
         "message": "API is running successfully!"
     }
 
+# Diagnostic endpoint as suggested by ChatGPT
+@api_router.get("/diag")
+async def diagnostic():
+    """Diagnostic endpoint to check environment and database"""
+    return {
+        "database_connected": db.is_connected(),
+        "database_name": "claire_marcus",
+        "mongo_url_prefix": os.environ.get('MONGO_URL', '')[:25] + '...' if os.environ.get('MONGO_URL') else 'NOT_SET',
+        "environment": os.environ.get('NODE_ENV', 'development'),
+        "timestamp": datetime.now().isoformat()
+    }
+
 # Root endpoint
 @app.get("/")
 async def root():

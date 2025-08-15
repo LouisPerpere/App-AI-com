@@ -1356,22 +1356,52 @@ function MainApp() {
         const currentData = loadFromLocalStorage() || {};
         
         const businessName = response.data.business_name || editBusinessName || currentData.business_name || '';
+        console.log('🔍 DEBUG DESKTOP business_name:', { 
+          dbValue: response.data.business_name, 
+          currentState: editBusinessName, 
+          localStorage: currentData.business_name,
+          final: businessName 
+        });
         setEditBusinessName(businessName);
         syncFieldWithStorage('business_name', businessName);
         
         const businessDescription = response.data.business_description || editBusinessDescription || currentData.business_description || '';
+        console.log('🔍 DEBUG DESKTOP business_description:', { 
+          dbValue: response.data.business_description, 
+          currentState: editBusinessDescription, 
+          localStorage: currentData.business_description,
+          final: businessDescription 
+        });
         setEditBusinessDescription(businessDescription);
         syncFieldWithStorage('business_description', businessDescription);
         
         const targetAudience = response.data.target_audience || editTargetAudience || currentData.target_audience || '';
+        console.log('🔍 DEBUG DESKTOP target_audience:', { 
+          dbValue: response.data.target_audience, 
+          currentState: editTargetAudience, 
+          localStorage: currentData.target_audience,
+          final: targetAudience 
+        });
         setEditTargetAudience(targetAudience);
         syncFieldWithStorage('target_audience', targetAudience);
         
         const email = response.data.email || editEmail || currentData.email || '';
+        console.log('🔍 DEBUG DESKTOP email:', { 
+          dbValue: response.data.email, 
+          currentState: editEmail, 
+          localStorage: currentData.email,
+          final: email 
+        });
         setEditEmail(email);
         syncFieldWithStorage('email', email);
         
         const websiteUrl = response.data.website_url || editWebsiteUrl || currentData.website_url || '';
+        console.log('🔍 DEBUG DESKTOP website_url:', { 
+          dbValue: response.data.website_url, 
+          currentState: editWebsiteUrl, 
+          localStorage: currentData.website_url,
+          final: websiteUrl 
+        });
         setEditWebsiteUrl(websiteUrl);
         syncFieldWithStorage('website_url', websiteUrl);
         

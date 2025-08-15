@@ -292,27 +292,19 @@ async def get_business_profile(user_id: str = Depends(get_current_user_id)):
                     profile.pop('profile_id', None)
                     return profile
         
-        # Fallback to demo mode
-        print(f"⚠️ Returning demo business profile for user_id: {user_id}")
-        print(f"⚠️ Database connected: {db.is_connected()}")
-        print(f"⚠️ User ID type: {type(user_id)}, value: {user_id}")
-        return {
-            "business_name": "Demo Business",
-            "business_type": "service",
-            "business_description": "Exemple d'entreprise utilisant Claire et Marcus pour gérer ses réseaux sociaux",
-            "target_audience": "Demo audience",
-            "brand_tone": "professional",
-            "posting_frequency": "weekly",
-            "preferred_platforms": ["Facebook", "Instagram", "LinkedIn"],
-            "budget_range": "500-1000€",
-            "email": "demo@claire-marcus.com",
-            "website_url": "",
-            "hashtags_primary": ["demo", "claire", "marcus"],
-            "hashtags_secondary": ["social", "media", "management"]
-        }
+        # NO FALLBACK TO DEMO! Return proper HTTP errors instead
+        if user_id == "demo_user_id":
+            print(f"❌ Unauthenticated request - returning 401")
+            raise HTTPException(status_code=401, detail="Authentication required")
+        
+        print(f"❌ No business profile found for authenticated user: {user_id}")
+        raise HTTPException(status_code=404, detail="Business profile not found")
+    except HTTPException:
+        # Re-raise HTTP exceptions (401/404)
+        raise
     except Exception as e:
         print(f"❌ Error getting business profile: {e}")
-        # Return demo profile on error
+        raise HTTPException(status_code=500, detail="Internal server error")
         return {
             "business_name": "Demo Business", 
             "business_type": "service",

@@ -292,18 +292,21 @@ class DatabaseManager:
         return profile
     
     def update_business_profile(self, user_id: str, profile_data: Dict[str, Any]) -> bool:
-        """Update business profile"""
+        """Update business profile with upsert capability"""
         if not self.is_connected():
             return False
         
         profile_data["updated_at"] = datetime.utcnow()
         
+        # Use upsert to create profile if it doesn't exist
         result = self.db.business_profiles.update_one(
             {"user_id": user_id},
-            {"$set": profile_data}
+            {"$set": profile_data},
+            upsert=True
         )
         
-        return result.modified_count > 0
+        # Return True if document was modified OR upserted
+        return result.modified_count > 0 or result.upserted_id is not None
     
     # Content Notes Management
     def create_note(self, user_id: str, content: str, description: str = None) -> Dict[str, Any]:

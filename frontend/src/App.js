@@ -1358,10 +1358,18 @@ function MainApp() {
   };
 
   const loadBusinessProfile = async () => {
+    // CRITICAL FIX: Don't fetch if auth is not ready (ChatGPT solution)
+    const token = localStorage.getItem('access_token');
+    if (!token || !isAuthenticated || !user) {
+      console.log('⚠️ Auth not ready - skipping business profile fetch');
+      console.log('  token:', !!token, 'isAuthenticated:', isAuthenticated, 'user:', !!user);
+      return;
+    }
+    
     try {
-      console.log('🔄 Loading business profile from database');
+      console.log('🔄 Loading business profile from database with auth ready');
       const response = await axios.get(`${API}/business-profile`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+        headers: { Authorization: `Bearer ${token}` }
       });
       setBusinessProfile(response.data);
       

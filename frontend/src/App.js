@@ -2404,12 +2404,32 @@ function MainApp() {
       });
 
       console.log('📡 Réponse API reçue:', response.data);
+      console.log('📡 Status code:', response.status);
+      console.log('📡 Response headers:', response.headers);
+      
+      // Vérifier si la réponse est valide avant de traiter
+      if (!response.data) {
+        throw new Error('Réponse API vide');
+      }
+      
+      // Vérifier si c'est une réponse d'erreur déguisée en 200
+      if (response.data.error || response.data.message?.toLowerCase().includes('erreur')) {
+        throw new Error(response.data.error || response.data.message || 'Erreur dans la réponse API');
+      }
+      
       console.log('📊 État AVANT setWebsiteAnalysis:', {
         businessName: isVirtualKeyboardDevice ? (businessNameRef.current?.value || '') : editBusinessName,
         websiteUrl: isVirtualKeyboardDevice ? (websiteUrlRef.current?.value || '') : editWebsiteUrl
       });
 
-      setWebsiteAnalysis(response.data);
+      // Traitement sécurisé des données d'analyse
+      try {
+        setWebsiteAnalysis(response.data);
+        console.log('✅ setWebsiteAnalysis exécuté avec succès');
+      } catch (setStateError) {
+        console.error('❌ Erreur lors de setWebsiteAnalysis:', setStateError);
+        throw new Error('Erreur lors du traitement des données d\'analyse');
+      }
       
       console.log('📊 État APRÈS setWebsiteAnalysis:', {
         businessName: isVirtualKeyboardDevice ? (businessNameRef.current?.value || '') : editBusinessName,

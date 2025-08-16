@@ -15,7 +15,7 @@ import io
 class BatchUploadTester:
     def __init__(self):
         # Use the production backend URL from frontend/.env
-        self.base_url = "https://805d29d2-003e-4a4d-83e5-eaa26437ff94.preview.emergentagent.com"
+        self.base_url = "https://bizpost-manager.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.user_id = None

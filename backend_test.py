@@ -1016,7 +1016,7 @@ class SocialGenieAPITester:
             
         checkout_data = {
             "package_id": "starter_monthly",
-            "origin_url": "https://datafix-1.preview.emergentagent.com"
+            "origin_url": "https://bizpost-manager.preview.emergentagent.com"
         }
         
         success, response = self.run_test(
@@ -1059,7 +1059,7 @@ class SocialGenieAPITester:
             
         checkout_data = {
             "package_id": "pro_yearly",
-            "origin_url": "https://datafix-1.preview.emergentagent.com"
+            "origin_url": "https://bizpost-manager.preview.emergentagent.com"
         }
         
         success, response = self.run_test(
@@ -1091,7 +1091,7 @@ class SocialGenieAPITester:
             
         checkout_data = {
             "package_id": "enterprise_monthly",
-            "origin_url": "https://datafix-1.preview.emergentagent.com"
+            "origin_url": "https://bizpost-manager.preview.emergentagent.com"
         }
         
         success, response = self.run_test(
@@ -1146,7 +1146,7 @@ class SocialGenieAPITester:
                 # Now test checkout with promo code
                 checkout_data = {
                     "package_id": "starter_monthly",
-                    "origin_url": "https://datafix-1.preview.emergentagent.com",
+                    "origin_url": "https://bizpost-manager.preview.emergentagent.com",
                     "promo_code": promo_code
                 }
                 
@@ -1186,7 +1186,7 @@ class SocialGenieAPITester:
             # Create demo checkout session (which should immediately process payment)
             checkout_data = {
                 "package_id": "pro_monthly",
-                "origin_url": "https://datafix-1.preview.emergentagent.com"
+                "origin_url": "https://bizpost-manager.preview.emergentagent.com"
             }
             
             checkout_success, checkout_response = self.run_test(
@@ -1231,7 +1231,7 @@ class SocialGenieAPITester:
         # Create demo checkout session
         checkout_data = {
             "package_id": "starter_monthly",
-            "origin_url": "https://datafix-1.preview.emergentagent.com"
+            "origin_url": "https://bizpost-manager.preview.emergentagent.com"
         }
         
         success, response = self.run_test(
@@ -1286,7 +1286,7 @@ class SocialGenieAPITester:
             
         checkout_data = {
             "package_id": "pro_monthly",
-            "origin_url": "https://datafix-1.preview.emergentagent.com"
+            "origin_url": "https://bizpost-manager.preview.emergentagent.com"
         }
         
         success, response = self.run_test(
@@ -1334,7 +1334,7 @@ class SocialGenieAPITester:
             
         checkout_data = {
             "package_id": "invalid_package",
-            "origin_url": "https://datafix-1.preview.emergentagent.com"
+            "origin_url": "https://bizpost-manager.preview.emergentagent.com"
         }
         
         success, response = self.run_test(
@@ -1359,7 +1359,7 @@ class SocialGenieAPITester:
             
         checkout_data = {
             "package_id": "starter_monthly",
-            "origin_url": "https://datafix-1.preview.emergentagent.com"
+            "origin_url": "https://bizpost-manager.preview.emergentagent.com"
         }
         
         success, response = self.run_test(
@@ -1391,7 +1391,7 @@ class SocialGenieAPITester:
             
         checkout_data = {
             "package_id": "invalid_package",
-            "origin_url": "https://datafix-1.preview.emergentagent.com"
+            "origin_url": "https://bizpost-manager.preview.emergentagent.com"
         }
         
         success, response = self.run_test(
@@ -1416,7 +1416,7 @@ class SocialGenieAPITester:
             
         checkout_data = {
             "package_id": "pro_monthly",
-            "origin_url": "https://datafix-1.preview.emergentagent.com",
+            "origin_url": "https://bizpost-manager.preview.emergentagent.com",
             "promo_code": "TESTCODE"
         }
         
@@ -1598,7 +1598,7 @@ class SocialGenieAPITester:
             # Now test checkout with the promo code
             checkout_data = {
                 "package_id": "starter_monthly",
-                "origin_url": "https://datafix-1.preview.emergentagent.com",
+                "origin_url": "https://bizpost-manager.preview.emergentagent.com",
                 "promo_code": promo_data["code"]
             }
             
@@ -1624,8 +1624,8 @@ class SocialGenieAPITester:
             return False
         
         test_origins = [
-            "https://datafix-1.preview.emergentagent.com",
-            "https://datafix-1.preview.emergentagent.com/",  # with trailing slash
+            "https://bizpost-manager.preview.emergentagent.com",
+            "https://bizpost-manager.preview.emergentagent.com/",  # with trailing slash
             "http://localhost:3000",
             "https://custom-domain.com"
         ]
@@ -1663,7 +1663,7 @@ class SocialGenieAPITester:
         # The server should only use server-side package definitions
         checkout_data = {
             "package_id": "starter_monthly",  # Valid package
-            "origin_url": "https://datafix-1.preview.emergentagent.com",
+            "origin_url": "https://bizpost-manager.preview.emergentagent.com",
             # These fields should be ignored by server (if they were included)
             "amount": 1.00,  # Trying to manipulate price
             "currency": "usd"  # Trying to change currency

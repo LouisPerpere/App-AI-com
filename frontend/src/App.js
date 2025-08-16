@@ -4113,7 +4113,7 @@ function MainApp() {
                       <input
                         type="file"
                         multiple
-                        accept="image/*,video/*,audio/*"
+                        accept="image/*,video/*"
                         onChange={(e) => setSelectedFiles(Array.from(e.target.files))}
                         className="hidden"
                         id="file-upload"

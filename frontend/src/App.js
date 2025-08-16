@@ -1099,7 +1099,11 @@ function MainApp() {
       loadPendingContent();
       loadNotes();
       loadSocialConnections();
-      // loadWebsiteAnalysis(); // REMOVED - This was causing data reload after analysis
+      
+      // Charger l'analyse de site web seulement si on n'est pas en cours d'analyse
+      if (!isAnalyzingWebsite) {
+        loadWebsiteAnalysis();
+      }
       
       // IMPORTANT: Initialiser les champs d'édition SEULEMENT si ils sont vides ET pas protégés
       // Cela évite d'écraser les valeurs pendant l'édition/analyse

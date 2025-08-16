@@ -2151,30 +2151,152 @@ function MainApp() {
     }
   };
 
-  const cancelEditingBusinessName = () => {
-    setTempBusinessName('');
-    setIsEditingBusinessName(false);
+
+  // Système d'édition avec verrouillage + bouton crayon/coche - FONCTIONS GÉNÉRIQUES
+  
+  // Configuration des champs avec leurs références et états
+  const fieldConfigs = {
+    business_name: {
+      ref: businessNameRef,
+      isEditing: isEditingBusinessName,
+      setIsEditing: setIsEditingBusinessName,
+      tempValue: tempBusinessName,
+      setTempValue: setTempBusinessName,
+      isSaving: isSavingBusinessName,
+      setIsSaving: setIsSavingBusinessName,
+      placeholder: 'Nom de votre entreprise',
+      validation: (value) => value.trim() ? null : 'Le nom de l\'entreprise ne peut pas être vide'
+    },
+    business_type: {
+      ref: businessTypeRef,
+      isEditing: isEditingBusinessType,
+      setIsEditing: setIsEditingBusinessType,
+      tempValue: tempBusinessType,
+      setTempValue: setTempBusinessType,
+      isSaving: isSavingBusinessType,
+      setIsSaving: setIsSavingBusinessType,
+      placeholder: 'artisan / commerçant / service',
+      validation: (value) => value.trim() ? null : 'Le type d\'entreprise ne peut pas être vide'
+    },
+    business_description: {
+      ref: businessDescriptionRef,
+      isEditing: isEditingBusinessDescription,
+      setIsEditing: setIsEditingBusinessDescription,
+      tempValue: tempBusinessDescription,
+      setTempValue: setTempBusinessDescription,
+      isSaving: isSavingBusinessDescription,
+      setIsSaving: setIsSavingBusinessDescription,
+      placeholder: 'Décrivez en quelques mots votre activité...',
+      validation: (value) => value.trim() ? null : 'La description ne peut pas être vide'
+    },
+    target_audience: {
+      ref: targetAudienceRef,
+      isEditing: isEditingTargetAudience,
+      setIsEditing: setIsEditingTargetAudience,
+      tempValue: tempTargetAudience,
+      setTempValue: setTempTargetAudience,
+      isSaving: isSavingTargetAudience,
+      setIsSaving: setIsSavingTargetAudience,
+      placeholder: 'Décrivez votre audience cible',
+      validation: (value) => value.trim() ? null : 'L\'audience cible ne peut pas être vide'
+    },
+    email: {
+      ref: emailRef,
+      isEditing: isEditingEmail,
+      setIsEditing: setIsEditingEmail,
+      tempValue: tempEmail,
+      setTempValue: setTempEmail,
+      isSaving: isSavingEmail,
+      setIsSaving: setIsSavingEmail,
+      placeholder: 'contact@entreprise.com',
+      validation: (value) => {
+        if (!value.trim()) return 'L\'email ne peut pas être vide';
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(value) ? null : 'Format d\'email invalide';
+      }
+    },
+    website_url: {
+      ref: websiteUrlRef,
+      isEditing: isEditingWebsiteUrl,
+      setIsEditing: setIsEditingWebsiteUrl,
+      tempValue: tempWebsiteUrl,
+      setTempValue: setTempWebsiteUrl,
+      isSaving: isSavingWebsiteUrl,
+      setIsSaving: setIsSavingWebsiteUrl,
+      placeholder: 'https://votre-site.com',
+      validation: (value) => {
+        if (!value.trim()) return null; // Website URL is optional
+        try {
+          new URL(value);
+          return null;
+        } catch {
+          return 'Format d\'URL invalide';
+        }
+      }
+    },
+    budget_range: {
+      ref: budgetRangeRef,
+      isEditing: isEditingBudgetRange,
+      setIsEditing: setIsEditingBudgetRange,
+      tempValue: tempBudgetRange,
+      setTempValue: setTempBudgetRange,
+      isSaving: isSavingBudgetRange,
+      setIsSaving: setIsSavingBudgetRange,
+      placeholder: 'Ex: 500€, 1000-2000€, etc.',
+      validation: (value) => value.trim() ? null : 'Le budget ne peut pas être vide'
+    }
   };
 
-  const saveBusinessName = async () => {
+  // Fonction générique pour démarrer l'édition
+  const startEditingField = (fieldName) => {
+    const config = fieldConfigs[fieldName];
+    const currentValue = businessProfile?.[fieldName] || '';
+    
+    // Pour tous les appareils, initialiser tempValue avec la valeur actuelle
+    config.setTempValue(currentValue);
+    config.setIsEditing(true);
+    
+    // Pour les appareils avec clavier virtuel, définir la valeur du ref après un petit délai
+    if (isVirtualKeyboardDevice && config.ref) {
+      setTimeout(() => {
+        if (config.ref.current) {
+          config.ref.current.value = currentValue;
+        }
+      }, 50);
+    }
+  };
+
+  // Fonction générique pour annuler l'édition
+  const cancelEditingField = (fieldName) => {
+    const config = fieldConfigs[fieldName];
+    config.setTempValue('');
+    config.setIsEditing(false);
+  };
+
+  // Fonction générique für sauvegarder un champ
+  const saveField = async (fieldName) => {
+    const config = fieldConfigs[fieldName];
+    
     // Récupérer la valeur selon le type d'appareil
-    let businessNameValue;
-    if (isVirtualKeyboardDevice && businessNameRef.current) {
-      businessNameValue = businessNameRef.current.value;
+    let fieldValue;
+    if (isVirtualKeyboardDevice && config.ref.current) {
+      fieldValue = config.ref.current.value;
     } else {
-      businessNameValue = tempBusinessName;
+      fieldValue = config.tempValue;
     }
 
-    if (!businessNameValue || !businessNameValue.trim()) {
-      toast.error('Le nom de l\'entreprise ne peut pas être vide');
+    // Validation
+    const validationError = config.validation(fieldValue);
+    if (validationError) {
+      toast.error(validationError);
       return;
     }
 
-    setIsSavingBusinessName(true);
+    config.setIsSaving(true);
     try {
       // Préparer les données pour la sauvegarde
       const profileData = {
-        business_name: businessNameValue.trim(),
+        business_name: businessProfile?.business_name || 'Mon entreprise',
         business_type: businessProfile?.business_type || 'service',
         business_description: businessProfile?.business_description || '',
         target_audience: businessProfile?.target_audience || '',
@@ -2188,6 +2310,9 @@ function MainApp() {
         hashtags_secondary: businessProfile?.hashtags_secondary || []
       };
 
+      // Mettre à jour le champ spécifique
+      profileData[fieldName] = fieldValue.trim();
+
       // Sauvegarder via API
       const response = await axios.put(`${API}/business-profile`, profileData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
@@ -2197,17 +2322,17 @@ function MainApp() {
         // Mettre à jour le profil business immédiatement
         setBusinessProfile(prev => ({
           ...prev,
-          business_name: businessNameValue.trim()
+          [fieldName]: fieldValue.trim()
         }));
         
         // Synchroniser avec localStorage pour la cohérence
-        syncFieldWithStorage('business_name', businessNameValue.trim());
+        syncFieldWithStorage(fieldName, fieldValue.trim());
         
         // Réinitialiser l'édition
-        setIsEditingBusinessName(false);
-        setTempBusinessName('');
+        config.setIsEditing(false);
+        config.setTempValue('');
         
-        toast.success('Nom de l\'entreprise sauvegardé !');
+        toast.success(`${getFieldDisplayName(fieldName)} sauvegardé !`);
         
         // Rafraîchir depuis la base de données pour confirmer
         setTimeout(() => {
@@ -2217,12 +2342,31 @@ function MainApp() {
         throw new Error('Erreur de sauvegarde');
       }
     } catch (error) {
-      console.error('Erreur sauvegarde nom entreprise:', error);
+      console.error(`Erreur sauvegarde ${fieldName}:`, error);
       toast.error('Erreur lors de la sauvegarde');
     } finally {
-      setIsSavingBusinessName(false);
+      config.setIsSaving(false);
     }
   };
+
+  // Fonction utilitaire pour obtenir le nom d'affichage du champ
+  const getFieldDisplayName = (fieldName) => {
+    const displayNames = {
+      business_name: 'Nom de l\'entreprise',
+      business_type: 'Type d\'entreprise',
+      business_description: 'Description de l\'activité',
+      target_audience: 'Audience cible',
+      email: 'Email professionnel',
+      website_url: 'Site web',
+      budget_range: 'Budget marketing'
+    };
+    return displayNames[fieldName] || fieldName;
+  };
+
+  // Fonctions spécifiques pour rétrocompatibilité (si nécessaire)
+  const startEditingBusinessName = () => startEditingField('business_name');
+  const cancelEditingBusinessName = () => cancelEditingField('business_name');
+  const saveBusinessName = () => saveField('business_name');
 
 
   // Enhanced website analysis functions

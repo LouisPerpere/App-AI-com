@@ -668,6 +668,7 @@ function MainApp() {
   const emailRef = useRef(null);
   const websiteUrlRef = useRef(null);
   const budgetRangeRef = useRef(null);
+  const brandToneRef = useRef(null);
   
   // Business profile editing - STATES SÉPARÉS pour Desktop
   const [editBusinessName, setEditBusinessName] = useState('');

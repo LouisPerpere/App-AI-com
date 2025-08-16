@@ -3686,38 +3686,83 @@ function MainApp() {
                               </div>
                             </div>
 
-                            {/* Budget marketing */}
+                            {/* Budget marketing avec système d'édition verrouillé */}
                             <div className="space-y-2">
                               <Label className="text-sm font-medium text-gray-700">Budget marketing mensuel</Label>
-                              {isVirtualKeyboardDevice ? (
-                                <input
-                                  ref={budgetRangeRef}
-                                  type="text"
-                                  className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                                  style={{ fontSize: '16px' }}
-                                    autoCorrect={false}
-                                    autoComplete="off"
-                                    spellCheck={false}
-                                    autoCapitalize="off"
-                                    defaultValue={businessProfile?.budget_range || loadFromLocalStorage()?.budget_range || ""}
-                                  placeholder="Ex: 500€, 1000-2000€, etc."
-                                  
-                                  onBlur={() => handleVirtualKeyboardRefBlur('budget_range', budgetRangeRef)}
-                                  onTouchEnd={() => {
-                                    // Solution iPadOS 18 - onTouchEnd pour budget_range
-                                    console.log('📱 onTouchEnd - Budget Range (SOLUTION iPadOS 18)');
-                                    handleVirtualKeyboardRefBlur('budget_range', budgetRangeRef);
-                                  }}
-                                />
-                              ) : (
-                                <Input
-                                  value={editBudgetRange}
-                                  onChange={(e) => handleFieldChange('budget_range', e.target.value, setEditBudgetRange)}
-                                  onBlur={(e) => handleFieldBlur('budget_range', e.target.value)}
-                                  placeholder="Ex: 500€, 1000-2000€, etc."
-                                  className="bg-white"
-                                />
-                              )}
+                              <div className="relative flex items-center gap-2">
+                                {isEditingBudgetRange ? (
+                                  // Mode édition avec champ input et bouton coche verte
+                                  <>
+                                    {isVirtualKeyboardDevice ? (
+                                      <input
+                                        ref={budgetRangeRef}
+                                        type="text"
+                                        className="w-full p-3 border border-blue-500 rounded-lg bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none"
+                                        style={{ fontSize: '16px' }}
+                                        autoCorrect={false}
+                                        autoComplete="off"
+                                        spellCheck={false}
+                                        autoCapitalize="off"
+                                        defaultValue={businessProfile?.budget_range || ''}
+                                        placeholder="Ex: 500€, 1000-2000€, etc."
+                                        disabled={isSavingBudgetRange}
+                                      />
+                                    ) : (
+                                      <Input
+                                        value={tempBudgetRange}
+                                        onChange={(e) => setTempBudgetRange(e.target.value)}
+                                        className="bg-white border-blue-500 focus:border-blue-600"
+                                        placeholder="Ex: 500€, 1000-2000€, etc."
+                                        disabled={isSavingBudgetRange}
+                                      />
+                                    )}
+                                    <div className="flex gap-1">
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        onClick={() => saveField('budget_range')}
+                                        disabled={isSavingBudgetRange}
+                                        className="bg-green-500 hover:bg-green-600 text-white p-2 min-w-[40px]"
+                                      >
+                                        {isSavingBudgetRange ? (
+                                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                        ) : (
+                                          <Check className="h-4 w-4" />
+                                        )}
+                                      </Button>
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => cancelEditingField('budget_range')}
+                                        disabled={isSavingBudgetRange}
+                                        className="p-2 min-w-[40px]"
+                                      >
+                                        <X className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </>
+                                ) : (
+                                  // Mode lecture avec champ verrouillé et bouton crayon
+                                  <>
+                                    <Input
+                                      value={businessProfile?.budget_range || '100-500€'}
+                                      readOnly
+                                      className="bg-gray-50 text-gray-700 cursor-default"
+                                    />
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => startEditingField('budget_range')}
+                                      className="p-2 min-w-[40px] hover:bg-blue-50 hover:border-blue-300"
+                                      title="Modifier le budget marketing"
+                                    >
+                                      <Edit className="h-4 w-4 text-blue-600" />
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
                             </div>
 
                             {/* Indicateur de sauvegarde automatique */}

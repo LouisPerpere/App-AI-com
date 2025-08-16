@@ -2513,11 +2513,11 @@ function MainApp() {
         }
       }
       
-      // Update the content list
-      setPendingContent(prev => prev.filter(content => !selectedContentIds.includes(content.id)));
+      // Exit selection mode first
+      exitSelectionMode();
       
-      // Update total count
-      setContentTotalCount(prev => Math.max(0, prev - deletedCount));
+      // Force reload content from backend to ensure consistency  
+      await loadPendingContent(true);
       
       // Show result message
       if (deletedCount > 0 && errorCount === 0) {
@@ -2527,9 +2527,6 @@ function MainApp() {
       } else {
         toast.error('Erreur lors de la suppression des contenus');
       }
-      
-      // Exit selection mode
-      exitSelectionMode();
       
     } catch (error) {
       console.error('Error in batch delete:', error);

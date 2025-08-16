@@ -5385,6 +5385,8 @@ function MainApp() {
         onDeleteContent={deleteContent}
         isSavingDescription={isSavingDescription}
         isDeletingContent={isDeletingContent}
+        isVirtualKeyboardDevice={isVirtualKeyboardDevice}
+        descriptionRef={contentDescriptionRef}
       />
     </div>
   );

@@ -3523,76 +3523,166 @@ function MainApp() {
                             </div>
 
                             <div className="grid md:grid-cols-2 gap-6">
-                              {/* Email professionnel */}
+                              {/* Email professionnel avec système d'édition verrouillé */}
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Email professionnel</Label>
-                                {isVirtualKeyboardDevice ? (
-                                  <input
-                                    ref={emailRef}
-                                    type="email"
-                                    className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                                    style={{ fontSize: '16px' }}
-                                    autoCorrect={false}
-                                    autoComplete="off"
-                                    spellCheck={false}
-                                    autoCapitalize="off"
-                                    defaultValue={businessProfile?.email || loadFromLocalStorage()?.email || ""}
-                                    placeholder="contact@entreprise.com"
-                                    
-                                    onBlur={() => handleVirtualKeyboardRefBlur('email', emailRef)}
-                                    onTouchEnd={() => {
-                                      // Solution iPadOS 18 - onTouchEnd pour email
-                                      console.log('📱 onTouchEnd - Email (SOLUTION iPadOS 18)');
-                                      handleVirtualKeyboardRefBlur('email', emailRef);
-                                    }}
-                                  />
-                                ) : (
-                                  <Input
-                                    type="email"
-                                    value={editEmail}
-                                    onChange={(e) => handleFieldChange('email', e.target.value, setEditEmail)}
-                                    onBlur={(e) => handleFieldBlur('email', e.target.value)}
-                                    placeholder="contact@entreprise.com"
-                                    className="bg-white"
-                                  />
-                                )}
+                                <div className="relative flex items-center gap-2">
+                                  {isEditingEmail ? (
+                                    // Mode édition avec champ input et bouton coche verte
+                                    <>
+                                      {isVirtualKeyboardDevice ? (
+                                        <input
+                                          ref={emailRef}
+                                          type="email"
+                                          className="w-full p-3 border border-blue-500 rounded-lg bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none"
+                                          style={{ fontSize: '16px' }}
+                                          autoCorrect={false}
+                                          autoComplete="off"
+                                          spellCheck={false}
+                                          autoCapitalize="off"
+                                          defaultValue={businessProfile?.email || ''}
+                                          placeholder="contact@entreprise.com"
+                                          disabled={isSavingEmail}
+                                        />
+                                      ) : (
+                                        <Input
+                                          type="email"
+                                          value={tempEmail}
+                                          onChange={(e) => setTempEmail(e.target.value)}
+                                          className="bg-white border-blue-500 focus:border-blue-600"
+                                          placeholder="contact@entreprise.com"
+                                          disabled={isSavingEmail}
+                                        />
+                                      )}
+                                      <div className="flex gap-1">
+                                        <Button
+                                          type="button"
+                                          size="sm"
+                                          onClick={() => saveField('email')}
+                                          disabled={isSavingEmail}
+                                          className="bg-green-500 hover:bg-green-600 text-white p-2 min-w-[40px]"
+                                        >
+                                          {isSavingEmail ? (
+                                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                          ) : (
+                                            <Check className="h-4 w-4" />
+                                          )}
+                                        </Button>
+                                        <Button
+                                          type="button"
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => cancelEditingField('email')}
+                                          disabled={isSavingEmail}
+                                          className="p-2 min-w-[40px]"
+                                        >
+                                          <X className="h-4 w-4" />
+                                        </Button>
+                                      </div>
+                                    </>
+                                  ) : (
+                                    // Mode lecture avec champ verrouillé et bouton crayon
+                                    <>
+                                      <Input
+                                        type="email"
+                                        value={businessProfile?.email || 'contact@entreprise.com'}
+                                        readOnly
+                                        className="bg-gray-50 text-gray-700 cursor-default"
+                                      />
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => startEditingField('email')}
+                                        className="p-2 min-w-[40px] hover:bg-blue-50 hover:border-blue-300"
+                                        title="Modifier l'email professionnel"
+                                      >
+                                        <Edit className="h-4 w-4 text-blue-600" />
+                                      </Button>
+                                    </>
+                                  )}
+                                </div>
                               </div>
 
-                              {/* Site web */}
+                              {/* Site web avec système d'édition verrouillé */}
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Site web</Label>
-                                {isVirtualKeyboardDevice ? (
-                                  <input
-                                    ref={websiteUrlRef}
-                                    type="url"
-                                    className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                                    style={{ fontSize: '16px' }}
-                                    autoCorrect={false}
-                                    autoComplete="off"
-                                    spellCheck={false}
-                                    autoCapitalize="off"
-                                    defaultValue={businessProfile?.website_url || loadFromLocalStorage()?.website_url || ""}
-                                    placeholder="https://votre-site.com"
-                                    onBlur={() => {
-                                      console.log('💾 Blur - Saving website URL');
-                                      handleVirtualKeyboardRefBlur('website_url', websiteUrlRef);
-                                    }}
-                                    onTouchEnd={() => {
-                                      // Solution iPadOS 18 - onTouchEnd pour website_url
-                                      console.log('📱 onTouchEnd - Website URL (SOLUTION iPadOS 18)');
-                                      handleVirtualKeyboardRefBlur('website_url', websiteUrlRef);
-                                    }}
-                                  />
-                                ) : (
-                                  <Input
-                                    type="url"
-                                    value={editWebsiteUrl}
-                                    onChange={(e) => handleFieldChange('website_url', e.target.value, setEditWebsiteUrl)}
-                                    onBlur={(e) => handleFieldBlur('website_url', e.target.value)}
-                                    placeholder="https://votre-site.com"
-                                    className="bg-white"
-                                  />
-                                )}
+                                <div className="relative flex items-center gap-2">
+                                  {isEditingWebsiteUrl ? (
+                                    // Mode édition avec champ input et bouton coche verte
+                                    <>
+                                      {isVirtualKeyboardDevice ? (
+                                        <input
+                                          ref={websiteUrlRef}
+                                          type="url"
+                                          className="w-full p-3 border border-blue-500 rounded-lg bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none"
+                                          style={{ fontSize: '16px' }}
+                                          autoCorrect={false}
+                                          autoComplete="off"
+                                          spellCheck={false}
+                                          autoCapitalize="off"
+                                          defaultValue={businessProfile?.website_url || ''}
+                                          placeholder="https://votre-site.com"
+                                          disabled={isSavingWebsiteUrl}
+                                        />
+                                      ) : (
+                                        <Input
+                                          type="url"
+                                          value={tempWebsiteUrl}
+                                          onChange={(e) => setTempWebsiteUrl(e.target.value)}
+                                          className="bg-white border-blue-500 focus:border-blue-600"
+                                          placeholder="https://votre-site.com"
+                                          disabled={isSavingWebsiteUrl}
+                                        />
+                                      )}
+                                      <div className="flex gap-1">
+                                        <Button
+                                          type="button"
+                                          size="sm"
+                                          onClick={() => saveField('website_url')}
+                                          disabled={isSavingWebsiteUrl}
+                                          className="bg-green-500 hover:bg-green-600 text-white p-2 min-w-[40px]"
+                                        >
+                                          {isSavingWebsiteUrl ? (
+                                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                          ) : (
+                                            <Check className="h-4 w-4" />
+                                          )}
+                                        </Button>
+                                        <Button
+                                          type="button"
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => cancelEditingField('website_url')}
+                                          disabled={isSavingWebsiteUrl}
+                                          className="p-2 min-w-[40px]"
+                                        >
+                                          <X className="h-4 w-4" />
+                                        </Button>
+                                      </div>
+                                    </>
+                                  ) : (
+                                    // Mode lecture avec champ verrouillé et bouton crayon
+                                    <>
+                                      <Input
+                                        type="url"
+                                        value={businessProfile?.website_url || 'https://votre-site.com'}
+                                        readOnly
+                                        className="bg-gray-50 text-gray-700 cursor-default"
+                                      />
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => startEditingField('website_url')}
+                                        className="p-2 min-w-[40px] hover:bg-blue-50 hover:border-blue-300"
+                                        title="Modifier le site web"
+                                      >
+                                        <Edit className="h-4 w-4 text-blue-600" />
+                                      </Button>
+                                    </>
+                                  )}
+                                </div>
                               </div>
                             </div>
 

@@ -699,10 +699,34 @@ function MainApp() {
   const [showBurgerMenu, setShowBurgerMenu] = useState(false);
   const [activeTab, setActiveTab] = useState('entreprise');
   
-  // Système de verrouillage d'édition avec bouton crayon/coche
+  // Système de verrouillage d'édition avec bouton crayon/coche pour tous les champs
   const [isEditingBusinessName, setIsEditingBusinessName] = useState(false);
-  const [tempBusinessName, setTempBusinessName] = useState(''); // Valeur temporaire pendant édition
+  const [tempBusinessName, setTempBusinessName] = useState('');
   const [isSavingBusinessName, setIsSavingBusinessName] = useState(false);
+  
+  const [isEditingBusinessType, setIsEditingBusinessType] = useState(false);
+  const [tempBusinessType, setTempBusinessType] = useState('');
+  const [isSavingBusinessType, setIsSavingBusinessType] = useState(false);
+  
+  const [isEditingBusinessDescription, setIsEditingBusinessDescription] = useState(false);
+  const [tempBusinessDescription, setTempBusinessDescription] = useState('');
+  const [isSavingBusinessDescription, setIsSavingBusinessDescription] = useState(false);
+  
+  const [isEditingTargetAudience, setIsEditingTargetAudience] = useState(false);
+  const [tempTargetAudience, setTempTargetAudience] = useState('');
+  const [isSavingTargetAudience, setIsSavingTargetAudience] = useState(false);
+  
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [tempEmail, setTempEmail] = useState('');
+  const [isSavingEmail, setIsSavingEmail] = useState(false);
+  
+  const [isEditingWebsiteUrl, setIsEditingWebsiteUrl] = useState(false);
+  const [tempWebsiteUrl, setTempWebsiteUrl] = useState('');
+  const [isSavingWebsiteUrl, setIsSavingWebsiteUrl] = useState(false);
+  
+  const [isEditingBudgetRange, setIsEditingBudgetRange] = useState(false);
+  const [tempBudgetRange, setTempBudgetRange] = useState('');
+  const [isSavingBudgetRange, setIsSavingBudgetRange] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeModalDismissed, setUpgradeModalDismissed] = useState(false);
   

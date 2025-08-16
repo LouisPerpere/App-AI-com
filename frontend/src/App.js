@@ -2360,18 +2360,18 @@ function MainApp() {
     }
   };
 
-  // Multiple selection functions
-  const enterSelectionMode = () => {
+  // Multiple selection functions (optimized with useCallback)
+  const enterSelectionMode = useCallback(() => {
     setIsSelectionMode(true);
     setSelectedContentIds([]);
-  };
+  }, []);
 
-  const exitSelectionMode = () => {
+  const exitSelectionMode = useCallback(() => {
     setIsSelectionMode(false);
     setSelectedContentIds([]);
-  };
+  }, []);
 
-  const toggleContentSelection = (contentId) => {
+  const toggleContentSelection = useCallback((contentId) => {
     setSelectedContentIds(prev => {
       if (prev.includes(contentId)) {
         return prev.filter(id => id !== contentId);
@@ -2379,9 +2379,9 @@ function MainApp() {
         return [...prev, contentId];
       }
     });
-  };
+  }, []);
 
-  const deleteSelectedContent = async () => {
+  const deleteSelectedContent = useCallback(async () => {
     if (selectedContentIds.length === 0) return;
     
     const count = selectedContentIds.length;
@@ -2428,7 +2428,7 @@ function MainApp() {
     } finally {
       setIsDeletingMultiple(false);
     }
-  };
+  }, [selectedContentIds, exitSelectionMode]);
 
   const addHashtag = (type, hashtag) => {
     if (!hashtag.trim()) return;

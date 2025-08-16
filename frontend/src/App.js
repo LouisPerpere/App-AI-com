@@ -3067,7 +3067,7 @@ function MainApp() {
                                           autoComplete="off"
                                           spellCheck={false}
                                           autoCapitalize="off"
-                                          defaultValue={tempBusinessName}
+                                          defaultValue={businessProfile?.business_name || 'Mon entreprise'}
                                           placeholder="Nom de votre entreprise"
                                           disabled={isSavingBusinessName}
                                         />

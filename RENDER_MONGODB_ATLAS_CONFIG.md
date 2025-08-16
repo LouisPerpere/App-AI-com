@@ -45,7 +45,7 @@ Au lieu de:
 ### 5. TEST FINAL
 Une fois corrigé:
 ```
-curl https://bizpost-manager.preview.emergentagent.com/api/diag
+curl https://data-harmony-1.preview.emergentagent.com/api/diag
 ```
 
 Devrait retourner: `"database_connected": true`

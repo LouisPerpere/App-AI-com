@@ -12,7 +12,7 @@ import uuid
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://1aab9348-7c0d-47ec-8e97-f26a8125fd39.preview.emergentagent.com/api"
+BACKEND_URL = "https://data-harmony-1.preview.emergentagent.com/api"
 TEST_USER_EMAIL = "lperpere@yahoo.fr"
 TEST_USER_PASSWORD = "L@Reunion974!"
 

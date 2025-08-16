@@ -9,7 +9,7 @@ import tempfile
 import os
 
 def test_batch_upload():
-    base_url = "https://bizpost-manager.preview.emergentagent.com"
+    base_url = "https://data-harmony-1.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     # Login first

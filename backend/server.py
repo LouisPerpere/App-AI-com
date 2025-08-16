@@ -508,7 +508,65 @@ async def delete_note(note_id: str, user_id: str = Depends(get_current_user_id))
         print(f"❌ Error deleting note: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to delete note: {str(e)}")
 
-# Bibliotheque endpoints
+# Content management endpoints
+@api_router.get("/content/pending")
+async def get_pending_content(user_id: str = Depends(get_current_user_id)):
+    """Get user's uploaded content files"""
+    try:
+        uploads_dir = "uploads"
+        if not os.path.exists(uploads_dir):
+            return {"content": []}
+        
+        # List all files in uploads directory
+        content_files = []
+        for filename in os.listdir(uploads_dir):
+            file_path = os.path.join(uploads_dir, filename)
+            if os.path.isfile(file_path):
+                try:
+                    file_stats = os.stat(file_path)
+                    file_size = file_stats.st_size
+                    
+                    # Determine content type based on file extension
+                    file_extension = os.path.splitext(filename)[1].lower()
+                    content_type = "application/octet-stream"
+                    if file_extension in ['.jpg', '.jpeg', '.png', '.gif', '.webp']:
+                        content_type = f"image/{file_extension[1:]}"
+                    elif file_extension in ['.mp4', '.mov', '.avi', '.mkv']:
+                        content_type = f"video/{file_extension[1:]}"
+                    
+                    # For images, try to read file data for preview
+                    file_data = None
+                    if content_type.startswith('image/'):
+                        try:
+                            with open(file_path, "rb") as f:
+                                import base64
+                                file_content = f.read()
+                                file_data = base64.b64encode(file_content).decode('utf-8')
+                        except Exception as e:
+                            print(f"⚠️ Could not read image file {filename}: {e}")
+                    
+                    content_files.append({
+                        "id": filename.split('.')[0],  # Use filename without extension as ID
+                        "filename": filename,
+                        "file_type": content_type,
+                        "file_data": file_data,  # Base64 encoded for images
+                        "size": file_size,
+                        "uploaded_at": datetime.fromtimestamp(file_stats.st_mtime).isoformat()
+                    })
+                except Exception as e:
+                    print(f"⚠️ Error processing file {filename}: {e}")
+                    continue
+        
+        # Sort by upload date (newest first)
+        content_files.sort(key=lambda x: x['uploaded_at'], reverse=True)
+        
+        return {"content": content_files}
+        
+    except Exception as e:
+        print(f"❌ Error getting pending content: {e}")
+        return {"content": []}
+
+# Bibliotheque endpoints (legacy)
 @api_router.get("/bibliotheque")
 async def get_bibliotheque():
     """Get bibliotheque (demo mode)"""

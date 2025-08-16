@@ -438,6 +438,14 @@ backend:
     stuck_count: 0
     priority: "high"
     needs_retesting: false
+
+  - task: "Bibliothèque Upload Functionality"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "testing"

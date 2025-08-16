@@ -13,8 +13,8 @@ from datetime import datetime
 
 class WebsiteAnalysisReviewTester:
     def __init__(self):
-        # Use the production backend URL from frontend/.env
-        self.base_url = "https://805d29d2-003e-4a4d-83e5-eaa26437ff94.preview.emergentagent.com"
+        # Use the local backend URL since we're testing in the container
+        self.base_url = "http://localhost:8001"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.tests_run = 0

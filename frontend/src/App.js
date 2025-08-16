@@ -2111,7 +2111,13 @@ function MainApp() {
   // Système d'édition avec verrouillage + bouton crayon/coche pour nom entreprise
   const startEditingBusinessName = () => {
     const currentValue = businessProfile?.business_name || 'Mon entreprise';
-    setTempBusinessName(currentValue);
+    
+    // Pour les appareils desktop, utiliser tempBusinessName
+    if (!isVirtualKeyboardDevice) {
+      setTempBusinessName(currentValue);
+    }
+    // Pour les appareils avec clavier virtuel, la valeur sera définie via defaultValue du ref
+    
     setIsEditingBusinessName(true);
   };
 

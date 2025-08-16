@@ -59,6 +59,8 @@
 ## agent_communication:
 ##   - agent: "main"
 ##     message: "Phase 1: Test de bugs prioritaires - Vérification de l'état actuel des corrections de persistance de données business profile et module d'analyse de site web. Tests backend requis pour valider les corrections récentes avant implémentation de nouvelles fonctionnalités."
+##   - agent: "main"
+##     message: "🔧 RÉSOLUTION BIBLIOTHÈQUE - URL Configuration Fix: Corrigé l'URL du frontend de https://data-harmony-1.preview.emergentagent.com vers http://localhost:8001/api pour résoudre les problèmes de synchronisation. Services redémarrés. Phase de test des 3 symptômes identifiés par ChatGPT: (1) médias supprimés qui reviennent, (2) commentaires non enregistrés, (3) badges non affichés. Tests requis pour validation."
 
 # Protocol Guidelines for Main agent
 #

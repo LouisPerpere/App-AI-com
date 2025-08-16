@@ -1874,6 +1874,11 @@ function MainApp() {
 
   // Function to check if feature is blocked
   const isFeatureBlocked = (feature) => {
+    // STRATÉGIE TEMPORAIRE : Fonctionnalités complètes pour tous (mois d'essai gratuit)
+    // Désactivation temporaire des limitations jusqu'à mise en place du système final
+    return false;
+    
+    /* LOGIQUE ORIGINALE COMMENTÉE
     if (!user) return true;
     
     // If trial expired, block everything
@@ -1906,6 +1911,7 @@ function MainApp() {
       default:
         return false;
     }
+    */
   };
 
   // Check modal conditions on component mount and when user changes

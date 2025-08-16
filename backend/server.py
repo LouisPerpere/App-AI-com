@@ -7,6 +7,7 @@ import os
 import uuid
 import shutil
 import asyncio
+import json
 from PIL import Image
 import io
 

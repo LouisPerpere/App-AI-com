@@ -735,7 +735,7 @@ def optimize_image(image_content: bytes, max_size: int = 1080, quality: int = 85
         
         # Handle EXIF orientation to prevent rotation issues
         try:
-            from PIL.ExifTags import ORIENTATION
+            # Use direct orientation tag number instead of ORIENTATION constant
             exif = image._getexif()
             if exif is not None:
                 orientation = exif.get(0x0112)  # Orientation tag

@@ -15,8 +15,8 @@ from pathlib import Path
 
 class DeletionTester:
     def __init__(self):
-        # Use the production backend URL from frontend/.env
-        self.base_url = "https://bizpost-manager.preview.emergentagent.com"
+        # Use localhost for testing in container
+        self.base_url = "http://localhost:8001"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.test_files = []  # Track uploaded test files

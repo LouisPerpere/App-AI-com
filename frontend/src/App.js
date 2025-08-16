@@ -2445,11 +2445,20 @@ function MainApp() {
     console.log('🌐 URL à analyser:', websiteUrl);
 
     try {
+      // PROTECTION : Créer un objet request propre avec types primitifs forcés
+      const requestData = {
+        website_url: String(websiteUrl), // Double conversion de sécurité
+        force_reanalysis: Boolean(forceReanalysis) // Conversion primitive
+      };
+      
+      console.log('📡 Request data clean:', JSON.stringify(requestData));
+      console.log('📡 Types vérifiés:', {
+        website_url: typeof requestData.website_url,
+        force_reanalysis: typeof requestData.force_reanalysis
+      });
+
       // Utiliser l'URL copiée pour l'analyse, pas l'URL du champ visible
-      const response = await axios.post(`${API}/website/analyze`, {
-        website_url: websiteUrl,
-        force_reanalysis: forceReanalysis
-      }, {
+      const response = await axios.post(`${API}/website/analyze`, requestData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
       });
 

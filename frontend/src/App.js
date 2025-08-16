@@ -2491,7 +2491,7 @@ function MainApp() {
     if (selectedContentIds.length === 0) return;
     
     const count = selectedContentIds.length;
-    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer ${count} contenu${count > 1 ? 's' : ''} ?`)) {
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer définitivement ${count} contenu${count > 1 ? 's' : ''} ?`)) {
       return;
     }
     
@@ -2507,6 +2507,7 @@ function MainApp() {
             headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
           });
           deletedCount++;
+          console.log(`✅ Permanently deleted content: ${contentId}`);
         } catch (error) {
           console.error(`Error deleting content ${contentId}:`, error);
           errorCount++;
@@ -2516,9 +2517,12 @@ function MainApp() {
       // Update the content list
       setPendingContent(prev => prev.filter(content => !selectedContentIds.includes(content.id)));
       
+      // Update total count
+      setContentTotalCount(prev => Math.max(0, prev - deletedCount));
+      
       // Show result message
       if (deletedCount > 0 && errorCount === 0) {
-        toast.success(`${deletedCount} contenu${deletedCount > 1 ? 's' : ''} supprimé${deletedCount > 1 ? 's' : ''} !`);
+        toast.success(`${deletedCount} contenu${deletedCount > 1 ? 's' : ''} supprimé${deletedCount > 1 ? 's' : ''} définitivement !`);
       } else if (deletedCount > 0 && errorCount > 0) {
         toast.success(`${deletedCount} contenu${deletedCount > 1 ? 's' : ''} supprimé${deletedCount > 1 ? 's' : ''}, ${errorCount} erreur${errorCount > 1 ? 's' : ''}`);
       } else {

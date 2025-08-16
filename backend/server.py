@@ -636,7 +636,7 @@ async def get_pending_content(
                 "thumbnail_data": thumbnail_data,  # Ultra-small thumbnail for gallery
                 "size": file_size,
                 "uploaded_at": datetime.fromtimestamp(file_stats.st_mtime).isoformat(),
-                "description": ""  # Empty description by default (TODO: load from database)
+                "description": get_file_description(filename.split('.')[0])  # Load actual description
             })
         
         return {

@@ -3360,39 +3360,85 @@ function MainApp() {
                               </div>
                             </div>
 
-                            {/* Description de l'activité */}
+                            {/* Description de l'activité avec système d'édition verrouillé */}
                             <div className="space-y-2">
                               <Label className="text-sm font-medium text-gray-700">Description de l'activité</Label>
-                              {isVirtualKeyboardDevice ? (
-                                <textarea
-                                  ref={businessDescriptionRef}
-                                  rows={3}
-                                  className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
-                                  style={{ fontSize: '16px' }}
-                                    autoCorrect={false}
-                                    autoComplete="off"
-                                    spellCheck={false}
-                                    autoCapitalize="off"
-                                    defaultValue={businessProfile?.business_description || loadFromLocalStorage()?.business_description || ""}
-                                  placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
-                                  
-                                  onBlur={() => handleVirtualKeyboardRefBlur('business_description', businessDescriptionRef)}
-                                  onTouchEnd={() => {
-                                    // Solution iPadOS 18 - onTouchEnd pour business_description
-                                    console.log('📱 onTouchEnd - Business Description (SOLUTION iPadOS 18)');
-                                    handleVirtualKeyboardRefBlur('business_description', businessDescriptionRef);
-                                  }}
-                                />
-                              ) : (
-                                <Textarea
-                                  value={editBusinessDescription}
-                                  onChange={(e) => handleFieldChange('business_description', e.target.value, setEditBusinessDescription)}
-                                  onBlur={(e) => handleFieldBlur('business_description', e.target.value)}
-                                  placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
-                                  rows={3}
-                                  className="bg-white"
-                                />
-                              )}
+                              <div className="relative flex items-start gap-2">
+                                {isEditingBusinessDescription ? (
+                                  // Mode édition avec textarea et bouton coche verte
+                                  <>
+                                    {isVirtualKeyboardDevice ? (
+                                      <textarea
+                                        ref={businessDescriptionRef}
+                                        rows={3}
+                                        className="flex-1 p-3 border border-blue-500 rounded-lg bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none resize-none"
+                                        style={{ fontSize: '16px' }}
+                                        autoCorrect={false}
+                                        autoComplete="off"
+                                        spellCheck={false}
+                                        autoCapitalize="off"
+                                        defaultValue={businessProfile?.business_description || ''}
+                                        placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
+                                        disabled={isSavingBusinessDescription}
+                                      />
+                                    ) : (
+                                      <Textarea
+                                        value={tempBusinessDescription}
+                                        onChange={(e) => setTempBusinessDescription(e.target.value)}
+                                        className="flex-1 bg-white border-blue-500 focus:border-blue-600"
+                                        placeholder="Décrivez en quelques mots votre activité, vos services ou produits..."
+                                        rows={3}
+                                        disabled={isSavingBusinessDescription}
+                                      />
+                                    )}
+                                    <div className="flex flex-col gap-1">
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        onClick={() => saveField('business_description')}
+                                        disabled={isSavingBusinessDescription}
+                                        className="bg-green-500 hover:bg-green-600 text-white p-2 min-w-[40px]"
+                                      >
+                                        {isSavingBusinessDescription ? (
+                                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                        ) : (
+                                          <Check className="h-4 w-4" />
+                                        )}
+                                      </Button>
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => cancelEditingField('business_description')}
+                                        disabled={isSavingBusinessDescription}
+                                        className="p-2 min-w-[40px]"
+                                      >
+                                        <X className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </>
+                                ) : (
+                                  // Mode lecture avec textarea verrouillée et bouton crayon
+                                  <>
+                                    <Textarea
+                                      value={businessProfile?.business_description || 'Décrivez votre activité'}
+                                      readOnly
+                                      className="flex-1 bg-gray-50 text-gray-700 cursor-default"
+                                      rows={3}
+                                    />
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => startEditingField('business_description')}
+                                      className="p-2 min-w-[40px] hover:bg-blue-50 hover:border-blue-300"
+                                      title="Modifier la description de l'activité"
+                                    >
+                                      <Edit className="h-4 w-4 text-blue-600" />
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
                             </div>
 
                             {/* Audience cible */}

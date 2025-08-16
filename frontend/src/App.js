@@ -2355,14 +2355,13 @@ function MainApp() {
     setContentDescription(content.description || '');
     setShowContentModal(true);
     
-    // Set ref value for virtual keyboard compatibility
-    if (isVirtualKeyboardDevice) {
-      setTimeout(() => {
-        if (contentDescriptionRef.current) {
-          contentDescriptionRef.current.value = content.description || '';
-        }
-      }, 100);
-    }
+    // Set ref value for both desktop and mobile compatibility
+    setTimeout(() => {
+      if (contentDescriptionRef.current) {
+        contentDescriptionRef.current.value = content.description || '';
+        console.log('📝 Modal opened with description:', content.description);
+      }
+    }, 100);
   };
 
   const closeContentModal = () => {
@@ -2370,8 +2369,8 @@ function MainApp() {
     setSelectedContent(null);
     setContentDescription('');
     
-    // Clear ref for virtual keyboard
-    if (isVirtualKeyboardDevice && contentDescriptionRef.current) {
+    // Clear ref
+    if (contentDescriptionRef.current) {
       contentDescriptionRef.current.value = '';
     }
   };

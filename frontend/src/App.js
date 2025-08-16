@@ -2662,7 +2662,16 @@ function MainApp() {
       });
       setWebsiteAnalysis(null);
       setShowWebsiteAnalysis(false);
-      setLastAnalysisDate(null);
+      setLastAnalysisDate('');
+      
+      // Supprimer aussi du localStorage
+      try {
+        localStorage.removeItem('websiteAnalysis');
+        console.log('🗑️ Analyse supprimée du localStorage');
+      } catch (storageError) {
+        console.warn('⚠️ Erreur suppression localStorage:', storageError);
+      }
+      
       toast.success('Analyse supprimée');
     } catch (error) {
       console.error('Error deleting analysis:', error);

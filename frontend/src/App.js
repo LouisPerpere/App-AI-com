@@ -2391,7 +2391,8 @@ function MainApp() {
       target_audience: 'Audience cible',
       email: 'Email professionnel',
       website_url: 'Site web',
-      budget_range: 'Budget marketing'
+      budget_range: 'Budget marketing',
+      brand_tone: 'Ton à employer'
     };
     return displayNames[fieldName] || fieldName;
   };

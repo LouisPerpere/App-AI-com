@@ -1068,6 +1068,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Synchronize descriptions with files on startup
+print("🔄 Synchronizing content descriptions with files...")
+sync_descriptions_with_files()
+
 # For local development
 if __name__ == "__main__":
     import uvicorn

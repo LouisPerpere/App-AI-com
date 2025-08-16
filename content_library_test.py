@@ -282,32 +282,48 @@ class ContentLibraryTester:
         
         if success and 'uploaded_files' in response:
             uploaded_file = response['uploaded_files'][0]
-            file_id = uploaded_file['id']
+            stored_filename = uploaded_file.get('stored_name', '')
             file_path = uploaded_file.get('file_path', '')
             
-            # Verify file exists before deletion
-            file_exists_before = os.path.exists(file_path) if file_path else False
-            # Fix path for checking
-            if file_path and not file_path.startswith('/'):
-                full_file_path = f"/app/backend/{file_path}"
-            else:
-                full_file_path = file_path
-            file_exists_before = os.path.exists(full_file_path) if full_file_path else False
+            # Get the correct file_id from the listing endpoint (filename without extension)
+            success_list, list_response, _ = self.make_request("GET", "content/pending")
             
-            # Delete the file
-            success, response, status = self.make_request("DELETE", f"content/{file_id}")
-            
-            if success:
-                # Verify file was actually removed from filesystem
-                file_exists_after = os.path.exists(full_file_path) if full_file_path else True
+            if success_list and 'content' in list_response:
+                # Find our uploaded file in the list
+                target_file_id = None
+                for file_item in list_response['content']:
+                    if file_item.get('filename') == stored_filename:
+                        target_file_id = file_item.get('id')
+                        break
                 
-                deletion_success = not file_exists_after
-                details = f"File existed before: {file_exists_before}, exists after: {file_exists_after}"
-                
-                self.log_test("File Deletion", deletion_success, details)
-                return deletion_success
+                if target_file_id:
+                    # Fix path for checking
+                    if file_path and not file_path.startswith('/'):
+                        full_file_path = f"/app/backend/{file_path}"
+                    else:
+                        full_file_path = file_path
+                    file_exists_before = os.path.exists(full_file_path) if full_file_path else False
+                    
+                    # Delete the file using the correct ID
+                    success, response, status = self.make_request("DELETE", f"content/{target_file_id}")
+                    
+                    if success:
+                        # Verify file was actually removed from filesystem
+                        file_exists_after = os.path.exists(full_file_path) if full_file_path else True
+                        
+                        deletion_success = not file_exists_after
+                        details = f"File existed before: {file_exists_before}, exists after: {file_exists_after}"
+                        
+                        self.log_test("File Deletion", deletion_success, details)
+                        return deletion_success
+                    else:
+                        self.log_test("File Deletion", False, f"Delete request failed: {response}")
+                        return False
+                else:
+                    self.log_test("File Deletion", False, "Could not find uploaded file in content listing")
+                    return False
             else:
-                self.log_test("File Deletion", False, f"Delete request failed: {response}")
+                self.log_test("File Deletion", False, "Could not get content listing")
                 return False
         else:
             self.log_test("File Deletion", False, f"Failed to upload test file for deletion: {response}")

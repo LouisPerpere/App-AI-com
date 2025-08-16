@@ -2384,12 +2384,36 @@ function MainApp() {
 
   // Enhanced website analysis functions
   const analyzeWebsite = async (forceReanalysis = false) => {
-    // Lire l'URL selon l'approche (refs pour virtual keyboard, state pour desktop)
+    // CORRECTION DÉFINITIVE : Protection contre les références circulaires DOM
     let websiteUrl;
-    if (isVirtualKeyboardDevice && websiteUrlRef.current) {
-      websiteUrl = websiteUrlRef.current.value;
-    } else {
-      websiteUrl = editWebsiteUrl;
+    try {
+      if (isVirtualKeyboardDevice && websiteUrlRef.current) {
+        // PROTECTION CRITIQUE: Conversion forcée en string primitive pour éviter les références DOM
+        const rawValue = websiteUrlRef.current.value;
+        console.log('🔍 Type de rawValue:', typeof rawValue);
+        
+        // CORRECTION : String() force la conversion primitive et élimine les références circulaires
+        websiteUrl = String(rawValue || '').trim();
+        console.log('🧹 websiteUrl après String():', typeof websiteUrl, websiteUrl);
+      } else {
+        websiteUrl = String(editWebsiteUrl || '').trim();
+        console.log('🧹 websiteUrl (desktop):', typeof websiteUrl, websiteUrl);
+      }
+      
+      // Validation finale du type
+      if (typeof websiteUrl !== 'string') {
+        throw new Error('websiteUrl n\'est pas une string après conversion');
+      }
+      
+    } catch (conversionError) {
+      console.error('❌ Erreur conversion websiteUrl:', conversionError);
+      setAnalysisStatus('error');
+      setAnalysisMessage('Erreur lors de la récupération de l\'URL');
+      setTimeout(() => {
+        setAnalysisStatus('');
+        setAnalysisMessage('');
+      }, 3000);
+      return;
     }
     
     console.log('🔍 Website Analysis - URL to analyze:', websiteUrl);

@@ -473,20 +473,21 @@ async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
         return create_fallback_analysis(content_data, website_url, "gpt_error")
 
 async def analyze_with_openai_direct(prompt: str) -> str:
-    """Direct OpenAI API call as fallback"""
+    """Direct OpenAI API call as fallback for multi-page analysis"""
     try:
         client = OpenAI(api_key=API_KEY)
         
         response = client.chat.completions.create(
             model="gpt-4o",  # Use latest available model
             messages=[
-                {"role": "system", "content": """Tu es un expert en analyse de contenu web et marketing digital. 
-                Tu analyses les sites web pour comprendre leur positionnement, leurs services, et leur audience cible.
+                {"role": "system", "content": """Tu es un expert en analyse de contenu web et marketing digital spécialisé dans l'analyse multi-pages. 
+                Tu analyses les sites web complets pour comprendre en profondeur leur positionnement, leurs services/produits, leur audience cible, et leurs éléments de différenciation.
+                Tu identifies les produits spécifiques, les témoignages clients, et les caractéristiques uniques pour générer des insights marketing précis.
                 Tu réponds UNIQUEMENT avec du JSON valide selon le format demandé."""},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
-            max_tokens=1500
+            max_tokens=2000  # Increased for richer multi-page analysis
         )
         
         return response.choices[0].message.content.strip()

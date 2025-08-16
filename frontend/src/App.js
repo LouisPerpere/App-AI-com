@@ -2341,6 +2341,76 @@ function MainApp() {
     }
   };
 
+  // Multiple selection functions
+  const enterSelectionMode = () => {
+    setIsSelectionMode(true);
+    setSelectedContentIds([]);
+  };
+
+  const exitSelectionMode = () => {
+    setIsSelectionMode(false);
+    setSelectedContentIds([]);
+  };
+
+  const toggleContentSelection = (contentId) => {
+    setSelectedContentIds(prev => {
+      if (prev.includes(contentId)) {
+        return prev.filter(id => id !== contentId);
+      } else {
+        return [...prev, contentId];
+      }
+    });
+  };
+
+  const deleteSelectedContent = async () => {
+    if (selectedContentIds.length === 0) return;
+    
+    const count = selectedContentIds.length;
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer ${count} contenu${count > 1 ? 's' : ''} ?`)) {
+      return;
+    }
+    
+    setIsDeletingMultiple(true);
+    let deletedCount = 0;
+    let errorCount = 0;
+    
+    try {
+      // Delete files one by one
+      for (const contentId of selectedContentIds) {
+        try {
+          await axios.delete(`${API}/content/${contentId}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+          });
+          deletedCount++;
+        } catch (error) {
+          console.error(`Error deleting content ${contentId}:`, error);
+          errorCount++;
+        }
+      }
+      
+      // Update the content list
+      setPendingContent(prev => prev.filter(content => !selectedContentIds.includes(content.id)));
+      
+      // Show result message
+      if (deletedCount > 0 && errorCount === 0) {
+        toast.success(`${deletedCount} contenu${deletedCount > 1 ? 's' : ''} supprimé${deletedCount > 1 ? 's' : ''} !`);
+      } else if (deletedCount > 0 && errorCount > 0) {
+        toast.success(`${deletedCount} contenu${deletedCount > 1 ? 's' : ''} supprimé${deletedCount > 1 ? 's' : ''}, ${errorCount} erreur${errorCount > 1 ? 's' : ''}`);
+      } else {
+        toast.error('Erreur lors de la suppression des contenus');
+      }
+      
+      // Exit selection mode
+      exitSelectionMode();
+      
+    } catch (error) {
+      console.error('Error in batch delete:', error);
+      toast.error('Erreur lors de la suppression');
+    } finally {
+      setIsDeletingMultiple(false);
+    }
+  };
+
   const addHashtag = (type, hashtag) => {
     if (!hashtag.trim()) return;
     

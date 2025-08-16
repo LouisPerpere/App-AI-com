@@ -7,6 +7,8 @@ import os
 import uuid
 import shutil
 import asyncio
+from PIL import Image
+import io
 
 # Import database
 from database import get_database, DatabaseManager

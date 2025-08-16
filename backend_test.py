@@ -127,9 +127,9 @@ class PersistenceSystemTester:
             if not uploaded_files:
                 return self.log_test("Persistent Deletion - Upload", False, "No files uploaded")
             
-            # Get the file ID from the uploaded file
-            test_file_id = uploaded_files[0]["id"]
+            # Get the file ID from the uploaded file - use stored_name without extension as ID
             test_filename = uploaded_files[0]["stored_name"]
+            test_file_id = test_filename.split('.')[0]  # Remove extension to get ID
             
             self.log_test("Persistent Deletion - Upload", True, f"Uploaded test file: {test_filename}")
             

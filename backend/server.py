@@ -512,21 +512,24 @@ async def delete_note(note_id: str, user_id: str = Depends(get_current_user_id))
 
 # Content management endpoints
 @api_router.get("/content/pending")
-async def get_pending_content(user_id: str = Depends(get_current_user_id)):
-    """Get user's uploaded content files"""
+async def get_pending_content(
+    limit: int = 24,  # Limit number of files to prevent crashes
+    offset: int = 0,  # Offset for pagination
+    user_id: str = Depends(get_current_user_id)
+):
+    """Get user's uploaded content files with pagination to prevent crashes"""
     try:
         uploads_dir = "uploads"
         if not os.path.exists(uploads_dir):
-            return {"content": []}
+            return {"content": [], "total": 0, "has_more": False}
         
         # List all files in uploads directory
-        content_files = []
+        all_files = []
         for filename in os.listdir(uploads_dir):
             file_path = os.path.join(uploads_dir, filename)
             if os.path.isfile(file_path):
                 try:
                     file_stats = os.stat(file_path)
-                    file_size = file_stats.st_size
                     
                     # Determine content type based on file extension
                     file_extension = os.path.splitext(filename)[1].lower()
@@ -540,84 +543,111 @@ async def get_pending_content(user_id: str = Depends(get_current_user_id)):
                     if content_type is None:
                         continue
                     
-                    # For images, create two versions: full for modal, thumbnail for gallery
-                    file_data = None
-                    thumbnail_data = None
-                    if content_type.startswith('image/'):
-                        try:
-                            with open(file_path, "rb") as f:
-                                import base64
-                                file_content = f.read()
-                                
-                                # Full size for modal (already optimized during upload)
-                                file_data = base64.b64encode(file_content).decode('utf-8')
-                                
-                                # Create ultra-small thumbnail for gallery (max 80px to reduce memory drastically)
-                                try:
-                                    from PIL import Image
-                                    import io
-                                    
-                                    # Create thumbnail
-                                    image = Image.open(io.BytesIO(file_content))
-                                    
-                                    # Handle EXIF orientation for thumbnails too
-                                    try:
-                                        from PIL.ExifTags import ORIENTATION
-                                        exif = image._getexif()
-                                        if exif is not None:
-                                            orientation = exif.get(0x0112)  # Orientation tag
-                                            if orientation == 3:
-                                                image = image.rotate(180, expand=True)
-                                            elif orientation == 6:
-                                                image = image.rotate(270, expand=True)
-                                            elif orientation == 8:
-                                                image = image.rotate(90, expand=True)
-                                    except (AttributeError, KeyError, TypeError):
-                                        # No EXIF data or orientation info, continue
-                                        pass
-                                    
-                                    # Ultra-small thumbnail for gallery performance (prevent crashes)
-                                    image.thumbnail((80, 80), Image.Resampling.LANCZOS)
-                                    
-                                    # Save thumbnail as JPEG with very low quality for minimal size
-                                    thumb_buffer = io.BytesIO()
-                                    if image.mode not in ('RGB', 'L'):
-                                        image = image.convert('RGB')
-                                    image.save(thumb_buffer, format='JPEG', quality=25, optimize=True)
-                                    
-                                    thumbnail_data = base64.b64encode(thumb_buffer.getvalue()).decode('utf-8')
-                                    thumb_buffer.close()
-                                    
-                                except Exception as thumb_error:
-                                    print(f"⚠️ Could not create thumbnail for {filename}: {thumb_error}")
-                                    # Fallback to full image
-                                    thumbnail_data = file_data
-                                
-                        except Exception as e:
-                            print(f"⚠️ Could not read image file {filename}: {e}")
-                    
-                    content_files.append({
-                        "id": filename.split('.')[0],  # Use filename without extension as ID
-                        "filename": filename,
-                        "file_type": content_type,
-                        "file_data": file_data,  # Full size for modal
-                        "thumbnail_data": thumbnail_data,  # Small thumbnail for gallery
-                        "size": file_size,
-                        "uploaded_at": datetime.fromtimestamp(file_stats.st_mtime).isoformat(),
-                        "description": ""  # Empty description by default (TODO: load from database)
+                    all_files.append({
+                        'filename': filename,
+                        'file_path': file_path,
+                        'file_stats': file_stats,
+                        'content_type': content_type
                     })
                 except Exception as e:
                     print(f"⚠️ Error processing file {filename}: {e}")
                     continue
         
-        # Sort by upload date (newest first)
-        content_files.sort(key=lambda x: x['uploaded_at'], reverse=True)
+        # Sort by modification time (newest first)
+        all_files.sort(key=lambda x: x['file_stats'].st_mtime, reverse=True)
         
-        return {"content": content_files}
+        # Apply pagination
+        total_files = len(all_files)
+        paginated_files = all_files[offset:offset + limit]
+        has_more = offset + limit < total_files
+        
+        print(f"📊 Loading {len(paginated_files)} files (offset: {offset}, total: {total_files})")
+        
+        content_files = []
+        for file_info in paginated_files:
+            filename = file_info['filename']
+            file_path = file_info['file_path']
+            file_stats = file_info['file_stats']
+            content_type = file_info['content_type']
+            file_size = file_stats.st_size
+            
+            # For images, create two versions: full for modal, ultra-small thumbnail for gallery
+            file_data = None
+            thumbnail_data = None
+            if content_type.startswith('image/'):
+                try:
+                    with open(file_path, "rb") as f:
+                        import base64
+                        file_content = f.read()
+                        
+                        # Full size for modal (already optimized during upload)
+                        file_data = base64.b64encode(file_content).decode('utf-8')
+                        
+                        # Create ultra-small thumbnail for gallery (max 80px to reduce memory drastically)
+                        try:
+                            from PIL import Image
+                            import io
+                            
+                            # Create thumbnail
+                            image = Image.open(io.BytesIO(file_content))
+                            
+                            # Handle EXIF orientation for thumbnails too
+                            try:
+                                from PIL.ExifTags import ORIENTATION
+                                exif = image._getexif()
+                                if exif is not None:
+                                    orientation = exif.get(0x0112)  # Orientation tag
+                                    if orientation == 3:
+                                        image = image.rotate(180, expand=True)
+                                    elif orientation == 6:
+                                        image = image.rotate(270, expand=True)
+                                    elif orientation == 8:
+                                        image = image.rotate(90, expand=True)
+                            except (AttributeError, KeyError, TypeError):
+                                # No EXIF data or orientation info, continue
+                                pass
+                            
+                            # Ultra-small thumbnail for gallery performance (prevent crashes)
+                            image.thumbnail((80, 80), Image.Resampling.LANCZOS)
+                            
+                            # Save thumbnail as JPEG with very low quality for minimal size
+                            thumb_buffer = io.BytesIO()
+                            if image.mode not in ('RGB', 'L'):
+                                image = image.convert('RGB')
+                            image.save(thumb_buffer, format='JPEG', quality=25, optimize=True)
+                            
+                            thumbnail_data = base64.b64encode(thumb_buffer.getvalue()).decode('utf-8')
+                            thumb_buffer.close()
+                            
+                        except Exception as thumb_error:
+                            print(f"⚠️ Could not create thumbnail for {filename}: {thumb_error}")
+                            # Fallback to full image (last resort)
+                            thumbnail_data = file_data
+                            
+                except Exception as e:
+                    print(f"⚠️ Could not read image file {filename}: {e}")
+            
+            content_files.append({
+                "id": filename.split('.')[0],  # Use filename without extension as ID
+                "filename": filename,
+                "file_type": content_type,
+                "file_data": file_data,  # Full size for modal
+                "thumbnail_data": thumbnail_data,  # Ultra-small thumbnail for gallery
+                "size": file_size,
+                "uploaded_at": datetime.fromtimestamp(file_stats.st_mtime).isoformat(),
+                "description": ""  # Empty description by default (TODO: load from database)
+            })
+        
+        return {
+            "content": content_files,
+            "total": total_files,
+            "has_more": has_more,
+            "loaded": len(content_files)
+        }
         
     except Exception as e:
         print(f"❌ Error getting pending content: {e}")
-        return {"content": []}
+        return {"content": [], "total": 0, "has_more": False}
 
 @api_router.delete("/content/{file_id}")
 async def delete_content_file(file_id: str, user_id: str = Depends(get_current_user_id)):

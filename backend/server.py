@@ -820,6 +820,14 @@ def set_file_description(file_id, description):
     descriptions[file_id] = description
     return save_descriptions(descriptions)
 
+def delete_file_description(file_id):
+    """Delete description for a specific file"""
+    descriptions = load_descriptions()
+    if file_id in descriptions:
+        del descriptions[file_id]
+        return save_descriptions(descriptions)
+    return True  # Already doesn't exist, consider as success
+
 # Content upload endpoints (enhanced with image optimization)
 @api_router.post("/content/batch-upload")
 async def batch_upload_files(

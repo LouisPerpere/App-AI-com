@@ -1842,14 +1842,41 @@ function MainApp() {
     }
   };
 
-  const loadPendingContent = async () => {
+  const loadPendingContent = async (reset = false) => {
     try {
-      const response = await axios.get(`${API}/content/pending`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      setContentLoading(true);
+      
+      const offset = reset ? 0 : pendingContent.length;
+      const limit = 24; // Load in chunks to prevent crashes
+      
+      console.log(`📁 Loading content: offset=${offset}, limit=${limit}, reset=${reset}`);
+      
+      const response = await axios.get(`${API}/content/pending?limit=${limit}&offset=${offset}`, {
+        headers: { 
+          Authorization: `Bearer ${localStorage.getItem('access_token')}` 
+        }
       });
-      setPendingContent(response.data.content || []);
+      
+      const data = response.data;
+      console.log(`📊 Content loaded: ${data.loaded}/${data.total} (has_more: ${data.has_more})`);
+      
+      if (reset) {
+        setPendingContent(data.content || []);
+      } else {
+        setPendingContent(prev => [...prev, ...(data.content || [])]);
+      }
+      
+      setContentTotalCount(data.total || 0);
+      setContentHasMore(data.has_more || false);
+      
     } catch (error) {
-      console.error('Error loading pending content:', error);
+      console.error('❌ Error loading pending content:', error);
+      if (error.response?.status === 401) {
+        // Token might be expired
+        console.log('🔄 Token expired, redirecting to login');
+      }
+    } finally {
+      setContentLoading(false);
     }
   };
 

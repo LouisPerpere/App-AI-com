@@ -2500,6 +2500,14 @@ function MainApp() {
         setWebsiteAnalysis(cleanAnalysisData);
         console.log('✅ setWebsiteAnalysis exécuté avec succès avec données nettoyées');
         
+        // Sauvegarder l'analyse dans localStorage pour persistance au rechargement
+        try {
+          localStorage.setItem('websiteAnalysis', JSON.stringify(cleanAnalysisData));
+          console.log('💾 Analyse sauvegardée dans localStorage');
+        } catch (storageError) {
+          console.warn('⚠️ Erreur sauvegarde localStorage:', storageError);
+        }
+        
         // Mettre à jour la date d'analyse avec la date du backend
         const analysisDate = cleanAnalysisData.created_at ? new Date(cleanAnalysisData.created_at) : new Date();
         setLastAnalysisDate(analysisDate.toLocaleString('fr-FR'));

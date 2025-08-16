@@ -698,6 +698,11 @@ function MainApp() {
   const [isWebsiteFieldProtected, setIsWebsiteFieldProtected] = useState(false); // Protection contre les re-renders
   const [showBurgerMenu, setShowBurgerMenu] = useState(false);
   const [activeTab, setActiveTab] = useState('entreprise');
+  
+  // Système de verrouillage d'édition avec bouton crayon/coche
+  const [isEditingBusinessName, setIsEditingBusinessName] = useState(false);
+  const [tempBusinessName, setTempBusinessName] = useState(''); // Valeur temporaire pendant édition
+  const [isSavingBusinessName, setIsSavingBusinessName] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeModalDismissed, setUpgradeModalDismissed] = useState(false);
   

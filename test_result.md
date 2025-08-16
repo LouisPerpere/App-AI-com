@@ -440,8 +440,8 @@ backend:
     needs_retesting: false
 
   - task: "Bibliothèque Upload Functionality"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"

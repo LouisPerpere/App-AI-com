@@ -2265,6 +2265,17 @@ function MainApp() {
       setIsSaving: setIsSavingBudgetRange,
       placeholder: 'Ex: 500€, 1000-2000€, etc.',
       validation: (value) => value.trim() ? null : 'Le budget ne peut pas être vide'
+    },
+    brand_tone: {
+      ref: brandToneRef,
+      isEditing: isEditingBrandTone,
+      setIsEditing: setIsEditingBrandTone,
+      tempValue: tempBrandTone,
+      setTempValue: setTempBrandTone,
+      isSaving: isSavingBrandTone,
+      setIsSaving: setIsSavingBrandTone,
+      placeholder: 'Ex: professionnel, sérieux, luxueux, léger, convivial...',
+      validation: (value) => value.trim() ? null : 'Le ton à employer ne peut pas être vide'
     }
   };
 

@@ -102,10 +102,11 @@ class DeletionTester:
                     data = response.json()
                     uploaded_files = data.get('uploaded_files', [])
                     if uploaded_files:
-                        file_id = uploaded_files[0]['id']
-                        filename = uploaded_files[0]['stored_name']
-                        self.test_files.append({'id': file_id, 'filename': filename})
-                        self.log(f"✅ File uploaded successfully - ID: {file_id}, Filename: {filename}")
+                        # The upload returns a UUID, but we need to use the filename without extension as ID
+                        stored_name = uploaded_files[0]['stored_name']
+                        file_id = stored_name.split('.')[0]  # Use filename without extension as ID
+                        self.test_files.append({'id': file_id, 'filename': stored_name})
+                        self.log(f"✅ File uploaded successfully - ID: {file_id}, Filename: {stored_name}")
                         
                         # Add description to the file
                         if description:

@@ -4604,12 +4604,15 @@ function MainApp() {
                 </div>
 
                 {/* Uploaded Content Gallery */}
-                {pendingContent.length > 0 && (
+                {(pendingContent.length > 0 || contentLoading) && (
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <h4 className="text-xl font-semibold text-gray-900 flex items-center">
                         <ImageIcon className="w-6 h-6 mr-2 text-purple-600" />
-                        Vos contenus ({pendingContent.length})
+                        Vos contenus ({contentTotalCount > 0 ? contentTotalCount : pendingContent.length})
+                        {contentLoading && (
+                          <div className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin ml-2"></div>
+                        )}
                       </h4>
                       
                       {/* Selection controls */}
@@ -4619,6 +4622,7 @@ function MainApp() {
                             onClick={enterSelectionMode}
                             variant="outline"
                             className="text-gray-600 border-gray-300 hover:bg-gray-50"
+                            disabled={contentLoading || pendingContent.length === 0}
                           >
                             <Check className="w-4 h-4 mr-2" />
                             Sélectionner
@@ -4659,18 +4663,51 @@ function MainApp() {
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                      {pendingContent.map((content) => (
-                        <ContentThumbnail
-                          key={content.id}
-                          content={content}
-                          isSelectionMode={isSelectionMode}
-                          isSelected={selectedContentIds.includes(content.id)}
-                          onContentClick={openContentModal}
-                          onToggleSelection={toggleContentSelection}
-                        />
-                      ))}
-                    </div>
+                    {pendingContent.length > 0 && (
+                      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                        {pendingContent.map((content) => (
+                          <ContentThumbnail
+                            key={content.id}
+                            content={content}
+                            isSelectionMode={isSelectionMode}
+                            isSelected={selectedContentIds.includes(content.id)}
+                            onContentClick={openContentModal}
+                            onToggleSelection={toggleContentSelection}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Load more button */}
+                    {contentHasMore && !isSelectionMode && (
+                      <div className="text-center mt-6">
+                        <Button
+                          onClick={() => loadPendingContent(false)}
+                          disabled={contentLoading}
+                          variant="outline"
+                          className="text-purple-600 border-purple-300 hover:bg-purple-50"
+                        >
+                          {contentLoading ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                              Chargement...
+                            </>
+                          ) : (
+                            <>
+                              <ChevronRight className="w-4 h-4 mr-2 rotate-90" />
+                              Charger plus ({contentTotalCount - pendingContent.length} restants)
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                    
+                    {contentLoading && pendingContent.length === 0 && (
+                      <div className="text-center py-8">
+                        <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                        <p className="text-gray-600">Chargement de vos contenus...</p>
+                      </div>
+                    )}
                   </div>
                 )}
 

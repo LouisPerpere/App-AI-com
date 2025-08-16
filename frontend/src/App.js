@@ -1214,6 +1214,22 @@ function MainApp() {
       
       // Ces champs peuvent être réinitialisés sans problème
       if (!editBusinessType) setEditBusinessType(businessProfile.business_type || '');
+      
+      // CORRECTION: Synchroniser profileForm.website_url avec businessProfile.website_url
+      // pour que la section d'analyse de site web s'affiche correctement
+      if (businessProfile.website_url && !profileForm.website_url) {
+        setProfileForm(prev => ({
+          ...prev,
+          website_url: businessProfile.website_url || '',
+          business_name: businessProfile.business_name || prev.business_name,
+          business_type: businessProfile.business_type || prev.business_type
+        }));
+        console.log('🔧 Synchronized profileForm with businessProfile:', {
+          website_url: businessProfile.website_url,
+          business_name: businessProfile.business_name,
+          business_type: businessProfile.business_type
+        });
+      }
     }
   }, [isAuthenticated, user, businessProfile]);
 

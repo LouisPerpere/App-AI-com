@@ -2108,13 +2108,74 @@ function MainApp() {
   };
 
 
+  // Système d'édition avec verrouillage + bouton crayon/coche pour nom entreprise
+  const startEditingBusinessName = () => {
+    const currentValue = businessProfile?.business_name || 'Mon entreprise';
+    setTempBusinessName(currentValue);
+    setIsEditingBusinessName(true);
+  };
 
+  const cancelEditingBusinessName = () => {
+    setTempBusinessName('');
+    setIsEditingBusinessName(false);
+  };
 
+  const saveBusinessName = async () => {
+    if (!tempBusinessName.trim()) {
+      toast.error('Le nom de l\'entreprise ne peut pas être vide');
+      return;
+    }
 
+    setIsSavingBusinessName(true);
+    try {
+      // Préparer les données pour la sauvegarde
+      const profileData = {
+        business_name: tempBusinessName.trim(),
+        business_type: businessProfile?.business_type || 'service',
+        business_description: businessProfile?.business_description || '',
+        target_audience: businessProfile?.target_audience || '',
+        brand_tone: businessProfile?.brand_tone || 'professional',
+        posting_frequency: businessProfile?.posting_frequency || 'weekly',
+        preferred_platforms: businessProfile?.preferred_platforms || ['Facebook'],
+        budget_range: businessProfile?.budget_range || '100-500',
+        email: businessProfile?.email || '',
+        website_url: businessProfile?.website_url || '',
+        hashtags_primary: businessProfile?.hashtags_primary || [],
+        hashtags_secondary: businessProfile?.hashtags_secondary || []
+      };
 
+      // Sauvegarder via API
+      const response = await axios.put(`${API}/business-profile`, profileData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      });
 
-
-
+      if (response.status === 200) {
+        // Mettre à jour le profil business immédiatement
+        setBusinessProfile(prev => ({
+          ...prev,
+          business_name: tempBusinessName.trim()
+        }));
+        
+        // Réinitialiser l'édition
+        setIsEditingBusinessName(false);
+        setTempBusinessName('');
+        
+        toast.success('Nom de l\'entreprise sauvegardé !');
+        
+        // Rafraîchir depuis la base de données pour confirmer
+        setTimeout(() => {
+          loadBusinessProfile();
+        }, 500);
+      } else {
+        throw new Error('Erreur de sauvegarde');
+      }
+    } catch (error) {
+      console.error('Erreur sauvegarde nom entreprise:', error);
+      toast.error('Erreur lors de la sauvegarde');
+    } finally {
+      setIsSavingBusinessName(false);
+    }
+  };
 
 
   // Enhanced website analysis functions

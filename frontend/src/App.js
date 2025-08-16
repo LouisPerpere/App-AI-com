@@ -207,9 +207,13 @@ const ContentPreviewModal = ({
                 id="content-description"
                 placeholder="Ajoutez une description ou du contexte pour cette image..."
                 className="w-full min-h-[100px] text-base p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                onChange={(e) => {
+                  // Keep state synchronized even on virtual keyboard devices
+                  onDescriptionChange(e.target.value);
+                }}
                 onBlur={(e) => {
                   // Auto-save on blur for virtual keyboard
-                  console.log('💾 Content description blur - virtual keyboard');
+                  console.log('💾 Content description blur - virtual keyboard:', e.target.value);
                 }}
               />
             ) : (

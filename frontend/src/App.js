@@ -5174,6 +5174,19 @@ function MainApp() {
           )}
         </div>
       </div>
+      
+      {/* Content Preview Modal */}
+      <ContentPreviewModal
+        isOpen={showContentModal}
+        onClose={closeContentModal}
+        content={selectedContent}
+        description={contentDescription}
+        onDescriptionChange={setContentDescription}
+        onSaveDescription={saveContentDescription}
+        onDeleteContent={deleteContent}
+        isSavingDescription={isSavingDescription}
+        isDeletingContent={isDeletingContent}
+      />
     </div>
   );
 

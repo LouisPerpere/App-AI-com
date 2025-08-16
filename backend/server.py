@@ -680,10 +680,27 @@ async def upload_file(file_data: dict):
 def optimize_image(image_content: bytes, max_size: int = 1080, quality: int = 85) -> bytes:
     """
     Optimize image: resize to max_size on smallest side, set to 72 DPI, maintain aspect ratio
+    Handle EXIF orientation to prevent rotation issues
     """
     try:
         # Open image from bytes
         image = Image.open(io.BytesIO(image_content))
+        
+        # Handle EXIF orientation to prevent rotation issues
+        try:
+            from PIL.ExifTags import ORIENTATION
+            exif = image._getexif()
+            if exif is not None:
+                orientation = exif.get(0x0112)  # Orientation tag
+                if orientation == 3:
+                    image = image.rotate(180, expand=True)
+                elif orientation == 6:
+                    image = image.rotate(270, expand=True)
+                elif orientation == 8:
+                    image = image.rotate(90, expand=True)
+        except (AttributeError, KeyError, TypeError):
+            # No EXIF data or orientation info, continue
+            pass
         
         # Convert to RGB if necessary (handles RGBA, P mode, etc.)
         if image.mode not in ('RGB', 'L'):
@@ -709,7 +726,7 @@ def optimize_image(image_content: bytes, max_size: int = 1080, quality: int = 85
         optimized_content = output.getvalue()
         output.close()
         
-        print(f"✅ Image optimized: {len(image_content)} → {len(optimized_content)} bytes")
+        print(f"✅ Image optimized with EXIF handling: {len(image_content)} → {len(optimized_content)} bytes")
         return optimized_content
         
     except Exception as e:

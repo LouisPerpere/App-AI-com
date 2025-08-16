@@ -816,6 +816,14 @@ function MainApp() {
   const [isSavingDescription, setIsSavingDescription] = useState(false);
   const [isDeletingContent, setIsDeletingContent] = useState(false);
   
+  // Multiple selection states
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedContentIds, setSelectedContentIds] = useState([]);
+  const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
+  
+  // Content description ref for virtual keyboard compatibility
+  const contentDescriptionRef = useRef(null);
+  
   // Système de verrouillage d'édition avec bouton crayon/coche pour tous les champs
   const [isEditingBusinessName, setIsEditingBusinessName] = useState(false);
   const [tempBusinessName, setTempBusinessName] = useState('');

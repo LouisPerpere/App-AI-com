@@ -552,7 +552,7 @@ async def get_pending_content(user_id: str = Depends(get_current_user_id)):
                                 # Full size for modal (already optimized during upload)
                                 file_data = base64.b64encode(file_content).decode('utf-8')
                                 
-                                # Create small thumbnail for gallery (max 150px to reduce memory)
+                                # Create ultra-small thumbnail for gallery (max 80px to reduce memory drastically)
                                 try:
                                     from PIL import Image
                                     import io
@@ -576,14 +576,14 @@ async def get_pending_content(user_id: str = Depends(get_current_user_id)):
                                         # No EXIF data or orientation info, continue
                                         pass
                                     
-                                    # Small thumbnail for gallery performance
-                                    image.thumbnail((150, 150), Image.Resampling.LANCZOS)
+                                    # Ultra-small thumbnail for gallery performance (prevent crashes)
+                                    image.thumbnail((80, 80), Image.Resampling.LANCZOS)
                                     
-                                    # Save thumbnail as JPEG with lower quality for small size
+                                    # Save thumbnail as JPEG with very low quality for minimal size
                                     thumb_buffer = io.BytesIO()
                                     if image.mode not in ('RGB', 'L'):
                                         image = image.convert('RGB')
-                                    image.save(thumb_buffer, format='JPEG', quality=60, optimize=True)
+                                    image.save(thumb_buffer, format='JPEG', quality=25, optimize=True)
                                     
                                     thumbnail_data = base64.b64encode(thumb_buffer.getvalue()).decode('utf-8')
                                     thumb_buffer.close()

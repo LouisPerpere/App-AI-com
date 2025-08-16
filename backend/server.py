@@ -679,20 +679,25 @@ async def update_content_description(
     description_data: dict,
     user_id: str = Depends(get_current_user_id)
 ):
-    """Update description/context for a content file"""
+    """Update description/context for a content file with persistent storage"""
     try:
         description = description_data.get("description", "")
         
-        # For now, just return success (TODO: implement database storage)
-        # In a real implementation, you would save this to your database
-        print(f"📝 Description updated for file {file_id}: {description}")
+        # Save description persistently
+        if set_file_description(file_id, description):
+            print(f"📝 Description updated and saved for file {file_id}: {description}")
+            
+            return {
+                "message": "Description mise à jour avec succès",
+                "file_id": file_id,
+                "description": description
+            }
+        else:
+            print(f"❌ Failed to save description for file {file_id}")
+            raise HTTPException(status_code=500, detail="Erreur lors de la sauvegarde de la description")
         
-        return {
-            "message": "Description mise à jour avec succès",
-            "file_id": file_id,
-            "description": description
-        }
-        
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"❌ Error updating description: {e}")
         raise HTTPException(status_code=500, detail=f"Erreur lors de la mise à jour: {str(e)}")

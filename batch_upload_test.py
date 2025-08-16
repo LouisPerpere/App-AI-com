@@ -136,16 +136,16 @@ class BatchUploadTester:
         """Test 2: Verify POST /api/content/batch-upload endpoint exists"""
         print(f"\n{'='*20} TEST 2: ENDPOINT EXISTENCE {'='*20}")
         
-        # Test with empty files to check if endpoint exists (should return 400, not 404)
+        # Test with empty files to check if endpoint exists (should return 422, not 404)
         response = self.run_test(
             "Batch Upload Endpoint Existence",
             "POST",
             "content/batch-upload", 
-            400  # Should return 400 for missing files, not 404 for missing endpoint
+            422  # FastAPI returns 422 for missing required fields, not 404 for missing endpoint
         )
         
         if response:
-            print(f"   ✅ Endpoint exists (returned 400 for missing files, not 404)")
+            print(f"   ✅ Endpoint exists (returned 422 for missing files, not 404)")
             return True
         else:
             print(f"   ❌ Endpoint may not exist or returned unexpected status")

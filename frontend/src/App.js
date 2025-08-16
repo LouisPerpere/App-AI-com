@@ -3280,41 +3280,83 @@ function MainApp() {
                                 </div>
                               </div>
 
-                              {/* Type d'entreprise */}
+                              {/* Type d'entreprise avec système d'édition verrouillé */}
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Type d'entreprise</Label>
-                                {isVirtualKeyboardDevice ? (
-                                  <input
-                                    ref={businessTypeRef}
-                                    type="text"
-                                    className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                                    style={{ fontSize: '16px' }}
-                                    autoCorrect={false}
-                                    autoComplete="off"
-                                    spellCheck={false}
-                                    autoCapitalize="off"
-                                    defaultValue={businessProfile?.business_type || loadFromLocalStorage()?.business_type || ""}
-                                    placeholder="artisan / commerçant / service"
-                                    onBlur={() => {
-                                      console.log('💾 Blur - Saving business type');
-                                      handleVirtualKeyboardRefBlur('business_type', businessTypeRef);
-                                    }}
-                                    onTouchEnd={() => {
-                                      // Solution iPadOS 18 - onTouchEnd fonctionne quand onBlur échoue
-                                      console.log('📱 onTouchEnd - Business Type (SOLUTION iPadOS 18)');
-                                      handleVirtualKeyboardRefBlur('business_type', businessTypeRef);
-                                    }}
-                                  />
-                                ) : (
-                                  <Input
-                                    type="text"
-                                    value={editBusinessType}
-                                    onChange={(e) => handleFieldChange('business_type', e.target.value, setEditBusinessType)}
-                                    onBlur={(e) => handleFieldBlur('business_type', e.target.value)}
-                                    placeholder="artisan / commerçant / service"
-                                    className="bg-white"
-                                  />
-                                )}
+                                <div className="relative flex items-center gap-2">
+                                  {isEditingBusinessType ? (
+                                    // Mode édition avec champ input et bouton coche verte
+                                    <>
+                                      {isVirtualKeyboardDevice ? (
+                                        <input
+                                          ref={businessTypeRef}
+                                          type="text"
+                                          className="w-full p-3 border border-blue-500 rounded-lg bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none"
+                                          style={{ fontSize: '16px' }}
+                                          autoCorrect={false}
+                                          autoComplete="off"
+                                          spellCheck={false}
+                                          autoCapitalize="off"
+                                          defaultValue={businessProfile?.business_type || ''}
+                                          placeholder="artisan / commerçant / service"
+                                          disabled={isSavingBusinessType}
+                                        />
+                                      ) : (
+                                        <Input
+                                          value={tempBusinessType}
+                                          onChange={(e) => setTempBusinessType(e.target.value)}
+                                          className="bg-white border-blue-500 focus:border-blue-600"
+                                          placeholder="artisan / commerçant / service"
+                                          disabled={isSavingBusinessType}
+                                        />
+                                      )}
+                                      <div className="flex gap-1">
+                                        <Button
+                                          type="button"
+                                          size="sm"
+                                          onClick={() => saveField('business_type')}
+                                          disabled={isSavingBusinessType}
+                                          className="bg-green-500 hover:bg-green-600 text-white p-2 min-w-[40px]"
+                                        >
+                                          {isSavingBusinessType ? (
+                                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                          ) : (
+                                            <Check className="h-4 w-4" />
+                                          )}
+                                        </Button>
+                                        <Button
+                                          type="button"
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => cancelEditingField('business_type')}
+                                          disabled={isSavingBusinessType}
+                                          className="p-2 min-w-[40px]"
+                                        >
+                                          <X className="h-4 w-4" />
+                                        </Button>
+                                      </div>
+                                    </>
+                                  ) : (
+                                    // Mode lecture avec champ verrouillé et bouton crayon
+                                    <>
+                                      <Input
+                                        value={businessProfile?.business_type || 'service'}
+                                        readOnly
+                                        className="bg-gray-50 text-gray-700 cursor-default"
+                                      />
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => startEditingField('business_type')}
+                                        className="p-2 min-w-[40px] hover:bg-blue-50 hover:border-blue-300"
+                                        title="Modifier le type d'entreprise"
+                                      >
+                                        <Edit className="h-4 w-4 text-blue-600" />
+                                      </Button>
+                                    </>
+                                  )}
+                                </div>
                               </div>
                             </div>
 

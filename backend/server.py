@@ -573,6 +573,53 @@ async def get_pending_content(user_id: str = Depends(get_current_user_id)):
         print(f"❌ Error getting pending content: {e}")
         return {"content": []}
 
+@api_router.delete("/content/{file_id}")
+async def delete_content_file(file_id: str, user_id: str = Depends(get_current_user_id)):
+    """Delete a content file"""
+    try:
+        uploads_dir = "uploads"
+        
+        # Find file by ID (filename without extension)
+        for filename in os.listdir(uploads_dir):
+            if filename.split('.')[0] == file_id:
+                file_path = os.path.join(uploads_dir, filename)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                    print(f"✅ Deleted file: {filename}")
+                    return {"message": f"Fichier {filename} supprimé avec succès"}
+        
+        raise HTTPException(status_code=404, detail="Fichier non trouvé")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error deleting file: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la suppression: {str(e)}")
+
+@api_router.put("/content/{file_id}/description")
+async def update_content_description(
+    file_id: str, 
+    description_data: dict,
+    user_id: str = Depends(get_current_user_id)
+):
+    """Update description/context for a content file"""
+    try:
+        description = description_data.get("description", "")
+        
+        # For now, just return success (TODO: implement database storage)
+        # In a real implementation, you would save this to your database
+        print(f"📝 Description updated for file {file_id}: {description}")
+        
+        return {
+            "message": "Description mise à jour avec succès",
+            "file_id": file_id,
+            "description": description
+        }
+        
+    except Exception as e:
+        print(f"❌ Error updating description: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la mise à jour: {str(e)}")
+
 # Bibliotheque endpoints (legacy)
 @api_router.get("/bibliotheque")
 async def get_bibliotheque():

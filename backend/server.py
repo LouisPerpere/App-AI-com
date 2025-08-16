@@ -551,7 +551,9 @@ async def get_pending_content(
                         'content_type': content_type
                     })
                 except Exception as e:
-                    print(f"⚠️ Error processing file {filename}: {e}")
+                    print(f"🚨 CRITICAL: Error processing file {filename}: {e}")
+                    print(f"🔍 File path: {file_path}")
+                    print(f"🔍 File stats: {file_stats if 'file_stats' in locals() else 'Not accessible'}")
                     continue
         
         # Sort by modification time (newest first)

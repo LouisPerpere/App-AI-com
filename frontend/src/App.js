@@ -2121,7 +2121,15 @@ function MainApp() {
   };
 
   const saveBusinessName = async () => {
-    if (!tempBusinessName.trim()) {
+    // Récupérer la valeur selon le type d'appareil
+    let businessNameValue;
+    if (isVirtualKeyboardDevice && businessNameRef.current) {
+      businessNameValue = businessNameRef.current.value;
+    } else {
+      businessNameValue = tempBusinessName;
+    }
+
+    if (!businessNameValue || !businessNameValue.trim()) {
       toast.error('Le nom de l\'entreprise ne peut pas être vide');
       return;
     }
@@ -2130,7 +2138,7 @@ function MainApp() {
     try {
       // Préparer les données pour la sauvegarde
       const profileData = {
-        business_name: tempBusinessName.trim(),
+        business_name: businessNameValue.trim(),
         business_type: businessProfile?.business_type || 'service',
         business_description: businessProfile?.business_description || '',
         target_audience: businessProfile?.target_audience || '',
@@ -2153,8 +2161,11 @@ function MainApp() {
         // Mettre à jour le profil business immédiatement
         setBusinessProfile(prev => ({
           ...prev,
-          business_name: tempBusinessName.trim()
+          business_name: businessNameValue.trim()
         }));
+        
+        // Synchroniser avec localStorage pour la cohérence
+        syncFieldWithStorage('business_name', businessNameValue.trim());
         
         // Réinitialiser l'édition
         setIsEditingBusinessName(false);

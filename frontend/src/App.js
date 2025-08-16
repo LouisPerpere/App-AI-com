@@ -2408,14 +2408,7 @@ function MainApp() {
       
       toast.success('Description sauvegardée !');
       
-      // Update the content in the list
-      setPendingContent(prev => prev.map(content => 
-        content.id === selectedContent.id 
-          ? { ...content, description: description }
-          : content
-      ));
-      
-      // Update the selected content
+      // Update the selected content immediately for UI responsiveness
       setSelectedContent(prev => ({ ...prev, description: description }));
       
       // Synchronize state and ref after save
@@ -2424,7 +2417,10 @@ function MainApp() {
         contentDescriptionRef.current.value = description;
       }
       
-      console.log('✅ Description synchronized after save:', description);
+      // Force refresh content list to ensure backend persistence is reflected
+      loadPendingContent(true);
+      
+      console.log('✅ Description synchronized and content refreshed:', description);
       
     } catch (error) {
       console.error('Error saving description:', error);

@@ -254,6 +254,10 @@ class FocusedEXIFTester:
             print("❌ No authentication token available")
             return False
         
+        if not self.test_filename:
+            print("❌ No test file uploaded yet")
+            return False
+        
         try:
             headers = {
                 'Authorization': f'Bearer {self.access_token}'
@@ -270,11 +274,11 @@ class FocusedEXIFTester:
                 data = response.json()
                 content_files = data.get('content', [])
                 
-                # Find our test file
-                test_files = [f for f in content_files if 'exif_test_orientation_' in f.get('filename', '')]
+                # Find our test file using the stored filename
+                test_files = [f for f in content_files if f.get('filename', '') == self.test_filename]
                 
                 if not test_files:
-                    print("⚠️ No EXIF test files found")
+                    print(f"⚠️ Test file not found: {self.test_filename}")
                     return False
                 
                 test_file = test_files[0]

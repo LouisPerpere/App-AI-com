@@ -524,6 +524,9 @@ async def get_pending_content(
         if not os.path.exists(uploads_dir):
             return {"content": [], "total": 0, "has_more": False}
         
+        # Sync descriptions with actual files before processing
+        sync_descriptions_with_files()
+        
         # List all files in uploads directory
         all_files = []
         for filename in os.listdir(uploads_dir):

@@ -2385,10 +2385,13 @@ function MainApp() {
       // Update the selected content
       setSelectedContent(prev => ({ ...prev, description: description }));
       
-      // Update state for desktop
-      if (!isVirtualKeyboardDevice) {
-        setContentDescription(description);
+      // IMPORTANT: Synchronize both state and ref after save to prevent disappearing
+      setContentDescription(description);
+      if (isVirtualKeyboardDevice && contentDescriptionRef.current) {
+        contentDescriptionRef.current.value = description;
       }
+      
+      console.log('✅ Description synchronized after save:', description);
       
     } catch (error) {
       console.error('Error saving description:', error);

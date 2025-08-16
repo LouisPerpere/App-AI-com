@@ -528,11 +528,15 @@ async def get_pending_content(user_id: str = Depends(get_current_user_id)):
                     
                     # Determine content type based on file extension
                     file_extension = os.path.splitext(filename)[1].lower()
-                    content_type = "application/octet-stream"
+                    content_type = None
                     if file_extension in ['.jpg', '.jpeg', '.png', '.gif', '.webp']:
                         content_type = f"image/{file_extension[1:]}"
                     elif file_extension in ['.mp4', '.mov', '.avi', '.mkv']:
                         content_type = f"video/{file_extension[1:]}"
+                    
+                    # Only include images and videos (skip other file types)
+                    if content_type is None:
+                        continue
                     
                     # For images, try to read file data for preview
                     file_data = None

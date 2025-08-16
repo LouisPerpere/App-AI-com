@@ -299,7 +299,7 @@ class ContentLibraryTester:
             
             if success:
                 # Verify file was actually removed from filesystem
-                file_exists_after = os.path.exists(file_path) if file_path else True
+                file_exists_after = os.path.exists(full_file_path) if full_file_path else True
                 
                 deletion_success = not file_exists_after
                 details = f"File existed before: {file_exists_before}, exists after: {file_exists_after}"

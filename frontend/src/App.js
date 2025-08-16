@@ -2760,7 +2760,7 @@ function MainApp() {
                   L'analyse de votre site web nous aide à créer des contenus personnalisés et pertinents pour votre audience 🎯
                 </p>
                 
-                {profileForm.website_url && profileForm.website_url.trim() && (
+                {(businessProfile?.website_url || profileForm.website_url) && (businessProfile?.website_url || profileForm.website_url).trim() && (
                   <div className="flex space-x-3">
                     <Button
                       type="button"

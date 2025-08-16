@@ -1861,6 +1861,10 @@ function MainApp() {
       const data = response.data;
       console.log(`📊 Content loaded: ${data.loaded}/${data.total} (has_more: ${data.has_more})`);
       
+      // Debug: Log descriptions for troubleshooting
+      const contentWithDescriptions = (data.content || []).filter(item => item.description && item.description.trim());
+      console.log(`💬 Files with descriptions: ${contentWithDescriptions.length}/${(data.content || []).length}`, contentWithDescriptions.map(item => ({ id: item.id, desc: item.description })));
+      
       if (reset) {
         setPendingContent(data.content || []);
       } else {

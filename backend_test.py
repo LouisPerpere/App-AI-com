@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend Testing for Persistence System
-Testing the completely fixed persistence system after data synchronization
+PHASE 1 - TESTS CRITIQUES BIBLIOTHÈQUE
+Testing content library synchronization after frontend URL fix
+Focus: Authentication, Content endpoints, Persistence, Badges/Comments
 """
 
 import requests
@@ -11,8 +12,8 @@ import time
 import uuid
 from datetime import datetime
 
-# Configuration
-BACKEND_URL = "https://data-harmony-1.preview.emergentagent.com/api"
+# Configuration - Using corrected frontend URL
+BACKEND_URL = "http://localhost:8001/api"
 TEST_USER_EMAIL = "lperpere@yahoo.fr"
 TEST_USER_PASSWORD = "L@Reunion974!"
 

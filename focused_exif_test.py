@@ -24,6 +24,7 @@ class FocusedEXIFTester:
         self.tests_run = 0
         self.tests_passed = 0
         self.uploaded_files = []
+        self.test_filename = None  # Store the actual uploaded filename
 
     def authenticate(self):
         """Authenticate with test user credentials"""

@@ -2454,8 +2454,21 @@ function MainApp() {
 
       // Traitement sécurisé des données d'analyse
       try {
-        setWebsiteAnalysis(response.data);
-        console.log('✅ setWebsiteAnalysis exécuté avec succès');
+        // Nettoyer et valider les données avant setWebsiteAnalysis pour éviter les erreurs circulaires
+        const cleanAnalysisData = {
+          analysis_summary: response.data.analysis_summary || '',
+          key_topics: Array.isArray(response.data.key_topics) ? response.data.key_topics : [],
+          brand_tone: response.data.brand_tone || 'professional',
+          target_audience: response.data.target_audience || '',
+          main_services: Array.isArray(response.data.main_services) ? response.data.main_services : [],
+          content_suggestions: Array.isArray(response.data.content_suggestions) ? response.data.content_suggestions : [],
+          next_analysis_due: response.data.next_analysis_due || null,
+          created_at: response.data.created_at || new Date().toISOString()
+        };
+        
+        console.log('🧹 Données nettoyées pour setWebsiteAnalysis:', cleanAnalysisData);
+        setWebsiteAnalysis(cleanAnalysisData);
+        console.log('✅ setWebsiteAnalysis exécuté avec succès avec données nettoyées');
       } catch (setStateError) {
         console.error('❌ Erreur lors de setWebsiteAnalysis:', setStateError);
         throw new Error('Erreur lors du traitement des données d\'analyse');

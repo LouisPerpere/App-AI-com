@@ -1,4 +1,16 @@
 {
   "3184d975-c002-4da9-b982-78373c80ee6b": "Updated description",
-  "invalid-file-id": "Test description"
+  "invalid-file-id": "Test description",
+  "d0b28eed-0f49-4af1-aec5-4e127a8d31ae": "Test description for permanent deletion",
+  "f4d0bfdb-130f-4569-bd1c-7b11f937a500": "Test file 1 for persistence testing",
+  "265d124e-059c-4801-8673-faea17056935": "Test file 2 for persistence testing",
+  "3ca00c2a-0b7f-4097-94a4-1e8c99b542b5": "Test file 3 for persistence testing",
+  "a817f498-6790-4eeb-a727-abb1459cf418": "Cleanup test description 1 - This should be deleted",
+  "48576f4a-396b-41a5-be16-d0113cc47253": "Cleanup test description 2 - This should be deleted",
+  "baa52bb5-7003-418b-a3c5-337a54d9cb53": "Cleanup test description 3 - This should be deleted",
+  "4f5f127e-1b54-4c4d-9dd6-43285ca489bf": "Rapid deletion test 1",
+  "b434daf6-f259-49a0-b749-da7d0e4d4b9b": "Rapid deletion test 2",
+  "2ad59d7f-55a9-4bc5-b4b5-40dbefc9c0d8": "Rapid deletion test 3",
+  "a69aab7a-f823-4637-b9ef-0535df4005be": "Rapid deletion test 4",
+  "60e2a1f6-64f9-4850-9dae-e17a58c5f4de": "Rapid deletion test 5"
 }

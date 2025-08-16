@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 import os
 import logging
 import json
+import time
 from motor.motor_asyncio import AsyncIOMotorClient
 from pathlib import Path
 from dotenv import load_dotenv

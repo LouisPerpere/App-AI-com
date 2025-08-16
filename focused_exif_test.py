@@ -138,6 +138,9 @@ class FocusedEXIFTester:
                     stored_name = file_info['stored_name']
                     self.uploaded_files.append(file_info['id'])
                     
+                    # Store the actual stored filename for later tests
+                    self.test_filename = stored_name
+                    
                     print(f"✅ Upload successful - stored as: {stored_name}")
                     print(f"📊 Original size: {len(image_data)} bytes")
                     print(f"📊 Optimized size: {file_info['size']} bytes")

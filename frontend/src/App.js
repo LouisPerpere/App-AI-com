@@ -2112,13 +2112,19 @@ function MainApp() {
   const startEditingBusinessName = () => {
     const currentValue = businessProfile?.business_name || 'Mon entreprise';
     
-    // Pour les appareils desktop, utiliser tempBusinessName
-    if (!isVirtualKeyboardDevice) {
-      setTempBusinessName(currentValue);
-    }
-    // Pour les appareils avec clavier virtuel, la valeur sera définie via defaultValue du ref
+    // Pour tous les appareils, initialiser tempBusinessName avec la valeur actuelle
+    setTempBusinessName(currentValue);
     
     setIsEditingBusinessName(true);
+    
+    // Pour les appareils avec clavier virtuel, définir la valeur du ref après un petit délai
+    if (isVirtualKeyboardDevice) {
+      setTimeout(() => {
+        if (businessNameRef.current) {
+          businessNameRef.current.value = currentValue;
+        }
+      }, 50);
+    }
   };
 
   const cancelEditingBusinessName = () => {

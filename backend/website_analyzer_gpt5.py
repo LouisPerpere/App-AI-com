@@ -148,53 +148,211 @@ class WebsiteData(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
-def extract_website_content(url: str) -> dict:
-    """Extract content from website using web scraping"""
+def extract_website_content(url):
+    """Extract content from website homepage only"""
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    }
+    
     try:
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'fr-FR,fr;q=0.5',
-            'Accept-Encoding': 'gzip, deflate',
-            'DNT': '1',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1'
-        }
-        
-        response = requests.get(url, headers=headers, timeout=15, allow_redirects=True)
+        response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         
         soup = BeautifulSoup(response.content, 'html.parser')
         
-        # Remove script and style elements
-        for script in soup(["script", "style", "nav", "header", "footer"]):
-            script.decompose()
+        # Extract text content
+        content_text = soup.get_text(separator=' ', strip=True)
         
-        # Extract structured data
-        content_data = {
-            'meta_title': soup.find('title').get_text().strip() if soup.find('title') else '',
-            'meta_description': '',
-            'h1_tags': [h1.get_text().strip() for h1 in soup.find_all('h1')],
-            'h2_tags': [h2.get_text().strip() for h2 in soup.find_all('h2')],
-            'content_text': soup.get_text()
+        # Extract metadata
+        meta_description = ""
+        meta_desc_tag = soup.find('meta', attrs={'name': 'description'})
+        if meta_desc_tag:
+            meta_description = meta_desc_tag.get('content', '')
+        
+        title_tag = soup.find('title')
+        meta_title = title_tag.get_text(strip=True) if title_tag else ""
+        
+        # Extract headers
+        h1_tags = [h1.get_text(strip=True) for h1 in soup.find_all('h1')]
+        h2_tags = [h2.get_text(strip=True) for h2 in soup.find_all('h2')]
+        
+        return {
+            "content_text": content_text[:5000],  # Limit content size
+            "meta_description": meta_description,
+            "meta_title": meta_title,
+            "h1_tags": h1_tags[:10],  # Limit number of headers
+            "h2_tags": h2_tags[:20]
         }
         
-        # Get meta description
-        meta_desc = soup.find('meta', attrs={'name': 'description'})
-        if meta_desc:
-            content_data['meta_description'] = meta_desc.get('content', '').strip()
-        
-        # Clean and limit content
-        content_data['content_text'] = ' '.join(content_data['content_text'].split())[:3000]
-        
-        return content_data
-        
-    except requests.RequestException as e:
-        logging.error(f"Error fetching website {url}: {e}")
-        raise HTTPException(status_code=400, detail=f"Unable to fetch website: {str(e)}")
     except Exception as e:
-        logging.error(f"Error processing website content: {e}")
-        raise HTTPException(status_code=500, detail="Error processing website content")
+        logging.error(f"❌ Error extracting content from {url}: {e}")
+        return {
+            "content_text": "",
+            "meta_description": "",
+            "meta_title": "",
+            "h1_tags": [],
+            "h2_tags": []
+        }
+
+def discover_main_pages(base_url):
+    """Découvrir les pages principales d'un site web en excluant les pages techniques"""
+    
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    }
+    
+    try:
+        response = requests.get(base_url, headers=headers, timeout=10)
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Mots-clés pour identifier les pages importantes
+        important_keywords = [
+            'produit', 'product', 'service', 'offre', 'catalogue', 'boutique', 'shop', 'store',
+            'about', 'propos', 'qui sommes', 'notre', 'équipe', 'team', 'histoire', 'history',
+            'contact', 'témoignage', 'avis', 'review', 'client', 'customer', 'référence',
+            'portfolio', 'réalisation', 'projet', 'work', 'galerie', 'gallery'
+        ]
+        
+        # Mots-clés pour exclure les pages techniques
+        excluded_keywords = [
+            'mention', 'legal', 'légal', 'condition', 'cgv', 'cgu', 'privacy', 'confidentialité',
+            'cookie', 'politique', 'terms', 'sitemap', 'plan du site', 'admin', 'login',
+            'inscription', 'register', 'mot de passe', 'password', 'compte', 'account',
+            'panier', 'cart', 'checkout', 'commande', 'order', 'facture', 'invoice'
+        ]
+        
+        discovered_pages = []
+        base_domain = base_url.rstrip('/').replace('https://', '').replace('http://', '').split('/')[0]
+        
+        # Chercher dans la navigation principale
+        nav_sections = soup.find_all(['nav', 'header', 'menu'])
+        for nav in nav_sections:
+            links = nav.find_all('a', href=True)
+            for link in links:
+                href = link.get('href')
+                text = link.get_text(strip=True).lower()
+                
+                if href and text:
+                    # Construire l'URL complète
+                    if href.startswith('/'):
+                        full_url = f"https://{base_domain}{href}"
+                    elif href.startswith('http'):
+                        # Vérifier que c'est le même domaine
+                        if base_domain in href:
+                            full_url = href
+                        else:
+                            continue
+                    else:
+                        full_url = f"https://{base_domain}/{href}"
+                    
+                    # Vérifier si c'est une page importante
+                    is_important = any(keyword in text for keyword in important_keywords)
+                    is_excluded = any(keyword in text for keyword in excluded_keywords)
+                    
+                    if is_important and not is_excluded and full_url not in discovered_pages:
+                        discovered_pages.append(full_url)
+                        if len(discovered_pages) >= 5:  # Limiter à 5 pages max
+                            break
+        
+        # Chercher aussi dans les liens principaux du contenu
+        if len(discovered_pages) < 3:
+            main_content = soup.find(['main', 'article', 'section']) or soup.find('div', class_=lambda x: x and ('main' in x or 'content' in x))
+            if main_content:
+                links = main_content.find_all('a', href=True)[:20]  # Limiter la recherche
+                for link in links:
+                    href = link.get('href')
+                    text = link.get_text(strip=True).lower()
+                    
+                    if href and text and len(text) > 3:
+                        # Construire l'URL complète
+                        if href.startswith('/'):
+                            full_url = f"https://{base_domain}{href}"
+                        elif href.startswith('http') and base_domain in href:
+                            full_url = href
+                        else:
+                            continue
+                        
+                        # Vérifier si c'est une page importante
+                        is_important = any(keyword in text for keyword in important_keywords)
+                        is_excluded = any(keyword in text for keyword in excluded_keywords)
+                        
+                        if is_important and not is_excluded and full_url not in discovered_pages:
+                            discovered_pages.append(full_url)
+                            if len(discovered_pages) >= 5:
+                                break
+        
+        logging.info(f"🔍 Discovered {len(discovered_pages)} main pages for {base_url}: {discovered_pages}")
+        return discovered_pages[:3]  # Retourner maximum 3 pages en plus de l'accueil
+        
+    except Exception as e:
+        logging.error(f"❌ Error discovering pages from {base_url}: {e}")
+        return []
+
+def extract_multi_page_content(base_url):
+    """Extraire le contenu de plusieurs pages importantes du site"""
+    
+    # Commencer par la page d'accueil
+    logging.info(f"📄 Extracting homepage content from {base_url}")
+    homepage_content = extract_website_content(base_url)
+    
+    # Découvrir les pages principales
+    main_pages = discover_main_pages(base_url)
+    
+    all_content = {
+        'homepage': homepage_content,
+        'additional_pages': []
+    }
+    
+    # Extraire le contenu des pages principales
+    for page_url in main_pages:
+        try:
+            logging.info(f"📄 Extracting content from additional page: {page_url}")
+            page_content = extract_website_content(page_url)
+            
+            # Ajouter des informations sur la page
+            page_info = {
+                'url': page_url,
+                'content': page_content
+            }
+            all_content['additional_pages'].append(page_info)
+            
+            # Petite pause entre les requêtes
+            time.sleep(0.5)
+            
+        except Exception as e:
+            logging.error(f"❌ Error extracting content from {page_url}: {e}")
+            continue
+    
+    # Agréger tout le contenu
+    aggregated_content = {
+        'content_text': homepage_content['content_text'],
+        'meta_description': homepage_content['meta_description'],
+        'meta_title': homepage_content['meta_title'],
+        'h1_tags': homepage_content['h1_tags'],
+        'h2_tags': homepage_content['h2_tags'],
+        'additional_content': []
+    }
+    
+    # Ajouter le contenu des pages supplémentaires
+    for page_info in all_content['additional_pages']:
+        page_content = page_info['content']
+        aggregated_content['additional_content'].append({
+            'url': page_info['url'],
+            'title': page_content['meta_title'],
+            'content_text': page_content['content_text'][:2000],  # Limiter le contenu par page
+            'h1_tags': page_content['h1_tags'],
+            'h2_tags': page_content['h2_tags']
+        })
+    
+    # Enrichir le contenu principal avec les informations des pages supplémentaires
+    for page_info in aggregated_content['additional_content']:
+        aggregated_content['h1_tags'].extend(page_info['h1_tags'])
+        aggregated_content['h2_tags'].extend(page_info['h2_tags'])
+    
+    logging.info(f"📊 Multi-page analysis completed: homepage + {len(all_content['additional_pages'])} additional pages")
+    return aggregated_content
 
 async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
     """Analyze website content using GPT-5 via emergentintegrations (with OpenAI fallback)"""

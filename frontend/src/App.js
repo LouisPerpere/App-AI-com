@@ -1789,6 +1789,11 @@ function MainApp() {
 
   // Function to check if upgrade modal should be shown
   const shouldShowUpgradeModal = () => {
+    // STRATÉGIE TEMPORAIRE : Fonctionnalités complètes pour tous (mois d'essai gratuit)
+    // Désactivation temporaire du modal de paiement jusqu'à mise en place du système final
+    return { show: false };
+    
+    /* LOGIQUE ORIGINALE COMMENTÉE
     if (!user || upgradeModalDismissed) return false;
     
     const now = new Date();
@@ -1864,6 +1869,7 @@ function MainApp() {
     }
     
     return { show: false };
+    */
   };
 
   // Function to check if feature is blocked

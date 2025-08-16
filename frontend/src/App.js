@@ -2597,17 +2597,57 @@ function MainApp() {
   };
 
   const loadWebsiteAnalysis = async () => {
+    console.log('🔄 Chargement de l\'analyse de site web...');
+    
     try {
+      // Essayer de charger depuis le backend d'abord
       const response = await axios.get(`${API}/website/analysis`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
       });
-      if (response.data) {
-        setWebsiteAnalysis(response.data);
-        setLastAnalysisDate(new Date(response.data.last_analyzed).toLocaleString('fr-FR'));
+      
+      if (response.data && response.data.analysis) {
+        console.log('✅ Analyse chargée depuis le backend');
+        const analysisData = response.data.analysis;
+        setWebsiteAnalysis(analysisData);
+        
+        // Mettre à jour la date d'analyse
+        if (analysisData.created_at) {
+          const analysisDate = new Date(analysisData.created_at);
+          setLastAnalysisDate(analysisDate.toLocaleString('fr-FR'));
+        }
+        
+        // Sauvegarder dans localStorage pour cache local
+        try {
+          localStorage.setItem('websiteAnalysis', JSON.stringify(analysisData));
+          console.log('💾 Analyse mise en cache localStorage');
+        } catch (storageError) {
+          console.warn('⚠️ Erreur cache localStorage:', storageError);
+        }
+        
+        return;
       }
     } catch (error) {
-      // Ignore error if no analysis exists
-      console.log('No website analysis found');
+      console.log('⚠️ Pas d\'analyse dans le backend, essai localStorage...');
+    }
+    
+    // Fallback: charger depuis localStorage si pas de données backend
+    try {
+      const cachedAnalysis = localStorage.getItem('websiteAnalysis');
+      if (cachedAnalysis) {
+        const analysisData = JSON.parse(cachedAnalysis);
+        console.log('✅ Analyse chargée depuis localStorage (cache)');
+        setWebsiteAnalysis(analysisData);
+        
+        // Mettre à jour la date d'analyse
+        if (analysisData.created_at) {
+          const analysisDate = new Date(analysisData.created_at);
+          setLastAnalysisDate(analysisDate.toLocaleString('fr-FR'));
+        }
+      } else {
+        console.log('ℹ️ Aucune analyse trouvée (backend + localStorage)');
+      }
+    } catch (error) {
+      console.error('❌ Erreur chargement analyse depuis localStorage:', error);
     }
   };
 

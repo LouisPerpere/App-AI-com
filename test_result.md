@@ -950,6 +950,7 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Bibliothèque Upload Functionality"
     - "Business Profile Description Field Integration"
   stuck_tasks: []
   test_all: false

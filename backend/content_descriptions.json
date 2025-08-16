@@ -36,7 +36,7 @@
   "607f6c28-a1a0-4c02-b7f2-54bf95f2fa8e": "",
   "df4223a1-e012-4caf-aa36-b4edd8899293": "",
   "23dd7084-da9d-4c49-8d61-c0766233afda": "",
-  "14f124ff-26ee-4fd8-bfb9-eddaf5694885": "",
+  "14f124ff-26ee-4fd8-bfb9-eddaf5694885": "Test comment for badge display",
   "5a653df1-5437-43d7-8181-eed7096af8f3": "",
   "9931a3f0-294d-4924-b0ec-da6bacdabb74": "",
   "05f6216a-29e9-4e33-8140-0977903a1152": "",
@@ -61,5 +61,6 @@
   "9c17c693-d20b-4849-8230-c6adbbe951af": "Dessert maison",
   "8ee21d73-914d-4a4e-8799-ced03e27ebe0": "",
   "d8901d89-762a-4730-8bd8-4bb02fd37b7f": "",
-  "e2d51761-cd25-494a-8d4d-300313dbbe56": ""
+  "e2d51761-cd25-494a-8d4d-300313dbbe56": "",
+  "c520d11f-5e57-43f1-ab37-ae6ef2ba0abf": "JSON sync test - 2025-08-16T20:38:56.173263"
 }

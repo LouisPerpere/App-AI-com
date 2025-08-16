@@ -727,6 +727,10 @@ function MainApp() {
   const [isEditingBudgetRange, setIsEditingBudgetRange] = useState(false);
   const [tempBudgetRange, setTempBudgetRange] = useState('');
   const [isSavingBudgetRange, setIsSavingBudgetRange] = useState(false);
+  
+  const [isEditingBrandTone, setIsEditingBrandTone] = useState(false);
+  const [tempBrandTone, setTempBrandTone] = useState('');
+  const [isSavingBrandTone, setIsSavingBrandTone] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeModalDismissed, setUpgradeModalDismissed] = useState(false);
   

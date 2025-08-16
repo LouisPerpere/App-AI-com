@@ -559,6 +559,23 @@ async def get_pending_content(user_id: str = Depends(get_current_user_id)):
                                     
                                     # Create thumbnail
                                     image = Image.open(io.BytesIO(file_content))
+                                    
+                                    # Handle EXIF orientation for thumbnails too
+                                    try:
+                                        from PIL.ExifTags import ORIENTATION
+                                        exif = image._getexif()
+                                        if exif is not None:
+                                            orientation = exif.get(0x0112)  # Orientation tag
+                                            if orientation == 3:
+                                                image = image.rotate(180, expand=True)
+                                            elif orientation == 6:
+                                                image = image.rotate(270, expand=True)
+                                            elif orientation == 8:
+                                                image = image.rotate(90, expand=True)
+                                    except (AttributeError, KeyError, TypeError):
+                                        # No EXIF data or orientation info, continue
+                                        pass
+                                    
                                     # Small thumbnail for gallery performance
                                     image.thumbnail((150, 150), Image.Resampling.LANCZOS)
                                     

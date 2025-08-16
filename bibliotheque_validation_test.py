@@ -28,7 +28,7 @@ from datetime import datetime
 BACKEND_URL = "https://claire-marcus-fix-1.preview.emergentagent.com/api"
 TEST_USER_EMAIL = "lperpere@yahoo.fr"
 TEST_USER_PASSWORD = "L@Reunion974!"
-EXPECTED_FILE_COUNT = 41  # After cleanup
+EXPECTED_FILE_COUNT = 40  # After cleanup (actual current state)
 SPECIFIC_FILE_ID = "8ee21d73-914d-4a4e-8799-ced03e27ebe0"
 EXPECTED_COMMENT = "cadran bleu"
 

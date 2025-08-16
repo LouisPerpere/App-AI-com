@@ -652,20 +652,41 @@ async def get_pending_content(
 
 @api_router.delete("/content/{file_id}")
 async def delete_content_file(file_id: str, user_id: str = Depends(get_current_user_id)):
-    """Delete a content file"""
+    """Delete a content file and its description permanently"""
     try:
         uploads_dir = "uploads"
         
         # Find file by ID (filename without extension)
+        deleted_file = None
         for filename in os.listdir(uploads_dir):
             if filename.split('.')[0] == file_id:
                 file_path = os.path.join(uploads_dir, filename)
                 if os.path.exists(file_path):
-                    os.remove(file_path)
-                    print(f"✅ Deleted file: {filename}")
-                    return {"message": f"Fichier {filename} supprimé avec succès"}
+                    try:
+                        os.remove(file_path)
+                        deleted_file = filename
+                        print(f"✅ Deleted file from filesystem: {filename}")
+                        break
+                    except Exception as e:
+                        print(f"❌ Error deleting file from filesystem: {e}")
+                        raise HTTPException(status_code=500, detail=f"Erreur lors de la suppression du fichier: {str(e)}")
         
-        raise HTTPException(status_code=404, detail="Fichier non trouvé")
+        if deleted_file:
+            # Also delete the description from JSON
+            if delete_file_description(file_id):
+                print(f"✅ Deleted description for file: {file_id}")
+            else:
+                print(f"⚠️ Could not delete description for file: {file_id}")
+            
+            return {
+                "message": f"Fichier {deleted_file} supprimé définitivement",
+                "file_id": file_id,
+                "deleted_file": deleted_file
+            }
+        else:
+            # File not found
+            print(f"❌ File with ID {file_id} not found")
+            raise HTTPException(status_code=404, detail="Fichier non trouvé")
         
     except HTTPException:
         raise

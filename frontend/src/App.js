@@ -2418,11 +2418,7 @@ function MainApp() {
     setAnalysisMessage('Analyse en cours...');
 
     console.log('🚀 DÉBUT analyse site web');
-    console.log('📊 État avant analyse:', {
-      businessName: isVirtualKeyboardDevice ? (businessNameRef.current?.value || '') : editBusinessName,
-      websiteUrl: websiteUrl,
-      isProtected: isWebsiteFieldProtected
-    });
+    console.log('🌐 URL à analyser:', websiteUrl);
 
     try {
       // Utiliser l'URL copiée pour l'analyse, pas l'URL du champ visible

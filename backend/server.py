@@ -540,14 +540,42 @@ async def get_pending_content(user_id: str = Depends(get_current_user_id)):
                     if content_type is None:
                         continue
                     
-                    # For images, try to read file data for preview
+                    # For images, create two versions: full for modal, thumbnail for gallery
                     file_data = None
+                    thumbnail_data = None
                     if content_type.startswith('image/'):
                         try:
                             with open(file_path, "rb") as f:
                                 import base64
                                 file_content = f.read()
+                                
+                                # Full size for modal (already optimized during upload)
                                 file_data = base64.b64encode(file_content).decode('utf-8')
+                                
+                                # Create small thumbnail for gallery (max 150px to reduce memory)
+                                try:
+                                    from PIL import Image
+                                    import io
+                                    
+                                    # Create thumbnail
+                                    image = Image.open(io.BytesIO(file_content))
+                                    # Small thumbnail for gallery performance
+                                    image.thumbnail((150, 150), Image.Resampling.LANCZOS)
+                                    
+                                    # Save thumbnail as JPEG with lower quality for small size
+                                    thumb_buffer = io.BytesIO()
+                                    if image.mode not in ('RGB', 'L'):
+                                        image = image.convert('RGB')
+                                    image.save(thumb_buffer, format='JPEG', quality=60, optimize=True)
+                                    
+                                    thumbnail_data = base64.b64encode(thumb_buffer.getvalue()).decode('utf-8')
+                                    thumb_buffer.close()
+                                    
+                                except Exception as thumb_error:
+                                    print(f"⚠️ Could not create thumbnail for {filename}: {thumb_error}")
+                                    # Fallback to full image
+                                    thumbnail_data = file_data
+                                
                         except Exception as e:
                             print(f"⚠️ Could not read image file {filename}: {e}")
                     
@@ -555,7 +583,8 @@ async def get_pending_content(user_id: str = Depends(get_current_user_id)):
                         "id": filename.split('.')[0],  # Use filename without extension as ID
                         "filename": filename,
                         "file_type": content_type,
-                        "file_data": file_data,  # Base64 encoded for images
+                        "file_data": file_data,  # Full size for modal
+                        "thumbnail_data": thumbnail_data,  # Small thumbnail for gallery
                         "size": file_size,
                         "uploaded_at": datetime.fromtimestamp(file_stats.st_mtime).isoformat(),
                         "description": ""  # Empty description by default (TODO: load from database)

@@ -2437,7 +2437,7 @@ function MainApp() {
   const deleteContent = async () => {
     if (!selectedContent) return;
     
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce contenu ?')) {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer définitivement ce contenu ?')) {
       return;
     }
     
@@ -2447,7 +2447,7 @@ function MainApp() {
         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
       });
       
-      toast.success('Contenu supprimé !');
+      toast.success('Contenu supprimé définitivement !');
       
       // Remove from the list
       setPendingContent(prev => prev.filter(content => content.id !== selectedContent.id));
@@ -2457,6 +2457,8 @@ function MainApp() {
       
       // Close modal
       closeContentModal();
+      
+      console.log(`✅ Permanently deleted content: ${selectedContent.id}`);
       
     } catch (error) {
       console.error('Error deleting content:', error);

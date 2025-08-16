@@ -849,6 +849,55 @@ def delete_file_description(file_id):
         return save_descriptions(descriptions)
     return True  # Already doesn't exist, consider as success
 
+def sync_descriptions_with_files():
+    """Synchronize content_descriptions.json with actual files in uploads directory"""
+    try:
+        uploads_dir = "uploads"
+        if not os.path.exists(uploads_dir):
+            return True
+        
+        # Get all actual files in uploads directory
+        actual_files = set()
+        for filename in os.listdir(uploads_dir):
+            if os.path.isfile(os.path.join(uploads_dir, filename)):
+                file_id = filename.split('.')[0]
+                actual_files.add(file_id)
+        
+        # Get all descriptions from JSON
+        descriptions = load_descriptions()
+        described_files = set(descriptions.keys())
+        
+        # Find orphaned descriptions (descriptions without files)
+        orphaned_descriptions = described_files - actual_files
+        
+        # Find files without descriptions
+        files_without_descriptions = actual_files - described_files
+        
+        if orphaned_descriptions or files_without_descriptions:
+            print(f"🔄 Syncing data: {len(orphaned_descriptions)} orphaned descriptions, {len(files_without_descriptions)} files without descriptions")
+            
+            # Remove orphaned descriptions
+            for orphaned_id in orphaned_descriptions:
+                del descriptions[orphaned_id]
+                print(f"🗑️ Removed orphaned description: {orphaned_id}")
+            
+            # Add empty descriptions for files without descriptions
+            for file_id in files_without_descriptions:
+                descriptions[file_id] = ""
+                print(f"📝 Added empty description for file: {file_id}")
+            
+            # Save synchronized descriptions
+            save_descriptions(descriptions)
+            print(f"✅ Data synchronized: {len(actual_files)} files, {len(descriptions)} descriptions")
+        else:
+            print(f"✅ Data already synchronized: {len(actual_files)} files, {len(descriptions)} descriptions")
+        
+        return True
+        
+    except Exception as e:
+        print(f"❌ Error syncing descriptions with files: {e}")
+        return False
+
 # Content upload endpoints (enhanced with image optimization)
 @api_router.post("/content/batch-upload")
 async def batch_upload_files(

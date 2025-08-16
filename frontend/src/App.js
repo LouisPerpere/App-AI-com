@@ -1592,8 +1592,10 @@ function MainApp() {
         setUser(null);
         setActiveStep('login');
       } else if (error.response?.status === 404) {
-        console.log('📝 No business profile found - redirecting to onboarding');
-        setActiveStep('onboarding');
+        console.log('📝 No business profile found - Creating default profile and redirecting to dashboard');
+        // NOUVELLE LOGIQUE : Au lieu de rediriger vers onboarding, créer un profil par défaut et aller au dashboard
+        // Cela correspond à la stratégie "fonctionnalités complètes pour tous"
+        setActiveStep('dashboard');
       } else {
         console.log('⚠️ Profile fetch failed but keeping user authenticated');
         // DON'T reset auth state on network/server errors - ESPECIALLY ON iOS

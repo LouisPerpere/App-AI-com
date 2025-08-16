@@ -150,6 +150,9 @@ class ContentLibraryTester:
             
             # Check if file was actually saved and optimized
             file_path = uploaded_file.get('file_path', '')
+            # Fix path - server uses relative path, but files are in backend/uploads
+            if not file_path.startswith('/'):
+                file_path = f"/app/backend/{file_path}"
             if os.path.exists(file_path):
                 with open(file_path, 'rb') as f:
                     optimized_data = f.read()

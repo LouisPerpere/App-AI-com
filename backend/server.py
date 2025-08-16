@@ -781,6 +781,40 @@ def optimize_image(image_content: bytes, max_size: int = 1080, quality: int = 85
         print(f"⚠️ Image optimization failed: {e}, using original")
         return image_content
 
+def load_descriptions():
+    """Load content descriptions from JSON file"""
+    descriptions_file = "content_descriptions.json"
+    try:
+        if os.path.exists(descriptions_file):
+            with open(descriptions_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except Exception as e:
+        print(f"⚠️ Error loading descriptions: {e}")
+    return {}
+
+def save_descriptions(descriptions):
+    """Save content descriptions to JSON file"""
+    descriptions_file = "content_descriptions.json"
+    try:
+        with open(descriptions_file, 'w', encoding='utf-8') as f:
+            json.dump(descriptions, f, ensure_ascii=False, indent=2)
+        print(f"✅ Descriptions saved to {descriptions_file}")
+        return True
+    except Exception as e:
+        print(f"❌ Error saving descriptions: {e}")
+        return False
+
+def get_file_description(file_id):
+    """Get description for a specific file"""
+    descriptions = load_descriptions()
+    return descriptions.get(file_id, "")
+
+def set_file_description(file_id, description):
+    """Set description for a specific file"""
+    descriptions = load_descriptions()
+    descriptions[file_id] = description
+    return save_descriptions(descriptions)
+
 # Content upload endpoints (enhanced with image optimization)
 @api_router.post("/content/batch-upload")
 async def batch_upload_files(

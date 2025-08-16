@@ -2132,24 +2132,7 @@ function MainApp() {
   };
 
 
-  // Système d'édition avec verrouillage + bouton crayon/coche pour nom entreprise
-  const startEditingBusinessName = () => {
-    const currentValue = businessProfile?.business_name || 'Mon entreprise';
-    
-    // Pour tous les appareils, initialiser tempBusinessName avec la valeur actuelle
-    setTempBusinessName(currentValue);
-    
-    setIsEditingBusinessName(true);
-    
-    // Pour les appareils avec clavier virtuel, définir la valeur du ref après un petit délai
-    if (isVirtualKeyboardDevice) {
-      setTimeout(() => {
-        if (businessNameRef.current) {
-          businessNameRef.current.value = currentValue;
-        }
-      }, 50);
-    }
-  };
+
 
 
   // Système d'édition avec verrouillage + bouton crayon/coche - FONCTIONS GÉNÉRIQUES

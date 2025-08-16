@@ -2499,6 +2499,11 @@ function MainApp() {
         console.log('🧹 Données nettoyées pour setWebsiteAnalysis:', cleanAnalysisData);
         setWebsiteAnalysis(cleanAnalysisData);
         console.log('✅ setWebsiteAnalysis exécuté avec succès avec données nettoyées');
+        
+        // Mettre à jour la date d'analyse avec la date du backend
+        const analysisDate = cleanAnalysisData.created_at ? new Date(cleanAnalysisData.created_at) : new Date();
+        setLastAnalysisDate(analysisDate.toLocaleString('fr-FR'));
+        console.log('📅 Date d\'analyse mise à jour:', analysisDate.toLocaleString('fr-FR'));
       } catch (setStateError) {
         console.error('❌ Erreur lors de setWebsiteAnalysis:', setStateError);
         throw new Error('Erreur lors du traitement des données d\'analyse');

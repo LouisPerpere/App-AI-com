@@ -2448,8 +2448,9 @@ function MainApp() {
       }
       
       console.log('📊 État AVANT setWebsiteAnalysis:', {
-        businessName: isVirtualKeyboardDevice ? (businessNameRef.current?.value || '') : editBusinessName,
-        websiteUrl: isVirtualKeyboardDevice ? (websiteUrlRef.current?.value || '') : editWebsiteUrl
+        businessName: businessProfile?.business_name || 'Non défini',
+        websiteUrl: businessProfile?.website_url || editWebsiteUrl || 'Non défini',
+        userEmail: businessProfile?.email || 'Non défini'
       });
 
       // Traitement sécurisé des données d'analyse

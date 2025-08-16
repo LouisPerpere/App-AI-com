@@ -557,7 +557,8 @@ async def get_pending_content(user_id: str = Depends(get_current_user_id)):
                         "file_type": content_type,
                         "file_data": file_data,  # Base64 encoded for images
                         "size": file_size,
-                        "uploaded_at": datetime.fromtimestamp(file_stats.st_mtime).isoformat()
+                        "uploaded_at": datetime.fromtimestamp(file_stats.st_mtime).isoformat(),
+                        "description": ""  # Empty description by default (TODO: load from database)
                     })
                 except Exception as e:
                     print(f"⚠️ Error processing file {filename}: {e}")

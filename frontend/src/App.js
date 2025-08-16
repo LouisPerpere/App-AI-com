@@ -4621,10 +4621,11 @@ function MainApp() {
             </Card>
           </TabsContent>
 
-          {/* Subscription/Upgrade Interface - Now always visible */}
+          {/* Subscription/Upgrade Interface - TEMPORAIREMENT DÉSACTIVÉ pour stratégie fonctionnalités complètes
           <div className="mt-8">
             <SubscriptionUpgrade user={user} onUpgradeSuccess={() => window.location.reload()} />
           </div>
+          */}
         </Tabs>
       </div>
 

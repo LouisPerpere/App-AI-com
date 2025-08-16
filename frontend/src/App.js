@@ -700,6 +700,13 @@ function MainApp() {
   const [showBurgerMenu, setShowBurgerMenu] = useState(false);
   const [activeTab, setActiveTab] = useState('entreprise');
   
+  // Content preview modal states
+  const [showContentModal, setShowContentModal] = useState(false);
+  const [selectedContent, setSelectedContent] = useState(null);
+  const [contentDescription, setContentDescription] = useState('');
+  const [isSavingDescription, setIsSavingDescription] = useState(false);
+  const [isDeletingContent, setIsDeletingContent] = useState(false);
+  
   // Système de verrouillage d'édition avec bouton crayon/coche pour tous les champs
   const [isEditingBusinessName, setIsEditingBusinessName] = useState(false);
   const [tempBusinessName, setTempBusinessName] = useState('');

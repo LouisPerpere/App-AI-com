@@ -643,6 +643,8 @@ async def analyze_website(
             "target_audience": analysis_result.get('target_audience', ''),
             "main_services": analysis_result.get('main_services', []),
             "content_suggestions": analysis_result.get('content_suggestions', []),
+            "pages_analyzed": analysis_result.get('pages_analyzed', 1),
+            "additional_pages_urls": analysis_result.get('additional_pages_urls', []),
             "last_analyzed": website_analysis.last_analyzed,
             "next_analysis_due": website_analysis.next_analysis_due,
             "status": "analyzed",

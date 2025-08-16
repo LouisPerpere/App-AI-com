@@ -2379,9 +2379,9 @@ function MainApp() {
   const saveContentDescription = async () => {
     if (!selectedContent) return;
     
-    // Get description from ref for virtual keyboard devices
+    // Get description from ref (works for both desktop and mobile)
     let description = contentDescription;
-    if (isVirtualKeyboardDevice && contentDescriptionRef.current) {
+    if (contentDescriptionRef.current) {
       description = contentDescriptionRef.current.value;
     }
     
@@ -2407,7 +2407,7 @@ function MainApp() {
       
       // IMPORTANT: Synchronize both state and ref after save to prevent disappearing
       setContentDescription(description);
-      if (isVirtualKeyboardDevice && contentDescriptionRef.current) {
+      if (contentDescriptionRef.current) {
         contentDescriptionRef.current.value = description;
       }
       

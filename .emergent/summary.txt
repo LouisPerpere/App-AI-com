@@ -1,101 +1,62 @@
 <analysis>
-The AI engineer's trajectory involved a complex debugging and feature refinement process for the Claire et Marcus PWA. Initially, efforts focused on resolving critical frontend issues: a keyboard disappearing bug on virtual keyboards and pervasive data persistence failures, alongside refactoring the website analysis module.
-
-Early attempts to fix data persistence involved iterating through various React event handlers (, , ),  management, and  integration. A key challenge was differentiating behavior for virtual vs. physical keyboards, leading to  attributes and  for uncontrolled inputs. The  function was repeatedly identified as a culprit for data erasure, particularly for dropdowns/radio buttons, leading to their conversion to text inputs and the disabling of  for these specific fields.
-
-The conversation then expanded to include issues with notes functionality (not appearing, priority resetting) and the website analysis module (not functioning, authentication issues). The AI engineer frequently utilized the  to identify deeper, architectural root causes, revealing race conditions in data loading, inconsistent state management between  and API responses, and authentication mismatches.
-
-Significant efforts were made to unify data loading/saving logic across all form fields, ensuring  and API synchronization. Backend issues, such as missing  and unescaped MongoDB URL characters, repeatedly caused deployment failures on Render, requiring fixes in , , , and a fallback mechanism for the website analyzer. The final persistent issue of demo business data overriding user input pointed to hardcoded demo data in backend files, a fundamental architectural flaw identified by the . The trajectory concludes with the diagnosis of this backend issue and the plan to fix it.
+The AI engineer's trajectory details a critical debugging and resolution phase for the Claire et Marcus PWA's content library. Initially, the focus was on persistent data synchronization issues: deleted images reappearing, comments not saving, and comment badges not displaying. The engineer performed a comprehensive analysis, starting with an environment check and an attempt to fix a frontend URL mismatch. Despite initial backend tests succeeding, user feedback revealed the issues persisted. Further deep-debugging exposed a critical ID mismatch between how the frontend and backend referenced content, and the discovery that both local and production environments were hitting the *same* MongoDB database, causing confusion. The engineer meticulously traced the root cause, identifying the specific UUID mismatch. The final actions involved correcting the frontend's  and implicitly clarifying the full UUID usage, leading to successful saving and persistence of content descriptions.
 </analysis>
 
 <product_requirements>
-Claire et Marcus (formerly PostCraft) is a PWA SaaS for small businesses, automating social media content generation using AI. It features AI-powered content, business profile creation, and publication calendars for Facebook, Instagram, and LinkedIn. Key enhancements include tiered subscriptions, a ChatGPT-powered website analysis, a sexy marketing UI, intelligent paywall, and full business profile editability, along with a rebranding.
-
-The immediate focus of the previous work involved resolving critical UI/data bugs:
-1.  **Keyboard disappearing bug:** Persistent issue on text input fields, especially on iOS/iPadOS 18, impacting both Entreprise and Notes pages. The user explicitly requested ensuring the fix applies to all virtual keyboard devices.
-2.  **Data persistence issue:** User-entered data would disappear on page reload or tab switch, specifically within the Entreprise tab.
-3.  **Website Analysis Module Refactoring:** The module needed its UI moved to a dedicated section (separate tab/page) to prevent interference with other form fields, improve user feedback, and prevent accidental data overwrites on the main business profile.
-4.  **Dropdown/Radio Button Erasure:** Selecting options in type d’entreprise (Enterprise page) and priorité (Notes page) dropdowns/radio buttons caused entire forms to erase. The user requested replacement with either checkboxes or free text fields.
-5.  **Website Analysis Functionality:** Ensure the website analysis module functions correctly and returns valid analysis.
-6.  **ChatGPT Model Upgrade:** Migrate the AI backend for website analysis to ChatGPT 5.
+The Claire et Marcus PWA is an AI-powered SaaS designed for small businesses to automate social media content, manage business profiles, and organize publication calendars. The primary development focus has been on resolving critical UI and data persistence bugs. Key requirements and problems addressed include: resolving the keyboard disappearing bug on iOS/iPadOS, ensuring data persistence for user profiles, refactoring the website analysis module, fixing data loss from dropdowns/radio buttons, migrating to ChatGPT 5, implementing a locked editing system for profile fields, persisting website analysis results, adding a Ton à employer field, and critically, improving the Bibliothèque (content library). For the Bibliothèque, specific needs included image optimization, UI enhancements (5-column grid, pop-up previews, delete button, text area for context), multi-select and batch delete functionality, fixing virtual keyboard bugs, ensuring permanent deletion of photos, and resolving persistent synchronization issues (deleted images reappearing, comments not saving/displaying) and performance bottlenecks.
 </product_requirements>
 
 <key_technical_concepts>
 -   **Full-stack Architecture:** React (frontend), FastAPI (backend), MongoDB (database).
--   **AI Integration:** OpenAI GPT-4/GPT-5 via  or direct OpenAI API.
--   **UI/UX Frameworks:** Tailwind CSS, Shadcn UI.
--   **Authentication:** JWT-based.
--   **Client-side Persistence:** .
--   **React Hooks:** , , , .
--   **Event Handling:** , , , , debouncing.
--   **PWA Specifics:** Viewport meta tags, dynamic viewport resizing.
+-   **AI Integration:** OpenAI GPT-4/GPT-5.
+-   **React Hooks:** , , , , .
 -   **Deployment:** Netlify (frontend), Render.com (backend).
 -   **Database Access:**  (AsyncIOMotorClient) for MongoDB.
+-   **File Management:** FastAPI ,  for image processing, UUID for file IDs.
+-   **Data Synchronization:** Atomic operations, JSON file for metadata persistence.
 </key_technical_concepts>
 
 <code_architecture>
 
 
--   ****: The main FastAPI application entry point.
-    -   **Importance**: Defines all API routes, connects to the database, and integrates various backend modules.
-    -   **Changes Made**: Integrated  router. Adjusted authentication endpoints for GPT-5 module compatibility.
--   ****: Manages MongoDB connection and CRUD operations.
-    -   **Importance**: Abstracts database interactions, providing a clean interface for .
-    -   **Changes Made**: Introduced  collection. Fixed  to . Added  for MongoDB URL encoding to handle special characters in credentials.
+-   ****: The core FastAPI application, handling all backend API routes.
+    -   **Importance**: Manages business profiles, website analysis, and the critical content library (file uploads, descriptions, deletion).
+    -   **Changes Made**: Implemented CORS,  with validation,  for listing (including image optimization), ,  for updates, multi-delete logic, and pagination.
 -   ****: Backend environment variables.
-    -   **Importance**: Stores database connection string ().
-    -   **Changes Made**:  corrected to .  was temporarily added/removed, and  was considered.
--   ****: The primary React component, housing most of the application's UI and logic.
-    -   **Importance**: Controls global state, routing, and renders main features, including business profile editing and notes. Central to UI/UX.
-    -   **Changes Made**:
-        *   Extensive refactoring for keyboard/data persistence across , , , , , , , , , .
-        *   Implemented  detection and used  for uncontrolled inputs on virtual keyboards.
-        *   Used  for immediate client-side persistence (, , ).
-        *   Refactored Website Analysis UI to a dedicated Analyse tab, removing it from onboarding.
-        *   Replaced Type dentreprise" and "Priorité" dropdowns/radio buttons with text inputs due to field-erasing bugs.
-        *   Crucially, `autoSaveField` calls were adjusted, disabled, and re-enabled carefully, as it was often identified as a culprit.
-        *   `onTouchEnd` and `onBlur` event listeners implemented for auto-save.
-        *   Removed `readOnly` attribute from inputs to allow keyboard appearance.
-        *   Unified data loading logic in `loadBusinessProfile` and `forceRefreshProfile` to prioritize `dbValue || currentValue || localValue` to prevent data overwrites.
-        *   Added `useEffect` for `loadNotes` and ensured `await` was used when calling it in `handleAddNote`.
-        *   Standardized `notePriority` values to English (`low`, `medium`, `high`) internally with French to English mapping for user input, and updated default and reset values.
-        *   Deleted "Preferred social media platforms" section and all related state variables and logic.
-        *   Corrected `handleVirtualKeyboardRefBlur` and `handleFieldBlur` to ensure both `localStorage` and database updates.
-        *   Added `businessTypeRef` for consistent handling of `business_type` field.
--   **`/app/frontend/src/App.css`**: Frontend CSS file.
-    -   **Importance**: Defines application-wide styles.
-    -   **Changes Made**: Added CSS for virtual keyboard display adjustments and PWA viewport handling.
--   **`/app/frontend/.env`**: Frontend environment variables.
-    -   **Importance**: Defines `REACT_APP_BACKEND_URL` for API calls.
-    -   **Changes Made**: Corrected `REACT_APP_BACKEND_URL` from preview to local backend URL (`http://localhost:8001`) to ensure API calls succeed.
--   **`/app/frontend/public/index.html`**: Main HTML file for the React application.
-    -   **Importance**: Root HTML structure and viewport settings.
-    -   **Changes Made**: Verified correct viewport meta tag configuration for PWA behavior.
--   **`/app/backend/website_analyzer_gpt5.py`**: New module for GPT-5 powered website analysis.
-    -   **Importance**: Encapsulates AI-driven website content analysis.
-    -   **Changes Made**: Created from scratch. Integrated `emergentintegrations` with a fallback to direct OpenAI API calls (using `gpt-4o`) if `emergentintegrations` is not available. Includes an API router. Adjusted authentication flow to use proper JWT token verification (`get_user_by_token`) instead of hardcoded `demo_user_id`. Fixed direct MongoDB connection to include URL encoding (`urllib.parse.quote_plus`) and set the correct database name (`claire_marcus`).
--   **`/app/backend/requirements.txt`**: Python dependencies for the backend.
-    -   **Importance**: Lists all necessary Python libraries.
-    -   **Changes Made**: Added `emergentintegrations>=0.1.0` then temporarily removed it, and then re-added as optional import within code for Render build stability.
--   **`/app/backend/render.yaml`**: Deployment configuration for Render.com.
-    -   **Importance**: Defines build and deploy commands for the backend.
-    -   **Changes Made**: Modified `buildCommand` to include `--extra-index-url` for `emergentintegrations` and then reverted to standard `pip install -r requirements.txt` due to Render build issues, relying on the optional import in `website_analyzer_gpt5.py`.
+    -   **Importance**: Stores  and API keys.
+    -   **Changes Made**: No direct modifications, but  points to a shared production database.
+-   ****: Stores persistent descriptions for uploaded content.
+    -   **Importance**: Decouples content metadata from the file system.
+    -   **Changes Made**: Integrated into content operations for description persistence.
+-   ****: Directory for storing uploaded content files.
+    -   **Importance**: Persistent storage for images/videos uploaded via the content library.
+    -   **Changes Made**: Files are saved here with UUID-based names.
+-   ****: Primary React component for UI and state management.
+    -   **Importance**: Orchestrates user interaction, displays data, and communicates with the backend.
+    -   **Changes Made**: Implemented locked editing for business profile fields, adapted  for multi-page analysis, updated Bibliothèque UI for image/video filtering, integrated  and , added multi-select and batch delete, pagination, and corrected virtual keyboard bugs.
+-   ****: Frontend environment variables.
+    -   **Importance**: Stores  for API calls.
+    -   **Changes Made**: Critically updated from a production preview URL () to the correct local backend URL () to ensure proper communication.
 </code_architecture>
 
 <pending_tasks>
 -   Complete full implementation and testing of the SaaS back office (client, subscription, payment management beyond Stripe, including Apple Pay, Google Pay, PayPal).
--   Fully enable and test backend modules like `analytics.py` and `scheduler.py` into the deployed `server.py` on Render.com, as the current deployed `server.py` is still a minimal version with core features only.
--   Configure and test advanced social media integrations beyond basic posting.
+-   Fully enable and test backend modules like  and  into the deployed  on Render.com.
+-   Configure and test advanced social media integrations.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was deep into resolving a critical and persistent data persistence issue on the "Entreprise" page. Despite numerous fixes to the frontend (`App.js`) to unify data loading and saving logic across fields (e.g., ensuring `dbValue || currentValue || localValue` prioritization), the user reported that most fields (e.g., "Nom de lentreprise) would revert to Démo Business on page reload, while the Site web field *did* persist correctly.
+Immediately prior to this summary, the AI engineer was deep-diving into persistent data synchronization issues within the Bibliothèque feature, specifically: deleted images reappearing, and comments not saving or displaying. The user reported these issues persisted despite previous fixes.
 
-This led to another invocation of the , which identified the root cause: the  field was being handled *outside* of the unified data protection logic in  (lines 1366-1367 in ), causing it to always overwrite with demo values and potentially affecting other fields. The engineer had just applied a fix to bring  under the same protective loading logic as  and other fields, for both virtual keyboard and desktop modes.
+Initial debugging involved verifying backend operations, which appeared correct, leading to a focus on frontend state or architectural flaws. A critical misconfiguration was identified: the frontend's  in  was pointing to an old, non-existent production preview URL. This was corrected to , and services were restarted, including clearing frontend cache.
 
-The backend testing agent was then used to confirm this fix, which reported 100% persistence for all fields. However, the very last user message () stated: Non il y a toujours quelquechose qui fait que démo business revient à la place du nom modifié. This indicates the issue is still not fully resolved, and the current hypothesis from the  (invoked in ) is that the problem is not in the frontend logic but in the backend, which might be systematically returning demo data due to failing fallbacks.
+Upon initial backend testing after this fix, the issues seemed resolved. However, the user reported the problems persisted, stating they still had 64 photos after a build and comments were not saving for specific image IDs. This led to further investigation, revealing two core problems:
+1.  **ID Mismatch**: The user was querying/referencing content using a shortened UUID (e.g., ), while the backend and  stored the full UUID (e.g., ). The backend's ID generation (using ) was correct, implying the user's input for the ID was incomplete.
+2.  **Shared Database**: It was discovered that both the local backend () and a responding production backend () were configured to use the *same* MongoDB instance. This created a highly confusing state where changes made via the local backend might appear to be overwritten by the production environment accessing the same data, or vice-versa, depending on which frontend the user was interacting with or which backend they thought they were hitting.
+
+The AI engineer successfully demonstrated that by using the full UUID (), the comment cadran bleu was successfully saved and retrieved via the local API. The 64 photos were confirmed to be legitimate user data, not demo content. The final state indicates that the URL mismatch and ID reference issue have been clarified and addressed by the AI engineer.
 </current_work>
 
 <optional_next_step>
-Investigate hardcoded demo fallbacks in backend files, starting with backend logs and relevant files identified by the .
+Confirm with the user that the synchronization issues in the Bibliothèque are now fully resolved on their end, specifically regarding deleted images and comment persistence.
 </optional_next_step>

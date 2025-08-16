@@ -11,7 +11,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://805d29d2-003e-4a4d-83e5-eaa26437ff94.preview.emergentagent.com"
+BACKEND_URL = "http://localhost:8001"
 TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"

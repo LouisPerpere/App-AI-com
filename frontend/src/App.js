@@ -2126,6 +2126,79 @@ function MainApp() {
     }
   };
 
+  // Content modal functions
+  const openContentModal = (content) => {
+    setSelectedContent(content);
+    setContentDescription(content.description || '');
+    setShowContentModal(true);
+  };
+
+  const closeContentModal = () => {
+    setShowContentModal(false);
+    setSelectedContent(null);
+    setContentDescription('');
+  };
+
+  const saveContentDescription = async () => {
+    if (!selectedContent) return;
+    
+    setIsSavingDescription(true);
+    try {
+      await axios.put(`${API}/content/${selectedContent.id}/description`, {
+        description: contentDescription
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      });
+      
+      toast.success('Description sauvegardée !');
+      
+      // Update the content in the list
+      setPendingContent(prev => prev.map(content => 
+        content.id === selectedContent.id 
+          ? { ...content, description: contentDescription }
+          : content
+      ));
+      
+      // Update the selected content
+      setSelectedContent(prev => ({ ...prev, description: contentDescription }));
+      
+    } catch (error) {
+      console.error('Error saving description:', error);
+      toast.error('Erreur lors de la sauvegarde');
+    } finally {
+      setIsSavingDescription(false);
+    }
+  };
+
+  const deleteContent = async () => {
+    if (!selectedContent) return;
+    
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce contenu ?')) {
+      return;
+    }
+    
+    setIsDeletingContent(true);
+    try {
+      await axios.delete(`${API}/content/${selectedContent.id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      });
+      
+      toast.success('Contenu supprimé !');
+      
+      // Remove from the list
+      setPendingContent(prev => prev.filter(content => content.id !== selectedContent.id));
+      
+      // Close modal
+      closeContentModal();
+      
+    } catch (error) {
+      console.error('Error deleting content:', error);
+      toast.error('Erreur lors de la suppression');
+    } finally {
+      setIsDeletingContent(false);
+    }
+  };
+
   const addHashtag = (type, hashtag) => {
     if (!hashtag.trim()) return;
     

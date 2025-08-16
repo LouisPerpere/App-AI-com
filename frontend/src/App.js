@@ -831,6 +831,9 @@ function MainApp() {
   
   // Content and posts state
   const [pendingContent, setPendingContent] = useState([]);
+  const [contentTotalCount, setContentTotalCount] = useState(0);
+  const [contentHasMore, setContentHasMore] = useState(false);
+  const [contentLoading, setContentLoading] = useState(false);
   const [generatedPosts, setGeneratedPosts] = useState([]);
   const [notes, setNotes] = useState([]);
   const [currentPostIndex, setCurrentPostIndex] = useState(0);

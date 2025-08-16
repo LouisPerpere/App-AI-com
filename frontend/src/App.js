@@ -2248,21 +2248,41 @@ function MainApp() {
     setSelectedContent(content);
     setContentDescription(content.description || '');
     setShowContentModal(true);
+    
+    // Set ref value for virtual keyboard compatibility
+    if (isVirtualKeyboardDevice) {
+      setTimeout(() => {
+        if (contentDescriptionRef.current) {
+          contentDescriptionRef.current.value = content.description || '';
+        }
+      }, 100);
+    }
   };
 
   const closeContentModal = () => {
     setShowContentModal(false);
     setSelectedContent(null);
     setContentDescription('');
+    
+    // Clear ref for virtual keyboard
+    if (isVirtualKeyboardDevice && contentDescriptionRef.current) {
+      contentDescriptionRef.current.value = '';
+    }
   };
 
   const saveContentDescription = async () => {
     if (!selectedContent) return;
     
+    // Get description from ref for virtual keyboard devices
+    let description = contentDescription;
+    if (isVirtualKeyboardDevice && contentDescriptionRef.current) {
+      description = contentDescriptionRef.current.value;
+    }
+    
     setIsSavingDescription(true);
     try {
       await axios.put(`${API}/content/${selectedContent.id}/description`, {
-        description: contentDescription
+        description: description
       }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
       });
@@ -2272,12 +2292,17 @@ function MainApp() {
       // Update the content in the list
       setPendingContent(prev => prev.map(content => 
         content.id === selectedContent.id 
-          ? { ...content, description: contentDescription }
+          ? { ...content, description: description }
           : content
       ));
       
       // Update the selected content
-      setSelectedContent(prev => ({ ...prev, description: contentDescription }));
+      setSelectedContent(prev => ({ ...prev, description: description }));
+      
+      // Update state for desktop
+      if (!isVirtualKeyboardDevice) {
+        setContentDescription(description);
+      }
       
     } catch (error) {
       console.error('Error saving description:', error);

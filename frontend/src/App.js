@@ -2518,12 +2518,6 @@ function MainApp() {
       setAnalysisStatus('success');
       setAnalysisMessage('✅ Analyse réussie');
       
-      // Utiliser la date de création de l'analyse du backend au lieu de la date actuelle
-      const analysisDate = cleanAnalysisData.created_at ? new Date(cleanAnalysisData.created_at) : new Date();
-      setLastAnalysisDate(analysisDate.toLocaleString('fr-FR'));
-      
-      console.log('📅 Date d\'analyse mise à jour:', analysisDate.toLocaleString('fr-FR'));
-      
       // Ne PAS sauvegarder l'URL pour éviter les re-renders qui vident le champ
       // await autoSaveField('website_url', websiteUrl);
       console.log('✅ Analyse terminée, URL préservée par protection');

@@ -4127,7 +4127,7 @@ function MainApp() {
                         </div>
                         <h3 className="text-xl font-semibold text-gray-900 mb-2">Uploadez vos contenus 📁</h3>
                         <p className="text-gray-600 mb-4">Glissez-déposez vos fichiers ou cliquez partout ici pour sélectionner</p>
-                        <p className="text-sm text-purple-600 font-medium">📱 Images • 🎬 Vidéos • 🎵 Audio</p>
+                        <p className="text-sm text-purple-600 font-medium">📱 Images • 🎬 Vidéos</p>
                       </label>
                     </>
                   )}

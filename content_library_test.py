@@ -287,6 +287,12 @@ class ContentLibraryTester:
             
             # Verify file exists before deletion
             file_exists_before = os.path.exists(file_path) if file_path else False
+            # Fix path for checking
+            if file_path and not file_path.startswith('/'):
+                full_file_path = f"/app/backend/{file_path}"
+            else:
+                full_file_path = file_path
+            file_exists_before = os.path.exists(full_file_path) if full_file_path else False
             
             # Delete the file
             success, response, status = self.make_request("DELETE", f"content/{file_id}")

@@ -4384,10 +4384,14 @@ function MainApp() {
                       <ImageIcon className="w-6 h-6 mr-2 text-purple-600" />
                       Vos contenus ({pendingContent.length})
                     </h4>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                       {pendingContent.map((content) => (
-                        <div key={content.id} className="relative group cursor-pointer">
-                          <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden border-2 border-purple-200 hover:border-purple-400 transition-colors">
+                        <div 
+                          key={content.id} 
+                          className="relative group cursor-pointer transform hover:scale-105 transition-all duration-200"
+                          onClick={() => openContentModal(content)}
+                        >
+                          <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden border-2 border-purple-200 hover:border-purple-400 transition-colors shadow-md hover:shadow-lg">
                             {content.file_type?.startsWith('image/') ? (
                               <img 
                                 src={`data:${content.file_type};base64,${content.file_data}`}
@@ -4396,14 +4400,14 @@ function MainApp() {
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
-                                <FileText className="w-8 h-8 text-purple-600" />
+                                <FileText className="w-6 h-6 text-purple-600" />
                               </div>
                             )}
                           </div>
-                          <p className="text-sm text-gray-600 mt-2 truncate">{content.filename}</p>
+                          <p className="text-xs text-gray-600 mt-1 truncate text-center">{content.filename}</p>
                           {content.description && (
-                            <Badge className="mt-1 bg-green-100 text-green-800 text-xs">
-                              Avec description
+                            <Badge className="absolute top-1 right-1 bg-green-100 text-green-800 text-xs px-1 py-0">
+                              💬
                             </Badge>
                           )}
                         </div>

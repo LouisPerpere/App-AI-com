@@ -3441,39 +3441,85 @@ function MainApp() {
                               </div>
                             </div>
 
-                            {/* Audience cible */}
+                            {/* Audience cible avec système d'édition verrouillé */}
                             <div className="space-y-2">
                               <Label className="text-sm font-medium text-gray-700">Audience cible</Label>
-                              {isVirtualKeyboardDevice ? (
-                                <textarea
-                                  ref={targetAudienceRef}
-                                  rows={2}
-                                  className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
-                                  style={{ fontSize: '16px' }}
-                                    autoCorrect={false}
-                                    autoComplete="off"
-                                    spellCheck={false}
-                                    autoCapitalize="off"
-                                    defaultValue={businessProfile?.target_audience || loadFromLocalStorage()?.target_audience || ""}
-                                  placeholder="Décrivez votre audience cible"
-                                  
-                                  onBlur={() => handleVirtualKeyboardRefBlur('target_audience', targetAudienceRef)}
-                                  onTouchEnd={() => {
-                                    // Solution iPadOS 18 - onTouchEnd pour target_audience
-                                    console.log('📱 onTouchEnd - Target Audience (SOLUTION iPadOS 18)');
-                                    handleVirtualKeyboardRefBlur('target_audience', targetAudienceRef);
-                                  }}
-                                />
-                              ) : (
-                                <Textarea
-                                  value={editTargetAudience}
-                                  onChange={(e) => handleFieldChange('target_audience', e.target.value, setEditTargetAudience)}
-                                  onBlur={(e) => handleFieldBlur('target_audience', e.target.value)}
-                                  placeholder="Décrivez votre audience cible"
-                                  rows={2}
-                                  className="bg-white"
-                                />
-                              )}
+                              <div className="relative flex items-start gap-2">
+                                {isEditingTargetAudience ? (
+                                  // Mode édition avec textarea et bouton coche verte
+                                  <>
+                                    {isVirtualKeyboardDevice ? (
+                                      <textarea
+                                        ref={targetAudienceRef}
+                                        rows={2}
+                                        className="flex-1 p-3 border border-blue-500 rounded-lg bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none resize-none"
+                                        style={{ fontSize: '16px' }}
+                                        autoCorrect={false}
+                                        autoComplete="off"
+                                        spellCheck={false}
+                                        autoCapitalize="off"
+                                        defaultValue={businessProfile?.target_audience || ''}
+                                        placeholder="Décrivez votre audience cible"
+                                        disabled={isSavingTargetAudience}
+                                      />
+                                    ) : (
+                                      <Textarea
+                                        value={tempTargetAudience}
+                                        onChange={(e) => setTempTargetAudience(e.target.value)}
+                                        className="flex-1 bg-white border-blue-500 focus:border-blue-600"
+                                        placeholder="Décrivez votre audience cible"
+                                        rows={2}
+                                        disabled={isSavingTargetAudience}
+                                      />
+                                    )}
+                                    <div className="flex flex-col gap-1">
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        onClick={() => saveField('target_audience')}
+                                        disabled={isSavingTargetAudience}
+                                        className="bg-green-500 hover:bg-green-600 text-white p-2 min-w-[40px]"
+                                      >
+                                        {isSavingTargetAudience ? (
+                                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                        ) : (
+                                          <Check className="h-4 w-4" />
+                                        )}
+                                      </Button>
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => cancelEditingField('target_audience')}
+                                        disabled={isSavingTargetAudience}
+                                        className="p-2 min-w-[40px]"
+                                      >
+                                        <X className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </>
+                                ) : (
+                                  // Mode lecture avec textarea verrouillée et bouton crayon
+                                  <>
+                                    <Textarea
+                                      value={businessProfile?.target_audience || 'Décrivez votre audience cible'}
+                                      readOnly
+                                      className="flex-1 bg-gray-50 text-gray-700 cursor-default"
+                                      rows={2}
+                                    />
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => startEditingField('target_audience')}
+                                      className="p-2 min-w-[40px] hover:bg-blue-50 hover:border-blue-300"
+                                      title="Modifier l'audience cible"
+                                    >
+                                      <Edit className="h-4 w-4 text-blue-600" />
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
                             </div>
 
                             <div className="grid md:grid-cols-2 gap-6">

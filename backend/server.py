@@ -593,7 +593,7 @@ async def get_pending_content(
                             
                             # Handle EXIF orientation for thumbnails too
                             try:
-                                from PIL.ExifTags import ORIENTATION
+                                # Use direct orientation tag number instead of ORIENTATION constant
                                 exif = image._getexif()
                                 if exif is not None:
                                     orientation = exif.get(0x0112)  # Orientation tag

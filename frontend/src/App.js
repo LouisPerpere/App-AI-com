@@ -2453,6 +2453,8 @@ function MainApp() {
       console.error('❌ Website analysis error:', error);
       console.error('❌ Error response:', error.response?.data);
       console.error('❌ Error status:', error.response?.status);
+      console.error('❌ Error message:', error.message);
+      console.error('❌ Full error object:', error);
       
       let errorMessage = '❌ Analyse non concluante, vérifiez votre site web';
       
@@ -2463,7 +2465,12 @@ function MainApp() {
         errorMessage = '❌ URL invalide - Vérifiez le format (https://...)';
       } else if (error.response?.data?.detail) {
         errorMessage = `❌ ${error.response.data.detail}`;
+      } else if (error.message) {
+        // Inclure le message d'erreur JavaScript pour debug
+        errorMessage = `❌ ${error.message}`;
       }
+      
+      console.log('💬 Message d\'erreur affiché:', errorMessage);
       
       setAnalysisStatus('error');
       setAnalysisMessage(errorMessage);

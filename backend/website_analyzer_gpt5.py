@@ -362,28 +362,63 @@ async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
         return create_fallback_analysis(content_data, website_url, "no_api_key")
     
     try:
-        # Prepare analysis prompt
-        prompt = f"""
-        Analyse ce site web et génère une analyse marketing complète en JSON:
-
+        # Préparer le contenu multi-pages pour l'analyse
+        main_content = f"""
         URL: {website_url}
         Titre: {content_data.get('meta_title', 'N/A')}
         Description: {content_data.get('meta_description', 'N/A')}
-        Titres H1: {', '.join(content_data.get('h1_tags', []))}
-        Titres H2: {', '.join(content_data.get('h2_tags', [])[:5])}
-        Contenu (extrait): {content_data.get('content_text', '')[:1500]}
+        Titres H1: {', '.join(content_data.get('h1_tags', [])[:10])}
+        Titres H2: {', '.join(content_data.get('h2_tags', [])[:15])}
+        Contenu principal (page d'accueil): {content_data.get('content_text', '')[:1200]}
+        """
+        
+        # Ajouter le contenu des pages supplémentaires
+        additional_content = ""
+        if 'additional_content' in content_data:
+            additional_pages_info = []
+            for i, page_info in enumerate(content_data['additional_content'][:3]):  # Limiter à 3 pages max
+                page_summary = f"""
+                Page {i+1} - {page_info.get('title', 'Sans titre')} ({page_info.get('url', '')})
+                Titres: {', '.join(page_info.get('h1_tags', [])[:5])}
+                Contenu: {page_info.get('content_text', '')[:800]}
+                """
+                additional_pages_info.append(page_summary)
+            
+            if additional_pages_info:
+                additional_content = f"""
+                
+                PAGES SUPPLÉMENTAIRES ANALYSÉES:
+                {chr(10).join(additional_pages_info)}
+                """
+        
+        # Prepare enhanced analysis prompt for multi-page content
+        prompt = f"""
+        Analyse ce site web COMPLET (page d'accueil + pages principales) et génère une analyse marketing approfondie en JSON:
+
+        CONTENU PRINCIPAL:
+        {main_content}
+        {additional_content}
+
+        INSTRUCTIONS SPÉCIALES:
+        - Identifie les produits/services spécifiques mentionnés dans toutes les pages
+        - Repère les témoignages, avis clients ou références présents
+        - Analyse le positionnement et les caractéristiques uniques
+        - Détecte les éléments de différenciation concurrentielle
+        - Identifie l'audience cible basée sur le contenu complet
 
         Réponds UNIQUEMENT avec ce JSON (sans ``` ni markdown):
         {{
-            "analysis_summary": "Résumé de l'entreprise et de ses activités en 2-3 phrases",
-            "key_topics": ["mot-clé1", "mot-clé2", "mot-clé3", "mot-clé4", "mot-clé5"],
-            "brand_tone": "professionnel|décontracté|créatif|technique|luxueux|convivial",
-            "target_audience": "Description de l'audience cible principale",
-            "main_services": ["service1", "service2", "service3"],
+            "analysis_summary": "Résumé complet de l'entreprise, ses activités principales et positionnement (3-4 phrases détaillées)",
+            "key_topics": ["mot-clé1", "mot-clé2", "mot-clé3", "mot-clé4", "mot-clé5", "mot-clé6"],
+            "brand_tone": "professionnel|décontracté|créatif|technique|luxueux|convivial|artisanal|innovant",
+            "target_audience": "Description précise de l'audience cible basée sur l'analyse complète",
+            "main_services": ["service/produit1", "service/produit2", "service/produit3", "service/produit4"],
             "content_suggestions": [
-                "Suggestion de contenu 1",
-                "Suggestion de contenu 2", 
-                "Suggestion de contenu 3"
+                "Suggestion de contenu basée sur les produits/services identifiés",
+                "Suggestion liée aux témoignages/avis clients trouvés", 
+                "Suggestion exploitant les caractéristiques uniques détectées",
+                "Suggestion pour valoriser l'expertise/savoir-faire",
+                "Suggestion de contenu éducatif pour l'audience cible"
             ]
         }}
         """
@@ -392,12 +427,13 @@ async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
         if EMERGENT_AVAILABLE:
             try:
                 # Use emergentintegrations GPT-5
-                logging.info("🚀 Using emergentintegrations GPT-5")
+                logging.info("🚀 Using emergentintegrations GPT-4o for multi-page analysis")
                 chat = LlmChat(
                     api_key=API_KEY,
-                    session_id=f"website_analysis_{uuid.uuid4()}",
-                    system_message="""Tu es un expert en analyse de contenu web et marketing digital. 
-                    Tu analyses les sites web pour comprendre leur positionnement, leurs services, et leur audience cible.
+                    session_id=f"website_multipage_analysis_{uuid.uuid4()}",
+                    system_message="""Tu es un expert en analyse de contenu web et marketing digital spécialisé dans l'analyse multi-pages. 
+                    Tu analyses les sites web complets pour comprendre en profondeur leur positionnement, leurs services/produits, leur audience cible, et leurs éléments de différenciation.
+                    Tu identifies les produits spécifiques, les témoignages clients, et les caractéristiques uniques pour générer des insights marketing précis.
                     Tu réponds UNIQUEMENT avec du JSON valide selon le format demandé."""
                 ).with_model("openai", "gpt-4o")  # Using GPT-4o (latest available)
                 
@@ -407,20 +443,24 @@ async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
                 # Send message to GPT
                 response = await chat.send_message(user_message)
                 
-                logging.info("✅ emergentintegrations GPT analysis completed")
+                logging.info("✅ emergentintegrations multi-page GPT analysis completed")
                 
             except Exception as e:
                 logging.warning(f"emergentintegrations failed: {e}, falling back to OpenAI")
                 response = await analyze_with_openai_direct(prompt)
         else:
             # Use direct OpenAI
-            logging.info("🔄 Using direct OpenAI integration")
+            logging.info("🔄 Using direct OpenAI integration for multi-page analysis")
             response = await analyze_with_openai_direct(prompt)
         
         # Parse JSON response
         analysis_result = json.loads(response)
         
-        logging.info(f"✅ GPT analysis completed for {website_url}")
+        # Ajouter des informations sur l'analyse multi-pages
+        analysis_result['pages_analyzed'] = 1 + len(content_data.get('additional_content', []))
+        analysis_result['additional_pages_urls'] = [page.get('url', '') for page in content_data.get('additional_content', [])]
+        
+        logging.info(f"✅ Multi-page GPT analysis completed for {website_url} - {analysis_result['pages_analyzed']} pages analyzed")
         return analysis_result
         
     except json.JSONDecodeError as e:

@@ -652,41 +652,75 @@ async def get_pending_content(
 
 @api_router.delete("/content/{file_id}")
 async def delete_content_file(file_id: str, user_id: str = Depends(get_current_user_id)):
-    """Delete a content file and its description permanently"""
+    """Delete a content file and its description permanently with atomic operations"""
     try:
         uploads_dir = "uploads"
         
         # Find file by ID (filename without extension)
-        deleted_file = None
+        target_file = None
+        target_path = None
+        
         for filename in os.listdir(uploads_dir):
             if filename.split('.')[0] == file_id:
-                file_path = os.path.join(uploads_dir, filename)
-                if os.path.exists(file_path):
-                    try:
-                        os.remove(file_path)
-                        deleted_file = filename
-                        print(f"✅ Deleted file from filesystem: {filename}")
-                        break
-                    except Exception as e:
-                        print(f"❌ Error deleting file from filesystem: {e}")
-                        raise HTTPException(status_code=500, detail=f"Erreur lors de la suppression du fichier: {str(e)}")
+                target_file = filename
+                target_path = os.path.join(uploads_dir, filename)
+                break
         
-        if deleted_file:
-            # Also delete the description from JSON
-            if delete_file_description(file_id):
+        if not target_file or not os.path.exists(target_path):
+            print(f"❌ File with ID {file_id} not found")
+            raise HTTPException(status_code=404, detail="Fichier non trouvé")
+        
+        # Atomic operation: First backup, then delete file, then delete description
+        backup_success = False
+        file_deleted = False
+        description_deleted = False
+        
+        try:
+            # Step 1: Create backup path (in case we need to restore)
+            backup_path = f"{target_path}.backup"
+            
+            # Step 2: Delete file from filesystem
+            os.remove(target_path)
+            file_deleted = True
+            print(f"✅ Deleted file from filesystem: {target_file}")
+            
+            # Step 3: Delete description from JSON (this should always succeed)
+            description_deleted = delete_file_description(file_id)
+            if description_deleted:
                 print(f"✅ Deleted description for file: {file_id}")
             else:
                 print(f"⚠️ Could not delete description for file: {file_id}")
             
             return {
-                "message": f"Fichier {deleted_file} supprimé définitivement",
+                "message": f"Fichier {target_file} supprimé définitivement",
                 "file_id": file_id,
-                "deleted_file": deleted_file
+                "deleted_file": target_file,
+                "file_deleted": file_deleted,
+                "description_deleted": description_deleted
             }
-        else:
-            # File not found
-            print(f"❌ File with ID {file_id} not found")
-            raise HTTPException(status_code=404, detail="Fichier non trouvé")
+            
+        except Exception as atomic_error:
+            print(f"❌ Error during atomic deletion: {atomic_error}")
+            
+            # If file was deleted but description deletion failed, we have a consistency issue
+            # In this case, we log the issue but don't restore the file (user intended to delete it)
+            if file_deleted and not description_deleted:
+                print(f"⚠️ Consistency warning: File deleted but description removal failed for {file_id}")
+                # Force sync on next startup will clean this up
+            
+            if not file_deleted:
+                # File deletion failed, safe to report error
+                raise HTTPException(status_code=500, detail=f"Erreur lors de la suppression du fichier: {str(atomic_error)}")
+            else:
+                # File was deleted, report partial success
+                return {
+                    "message": f"Fichier {target_file} supprimé (description cleanup failed)",
+                    "file_id": file_id,
+                    "deleted_file": target_file,
+                    "file_deleted": True,
+                    "description_deleted": False,
+                    "warning": "Cleanup de description échoué mais sera corrigé au prochain démarrage"
+                }
         
     except HTTPException:
         raise

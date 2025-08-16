@@ -600,13 +600,52 @@ async def upload_file(file_data: dict):
         }
     }
 
-# Content upload endpoints (new)
+def optimize_image(image_content: bytes, max_size: int = 1080, quality: int = 85) -> bytes:
+    """
+    Optimize image: resize to max_size on smallest side, set to 72 DPI, maintain aspect ratio
+    """
+    try:
+        # Open image from bytes
+        image = Image.open(io.BytesIO(image_content))
+        
+        # Convert to RGB if necessary (handles RGBA, P mode, etc.)
+        if image.mode not in ('RGB', 'L'):
+            image = image.convert('RGB')
+        
+        # Get current dimensions
+        width, height = image.size
+        
+        # Calculate new dimensions (resize based on smallest side)
+        min_side = min(width, height)
+        if min_side > max_size:
+            ratio = max_size / min_side
+            new_width = int(width * ratio)
+            new_height = int(height * ratio)
+            
+            # Resize image maintaining aspect ratio
+            image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+        
+        # Save optimized image to bytes
+        output = io.BytesIO()
+        image.save(output, format='JPEG', quality=quality, dpi=(72, 72), optimize=True)
+        
+        optimized_content = output.getvalue()
+        output.close()
+        
+        print(f"✅ Image optimized: {len(image_content)} → {len(optimized_content)} bytes")
+        return optimized_content
+        
+    except Exception as e:
+        print(f"⚠️ Image optimization failed: {e}, using original")
+        return image_content
+
+# Content upload endpoints (enhanced with image optimization)
 @api_router.post("/content/batch-upload")
 async def batch_upload_files(
     files: List[UploadFile] = File(...),
     user_id: str = Depends(get_current_user_id)
 ):
-    """Upload multiple files to user's content library"""
+    """Upload multiple files to user's content library with image optimization"""
     
     if not files:
         raise HTTPException(status_code=400, detail="No files provided")
@@ -628,14 +667,20 @@ async def batch_upload_files(
                 })
                 continue
             
-            # Validate file size (max 10MB)
+            # Read file content
             file_content = await file.read()
+            
+            # Validate file size (max 10MB)
             if len(file_content) > 10 * 1024 * 1024:  # 10MB
                 failed_uploads.append({
                     "filename": file.filename,
                     "error": "Fichier trop volumineux (max 10MB)"
                 })
                 continue
+            
+            # Optimize images
+            if file.content_type.startswith('image/'):
+                file_content = optimize_image(file_content)
             
             # Generate unique filename
             file_extension = os.path.splitext(file.filename)[1]
@@ -655,7 +700,8 @@ async def batch_upload_files(
                 "content_type": file.content_type,
                 "size": len(file_content),
                 "uploaded_at": datetime.now().isoformat(),
-                "user_id": user_id
+                "user_id": user_id,
+                "description": ""  # Empty description by default
             }
             
             try:

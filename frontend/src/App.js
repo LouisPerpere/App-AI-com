@@ -2453,6 +2453,9 @@ function MainApp() {
       // Remove from the list
       setPendingContent(prev => prev.filter(content => content.id !== selectedContent.id));
       
+      // Update counts
+      setContentTotalCount(prev => Math.max(0, prev - 1));
+      
       // Close modal
       closeContentModal();
       

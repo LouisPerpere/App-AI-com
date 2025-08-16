@@ -2449,14 +2449,11 @@ function MainApp() {
       
       toast.success('Contenu supprimé définitivement !');
       
-      // Remove from the list
-      setPendingContent(prev => prev.filter(content => content.id !== selectedContent.id));
-      
-      // Update counts
-      setContentTotalCount(prev => Math.max(0, prev - 1));
-      
-      // Close modal
+      // Close modal first
       closeContentModal();
+      
+      // Force reload content from backend to ensure consistency
+      await loadPendingContent(true);
       
       console.log(`✅ Permanently deleted content: ${selectedContent.id}`);
       

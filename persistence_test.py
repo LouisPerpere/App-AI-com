@@ -96,9 +96,11 @@ class PersistenceAPITester:
                     data = response.json()
                     uploaded_files = data.get('uploaded_files', [])
                     if uploaded_files:
-                        file_id = uploaded_files[0]['id']
+                        # The upload returns a UUID, but we need to get the actual file ID from pending content
+                        stored_name = uploaded_files[0]['stored_name']
+                        file_id = stored_name.split('.')[0]  # Use filename without extension as ID (matches backend logic)
                         self.test_files.append(file_id)
-                        print(f"✅ File uploaded successfully with ID: {file_id}")
+                        print(f"✅ File uploaded successfully with ID: {file_id} (stored as: {stored_name})")
                         
                         # Add description if provided
                         if description:

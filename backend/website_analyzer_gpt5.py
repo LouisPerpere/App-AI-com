@@ -556,9 +556,9 @@ async def analyze_website(
                     "status": "cached"
                 }
         
-        # Extract website content
-        logging.info(f"🌐 Extracting content from {website_url}")
-        content_data = extract_website_content(website_url)
+        # Extract website content from multiple pages
+        logging.info(f"🌐 Extracting multi-page content from {website_url}")
+        content_data = extract_multi_page_content(website_url)
         
         # Analyze with GPT-5
         logging.info(f"🧠 Analyzing with GPT-5: {website_url}")

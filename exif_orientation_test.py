@@ -41,19 +41,30 @@ class EXIFOrientationTester:
             response = requests.post(
                 f"{self.api_url}/auth/login",
                 json=login_data,
-                headers={'Content-Type': 'application/json'}
+                headers={'Content-Type': 'application/json'},
+                timeout=30
             )
+            
+            print(f"🔍 Login response status: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
                 self.access_token = data.get('access_token')
                 self.user_id = data.get('user_id')
                 print(f"✅ Authentication successful - User ID: {self.user_id}")
+                print(f"🔑 Token: {self.access_token[:20]}..." if self.access_token else "No token received")
                 return True
             else:
-                print(f"❌ Authentication failed: {response.status_code} - {response.text}")
+                print(f"❌ Authentication failed: {response.status_code}")
+                try:
+                    print(f"Response: {response.text}")
+                except:
+                    print("Could not read response text")
                 return False
                 
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Network error during authentication: {e}")
+            return False
         except Exception as e:
             print(f"❌ Authentication error: {e}")
             return False

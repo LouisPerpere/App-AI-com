@@ -319,11 +319,11 @@ class BatchUploadTester:
             "No Files Provided",
             "POST",
             "content/batch-upload",
-            400  # Should return 400 for no files
+            422  # FastAPI returns 422 for missing required fields
         )
         
         if response:
-            print(f"   ✅ Correctly returned 400 error for no files provided")
+            print(f"   ✅ Correctly returned 422 error for no files provided")
             return True
         else:
             print(f"   ❌ Did not handle no files case properly")

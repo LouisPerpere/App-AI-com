@@ -76,6 +76,115 @@ const FREE_TRIAL_PLAN = {
   color: 'green'
 };
 
+// Content Preview Modal Component
+const ContentPreviewModal = ({ 
+  isOpen, 
+  onClose, 
+  content, 
+  description, 
+  onDescriptionChange, 
+  onSaveDescription, 
+  onDeleteContent,
+  isSavingDescription,
+  isDeletingContent 
+}) => {
+  if (!isOpen || !content) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-6 right-6 w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors z-10"
+        >
+          <X className="w-5 h-5 text-gray-600" />
+        </button>
+
+        <div className="p-8">
+          {/* Content preview */}
+          <div className="mb-6">
+            {content.file_type?.startsWith('image/') ? (
+              <img 
+                src={`data:${content.file_type};base64,${content.file_data}`}
+                alt={content.filename}
+                className="w-full h-auto max-h-[60vh] object-contain rounded-2xl shadow-lg"
+              />
+            ) : (
+              <div className="w-full h-64 flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl">
+                <FileText className="w-16 h-16 text-purple-600" />
+              </div>
+            )}
+            
+            {/* File info */}
+            <div className="mt-4 text-center">
+              <h3 className="text-lg font-semibold text-gray-900 truncate">{content.filename}</h3>
+              <p className="text-sm text-gray-500">
+                {content.file_type} • {(content.size / 1024).toFixed(1)} KB
+              </p>
+            </div>
+          </div>
+
+          {/* Description section */}
+          <div className="mb-6">
+            <Label htmlFor="content-description" className="text-base font-medium text-gray-900 mb-2 block">
+              Contexte et description
+            </Label>
+            <Textarea
+              id="content-description"
+              placeholder="Ajoutez une description ou du contexte pour cette image..."
+              value={description}
+              onChange={(e) => onDescriptionChange(e.target.value)}
+              className="min-h-[100px] text-base"
+            />
+            <div className="mt-3">
+              <Button
+                onClick={onSaveDescription}
+                disabled={isSavingDescription}
+                className="btn-gradient-primary"
+              >
+                {isSavingDescription ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Sauvegarde...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Sauvegarder la description
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+
+          {/* Delete button */}
+          <div className="text-center">
+            <Button
+              onClick={onDeleteContent}
+              disabled={isDeletingContent}
+              variant="destructive"
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              {isDeletingContent ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  Suppression...
+                </>
+              ) : (
+                <>
+                  <X className="w-4 h-4 mr-2" />
+                  Supprimer ce contenu
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Subscription upgrade component
 const SubscriptionUpgrade = ({ user, onUpgradeSuccess }) => {
   const [selectedPlan, setSelectedPlan] = useState(null);

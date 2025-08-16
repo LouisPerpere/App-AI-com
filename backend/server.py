@@ -628,7 +628,11 @@ async def get_pending_content(
                             thumbnail_data = file_data
                             
                 except Exception as e:
-                    print(f"⚠️ Could not read image file {filename}: {e}")
+                    print(f"🚨 CRITICAL: Error reading image file {filename}: {e}")
+                    print(f"🔍 File size: {file_size} bytes")
+                    # Still include file in response but without thumbnail data
+                    file_data = None
+                    thumbnail_data = None
             
             content_files.append({
                 "id": filename.split('.')[0],  # Use filename without extension as ID

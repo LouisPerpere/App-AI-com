@@ -2354,7 +2354,7 @@ function MainApp() {
       
       toast.success('Fichiers uploadés avec succès !');
       setSelectedFiles([]);
-      loadPendingContent();
+      loadPendingContent(true); // Reset and load fresh
     } catch (error) {
       toast.error('Erreur lors de l\'upload');
       console.error('Upload error:', error);

@@ -3027,20 +3027,36 @@ function MainApp() {
                           {/* Formulaire directement éditable */}
                           <div className="space-y-6">
                             <div className="grid md:grid-cols-2 gap-6">
-                              {/* Nom de l'entreprise avec système d'édition verrouillé */}
+                              {/* Nom de l'entreprise avec système d'édition verrouillé + gestion clavier virtuel */}
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Nom de l'entreprise</Label>
                                 <div className="relative flex items-center gap-2">
                                   {isEditingBusinessName ? (
                                     // Mode édition avec champ input et bouton coche verte
                                     <>
-                                      <Input
-                                        value={tempBusinessName}
-                                        onChange={(e) => setTempBusinessName(e.target.value)}
-                                        className="bg-white border-blue-500 focus:border-blue-600"
-                                        placeholder="Nom de votre entreprise"
-                                        disabled={isSavingBusinessName}
-                                      />
+                                      {isVirtualKeyboardDevice ? (
+                                        <input
+                                          ref={businessNameRef}
+                                          type="text"
+                                          className="w-full p-3 border border-blue-500 rounded-lg bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none"
+                                          style={{ fontSize: '16px' }}
+                                          autoCorrect={false}
+                                          autoComplete="off"
+                                          spellCheck={false}
+                                          autoCapitalize="off"
+                                          defaultValue={tempBusinessName}
+                                          placeholder="Nom de votre entreprise"
+                                          disabled={isSavingBusinessName}
+                                        />
+                                      ) : (
+                                        <Input
+                                          value={tempBusinessName}
+                                          onChange={(e) => setTempBusinessName(e.target.value)}
+                                          className="bg-white border-blue-500 focus:border-blue-600"
+                                          placeholder="Nom de votre entreprise"
+                                          disabled={isSavingBusinessName}
+                                        />
+                                      )}
                                       <div className="flex gap-1">
                                         <Button
                                           type="button"

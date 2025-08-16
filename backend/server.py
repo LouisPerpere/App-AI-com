@@ -536,6 +536,94 @@ async def upload_file(file_data: dict):
         }
     }
 
+# Content upload endpoints (new)
+@api_router.post("/content/batch-upload")
+async def batch_upload_files(
+    files: List[UploadFile] = File(...),
+    user_id: str = Depends(get_current_user_id)
+):
+    """Upload multiple files to user's content library"""
+    
+    if not files:
+        raise HTTPException(status_code=400, detail="No files provided")
+    
+    # Create uploads directory if it doesn't exist
+    uploads_dir = "uploads"
+    os.makedirs(uploads_dir, exist_ok=True)
+    
+    uploaded_files = []
+    failed_uploads = []
+    
+    for file in files:
+        try:
+            # Validate file type (images and videos only)
+            if not (file.content_type.startswith('image/') or file.content_type.startswith('video/')):
+                failed_uploads.append({
+                    "filename": file.filename,
+                    "error": f"Type de fichier non supporté: {file.content_type}"
+                })
+                continue
+            
+            # Validate file size (max 10MB)
+            file_content = await file.read()
+            if len(file_content) > 10 * 1024 * 1024:  # 10MB
+                failed_uploads.append({
+                    "filename": file.filename,
+                    "error": "Fichier trop volumineux (max 10MB)"
+                })
+                continue
+            
+            # Generate unique filename
+            file_extension = os.path.splitext(file.filename)[1]
+            unique_filename = f"{uuid.uuid4()}{file_extension}"
+            file_path = os.path.join(uploads_dir, unique_filename)
+            
+            # Save file to disk
+            with open(file_path, "wb") as buffer:
+                buffer.write(file_content)
+            
+            # Store file metadata in database (if connected)
+            file_metadata = {
+                "id": str(uuid.uuid4()),
+                "original_name": file.filename,
+                "stored_name": unique_filename,
+                "file_path": file_path,
+                "content_type": file.content_type,
+                "size": len(file_content),
+                "uploaded_at": datetime.now().isoformat(),
+                "user_id": user_id
+            }
+            
+            try:
+                # Try to save to database
+                db = get_database()
+                if db and db.is_connected():
+                    # Save to database (implementation depends on database schema)
+                    pass  # TODO: Implement database storage for file metadata
+            except Exception as db_error:
+                print(f"⚠️ Could not save file metadata to database: {db_error}")
+            
+            uploaded_files.append(file_metadata)
+            
+        except Exception as e:
+            failed_uploads.append({
+                "filename": file.filename,
+                "error": f"Erreur lors de l'upload: {str(e)}"
+            })
+    
+    # Prepare response
+    response = {
+        "message": f"{len(uploaded_files)} fichier(s) uploadé(s) avec succès",
+        "uploaded_files": uploaded_files,
+        "total_uploaded": len(uploaded_files),
+        "total_failed": len(failed_uploads)
+    }
+    
+    if failed_uploads:
+        response["failed_uploads"] = failed_uploads
+    
+    return response
+
 # LinkedIn endpoints
 @api_router.get("/linkedin/auth-url")
 async def get_linkedin_auth_url():

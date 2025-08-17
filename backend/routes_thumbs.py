@@ -11,7 +11,7 @@ import pymongo
 router = APIRouter()
 
 UPLOADS_DIR = os.environ.get("UPLOADS_DIR", "uploads")
-PUBLIC_BASE = os.environ.get("PUBLIC_BASE", "https://claire-marcus.com")  # Frontend URL with proxy
+PUBLIC_BASE = os.environ.get("PUBLIC_BASE", "https://libfusion.preview.emergentagent.com")  # API backend domain
 
 async def get_media_collection():
     """Get MongoDB media collection"""

@@ -256,79 +256,51 @@ const ContentPreviewModal = ({
             </div>
           </div>
 
-          {/* Description section */}
-          <div className="mb-6">
-            <Label htmlFor="content-description" className="text-base font-medium text-gray-900 mb-2 block">
-              Contexte et description
-            </Label>
-            
-            {/* Virtual keyboard compatible approach with conditional rendering */}
-            {isVirtualKeyboardDevice ? (
-              /* Virtual keyboard compatible textarea using ref */
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Commentaire (pour génération de posts)
+              </label>
               <textarea
-                ref={descriptionRef}
-                id="content-description"
-                placeholder="Ajoutez une description ou du contexte pour cette image..."
-                className="w-full min-h-[100px] text-base p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                onBlur={(e) => {
-                  // Keep state synchronized on blur for virtual keyboards
-                  onDescriptionChange(e.target.value);
-                  console.log('💾 Virtual keyboard blur sync:', e.target.value);
-                }}
+                value={desc}
+                onChange={(e) => setDesc(e.target.value)}
+                placeholder="Ajouter un commentaire utile pour la génération de posts…"
+                className="w-full p-3 border border-gray-300 rounded-lg resize-none h-24 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                maxLength={500}
               />
-            ) : (
-              /* Desktop controlled textarea */
-              <Textarea
-                id="content-description"
-                placeholder="Ajoutez une description ou du contexte pour cette image..."
-                value={description}
-                onChange={(e) => onDescriptionChange(e.target.value)}
-                className="min-h-[100px] text-base"
-              />
-            )}
+              <div className="text-xs text-gray-500 mt-1">
+                {desc.length}/500 caractères
+              </div>
+            </div>
             
-            <div className="mt-3">
+            <div className="mt-3 flex gap-2">
               <Button
-                onClick={onSaveDescription}
-                disabled={isSavingDescription}
-                className="btn-gradient-primary"
+                onClick={onSave}
+                disabled={saving}
+                className="btn-gradient-primary flex-1"
               >
-                {isSavingDescription ? (
+                {saving ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                     Sauvegarde...
                   </>
                 ) : (
-                  <>
-                    <Save className="w-4 h-4 mr-2" />
-                    Sauvegarder la description
-                  </>
+                  'Sauvegarder le commentaire'
+                )}
+              </Button>
+              
+              <Button
+                onClick={onDelete}
+                disabled={deleting}
+                variant="destructive"
+                className="bg-red-500 hover:bg-red-600"
+              >
+                {deleting ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <Trash className="w-4 h-4" />
                 )}
               </Button>
             </div>
-          </div>
-
-          {/* Delete button */}
-          <div className="text-center">
-            <Button
-              onClick={onDeleteContent}
-              disabled={isDeletingContent}
-              variant="destructive"
-              className="bg-red-500 hover:bg-red-600 text-white"
-            >
-              {isDeletingContent ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Suppression...
-                </>
-              ) : (
-                <>
-                  <X className="w-4 h-4 mr-2" />
-                  Supprimer ce contenu
-                </>
-              )}
-            </Button>
-          </div>
         </div>
       </div>
     </div>

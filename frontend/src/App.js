@@ -148,7 +148,9 @@ const ContentPreviewModal = ({
   isOpen, 
   onClose, 
   content, 
-  onSaved
+  onSaved,
+  setPendingContent, // Nouvelle prop pour mise à jour optimiste
+  refetchSilent // Nouvelle prop pour refetch
 }) => {
   const [desc, setDesc] = useState('');
   const [saving, setSaving] = useState(false);

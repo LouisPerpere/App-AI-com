@@ -217,15 +217,21 @@ const ContentPreviewModal = ({
       });
 
       if (response.ok) {
-        // Optimiste: enlève tout de suite (selon ChatGPT)
+        // Optimiste immédiat (selon ChatGPT)
         setPendingContent(prev => prev.filter(item => item.id !== content.id));
+        
+        // Ajoute à la liste locale des supprimés (selon ChatGPT)
+        const key = 'deleted_content_ids';
+        const deleted = new Set(JSON.parse(localStorage.getItem(key) || '[]'));
+        deleted.add(content.id);
+        localStorage.setItem(key, JSON.stringify([...deleted]));
         
         toast.success('Contenu supprimé définitivement !');
         onSaved?.({ id: content.id, deleted: true }); // Signal de suppression
         onClose(); // Fermer après suppression
         
-        // Refetch silencieux pour éviter les drift (selon ChatGPT)
-        void refetchSilent();
+        // Recalage serveur (selon ChatGPT)
+        void refetchSilent('replace');
       } else {
         throw new Error('Erreur suppression');
       }

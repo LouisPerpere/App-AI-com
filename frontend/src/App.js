@@ -3696,6 +3696,12 @@ function MainApp() {
               if (value === 'entreprise') {
                 restoreFieldsFromStorage();
               }
+              
+              // Load content when switching to Bibliotheque tab
+              if (value === 'bibliotheque') {
+                console.log('📚 Switching to bibliotheque - loading content');
+                loadPendingContent(true, false); // Reset and load fresh content
+              }
             }} 
             className="space-y-8"
           >

@@ -1156,7 +1156,7 @@ async def batch_upload_files(
                 buffer.write(file_content)
             
             # Create MongoDB document
-            if media_collection:
+            if media_collection is not None:
                 try:
                     doc = {
                         "owner_id": user_id,

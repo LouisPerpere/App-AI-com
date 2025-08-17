@@ -622,13 +622,13 @@ async def put_description_mongo(
 ):
     """Update description with MongoDB (VERSION FINALE selon ChatGPT)"""
     try:
-        media_collection = await get_media_collection()
+        media_collection = get_media_collection()
         
         # Parse ID (ObjectId or UUID fallback)
         id_filter = parse_any_id(file_id)
         query = {**id_filter, "owner_id": user_id, "deleted": {"$ne": True}}
         
-        result = await media_collection.find_one_and_update(
+        result = media_collection.find_one_and_update(
             query,
             {"$set": {"description": body.description}},
             return_document=True

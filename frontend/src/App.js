@@ -2548,7 +2548,26 @@ function MainApp() {
     console.log(`📝 Description changée pour ${contentId}:`, description);
   }, [debouncedSaveContentDescription]);
 
-  // Fonctions obsolètes supprimées - remplacées par ContentPreviewModal intégrée
+  // Refetch silencieux pour réconcilier avec le backend (selon ChatGPT)
+  const refetchPendingContentSilent = async () => {
+    try {
+      const response = await axios.get(`${API}/content/pending`, { 
+        params: { limit: 100, offset: 0 },
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      });
+      const data = response.data;
+      
+      // Réécrit la source avec l'état serveur (réconciliation)
+      setPendingContent(data.content || []);
+      setContentTotalCount(data.total || 0);
+      setContentHasMore(data.has_more || false);
+      
+      console.log('🔄 Refetch silencieux terminé - synchronisation serveur');
+    } catch (error) {
+      // Ignorer ou logger, on reste sur l'optimiste si réseau KO
+      console.log('⚠️ Refetch silencieux échoué, garde état optimiste:', error);
+    }
+  };
 
   // Multiple selection functions (optimized with useCallback)
   const enterSelectionMode = useCallback(() => {

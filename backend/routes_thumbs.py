@@ -13,6 +13,11 @@ router = APIRouter()
 UPLOADS_DIR = os.environ.get("UPLOADS_DIR", "uploads")
 PUBLIC_BASE = os.environ.get("PUBLIC_BASE", "https://claire-marcus.com")  # ex: https://api..../uploads
 
+async def get_media_collection():
+    """Get MongoDB media collection"""
+    db = get_database()
+    return db.db.media
+
 def get_current_user_id(authorization: str = Header(None)):
     """Extract user ID from JWT token - compatible with server.py"""
     if not authorization or not authorization.startswith("Bearer "):

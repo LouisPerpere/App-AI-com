@@ -1,5 +1,445 @@
 #!/usr/bin/env python3
 """
+Test spécifique pour la demande française de génération complète de toutes les vignettes manquantes
+"""
+
+import requests
+import json
+import time
+
+# Configuration selon la demande française
+BACKEND_URL = "https://libfusion.preview.emergentagent.com"
+API_BASE = f"{BACKEND_URL}/api"
+TEST_EMAIL = "lperpere@yahoo.fr"
+TEST_PASSWORD = "L@Reunion974!"
+
+class FrenchReviewTester:
+    def __init__(self):
+        self.session = requests.Session()
+        self.access_token = None
+        
+    def authenticate(self):
+        """1. Authentifier avec lperpere@yahoo.fr / L@Reunion974!"""
+        print("🔐 ÉTAPE 1: Authentification avec lperpere@yahoo.fr / L@Reunion974!")
+        print("=" * 60)
+        
+        try:
+            response = self.session.post(f"{API_BASE}/auth/login", json={
+                "email": TEST_EMAIL,
+                "password": TEST_PASSWORD
+            })
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.access_token = data.get("access_token")
+                self.user_id = data.get("user_id")
+                
+                self.session.headers.update({
+                    "Authorization": f"Bearer {self.access_token}"
+                })
+                
+                print(f"✅ Authentification réussie")
+                print(f"   Email: {TEST_EMAIL}")
+                print(f"   User ID: {self.user_id}")
+                print(f"   Token: {self.access_token[:20]}...")
+                return True
+            else:
+                print(f"❌ Échec authentification: {response.status_code}")
+                print(f"   Réponse: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Erreur authentification: {str(e)}")
+            return False
+    
+    def execute_thumbnail_rebuild(self):
+        """2. Exécuter POST /api/content/thumbnails/rebuild pour générer TOUTES les vignettes manquantes"""
+        print("\n🔄 ÉTAPE 2: Exécution POST /api/content/thumbnails/rebuild")
+        print("=" * 60)
+        
+        try:
+            response = self.session.post(f"{API_BASE}/content/thumbnails/rebuild")
+            
+            if response.status_code == 200:
+                data = response.json()
+                scheduled = data.get("scheduled", 0)
+                files_found = data.get("files_found", 0)
+                message = data.get("message", "")
+                
+                print(f"✅ Rebuild exécuté avec succès")
+                print(f"   Vignettes programmées: {scheduled}")
+                print(f"   Fichiers trouvés: {files_found}")
+                print(f"   Message: {message}")
+                
+                # Attendre le traitement
+                print(f"\n⏳ Attente de 10 secondes pour la génération des vignettes...")
+                time.sleep(10)
+                
+                return True, scheduled
+            else:
+                print(f"❌ Échec rebuild: {response.status_code}")
+                print(f"   Réponse: {response.text}")
+                return False, 0
+                
+        except Exception as e:
+            print(f"❌ Erreur rebuild: {str(e)}")
+            return False, 0
+    
+    def verify_missing_thumbnails_generated(self, expected_generated):
+        """3. Vérifier que le processus génère les 13 vignettes manquantes pour les fichiers avec thumb_url = null"""
+        print(f"\n📊 ÉTAPE 3: Vérification génération des {expected_generated} vignettes manquantes")
+        print("=" * 60)
+        
+        try:
+            response = self.session.get(f"{API_BASE}/content/thumbnails/status")
+            
+            if response.status_code == 200:
+                data = response.json()
+                total_files = data.get("total_files", 0)
+                with_thumbnails = data.get("with_thumbnails", 0)
+                missing_thumbnails = data.get("missing_thumbnails", 0)
+                completion_percentage = data.get("completion_percentage", 0)
+                
+                print(f"✅ Statut des vignettes récupéré")
+                print(f"   Fichiers totaux: {total_files}")
+                print(f"   Avec vignettes: {with_thumbnails}")
+                print(f"   Vignettes manquantes: {missing_thumbnails}")
+                print(f"   Pourcentage de completion: {completion_percentage}%")
+                
+                # Vérifier si toutes les vignettes sont générées
+                all_generated = missing_thumbnails == 0
+                if all_generated:
+                    print(f"🎉 SUCCÈS: Toutes les vignettes ont été générées!")
+                else:
+                    print(f"⚠️ ATTENTION: {missing_thumbnails} vignettes encore manquantes")
+                
+                return all_generated, total_files, with_thumbnails
+            else:
+                print(f"❌ Échec récupération statut: {response.status_code}")
+                print(f"   Réponse: {response.text}")
+                return False, 0, 0
+                
+        except Exception as e:
+            print(f"❌ Erreur vérification: {str(e)}")
+            return False, 0, 0
+    
+    def confirm_claire_marcus_domain(self):
+        """4. Confirmer que les nouvelles thumb_url générées utilisent le bon domaine claire-marcus.com"""
+        print(f"\n🌐 ÉTAPE 4: Confirmation domaine claire-marcus.com pour les thumb_url")
+        print("=" * 60)
+        
+        try:
+            response = self.session.get(f"{API_BASE}/content/pending?limit=100")
+            
+            if response.status_code == 200:
+                data = response.json()
+                content = data.get("content", [])
+                total_files = len(content)
+                
+                claire_marcus_count = 0
+                libfusion_count = 0
+                null_count = 0
+                other_count = 0
+                
+                claire_marcus_examples = []
+                libfusion_examples = []
+                
+                for item in content:
+                    thumb_url = item.get("thumb_url")
+                    filename = item.get("filename", "unknown")
+                    
+                    if thumb_url is None or thumb_url == "":
+                        null_count += 1
+                    elif "claire-marcus.com" in thumb_url:
+                        claire_marcus_count += 1
+                        if len(claire_marcus_examples) < 3:
+                            claire_marcus_examples.append(f"{filename}: {thumb_url}")
+                    elif "libfusion.preview.emergentagent.com" in thumb_url:
+                        libfusion_count += 1
+                        if len(libfusion_examples) < 3:
+                            libfusion_examples.append(f"{filename}: {thumb_url}")
+                    else:
+                        other_count += 1
+                
+                print(f"✅ Analyse des domaines terminée")
+                print(f"   Fichiers totaux: {total_files}")
+                print(f"   thumb_url = null: {null_count}")
+                print(f"   Utilisant claire-marcus.com: {claire_marcus_count}")
+                print(f"   Utilisant libfusion.preview.emergentagent.com: {libfusion_count}")
+                print(f"   Autres domaines: {other_count}")
+                
+                if claire_marcus_examples:
+                    print(f"\n📋 Exemples claire-marcus.com:")
+                    for example in claire_marcus_examples:
+                        print(f"   • {example}")
+                
+                if libfusion_examples:
+                    print(f"\n⚠️ Exemples libfusion (à corriger):")
+                    for example in libfusion_examples:
+                        print(f"   • {example}")
+                
+                # Vérifier si le domaine est correct
+                domain_correct = libfusion_count == 0 and null_count == 0
+                if domain_correct:
+                    print(f"\n🎉 SUCCÈS: Tous les fichiers utilisent le bon domaine claire-marcus.com!")
+                else:
+                    print(f"\n⚠️ ATTENTION: {libfusion_count + null_count} fichiers n'utilisent pas le bon domaine")
+                
+                return domain_correct, claire_marcus_count, total_files
+            else:
+                print(f"❌ Échec récupération contenu: {response.status_code}")
+                print(f"   Réponse: {response.text}")
+                return False, 0, 0
+                
+        except Exception as e:
+            print(f"❌ Erreur vérification domaine: {str(e)}")
+            return False, 0, 0
+    
+    def verify_final_status(self):
+        """5. Vérifier le statut final : GET /api/content/thumbnails/status devrait montrer 46/46 fichiers avec vignettes (100%)"""
+        print(f"\n📈 ÉTAPE 5: Vérification statut final 46/46 fichiers (100%)")
+        print("=" * 60)
+        
+        try:
+            response = self.session.get(f"{API_BASE}/content/thumbnails/status")
+            
+            if response.status_code == 200:
+                data = response.json()
+                total_files = data.get("total_files", 0)
+                with_thumbnails = data.get("with_thumbnails", 0)
+                completion_percentage = data.get("completion_percentage", 0)
+                
+                print(f"✅ Statut final récupéré")
+                print(f"   Fichiers totaux: {total_files}")
+                print(f"   Avec vignettes: {with_thumbnails}")
+                print(f"   Pourcentage: {completion_percentage}%")
+                
+                # Vérifier l'objectif 46/46 (100%)
+                target_met = completion_percentage == 100.0 and with_thumbnails >= 46
+                if target_met:
+                    print(f"🎉 OBJECTIF ATTEINT: {with_thumbnails}/{total_files} fichiers avec vignettes (100%)")
+                else:
+                    print(f"⚠️ OBJECTIF NON ATTEINT: {with_thumbnails}/{total_files} fichiers avec vignettes ({completion_percentage}%)")
+                
+                return target_met, total_files, with_thumbnails
+            else:
+                print(f"❌ Échec récupération statut final: {response.status_code}")
+                print(f"   Réponse: {response.text}")
+                return False, 0, 0
+                
+        except Exception as e:
+            print(f"❌ Erreur vérification statut final: {str(e)}")
+            return False, 0, 0
+    
+    def verify_pending_content_domain(self):
+        """6. GET /api/content/pending devrait montrer tous les fichiers avec thumb_url pointant vers claire-marcus.com"""
+        print(f"\n📋 ÉTAPE 6: Vérification GET /api/content/pending - tous les thumb_url vers claire-marcus.com")
+        print("=" * 60)
+        
+        try:
+            response = self.session.get(f"{API_BASE}/content/pending?limit=100")
+            
+            if response.status_code == 200:
+                data = response.json()
+                content = data.get("content", [])
+                total_files = len(content)
+                
+                claire_marcus_count = 0
+                files_with_thumbs = 0
+                
+                for item in content:
+                    thumb_url = item.get("thumb_url")
+                    if thumb_url and thumb_url != "":
+                        files_with_thumbs += 1
+                        if "claire-marcus.com" in thumb_url:
+                            claire_marcus_count += 1
+                
+                print(f"✅ Analyse contenu en attente terminée")
+                print(f"   Fichiers totaux: {total_files}")
+                print(f"   Fichiers avec thumb_url: {files_with_thumbs}")
+                print(f"   Pointant vers claire-marcus.com: {claire_marcus_count}")
+                
+                # Vérifier si tous pointent vers claire-marcus.com
+                all_correct_domain = claire_marcus_count == files_with_thumbs
+                if all_correct_domain:
+                    print(f"🎉 SUCCÈS: Tous les fichiers avec vignettes pointent vers claire-marcus.com!")
+                else:
+                    print(f"⚠️ ATTENTION: {files_with_thumbs - claire_marcus_count} fichiers ne pointent pas vers le bon domaine")
+                
+                return all_correct_domain, claire_marcus_count, files_with_thumbs
+            else:
+                print(f"❌ Échec récupération contenu en attente: {response.status_code}")
+                print(f"   Réponse: {response.text}")
+                return False, 0, 0
+                
+        except Exception as e:
+            print(f"❌ Erreur vérification contenu en attente: {str(e)}")
+            return False, 0, 0
+    
+    def test_thumbnail_urls_format(self):
+        """7. Tester quelques nouvelles thumb_url générées pour confirmer qu'elles utilisent le format correct"""
+        print(f"\n🔍 ÉTAPE 7: Test format des thumb_url générées")
+        print("=" * 60)
+        
+        try:
+            response = self.session.get(f"{API_BASE}/content/pending?limit=10")
+            
+            if response.status_code == 200:
+                data = response.json()
+                content = data.get("content", [])
+                
+                tested_urls = 0
+                accessible_urls = 0
+                correct_format_urls = 0
+                
+                test_results = []
+                
+                for item in content:
+                    thumb_url = item.get("thumb_url")
+                    filename = item.get("filename", "unknown")
+                    
+                    if thumb_url and "claire-marcus.com" in thumb_url:
+                        tested_urls += 1
+                        
+                        try:
+                            # Test accessibilité
+                            thumb_response = requests.get(thumb_url, timeout=10)
+                            
+                            if thumb_response.status_code == 200:
+                                content_type = thumb_response.headers.get('content-type', '')
+                                content_length = len(thumb_response.content)
+                                
+                                if 'image' in content_type.lower():
+                                    accessible_urls += 1
+                                    
+                                    # Vérifier format WEBP et structure URL
+                                    is_webp = thumb_url.endswith('.webp')
+                                    has_correct_path = '/uploads/thumbs/' in thumb_url
+                                    has_claire_marcus = 'claire-marcus.com' in thumb_url
+                                    
+                                    if is_webp and has_correct_path and has_claire_marcus:
+                                        correct_format_urls += 1
+                                        status = "✅ CORRECT"
+                                    else:
+                                        status = "⚠️ FORMAT INCORRECT"
+                                    
+                                    test_results.append(f"{status}: {filename} ({content_length}b, {content_type})")
+                                else:
+                                    test_results.append(f"❌ PAS IMAGE: {filename} ({content_type})")
+                            else:
+                                test_results.append(f"❌ INACCESSIBLE: {filename} (status: {thumb_response.status_code})")
+                                
+                        except Exception as url_error:
+                            test_results.append(f"❌ ERREUR: {filename} ({str(url_error)[:30]})")
+                        
+                        # Limiter les tests
+                        if tested_urls >= 5:
+                            break
+                
+                print(f"✅ Test format terminé")
+                print(f"   URLs testées: {tested_urls}")
+                print(f"   URLs accessibles: {accessible_urls}")
+                print(f"   Format correct: {correct_format_urls}")
+                
+                print(f"\n📋 Résultats détaillés:")
+                for result in test_results:
+                    print(f"   • {result}")
+                
+                # Vérifier si le format est correct
+                format_correct = correct_format_urls > 0 and (correct_format_urls / tested_urls >= 0.8 if tested_urls > 0 else False)
+                if format_correct:
+                    print(f"\n🎉 SUCCÈS: Format des thumb_url correct!")
+                else:
+                    print(f"\n⚠️ ATTENTION: Format des thumb_url à corriger")
+                
+                return format_correct, tested_urls, correct_format_urls
+            else:
+                print(f"❌ Échec récupération contenu pour test format: {response.status_code}")
+                print(f"   Réponse: {response.text}")
+                return False, 0, 0
+                
+        except Exception as e:
+            print(f"❌ Erreur test format: {str(e)}")
+            return False, 0, 0
+    
+    def run_french_review_test(self):
+        """Exécuter tous les tests selon la demande française"""
+        print("🇫🇷 GÉNÉRATION COMPLÈTE DE TOUTES LES VIGNETTES MANQUANTES")
+        print("=" * 80)
+        print("OBJECTIF: Avoir toutes les vignettes générées et toutes les thumb_url")
+        print("          pointant vers le bon domaine avec le proxy Netlify.")
+        print("=" * 80)
+        
+        # Étape 1: Authentification
+        if not self.authenticate():
+            print("❌ ÉCHEC: Impossible de s'authentifier")
+            return False
+        
+        # Étape 2: Exécuter rebuild
+        rebuild_success, scheduled_count = self.execute_thumbnail_rebuild()
+        if not rebuild_success:
+            print("❌ ÉCHEC: Impossible d'exécuter le rebuild")
+            return False
+        
+        # Étape 3: Vérifier génération des vignettes manquantes
+        generation_success, total_files, with_thumbnails = self.verify_missing_thumbnails_generated(scheduled_count)
+        
+        # Étape 4: Confirmer domaine claire-marcus.com
+        domain_success, claire_marcus_count, total_files_domain = self.confirm_claire_marcus_domain()
+        
+        # Étape 5: Vérifier statut final 46/46 (100%)
+        final_status_success, final_total, final_with_thumbs = self.verify_final_status()
+        
+        # Étape 6: Vérifier contenu en attente
+        pending_success, pending_claire_marcus, pending_with_thumbs = self.verify_pending_content_domain()
+        
+        # Étape 7: Tester format des URLs
+        format_success, tested_urls, correct_format = self.test_thumbnail_urls_format()
+        
+        # Résumé final
+        print(f"\n🎯 RÉSUMÉ FINAL - DEMANDE FRANÇAISE")
+        print("=" * 60)
+        
+        all_success = all([
+            rebuild_success,
+            generation_success,
+            domain_success,
+            final_status_success,
+            pending_success,
+            format_success
+        ])
+        
+        print(f"1. ✅ Authentification: RÉUSSIE")
+        print(f"2. {'✅' if rebuild_success else '❌'} Rebuild vignettes: {'RÉUSSI' if rebuild_success else 'ÉCHEC'} ({scheduled_count} programmées)")
+        print(f"3. {'✅' if generation_success else '❌'} Génération vignettes: {'RÉUSSIE' if generation_success else 'ÉCHEC'} ({with_thumbnails}/{total_files})")
+        print(f"4. {'✅' if domain_success else '❌'} Domaine claire-marcus.com: {'CORRECT' if domain_success else 'INCORRECT'} ({claire_marcus_count}/{total_files_domain})")
+        print(f"5. {'✅' if final_status_success else '❌'} Statut final 100%: {'ATTEINT' if final_status_success else 'NON ATTEINT'} ({final_with_thumbs}/{final_total})")
+        print(f"6. {'✅' if pending_success else '❌'} Contenu en attente: {'CORRECT' if pending_success else 'INCORRECT'} ({pending_claire_marcus}/{pending_with_thumbs})")
+        print(f"7. {'✅' if format_success else '❌'} Format URLs: {'CORRECT' if format_success else 'INCORRECT'} ({correct_format}/{tested_urls})")
+        
+        print(f"\n🏆 RÉSULTAT GLOBAL: {'✅ SUCCÈS COMPLET' if all_success else '⚠️ SUCCÈS PARTIEL'}")
+        
+        if all_success:
+            print("🎉 Toutes les vignettes ont été générées avec succès!")
+            print("🎉 Toutes les thumb_url pointent vers claire-marcus.com!")
+            print("🎉 Le proxy Netlify fonctionne correctement!")
+        else:
+            print("⚠️ Certains objectifs ne sont pas encore atteints.")
+            print("⚠️ Vérifiez les détails ci-dessus pour identifier les problèmes.")
+        
+        return all_success
+
+if __name__ == "__main__":
+    tester = FrenchReviewTester()
+    success = tester.run_french_review_test()
+    
+    if success:
+        print("\n✅ TEST DEMANDE FRANÇAISE: SUCCÈS COMPLET")
+        exit(0)
+    else:
+        print("\n⚠️ TEST DEMANDE FRANÇAISE: SUCCÈS PARTIEL")
+        exit(1)
+"""
 Test final du système de vignettes complet - French Review Request
 Exactly following the requested test sequence from the review
 """

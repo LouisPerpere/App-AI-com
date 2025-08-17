@@ -29,8 +29,8 @@ class MediaResponse(BaseModel):
 # Collections MongoDB pour persistance (selon ChatGPT)
 async def get_media_collection():
     """Get MongoDB media collection"""
-    db = await get_database()
-    return db.media
+    db = get_database()
+    return db.db.media
 
 # Import GPT-5 website analyzer
 try:

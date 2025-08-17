@@ -172,8 +172,7 @@ async def get_thumbnail_status(
     user_id: str = Depends(get_current_user_id),
 ):
     """Get thumbnail generation status for user"""
-    db = await get_database()
-    media_collection = db.media
+    media_collection = await get_media_collection()
     
     # Count total files
     total_query = {"owner_id": user_id, "deleted": {"$ne": True}}

@@ -550,12 +550,12 @@ async def diagnostic_endpoint():
         return {"error": str(e)}
 
 @api_router.get("/content/pending")
-async def get_pending_content(
+async def get_pending_content_mongo(
     limit: int = 24,
     offset: int = 0,
     user_id: str = Depends(get_current_user_id)
 ):
-    """Get user's content with MongoDB persistence (selon ChatGPT)"""
+    """Get user's content with MongoDB persistence (VERSION FINALE selon ChatGPT)"""
     try:
         media_collection = await get_media_collection()
         
@@ -579,9 +579,8 @@ async def get_pending_content(
                 "filename": d.get("filename", ""),
                 "file_type": d.get("file_type", ""),
                 "description": d.get("description", ""),
-                "file_data": d.get("file_data"),  # Base64 si nécessaire
-                "thumbnail_data": d.get("thumbnail_data"),
-                "size": d.get("size", 0),
+                "url": d.get("url"),
+                "thumb_url": d.get("thumb_url"),
                 "uploaded_at": d.get("created_at").isoformat() if d.get("created_at") else None
             })
         
@@ -593,11 +592,81 @@ async def get_pending_content(
         }
     
     except Exception as e:
-        print(f"❌ Error getting pending content from MongoDB: {e}")
+        print(f"❌ MongoDB failed, using filesystem fallback: {e}")
         # Fallback vers système fichiers si MongoDB échoue
         return await get_pending_content_filesystem(limit, offset, user_id)
 
-# Ancienne version filesystem en fallback
+
+@api_router.put("/content/{file_id}/description")
+async def put_description_mongo(
+    file_id: str,
+    body: UpdateDescriptionIn,
+    user_id: str = Depends(get_current_user_id)
+):
+    """Update description with MongoDB (VERSION FINALE selon ChatGPT)"""
+    try:
+        from bson import ObjectId
+        media_collection = await get_media_collection()
+        
+        result = await media_collection.find_one_and_update(
+            {"_id": ObjectId(file_id), "owner_id": user_id, "deleted": {"$ne": True}},
+            {"$set": {"description": body.description}},
+            return_document=True
+        )
+        
+        if not result:
+            raise HTTPException(status_code=404, detail="Fichier non trouvé")
+        
+        return {
+            "message": "Description mise à jour avec succès", 
+            "file_id": file_id,
+            "description": result.get("description", "")
+        }
+    
+    except Exception as e:
+        print(f"❌ MongoDB description update failed, using filesystem fallback: {e}")
+        # Fallback vers système existant
+        return await update_content_description(file_id, {"description": body.description}, user_id)
+
+
+@api_router.delete("/content/{file_id}")
+async def delete_media_mongo(
+    file_id: str,
+    user_id: str = Depends(get_current_user_id)
+):
+    """Delete content with MongoDB (VERSION FINALE selon ChatGPT)"""
+    try:
+        from bson import ObjectId
+        media_collection = await get_media_collection()
+        
+        # Find document first
+        doc = await media_collection.find_one({"_id": ObjectId(file_id), "owner_id": user_id})
+        if not doc:
+            raise HTTPException(status_code=404, detail="Fichier non trouvé")
+        
+        # Delete from MongoDB
+        await media_collection.delete_one({"_id": ObjectId(file_id), "owner_id": user_id})
+        
+        # Optionally delete physical file too (selon ChatGPT)
+        try:
+            filename = doc.get("filename")
+            if filename:
+                file_path = os.path.join("uploads", filename)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                    print(f"🗑️ Physical file deleted: {filename}")
+        except Exception as e:
+            print(f"⚠️ Failed to delete physical file: {e}")
+        
+        return Response(status_code=204)
+    
+    except Exception as e:
+        print(f"❌ MongoDB deletion failed, using filesystem fallback: {e}")
+        # Fallback vers système existant
+        return await delete_content_file(file_id, user_id)
+
+
+# LEGACY/FALLBACK functions (ancien système)
 async def get_pending_content_filesystem(limit: int, offset: int, user_id: str):
     """LEGACY: Get user's uploaded content files with pagination AND FILTERING BY USER"""
     try:

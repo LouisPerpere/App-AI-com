@@ -174,15 +174,15 @@ async def get_thumbnail_status(
     user_id: str = Depends(get_current_user_id),
 ):
     """Get thumbnail generation status for user"""
-    media_collection = await get_media_collection()
+    media_collection = get_sync_media_collection()
     
     # Count total files
     total_query = {"owner_id": user_id, "deleted": {"$ne": True}}
-    total_files = await media_collection.count_documents(total_query)
+    total_files = media_collection.count_documents(total_query)
     
     # Count files with thumbnails
     with_thumbs_query = {"owner_id": user_id, "deleted": {"$ne": True}, "thumb_url": {"$ne": None, "$ne": ""}}
-    with_thumbs = await media_collection.count_documents(with_thumbs_query)
+    with_thumbs = media_collection.count_documents(with_thumbs_query)
     
     # Count missing thumbnails
     missing_thumbs = total_files - with_thumbs

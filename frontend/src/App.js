@@ -1617,20 +1617,27 @@ function MainApp() {
     console.log('🎉 APP DEBUG - Auth success callback triggered');
     
     try {
-      // First check authentication
+      // CRITICAL FIX: Set dashboard FIRST before any async operations
+      setActiveStep('dashboard');
+      console.log('🎯 IMMEDIATE dashboard transition set');
+      
+      // Then check authentication
       await checkAuth();
       console.log('🔍 APP DEBUG - Auth check completed after success');
+      
+      // Load content immediately
+      console.log('📚 Loading content after auth success');
+      loadPendingContent(true, false);
       
       // Don't reload business profile here - it's already loaded in checkAuth
       // await loadBusinessProfile(); // REMOVED - This was causing data reload
       console.log('🔍 APP DEBUG - Business profile already loaded in checkAuth');
       
-      // CRITICAL FIX: Force dashboard transition after successful authentication
-      console.log('🎯 FORCING DASHBOARD TRANSITION after auth success');
-      setActiveStep('dashboard');
-      
     } catch (error) {
       console.error('❌ APP DEBUG - Error in handleAuthSuccess:', error);
+      // Even if there's an error, keep the user on dashboard
+      console.log('🎯 KEEPING dashboard active despite error');
+      setActiveStep('dashboard');
     }
   };
 

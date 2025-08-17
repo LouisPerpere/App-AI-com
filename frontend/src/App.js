@@ -2371,18 +2371,26 @@ function MainApp() {
   // Content modal functions
   const openContentModal = (content) => {
     setSelectedContent(content);
-    setContentDescription(content.description || '');
+    
+    // Check localStorage for any unsaved changes first, then fallback to content.description
+    const storageKey = `content_description_${content.id}`;
+    const savedDescription = localStorage.getItem(storageKey);
+    const finalDescription = savedDescription || content.description || '';
+    
+    setContentDescription(finalDescription);
     setShowContentModal(true);
     
     // Set ref value for virtual keyboard compatibility (only for virtual keyboards)
     if (isVirtualKeyboardDevice) {
       setTimeout(() => {
         if (contentDescriptionRef.current) {
-          contentDescriptionRef.current.value = content.description || '';
-          console.log('📝 Modal opened with description (virtual keyboard):', content.description);
+          contentDescriptionRef.current.value = finalDescription;
+          console.log('📝 Modal opened with description (virtual keyboard):', finalDescription);
         }
       }, 100);
     }
+    
+    console.log('📝 Modal opened with description:', finalDescription, savedDescription ? '(from localStorage)' : '(from database)');
   };
 
   const closeContentModal = () => {

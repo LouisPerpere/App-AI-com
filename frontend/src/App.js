@@ -5665,6 +5665,8 @@ function MainApp() {
         onSaved={onContentSaved}
         setPendingContent={setPendingContent}
         refetchSilent={refetchPendingContentSilent}
+        setServerFetchedCount={setServerFetchedCount}
+        loadPendingContent={loadPendingContent}
       />
     </div>
   );

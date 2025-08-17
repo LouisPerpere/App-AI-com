@@ -674,14 +674,14 @@ async def get_pending_content(
                     thumbnail_data = None
             
             content_files.append({
-                "id": filename.split('.')[0],  # Use filename without extension as ID
+                "id": file_id,  # UUID as ID (corrigé selon ChatGPT)
                 "filename": filename,
-                "file_type": content_type,
-                "file_data": file_data,  # Full size for modal
+                "file_type": content_type,  # Renommé selon ChatGPT
+                "file_data": file_data,  # Base64 encoded
                 "thumbnail_data": thumbnail_data,  # Ultra-small thumbnail for gallery
                 "size": file_size,
                 "uploaded_at": datetime.fromtimestamp(file_stats.st_mtime).isoformat(),
-                "description": get_file_description(filename.split('.')[0])  # Load actual description
+                "description": get_file_description(file_id)  # Use file_id instead of recalculating
             })
         
         return {

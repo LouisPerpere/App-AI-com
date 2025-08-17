@@ -1434,9 +1434,6 @@ async def test_thumbnails_access():
     except Exception as e:
         return {"error": f"Thumbnail test failed: {str(e)}"}
 
-# Servir les fichiers uploads/ en statique (selon ChatGPT)
-app.mount("/uploads", StaticFiles(directory="uploads", html=False), name="uploads")
-
 # Add no-cache headers for API endpoints
 @app.middleware("http")
 async def add_cache_headers(request, call_next):

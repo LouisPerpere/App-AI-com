@@ -4756,67 +4756,72 @@ function MainApp() {
                       </h4>
                       
                       {/* Selection controls */}
-                      <div className="flex items-center space-x-2">
-                        {!isSelectionMode ? (
-                          <Button
-                            onClick={enterSelectionMode}
-                            variant="outline"
-                            className="text-gray-600 border-gray-300 hover:bg-gray-50"
-                            disabled={contentLoading || pendingContent.length === 0}
-                          >
-                            <Check className="w-4 h-4 mr-2" />
-                            Sélectionner
-                          </Button>
-                        ) : (
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm text-gray-600">
-                              {selectedContentIds.length} sélectionné{selectedContentIds.length > 1 ? 's' : ''}
-                            </span>
+                      <div className="space-y-4">
+                        {/* Première ligne : boutons principaux */}
+                        <div className="flex items-center space-x-2">
+                          {!isSelectionMode ? (
                             <Button
-                              onClick={deleteSelectedContent}
-                              disabled={selectedContentIds.length === 0 || isDeletingMultiple}
-                              variant="destructive"
-                              className="bg-red-500 hover:bg-red-600 text-white"
-                            >
-                              {isDeletingMultiple ? (
-                                <>
-                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                  Suppression...
-                                </>
-                              ) : (
-                                <>
-                                  <Trash className="w-4 h-4 mr-2" />
-                                  Supprimer
-                                </>
-                              )}
-                            </Button>
-                            <Button
-                              onClick={exitSelectionMode}
+                              onClick={enterSelectionMode}
                               variant="outline"
                               className="text-gray-600 border-gray-300 hover:bg-gray-50"
+                              disabled={contentLoading || pendingContent.length === 0}
                             >
-                              <X className="w-4 h-4 mr-2" />
-                              Annuler
+                              <Check className="w-4 h-4 mr-2" />
+                              Sélectionner
                             </Button>
-                          </div>
-                        )}
+                          ) : (
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm text-gray-600">
+                                {selectedContentIds.length} sélectionné{selectedContentIds.length > 1 ? 's' : ''}
+                              </span>
+                              <Button
+                                onClick={deleteSelectedContent}
+                                disabled={selectedContentIds.length === 0 || isDeletingMultiple}
+                                variant="destructive"
+                                className="bg-red-500 hover:bg-red-600 text-white"
+                              >
+                                {isDeletingMultiple ? (
+                                  <>
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    Suppression...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Trash className="w-4 h-4 mr-2" />
+                                    Supprimer
+                                  </>
+                                )}
+                              </Button>
+                              <Button
+                                onClick={exitSelectionMode}
+                                variant="outline"
+                                className="text-gray-600 border-gray-300 hover:bg-gray-50"
+                              >
+                                <X className="w-4 h-4 mr-2" />
+                                Annuler
+                              </Button>
+                            </div>
+                          )}
+                        </div>
                         
-                        {/* Bouton de synchronisation forcée */}
-                        <Button
-                          onClick={() => {
-                            console.log('🔄 Synchronisation forcée demandée');
-                            loadPendingContent(true, true); // Reset + nettoyage cache
-                          }}
-                          variant="outline"
-                          className="text-purple-600 border-purple-300 hover:bg-purple-50"
-                          disabled={contentLoading}
-                          title="Forcer la synchronisation avec le serveur"
-                        >
-                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                          </svg>
-                          Synchroniser
-                        </Button>
+                        {/* Deuxième ligne : bouton synchroniser */}
+                        <div className="flex items-center">
+                          <Button
+                            onClick={() => {
+                              console.log('🔄 Synchronisation forcée demandée');
+                              loadPendingContent(true, true); // Reset + nettoyage cache
+                            }}
+                            variant="outline"
+                            className="text-purple-600 border-purple-300 hover:bg-purple-50"
+                            disabled={contentLoading}
+                            title="Forcer la synchronisation avec le serveur"
+                          >
+                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Synchroniser
+                          </Button>
+                        </div>
                       </div>
                     </div>
                     

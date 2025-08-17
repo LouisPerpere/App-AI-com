@@ -18,6 +18,11 @@ async def get_media_collection():
     db = get_database()
     return db.db.media
 
+def get_sync_media_collection():
+    """Get MongoDB media collection synchronously"""
+    db = get_database()
+    return db.db.media
+
 def get_current_user_id(authorization: str = Header(None)):
     """Extract user ID from JWT token - compatible with server.py"""
     if not authorization or not authorization.startswith("Bearer "):

@@ -1145,6 +1145,10 @@ function MainApp() {
       console.log('🔄 Loading notes for authenticated user');
       loadNotes();
       
+      // CRITIQUE: Charger le contenu de la bibliothèque immédiatement
+      console.log('📚 Loading pending content for authenticated user');
+      loadPendingContent(true, false); // Reset and load fresh content
+      
       // Puis recharger depuis la DB pour s'assurer que les données sont à jour
       setTimeout(async () => {
         if (!businessProfile) {

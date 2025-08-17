@@ -1316,7 +1316,7 @@ function MainApp() {
       
       setActiveStep('dashboard');
       loadGeneratedPosts();
-      loadPendingContent(true); // Reset and load fresh
+      loadPendingContent(true, true); // Reset, load fresh, and clean cache
       loadNotes();
       loadSocialConnections();
       

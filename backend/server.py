@@ -32,8 +32,8 @@ class MediaResponse(BaseModel):
     uploaded_at: Optional[str] = None
 
 # Collections MongoDB pour persistance (selon ChatGPT)
-def get_media_collection():
-    """Get MongoDB media collection (synchronous)"""
+async def get_media_collection():
+    """Get MongoDB media collection (asynchronous)"""
     db = get_database()
     return db.db.media
 

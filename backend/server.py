@@ -14,6 +14,18 @@ import io
 # Import database
 from database import get_database, DatabaseManager
 
+class UpdateDescriptionIn(BaseModel):
+    description: str = Field("", max_length=2000)
+
+class MediaResponse(BaseModel):
+    id: str
+    filename: str
+    file_type: Optional[str] = None
+    description: str = ""
+    url: Optional[str] = None
+    thumb_url: Optional[str] = None
+    uploaded_at: Optional[str] = None
+
 # Collections MongoDB pour persistance (selon ChatGPT)
 async def get_media_collection():
     """Get MongoDB media collection"""

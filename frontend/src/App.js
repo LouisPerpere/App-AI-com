@@ -217,9 +217,15 @@ const ContentPreviewModal = ({
       });
 
       if (response.ok) {
+        // Optimiste: enlève tout de suite (selon ChatGPT)
+        setPendingContent(prev => prev.filter(item => item.id !== content.id));
+        
         toast.success('Contenu supprimé définitivement !');
         onSaved?.({ id: content.id, deleted: true }); // Signal de suppression
         onClose(); // Fermer après suppression
+        
+        // Refetch silencieux pour éviter les drift (selon ChatGPT)
+        void refetchSilent();
       } else {
         throw new Error('Erreur suppression');
       }

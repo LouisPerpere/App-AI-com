@@ -2414,7 +2414,7 @@ function MainApp() {
 
       if (response.ok) {
         // Mettre à jour la liste des contenus
-        setContentFiles(prev => prev.map(file => 
+        setPendingContent(prev => prev.map(file => 
           file.id === contentId 
             ? { ...file, description: description }
             : file

@@ -13,7 +13,7 @@ import uuid
 from datetime import datetime
 
 # Configuration - Using production URLs from review
-BACKEND_URL = "https://1d40efb9-5df5-4451-92ee-3a9e99a73a8a.preview.emergentagent.com/api"
+BACKEND_URL = "https://libfusion.preview.emergentagent.com/api"
 FRONTEND_URL = "claire-marcus.com"
 TEST_USER_EMAIL = "lperpere@yahoo.fr"
 TEST_USER_PASSWORD = "L@Reunion974!"

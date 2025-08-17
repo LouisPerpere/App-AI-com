@@ -10,7 +10,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://1d40efb9-5df5-4451-92ee-3a9e99a73a8a.preview.emergentagent.com/api"
+BACKEND_URL = "https://libfusion.preview.emergentagent.com/api"
 TEST_USER_EMAIL = "lperpere@yahoo.fr"
 TEST_USER_PASSWORD = "L@Reunion974!"
 

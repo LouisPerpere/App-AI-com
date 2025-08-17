@@ -12,7 +12,7 @@ import os
 def test_facebook_integration():
     """Test Facebook/Instagram integration with real credentials"""
     
-    base_url = "https://claire-marcus-fix-1.preview.emergentagent.com"
+    base_url = "https://libfusion.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     print("🔍 Testing Facebook/Instagram Integration with Real Credentials")

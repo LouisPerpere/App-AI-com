@@ -1,7 +1,7 @@
 # Netlify Redirects for Claire et Marcus SPA
 
-# API redirects (MUST be before /* rule)
-/api/*  https://claire-marcus-api.onrender.com/api/:splat  200
+# API redirects to backend (MUST be before /* rule)
+/api/*  https://libfusion.preview.emergentagent.com/api/:splat  200
 
 # SPA fallback (MUST be last)
 /*    /index.html   200

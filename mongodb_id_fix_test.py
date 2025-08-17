@@ -34,6 +34,12 @@ TEST_PASSWORD = "L@Reunion974!"
 class MongoDBIDFixTester:
     def __init__(self):
         self.session = requests.Session()
+        # Disable SSL verification for testing in container environment
+        self.session.verify = False
+        # Disable SSL warnings
+        import urllib3
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        
         self.access_token = None
         self.user_id = None
         self.test_results = []

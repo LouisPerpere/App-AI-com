@@ -2566,7 +2566,25 @@ function MainApp() {
     console.log(`📝 Description changée pour ${contentId}:`, description);
   }, [debouncedSaveContentDescription]);
 
-  // Refetch silencieux pour réconcilier avec le backend (selon ChatGPT)
+  // Utilitaires selon ChatGPT pour merge/dédupli par ID
+  const mergeById = (oldArr, patchArr) => {
+    const byId = new Map(oldArr.map(it => [it.id, it]));
+    for (const it of patchArr) {
+      const prev = byId.get(it.id);
+      byId.set(it.id, prev ? { ...prev, ...it } : it);
+    }
+    // Conserve l'ordre des existants, puis ajoute les nouveaux
+    const newOnes = patchArr.filter(it => !oldArr.find(o => o.id === it.id));
+    return [...oldArr.map(it => byId.get(it.id)), ...newOnes];
+  };
+
+  // Filtre local des éléments supprimés (selon ChatGPT)
+  const filterDeletedLocal = (arr) => {
+    const deletedItems = JSON.parse(localStorage.getItem('deleted_content_ids') || '[]');
+    return arr.filter(it => !deletedItems.includes(it.id));
+  };
+
+  // Refetch silencieux VERSION EXACTE selon ChatGPT
   const refetchPendingContentSilent = async () => {
     try {
       const response = await axios.get(`${API}/content/pending`, { 

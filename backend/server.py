@@ -539,11 +539,55 @@ async def diagnostic_endpoint():
 
 @api_router.get("/content/pending")
 async def get_pending_content(
-    limit: int = 24,  # Limit number of files to prevent crashes
-    offset: int = 0,  # Offset for pagination
+    limit: int = 24,
+    offset: int = 0,
     user_id: str = Depends(get_current_user_id)
 ):
-    """Get user's uploaded content files with pagination AND FILTERING BY USER"""
+    """Get user's content with MongoDB persistence (selon ChatGPT)"""
+    try:
+        media_collection = await get_media_collection()
+        
+        # Filtre MongoDB par owner_id et non supprimé (selon ChatGPT)
+        query = {"owner_id": user_id, "deleted": {"$ne": True}}
+        
+        # Count total
+        total = await media_collection.count_documents(query)
+        
+        # Get paginated docs with stable sort (selon ChatGPT)
+        cursor = media_collection.find(query).sort([("created_at", -1), ("_id", -1)]).skip(offset).limit(limit)
+        docs = []
+        async for doc in cursor:
+            docs.append(doc)
+        
+        # Build response (selon ChatGPT)
+        content = []
+        for d in docs:
+            content.append({
+                "id": str(d["_id"]),
+                "filename": d.get("filename", ""),
+                "file_type": d.get("file_type", ""),
+                "description": d.get("description", ""),
+                "file_data": d.get("file_data"),  # Base64 si nécessaire
+                "thumbnail_data": d.get("thumbnail_data"),
+                "size": d.get("size", 0),
+                "uploaded_at": d.get("created_at").isoformat() if d.get("created_at") else None
+            })
+        
+        return {
+            "content": content,
+            "total": total,
+            "has_more": offset + limit < total,
+            "loaded": len(content)
+        }
+    
+    except Exception as e:
+        print(f"❌ Error getting pending content from MongoDB: {e}")
+        # Fallback vers système fichiers si MongoDB échoue
+        return await get_pending_content_filesystem(limit, offset, user_id)
+
+# Ancienne version filesystem en fallback
+async def get_pending_content_filesystem(limit: int, offset: int, user_id: str):
+    """LEGACY: Get user's uploaded content files with pagination AND FILTERING BY USER"""
     try:
         uploads_dir = "uploads"
         if not os.path.exists(uploads_dir):

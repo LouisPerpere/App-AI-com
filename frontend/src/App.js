@@ -2585,23 +2585,36 @@ function MainApp() {
   };
 
   // Refetch silencieux VERSION EXACTE selon ChatGPT
-  const refetchPendingContentSilent = async () => {
+  // mode: 'patch' (par défaut) pour mettre à jour ce qui est déjà rendu (ex: badge),
+  //       'replace' pour resynchroniser complètement la page courante.
+  const refetchPendingContentSilent = async (mode = 'patch') => {
     try {
-      const response = await axios.get(`${API}/content/pending`, { 
-        params: { limit: 100, offset: 0 },
+      // Récupère la même "fenêtre" que ce que l'utilisateur voit
+      const currentCount = Math.max(24, pendingContent.length || 0);
+      const response = await axios.get(`${API}/content/pending`, {
+        params: { limit: currentCount, offset: 0 },
         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
       });
       const data = response.data;
-      
-      // Réécrit la source avec l'état serveur (réconciliation)
-      setPendingContent(data.content || []);
+
+      // Projection déjà OK côté API (description incluse)
+      const serverPage = filterDeletedLocal(data.content || []);
+
+      if (mode === 'replace') {
+        // Remplace entièrement la page visible par l'état serveur
+        setPendingContent(serverPage);
+      } else {
+        // Mise à jour "patch" : met à jour ce qui est visible (ex. badges) sans casser l'ordre/pagination
+        setPendingContent(prev => mergeById(prev, serverPage));
+      }
+
       setContentTotalCount(data.total || 0);
       setContentHasMore(data.has_more || false);
       
-      console.log('🔄 Refetch silencieux terminé - synchronisation serveur');
+      console.log(`🔄 Refetch silencieux terminé (${mode}) - synchronisation serveur`);
     } catch (error) {
       // Ignorer ou logger, on reste sur l'optimiste si réseau KO
-      console.log('⚠️ Refetch silencieux échoué, garde état optimiste:', error);
+      console.log('⚠️ Refetch silencieux échoué (on garde l\'état optimiste):', error);
     }
   };
 

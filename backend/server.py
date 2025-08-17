@@ -575,47 +575,100 @@ async def diagnostic_endpoint():
 
 @api_router.get("/content/pending")
 async def get_pending_content_mongo(
-    limit: int = 24,
     offset: int = 0,
+    limit: int = 24,
+    include_base64: bool = True,  # NEW: Include base64 data for emergency fallback
     user_id: str = Depends(get_current_user_id)
 ):
-    """Get user's content with MongoDB persistence (VERSION FINALE selon ChatGPT)"""
+    """Get pending content with MongoDB (VERSION FINALE avec base64 d'urgence selon ChatGPT)"""
     try:
         media_collection = get_media_collection()
         
-        # Filtre MongoDB par owner_id et non supprimé (selon ChatGPT)
+        # Query MongoDB avec filtrage par user
         query = {"owner_id": user_id, "deleted": {"$ne": True}}
         
         # Count total
         total = media_collection.count_documents(query)
         
-        # Get paginated docs with stable sort (selon ChatGPT)
+        # Fetch documents with pagination and stable sorting
         cursor = media_collection.find(query).sort([("created_at", -1), ("_id", -1)]).skip(offset).limit(limit)
-        docs = list(cursor)
+        docs = []
+        for doc in cursor:
+            docs.append(doc)
         
         # Build response (selon ChatGPT)
         content = []
         for d in docs:
-            content.append({
+            # Basic file info
+            file_item = {
                 "id": str(d["_id"]),
                 "filename": d.get("filename", ""),
                 "file_type": d.get("file_type", ""),
+                "url": d.get("url", ""),
+                "thumb_url": d.get("thumb_url", ""),
                 "description": d.get("description", ""),
-                "url": d.get("url"),
-                "thumb_url": d.get("thumb_url"),
-                "uploaded_at": d.get("created_at").isoformat() if d.get("created_at") else None
-            })
+                "created_at": d.get("created_at").isoformat() if d.get("created_at") else None
+            }
+            
+            # EMERGENCY: Add base64 data for immediate image display
+            if include_base64:
+                try:
+                    filename = d.get("filename", "")
+                    if filename:
+                        # Try to read original file
+                        file_path = os.path.join("uploads", filename)
+                        if os.path.exists(file_path):
+                            # Generate base64 for original image
+                            with open(file_path, "rb") as img_file:
+                                file_data_base64 = base64.b64encode(img_file.read()).decode('utf-8')
+                                file_item["file_data"] = file_data_base64
+                            
+                            # Generate base64 for thumbnail if exists
+                            from thumbs import build_thumb_path
+                            thumb_path = build_thumb_path(filename)
+                            if os.path.exists(thumb_path):
+                                with open(thumb_path, "rb") as thumb_file:
+                                    thumb_data_base64 = base64.b64encode(thumb_file.read()).decode('utf-8')
+                                    file_item["thumbnail_data"] = thumb_data_base64
+                            else:
+                                # Generate thumbnail on-the-fly if missing
+                                try:
+                                    from PIL import Image
+                                    from io import BytesIO
+                                    
+                                    with Image.open(file_path) as img:
+                                        # Square crop and resize to 320px
+                                        w, h = img.size
+                                        side = min(w, h)
+                                        left = (w - side) // 2
+                                        top = (h - side) // 2
+                                        img = img.crop((left, top, left + side, top + side))
+                                        img = img.resize((320, 320), Image.LANCZOS)
+                                        img = img.convert("RGB")
+                                        
+                                        # Convert to base64
+                                        buffer = BytesIO()
+                                        img.save(buffer, format="JPEG", quality=85, optimize=True)
+                                        thumb_data_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+                                        file_item["thumbnail_data"] = thumb_data_base64
+                                except Exception as thumb_error:
+                                    print(f"⚠️ Thumbnail generation failed for {filename}: {thumb_error}")
+                except Exception as base64_error:
+                    print(f"⚠️ Base64 generation failed for {filename}: {base64_error}")
+            
+            content.append(file_item)
         
         return {
             "content": content,
             "total": total,
-            "has_more": offset + limit < total,
-            "loaded": len(content)
+            "offset": offset,
+            "limit": limit,
+            "has_more": offset + limit < total
         }
     
     except Exception as e:
-        print(f"❌ MongoDB failed, using filesystem fallback: {e}")
-        # Fallback vers système fichiers si MongoDB échoue
+        print(f"❌ MongoDB get_pending_content failed: {e}")
+        # Fallback vers système existant
         return await get_pending_content_filesystem(limit, offset, user_id)
 
 

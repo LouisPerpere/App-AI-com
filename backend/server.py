@@ -8,6 +8,7 @@ import os
 import uuid
 import asyncio
 import json
+import base64
 from PIL import Image
 import io
 import mimetypes

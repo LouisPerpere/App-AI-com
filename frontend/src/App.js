@@ -106,11 +106,42 @@ const ContentThumbnail = React.memo(({
       }`}>
         {content.file_type?.startsWith('image/') ? (
           <img 
-            src={`data:${content.file_type};base64,${content.thumbnail_data || content.file_data}`}
+            src={content.thumb_url || content.url || `data:${content.file_type};base64,${content.thumbnail_data || content.file_data}`}
             alt={content.filename}
             className="w-full h-full object-cover"
             loading="lazy"
+            onError={(e) => {
+              // Fallback hierarchy: thumb_url -> url -> base64 data
+              if (content.url && e.currentTarget.src !== content.url) {
+                e.currentTarget.src = content.url;
+              } else if (content.thumbnail_data || content.file_data) {
+                e.currentTarget.src = `data:${content.file_type};base64,${content.thumbnail_data || content.file_data}`;
+              }
+            }}
           />
+        ) : content.file_type?.startsWith('video/') ? (
+          <div className="relative w-full h-full">
+            {content.thumb_url ? (
+              <img 
+                src={content.thumb_url}
+                alt={content.filename}
+                className="w-full h-full object-cover"
+                loading="lazy"
+                onError={(e) => {
+                  // Fallback to video icon if thumbnail fails
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.parentElement.querySelector('.video-icon').style.display = 'flex';
+                }}
+              />
+            ) : (
+              <div className="video-icon w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-100">
+                <div className="text-center">
+                  <FileText className="w-8 h-8 text-blue-600 mx-auto mb-1" />
+                  <span className="text-xs text-blue-800">VIDEO</span>
+                </div>
+              </div>
+            )}
+          </div>
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
             <FileText className="w-6 h-6 text-purple-600" />

@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-PHASE 1 - TESTS CRITIQUES BIBLIOTHÈQUE
-Testing content library synchronization after frontend URL fix
-Focus: Authentication, Content endpoints, Persistence, Badges/Comments
+Backend Test Script - Quick Photo Count Verification
+Test rapide pour vérifier le nombre de photos restantes après suppression via frontend
 """
 
 import requests
@@ -12,8 +11,8 @@ import time
 import uuid
 from datetime import datetime
 
-# Configuration - Using corrected frontend URL
-BACKEND_URL = "http://localhost:8001/api"
+# Configuration - Using production URL as specified in review request
+BACKEND_URL = "https://libfusion.preview.emergentagent.com/api"
 TEST_USER_EMAIL = "lperpere@yahoo.fr"
 TEST_USER_PASSWORD = "L@Reunion974!"
 

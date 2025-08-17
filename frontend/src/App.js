@@ -294,19 +294,13 @@ const ContentPreviewModal = ({
           <div className="mb-6">
             {content.file_type?.startsWith('image/') ? (
               <img 
-                src={
-                  content.url ? 
-                    content.url.replace('https://claire-marcus.com', 'https://libfusion.preview.emergentagent.com') :
-                    content.thumb_url ? 
-                      content.thumb_url.replace('https://claire-marcus.com', 'https://libfusion.preview.emergentagent.com') :
-                      `data:${content.file_type};base64,${content.file_data}`
-                }
+                src={content.url || content.thumb_url}
                 alt={content.filename}
                 className="w-full h-auto max-h-[60vh] object-contain rounded-2xl shadow-lg"
                 onError={(e) => {
                   // Fallback for modal images
-                  if (content.file_data && e.currentTarget.src !== `data:${content.file_type};base64,${content.file_data}`) {
-                    e.currentTarget.src = `data:${content.file_type};base64,${content.file_data}`;
+                  if (content.thumb_url && e.currentTarget.src !== content.thumb_url) {
+                    e.currentTarget.src = content.thumb_url;
                   }
                 }}
               />

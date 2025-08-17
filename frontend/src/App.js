@@ -5623,6 +5623,8 @@ function MainApp() {
         onClose={closeContentModal}
         content={selectedContent}
         onSaved={onContentSaved}
+        setPendingContent={setPendingContent}
+        refetchSilent={refetchPendingContentSilent}
       />
     </div>
   );

@@ -16,7 +16,7 @@ BACKEND_URL = "https://libfusion.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request
-TEST_EMAIL = "lperperes@yahoo.fr"
+TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 
 # MongoDB connection from backend .env

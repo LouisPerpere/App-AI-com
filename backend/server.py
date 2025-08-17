@@ -576,19 +576,17 @@ async def get_pending_content_mongo(
 ):
     """Get user's content with MongoDB persistence (VERSION FINALE selon ChatGPT)"""
     try:
-        media_collection = await get_media_collection()
+        media_collection = get_media_collection()
         
         # Filtre MongoDB par owner_id et non supprimé (selon ChatGPT)
         query = {"owner_id": user_id, "deleted": {"$ne": True}}
         
         # Count total
-        total = await media_collection.count_documents(query)
+        total = media_collection.count_documents(query)
         
         # Get paginated docs with stable sort (selon ChatGPT)
         cursor = media_collection.find(query).sort([("created_at", -1), ("_id", -1)]).skip(offset).limit(limit)
-        docs = []
-        async for doc in cursor:
-            docs.append(doc)
+        docs = list(cursor)
         
         # Build response (selon ChatGPT)
         content = []

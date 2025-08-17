@@ -518,7 +518,7 @@ async def get_pending_content(
     offset: int = 0,  # Offset for pagination
     user_id: str = Depends(get_current_user_id)
 ):
-    """Get user's uploaded content files with pagination to prevent crashes"""
+    """Get user's uploaded content files with pagination AND FILTERING BY USER"""
     try:
         uploads_dir = "uploads"
         if not os.path.exists(uploads_dir):
@@ -527,11 +527,27 @@ async def get_pending_content(
         # Sync descriptions with actual files before processing
         sync_descriptions_with_files()
         
+        # NOUVEAU: Charger la liste des fichiers supprimés par cet utilisateur
+        deleted_files_key = f"deleted_files_{user_id}"
+        deleted_files = set()
+        try:
+            if os.path.exists(f"{deleted_files_key}.json"):
+                with open(f"{deleted_files_key}.json", 'r') as f:
+                    deleted_files = set(json.load(f))
+        except:
+            pass
+        
         # List all files in uploads directory
         all_files = []
         for filename in os.listdir(uploads_dir):
             file_path = os.path.join(uploads_dir, filename)
             if os.path.isfile(file_path):
+                file_id = filename.split('.')[0]
+                
+                # CRITIQUE: Filtrer les fichiers supprimés par cet utilisateur
+                if file_id in deleted_files:
+                    continue
+                    
                 try:
                     file_stats = os.stat(file_path)
                     

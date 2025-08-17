@@ -6,13 +6,6 @@
   NODE_VERSION = "20"
   NPM_VERSION = "10"
 
-# Proxy uploads to backend API (ChatGPT fix for thumbnails)
-[[redirects]]
-  from = "/uploads/*"
-  to = "https://libfusion.preview.emergentagent.com/uploads/:splat"
-  status = 200
-  force = true
-
 # Redirects for SPA (Single Page Application)
 [[redirects]]
   from = "/*"

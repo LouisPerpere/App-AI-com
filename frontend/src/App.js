@@ -2456,7 +2456,7 @@ function MainApp() {
     }
   };
 
-  // Auto-save pour les descriptions SIMPLIFIÉ - backend seulement
+  // Auto-save pour les descriptions avec synchronisation complète état/ref
   const autoSaveContentDescription = async (contentId, description) => {
     if (!contentId) return;
     
@@ -2483,7 +2483,14 @@ function MainApp() {
         // Mettre à jour le contenu sélectionné
         setSelectedContent(prev => prev && prev.id === contentId ? { ...prev, description: description } : prev);
         
-        console.log('✅ Description auto-sauvegardée avec succès');
+        // CRUCIAL: Maintenir la synchronisation état React + ref après sauvegarde
+        setContentDescription(description);
+        if (isVirtualKeyboardDevice && contentDescriptionRef.current) {
+          contentDescriptionRef.current.value = description;
+          console.log('🔄 Ref synchronisé après sauvegarde:', description);
+        }
+        
+        console.log('✅ Description auto-sauvegardée avec succès et interface synchronisée');
       } else {
         console.error('❌ Erreur lors de l\'auto-sauvegarde de la description');
       }

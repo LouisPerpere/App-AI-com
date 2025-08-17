@@ -1217,7 +1217,7 @@ async def batch_upload_files(
                         "created_at": datetime.now(timezone.utc)
                     }
                     
-                    result = await media_collection.insert_one(doc)
+                    result = media_collection.insert_one(doc)
                     inserted_id = str(result.inserted_id)
                     
                     # Schedule thumbnail generation in background if available

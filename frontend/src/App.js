@@ -2394,6 +2394,13 @@ function MainApp() {
   };
 
   const closeContentModal = () => {
+    // Clean up localStorage for this content's description since modal is closing
+    if (selectedContent) {
+      const storageKey = `content_description_${selectedContent.id}`;
+      localStorage.removeItem(storageKey);
+      console.log('🧹 Cleaned up localStorage for content:', selectedContent.id);
+    }
+    
     setShowContentModal(false);
     setSelectedContent(null);
     setContentDescription('');

@@ -5517,7 +5517,7 @@ function MainApp() {
         onClose={closeContentModal}
         content={selectedContent}
         description={contentDescription}
-        onDescriptionChange={setContentDescription}
+        onDescriptionChange={(description) => handleContentDescriptionChange(selectedContent?.id, description)}
         onSaveDescription={saveContentDescription}
         onDeleteContent={deleteContent}
         isSavingDescription={isSavingDescription}

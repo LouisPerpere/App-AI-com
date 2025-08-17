@@ -2484,18 +2484,21 @@ function MainApp() {
     console.log('✅ Modal closed - selectedContent reset to null');
   };
 
-  // Fonction pour merger les changements dans la liste (selon ChatGPT)
+  // Fonction pour merger les changements dans la liste (VERSION EXACTE ChatGPT)
   const onContentSaved = (updated) => {
     if (updated.deleted) {
       // Suppression : retirer de la liste
       setPendingContent(prev => prev.filter(item => item.id !== updated.id));
       console.log('🗑️ Content removed from list:', updated.id);
     } else {
-      // Mise à jour : merger dans la liste
-      setPendingContent(prev => 
-        prev.map(item => item.id === updated.id ? { ...item, ...updated } : item)
+      // Optimiste : met à jour la carte visible tout de suite (selon ChatGPT)
+      setPendingContent(prev =>
+        prev.map(item => item.id === updated.id ? { ...item, description: updated.description } : item)
       );
       console.log('📝 Content updated in list:', updated.id);
+      
+      // Synchronisation serveur en patch (selon ChatGPT)
+      void refetchPendingContentSilent('patch');
     }
   };
 

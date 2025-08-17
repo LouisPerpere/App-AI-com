@@ -2518,16 +2518,12 @@ function MainApp() {
     }, 1000); // 1 seconde de debounce
   }, []);
 
-  // Gestionnaire de changement pour descriptions avec auto-save
+  // Gestionnaire de changement pour descriptions SIMPLIFIÉ - backend seulement
   const handleContentDescriptionChange = useCallback((contentId, description) => {
     // Mettre à jour immédiatement l'état local
     setContentDescription(description);
     
-    // Sauvegarder en local storage
-    const storageKey = `content_description_${contentId}`;
-    localStorage.setItem(storageKey, description);
-    
-    // Auto-save avec debounce
+    // Auto-save avec debounce (sans localStorage intermédiaire)
     debouncedSaveContentDescription(contentId, description);
     
     console.log(`📝 Description changée pour ${contentId}:`, description);

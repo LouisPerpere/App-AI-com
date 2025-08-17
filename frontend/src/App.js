@@ -2563,6 +2563,7 @@ function MainApp() {
     });
   }, []);
 
+  // Suppression multiple avec persistance locale (même système que business profile)  
   const deleteSelectedContent = useCallback(async () => {
     if (selectedContentIds.length === 0) return;
     
@@ -2576,13 +2577,35 @@ function MainApp() {
     let errorCount = 0;
     
     try {
-      // Delete files one by one
+      // Marquer tous comme supprimés localement d'abord
+      const deletedItemsKey = 'deleted_content_ids';
+      const deletedItems = JSON.parse(localStorage.getItem(deletedItemsKey) || '[]');
+      const newDeletedItems = [...deletedItems];
+      
+      selectedContentIds.forEach(id => {
+        if (!newDeletedItems.includes(id)) {
+          newDeletedItems.push(id);
+        }
+      });
+      localStorage.setItem(deletedItemsKey, JSON.stringify(newDeletedItems));
+      
+      // Supprimer de l'affichage immédiatement
+      setPendingContent(prev => prev.filter(file => !selectedContentIds.includes(file.id)));
+      
+      // Sortir du mode sélection immédiatement
+      exitSelectionMode();
+      
+      // Delete files one by one côté serveur
       for (const contentId of selectedContentIds) {
         try {
           await axios.delete(`${API}/content/${contentId}`, {
             headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
           });
           deletedCount++;
+          
+          // Nettoyer descriptions locales
+          localStorage.removeItem(`content_description_${contentId}`);
+          
           console.log(`✅ Permanently deleted content: ${contentId}`);
         } catch (error) {
           console.error(`Error deleting content ${contentId}:`, error);
@@ -2590,11 +2613,10 @@ function MainApp() {
         }
       }
       
-      // Exit selection mode first
-      exitSelectionMode();
-      
-      // Force reload content from backend to ensure consistency  
-      await loadPendingContent(true);
+      // Nettoyer le localStorage après succès
+      const finalDeletedItems = JSON.parse(localStorage.getItem(deletedItemsKey) || '[]');
+      const cleanedItems = finalDeletedItems.filter(id => !selectedContentIds.includes(id));
+      localStorage.setItem(deletedItemsKey, JSON.stringify(cleanedItems));
       
       // Show result message
       if (deletedCount > 0 && errorCount === 0) {
@@ -2603,11 +2625,15 @@ function MainApp() {
         toast.success(`${deletedCount} contenu${deletedCount > 1 ? 's' : ''} supprimé${deletedCount > 1 ? 's' : ''}, ${errorCount} erreur${errorCount > 1 ? 's' : ''}`);
       } else {
         toast.error('Erreur lors de la suppression des contenus');
+        // Restaurer le contenu en cas d'erreur complète
+        await loadPendingContent(true);
       }
       
     } catch (error) {
       console.error('Error in batch delete:', error);
       toast.error('Erreur lors de la suppression');
+      // Restaurer le contenu en cas d'erreur
+      await loadPendingContent(true);
     } finally {
       setIsDeletingMultiple(false);
     }

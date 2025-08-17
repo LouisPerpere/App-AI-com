@@ -1251,6 +1251,13 @@ if PAYMENTS_V2_AVAILABLE:
 else:
     print("⚠️ Payments endpoints not available - running without Stripe integration")
 
+# Include thumbnails router
+if THUMBNAILS_AVAILABLE:
+    app.include_router(thumbnails_router, prefix="/api")
+    print("✅ Thumbnails router included")
+else:
+    print("⚠️ Thumbnails router not available - running without thumbnail generation")
+
 # CORS middleware - FIX for cross-site authentication (ChatGPT solution)
 app.add_middleware(
     CORSMiddleware,

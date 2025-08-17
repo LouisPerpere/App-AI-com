@@ -2523,7 +2523,7 @@ function MainApp() {
     console.log(`📝 Description changée pour ${contentId}:`, description);
   }, [debouncedSaveContentDescription]);
 
-  // Legacy function avec fermeture automatique du modal
+  // Legacy function avec fermeture automatique du modal CORRIGÉE
   const saveContentDescription = async () => {
     if (!selectedContent) return;
     
@@ -2538,12 +2538,15 @@ function MainApp() {
       
       await autoSaveContentDescription(selectedContent.id, description);
       
-      // Fermer automatiquement le modal après sauvegarde réussie
-      setTimeout(() => {
-        closeContentModal();
-        console.log('✅ Commentaire sauvegardé, modal fermé automatiquement');
-      }, 500); // Délai pour voir la confirmation
+      toast.success('Commentaire sauvegardé !');
       
+      // Fermer automatiquement le modal après sauvegarde réussie
+      closeContentModal();
+      console.log('✅ Commentaire sauvegardé, modal fermé automatiquement');
+      
+    } catch (error) {
+      console.error('❌ Erreur sauvegarde commentaire:', error);
+      toast.error('Erreur lors de la sauvegarde');
     } finally {
       setIsSavingDescription(false);
     }

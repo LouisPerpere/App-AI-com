@@ -106,27 +106,14 @@ const ContentThumbnail = React.memo(({
       }`}>
         {content.file_type?.startsWith('image/') ? (
           <img 
-            src={
-              content.thumb_url ? 
-                content.thumb_url.replace('https://claire-marcus.com', 'https://libfusion.preview.emergentagent.com') :
-                content.url ? 
-                  content.url.replace('https://claire-marcus.com', 'https://libfusion.preview.emergentagent.com') :
-                  `data:${content.file_type};base64,${content.thumbnail_data || content.file_data}`
-            }
+            src={content.thumb_url || content.url}
             alt={content.filename}
             className="w-full h-full object-cover"
             loading="lazy"
             onError={(e) => {
-              // Fallback hierarchy: thumb_url -> url -> base64 data
-              const originalSrc = content.thumb_url || content.url;
-              const backendSrc = originalSrc ? originalSrc.replace('https://claire-marcus.com', 'https://libfusion.preview.emergentagent.com') : null;
-              
-              if (backendSrc && e.currentTarget.src !== backendSrc) {
-                e.currentTarget.src = backendSrc;
-              } else if (content.url && e.currentTarget.src !== content.url.replace('https://claire-marcus.com', 'https://libfusion.preview.emergentagent.com')) {
-                e.currentTarget.src = content.url.replace('https://claire-marcus.com', 'https://libfusion.preview.emergentagent.com');
-              } else if (content.thumbnail_data || content.file_data) {
-                e.currentTarget.src = `data:${content.file_type};base64,${content.thumbnail_data || content.file_data}`;
+              // Fallback hierarchy: thumb_url -> url
+              if (content.url && e.currentTarget.src !== content.url) {
+                e.currentTarget.src = content.url;
               }
             }}
           />
@@ -134,7 +121,7 @@ const ContentThumbnail = React.memo(({
           <div className="relative w-full h-full">
             {content.thumb_url ? (
               <img 
-                src={content.thumb_url.replace('https://claire-marcus.com', 'https://libfusion.preview.emergentagent.com')}
+                src={content.thumb_url}
                 alt={content.filename}
                 className="w-full h-full object-cover"
                 loading="lazy"

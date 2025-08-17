@@ -121,8 +121,7 @@ async def rebuild_missing_thumbs(
     user_id: str = Depends(get_current_user_id),
 ):
     """Rebuild missing thumbnails for user (backfill)"""
-    db = await get_database()
-    media_collection = db.media
+    media_collection = await get_media_collection()
     
     # backfill thumbnails manquantes de l'utilisateur
     q = {"owner_id": user_id, "deleted": {"$ne": True}, "$or": [{"thumb_url": None}, {"thumb_url": ""}]}

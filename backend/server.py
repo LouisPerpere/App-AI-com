@@ -1393,6 +1393,39 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@api_router.get("/content/thumbnails/test")
+async def test_thumbnails_access():
+    """Test endpoint to verify thumbnail generation and access"""
+    try:
+        import os
+        thumbs_dir = "uploads/thumbs"
+        
+        if not os.path.exists(thumbs_dir):
+            return {"error": "Thumbs directory not found", "path": thumbs_dir}
+        
+        # List all thumbnails
+        thumbs = []
+        for filename in os.listdir(thumbs_dir):
+            if filename.endswith(('.webp', '.jpg', '.png')):
+                file_path = os.path.join(thumbs_dir, filename)
+                file_size = os.path.getsize(file_path)
+                thumbs.append({
+                    "filename": filename,
+                    "size": file_size,
+                    "url": f"https://claire-marcus.com/uploads/thumbs/{filename}"
+                })
+        
+        return {
+            "message": "Thumbnail system test",
+            "thumbs_directory": thumbs_dir,
+            "thumbnail_count": len(thumbs),
+            "thumbnails": thumbs[:5],  # Show first 5
+            "total_thumbnails": len(thumbs)
+        }
+        
+    except Exception as e:
+        return {"error": f"Thumbnail test failed: {str(e)}"}
+
 # Servir les fichiers uploads/ en statique (selon ChatGPT)
 app.mount("/uploads", StaticFiles(directory="uploads", html=False), name="uploads")
 

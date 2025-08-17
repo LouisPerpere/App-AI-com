@@ -190,7 +190,7 @@ const ContentPreviewModal = ({
         onClose(); // Fermer APRÈS succès
         
         // 2) Refetch silencieux pour resynchroniser (selon ChatGPT)
-        void refetchPendingContentSilent();
+        void refetchSilent();
         
       } else {
         throw new Error('Erreur sauvegarde');

@@ -886,13 +886,9 @@ async def delete_content_file(file_id: str, user_id: str):
 
 # OLD MONGODB ROUTES REMOVED - Now using main /content/ routes with MongoDB primary and filesystem fallback
 
-@api_router.put("/content/{file_id}/description")
-async def update_content_description(
-    file_id: str, 
-    description_data: dict,
-    user_id: str = Depends(get_current_user_id)
-):
-    """Update description/context for a content file with persistent storage"""
+# Moved update_content_description function to be used as fallback only
+async def update_content_description(file_id: str, description_data: dict, user_id: str):
+    """Update description/context for a content file with persistent storage (LEGACY FALLBACK)"""
     try:
         description = description_data.get("description", "")
         

@@ -2438,6 +2438,10 @@ function MainApp() {
         // Mettre à jour le contenu sélectionné
         setSelectedContent(prev => prev && prev.id === contentId ? { ...prev, description: description } : prev);
         
+        // Clean up localStorage after successful save
+        const storageKey = `content_description_${contentId}`;
+        localStorage.removeItem(storageKey);
+        
         console.log('✅ Description auto-sauvegardée avec succès');
       } else {
         console.error('❌ Erreur lors de l\'auto-sauvegarde de la description');

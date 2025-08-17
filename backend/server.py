@@ -1244,7 +1244,7 @@ async def batch_upload_files(
                                 elif file.content_type.startswith('video/'):
                                     generate_video_thumb(file_path, thumb_path)
                                 
-                                thumb_url = f"https://claire-marcus.com/uploads/thumbs/" + os.path.basename(thumb_path)
+                                thumb_url = f"https://libfusion.preview.emergentagent.com/uploads/thumbs/" + os.path.basename(thumb_path)
                                 sync_db = get_sync_db()
                                 sync_db.media.update_one({"_id": ObjectId(inserted_id)}, {"$set": {"thumb_url": thumb_url}})
                                 print(f"✅ Thumbnail generated for {unique_filename}: {thumb_url}")

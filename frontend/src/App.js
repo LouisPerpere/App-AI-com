@@ -2492,6 +2492,7 @@ function MainApp() {
     }
   };
 
+  // Suppression avec persistance locale (même système que business profile)
   const deleteContent = async () => {
     if (!selectedContent) return;
     
@@ -2501,23 +2502,41 @@ function MainApp() {
     
     setIsDeletingContent(true);
     try {
+      // Marquer comme supprimé localement d'abord
+      const deletedItemsKey = 'deleted_content_ids';
+      const deletedItems = JSON.parse(localStorage.getItem(deletedItemsKey) || '[]');
+      if (!deletedItems.includes(selectedContent.id)) {
+        deletedItems.push(selectedContent.id);
+        localStorage.setItem(deletedItemsKey, JSON.stringify(deletedItems));
+      }
+      
+      // Supprimer de l'affichage immédiatement
+      setPendingContent(prev => prev.filter(file => file.id !== selectedContent.id));
+      
+      // Fermer la modal immédiatement
+      closeContentModal();
+      
+      // Supprimer côté serveur
       await axios.delete(`${API}/content/${selectedContent.id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
       });
       
+      // Nettoyer le localStorage après succès
+      const updatedDeletedItems = deletedItems.filter(id => id !== selectedContent.id);
+      localStorage.setItem(deletedItemsKey, JSON.stringify(updatedDeletedItems));
+      
+      // Nettoyer aussi la description locale
+      localStorage.removeItem(`content_description_${selectedContent.id}`);
+      
       toast.success('Contenu supprimé définitivement !');
-      
-      // Close modal first
-      closeContentModal();
-      
-      // Force reload content from backend to ensure consistency
-      await loadPendingContent(true);
       
       console.log(`✅ Permanently deleted content: ${selectedContent.id}`);
       
     } catch (error) {
       console.error('Error deleting content:', error);
       toast.error('Erreur lors de la suppression');
+      // Restaurer le contenu en cas d'erreur
+      await loadPendingContent(true);
     } finally {
       setIsDeletingContent(false);
     }

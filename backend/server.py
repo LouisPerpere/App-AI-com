@@ -50,6 +50,15 @@ except ImportError as e:
     print(f"⚠️ Modern payments module not available: {e}")
     PAYMENTS_V2_AVAILABLE = False
 
+# Import thumbnails module
+try:
+    from routes_thumbs import router as thumbnails_router
+    THUMBNAILS_AVAILABLE = True
+    print("✅ Thumbnails generation module loaded")
+except ImportError as e:
+    print(f"⚠️ Thumbnails module not available: {e}")
+    THUMBNAILS_AVAILABLE = False
+
 # FastAPI app
 app = FastAPI(title="Claire et Marcus API", version="1.0.0")
 

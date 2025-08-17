@@ -125,14 +125,12 @@ async def rebuild_missing_thumbs(
     user_id: str = Depends(get_current_user_id),
 ):
     """Rebuild missing thumbnails for user (backfill)"""
-    media_collection = await get_media_collection()
+    media_collection = get_sync_media_collection()
     
     # backfill thumbnails manquantes de l'utilisateur
     q = {"owner_id": user_id, "deleted": {"$ne": True}, "$or": [{"thumb_url": None}, {"thumb_url": ""}]}
     cursor = media_collection.find(q).sort([("created_at", -1)]).limit(limit)
-    docs = []
-    async for doc in cursor:
-        docs.append(doc)
+    docs = list(cursor)
 
     scheduled = 0
     for d in docs:

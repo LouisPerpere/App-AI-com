@@ -1458,6 +1458,9 @@ async def add_cache_headers(request, call_next):
 print("🔄 Synchronizing content descriptions with files...")
 sync_descriptions_with_files()
 
+# Mount static files AFTER all routes are defined (ChatGPT solution)
+app.mount("/uploads", StaticFiles(directory="uploads", html=False), name="uploads")
+
 # For local development
 if __name__ == "__main__":
     import uvicorn

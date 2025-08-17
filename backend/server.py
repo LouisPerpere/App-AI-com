@@ -624,28 +624,38 @@ async def put_description_mongo(
 ):
     """Update description with MongoDB (VERSION FINALE selon ChatGPT)"""
     try:
-        from bson import ObjectId
         media_collection = await get_media_collection()
         
+        # Parse ID (ObjectId or UUID fallback)
+        id_filter = parse_any_id(file_id)
+        query = {**id_filter, "owner_id": user_id, "deleted": {"$ne": True}}
+        
         result = await media_collection.find_one_and_update(
-            {"_id": ObjectId(file_id), "owner_id": user_id, "deleted": {"$ne": True}},
+            query,
             {"$set": {"description": body.description}},
             return_document=True
         )
         
         if not result:
+            print(f"❌ Document not found for file_id: {file_id}, user_id: {user_id}")
             raise HTTPException(status_code=404, detail="Fichier non trouvé")
         
+        print(f"✅ Description updated for file: {result.get('filename', 'unknown')}")
         return {
             "message": "Description mise à jour avec succès", 
-            "file_id": file_id,
+            "file_id": str(result["_id"]),  # Always return MongoDB ObjectId
             "description": result.get("description", "")
         }
     
+    except HTTPException:
+        raise
     except Exception as e:
-        print(f"❌ MongoDB description update failed, using filesystem fallback: {e}")
+        print(f"❌ MongoDB description update failed: {e}")
         # Fallback vers système existant
-        return await update_content_description(file_id, {"description": body.description}, user_id)
+        try:
+            return await update_content_description(file_id, {"description": body.description}, user_id)
+        except:
+            raise HTTPException(status_code=500, detail="Erreur lors de la mise à jour")
 
 
 @api_router.delete("/content/{file_id}")

@@ -663,14 +663,14 @@ async def delete_media_mongo(
 ):
     """Delete content with MongoDB (VERSION FINALE selon ChatGPT)"""
     try:
-        media_collection = await get_media_collection()
+        media_collection = get_media_collection()
         
         # Parse ID (ObjectId or UUID fallback)
         id_filter = parse_any_id(file_id)
         query = {**id_filter, "owner_id": user_id}
         
         # Find document first to get filename for logging
-        doc = await media_collection.find_one(query)
+        doc = media_collection.find_one(query)
         if not doc:
             print(f"❌ Document not found for file_id: {file_id}, user_id: {user_id}")
             raise HTTPException(status_code=404, detail="Fichier non trouvé")
@@ -679,7 +679,7 @@ async def delete_media_mongo(
         mongo_id = str(doc["_id"])
         
         # Delete from MongoDB (hard delete)
-        delete_result = await media_collection.delete_one({"_id": doc["_id"], "owner_id": user_id})
+        delete_result = media_collection.delete_one({"_id": doc["_id"], "owner_id": user_id})
         
         if delete_result.deleted_count != 1:
             print(f"❌ Failed to delete from MongoDB: deleted_count = {delete_result.deleted_count}")

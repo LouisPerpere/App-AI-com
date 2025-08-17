@@ -217,21 +217,23 @@ const ContentPreviewModal = ({
       });
 
       if (response.ok) {
-        // Optimiste immédiat (selon ChatGPT)
+        // Optimiste immédiat en UI (selon ChatGPT)
         setPendingContent(prev => prev.filter(item => item.id !== content.id));
         
-        // Ajoute à la liste locale des supprimés (selon ChatGPT)
+        // Mémorise en local (selon ChatGPT)
         const key = 'deleted_content_ids';
-        const deleted = new Set(JSON.parse(localStorage.getItem(key) || '[]'));
-        deleted.add(content.id);
-        localStorage.setItem(key, JSON.stringify([...deleted]));
+        const setDel = new Set(JSON.parse(localStorage.getItem(key) || '[]'));
+        setDel.add(content.id);
+        localStorage.setItem(key, JSON.stringify([...setDel]));
         
         toast.success('Contenu supprimé définitivement !');
-        onSaved?.({ id: content.id, deleted: true }); // Signal de suppression
-        onClose(); // Fermer après suppression
+        onSaved?.({ id: content.id, deleted: true });
+        onClose();
         
-        // Recalage serveur (selon ChatGPT)
-        void refetchSilent('replace');
+        // RESET pagination serveur et recharge la 1ʳᵉ page (selon ChatGPT)
+        setServerFetchedCount(0);
+        await loadPendingContent(true /* reset */, false /* keep cache */);
+        
       } else {
         throw new Error('Erreur suppression');
       }

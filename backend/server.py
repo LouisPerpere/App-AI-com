@@ -10,6 +10,10 @@ import asyncio
 import json
 from PIL import Image
 import io
+import mimetypes
+
+# Ensure proper MIME type for WEBP images (ChatGPT fix)
+mimetypes.add_type('image/webp', '.webp')
 
 # Import database
 from database import get_database, DatabaseManager

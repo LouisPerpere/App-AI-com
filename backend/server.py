@@ -884,75 +884,7 @@ async def delete_content_file(file_id: str, user_id: str):
         print(f"❌ Error deleting file: {e}")
         raise HTTPException(status_code=500, detail=f"Erreur lors de la suppression: {str(e)}")
 
-# NOUVELLES ROUTES MONGODB selon ChatGPT
-@api_router.put("/content/mongo/{file_id}/description")
-async def update_description_mongo(
-    file_id: str, 
-    request: dict,
-    user_id: str = Depends(get_current_user_id)
-):
-    """Update content description with MongoDB (selon ChatGPT)"""
-    try:
-        from bson import ObjectId
-        media_collection = await get_media_collection()
-        
-        description = (request.get("description", "") or "")[:2000]
-        
-        # Update in MongoDB with owner verification
-        result = await media_collection.find_one_and_update(
-            {"_id": ObjectId(file_id), "owner_id": user_id, "deleted": {"$ne": True}},
-            {"$set": {"description": description}},
-            return_document=True
-        )
-        
-        if not result:
-            raise HTTPException(status_code=404, detail="Fichier non trouvé")
-        
-        return {
-            "message": "Description mise à jour avec succès",
-            "file_id": file_id,
-            "description": result.get("description", "")
-        }
-    
-    except Exception as e:
-        print(f"❌ MongoDB description update failed: {e}")
-        # Fallback vers système existant
-        return await update_content_description(file_id, {"description": request.get("description", "")}, user_id)
-
-@api_router.delete("/content/mongo/{file_id}")
-async def delete_content_mongo(
-    file_id: str,
-    user_id: str = Depends(get_current_user_id)
-):
-    """Delete content with MongoDB (selon ChatGPT)"""
-    try:
-        from bson import ObjectId
-        media_collection = await get_media_collection()
-        
-        # Find document first
-        doc = await media_collection.find_one({"_id": ObjectId(file_id), "owner_id": user_id})
-        if not doc:
-            raise HTTPException(status_code=404, detail="Fichier non trouvé")
-        
-        # Delete from MongoDB
-        await media_collection.delete_one({"_id": ObjectId(file_id), "owner_id": user_id})
-        
-        # Optionally delete physical file too
-        try:
-            filename = doc.get("filename")
-            if filename:
-                file_path = os.path.join("uploads", filename)
-                if os.path.exists(file_path):
-                    os.remove(file_path)
-        except Exception as e:
-            print(f"⚠️ Failed to delete physical file: {e}")
-        
-        return Response(status_code=204)
-    
-    except Exception as e:
-        print(f"❌ MongoDB deletion failed: {e}")
-        # Fallback vers système existant
-        return await delete_content_file(file_id, user_id)
+# OLD MONGODB ROUTES REMOVED - Now using main /content/ routes with MongoDB primary and filesystem fallback
 
 @api_router.put("/content/{file_id}/description")
 async def update_content_description(

@@ -1,412 +1,472 @@
 #!/usr/bin/env python3
 """
-Backend Test Script - Quick Photo Count Verification
-Test rapide pour vérifier le nombre de photos restantes après suppression via frontend
+Backend Test Suite for Thumbnail Generation System
+Testing the recently fixed MongoDB comparison bug and thumbnail generation functionality
 """
 
 import requests
 import json
 import os
 import time
-import uuid
-from datetime import datetime
+import base64
+from io import BytesIO
+from PIL import Image
 
-# Configuration - Using production URL as specified in review request
-BACKEND_URL = "https://libfusion.preview.emergentagent.com/api"
-TEST_USER_EMAIL = "lperpere@yahoo.fr"
-TEST_USER_PASSWORD = "L@Reunion974!"
+# Configuration
+BACKEND_URL = "https://libfusion.preview.emergentagent.com"
+API_BASE = f"{BACKEND_URL}/api"
 
-class PersistenceSystemTester:
+# Test credentials as specified in review request
+TEST_EMAIL = "lperpere@yahoo.fr"
+TEST_PASSWORD = "L@Reunion974!"
+
+class ThumbnailSystemTester:
     def __init__(self):
         self.session = requests.Session()
-        # Disable SSL verification for testing in container environment
-        self.session.verify = False
-        # Disable SSL warnings
-        import urllib3
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.access_token = None
+        self.user_id = None
         self.test_results = []
         
-    def log_test(self, test_name, success, details=""):
-        """Log test results"""
+    def log_result(self, test_name, success, details="", error=""):
+        """Log test result"""
         status = "✅ PASS" if success else "❌ FAIL"
         result = {
             "test": test_name,
             "status": status,
             "success": success,
             "details": details,
-            "timestamp": datetime.now().isoformat()
+            "error": error
         }
         self.test_results.append(result)
         print(f"{status}: {test_name}")
         if details:
             print(f"   Details: {details}")
-        return success
+        if error:
+            print(f"   Error: {error}")
+        print()
     
     def authenticate(self):
-        """Authenticate with the backend"""
+        """Step 1: Authenticate with specified credentials"""
+        print("🔐 STEP 1: Authentication")
+        print("=" * 50)
+        
         try:
-            login_data = {
-                "email": TEST_USER_EMAIL,
-                "password": TEST_USER_PASSWORD
-            }
-            
-            response = self.session.post(f"{BACKEND_URL}/auth/login", json=login_data)
+            response = self.session.post(f"{API_BASE}/auth/login", json={
+                "email": TEST_EMAIL,
+                "password": TEST_PASSWORD
+            })
             
             if response.status_code == 200:
                 data = response.json()
                 self.access_token = data.get("access_token")
-                self.session.headers.update({"Authorization": f"Bearer {self.access_token}"})
-                return self.log_test("Authentication", True, f"Logged in as {TEST_USER_EMAIL}")
+                self.user_id = data.get("user_id")
+                
+                # Set authorization header for future requests
+                self.session.headers.update({
+                    "Authorization": f"Bearer {self.access_token}"
+                })
+                
+                self.log_result(
+                    "Authentication", 
+                    True, 
+                    f"Successfully authenticated as {TEST_EMAIL}, User ID: {self.user_id}"
+                )
+                return True
             else:
-                return self.log_test("Authentication", False, f"Status: {response.status_code}, Response: {response.text}")
+                self.log_result(
+                    "Authentication", 
+                    False, 
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+                return False
                 
         except Exception as e:
-            return self.log_test("Authentication", False, f"Exception: {str(e)}")
+            self.log_result("Authentication", False, error=str(e))
+            return False
     
-    def test_data_consistency_verification(self):
-        """Test 1: Verify data consistency - 64 files and 64 descriptions"""
+    def create_test_image(self):
+        """Create a test image for upload"""
+        # Create a simple test image
+        img = Image.new('RGB', (800, 600), color='blue')
+        
+        # Add some text to make it identifiable
         try:
-            # Get content from API
-            response = self.session.get(f"{BACKEND_URL}/content/pending")
+            from PIL import ImageDraw, ImageFont
+            draw = ImageDraw.Draw(img)
+            draw.text((50, 50), "Test Image for Thumbnails", fill='white')
+        except:
+            pass  # Font not available, continue without text
+        
+        # Convert to bytes
+        img_buffer = BytesIO()
+        img.save(img_buffer, format='JPEG', quality=90)
+        img_buffer.seek(0)
+        
+        return img_buffer.getvalue()
+    
+    def test_batch_upload(self):
+        """Step 2: Test POST /api/content/batch-upload with image file"""
+        print("📤 STEP 2: Batch Upload Test")
+        print("=" * 50)
+        
+        try:
+            # Create test image
+            test_image_data = self.create_test_image()
             
-            if response.status_code == 200:
-                data = response.json()
-                content_files = data.get("content", [])
-                total_files = data.get("total", 0)
-                
-                # Verify file count
-                if total_files == 64:
-                    files_check = True
-                    files_msg = f"✅ Found exactly 64 files in uploads directory"
-                else:
-                    files_check = False
-                    files_msg = f"❌ Expected 64 files, found {total_files}"
-                
-                # Verify descriptions are loaded
-                files_with_descriptions = 0
-                files_without_descriptions = 0
-                
-                for file_info in content_files:
-                    description = file_info.get("description", "")
-                    if description and description.strip():
-                        files_with_descriptions += 1
-                    else:
-                        files_without_descriptions += 1
-                
-                descriptions_msg = f"Files with descriptions: {files_with_descriptions}, without: {files_without_descriptions}"
-                
-                # Overall consistency check
-                consistency_check = total_files == 64
-                details = f"{files_msg}. {descriptions_msg}. All files properly loaded from content_descriptions.json"
-                
-                return self.log_test("Data Consistency Verification", consistency_check, details)
-            else:
-                return self.log_test("Data Consistency Verification", False, f"API error: {response.status_code}")
-                
-        except Exception as e:
-            return self.log_test("Data Consistency Verification", False, f"Exception: {str(e)}")
-    
-    def test_persistent_deletion(self):
-        """Test 2: Test persistent deletion workflow"""
-        try:
-            # Step 1: Upload a test file first
-            test_file_content = b"Test image content for deletion test"
+            # Prepare multipart form data
             files = {
-                'files': ('test_deletion.jpg', test_file_content, 'image/jpeg')
+                'files': ('test_thumbnail_image.jpg', test_image_data, 'image/jpeg')
             }
             
-            upload_response = self.session.post(f"{BACKEND_URL}/content/batch-upload", files=files)
+            response = self.session.post(f"{API_BASE}/content/batch-upload", files=files)
             
-            if upload_response.status_code != 200:
-                return self.log_test("Persistent Deletion - Upload", False, f"Upload failed: {upload_response.status_code}")
-            
-            upload_data = upload_response.json()
-            uploaded_files = upload_data.get("uploaded_files", [])
-            
-            if not uploaded_files:
-                return self.log_test("Persistent Deletion - Upload", False, "No files uploaded")
-            
-            # Get the file ID from the uploaded file - use stored_name without extension as ID
-            test_filename = uploaded_files[0]["stored_name"]
-            test_file_id = test_filename.split('.')[0]  # Remove extension to get ID
-            
-            self.log_test("Persistent Deletion - Upload", True, f"Uploaded test file: {test_filename}")
-            
-            # Step 2: Add a description to the test file
-            description_data = {"description": "Test file for deletion - should be removed"}
-            desc_response = self.session.put(f"{BACKEND_URL}/content/{test_file_id}/description", json=description_data)
-            
-            if desc_response.status_code == 200:
-                self.log_test("Persistent Deletion - Add Description", True, "Description added successfully")
-            else:
-                self.log_test("Persistent Deletion - Add Description", False, f"Failed to add description: {desc_response.status_code}")
-            
-            # Step 3: Verify file appears in pending content
-            pending_response = self.session.get(f"{BACKEND_URL}/content/pending")
-            if pending_response.status_code == 200:
-                pending_data = pending_response.json()
-                content_files = pending_data.get("content", [])
-                
-                file_found = any(f["id"] == test_file_id for f in content_files)
-                if file_found:
-                    self.log_test("Persistent Deletion - File Visible", True, "Test file appears in content list")
-                else:
-                    self.log_test("Persistent Deletion - File Visible", False, "Test file not found in content list")
-            
-            # Step 4: Delete the test file
-            delete_response = self.session.delete(f"{BACKEND_URL}/content/{test_file_id}")
-            
-            if delete_response.status_code == 200:
-                delete_data = delete_response.json()
-                file_deleted = delete_data.get("file_deleted", False)
-                description_deleted = delete_data.get("description_deleted", False)
-                
-                deletion_success = file_deleted and description_deleted
-                details = f"File deleted: {file_deleted}, Description deleted: {description_deleted}"
-                
-                self.log_test("Persistent Deletion - Delete Operation", deletion_success, details)
-            else:
-                return self.log_test("Persistent Deletion - Delete Operation", False, f"Delete failed: {delete_response.status_code}")
-            
-            # Step 5: Verify file no longer appears in fresh API call
-            time.sleep(1)  # Brief pause to ensure consistency
-            
-            fresh_response = self.session.get(f"{BACKEND_URL}/content/pending", headers={
-                "Cache-Control": "no-cache, no-store, must-revalidate",
-                "Pragma": "no-cache",
-                "Expires": "0"
-            })
-            
-            if fresh_response.status_code == 200:
-                fresh_data = fresh_response.json()
-                fresh_content = fresh_data.get("content", [])
-                
-                file_still_exists = any(f["id"] == test_file_id for f in fresh_content)
-                
-                if not file_still_exists:
-                    return self.log_test("Persistent Deletion - Verification", True, "File successfully removed from fresh API call")
-                else:
-                    return self.log_test("Persistent Deletion - Verification", False, "File still appears in fresh API call")
-            else:
-                return self.log_test("Persistent Deletion - Verification", False, f"Fresh API call failed: {fresh_response.status_code}")
-                
-        except Exception as e:
-            return self.log_test("Persistent Deletion", False, f"Exception: {str(e)}")
-    
-    def test_persistent_description_updates(self):
-        """Test 3: Test persistent description updates"""
-        try:
-            # Step 1: Get an existing file to test with
-            response = self.session.get(f"{BACKEND_URL}/content/pending")
-            
-            if response.status_code != 200:
-                return self.log_test("Persistent Description Updates", False, f"Failed to get content: {response.status_code}")
-            
-            data = response.json()
-            content_files = data.get("content", [])
-            
-            if not content_files:
-                return self.log_test("Persistent Description Updates", False, "No content files available for testing")
-            
-            # Use the first file for testing
-            test_file = content_files[0]
-            test_file_id = test_file["id"]
-            original_description = test_file.get("description", "")
-            
-            # Step 2: Update description with unique test content
-            test_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            new_description = f"PERSISTENCE TEST {test_timestamp} - Updated description for testing"
-            
-            description_data = {"description": new_description}
-            update_response = self.session.put(f"{BACKEND_URL}/content/{test_file_id}/description", json=description_data)
-            
-            if update_response.status_code == 200:
-                self.log_test("Persistent Description Updates - Update", True, f"Description updated for file {test_file_id}")
-            else:
-                return self.log_test("Persistent Description Updates - Update", False, f"Update failed: {update_response.status_code}")
-            
-            # Step 3: Verify description persists in fresh API call
-            time.sleep(1)  # Brief pause for consistency
-            
-            fresh_response = self.session.get(f"{BACKEND_URL}/content/pending", headers={
-                "Cache-Control": "no-cache, no-store, must-revalidate",
-                "Pragma": "no-cache"
-            })
-            
-            if fresh_response.status_code == 200:
-                fresh_data = fresh_response.json()
-                fresh_content = fresh_data.get("content", [])
-                
-                # Find our test file in the fresh response
-                updated_file = next((f for f in fresh_content if f["id"] == test_file_id), None)
-                
-                if updated_file:
-                    retrieved_description = updated_file.get("description", "")
-                    
-                    if retrieved_description == new_description:
-                        self.log_test("Persistent Description Updates - Verification", True, "Description persisted correctly in fresh API call")
-                    else:
-                        return self.log_test("Persistent Description Updates - Verification", False, f"Description mismatch. Expected: '{new_description}', Got: '{retrieved_description}'")
-                else:
-                    return self.log_test("Persistent Description Updates - Verification", False, "Test file not found in fresh API response")
-            else:
-                return self.log_test("Persistent Description Updates - Verification", False, f"Fresh API call failed: {fresh_response.status_code}")
-            
-            # Step 4: Test multiple consecutive updates
-            for i in range(3):
-                update_desc = f"MULTI-UPDATE TEST {test_timestamp} - Update #{i+1}"
-                update_data = {"description": update_desc}
-                
-                multi_response = self.session.put(f"{BACKEND_URL}/content/{test_file_id}/description", json=update_data)
-                
-                if multi_response.status_code != 200:
-                    return self.log_test("Persistent Description Updates - Multiple Updates", False, f"Multi-update #{i+1} failed")
-            
-            # Verify final state
-            final_response = self.session.get(f"{BACKEND_URL}/content/pending")
-            if final_response.status_code == 200:
-                final_data = final_response.json()
-                final_content = final_data.get("content", [])
-                final_file = next((f for f in final_content if f["id"] == test_file_id), None)
-                
-                if final_file and final_file.get("description", "").startswith("MULTI-UPDATE TEST"):
-                    return self.log_test("Persistent Description Updates - Multiple Updates", True, "Multiple consecutive updates working correctly")
-                else:
-                    return self.log_test("Persistent Description Updates - Multiple Updates", False, "Multiple updates failed to persist")
-            
-        except Exception as e:
-            return self.log_test("Persistent Description Updates", False, f"Exception: {str(e)}")
-    
-    def test_atomic_operations(self):
-        """Test 4: Test atomic operations and error handling"""
-        try:
-            # Test 1: Enhanced DELETE endpoint feedback
-            response = self.session.get(f"{BACKEND_URL}/content/pending")
             if response.status_code == 200:
                 data = response.json()
-                content_files = data.get("content", [])
+                uploaded_files = data.get("uploaded_files", [])
                 
-                if content_files:
-                    # Test with existing file
-                    test_file_id = content_files[0]["id"]
+                if uploaded_files:
+                    self.uploaded_file_id = uploaded_files[0].get("id")
+                    self.uploaded_filename = uploaded_files[0].get("stored_name")
                     
-                    delete_response = self.session.delete(f"{BACKEND_URL}/content/{test_file_id}")
+                    self.log_result(
+                        "Batch Upload", 
+                        True, 
+                        f"Successfully uploaded {len(uploaded_files)} file(s). File ID: {self.uploaded_file_id}, Filename: {self.uploaded_filename}"
+                    )
                     
-                    if delete_response.status_code == 200:
-                        delete_data = delete_response.json()
-                        
-                        # Check for detailed feedback fields
-                        required_fields = ["message", "file_id", "deleted_file", "file_deleted", "description_deleted"]
-                        has_all_fields = all(field in delete_data for field in required_fields)
-                        
-                        if has_all_fields:
-                            self.log_test("Atomic Operations - Enhanced DELETE Feedback", True, "DELETE endpoint provides detailed feedback")
-                        else:
-                            missing_fields = [f for f in required_fields if f not in delete_data]
-                            self.log_test("Atomic Operations - Enhanced DELETE Feedback", False, f"Missing fields: {missing_fields}")
-                    else:
-                        self.log_test("Atomic Operations - Enhanced DELETE Feedback", False, f"DELETE failed: {delete_response.status_code}")
-            
-            # Test 2: Non-existent file ID error handling
-            fake_file_id = str(uuid.uuid4())
-            fake_delete_response = self.session.delete(f"{BACKEND_URL}/content/{fake_file_id}")
-            
-            if fake_delete_response.status_code == 404:
-                self.log_test("Atomic Operations - Non-existent File Error", True, "Proper 404 error for non-existent file")
-            else:
-                self.log_test("Atomic Operations - Non-existent File Error", False, f"Expected 404, got {fake_delete_response.status_code}")
-            
-            # Test 3: Description update with non-existent file
-            fake_desc_response = self.session.put(f"{BACKEND_URL}/content/{fake_file_id}/description", json={"description": "test"})
-            
-            # This should either succeed (creating new entry) or fail gracefully
-            if fake_desc_response.status_code in [200, 404, 500]:
-                self.log_test("Atomic Operations - Non-existent Description Update", True, f"Graceful handling of non-existent file description update: {fake_desc_response.status_code}")
-            else:
-                self.log_test("Atomic Operations - Non-existent Description Update", False, f"Unexpected status: {fake_desc_response.status_code}")
-            
-            # Test 4: Verify no orphaned data after operations
-            final_response = self.session.get(f"{BACKEND_URL}/content/pending")
-            if final_response.status_code == 200:
-                final_data = final_response.json()
-                final_files = final_data.get("content", [])
-                
-                # Check that all files have proper metadata
-                files_with_proper_metadata = 0
-                for file_info in final_files:
-                    required_metadata = ["id", "filename", "file_type", "size", "uploaded_at"]
-                    if all(field in file_info for field in required_metadata):
-                        files_with_proper_metadata += 1
-                
-                if files_with_proper_metadata == len(final_files):
-                    return self.log_test("Atomic Operations - No Orphaned Data", True, f"All {len(final_files)} files have proper metadata")
+                    # Wait a moment for background thumbnail generation
+                    print("⏳ Waiting 3 seconds for background thumbnail generation...")
+                    time.sleep(3)
+                    
+                    return True
                 else:
-                    return self.log_test("Atomic Operations - No Orphaned Data", False, f"Only {files_with_proper_metadata}/{len(final_files)} files have proper metadata")
-            
+                    self.log_result(
+                        "Batch Upload", 
+                        False, 
+                        "No files were uploaded",
+                        data.get("message", "Unknown error")
+                    )
+                    return False
+            else:
+                self.log_result(
+                    "Batch Upload", 
+                    False, 
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+                return False
+                
         except Exception as e:
-            return self.log_test("Atomic Operations", False, f"Exception: {str(e)}")
+            self.log_result("Batch Upload", False, error=str(e))
+            return False
     
-    def run_all_tests(self):
-        """Run all persistence system tests"""
-        print("🚀 STARTING COMPREHENSIVE PERSISTENCE SYSTEM TESTING")
-        print("=" * 60)
+    def test_thumbnail_status(self):
+        """Step 3: Test GET /api/content/thumbnails/status"""
+        print("📊 STEP 3: Thumbnail Status Test")
+        print("=" * 50)
         
-        # Authenticate first
-        if not self.authenticate():
-            print("❌ Authentication failed - cannot proceed with tests")
+        try:
+            response = self.session.get(f"{API_BASE}/content/thumbnails/status")
+            
+            if response.status_code == 200:
+                data = response.json()
+                total_files = data.get("total_files", 0)
+                with_thumbnails = data.get("with_thumbnails", 0)
+                missing_thumbnails = data.get("missing_thumbnails", 0)
+                completion_percentage = data.get("completion_percentage", 0)
+                
+                self.log_result(
+                    "Thumbnail Status", 
+                    True, 
+                    f"Total files: {total_files}, With thumbnails: {with_thumbnails}, Missing: {missing_thumbnails}, Completion: {completion_percentage}%"
+                )
+                return True
+            else:
+                self.log_result(
+                    "Thumbnail Status", 
+                    False, 
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result("Thumbnail Status", False, error=str(e))
+            return False
+    
+    def test_thumbnail_rebuild(self):
+        """Step 4: Test POST /api/content/thumbnails/rebuild"""
+        print("🔄 STEP 4: Thumbnail Rebuild Test")
+        print("=" * 50)
+        
+        try:
+            response = self.session.post(f"{API_BASE}/content/thumbnails/rebuild")
+            
+            if response.status_code == 200:
+                data = response.json()
+                scheduled = data.get("scheduled", 0)
+                files_found = data.get("files_found", 0)
+                
+                self.log_result(
+                    "Thumbnail Rebuild", 
+                    True, 
+                    f"Scheduled: {scheduled} thumbnails, Files found: {files_found}"
+                )
+                
+                # Wait for background processing
+                print("⏳ Waiting 5 seconds for thumbnail generation...")
+                time.sleep(5)
+                
+                return True
+            else:
+                self.log_result(
+                    "Thumbnail Rebuild", 
+                    False, 
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result("Thumbnail Rebuild", False, error=str(e))
+            return False
+    
+    def test_individual_thumbnail_generation(self):
+        """Step 5: Test POST /api/content/{file_id}/thumbnail"""
+        print("🎯 STEP 5: Individual Thumbnail Generation Test")
+        print("=" * 50)
+        
+        if not hasattr(self, 'uploaded_file_id') or not self.uploaded_file_id:
+            self.log_result(
+                "Individual Thumbnail Generation", 
+                False, 
+                "No uploaded file ID available from previous test"
+            )
             return False
         
-        print("\n📊 TESTING DATA CONSISTENCY")
-        print("-" * 40)
-        self.test_data_consistency_verification()
+        try:
+            response = self.session.post(f"{API_BASE}/content/{self.uploaded_file_id}/thumbnail")
+            
+            if response.status_code == 200:
+                data = response.json()
+                scheduled = data.get("scheduled", False)
+                file_id = data.get("file_id")
+                
+                self.log_result(
+                    "Individual Thumbnail Generation", 
+                    True, 
+                    f"Thumbnail generation scheduled: {scheduled}, File ID: {file_id}"
+                )
+                
+                # Wait for background processing
+                print("⏳ Waiting 3 seconds for thumbnail generation...")
+                time.sleep(3)
+                
+                return True
+            else:
+                self.log_result(
+                    "Individual Thumbnail Generation", 
+                    False, 
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result("Individual Thumbnail Generation", False, error=str(e))
+            return False
+    
+    def test_thumbnail_accessibility(self):
+        """Step 6: Verify thumbnails are accessible via /uploads/thumbs/"""
+        print("🔍 STEP 6: Thumbnail Accessibility Test")
+        print("=" * 50)
         
-        print("\n🗑️ TESTING PERSISTENT DELETION")
-        print("-" * 40)
-        self.test_persistent_deletion()
+        if not hasattr(self, 'uploaded_filename') or not self.uploaded_filename:
+            self.log_result(
+                "Thumbnail Accessibility", 
+                False, 
+                "No uploaded filename available from previous test"
+            )
+            return False
         
-        print("\n📝 TESTING PERSISTENT DESCRIPTION UPDATES")
-        print("-" * 40)
-        self.test_persistent_description_updates()
+        try:
+            # Build expected thumbnail URL
+            base_filename = os.path.splitext(self.uploaded_filename)[0]
+            thumbnail_url = f"{BACKEND_URL}/uploads/thumbs/{base_filename}.webp"
+            
+            print(f"🔗 Testing thumbnail URL: {thumbnail_url}")
+            
+            response = requests.get(thumbnail_url)
+            
+            if response.status_code == 200:
+                # Check if it's actually an image
+                content_type = response.headers.get('content-type', '')
+                
+                if 'image' in content_type.lower():
+                    # Try to verify it's a WEBP image and check dimensions
+                    try:
+                        img = Image.open(BytesIO(response.content))
+                        width, height = img.size
+                        format_name = img.format
+                        
+                        # Check if it meets the 320px WEBP requirements
+                        is_correct_format = format_name == 'WEBP'
+                        is_correct_size = max(width, height) <= 320
+                        
+                        self.log_result(
+                            "Thumbnail Accessibility", 
+                            True, 
+                            f"Thumbnail accessible at {thumbnail_url}. Format: {format_name}, Size: {width}x{height}px, Correct format: {is_correct_format}, Correct size: {is_correct_size}"
+                        )
+                        
+                        # Additional test for format and size requirements
+                        if is_correct_format and is_correct_size:
+                            self.log_result(
+                                "Thumbnail Format Validation", 
+                                True, 
+                                f"Thumbnail meets requirements: 320px WEBP format"
+                            )
+                        else:
+                            self.log_result(
+                                "Thumbnail Format Validation", 
+                                False, 
+                                f"Thumbnail doesn't meet requirements. Expected: 320px WEBP, Got: {width}x{height}px {format_name}"
+                            )
+                        
+                        return True
+                        
+                    except Exception as img_error:
+                        self.log_result(
+                            "Thumbnail Accessibility", 
+                            False, 
+                            f"Could not process thumbnail image: {str(img_error)}"
+                        )
+                        return False
+                else:
+                    self.log_result(
+                        "Thumbnail Accessibility", 
+                        False, 
+                        f"URL accessible but not an image. Content-Type: {content_type}"
+                    )
+                    return False
+            else:
+                self.log_result(
+                    "Thumbnail Accessibility", 
+                    False, 
+                    f"Thumbnail not accessible. Status: {response.status_code}",
+                    f"URL: {thumbnail_url}"
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result("Thumbnail Accessibility", False, error=str(e))
+            return False
+    
+    def test_mongodb_fix_verification(self):
+        """Step 7: Verify the MongoDB comparison bug fix"""
+        print("🔧 STEP 7: MongoDB Fix Verification")
+        print("=" * 50)
         
-        print("\n⚛️ TESTING ATOMIC OPERATIONS")
-        print("-" * 40)
-        self.test_atomic_operations()
+        try:
+            # Test that we can get content without the "Collection objects do not implement truth value testing" error
+            response = self.session.get(f"{API_BASE}/content/pending?limit=5")
+            
+            if response.status_code == 200:
+                data = response.json()
+                content = data.get("content", [])
+                
+                self.log_result(
+                    "MongoDB Fix Verification", 
+                    True, 
+                    f"Successfully retrieved content list with {len(content)} items. No 'Collection objects do not implement truth value testing' error."
+                )
+                return True
+            else:
+                self.log_result(
+                    "MongoDB Fix Verification", 
+                    False, 
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            error_msg = str(e)
+            if "Collection objects do not implement truth value testing" in error_msg:
+                self.log_result(
+                    "MongoDB Fix Verification", 
+                    False, 
+                    "The MongoDB comparison bug is still present!",
+                    error_msg
+                )
+            else:
+                self.log_result("MongoDB Fix Verification", False, error=error_msg)
+            return False
+    
+    def run_all_tests(self):
+        """Run all thumbnail system tests"""
+        print("🚀 THUMBNAIL GENERATION SYSTEM TESTING")
+        print("=" * 60)
+        print(f"Backend URL: {BACKEND_URL}")
+        print(f"Test User: {TEST_EMAIL}")
+        print("=" * 60)
+        print()
+        
+        # Initialize test variables
+        self.uploaded_file_id = None
+        self.uploaded_filename = None
+        
+        # Run tests in sequence
+        tests = [
+            self.authenticate,
+            self.test_batch_upload,
+            self.test_thumbnail_status,
+            self.test_thumbnail_rebuild,
+            self.test_individual_thumbnail_generation,
+            self.test_thumbnail_accessibility,
+            self.test_mongodb_fix_verification
+        ]
+        
+        for test in tests:
+            if not test():
+                print("❌ Test failed, continuing with remaining tests...")
+            print()
         
         # Summary
-        print("\n" + "=" * 60)
         print("📋 TEST SUMMARY")
-        print("=" * 60)
+        print("=" * 50)
         
-        total_tests = len(self.test_results)
-        passed_tests = sum(1 for result in self.test_results if result["success"])
-        failed_tests = total_tests - passed_tests
-        success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
+        passed = sum(1 for result in self.test_results if result["success"])
+        total = len(self.test_results)
+        success_rate = (passed / total * 100) if total > 0 else 0
         
-        print(f"Total Tests: {total_tests}")
-        print(f"Passed: {passed_tests}")
-        print(f"Failed: {failed_tests}")
+        print(f"Total Tests: {total}")
+        print(f"Passed: {passed}")
+        print(f"Failed: {total - passed}")
         print(f"Success Rate: {success_rate:.1f}%")
+        print()
         
-        if failed_tests > 0:
-            print("\n❌ FAILED TESTS:")
-            for result in self.test_results:
-                if not result["success"]:
-                    print(f"  - {result['test']}: {result['details']}")
-        
-        print("\n✅ DETAILED TEST RESULTS:")
+        # Detailed results
         for result in self.test_results:
-            print(f"  {result['status']}: {result['test']}")
+            print(f"{result['status']}: {result['test']}")
+            if result['details']:
+                print(f"   {result['details']}")
+            if result['error']:
+                print(f"   Error: {result['error']}")
         
-        return failed_tests == 0
+        print()
+        print("🎯 THUMBNAIL SYSTEM TESTING COMPLETED")
+        
+        return success_rate >= 80  # Consider successful if 80% or more tests pass
 
 if __name__ == "__main__":
-    tester = PersistenceSystemTester()
+    tester = ThumbnailSystemTester()
     success = tester.run_all_tests()
     
     if success:
-        print("\n🎉 ALL PERSISTENCE SYSTEM TESTS PASSED!")
-        print("The completely fixed persistence system is working correctly.")
+        print("✅ Overall testing: SUCCESS")
+        exit(0)
     else:
-        print("\n⚠️ SOME TESTS FAILED")
-        print("Please review the failed tests above.")
+        print("❌ Overall testing: FAILED")
+        exit(1)

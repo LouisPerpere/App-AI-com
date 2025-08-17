@@ -2619,6 +2619,7 @@ function MainApp() {
 
       setContentTotalCount(data.total || 0);
       setContentHasMore(data.has_more || false);
+      // On ne touche PAS à serverFetchedCount ici (selon ChatGPT)
       
       console.log(`🔄 Refetch silencieux terminé (${mode}) - synchronisation serveur`);
     } catch (error) {

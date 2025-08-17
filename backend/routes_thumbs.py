@@ -73,6 +73,16 @@ def get_sync_db():
         _sync_client = MongoClient(mongo_url)
     return _sync_client.claire_marcus
 
+def parse_any_id(file_id: str) -> dict:
+    """Parse file ID - accepts both ObjectId and UUID for backwards compatibility"""
+    try:
+        from bson import ObjectId
+        return {"_id": ObjectId(file_id)}
+    except Exception:
+        # Fallback for UUID external_id (temporary compatibility)
+        print(f"⚠️ Using UUID fallback for file_id: {file_id}")
+        return {"external_id": file_id}
+
 @router.post("/content/{file_id}/thumbnail")
 async def generate_single_thumb(
     file_id: str,
@@ -83,7 +93,11 @@ async def generate_single_thumb(
     media_collection = get_sync_media_collection()
     
     try:
-        doc = media_collection.find_one({"_id": ObjectId(file_id), "owner_id": user_id, "deleted": {"$ne": True}})
+        # Parse ID (ObjectId or UUID fallback)
+        id_filter = parse_any_id(file_id)
+        query = {**id_filter, "owner_id": user_id, "deleted": {"$ne": True}}
+        
+        doc = media_collection.find_one(query)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Invalid file ID: {str(e)}")
         
@@ -91,6 +105,7 @@ async def generate_single_thumb(
         raise HTTPException(status_code=404, detail="Media not found")
         
     filename = doc["filename"]
+    mongo_id = str(doc["_id"])
     src_path = os.path.join(UPLOADS_DIR, filename)
     if not os.path.isfile(src_path):
         raise HTTPException(status_code=404, detail="File missing on disk")
@@ -110,13 +125,13 @@ async def generate_single_thumb(
             thumb_url = f"{PUBLIC_BASE}/uploads/thumbs/" + os.path.basename(thumb_path)
             # Mise à jour Mongo
             sync_db = get_sync_db()
-            sync_db.media.update_one({"_id": ObjectId(file_id)}, {"$set": {"thumb_url": thumb_url}})
+            sync_db.media.update_one({"_id": doc["_id"]}, {"$set": {"thumb_url": thumb_url}})
             print(f"✅ Thumbnail generated for {filename}: {thumb_url}")
         except Exception as e:
             print(f"❌ Thumbnail generation failed for {filename}: {str(e)}")
 
     bg.add_task(_job)
-    return {"ok": True, "scheduled": True, "file_id": file_id}
+    return {"ok": True, "scheduled": True, "file_id": mongo_id}  # Always return MongoDB ObjectId
 
 @router.post("/content/thumbnails/rebuild")
 async def rebuild_missing_thumbs(

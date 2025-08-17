@@ -2548,70 +2548,7 @@ function MainApp() {
     console.log(`📝 Description changée pour ${contentId}:`, description);
   }, [debouncedSaveContentDescription]);
 
-  // Legacy function FINALE - fermeture garantie du modal
-  const saveContentDescription = async () => {
-    if (!selectedContent) return;
-    
-    setIsSavingDescription(true);
-    
-    try {
-      // Récupérer la description depuis le bon endroit selon l'appareil
-      let description = contentDescription;
-      if (isVirtualKeyboardDevice && contentDescriptionRef.current) {
-        description = contentDescriptionRef.current.value;
-      }
-      
-      await autoSaveContentDescription(selectedContent.id, description);
-      
-      toast.success('Commentaire sauvegardé !');
-      
-    } catch (error) {
-      console.error('❌ Erreur sauvegarde commentaire:', error);
-      toast.error('Erreur lors de la sauvegarde');
-    } finally {
-      setIsSavingDescription(false);
-      // FERMETURE GARANTIE : Forcer la fermeture du modal
-      setShowContentModal(false);
-      setSelectedContent(null);
-      setContentDescription('');
-      if (isVirtualKeyboardDevice && contentDescriptionRef.current) {
-        contentDescriptionRef.current.value = '';
-      }
-      console.log('✅ Modal fermé de force après sauvegarde');
-    }
-  };
-
-  // Suppression FINALE - avec rechargement forcé backend
-  const deleteContent = async () => {
-    if (!selectedContent) return;
-    
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer définitivement ce contenu ?')) {
-      return;
-    }
-    
-    setIsDeletingContent(true);
-    try {
-      // Supprimer côté serveur DIRECTEMENT
-      await axios.delete(`${API}/content/${selectedContent.id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
-      });
-      
-      toast.success('Contenu supprimé définitivement !');
-      console.log(`✅ Permanently deleted content: ${selectedContent.id}`);
-      
-      // Fermer la modal immédiatement
-      closeContentModal();
-      
-      // CRITIQUE: Forcer le rechargement des données depuis le backend
-      await loadPendingContent(true, true);
-      
-    } catch (error) {
-      console.error('Error deleting content:', error);
-      toast.error('Erreur lors de la suppression');
-    } finally {
-      setIsDeletingContent(false);
-    }
-  };
+  // Fonctions obsolètes supprimées - remplacées par ContentPreviewModal intégrée
 
   // Multiple selection functions (optimized with useCallback)
   const enterSelectionMode = useCallback(() => {

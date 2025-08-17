@@ -32,6 +32,16 @@ async def get_media_collection():
     db = get_database()
     return db.db.media
 
+def parse_any_id(file_id: str) -> dict:
+    """Parse file ID - accepts both ObjectId and UUID for backwards compatibility"""
+    try:
+        from bson import ObjectId
+        return {"_id": ObjectId(file_id)}
+    except Exception:
+        # Fallback for UUID external_id (temporary compatibility)
+        print(f"⚠️ Using UUID fallback for file_id: {file_id}")
+        return {"external_id": file_id}
+
 # Import GPT-5 website analyzer
 try:
     from website_analyzer_gpt5 import website_router

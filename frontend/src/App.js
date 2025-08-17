@@ -2465,7 +2465,7 @@ function MainApp() {
     }
   };
 
-  // Auto-save pour les descriptions de contenu (même système que business profile)
+  // Auto-save pour les descriptions SIMPLIFIÉ - backend seulement
   const autoSaveContentDescription = async (contentId, description) => {
     if (!contentId) return;
     
@@ -2491,10 +2491,6 @@ function MainApp() {
         
         // Mettre à jour le contenu sélectionné
         setSelectedContent(prev => prev && prev.id === contentId ? { ...prev, description: description } : prev);
-        
-        // Clean up localStorage after successful save
-        const storageKey = `content_description_${contentId}`;
-        localStorage.removeItem(storageKey);
         
         console.log('✅ Description auto-sauvegardée avec succès');
       } else {

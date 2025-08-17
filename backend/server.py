@@ -1221,7 +1221,7 @@ async def batch_upload_files(
     
     # Get MongoDB collection
     try:
-        media_collection = get_media_collection()
+        media_collection = await get_media_collection()
     except Exception as e:
         print(f"❌ MongoDB not available: {e}")
         media_collection = None

@@ -2552,7 +2552,7 @@ function MainApp() {
     }
   };
 
-  // Suppression CORRIGÉE - nettoyage localStorage après succès serveur
+  // Suppression FINALE - avec rechargement forcé backend
   const deleteContent = async () => {
     if (!selectedContent) return;
     
@@ -2567,21 +2567,14 @@ function MainApp() {
         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
       });
       
-      // APRÈS SUCCÈS SERVEUR: Nettoyer localStorage et interface
-      const deletedItemsKey = 'deleted_content_ids';
-      const deletedItems = JSON.parse(localStorage.getItem(deletedItemsKey) || '[]');
-      const cleanedItems = deletedItems.filter(id => id !== selectedContent.id);
-      localStorage.setItem(deletedItemsKey, JSON.stringify(cleanedItems));
-      
-      // Supprimer de l'affichage
-      setPendingContent(prev => prev.filter(file => file.id !== selectedContent.id));
-      
-      // Fermer la modal et nettoyer
-      closeContentModal();
-      localStorage.removeItem(`content_description_${selectedContent.id}`);
-      
       toast.success('Contenu supprimé définitivement !');
       console.log(`✅ Permanently deleted content: ${selectedContent.id}`);
+      
+      // Fermer la modal immédiatement
+      closeContentModal();
+      
+      // CRITIQUE: Forcer le rechargement des données depuis le backend
+      await loadPendingContent(true, true);
       
     } catch (error) {
       console.error('Error deleting content:', error);

@@ -605,12 +605,13 @@ async def get_pending_content(
         print(f"📊 Loading {len(paginated_files)} files (offset: {offset}, total: {total_files})")
         
         content_files = []
-        for file_info in paginated_files:
-            filename = file_info['filename']
-            file_path = file_info['file_path']
-            file_stats = file_info['file_stats']
-            content_type = file_info['content_type']
+        for fi in paginated_files:
+            filename = fi['filename']
+            file_path = fi['file_path']
+            file_stats = fi['file_stats']
+            content_type = fi['content_type']
             file_size = file_stats.st_size
+            file_id = filename.split('.')[0]
             
             # For images, create two versions: full for modal, ultra-small thumbnail for gallery
             file_data = None

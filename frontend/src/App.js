@@ -134,7 +134,7 @@ const ContentThumbnail = React.memo(({
       </div>
       
       <p className="text-xs text-gray-600 mt-1 truncate text-center">{content.filename}</p>
-      {content.description && !isSelectionMode && (
+      {Boolean(content.description?.trim()) && !isSelectionMode && (
         <Badge className="absolute top-1 right-1 bg-green-100 text-green-800 text-xs px-1 py-0">
           💬
         </Badge>

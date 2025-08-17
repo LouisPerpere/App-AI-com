@@ -149,8 +149,10 @@ const ContentPreviewModal = ({
   onClose, 
   content, 
   onSaved,
-  setPendingContent, // Nouvelle prop pour mise à jour optimiste
-  refetchSilent // Nouvelle prop pour refetch
+  setPendingContent, // Pour mise à jour optimiste
+  refetchSilent, // Pour refetch
+  setServerFetchedCount, // NOUVEAU pour reset pagination (ChatGPT)
+  loadPendingContent // NOUVEAU pour reload complet (ChatGPT)
 }) => {
   const [desc, setDesc] = useState('');
   const [saving, setSaving] = useState(false);

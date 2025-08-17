@@ -99,7 +99,7 @@ class MongoDBThumbUrlUpdater:
             self.db = self.mongo_client.claire_marcus
             
             # Test connection
-            self.db.admin.command('ping')
+            self.db.command('ping')
             
             self.log_result(
                 "MongoDB Connection", 

@@ -826,9 +826,9 @@ async def get_pending_content_filesystem(limit: int, offset: int, user_id: str):
         print(f"❌ Error getting pending content: {e}")
         return {"content": [], "total": 0, "has_more": False}
 
-@api_router.delete("/content/{file_id}")
-async def delete_content_file(file_id: str, user_id: str = Depends(get_current_user_id)):
-    """Delete a content file with USER-SPECIFIC tracking"""
+# Moved delete_content_file function to be used as fallback only
+async def delete_content_file(file_id: str, user_id: str):
+    """Delete a content file with USER-SPECIFIC tracking (LEGACY FALLBACK)"""
     try:
         uploads_dir = "uploads"
         

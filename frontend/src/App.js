@@ -2523,7 +2523,7 @@ function MainApp() {
     console.log(`📝 Description changée pour ${contentId}:`, description);
   }, [debouncedSaveContentDescription]);
 
-  // Legacy function pour compatibilité avec synchronisation état/ref
+  // Legacy function avec fermeture automatique du modal
   const saveContentDescription = async () => {
     if (!selectedContent) return;
     
@@ -2538,11 +2538,11 @@ function MainApp() {
       
       await autoSaveContentDescription(selectedContent.id, description);
       
-      // CRUCIAL: Maintenir la synchronisation après la sauvegarde manuelle
-      setContentDescription(description);
-      if (isVirtualKeyboardDevice && contentDescriptionRef.current) {
-        contentDescriptionRef.current.value = description;
-      }
+      // Fermer automatiquement le modal après sauvegarde réussie
+      setTimeout(() => {
+        closeContentModal();
+        console.log('✅ Commentaire sauvegardé, modal fermé automatiquement');
+      }, 500); // Délai pour voir la confirmation
       
     } finally {
       setIsSavingDescription(false);

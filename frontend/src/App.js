@@ -2529,7 +2529,7 @@ function MainApp() {
     console.log(`📝 Description changée pour ${contentId}:`, description);
   }, [debouncedSaveContentDescription]);
 
-  // Legacy function avec fermeture automatique IMMÉDIATE
+  // Legacy function FINALE - fermeture garantie du modal
   const saveContentDescription = async () => {
     if (!selectedContent) return;
     
@@ -2551,9 +2551,14 @@ function MainApp() {
       toast.error('Erreur lors de la sauvegarde');
     } finally {
       setIsSavingDescription(false);
-      // Fermer le modal immédiatement après la sauvegarde, qu'elle réussisse ou échoue
-      closeContentModal();
-      console.log('✅ Modal fermé après tentative de sauvegarde');
+      // FERMETURE GARANTIE : Forcer la fermeture du modal
+      setShowContentModal(false);
+      setSelectedContent(null);
+      setContentDescription('');
+      if (isVirtualKeyboardDevice && contentDescriptionRef.current) {
+        contentDescriptionRef.current.value = '';
+      }
+      console.log('✅ Modal fermé de force après sauvegarde');
     }
   };
 

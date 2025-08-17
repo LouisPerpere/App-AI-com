@@ -5645,17 +5645,10 @@ function MainApp() {
       
       {/* Content Preview Modal */}
       <ContentPreviewModal
-        isOpen={showContentModal}
+        isOpen={!!selectedContent}
         onClose={closeContentModal}
         content={selectedContent}
-        description={contentDescription}
-        onDescriptionChange={(description) => handleContentDescriptionChange(selectedContent?.id, description)}
-        onSaveDescription={saveContentDescription}
-        onDeleteContent={deleteContent}
-        isSavingDescription={isSavingDescription}
-        isDeletingContent={isDeletingContent}
-        isVirtualKeyboardDevice={isVirtualKeyboardDevice}
-        descriptionRef={contentDescriptionRef}
+        onSaved={onContentSaved}
       />
     </div>
   );

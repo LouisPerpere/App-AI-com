@@ -1248,6 +1248,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Servir les fichiers uploads/ en statique (selon ChatGPT)
+app.mount("/uploads", StaticFiles(directory="uploads", html=False), name="uploads")
+
 # Synchronize descriptions with files on startup
 print("🔄 Synchronizing content descriptions with files...")
 sync_descriptions_with_files()

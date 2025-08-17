@@ -2605,7 +2605,7 @@ function MainApp() {
     });
   }, []);
 
-  // Suppression multiple CORRIGÉE - nettoyage localStorage après succès serveur
+  // Suppression multiple FINALE - avec rechargement forcé backend
   const deleteSelectedContent = useCallback(async () => {
     if (selectedContentIds.length === 0) return;
     
@@ -2617,7 +2617,6 @@ function MainApp() {
     setIsDeletingMultiple(true);
     let deletedCount = 0;
     let errorCount = 0;
-    const successfullyDeleted = [];
     
     try {
       // Sortir du mode sélection immédiatement
@@ -2630,27 +2629,11 @@ function MainApp() {
             headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
           });
           deletedCount++;
-          successfullyDeleted.push(contentId);
-          
-          // Nettoyer descriptions locales
-          localStorage.removeItem(`content_description_${contentId}`);
-          
           console.log(`✅ Permanently deleted content: ${contentId}`);
         } catch (error) {
           console.error(`Error deleting content ${contentId}:`, error);
           errorCount++;
         }
-      }
-      
-      // APRÈS SUCCÈS: Nettoyer localStorage et interface pour les suppressions réussies
-      if (successfullyDeleted.length > 0) {
-        const deletedItemsKey = 'deleted_content_ids';
-        const deletedItems = JSON.parse(localStorage.getItem(deletedItemsKey) || '[]');
-        const cleanedItems = deletedItems.filter(id => !successfullyDeleted.includes(id));
-        localStorage.setItem(deletedItemsKey, JSON.stringify(cleanedItems));
-        
-        // Supprimer de l'affichage seulement les suppressions réussies
-        setPendingContent(prev => prev.filter(file => !successfullyDeleted.includes(file.id)));
       }
       
       // Show result message
@@ -2661,6 +2644,9 @@ function MainApp() {
       } else {
         toast.error('Erreur lors de la suppression des contenus');
       }
+      
+      // CRITIQUE: Forcer le rechargement des données depuis le backend
+      await loadPendingContent(true, true);
       
     } catch (error) {
       console.error('Error in batch delete:', error);

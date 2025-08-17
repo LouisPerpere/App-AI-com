@@ -2456,37 +2456,31 @@ function MainApp() {
     }
   };
 
-  // Content modal functions SIMPLIFIÉES - backend seulement
+  // Content modal functions - Source de vérité unique selon ChatGPT
+  const [selectedContent, setSelectedContent] = useState(null);
+  
   const openContentModal = (content) => {
     setSelectedContent(content);
-    
-    // Utiliser directement la description du backend
-    const finalDescription = content.description || '';
-    
-    setContentDescription(finalDescription);
-    setShowContentModal(true);
-    
-    // Set ref value for virtual keyboard compatibility (only for virtual keyboards)
-    if (isVirtualKeyboardDevice) {
-      setTimeout(() => {
-        if (contentDescriptionRef.current) {
-          contentDescriptionRef.current.value = finalDescription;
-          console.log('📝 Modal opened with description (virtual keyboard):', finalDescription);
-        }
-      }, 100);
-    }
-    
-    console.log('📝 Modal opened with description:', finalDescription);
+    console.log('📝 Modal opened for content:', content.id);
   };
 
   const closeContentModal = () => {
-    setShowContentModal(false);
     setSelectedContent(null);
-    setContentDescription('');
-    
-    // Clear ref for virtual keyboard devices
-    if (isVirtualKeyboardDevice && contentDescriptionRef.current) {
-      contentDescriptionRef.current.value = '';
+    console.log('✅ Modal closed - selectedContent reset to null');
+  };
+
+  // Fonction pour merger les changements dans la liste (selon ChatGPT)
+  const onContentSaved = (updated) => {
+    if (updated.deleted) {
+      // Suppression : retirer de la liste
+      setPendingContent(prev => prev.filter(item => item.id !== updated.id));
+      console.log('🗑️ Content removed from list:', updated.id);
+    } else {
+      // Mise à jour : merger dans la liste
+      setPendingContent(prev => 
+        prev.map(item => item.id === updated.id ? { ...item, ...updated } : item)
+      );
+      console.log('📝 Content updated in list:', updated.id);
     }
   };
 

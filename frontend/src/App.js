@@ -1976,10 +1976,15 @@ function MainApp() {
       const contentWithDescriptions = filteredContent.filter(item => item.description && item.description.trim());
       console.log(`💬 Files with descriptions: ${contentWithDescriptions.length}/${filteredContent.length}`, contentWithDescriptions.map(item => ({ id: item.id, desc: item.description })));
       
+      // PAGINATION avec dédupli (selon ChatGPT)
       if (reset) {
         setPendingContent(filteredContent);
       } else {
-        setPendingContent(prev => [...prev, ...filteredContent]);
+        setPendingContent(prev => {
+          const seen = new Set(prev.map(it => it.id));
+          const append = filteredContent.filter(it => !seen.has(it.id));
+          return [...prev, ...append];
+        });
       }
       
       setContentTotalCount(data.total || 0);

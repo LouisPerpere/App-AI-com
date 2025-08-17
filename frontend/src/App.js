@@ -934,8 +934,7 @@ function MainApp() {
   const [showBurgerMenu, setShowBurgerMenu] = useState(false);
   const [activeTab, setActiveTab] = useState('entreprise');
   
-  // Content preview modal states
-  const [showContentModal, setShowContentModal] = useState(false);
+  // Content preview modal states - Source de vérité unique
   const [selectedContent, setSelectedContent] = useState(null);
   const [contentDescription, setContentDescription] = useState('');
   const [isSavingDescription, setIsSavingDescription] = useState(false);

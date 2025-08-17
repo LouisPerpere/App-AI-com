@@ -177,9 +177,19 @@ const ContentPreviewModal = ({
 
       if (response.ok) {
         const updated = await response.json();
+        
+        // 1) Mise à jour optimiste immédiate dans la grille (selon ChatGPT)
+        setPendingContent(prev =>
+          prev.map(item => item.id === content.id ? { ...item, description: updated.description } : item)
+        );
+        
         toast.success('Commentaire sauvegardé !');
         onSaved?.(updated); // Laisser le parent merger la liste
         onClose(); // Fermer APRÈS succès
+        
+        // 2) Refetch silencieux pour resynchroniser (selon ChatGPT)
+        void refetchPendingContentSilent();
+        
       } else {
         throw new Error('Erreur sauvegarde');
       }

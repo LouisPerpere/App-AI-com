@@ -2523,14 +2523,27 @@ function MainApp() {
     console.log(`📝 Description changée pour ${contentId}:`, description);
   }, [debouncedSaveContentDescription]);
 
-  // Legacy function pour compatibilité (sera supprimée)
+  // Legacy function pour compatibilité avec synchronisation état/ref
   const saveContentDescription = async () => {
     if (!selectedContent) return;
     
     setIsSavingDescription(true);
     
     try {
-      await autoSaveContentDescription(selectedContent.id, contentDescription);
+      // Récupérer la description depuis le bon endroit selon l'appareil
+      let description = contentDescription;
+      if (isVirtualKeyboardDevice && contentDescriptionRef.current) {
+        description = contentDescriptionRef.current.value;
+      }
+      
+      await autoSaveContentDescription(selectedContent.id, description);
+      
+      // CRUCIAL: Maintenir la synchronisation après la sauvegarde manuelle
+      setContentDescription(description);
+      if (isVirtualKeyboardDevice && contentDescriptionRef.current) {
+        contentDescriptionRef.current.value = description;
+      }
+      
     } finally {
       setIsSavingDescription(false);
     }

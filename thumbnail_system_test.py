@@ -26,8 +26,8 @@ from PIL import Image
 import io
 import base64
 
-# Configuration - Using production URL as specified in review request
-BACKEND_URL = "https://libfusion.preview.emergentagent.com/api"
+# Configuration - Using local backend for testing
+BACKEND_URL = "http://localhost:8001/api"
 TEST_USER_EMAIL = "lperpere@yahoo.fr"
 TEST_USER_PASSWORD = "L@Reunion974!"
 

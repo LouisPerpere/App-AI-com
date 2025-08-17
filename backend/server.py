@@ -14,6 +14,12 @@ import io
 # Import database
 from database import get_database, DatabaseManager
 
+# Collections MongoDB pour persistance (selon ChatGPT)
+async def get_media_collection():
+    """Get MongoDB media collection"""
+    db = await get_database()
+    return db.media
+
 # Import GPT-5 website analyzer
 try:
     from website_analyzer_gpt5 import website_router

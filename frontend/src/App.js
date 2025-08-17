@@ -2396,42 +2396,78 @@ function MainApp() {
     }
   };
 
+  // Auto-save pour les descriptions de contenu (même système que business profile)
+  const autoSaveContentDescription = async (contentId, description) => {
+    if (!contentId) return;
+    
+    try {
+      const response = await fetch(`${API}/content/${contentId}/description`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+        body: JSON.stringify({
+          description: description,
+        }),
+      });
+
+      if (response.ok) {
+        // Mettre à jour la liste des contenus
+        setContentFiles(prev => prev.map(file => 
+          file.id === contentId 
+            ? { ...file, description: description }
+            : file
+        ));
+        
+        // Mettre à jour le contenu sélectionné
+        setSelectedContent(prev => prev && prev.id === contentId ? { ...prev, description: description } : prev);
+        
+        console.log('✅ Description auto-sauvegardée avec succès');
+      } else {
+        console.error('❌ Erreur lors de l\'auto-sauvegarde de la description');
+      }
+    } catch (error) {
+      console.error('❌ Erreur réseau lors de l\'auto-sauvegarde:', error);
+    }
+  };
+
+  // Debounced auto-save pour descriptions (même système que business profile)
+  const debouncedSaveContentDescription = useCallback((contentId, description) => {
+    const key = `content_${contentId}`;
+    
+    if (debounceTimers.current[key]) {
+      clearTimeout(debounceTimers.current[key]);
+    }
+    
+    debounceTimers.current[key] = setTimeout(() => {
+      autoSaveContentDescription(contentId, description);
+    }, 1000); // 1 seconde de debounce
+  }, []);
+
+  // Gestionnaire de changement pour descriptions avec auto-save
+  const handleContentDescriptionChange = useCallback((contentId, description) => {
+    // Mettre à jour immédiatement l'état local
+    setContentDescription(description);
+    
+    // Sauvegarder en local storage
+    const storageKey = `content_description_${contentId}`;
+    localStorage.setItem(storageKey, description);
+    
+    // Auto-save avec debounce
+    debouncedSaveContentDescription(contentId, description);
+    
+    console.log(`📝 Description changée pour ${contentId}:`, description);
+  }, [debouncedSaveContentDescription]);
+
+  // Legacy function pour compatibilité (sera supprimée)
   const saveContentDescription = async () => {
     if (!selectedContent) return;
     
-    // Get description from ref for virtual keyboard devices, from state for desktop
-    let description = contentDescription;
-    if (isVirtualKeyboardDevice && contentDescriptionRef.current) {
-      description = contentDescriptionRef.current.value;
-    }
-    
     setIsSavingDescription(true);
+    
     try {
-      await axios.put(`${API}/content/${selectedContent.id}/description`, {
-        description: description
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
-      });
-      
-      toast.success('Description sauvegardée !');
-      
-      // Update the selected content immediately for UI responsiveness
-      setSelectedContent(prev => ({ ...prev, description: description }));
-      
-      // Synchronize state and ref after save
-      setContentDescription(description);
-      if (isVirtualKeyboardDevice && contentDescriptionRef.current) {
-        contentDescriptionRef.current.value = description;
-      }
-      
-      // Force refresh content list to ensure backend persistence is reflected
-      loadPendingContent(true);
-      
-      console.log('✅ Description synchronized and content refreshed:', description);
-      
-    } catch (error) {
-      console.error('Error saving description:', error);
-      toast.error('Erreur lors de la sauvegarde');
+      await autoSaveContentDescription(selectedContent.id, contentDescription);
     } finally {
       setIsSavingDescription(false);
     }

@@ -2456,8 +2456,6 @@ function MainApp() {
   };
 
   // Content modal functions - Source de vérité unique selon ChatGPT
-  const [selectedContent, setSelectedContent] = useState(null);
-  
   const openContentModal = (content) => {
     setSelectedContent(content);
     console.log('📝 Modal opened for content:', content.id);

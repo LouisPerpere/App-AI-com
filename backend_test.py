@@ -444,6 +444,102 @@ class ThumbnailSystemTester:
             self.log_result("Thumbnail Accessibility", False, error=str(e))
             return False
     
+    def test_french_review_accessibility(self):
+        """ÉTAPE FRANÇAISE: Tester l'accessibilité des vignettes générées via le proxy"""
+        print("🇫🇷 ÉTAPE FRANÇAISE: Test accessibilité vignettes via proxy")
+        print("=" * 50)
+        
+        try:
+            # Get sample of content with thumbnails
+            response = self.session.get(f"{API_BASE}/content/pending?limit=10")
+            
+            if response.status_code == 200:
+                data = response.json()
+                content = data.get("content", [])
+                
+                accessible_count = 0
+                inaccessible_count = 0
+                webp_count = 0
+                claire_marcus_accessible = 0
+                
+                tested_samples = []
+                
+                for item in content:
+                    thumb_url = item.get("thumb_url")
+                    filename = item.get("filename", "unknown")
+                    
+                    if thumb_url and thumb_url != "":
+                        try:
+                            # Test accessibility via proxy
+                            thumb_response = requests.get(thumb_url, timeout=10)
+                            
+                            if thumb_response.status_code == 200:
+                                content_type = thumb_response.headers.get('content-type', '')
+                                content_length = len(thumb_response.content)
+                                
+                                if 'image' in content_type.lower():
+                                    accessible_count += 1
+                                    
+                                    # Check if it's claire-marcus domain
+                                    if "claire-marcus.com" in thumb_url:
+                                        claire_marcus_accessible += 1
+                                    
+                                    # Check if it's WEBP
+                                    is_webp = 'webp' in content_type.lower() or thumb_url.endswith('.webp')
+                                    if is_webp:
+                                        webp_count += 1
+                                    
+                                    if len(tested_samples) < 3:
+                                        domain = "claire-marcus" if "claire-marcus.com" in thumb_url else "libfusion"
+                                        tested_samples.append(f"✅ {filename} ({domain}, {content_length}b, {'WEBP' if is_webp else content_type})")
+                                else:
+                                    inaccessible_count += 1
+                                    if len(tested_samples) < 3:
+                                        tested_samples.append(f"❌ {filename} (pas image: {content_type})")
+                            else:
+                                inaccessible_count += 1
+                                if len(tested_samples) < 3:
+                                    tested_samples.append(f"❌ {filename} (status: {thumb_response.status_code})")
+                                
+                        except Exception as thumb_error:
+                            inaccessible_count += 1
+                            if len(tested_samples) < 3:
+                                tested_samples.append(f"❌ {filename} (erreur: {str(thumb_error)[:30]})")
+                        
+                        # Limit testing
+                        if len(tested_samples) >= 5:
+                            break
+                
+                total_tested = accessible_count + inaccessible_count
+                success_rate = (accessible_count / total_tested * 100) if total_tested > 0 else 0
+                webp_rate = (webp_count / accessible_count * 100) if accessible_count > 0 else 0
+                
+                details = f"TEST ACCESSIBILITÉ VIA PROXY: {total_tested} vignettes testées, "
+                details += f"{accessible_count} accessibles ({success_rate:.1f}%), "
+                details += f"{webp_count} WEBP ({webp_rate:.1f}%), "
+                details += f"{claire_marcus_accessible} claire-marcus accessibles. "
+                details += f"Échantillons: {tested_samples}"
+                
+                self.log_result(
+                    "Test accessibilité vignettes via proxy (demande française)", 
+                    accessible_count > 0, 
+                    details
+                )
+                
+                return accessible_count > 0
+            else:
+                self.log_result(
+                    "Test accessibilité vignettes via proxy (demande française)", 
+                    False, 
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result("Test accessibilité vignettes via proxy (demande française)", False, error=str(e))
+            return False
+    
     def test_mongodb_fix_verification(self):
         """Step 7: Verify the MongoDB comparison bug fix"""
         print("🔧 STEP 7: MongoDB Fix Verification")

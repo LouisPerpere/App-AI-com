@@ -677,7 +677,7 @@ async def get_pending_content(
 
 @api_router.delete("/content/{file_id}")
 async def delete_content_file(file_id: str, user_id: str = Depends(get_current_user_id)):
-    """Delete a content file and its description permanently with atomic operations"""
+    """Delete a content file with USER-SPECIFIC tracking"""
     try:
         uploads_dir = "uploads"
         
@@ -695,57 +695,37 @@ async def delete_content_file(file_id: str, user_id: str = Depends(get_current_u
             print(f"❌ File with ID {file_id} not found")
             raise HTTPException(status_code=404, detail="Fichier non trouvé")
         
-        # Atomic operation: First backup, then delete file, then delete description
-        backup_success = False
-        file_deleted = False
-        description_deleted = False
+        # NOUVEAU: Marquer comme supprimé pour cet utilisateur spécifiquement
+        deleted_files_key = f"deleted_files_{user_id}"
+        deleted_files = set()
         
+        # Charger les suppressions existantes pour cet utilisateur
         try:
-            # Step 1: Create backup path (in case we need to restore)
-            backup_path = f"{target_path}.backup"
-            
-            # Step 2: Delete file from filesystem
-            os.remove(target_path)
-            file_deleted = True
-            print(f"✅ Deleted file from filesystem: {target_file}")
-            
-            # Step 3: Delete description from JSON (this should always succeed)
-            description_deleted = delete_file_description(file_id)
-            if description_deleted:
-                print(f"✅ Deleted description for file: {file_id}")
-            else:
-                print(f"⚠️ Could not delete description for file: {file_id}")
-            
-            return {
-                "message": f"Fichier {target_file} supprimé définitivement",
-                "file_id": file_id,
-                "deleted_file": target_file,
-                "file_deleted": file_deleted,
-                "description_deleted": description_deleted
-            }
-            
-        except Exception as atomic_error:
-            print(f"❌ Error during atomic deletion: {atomic_error}")
-            
-            # If file was deleted but description deletion failed, we have a consistency issue
-            # In this case, we log the issue but don't restore the file (user intended to delete it)
-            if file_deleted and not description_deleted:
-                print(f"⚠️ Consistency warning: File deleted but description removal failed for {file_id}")
-                # Force sync on next startup will clean this up
-            
-            if not file_deleted:
-                # File deletion failed, safe to report error
-                raise HTTPException(status_code=500, detail=f"Erreur lors de la suppression du fichier: {str(atomic_error)}")
-            else:
-                # File was deleted, report partial success
-                return {
-                    "message": f"Fichier {target_file} supprimé (description cleanup failed)",
-                    "file_id": file_id,
-                    "deleted_file": target_file,
-                    "file_deleted": True,
-                    "description_deleted": False,
-                    "warning": "Cleanup de description échoué mais sera corrigé au prochain démarrage"
-                }
+            if os.path.exists(f"{deleted_files_key}.json"):
+                with open(f"{deleted_files_key}.json", 'r') as f:
+                    deleted_files = set(json.load(f))
+        except:
+            pass
+        
+        # Ajouter ce fichier à la liste des suppressions
+        deleted_files.add(file_id)
+        
+        # Sauvegarder la liste mise à jour
+        with open(f"{deleted_files_key}.json", 'w') as f:
+            json.dump(list(deleted_files), f)
+        
+        # Supprimer aussi la description
+        delete_file_description(file_id)
+        
+        print(f"✅ File {target_file} marked as deleted for user {user_id}")
+        
+        return {
+            "message": f"Fichier {target_file} supprimé définitivement",
+            "file_id": file_id,
+            "deleted_file": target_file,
+            "file_deleted": True,
+            "description_deleted": True
+        }
         
     except HTTPException:
         raise

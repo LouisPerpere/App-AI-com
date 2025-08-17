@@ -512,6 +512,25 @@ async def delete_note(note_id: str, user_id: str = Depends(get_current_user_id))
         raise HTTPException(status_code=500, detail=f"Failed to delete note: {str(e)}")
 
 # Content management endpoints
+@api_router.get("/diag")
+async def diagnostic_endpoint():
+    """Endpoint de diagnostic temporaire (selon ChatGPT)"""
+    try:
+        import os
+        mongo_uri = os.environ.get('MONGO_URL', 'Not set')
+        
+        # Masquer les credentials dans l'URI
+        masked_uri = mongo_uri[:30] + '...' if len(mongo_uri) > 30 else mongo_uri
+        
+        return {
+            "mongoUri": masked_uri,
+            "environment": os.environ.get('ENV', 'unknown'),
+            "backend_url": os.environ.get('BACKEND_URL', 'Not set'),
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
 @api_router.get("/content/pending")
 async def get_pending_content(
     limit: int = 24,  # Limit number of files to prevent crashes

@@ -1859,16 +1859,26 @@ function MainApp() {
       });
       
       const data = response.data;
-      console.log(`📊 Content loaded: ${data.loaded}/${data.total} (has_more: ${data.has_more})`);
+      console.log(`📊 Content loaded from server: ${data.loaded}/${data.total} (has_more: ${data.has_more})`);
+      
+      // Filtrer les éléments supprimés localement (même système que business profile)
+      const deletedItemsKey = 'deleted_content_ids';
+      const deletedItems = JSON.parse(localStorage.getItem(deletedItemsKey) || '[]');
+      
+      const filteredContent = (data.content || []).filter(item => !deletedItems.includes(item.id));
+      
+      if (deletedItems.length > 0) {
+        console.log(`🗑️ Filtered out ${(data.content || []).length - filteredContent.length} locally deleted items`);
+      }
       
       // Debug: Log descriptions for troubleshooting
-      const contentWithDescriptions = (data.content || []).filter(item => item.description && item.description.trim());
-      console.log(`💬 Files with descriptions: ${contentWithDescriptions.length}/${(data.content || []).length}`, contentWithDescriptions.map(item => ({ id: item.id, desc: item.description })));
+      const contentWithDescriptions = filteredContent.filter(item => item.description && item.description.trim());
+      console.log(`💬 Files with descriptions: ${contentWithDescriptions.length}/${filteredContent.length}`, contentWithDescriptions.map(item => ({ id: item.id, desc: item.description })));
       
       if (reset) {
-        setPendingContent(data.content || []);
+        setPendingContent(filteredContent);
       } else {
-        setPendingContent(prev => [...prev, ...(data.content || [])]);
+        setPendingContent(prev => [...prev, ...filteredContent]);
       }
       
       setContentTotalCount(data.total || 0);

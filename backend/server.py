@@ -665,34 +665,63 @@ async def delete_media_mongo(
 ):
     """Delete content with MongoDB (VERSION FINALE selon ChatGPT)"""
     try:
-        from bson import ObjectId
         media_collection = await get_media_collection()
         
-        # Find document first
-        doc = await media_collection.find_one({"_id": ObjectId(file_id), "owner_id": user_id})
+        # Parse ID (ObjectId or UUID fallback)
+        id_filter = parse_any_id(file_id)
+        query = {**id_filter, "owner_id": user_id}
+        
+        # Find document first to get filename for logging
+        doc = await media_collection.find_one(query)
         if not doc:
+            print(f"❌ Document not found for file_id: {file_id}, user_id: {user_id}")
             raise HTTPException(status_code=404, detail="Fichier non trouvé")
         
-        # Delete from MongoDB
-        await media_collection.delete_one({"_id": ObjectId(file_id), "owner_id": user_id})
+        filename = doc.get("filename", "unknown")
+        mongo_id = str(doc["_id"])
         
-        # Optionally delete physical file too (selon ChatGPT)
+        # Delete from MongoDB (hard delete)
+        delete_result = await media_collection.delete_one({"_id": doc["_id"], "owner_id": user_id})
+        
+        if delete_result.deleted_count != 1:
+            print(f"❌ Failed to delete from MongoDB: deleted_count = {delete_result.deleted_count}")
+            raise HTTPException(status_code=500, detail="Erreur lors de la suppression")
+        
+        # Optionally delete physical file
         try:
-            filename = doc.get("filename")
-            if filename:
-                file_path = os.path.join("uploads", filename)
-                if os.path.exists(file_path):
-                    os.remove(file_path)
-                    print(f"🗑️ Physical file deleted: {filename}")
-        except Exception as e:
-            print(f"⚠️ Failed to delete physical file: {e}")
+            file_path = os.path.join("uploads", filename)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                print(f"✅ Physical file deleted: {filename}")
+                
+            # Delete thumbnail if exists
+            from thumbs import build_thumb_path
+            thumb_path = build_thumb_path(filename)
+            if os.path.exists(thumb_path):
+                os.remove(thumb_path)
+                print(f"✅ Thumbnail deleted: {thumb_path}")
+                
+        except Exception as file_error:
+            print(f"⚠️ Could not delete physical files: {file_error}")
         
-        return Response(status_code=204)
+        print(f"✅ Successfully deleted document: {filename} (MongoDB ID: {mongo_id})")
+        
+        return {
+            "message": "Fichier supprimé avec succès",
+            "file_id": mongo_id,  # Always return MongoDB ObjectId
+            "filename": filename,
+            "deleted_count": delete_result.deleted_count
+        }
     
+    except HTTPException:
+        raise
     except Exception as e:
-        print(f"❌ MongoDB deletion failed, using filesystem fallback: {e}")
+        print(f"❌ MongoDB delete failed: {e}")
         # Fallback vers système existant
-        return await delete_content_file(file_id, user_id)
+        try:
+            return await delete_content_file(file_id, user_id)
+        except:
+            raise HTTPException(status_code=500, detail="Erreur lors de la suppression")
 
 
 # LEGACY/FALLBACK functions (ancien système)

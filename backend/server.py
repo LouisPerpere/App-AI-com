@@ -1398,6 +1398,23 @@ app.add_middleware(
 # Servir les fichiers uploads/ en statique (selon ChatGPT)
 app.mount("/uploads", StaticFiles(directory="uploads", html=False), name="uploads")
 
+# Add no-cache headers for API endpoints
+@app.middleware("http")
+async def add_cache_headers(request, call_next):
+    response = await call_next(request)
+    
+    # No cache for API endpoints
+    if request.url.path.startswith("/api/content"):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, proxy-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    
+    # Cache thumbnails for 1 week (they have unique filenames)
+    elif request.url.path.startswith("/uploads/thumbs/"):
+        response.headers["Cache-Control"] = "public, max-age=604800, immutable"
+    
+    return response
+
 # Synchronize descriptions with files on startup
 print("🔄 Synchronizing content descriptions with files...")
 sync_descriptions_with_files()

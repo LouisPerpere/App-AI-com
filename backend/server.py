@@ -1099,9 +1099,10 @@ def sync_descriptions_with_files():
 @api_router.post("/content/batch-upload")
 async def batch_upload_files(
     files: List[UploadFile] = File(...),
-    user_id: str = Depends(get_current_user_id)
+    user_id: str = Depends(get_current_user_id),
+    bg: BackgroundTasks = None
 ):
-    """Upload multiple files to user's content library with image optimization"""
+    """Upload multiple files to user's content library with MongoDB persistence and thumbnail generation"""
     
     if not files:
         raise HTTPException(status_code=400, detail="No files provided")
@@ -1112,6 +1113,13 @@ async def batch_upload_files(
     
     uploaded_files = []
     failed_uploads = []
+    
+    # Get MongoDB collection
+    try:
+        media_collection = await get_media_collection()
+    except Exception as e:
+        print(f"❌ MongoDB not available: {e}")
+        media_collection = None
     
     for file in files:
         try:
@@ -1147,27 +1155,92 @@ async def batch_upload_files(
             with open(file_path, "wb") as buffer:
                 buffer.write(file_content)
             
-            # Store file metadata in database (if connected)
-            file_metadata = {
-                "id": str(uuid.uuid4()),
-                "original_name": file.filename,
-                "stored_name": unique_filename,
-                "file_path": file_path,
-                "content_type": file.content_type,
-                "size": len(file_content),
-                "uploaded_at": datetime.now().isoformat(),
-                "user_id": user_id,
-                "description": ""  # Empty description by default
-            }
-            
-            try:
-                # Try to save to database
-                db = get_database()
-                if db and db.is_connected():
-                    # Save to database (implementation depends on database schema)
-                    pass  # TODO: Implement database storage for file metadata
-            except Exception as db_error:
-                print(f"⚠️ Could not save file metadata to database: {db_error}")
+            # Create MongoDB document
+            if media_collection:
+                try:
+                    doc = {
+                        "owner_id": user_id,
+                        "filename": unique_filename,
+                        "original_filename": file.filename,
+                        "file_type": file.content_type,
+                        "url": f"https://claire-marcus.com/uploads/{unique_filename}",
+                        "thumb_url": None,  # Will be generated in background
+                        "description": "",
+                        "deleted": False,
+                        "created_at": datetime.now(timezone.utc)
+                    }
+                    
+                    result = await media_collection.insert_one(doc)
+                    inserted_id = str(result.inserted_id)
+                    
+                    # Schedule thumbnail generation in background if available
+                    if bg:
+                        def generate_thumbnail_job():
+                            try:
+                                from thumbs import generate_image_thumb, generate_video_thumb, build_thumb_path
+                                from routes_thumbs import get_sync_db
+                                from bson import ObjectId
+                                
+                                thumb_path = build_thumb_path(unique_filename)
+                                os.makedirs(os.path.dirname(thumb_path), exist_ok=True)
+                                
+                                if file.content_type.startswith('image/'):
+                                    generate_image_thumb(file_path, thumb_path)
+                                elif file.content_type.startswith('video/'):
+                                    generate_video_thumb(file_path, thumb_path)
+                                
+                                thumb_url = f"https://claire-marcus.com/uploads/thumbs/" + os.path.basename(thumb_path)
+                                sync_db = get_sync_db()
+                                sync_db.media.update_one({"_id": ObjectId(inserted_id)}, {"$set": {"thumb_url": thumb_url}})
+                                print(f"✅ Thumbnail generated for {unique_filename}: {thumb_url}")
+                                
+                            except Exception as e:
+                                print(f"❌ Thumbnail generation failed for {unique_filename}: {str(e)}")
+                        
+                        bg.add_task(generate_thumbnail_job)
+                    
+                    # File metadata for response
+                    file_metadata = {
+                        "id": inserted_id,
+                        "original_name": file.filename,
+                        "stored_name": unique_filename,
+                        "file_path": file_path,
+                        "content_type": file.content_type,
+                        "size": len(file_content),
+                        "uploaded_at": doc["created_at"].isoformat(),
+                        "user_id": user_id,
+                        "description": "",
+                        "url": doc["url"],
+                        "thumb_url": None  # Will be available after background processing
+                    }
+                    
+                except Exception as db_error:
+                    print(f"❌ MongoDB insert failed: {db_error}")
+                    # Fallback to filesystem storage
+                    file_metadata = {
+                        "id": str(uuid.uuid4()),
+                        "original_name": file.filename,
+                        "stored_name": unique_filename,
+                        "file_path": file_path,
+                        "content_type": file.content_type,
+                        "size": len(file_content),
+                        "uploaded_at": datetime.now().isoformat(),
+                        "user_id": user_id,
+                        "description": ""
+                    }
+            else:
+                # Fallback to filesystem storage
+                file_metadata = {
+                    "id": str(uuid.uuid4()),
+                    "original_name": file.filename,
+                    "stored_name": unique_filename,
+                    "file_path": file_path,
+                    "content_type": file.content_type,
+                    "size": len(file_content),
+                    "uploaded_at": datetime.now().isoformat(),
+                    "user_id": user_id,
+                    "description": ""
+                }
             
             uploaded_files.append(file_metadata)
             

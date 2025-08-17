@@ -143,20 +143,82 @@ const ContentThumbnail = React.memo(({
   );
 });
 
-// Content Preview Modal Component
+// Content Preview Modal Component - CORRIGÉ selon ChatGPT
 const ContentPreviewModal = ({ 
   isOpen, 
   onClose, 
   content, 
-  description, 
-  onDescriptionChange, 
-  onSaveDescription, 
-  onDeleteContent,
-  isSavingDescription,
-  isDeletingContent,
-  isVirtualKeyboardDevice,
-  descriptionRef
+  onSaved
 }) => {
+  const [desc, setDesc] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  // Hydrater seulement à l'ouverture/changement de média
+  useEffect(() => {
+    if (isOpen && content) {
+      setDesc(content.description || '');
+    }
+  }, [isOpen, content?.id]);
+
+  const onSave = async () => {
+    if (!content) return;
+    
+    setSaving(true);
+    try {
+      const response = await fetch(`${API}/content/${content.id}/description`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+        body: JSON.stringify({ description: desc }),
+      });
+
+      if (response.ok) {
+        const updated = await response.json();
+        toast.success('Commentaire sauvegardé !');
+        onSaved?.(updated); // Laisser le parent merger la liste
+        onClose(); // Fermer APRÈS succès
+      } else {
+        throw new Error('Erreur sauvegarde');
+      }
+    } catch (error) {
+      console.error('❌ Erreur sauvegarde:', error);
+      toast.error('Erreur lors de la sauvegarde');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const onDelete = async () => {
+    if (!content) return;
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer définitivement ce contenu ?')) return;
+    
+    setDeleting(true);
+    try {
+      const response = await fetch(`${API}/content/${content.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+
+      if (response.ok) {
+        toast.success('Contenu supprimé définitivement !');
+        onSaved?.({ id: content.id, deleted: true }); // Signal de suppression
+        onClose(); // Fermer après suppression
+      } else {
+        throw new Error('Erreur suppression');
+      }
+    } catch (error) {
+      console.error('❌ Erreur suppression:', error);
+      toast.error('Erreur lors de la suppression');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (!isOpen || !content) return null;
 
   return (

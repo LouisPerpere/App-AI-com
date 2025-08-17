@@ -2422,14 +2422,12 @@ function MainApp() {
     }
   };
 
-  // Content modal functions
+  // Content modal functions SIMPLIFIÉES - backend seulement
   const openContentModal = (content) => {
     setSelectedContent(content);
     
-    // Check localStorage for any unsaved changes first, then fallback to content.description
-    const storageKey = `content_description_${content.id}`;
-    const savedDescription = localStorage.getItem(storageKey);
-    const finalDescription = savedDescription || content.description || '';
+    // Utiliser directement la description du backend
+    const finalDescription = content.description || '';
     
     setContentDescription(finalDescription);
     setShowContentModal(true);
@@ -2444,17 +2442,10 @@ function MainApp() {
       }, 100);
     }
     
-    console.log('📝 Modal opened with description:', finalDescription, savedDescription ? '(from localStorage)' : '(from database)');
+    console.log('📝 Modal opened with description:', finalDescription);
   };
 
   const closeContentModal = () => {
-    // Clean up localStorage for this content's description since modal is closing
-    if (selectedContent) {
-      const storageKey = `content_description_${selectedContent.id}`;
-      localStorage.removeItem(storageKey);
-      console.log('🧹 Cleaned up localStorage for content:', selectedContent.id);
-    }
-    
     setShowContentModal(false);
     setSelectedContent(null);
     setContentDescription('');

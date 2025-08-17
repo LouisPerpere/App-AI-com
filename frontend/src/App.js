@@ -1555,6 +1555,11 @@ function MainApp() {
         loadBusinessProfile();
       } else {
         console.log('✅ Business profile already loaded, skipping reload to preserve user data');
+        // CRITICAL FIX: Always ensure we go to dashboard when authenticated
+        if (activeStep === 'onboarding') {
+          console.log('🎯 FORCING DASHBOARD TRANSITION - user authenticated with business profile');
+          setActiveStep('dashboard');
+        }
       }
     } catch (error) {
       console.error('❌ APP DEBUG - Auth check failed:', error);

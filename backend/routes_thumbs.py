@@ -1,11 +1,10 @@
 # routes_thumbs.py
 import os
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Header
 from bson import ObjectId
 from datetime import datetime
 from thumbs import generate_image_thumb, generate_video_thumb, build_thumb_path
 from database import get_database
-from server import get_current_user_id
 import asyncio
 import pymongo
 
@@ -13,6 +12,39 @@ router = APIRouter()
 
 UPLOADS_DIR = os.environ.get("UPLOADS_DIR", "uploads")
 PUBLIC_BASE = os.environ.get("PUBLIC_BASE", "https://claire-marcus.com")  # ex: https://api..../uploads
+
+def get_current_user_id(authorization: str = Header(None)):
+    """Extract user ID from JWT token - compatible with server.py"""
+    if not authorization or not authorization.startswith("Bearer "):
+        # For demo mode compatibility, return a demo user ID
+        print(f"⚠️ No Authorization header found in request, falling back to demo mode")
+        return "demo_user_id"
+    
+    token = authorization.replace("Bearer ", "")
+    print(f"🔍 Processing token: {token[:20]}..." if len(token) > 20 else f"🔍 Processing token: {token}")
+    
+    # Try to get real user from database
+    try:
+        from database import get_database
+        import asyncio
+        
+        # Get database synchronously for this function
+        db_manager = get_database()
+        if hasattr(db_manager, 'is_connected') and db_manager.is_connected():
+            user_data = db_manager.get_user_by_token(token)
+            if user_data:
+                print(f"✅ Token validation successful for user: {user_data['email']}")
+                return user_data["user_id"]
+            else:
+                print(f"❌ Token validation failed - invalid or expired token")
+        else:
+            print(f"❌ Database not connected - falling back to demo mode")
+    except Exception as e:
+        print(f"❌ Error validating token: {e}")
+    
+    # Fallback to demo mode for invalid/expired tokens
+    print(f"⚠️ Falling back to demo_user_id due to token validation failure")
+    return "demo_user_id"
 
 def is_image(ft: str) -> bool:
     return ft and ft.startswith("image/")

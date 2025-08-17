@@ -195,6 +195,87 @@ class ThumbnailSystemTester:
             self.log_result("Thumbnail Status", False, error=str(e))
             return False
     
+    def analyze_thumb_urls_french_review(self):
+        """ÉTAPE FRANÇAISE: Analyser les thumb_url - Combien ont thumb_url = null, libfusion vs claire-marcus"""
+        print("🇫🇷 ÉTAPE FRANÇAISE: Analyse thumb_url selon demande")
+        print("=" * 50)
+        
+        try:
+            # Get all content files
+            response = self.session.get(f"{API_BASE}/content/pending?limit=100")
+            
+            if response.status_code == 200:
+                data = response.json()
+                content = data.get("content", [])
+                total_files = len(content)
+                
+                # Analyze thumb_url patterns as requested in French review
+                null_thumb_urls = 0
+                libfusion_urls = 0
+                claire_marcus_urls = 0
+                other_urls = 0
+                
+                libfusion_examples = []
+                claire_marcus_examples = []
+                
+                for item in content:
+                    thumb_url = item.get("thumb_url")
+                    filename = item.get("filename", "unknown")
+                    
+                    if thumb_url is None or thumb_url == "":
+                        null_thumb_urls += 1
+                    elif "libfusion.preview.emergentagent.com" in thumb_url:
+                        libfusion_urls += 1
+                        if len(libfusion_examples) < 2:
+                            libfusion_examples.append(f"{filename}: {thumb_url}")
+                    elif "claire-marcus.com" in thumb_url:
+                        claire_marcus_urls += 1
+                        if len(claire_marcus_examples) < 2:
+                            claire_marcus_examples.append(f"{filename}: {thumb_url}")
+                    else:
+                        other_urls += 1
+                
+                # Report according to French review requirements
+                details = f"ANALYSE DES {total_files} FICHIERS: "
+                details += f"thumb_url = null: {null_thumb_urls}, "
+                details += f"utilisant libfusion.preview.emergentagent.com: {libfusion_urls}, "
+                details += f"utilisant correctement claire-marcus.com: {claire_marcus_urls}, "
+                details += f"autres: {other_urls}. "
+                
+                if libfusion_examples:
+                    details += f"Exemples libfusion: {libfusion_examples}. "
+                if claire_marcus_examples:
+                    details += f"Exemples claire-marcus: {claire_marcus_examples}. "
+                
+                self.log_result(
+                    "Analyse thumb_url (demande française)", 
+                    True, 
+                    details
+                )
+                
+                # Store for final verification
+                self.french_analysis = {
+                    "total_files": total_files,
+                    "null_thumb_urls": null_thumb_urls,
+                    "libfusion_urls": libfusion_urls,
+                    "claire_marcus_urls": claire_marcus_urls,
+                    "other_urls": other_urls
+                }
+                
+                return True
+            else:
+                self.log_result(
+                    "Analyse thumb_url (demande française)", 
+                    False, 
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result("Analyse thumb_url (demande française)", False, error=str(e))
+            return False
+    
     def test_thumbnail_rebuild(self):
         """Step 4: Test POST /api/content/thumbnails/rebuild"""
         print("🔄 STEP 4: Thumbnail Rebuild Test")

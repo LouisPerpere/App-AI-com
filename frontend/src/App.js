@@ -1590,6 +1590,9 @@ function MainApp() {
       // await loadBusinessProfile(); // REMOVED - This was causing data reload
       console.log('🔍 APP DEBUG - Business profile already loaded in checkAuth');
       
+      // CRITICAL FIX: Force dashboard transition after successful authentication
+      console.log('🎯 FORCING DASHBOARD TRANSITION after auth success');
+      setActiveStep('dashboard');
       
     } catch (error) {
       console.error('❌ APP DEBUG - Error in handleAuthSuccess:', error);

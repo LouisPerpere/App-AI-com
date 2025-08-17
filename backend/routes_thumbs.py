@@ -80,11 +80,10 @@ async def generate_single_thumb(
     user_id: str = Depends(get_current_user_id),
 ):
     """Generate thumbnail for a single file"""
-    db = await get_database()
-    media_collection = db.media
+    media_collection = get_sync_media_collection()
     
     try:
-        doc = await media_collection.find_one({"_id": ObjectId(file_id), "owner_id": user_id, "deleted": {"$ne": True}})
+        doc = media_collection.find_one({"_id": ObjectId(file_id), "owner_id": user_id, "deleted": {"$ne": True}})
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Invalid file ID: {str(e)}")
         

@@ -1104,6 +1104,7 @@ app.add_middleware(
     allow_origins=[
         "https://claire-marcus.com",
         "https://www.claire-marcus.com", 
+        "https://1d40efb9-5df5-4451-92ee-3a9e99a73a8a.preview.emergentagent.com",
         "http://localhost:3000",
         "http://10.64.167.140:3000"
     ],

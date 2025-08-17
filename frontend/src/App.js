@@ -227,7 +227,13 @@ const ContentPreviewModal = ({
             
             <div className="mt-3">
               <Button
-                onClick={onSaveDescription}
+                onClick={() => {
+                  onSaveDescription();
+                  // Force immédiate de fermeture du modal
+                  setTimeout(() => {
+                    onClose();
+                  }, 100);
+                }}
                 disabled={isSavingDescription}
                 className="btn-gradient-primary"
               >

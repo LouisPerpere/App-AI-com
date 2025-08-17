@@ -582,7 +582,7 @@ async def get_pending_content_mongo(
 ):
     """Get pending content with MongoDB (VERSION FINALE avec base64 d'urgence selon ChatGPT)"""
     try:
-        media_collection = get_media_collection()
+        media_collection = await get_media_collection()
         
         # Query MongoDB avec filtrage par user
         query = {"owner_id": user_id, "deleted": {"$ne": True}}

@@ -1840,14 +1840,51 @@ function MainApp() {
     }
   };
 
-  const loadPendingContent = async (reset = false) => {
+  // Fonction de nettoyage du cache localStorage pour la bibliothèque
+  const cleanupContentCache = () => {
+    try {
+      // Nettoyer tous les caches liés au contenu
+      const keysToRemove = [];
+      
+      // Parcourir toutes les clés du localStorage
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (
+          key.startsWith('content_description_') ||
+          key === 'deleted_content_ids' ||
+          key.startsWith('content_') 
+        )) {
+          keysToRemove.push(key);
+        }
+      }
+      
+      // Supprimer toutes les clés identifiées
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+      
+      console.log(`🧹 Nettoyage cache localStorage: ${keysToRemove.length} clés supprimées`);
+      console.log('🔧 Clés supprimées:', keysToRemove);
+      
+      return keysToRemove.length;
+    } catch (error) {
+      console.error('❌ Erreur nettoyage cache:', error);
+      return 0;
+    }
+  };
+
+  const loadPendingContent = async (reset = false, forceCleanCache = false) => {
     try {
       setContentLoading(true);
+      
+      // Nettoyer le cache si demandé (pour debug)
+      if (forceCleanCache) {
+        const cleanedCount = cleanupContentCache();
+        console.log(`🔄 Cache nettoyé: ${cleanedCount} entrées supprimées`);
+      }
       
       const offset = reset ? 0 : pendingContent.length;
       const limit = 24; // Load in chunks to prevent crashes
       
-      console.log(`📁 Loading content: offset=${offset}, limit=${limit}, reset=${reset}`);
+      console.log(`📁 Loading content: offset=${offset}, limit=${limit}, reset=${reset}, cleanCache=${forceCleanCache}`);
       
       const response = await axios.get(`${API}/content/pending?limit=${limit}&offset=${offset}`, {
         headers: { 
@@ -1861,14 +1898,21 @@ function MainApp() {
       const data = response.data;
       console.log(`📊 Content loaded from server: ${data.loaded}/${data.total} (has_more: ${data.has_more})`);
       
-      // Filtrer les éléments supprimés localement (même système que business profile)
-      const deletedItemsKey = 'deleted_content_ids';
-      const deletedItems = JSON.parse(localStorage.getItem(deletedItemsKey) || '[]');
-      
-      const filteredContent = (data.content || []).filter(item => !deletedItems.includes(item.id));
-      
-      if (deletedItems.length > 0) {
-        console.log(`🗑️ Filtered out ${(data.content || []).length - filteredContent.length} locally deleted items`);
+      // Si on force le nettoyage, ne pas filtrer les suppressions locales
+      let filteredContent;
+      if (forceCleanCache) {
+        filteredContent = data.content || [];
+        console.log('🔄 Mode nettoyage: pas de filtrage local, données serveur brutes');
+      } else {
+        // Filtrer les éléments supprimés localement (mode normal)
+        const deletedItemsKey = 'deleted_content_ids';
+        const deletedItems = JSON.parse(localStorage.getItem(deletedItemsKey) || '[]');
+        
+        filteredContent = (data.content || []).filter(item => !deletedItems.includes(item.id));
+        
+        if (deletedItems.length > 0) {
+          console.log(`🗑️ Filtered out ${(data.content || []).length - filteredContent.length} locally deleted items`);
+        }
       }
       
       // Debug: Log descriptions for troubleshooting

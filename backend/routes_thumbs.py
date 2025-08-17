@@ -5,7 +5,7 @@ from bson import ObjectId
 from datetime import datetime
 from thumbs import generate_image_thumb, generate_video_thumb, build_thumb_path
 from database import get_database
-from auth import get_current_user_id
+from server import get_current_user_id
 import asyncio
 import pymongo
 

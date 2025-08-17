@@ -1940,12 +1940,13 @@ function MainApp() {
         console.log(`🔄 Cache nettoyé: ${cleanedCount} entrées supprimées`);
       }
       
-      const offset = reset ? 0 : pendingContent.length;
-      const limit = 24; // Load in chunks to prevent crashes
+      const limit = 24;
+      const offset = reset ? 0 : serverFetchedCount; // <-- clé : offset basé serveur (ChatGPT)
       
       console.log(`📁 Loading content: offset=${offset}, limit=${limit}, reset=${reset}, cleanCache=${forceCleanCache}`);
       
-      const response = await axios.get(`${API}/content/pending?limit=${limit}&offset=${offset}`, {
+      const response = await axios.get(`${API}/content/pending`, {
+        params: { limit, offset },
         headers: { 
           Authorization: `Bearer ${localStorage.getItem('access_token')}`,
           'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -1957,46 +1958,34 @@ function MainApp() {
       const data = response.data;
       console.log(`📊 Content loaded from server: ${data.loaded}/${data.total} (has_more: ${data.has_more})`);
       
-      // Si on force le nettoyage, ne pas filtrer les suppressions locales
-      let filteredContent;
-      if (forceCleanCache) {
-        filteredContent = data.content || [];
-        console.log('🔄 Mode nettoyage: pas de filtrage local, données serveur brutes');
-      } else {
-        // Filtrer les éléments supprimés localement (mode normal)
-        const deletedItemsKey = 'deleted_content_ids';
-        const deletedItems = JSON.parse(localStorage.getItem(deletedItemsKey) || '[]');
-        
-        filteredContent = (data.content || []).filter(item => !deletedItems.includes(item.id));
-        
-        if (deletedItems.length > 0) {
-          console.log(`🗑️ Filtered out ${(data.content || []).length - filteredContent.length} locally deleted items`);
-        }
-      }
+      // Filtre local (optimiste) seulement si tu gardes deleted_content_ids (ChatGPT)
+      const deletedItems = JSON.parse(localStorage.getItem('deleted_content_ids') || '[]');
+      const page = (data.content || []);
+      const filteredPage = forceCleanCache ? page : page.filter(it => !deletedItems.includes(it.id));
       
-      // Debug: Log descriptions for troubleshooting
-      const contentWithDescriptions = filteredContent.filter(item => item.description && item.description.trim());
-      console.log(`💬 Files with descriptions: ${contentWithDescriptions.length}/${filteredContent.length}`, contentWithDescriptions.map(item => ({ id: item.id, desc: item.description })));
+      // Dédupe sur append (ChatGPT)
+      const dedupAppend = (prev, next) => {
+        const seen = new Set(prev.map(it => it.id));
+        return [...prev, ...next.filter(it => !seen.has(it.id))];
+      };
       
-      // PAGINATION avec dédupli (selon ChatGPT)
       if (reset) {
-        setPendingContent(filteredContent);
+        setPendingContent(filteredPage);
+        setServerFetchedCount(page.length); // <- on compte la page brute reçue (ChatGPT)
       } else {
-        setPendingContent(prev => {
-          const seen = new Set(prev.map(it => it.id));
-          const append = filteredContent.filter(it => !seen.has(it.id));
-          return [...prev, ...append];
-        });
+        setPendingContent(prev => dedupAppend(prev, filteredPage));
+        setServerFetchedCount(prev => prev + page.length); // <- on incrémente avec la taille SERVEUR (ChatGPT)
       }
       
       setContentTotalCount(data.total || 0);
-      setContentHasMore(data.has_more || false);
+      setContentHasMore(Boolean(data.has_more));
       
     } catch (error) {
       console.error('❌ Error loading pending content:', error);
       if (error.response?.status === 401) {
         // Token might be expired
         console.log('🔄 Token expired, redirecting to login');
+        handleLogout();
       }
     } finally {
       setContentLoading(false);

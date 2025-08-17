@@ -2609,7 +2609,7 @@ function MainApp() {
     });
   }, []);
 
-  // Suppression multiple avec persistance locale (même système que business profile)  
+  // Suppression multiple CORRIGÉE - nettoyage localStorage après succès serveur
   const deleteSelectedContent = useCallback(async () => {
     if (selectedContentIds.length === 0) return;
     
@@ -2621,23 +2621,9 @@ function MainApp() {
     setIsDeletingMultiple(true);
     let deletedCount = 0;
     let errorCount = 0;
+    const successfullyDeleted = [];
     
     try {
-      // Marquer tous comme supprimés localement d'abord
-      const deletedItemsKey = 'deleted_content_ids';
-      const deletedItems = JSON.parse(localStorage.getItem(deletedItemsKey) || '[]');
-      const newDeletedItems = [...deletedItems];
-      
-      selectedContentIds.forEach(id => {
-        if (!newDeletedItems.includes(id)) {
-          newDeletedItems.push(id);
-        }
-      });
-      localStorage.setItem(deletedItemsKey, JSON.stringify(newDeletedItems));
-      
-      // Supprimer de l'affichage immédiatement
-      setPendingContent(prev => prev.filter(file => !selectedContentIds.includes(file.id)));
-      
       // Sortir du mode sélection immédiatement
       exitSelectionMode();
       
@@ -2648,6 +2634,7 @@ function MainApp() {
             headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
           });
           deletedCount++;
+          successfullyDeleted.push(contentId);
           
           // Nettoyer descriptions locales
           localStorage.removeItem(`content_description_${contentId}`);
@@ -2659,10 +2646,16 @@ function MainApp() {
         }
       }
       
-      // Nettoyer le localStorage après succès
-      const finalDeletedItems = JSON.parse(localStorage.getItem(deletedItemsKey) || '[]');
-      const cleanedItems = finalDeletedItems.filter(id => !selectedContentIds.includes(id));
-      localStorage.setItem(deletedItemsKey, JSON.stringify(cleanedItems));
+      // APRÈS SUCCÈS: Nettoyer localStorage et interface pour les suppressions réussies
+      if (successfullyDeleted.length > 0) {
+        const deletedItemsKey = 'deleted_content_ids';
+        const deletedItems = JSON.parse(localStorage.getItem(deletedItemsKey) || '[]');
+        const cleanedItems = deletedItems.filter(id => !successfullyDeleted.includes(id));
+        localStorage.setItem(deletedItemsKey, JSON.stringify(cleanedItems));
+        
+        // Supprimer de l'affichage seulement les suppressions réussies
+        setPendingContent(prev => prev.filter(file => !successfullyDeleted.includes(file.id)));
+      }
       
       // Show result message
       if (deletedCount > 0 && errorCount === 0) {
@@ -2671,15 +2664,11 @@ function MainApp() {
         toast.success(`${deletedCount} contenu${deletedCount > 1 ? 's' : ''} supprimé${deletedCount > 1 ? 's' : ''}, ${errorCount} erreur${errorCount > 1 ? 's' : ''}`);
       } else {
         toast.error('Erreur lors de la suppression des contenus');
-        // Restaurer le contenu en cas d'erreur complète
-        await loadPendingContent(true);
       }
       
     } catch (error) {
       console.error('Error in batch delete:', error);
       toast.error('Erreur lors de la suppression');
-      // Restaurer le contenu en cas d'erreur
-      await loadPendingContent(true);
     } finally {
       setIsDeletingMultiple(false);
     }

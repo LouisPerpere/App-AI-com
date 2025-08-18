@@ -123,7 +123,7 @@ def parse_any_id(file_id: str) -> dict:
 async def generate_single_thumb(
     file_id: str,
     bg: BackgroundTasks,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_current_user_id_robust),
 ):
     """Generate thumbnail for a single file"""
     media_collection = get_sync_media_collection()

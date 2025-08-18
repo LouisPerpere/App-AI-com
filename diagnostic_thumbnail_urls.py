@@ -136,12 +136,24 @@ class ThumbnailURLDiagnostic:
             # Count total documents
             total_docs = media_collection.count_documents({})
             
-            # Count documents with thumb_url
-            with_thumb_url = media_collection.count_documents({"thumb_url": {"$ne": None, "$ne": ""}})
+            # Count documents with thumb_url (handle None values properly)
+            with_thumb_url = media_collection.count_documents({
+                "thumb_url": {"$ne": None, "$ne": "", "$ne": "None"}
+            })
             
-            # Get 5 examples of thumb_url
+            # Count documents with null/None thumb_url
+            null_thumb_url = media_collection.count_documents({
+                "$or": [
+                    {"thumb_url": None},
+                    {"thumb_url": ""},
+                    {"thumb_url": "None"},
+                    {"thumb_url": {"$exists": False}}
+                ]
+            })
+            
+            # Get 5 examples of thumb_url (excluding None/null values)
             examples = list(media_collection.find(
-                {"thumb_url": {"$ne": None, "$ne": ""}}, 
+                {"thumb_url": {"$ne": None, "$ne": "", "$ne": "None"}}, 
                 {"filename": 1, "thumb_url": 1, "url": 1, "_id": 1}
             ).limit(5))
             
@@ -152,6 +164,10 @@ class ThumbnailURLDiagnostic:
                 filename = doc.get("filename", "")
                 url = doc.get("url", "")
                 doc_id = str(doc.get("_id", ""))
+                
+                # Skip if thumb_url is None or "None" string
+                if not thumb_url or thumb_url == "None":
+                    continue
                 
                 # Extract UUID from thumb_url
                 thumb_uuid_match = re.search(r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})', thumb_url)
@@ -171,7 +187,7 @@ class ThumbnailURLDiagnostic:
                     "uuid_match": thumb_uuid == filename_uuid
                 })
             
-            details = f"MongoDB Analysis: {total_docs} documents totaux, {with_thumb_url} avec thumb_url. "
+            details = f"MongoDB Analysis: {total_docs} documents totaux, {with_thumb_url} avec thumb_url valide, {null_thumb_url} avec thumb_url null/None. "
             details += f"Exemples analysés: {len(thumb_url_examples)}. "
             
             for i, example in enumerate(thumb_url_examples, 1):

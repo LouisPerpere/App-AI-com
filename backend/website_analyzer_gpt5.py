@@ -728,11 +728,11 @@ async def get_website_analysis(
 
 @website_router.delete("/analysis")
 async def delete_website_analysis(
-    current_user: User = Depends(get_current_active_user)
+    user_id: str = Depends(get_current_user_id_robust)
 ):
     """Delete website analysis for the current user"""
     try:
-        result = await db.website_analyses.delete_many({"user_id": current_user.id})
+        result = await db.website_analyses.delete_many({"user_id": user_id})
         
         return {
             "message": f"Deleted {result.deleted_count} website analysis records",

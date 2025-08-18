@@ -34,8 +34,8 @@ class MediaResponse(BaseModel):
 # Collections MongoDB pour persistance (selon ChatGPT)
 async def get_media_collection():
     """Get MongoDB media collection (asynchronous)"""
-    db = await get_database()
-    return db.media
+    db_manager = get_database()
+    return db_manager.db.media
 
 def parse_any_id(file_id: str) -> dict:
     """Parse file ID - accepts both ObjectId and UUID for backwards compatibility"""

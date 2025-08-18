@@ -1,8 +1,5 @@
 # Netlify Redirects for Claire et Marcus SPA
 
-# Proxy uploads to backend API (ChatGPT solution Option B)
-/uploads/*  https://libfusion.preview.emergentagent.com/uploads/:splat  200
-
 # API redirects to backend (MUST be before /* rule)
 /api/*  https://libfusion.preview.emergentagent.com/api/:splat  200
 

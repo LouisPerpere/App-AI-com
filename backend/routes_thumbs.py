@@ -15,6 +15,12 @@ router = APIRouter()
 UPLOADS_DIR = os.environ.get("UPLOADS_DIR", "uploads")
 PUBLIC_BASE = os.environ.get("PUBLIC_BASE", "https://claire-marcus-api.onrender.com")  # API direct selon ChatGPT
 
+# JWT Configuration (same as server.py)
+JWT_SECRET = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-this-in-production')
+JWT_ALG = os.environ.get("JWT_ALG", "HS256")
+JWT_TTL = int(os.environ.get("JWT_TTL_SECONDS", "604800"))  # 7 jours
+JWT_ISS = os.environ.get("JWT_ISS", "claire-marcus-api")
+
 async def get_media_collection():
     """Get MongoDB media collection"""
     db = get_database()

@@ -809,7 +809,7 @@ async def get_pending_content_mongo(
 async def put_description_mongo(
     file_id: str,
     body: UpdateDescriptionIn,
-    user_id: str = Depends(get_current_user_id)
+    user_id: str = Depends(get_current_user_id_robust)
 ):
     """Update description with MongoDB (VERSION FINALE selon ChatGPT)"""
     try:

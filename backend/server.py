@@ -617,20 +617,32 @@ async def get_pending_content_mongo(
     limit: int = 24,
     user_id: str = Depends(get_current_user_id)
 ):
-    """Get pending content with MongoDB (VERSION FINALE selon ChatGPT)"""
+    """Get pending content with MongoDB (VERSION FINALE selon ChatGPT avec filtre tolérant)"""
     try:
+        from helpers_debug import build_owner_filter
+        from bson import ObjectId
+        from fastapi import Query
+        
         media_collection = await get_media_collection()
         
-        # Query MongoDB avec filtrage par user
-        query = {"owner_id": user_id, "deleted": {"$ne": True}}
+        # Use tolerant owner filter for different field names and types
+        q_owner = build_owner_filter(user_id)
+        
+        # Combined query with soft delete support
+        q = {"$and": [q_owner, {"$or": [{"deleted": {"$ne": True}}, {"deleted": {"$exists": False}}]}]}
         
         # Count total
-        total = media_collection.count_documents(query)
+        total = await media_collection.count_documents(q)
         
         # Fetch documents with pagination and stable sorting
-        cursor = media_collection.find(query).sort([("created_at", -1), ("_id", -1)]).skip(offset).limit(limit)
+        cursor = (
+            media_collection.find(q)
+            .sort([("created_at", -1), ("_id", -1)])
+            .skip(offset)
+            .limit(limit)
+        )
         docs = []
-        for doc in cursor:
+        async for doc in cursor:
             docs.append(doc)
         
         # Build response (selon ChatGPT)
@@ -651,7 +663,8 @@ async def get_pending_content_mongo(
             "total": total,
             "offset": offset,
             "limit": limit,
-            "has_more": offset + limit < total
+            "has_more": offset + limit < total,
+            "loaded": len(content)
         }
     
     except Exception as e:

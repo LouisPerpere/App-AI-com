@@ -157,6 +157,20 @@ class RegisterRequest(BaseModel):
     last_name: Optional[str] = None
     business_name: Optional[str] = None
 
+# Login model selon plan ChatGPT
+class LoginIn(BaseModel):
+    email: str
+    password: str
+
+# JWT Configuration selon plan ChatGPT
+JWT_SECRET = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-this-in-production')
+JWT_ALG = os.environ.get("JWT_ALG", "HS256")
+JWT_TTL = int(os.environ.get("JWT_TTL_SECONDS", "604800"))  # 7 jours
+JWT_ISS = os.environ.get("JWT_ISS", "claire-marcus-api")
+
+# Password hashing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 # Basic health check endpoint
 @api_router.get("/health")
 async def health_check():

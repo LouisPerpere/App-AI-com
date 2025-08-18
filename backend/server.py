@@ -1337,7 +1337,7 @@ def sync_descriptions_with_files():
 @api_router.post("/content/batch-upload")
 async def batch_upload_files(
     files: List[UploadFile] = File(...),
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_current_user_id_robust),
     bg: BackgroundTasks = None
 ):
     """Upload multiple files to user's content library with MongoDB persistence and thumbnail generation"""

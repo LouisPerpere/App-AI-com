@@ -173,7 +173,7 @@ async def generate_single_thumb(
 async def rebuild_missing_thumbs(
     limit: int = 500,
     bg: BackgroundTasks = None,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_current_user_id_robust),
 ):
     """Rebuild missing thumbnails for user (backfill)"""
     media_collection = get_sync_media_collection()

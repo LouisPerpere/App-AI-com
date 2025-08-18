@@ -177,6 +177,42 @@ JWT_ALG = os.environ.get("JWT_ALG", "HS256")
 JWT_TTL = int(os.environ.get("JWT_TTL_SECONDS", "604800"))  # 7 jours
 JWT_ISS = os.environ.get("JWT_ISS", "claire-marcus-api")
 
+# Security selon plan ChatGPT - PAS DE FALLBACK
+def get_current_user_id_robust(authorization: Optional[str] = Header(None)) -> str:
+    """Extraction robuste du user_id - PAS DE FALLBACK"""
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(401, "Missing bearer token")
+    
+    token = authorization.split(" ", 1)[1]
+    
+    try:
+        payload = jwt.decode(
+            token, 
+            JWT_SECRET, 
+            algorithms=[JWT_ALG], 
+            options={"require": ["sub", "exp"]}, 
+            issuer=JWT_ISS
+        )
+        
+        sub = payload.get("sub")
+        if not sub:
+            raise HTTPException(401, "Invalid token: sub missing")
+        
+        # Normaliser: on renvoie l'ID en string
+        try:
+            from bson import ObjectId
+            _ = ObjectId(sub)  # valide ? ok
+        except Exception:
+            pass  # Pas un ObjectId, c'est OK
+        
+        print(f"🔑 Authenticated user_id: {sub}")
+        return sub
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(401, "Token expired")
+    except jwt.InvalidTokenError as e:
+        raise HTTPException(401, f"Invalid token: {e}")
+
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

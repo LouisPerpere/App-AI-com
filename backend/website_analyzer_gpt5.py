@@ -599,7 +599,7 @@ def create_fallback_analysis(content_data: dict, website_url: str, reason: str =
 @website_router.post("/analyze")
 async def analyze_website(
     request: WebsiteAnalysisRequest,
-    current_user: User = Depends(get_current_active_user)
+    user_id: str = Depends(get_current_user_id_robust)
 ):
     """Analyze website content using GPT-5 and store results"""
     
@@ -609,7 +609,7 @@ async def analyze_website(
         # Check for existing analysis
         if not request.force_reanalysis:
             existing_analysis = await db.website_analyses.find_one({
-                "user_id": current_user.id,
+                "user_id": user_id,
                 "website_url": website_url,
                 "last_analyzed": {"$gte": datetime.utcnow() - timedelta(hours=24)}
             })
@@ -640,8 +640,8 @@ async def analyze_website(
         
         # Store analysis in database
         website_analysis = WebsiteData(
-            user_id=current_user.id,
-            business_id=current_user.id,  # Using user_id as business_id for now
+            user_id=user_id,
+            business_id=user_id,  # Using user_id as business_id for now
             website_url=website_url,
             content_text=content_data.get('content_text', ''),
             meta_description=content_data.get('meta_description', ''),
@@ -660,7 +660,7 @@ async def analyze_website(
         
         # Store in MongoDB
         await db.website_analyses.replace_one(
-            {"user_id": current_user.id, "website_url": website_url},
+            {"user_id": user_id, "website_url": website_url},
             website_analysis.dict(),
             upsert=True
         )

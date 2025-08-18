@@ -90,91 +90,91 @@ class MongoDBURLUpdateTester:
             return False
     
     def analyze_current_urls(self):
-        """Step 2: Analyze current URLs in MongoDB before update"""
-        print("🔍 STEP 2: Analyze Current URLs in MongoDB")
+        """Step 2: Connect to MongoDB and analyze current URLs directly"""
+        print("🔗 STEP 2: Connect to MongoDB and Analyze URLs")
         print("=" * 50)
         
         try:
-            # Get all content files to analyze URLs
-            response = self.session.get(f"{API_BASE}/content/pending?limit=100")
+            # Connect to MongoDB
+            self.mongo_client = MongoClient(MONGO_URL)
+            self.db = self.mongo_client.claire_marcus
+            self.media_collection = self.db.media
             
-            if response.status_code == 200:
-                data = response.json()
-                content = data.get("content", [])
-                total_files = len(content)
-                
-                # Analyze URL patterns
-                claire_marcus_com_urls = 0
-                claire_marcus_api_urls = 0
-                libfusion_urls = 0
-                null_urls = 0
-                other_urls = 0
-                
-                claire_marcus_com_examples = []
-                claire_marcus_api_examples = []
-                
-                for item in content:
-                    thumb_url = item.get("thumb_url")
-                    url = item.get("url")
-                    filename = item.get("filename", "unknown")
-                    
-                    # Check thumb_url
-                    if thumb_url is None or thumb_url == "":
-                        null_urls += 1
-                    elif "claire-marcus.com/uploads/" in thumb_url:
-                        claire_marcus_com_urls += 1
-                        if len(claire_marcus_com_examples) < 3:
-                            claire_marcus_com_examples.append(f"{filename}: {thumb_url}")
-                    elif "claire-marcus-api.onrender.com/uploads/" in thumb_url:
-                        claire_marcus_api_urls += 1
-                        if len(claire_marcus_api_examples) < 3:
-                            claire_marcus_api_examples.append(f"{filename}: {thumb_url}")
-                    elif "libfusion.preview.emergentagent.com" in thumb_url:
-                        libfusion_urls += 1
-                    else:
-                        other_urls += 1
-                
-                # Report current state
-                details = f"ANALYSE ACTUELLE DES {total_files} FICHIERS: "
-                details += f"URLs claire-marcus.com: {claire_marcus_com_urls}, "
-                details += f"URLs claire-marcus-api.onrender.com: {claire_marcus_api_urls}, "
-                details += f"URLs libfusion: {libfusion_urls}, "
-                details += f"URLs null: {null_urls}, "
-                details += f"Autres: {other_urls}. "
-                
-                if claire_marcus_com_examples:
-                    details += f"Exemples claire-marcus.com: {claire_marcus_com_examples}. "
-                if claire_marcus_api_examples:
-                    details += f"Exemples claire-marcus-api.onrender.com: {claire_marcus_api_examples}. "
-                
-                self.log_result(
-                    "Analyse URLs actuelles", 
-                    True, 
-                    details
-                )
-                
-                # Store for comparison after update
-                self.before_update = {
-                    "total_files": total_files,
-                    "claire_marcus_com_urls": claire_marcus_com_urls,
-                    "claire_marcus_api_urls": claire_marcus_api_urls,
-                    "libfusion_urls": libfusion_urls,
-                    "null_urls": null_urls,
-                    "other_urls": other_urls
-                }
-                
-                return True
-            else:
-                self.log_result(
-                    "Analyse URLs actuelles", 
-                    False, 
-                    f"Status: {response.status_code}",
-                    response.text
-                )
-                return False
-                
+            # Test connection
+            server_info = self.mongo_client.server_info()
+            print(f"✅ Connected to MongoDB version {server_info.get('version', 'unknown')}")
+            
+            # Count documents with different URL patterns
+            total_docs = self.media_collection.count_documents({})
+            
+            # Count thumb_url patterns
+            claire_marcus_thumb = self.media_collection.count_documents({
+                "thumb_url": {"$regex": "claire-marcus.com"}
+            })
+            
+            claire_marcus_api_thumb = self.media_collection.count_documents({
+                "thumb_url": {"$regex": "claire-marcus-api.onrender.com"}
+            })
+            
+            null_thumb = self.media_collection.count_documents({
+                "thumb_url": None
+            })
+            
+            # Count url patterns
+            claire_marcus_url = self.media_collection.count_documents({
+                "url": {"$regex": "claire-marcus.com"}
+            })
+            
+            claire_marcus_api_url = self.media_collection.count_documents({
+                "url": {"$regex": "claire-marcus-api.onrender.com"}
+            })
+            
+            null_url = self.media_collection.count_documents({
+                "url": None
+            })
+            
+            # Get some examples
+            examples = []
+            sample_docs = self.media_collection.find({
+                "$or": [
+                    {"thumb_url": {"$regex": "claire-marcus.com"}},
+                    {"url": {"$regex": "claire-marcus.com"}}
+                ]
+            }).limit(3)
+            
+            for doc in sample_docs:
+                filename = doc.get("filename", "unknown")
+                thumb_url = doc.get("thumb_url", "")
+                url = doc.get("url", "")
+                examples.append(f"{filename}: thumb_url={thumb_url}, url={url}")
+            
+            details = f"ANALYSE MONGODB DIRECTE: {total_docs} documents totaux. "
+            details += f"thumb_url: {claire_marcus_thumb} claire-marcus.com, {claire_marcus_api_thumb} claire-marcus-api.onrender.com, {null_thumb} null. "
+            details += f"url: {claire_marcus_url} claire-marcus.com, {claire_marcus_api_url} claire-marcus-api.onrender.com, {null_url} null. "
+            if examples:
+                details += f"Exemples: {examples}"
+            
+            self.log_result(
+                "Analyse MongoDB directe", 
+                True, 
+                details
+            )
+            
+            # Store for comparison after update
+            self.before_update = {
+                "total_docs": total_docs,
+                "claire_marcus_thumb": claire_marcus_thumb,
+                "claire_marcus_api_thumb": claire_marcus_api_thumb,
+                "claire_marcus_url": claire_marcus_url,
+                "claire_marcus_api_url": claire_marcus_api_url,
+                "null_thumb": null_thumb,
+                "null_url": null_url
+            }
+            
+            return True
+            
         except Exception as e:
-            self.log_result("Analyse URLs actuelles", False, error=str(e))
+            self.log_result("Analyse MongoDB directe", False, error=str(e))
             return False
     
     def test_url_update_endpoint(self):

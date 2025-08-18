@@ -381,6 +381,11 @@ async def login_robust(body: LoginIn):
         print(f"❌ Login error for {body.email}: {str(e)}")
         raise HTTPException(500, "Internal server error during login")
 
+@api_router.get("/auth/whoami")
+async def whoami(user_id: str = Depends(get_current_user_id_robust)):
+    """Test de la chaîne auth selon plan ChatGPT"""
+    return {"user_id": user_id, "authentication": "success"}
+
 @api_router.get("/auth/me")
 async def get_current_user_info(user_id: str = Depends(get_current_user_id)):
     """Get current user information with real database"""

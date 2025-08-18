@@ -379,16 +379,24 @@ class ThumbnailURLDiagnostic:
         expected_physical_file = "8ee21d73-914d-4a4e-8799-ced03e27ebe0.webp"
         
         try:
-            # Check if physical file exists via API
-            response = self.session.get(f"{API_BASE}/content/thumbnails/test")
+            # Check if file exists via API content/pending
+            response = self.session.get(f"{API_BASE}/content/pending?limit=100")
             
             if response.status_code == 200:
                 data = response.json()
-                physical_thumbnails = data.get("thumbnails", [])
-                physical_filenames = [thumb["filename"] for thumb in physical_thumbnails]
+                api_content = data.get("content", [])
                 
-                # Check if expected file exists
-                physical_file_exists = expected_physical_file in physical_filenames
+                # Look for files containing "8ee21d73"
+                matching_files = []
+                for item in api_content:
+                    filename = item.get("filename", "")
+                    thumb_url = item.get("thumb_url", "")
+                    if "8ee21d73" in filename:
+                        matching_files.append({
+                            "filename": filename,
+                            "thumb_url": thumb_url,
+                            "has_thumb_url": bool(thumb_url and thumb_url != "None")
+                        })
                 
                 # Compare with MongoDB data
                 if hasattr(self, 'specific_file_docs') and self.specific_file_docs:
@@ -398,8 +406,8 @@ class ThumbnailURLDiagnostic:
                         thumb_url = doc.get("thumb_url", "")
                         filename = doc.get("filename", "")
                         
-                        # Extract filename from thumb_url
-                        if thumb_url:
+                        # Extract filename from thumb_url if it exists
+                        if thumb_url and thumb_url != "None":
                             parsed_url = urlparse(thumb_url)
                             thumb_filename = os.path.basename(parsed_url.path)
                         else:
@@ -418,28 +426,35 @@ class ThumbnailURLDiagnostic:
                     # Summary
                     matching_docs = sum(1 for analysis in mongodb_analysis if analysis["matches_physical"])
                     
-                    details = f"Fichier physique '{expected_physical_file}' existe: {physical_file_exists}. "
+                    details = f"Fichiers API contenant '8ee21d73': {len(matching_files)}. "
                     details += f"Documents MongoDB analysés: {len(mongodb_analysis)}. "
-                    details += f"Documents pointant vers le bon fichier physique: {matching_docs}. "
+                    details += f"Documents pointant vers '{expected_physical_file}': {matching_docs}. "
                     
+                    # Show API files
+                    for i, api_file in enumerate(matching_files, 1):
+                        thumb_status = "✅" if api_file["has_thumb_url"] else "❌"
+                        details += f"API{i}: {api_file['filename']} thumb:{thumb_status}. "
+                    
+                    # Show MongoDB analysis
                     for i, analysis in enumerate(mongodb_analysis, 1):
                         status = "✅" if analysis["matches_physical"] else "❌"
-                        details += f"Doc{i}: thumb_filename='{analysis['thumb_filename']}' {status}. "
+                        details += f"MongoDB{i}: thumb_filename='{analysis['thumb_filename']}' {status}. "
                     
                     # Identify the mismatch pattern
-                    if physical_file_exists and matching_docs == 0:
-                        details += "🚨 MISMATCH IDENTIFIÉ: Le fichier physique existe mais aucun document MongoDB ne pointe vers lui. "
+                    if len(matching_files) > 0 and matching_docs == 0:
+                        details += "🚨 MISMATCH IDENTIFIÉ: Fichiers existent dans API mais problème avec thumb_url MongoDB. "
                         
                         # Analyze the pattern
                         if mongodb_analysis:
-                            first_doc = mongodb_analysis[0]
-                            stored_thumb = first_doc["thumb_filename"]
-                            
-                            if "8ee21d73" in stored_thumb and "8ee21d73" in expected_physical_file:
-                                if len(stored_thumb) < len(expected_physical_file):
-                                    details += "CAUSE PROBABLE: UUID tronqué dans thumb_url (UUID partiel vs UUID complet). "
-                                elif stored_thumb != expected_physical_file:
-                                    details += "CAUSE PROBABLE: Différence dans la génération/stockage des noms de fichiers. "
+                            for analysis in mongodb_analysis:
+                                stored_thumb = analysis["thumb_filename"]
+                                mongo_thumb_url = analysis["thumb_url"]
+                                
+                                if mongo_thumb_url == "None" or not mongo_thumb_url:
+                                    details += "CAUSE: thumb_url = None dans MongoDB. "
+                                elif "8ee21d73" in stored_thumb and "8ee21d73" in expected_physical_file:
+                                    if stored_thumb != expected_physical_file:
+                                        details += f"CAUSE: Nom fichier différent - MongoDB: '{stored_thumb}' vs Attendu: '{expected_physical_file}'. "
                     
                     self.log_diagnostic(
                         "Comparaison avec fichier physique", 
@@ -459,7 +474,7 @@ class ThumbnailURLDiagnostic:
                 self.log_diagnostic(
                     "Comparaison avec fichier physique", 
                     False, 
-                    f"API test endpoint failed. Status: {response.status_code}",
+                    f"API content/pending failed. Status: {response.status_code}",
                     response.text
                 )
                 return False

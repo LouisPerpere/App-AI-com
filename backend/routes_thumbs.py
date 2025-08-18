@@ -31,6 +31,34 @@ def get_sync_media_collection():
     db = get_database()
     return db.db.media
 
+def get_current_user_id_robust(authorization: Optional[str] = Header(None)) -> str:
+    """Robust JWT token validation - PAS DE FALLBACK"""
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(401, "Missing bearer token")
+    
+    token = authorization.split(" ", 1)[1]
+    
+    try:
+        payload = jwt.decode(
+            token, 
+            JWT_SECRET, 
+            algorithms=[JWT_ALG], 
+            options={"require": ["sub", "exp"]}, 
+            issuer=JWT_ISS
+        )
+        
+        sub = payload.get("sub")
+        if not sub:
+            raise HTTPException(401, "Invalid token: sub missing")
+        
+        print(f"🔑 Thumbnails: Authenticated user_id: {sub}")
+        return sub
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(401, "Token expired")
+    except jwt.InvalidTokenError as e:
+        raise HTTPException(401, f"Invalid token: {e}")
+
 def get_current_user_id(authorization: str = Header(None)):
     """Extract user ID from JWT token - compatible with server.py"""
     if not authorization or not authorization.startswith("Bearer "):

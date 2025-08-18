@@ -341,8 +341,8 @@ class NetlifyProxyURLTester:
                 sample_urls = []
                 
                 for item in content:
-                    thumb_url = item.get("thumb_url", "")
-                    url = item.get("url", "")
+                    thumb_url = item.get("thumb_url") or ""
+                    url = item.get("url") or ""
                     filename = item.get("filename", "unknown")
                     
                     # Count claire-marcus URLs

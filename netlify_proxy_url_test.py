@@ -408,13 +408,17 @@ class NetlifyProxyURLTester:
                 tested_urls = []
                 
                 for item in content:
-                    thumb_url = item.get("thumb_url", "")
+                    thumb_url = item.get("thumb_url") or ""
+                    url = item.get("url") or ""
                     filename = item.get("filename", "unknown")
                     
-                    if thumb_url and "claire-marcus.com" in thumb_url:
+                    # Test both thumb_url and url if they use claire-marcus.com
+                    test_url = thumb_url if thumb_url and "claire-marcus.com" in thumb_url else url if url and "claire-marcus.com" in url else None
+                    
+                    if test_url:
                         try:
                             # Test accessibility through Netlify proxy
-                            proxy_response = requests.get(thumb_url, timeout=10)
+                            proxy_response = requests.get(test_url, timeout=10)
                             
                             if proxy_response.status_code == 200:
                                 content_type = proxy_response.headers.get('content-type', '')
@@ -422,7 +426,8 @@ class NetlifyProxyURLTester:
                                 
                                 if 'image' in content_type.lower():
                                     accessible_count += 1
-                                    tested_urls.append(f"✅ {filename} ({content_length}b)")
+                                    url_type = "thumb" if test_url == thumb_url else "url"
+                                    tested_urls.append(f"✅ {filename} ({url_type}, {content_length}b)")
                                 else:
                                     inaccessible_count += 1
                                     tested_urls.append(f"❌ {filename} (pas image: {content_type})")

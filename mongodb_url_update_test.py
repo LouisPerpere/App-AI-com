@@ -233,7 +233,7 @@ class MongoDBURLUpdateTester:
         print("=" * 50)
         
         try:
-            if not self.media_collection:
+            if self.media_collection is None:
                 self.log_result(
                     "MongoDB URL Update Verification", 
                     False, 

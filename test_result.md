@@ -104,7 +104,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test des corrections frontend React pour débloquer l'interface utilisateur : CORRECTION 1: Ajout de setActiveStep('dashboard') forcé dans checkAuth et handleAuthSuccess pour éviter que les utilisateurs restent bloqués sur l'onboarding. CORRECTION 2: Ajout du chargement automatique de loadPendingContent() dans le useEffect d'authentification. CORRECTION 3: Ajout du chargement automatique de contenu quand on sélectionne l'onglet bibliotheque. CORRECTION 4: Mise à jour du composant ContentThumbnail pour utiliser thumb_url ou url au lieu des anciens data base64."
+user_problem_statement: "Test du correctif du clavier virtuel dans l'onglet Réglages : CORRECTION APPLIQUÉE - Même logique que sur la page entreprise aux champs de l'onglet réglages : Détection isVirtualKeyboardDevice pour les appareils avec clavier virtuel, Utilisation d'input HTML natif au lieu du composant Input React, Configuration fontSize: '16px' et attributs anti-zoom : autoCorrect={false}, autoComplete='off', spellCheck={false}, autoCapitalize='off', Gestion onBlur au lieu d'onChange pour éviter les conflits. CHAMPS CORRIGÉS: Prénom (firstName), Nom (lastName), Email (email)."
 
 frontend:
   - task: "Frontend React Corrections for UI Unblocking"

@@ -1540,11 +1540,17 @@ async def batch_upload_files(
                     
                     print(f"📄 MongoDB document created with ID: {inserted_id}")
                     
-                    # Schedule thumbnail generation in background (FIXED version)
+                    # Schedule thumbnail generation in background (DIRECT method to avoid closure issues)
                     if bg:
-                        thumbnail_job = create_thumbnail_job(inserted_id, unique_filename, file_path, file.content_type)
-                        bg.add_task(thumbnail_job)
-                        print(f"📋 Thumbnail generation scheduled for: {unique_filename}")
+                        # Use direct task scheduling with immediate parameter binding
+                        bg.add_task(
+                            generate_thumbnail_background,
+                            file_id=inserted_id,
+                            unique_filename=unique_filename,
+                            file_path=file_path,
+                            content_type=file.content_type
+                        )
+                        print(f"📋 Thumbnail generation scheduled for: {unique_filename} (ID: {inserted_id})")
                     
                     # File metadata for response
                     file_metadata = {

@@ -152,10 +152,10 @@ const AuthPage = ({ onAuthSuccess }) => {
       console.log('✅ REGISTRATION SUCCESS:', response.status, response.data);
       toast.success('Compte créé avec succès ! 🎉');
       
-      console.log('🔄 AUTO-LOGIN START - Making API call to:', `${API}/auth/login`);
+      console.log('🔄 AUTO-LOGIN START - Making API call to:', `${API}/auth/login-robust`);
       
       // Auto login after registration
-      const loginResponse = await axios.post(`${API}/auth/login`, {
+      const loginResponse = await axios.post(`${API}/auth/login-robust`, {
         email: registerForm.email,
         password: registerForm.password
       }, {

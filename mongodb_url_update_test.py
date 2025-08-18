@@ -27,6 +27,9 @@ class MongoDBURLUpdateTester:
         self.access_token = None
         self.user_id = None
         self.test_results = []
+        self.mongo_client = None
+        self.db = None
+        self.media_collection = None
         
     def log_result(self, test_name, success, details="", error=""):
         """Log test result"""

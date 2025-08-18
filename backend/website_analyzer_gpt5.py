@@ -50,6 +50,39 @@ except ImportError as e:
     print(f"⚠️ JWT authentication not available: {e}")
     JWT_AVAILABLE = False
 
+# Import robust authentication from server.py
+import jwt as jwt_lib
+JWT_SECRET = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-this-in-production')
+JWT_ALG = os.environ.get("JWT_ALG", "HS256")
+JWT_ISS = os.environ.get("JWT_ISS", "claire-marcus-api")
+
+def get_current_user_id_robust(authorization: str = Header(None)) -> str:
+    """Robust JWT token validation - NO FALLBACK"""
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Missing bearer token")
+    
+    token = authorization.split(" ", 1)[1]
+    
+    try:
+        payload = jwt_lib.decode(
+            token, 
+            JWT_SECRET, 
+            algorithms=[JWT_ALG], 
+            options={"require": ["sub", "exp"]}, 
+            issuer=JWT_ISS
+        )
+        
+        sub = payload.get("sub")
+        if not sub:
+            raise HTTPException(status_code=401, detail="Invalid token: sub missing")
+        
+        return sub
+        
+    except jwt_lib.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt_lib.InvalidTokenError as e:
+        raise HTTPException(status_code=401, detail=f"Invalid token: {e}")
+
 def get_current_user_id(authorization: str = Header(None)) -> str:
     """Extract user ID from JWT token - compatible with server.py"""
     if not authorization or not authorization.startswith("Bearer "):

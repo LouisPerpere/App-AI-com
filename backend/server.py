@@ -1421,7 +1421,7 @@ async def batch_upload_files(
     
     for file in files:
         try:
-            # Validate file type (images and videos only)
+            # Validate file type (images and videos only, including HEIC/HEIF)
             if not (file.content_type.startswith('image/') or file.content_type.startswith('video/')):
                 failed_uploads.append({
                     "filename": file.filename,
@@ -1440,18 +1440,24 @@ async def batch_upload_files(
                 })
                 continue
             
-            # Optimize images
+            # Optimize images (including HEIC/HEIF conversion to JPEG)
             if file.content_type.startswith('image/'):
                 file_content = optimize_image(file_content)
             
             # Generate unique filename
             file_extension = os.path.splitext(file.filename)[1]
+            # For HEIC/HEIF files, change extension to .jpg after optimization
+            if file.content_type.lower() in ['image/heic', 'image/heif']:
+                file_extension = '.jpg'
+                
             unique_filename = f"{uuid.uuid4()}{file_extension}"
             file_path = os.path.join(uploads_dir, unique_filename)
             
             # Save file to disk
             with open(file_path, "wb") as buffer:
                 buffer.write(file_content)
+            
+            print(f"💾 Saved file: {unique_filename} (original: {file.filename}, type: {file.content_type})")
             
             # Create MongoDB document
             if media_collection is not None:
@@ -1471,47 +1477,13 @@ async def batch_upload_files(
                     result = media_collection.insert_one(doc)
                     inserted_id = str(result.inserted_id)
                     
-                    # Schedule thumbnail generation in background (ChatGPT fix)
+                    print(f"📄 MongoDB document created with ID: {inserted_id}")
+                    
+                    # Schedule thumbnail generation in background (FIXED version)
                     if bg:
-                        def generate_thumbnail_job():
-                            try:
-                                from thumbs import generate_image_thumb, generate_video_thumb, build_thumb_path
-                                import os
-                                
-                                thumb_path = build_thumb_path(unique_filename)
-                                os.makedirs(os.path.dirname(thumb_path), exist_ok=True)
-                                
-                                if file.content_type.startswith('image/'):
-                                    generate_image_thumb(file_path, thumb_path)
-                                    print(f"✅ Image thumbnail generated: {thumb_path}")
-                                elif file.content_type.startswith('video/'):
-                                    generate_video_thumb(file_path, thumb_path)
-                                    print(f"✅ Video thumbnail generated: {thumb_path}")
-                                
-                                # Update MongoDB with correct thumb_url
-                                thumb_url = f"https://claire-marcus-api.onrender.com/uploads/thumbs/" + os.path.basename(thumb_path)
-                                
-                                # Use synchronous MongoDB update in background task
-                                import pymongo
-                                from bson import ObjectId
-                                mongo_url = os.environ.get("MONGO_URL")
-                                client = pymongo.MongoClient(mongo_url)
-                                db = client.claire_marcus
-                                
-                                result = db.media.update_one(
-                                    {"_id": ObjectId(inserted_id)}, 
-                                    {"$set": {"thumb_url": thumb_url}}
-                                )
-                                
-                                if result.modified_count == 1:
-                                    print(f"✅ MongoDB updated with thumb_url: {thumb_url}")
-                                else:
-                                    print(f"❌ Failed to update MongoDB for {unique_filename}")
-                                    
-                            except Exception as e:
-                                print(f"❌ Thumbnail generation failed for {unique_filename}: {str(e)}")
-                        
-                        bg.add_task(generate_thumbnail_job)
+                        thumbnail_job = create_thumbnail_job(inserted_id, unique_filename, file_path, file.content_type)
+                        bg.add_task(thumbnail_job)
+                        print(f"📋 Thumbnail generation scheduled for: {unique_filename}")
                     
                     # File metadata for response
                     file_metadata = {

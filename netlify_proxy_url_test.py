@@ -201,36 +201,14 @@ class NetlifyProxyURLTester:
             media_collection = self.db.media
             
             # Update thumb_url from libfusion to claire-marcus
-            thumb_update_result = media_collection.update_many(
-                {"thumb_url": {"$regex": "libfusion.preview.emergentagent.com"}},
-                {"$set": {"thumb_url": {"$replaceOne": {
-                    "input": "$thumb_url",
-                    "find": "https://libfusion.preview.emergentagent.com/uploads/",
-                    "replacement": "https://claire-marcus.com/uploads/"
-                }}}}
-            )
-            
-            # Alternative approach using aggregation pipeline
-            pipeline_thumb = [
-                {"$match": {"thumb_url": {"$regex": "libfusion.preview.emergentagent.com"}}},
-                {"$set": {
-                    "thumb_url": {
-                        "$replaceAll": {
-                            "input": "$thumb_url",
-                            "find": "https://libfusion.preview.emergentagent.com/uploads/",
-                            "replacement": "https://claire-marcus.com/uploads/"
-                        }
-                    }
-                }}
-            ]
-            
-            # Execute the update using aggregation pipeline
-            docs_to_update_thumb = list(media_collection.find({"thumb_url": {"$regex": "libfusion.preview.emergentagent.com"}}))
+            docs_to_update_thumb = list(media_collection.find({
+                "thumb_url": {"$regex": "libfusion.preview.emergentagent.com"}
+            }))
             thumb_updated_count = 0
             
             for doc in docs_to_update_thumb:
                 old_thumb_url = doc.get("thumb_url", "")
-                if "libfusion.preview.emergentagent.com" in old_thumb_url:
+                if old_thumb_url and "libfusion.preview.emergentagent.com" in old_thumb_url:
                     new_thumb_url = old_thumb_url.replace(
                         "https://libfusion.preview.emergentagent.com/uploads/",
                         "https://claire-marcus.com/uploads/"
@@ -241,14 +219,17 @@ class NetlifyProxyURLTester:
                         {"$set": {"thumb_url": new_thumb_url}}
                     )
                     thumb_updated_count += 1
+                    print(f"   Updated thumb_url: {old_thumb_url} → {new_thumb_url}")
             
             # Update url from libfusion to claire-marcus
-            docs_to_update_url = list(media_collection.find({"url": {"$regex": "libfusion.preview.emergentagent.com"}}))
+            docs_to_update_url = list(media_collection.find({
+                "url": {"$regex": "libfusion.preview.emergentagent.com"}
+            }))
             url_updated_count = 0
             
             for doc in docs_to_update_url:
                 old_url = doc.get("url", "")
-                if "libfusion.preview.emergentagent.com" in old_url:
+                if old_url and "libfusion.preview.emergentagent.com" in old_url:
                     new_url = old_url.replace(
                         "https://libfusion.preview.emergentagent.com/uploads/",
                         "https://claire-marcus.com/uploads/"
@@ -259,6 +240,8 @@ class NetlifyProxyURLTester:
                         {"$set": {"url": new_url}}
                     )
                     url_updated_count += 1
+                    if url_updated_count <= 3:  # Show first 3 examples
+                        print(f"   Updated url: {old_url} → {new_url}")
             
             details = f"MISE À JOUR URLS NETLIFY PROXY: {thumb_updated_count} thumb_url mises à jour, {url_updated_count} url mises à jour. "
             details += f"Remplacement: libfusion.preview.emergentagent.com → claire-marcus.com"

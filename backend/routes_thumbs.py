@@ -222,7 +222,7 @@ async def rebuild_missing_thumbs(
 
 @router.get("/content/thumbnails/status")
 async def get_thumbnail_status(
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_current_user_id_robust),
 ):
     """Get thumbnail generation status for user"""
     media_collection = get_sync_media_collection()

@@ -423,7 +423,7 @@ async def whoami(user_id: str = Depends(get_current_user_id)):
     return {"user_id": user_id, "authentication": "success"}
 
 @api_router.get("/auth/me")
-async def get_current_user_info(user_id: str = Depends(get_current_user_id)):
+async def get_current_user_info(user_id: str = Depends(get_current_user_id_robust)):
     """Get current user information with real database"""
     try:
         if db.is_connected() and user_id != "demo_user_id":

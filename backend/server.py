@@ -825,7 +825,7 @@ async def delete_media_mongo(
 ):
     """Delete content with MongoDB (VERSION FINALE selon ChatGPT)"""
     try:
-        media_collection = await get_media_collection()
+        media_collection = get_media_collection()
         
         # Parse ID (ObjectId or UUID fallback)
         id_filter = parse_any_id(file_id)

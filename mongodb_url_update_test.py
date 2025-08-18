@@ -281,8 +281,11 @@ class MongoDBURLUpdateTester:
             
             for doc in sample_docs:
                 filename = doc.get("filename", "unknown")
-                thumb_url = doc.get("thumb_url", "")
-                if "claire-marcus-api.onrender.com" in thumb_url:
+                thumb_url = doc.get("thumb_url") or ""
+                url = doc.get("url") or ""
+                if "claire-marcus-api.onrender.com" in url:
+                    examples.append(f"{filename}: {url}")
+                elif "claire-marcus-api.onrender.com" in thumb_url:
                     examples.append(f"{filename}: {thumb_url}")
             
             details = f"VÉRIFICATION MONGODB: "

@@ -52,12 +52,13 @@ except ImportError as e:
 
 # Import robust authentication from server.py
 import jwt as jwt_lib
+import os
 JWT_SECRET = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-this-in-production')
 JWT_ALG = os.environ.get("JWT_ALG", "HS256")
 JWT_ISS = os.environ.get("JWT_ISS", "claire-marcus-api")
 
-def get_current_user_id_robust(authorization: str = Header(None)) -> str:
-    """Robust JWT token validation - NO FALLBACK"""
+def get_current_user_id_robust(authorization: Optional[str] = Header(None)) -> str:
+    """Robust JWT token validation - NO FALLBACK (same as server.py)"""
     if not authorization or not authorization.lower().startswith("bearer "):
         raise HTTPException(status_code=401, detail="Missing bearer token")
     
@@ -76,11 +77,13 @@ def get_current_user_id_robust(authorization: str = Header(None)) -> str:
         if not sub:
             raise HTTPException(status_code=401, detail="Invalid token: sub missing")
         
+        print(f"🔑 Website Analyzer: Authenticated user_id: {sub}")
         return sub
         
     except jwt_lib.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt_lib.InvalidTokenError as e:
+        print(f"❌ Website Analyzer JWT error: {e}")
         raise HTTPException(status_code=401, detail=f"Invalid token: {e}")
 
 def get_current_user_id(authorization: str = Header(None)) -> str:

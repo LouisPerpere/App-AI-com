@@ -5587,7 +5587,7 @@ function MainApp() {
                           value={editUserEmail}
                           onChange={(e) => setEditUserEmail(e.target.value)}
                           onBlur={(e) => {
-                            console.log('Auto-saving user email:', e.target.value);
+                            saveUserSettings('email', e.target.value);
                           }}
                           className="mt-1"
                           placeholder="votre@email.com"

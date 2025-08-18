@@ -5542,7 +5542,7 @@ function MainApp() {
                           placeholder="Votre nom"
                           onBlur={(e) => {
                             setEditUserLastName(e.target.value);
-                            console.log('Auto-saving user last name:', e.target.value);
+                            saveUserSettings('last_name', e.target.value);
                           }}
                         />
                       ) : (

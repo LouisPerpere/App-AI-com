@@ -20,6 +20,19 @@ from dotenv import load_dotenv
 from fastapi import Header
 from typing import Optional
 
+# EXPLICIT .env loading to ensure JWT variables are available
+env_path = Path(__file__).parent / '.env'
+load_dotenv(env_path)
+print(f"✅ Website Analyzer: Loaded .env from {env_path}")
+
+# Verify JWT variables after loading .env
+import os
+jwt_secret = os.environ.get('JWT_SECRET_KEY')
+if jwt_secret:
+    print(f"✅ JWT_SECRET_KEY loaded: {jwt_secret[:20]}...")
+else:
+    print("❌ JWT_SECRET_KEY not found after loading .env")
+
 # Import emergentintegrations for GPT-5 (with fallback to OpenAI)
 try:
     from emergentintegrations.llm.chat import LlmChat, UserMessage

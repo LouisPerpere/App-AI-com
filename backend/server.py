@@ -733,7 +733,7 @@ async def diagnostic_endpoint():
 async def get_pending_content_mongo(
     offset: int = 0,
     limit: int = 24,
-    user_id: str = Depends(get_current_user_id)  # Utilise l'authentification existante
+    user_id: str = Depends(get_current_user_id_robust)  # Use robust authentication
 ):
     """Get pending content with MongoDB (VERSION FINALE avec auth robuste selon ChatGPT)"""
     try:

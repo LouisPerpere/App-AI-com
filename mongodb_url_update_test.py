@@ -422,9 +422,10 @@ class MongoDBURLUpdateTester:
         tests = [
             self.authenticate,
             self.analyze_current_urls,
-            self.test_url_update_endpoint,
-            self.verify_url_update_results,
-            self.test_api_accessibility
+            self.execute_mongodb_url_update,
+            self.verify_mongodb_url_update,
+            self.test_api_content_pending,
+            self.cleanup_mongodb_connection
         ]
         
         for test in tests:

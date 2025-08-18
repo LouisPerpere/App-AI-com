@@ -1411,27 +1411,43 @@ async def batch_upload_files(
                     result = media_collection.insert_one(doc)
                     inserted_id = str(result.inserted_id)
                     
-                    # Schedule thumbnail generation in background if available
+                    # Schedule thumbnail generation in background (ChatGPT fix)
                     if bg:
                         def generate_thumbnail_job():
                             try:
                                 from thumbs import generate_image_thumb, generate_video_thumb, build_thumb_path
-                                from routes_thumbs import get_sync_db
-                                from bson import ObjectId
+                                import os
                                 
                                 thumb_path = build_thumb_path(unique_filename)
                                 os.makedirs(os.path.dirname(thumb_path), exist_ok=True)
                                 
                                 if file.content_type.startswith('image/'):
                                     generate_image_thumb(file_path, thumb_path)
+                                    print(f"✅ Image thumbnail generated: {thumb_path}")
                                 elif file.content_type.startswith('video/'):
                                     generate_video_thumb(file_path, thumb_path)
+                                    print(f"✅ Video thumbnail generated: {thumb_path}")
                                 
+                                # Update MongoDB with correct thumb_url
                                 thumb_url = f"https://claire-marcus-api.onrender.com/uploads/thumbs/" + os.path.basename(thumb_path)
-                                sync_db = get_sync_db()
-                                sync_db.media.update_one({"_id": ObjectId(inserted_id)}, {"$set": {"thumb_url": thumb_url}})
-                                print(f"✅ Thumbnail generated for {unique_filename}: {thumb_url}")
                                 
+                                # Use synchronous MongoDB update in background task
+                                import pymongo
+                                from bson import ObjectId
+                                mongo_url = os.environ.get("MONGO_URL")
+                                client = pymongo.MongoClient(mongo_url)
+                                db = client.claire_marcus
+                                
+                                result = db.media.update_one(
+                                    {"_id": ObjectId(inserted_id)}, 
+                                    {"$set": {"thumb_url": thumb_url}}
+                                )
+                                
+                                if result.modified_count == 1:
+                                    print(f"✅ MongoDB updated with thumb_url: {thumb_url}")
+                                else:
+                                    print(f"❌ Failed to update MongoDB for {unique_filename}")
+                                    
                             except Exception as e:
                                 print(f"❌ Thumbnail generation failed for {unique_filename}: {str(e)}")
                         

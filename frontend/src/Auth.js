@@ -59,7 +59,7 @@ const AuthPage = ({ onAuthSuccess }) => {
       console.log('🚀 LOGIN START - API URL:', API);
       console.log('🚀 LOGIN DATA:', { email: loginForm.email });
 
-      const response = await axios.post(`${API}/auth/login`, {
+      const response = await axios.post(`${API}/auth/login-robust`, {
         email: loginForm.email,
         password: loginForm.password
       }, {

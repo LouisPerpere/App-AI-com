@@ -451,17 +451,27 @@ class MongoDBURLUpdateTester:
         print("RÉSUMÉ SELON LA DEMANDE FRANÇAISE:")
         print("-" * 40)
         
+        if hasattr(self, 'update_results'):
+            results = self.update_results
+            print(f"1. MISE À JOUR MONGODB EXÉCUTÉE:")
+            print(f"   • thumb_url mis à jour: {results['thumb_updated']}")
+            print(f"   • url mis à jour: {results['url_updated']}")
+            print(f"   • Total mis à jour: {results['total_updated']}")
+            print()
+        
         if hasattr(self, 'before_update') and hasattr(self, 'after_update'):
             before = self.before_update
             after = self.after_update
-            print(f"1. AVANT MISE À JOUR:")
-            print(f"   • URLs claire-marcus.com: {before['claire_marcus_com_urls']}")
-            print(f"   • URLs claire-marcus-api.onrender.com: {before['claire_marcus_api_urls']}")
+            print(f"2. AVANT MISE À JOUR:")
+            print(f"   • thumb_url claire-marcus.com: {before['claire_marcus_thumb']}")
+            print(f"   • url claire-marcus.com: {before['claire_marcus_url']}")
             print()
-            print(f"2. APRÈS MISE À JOUR:")
-            print(f"   • URLs claire-marcus.com: {after['claire_marcus_com_urls']}")
-            print(f"   • URLs claire-marcus-api.onrender.com: {after['claire_marcus_api_urls']}")
-            print(f"   • Objectif atteint: {'✅ OUI' if after['update_successful'] else '❌ NON'}")
+            print(f"3. APRÈS MISE À JOUR:")
+            print(f"   • thumb_url claire-marcus.com: {after['claire_marcus_thumb_after']}")
+            print(f"   • thumb_url claire-marcus-api.onrender.com: {after['claire_marcus_api_thumb_after']}")
+            print(f"   • url claire-marcus.com: {after['claire_marcus_url_after']}")
+            print(f"   • url claire-marcus-api.onrender.com: {after['claire_marcus_api_url_after']}")
+            print(f"   • Objectif atteint: {'✅ OUI' if after['success'] else '❌ NON'}")
             print()
         
         # Detailed results

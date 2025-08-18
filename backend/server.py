@@ -204,20 +204,21 @@ def get_current_user_id_robust(authorization: Optional[str] = Header(None)) -> s
         if not sub:
             raise HTTPException(401, "Invalid token: sub missing")
         
-        # Normaliser: on renvoie l'ID en string
-        try:
-            from bson import ObjectId
-            _ = ObjectId(sub)  # valide ? ok
-        except Exception:
-            pass  # Pas un ObjectId, c'est OK
-        
-        print(f"🔑 Authenticated user_id: {sub}")
+        print(f"🔑 Server: Authenticated user_id: {sub}")
         return sub
         
     except jwt.ExpiredSignatureError:
         raise HTTPException(401, "Token expired")
     except jwt.InvalidTokenError as e:
+        print(f"❌ Server JWT error: {e}")
         raise HTTPException(401, f"Invalid token: {e}")
+
+# Import also from security for consistency check
+try:
+    from security import get_current_user_id_robust as shared_auth
+    print("✅ Shared security module also available")
+except ImportError:
+    print("⚠️ Shared security module not available")
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

@@ -108,9 +108,9 @@ def investigate_urls():
         print("\n🎯 FRENCH REVIEW ANALYSIS")
         print("-" * 30)
         
-        claire_marcus_com_count = sum(1 for item in content if item.get("thumb_url", "").find("claire-marcus.com") != -1)
-        claire_marcus_api_count = sum(1 for item in content if item.get("thumb_url", "").find("claire-marcus-api.onrender.com") != -1)
-        libfusion_count = sum(1 for item in content if item.get("thumb_url", "").find("libfusion.preview.emergentagent.com") != -1)
+        claire_marcus_com_count = sum(1 for item in content if "claire-marcus.com" in str(item.get("thumb_url", "")))
+        claire_marcus_api_count = sum(1 for item in content if "claire-marcus-api.onrender.com" in str(item.get("thumb_url", "")))
+        libfusion_count = sum(1 for item in content if "libfusion.preview.emergentagent.com" in str(item.get("thumb_url", "")))
         
         print(f"Files with claire-marcus.com URLs: {claire_marcus_com_count}")
         print(f"Files with claire-marcus-api.onrender.com URLs: {claire_marcus_api_count}")

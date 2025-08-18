@@ -576,7 +576,7 @@ async def get_business_profile(user_id: str = Depends(get_current_user_id_robust
         }
 
 @api_router.put("/business-profile") 
-async def update_business_profile(profile: BusinessProfile, user_id: str = Depends(get_current_user_id)):
+async def update_business_profile(profile: BusinessProfile, user_id: str = Depends(get_current_user_id_robust)):
     """Update business profile with real database persistence"""
     try:
         # Check database connection

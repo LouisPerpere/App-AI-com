@@ -467,6 +467,77 @@ async def get_current_user_info(user_id: str = Depends(get_current_user_id_robus
         }
 
 # Business profile endpoints
+class UserSettings(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    email: Optional[str] = None
+
+@api_router.get("/user/settings")
+async def get_user_settings(user_id: str = Depends(get_current_user_id_robust)):
+    """Get current user settings"""
+    try:
+        print(f"🔍 Getting user settings for: {user_id}")
+        
+        db = get_database()
+        if not db.is_connected():
+            print("⚠️ DB not connected during GET settings")
+            return {"error": "Database connection failed", "first_name": "", "last_name": "", "email": ""}
+            
+        # Get user data from users collection
+        user_data = db.db.users.find_one({"user_id": user_id})
+        
+        if user_data:
+            print(f"✅ Found user settings: {user_data.get('first_name', '')} {user_data.get('last_name', '')}")
+            return {
+                "first_name": user_data.get("first_name", ""),
+                "last_name": user_data.get("last_name", ""),
+                "email": user_data.get("email", "")
+            }
+        else:
+            print(f"⚠️ No user found for ID: {user_id}")
+            return {"first_name": "", "last_name": "", "email": ""}
+            
+    except Exception as e:
+        print(f"❌ Error getting user settings: {e}")
+        return {"error": str(e), "first_name": "", "last_name": "", "email": ""}
+
+@api_router.put("/user/settings")
+async def update_user_settings(settings: UserSettings, user_id: str = Depends(get_current_user_id_robust)):
+    """Update current user settings"""
+    try:
+        print(f"💾 Updating user settings for: {user_id}")
+        print(f"   Data: {settings.dict()}")
+        
+        db = get_database()
+        if not db.is_connected():
+            print("⚠️ DB not connected during PUT settings")
+            return {"success": False, "message": "Database connection failed"}
+        
+        # Update user settings in users collection
+        update_data = {}
+        if settings.first_name is not None:
+            update_data["first_name"] = settings.first_name
+        if settings.last_name is not None:
+            update_data["last_name"] = settings.last_name
+        if settings.email is not None:
+            update_data["email"] = settings.email
+            
+        if update_data:
+            result = db.db.users.update_one(
+                {"user_id": user_id},
+                {"$set": update_data},
+                upsert=True
+            )
+            
+            print(f"✅ User settings updated: matched={result.matched_count}, modified={result.modified_count}")
+            return {"success": True, "message": "Settings updated successfully"}
+        else:
+            return {"success": False, "message": "No data to update"}
+            
+    except Exception as e:
+        print(f"❌ Error updating user settings: {e}")
+        return {"success": False, "message": str(e)}
+
 @api_router.get("/business-profile")
 async def get_business_profile(user_id: str = Depends(get_current_user_id_robust)):
     """Get business profile with real database persistence"""

@@ -695,12 +695,12 @@ async def analyze_website(
 
 @website_router.get("/analysis")
 async def get_website_analysis(
-    current_user: User = Depends(get_current_active_user)
+    user_id: str = Depends(get_current_user_id_robust)
 ):
     """Get stored website analysis for the current user"""
     try:
         analysis = await db.website_analyses.find_one(
-            {"user_id": current_user.id},
+            {"user_id": user_id},
             sort=[("last_analyzed", -1)]
         )
         

@@ -703,24 +703,37 @@ async def diagnostic_endpoint():
 async def get_pending_content_mongo(
     offset: int = 0,
     limit: int = 24,
-    user_id: str = Depends(get_current_user_id)
+    user_id: str = Depends(get_current_user_id_robust)  # PAS DE FALLBACK
 ):
-    """Get pending content with MongoDB (VERSION FINALE selon ChatGPT avec filtre tolérant)"""
+    """Get pending content with MongoDB (VERSION FINALE avec auth robuste selon ChatGPT)"""
     try:
-        from helpers_debug import build_owner_filter
         from bson import ObjectId
-        from fastapi import Query
         
         media_collection = await get_media_collection()
         
-        # Use tolerant owner filter for different field names and types
-        q_owner = build_owner_filter(user_id)
+        # Filtre tolérant selon plan ChatGPT (différents champs et types)
+        q_owner_parts = [
+            {"owner_id": user_id}, 
+            {"ownerId": user_id}
+        ]
         
-        # Combined query with soft delete support
+        # Tolérance si stocké en ObjectId
+        if ObjectId.is_valid(user_id):
+            q_owner_parts.extend([
+                {"owner_id": ObjectId(user_id)}, 
+                {"ownerId": ObjectId(user_id)}
+            ])
+        
+        q_owner = {"$or": q_owner_parts}
+        
+        # Combined query avec soft delete support
         q = {"$and": [q_owner, {"$or": [{"deleted": {"$ne": True}}, {"deleted": {"$exists": False}}]}]}
+        
+        print(f"🔍 Query for user {user_id}: {q}")
         
         # Count total
         total = await media_collection.count_documents(q)
+        print(f"📊 Found {total} documents for user {user_id}")
         
         # Fetch documents with pagination and stable sorting
         cursor = (
@@ -746,6 +759,8 @@ async def get_pending_content_mongo(
                 "created_at": d.get("created_at").isoformat() if d.get("created_at") else None
             })
         
+        print(f"✅ Returning {len(content)} items for user {user_id}")
+        
         return {
             "content": content,
             "total": total,
@@ -756,9 +771,8 @@ async def get_pending_content_mongo(
         }
     
     except Exception as e:
-        print(f"❌ MongoDB get_pending_content failed: {e}")
-        # Fallback vers système existant
-        return await get_pending_content_filesystem(limit, offset, user_id)
+        print(f"❌ MongoDB get_pending_content failed for user {user_id}: {e}")
+        raise HTTPException(500, f"Failed to fetch content: {str(e)}")  # Pas de fallback !
 
 
 @api_router.put("/content/{file_id}/description")

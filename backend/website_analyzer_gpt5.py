@@ -51,50 +51,46 @@ except ImportError as e:
     JWT_AVAILABLE = False
 
 # Import robust authentication from server.py
-try:
-    # Import directly from main server to ensure same JWT configuration
-    from server import get_current_user_id_robust
-    print("✅ Imported get_current_user_id_robust from server.py")
-    AUTH_IMPORT_SUCCESS = True
-except ImportError as e:
-    print(f"⚠️ Could not import from server.py: {e}")
-    AUTH_IMPORT_SUCCESS = False
-    
-    # Fallback: Define locally with same config as server.py
-    import jwt as jwt_lib
-    import os
-    JWT_SECRET = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-this-in-production')
-    JWT_ALG = os.environ.get("JWT_ALG", "HS256")
-    JWT_ISS = os.environ.get("JWT_ISS", "claire-marcus-api")
+# Use EXACT same configuration as server.py to avoid signature mismatch
+import jwt as jwt_lib
+import os
 
-    def get_current_user_id_robust(authorization: Optional[str] = Header(None)) -> str:
-        """Robust JWT token validation - NO FALLBACK (same as server.py)"""
-        if not authorization or not authorization.lower().startswith("bearer "):
-            raise HTTPException(status_code=401, detail="Missing bearer token")
+# EXACT same JWT config as server.py
+JWT_SECRET = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-this-in-production')
+JWT_ALG = os.environ.get("JWT_ALG", "HS256")
+JWT_TTL = int(os.environ.get("JWT_TTL_SECONDS", "604800"))  # 7 jours
+JWT_ISS = os.environ.get("JWT_ISS", "claire-marcus-api")
+
+def get_current_user_id_robust(authorization: Optional[str] = Header(None)) -> str:
+    """EXACT COPY of server.py authentication function"""
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(401, "Missing bearer token")
+    
+    token = authorization.split(" ", 1)[1]
+    
+    try:
+        payload = jwt_lib.decode(
+            token, 
+            JWT_SECRET, 
+            algorithms=[JWT_ALG], 
+            options={"require": ["sub", "exp"]}, 
+            issuer=JWT_ISS
+        )
         
-        token = authorization.split(" ", 1)[1]
+        sub = payload.get("sub")
+        if not sub:
+            raise HTTPException(401, "Invalid token: sub missing")
         
-        try:
-            payload = jwt_lib.decode(
-                token, 
-                JWT_SECRET, 
-                algorithms=[JWT_ALG], 
-                options={"require": ["sub", "exp"]}, 
-                issuer=JWT_ISS
-            )
-            
-            sub = payload.get("sub")
-            if not sub:
-                raise HTTPException(status_code=401, detail="Invalid token: sub missing")
-            
-            print(f"🔑 Website Analyzer: Authenticated user_id: {sub}")
-            return sub
-            
-        except jwt_lib.ExpiredSignatureError:
-            raise HTTPException(status_code=401, detail="Token expired")
-        except jwt_lib.InvalidTokenError as e:
-            print(f"❌ Website Analyzer JWT error: {e}")
-            raise HTTPException(status_code=401, detail=f"Invalid token: {e}")
+        print(f"🔑 Website Analyzer: Authenticated user_id: {sub}")
+        return sub
+        
+    except jwt_lib.ExpiredSignatureError:
+        raise HTTPException(401, "Token expired")
+    except jwt_lib.InvalidTokenError as e:
+        print(f"❌ Website Analyzer JWT error: {e}")
+        raise HTTPException(401, f"Invalid token: {e}")
+        
+print("✅ Website Analyzer authentication configured with same JWT settings as server.py")
 
 def get_current_user_id(authorization: str = Header(None)) -> str:
     """Extract user ID from JWT token - compatible with server.py"""

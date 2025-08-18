@@ -2,6 +2,8 @@ from fastapi import FastAPI, APIRouter, HTTPException, Header, Depends, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles  # Ajouté pour servir uploads/ selon ChatGPT
 from pydantic import BaseModel, Field  # Ajouté Field pour validation
+import jwt
+from passlib.context import CryptContext
 from typing import List, Optional
 from datetime import datetime, timezone
 import os

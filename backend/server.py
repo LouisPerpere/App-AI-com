@@ -576,6 +576,41 @@ async def diagnostic_endpoint():
     except Exception as e:
         return {"error": str(e)}
 
+@api_router.get("/content/_debug")
+async def content_debug(user_id: str = Depends(get_current_user_id)):
+    """Debug endpoint to diagnose content filtering issues"""
+    try:
+        from helpers_debug import build_owner_filter
+        from bson import ObjectId
+        
+        db = await get_database()
+        media_collection = db.media
+        
+        q_owner = build_owner_filter(user_id)
+        total_any = await media_collection.count_documents({})
+        total_mine = await media_collection.count_documents(q_owner)
+        
+        one_any = await media_collection.find_one({})
+        one_mine = await media_collection.find_one(q_owner)
+        
+        # Get database name
+        db_name = db.name if hasattr(db, 'name') else str(db)
+        
+        return {
+            "db": db_name,
+            "user_id": user_id,
+            "filter_used": q_owner,
+            "counts": {"any": total_any, "mine": total_mine},
+            "one_any": {
+                "id": str(one_any["_id"]) if one_any else None,
+                "owner_id": str(one_any.get("owner_id") or one_any.get("ownerId")) if one_any else None,
+                "keys": list(one_any.keys()) if one_any else None,
+            } if one_any else None,
+            "one_mine": str(one_mine["_id"]) if one_mine else None,
+        }
+    except Exception as e:
+        return {"error": str(e), "user_id": user_id}
+
 @api_router.get("/content/pending")
 async def get_pending_content_mongo(
     offset: int = 0,

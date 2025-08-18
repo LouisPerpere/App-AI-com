@@ -177,51 +177,54 @@ class MongoDBURLUpdateTester:
             self.log_result("Analyse MongoDB directe", False, error=str(e))
             return False
     
-    def test_url_update_endpoint(self):
-        """Step 3: Test if there's an endpoint to update URLs"""
-        print("🔄 STEP 3: Test URL Update Functionality")
+    def execute_mongodb_url_update(self):
+        """Step 3: Execute the MongoDB URL update as specified in French review"""
+        print("🔄 STEP 3: Execute MongoDB URL Update")
         print("=" * 50)
         
         try:
-            # Check if there's a specific endpoint for URL updates
-            # This might be a custom endpoint or we might need to use existing ones
-            
-            # First, let's check if there's a bulk update endpoint
-            response = self.session.post(f"{API_BASE}/content/urls/update", json={
-                "from_domain": "https://claire-marcus.com/uploads/",
-                "to_domain": "https://claire-marcus-api.onrender.com/uploads/"
-            })
-            
-            if response.status_code == 200:
-                data = response.json()
-                updated_count = data.get("updated_count", 0)
-                
+            if not self.media_collection:
                 self.log_result(
-                    "URL Update Endpoint", 
-                    True, 
-                    f"Successfully updated {updated_count} URLs from claire-marcus.com to claire-marcus-api.onrender.com"
-                )
-                return True
-            elif response.status_code == 404:
-                # Endpoint doesn't exist, we'll need to check if the update was done manually
-                self.log_result(
-                    "URL Update Endpoint", 
+                    "MongoDB URL Update Execution", 
                     False, 
-                    "URL update endpoint not found - checking if update was done manually",
-                    "Endpoint /api/content/urls/update not available"
+                    "MongoDB connection not available"
                 )
                 return False
-            else:
-                self.log_result(
-                    "URL Update Endpoint", 
-                    False, 
-                    f"Status: {response.status_code}",
-                    response.text
-                )
-                return False
-                
+            
+            # Update thumb_url fields - exactly as specified in French review
+            print("Updating thumb_url fields...")
+            result1 = self.media_collection.update_many(
+                {"thumb_url": {"$regex": "claire-marcus.com"}},
+                [{"$set": {"thumb_url": {"$replaceAll": {"input": "$thumb_url", "find": "claire-marcus.com", "replacement": "claire-marcus-api.onrender.com"}}}}]
+            )
+            
+            # Update url fields - exactly as specified in French review
+            print("Updating url fields...")
+            result2 = self.media_collection.update_many(
+                {"url": {"$regex": "claire-marcus.com"}},
+                [{"$set": {"url": {"$replaceAll": {"input": "$url", "find": "claire-marcus.com", "replacement": "claire-marcus-api.onrender.com"}}}}]
+            )
+            
+            thumb_updated = result1.modified_count
+            url_updated = result2.modified_count
+            total_updated = thumb_updated + url_updated
+            
+            self.log_result(
+                "MongoDB URL Update Execution", 
+                True, 
+                f"Successfully updated {thumb_updated} thumb_url fields and {url_updated} url fields. Total: {total_updated} updates"
+            )
+            
+            self.update_results = {
+                "thumb_updated": thumb_updated,
+                "url_updated": url_updated,
+                "total_updated": total_updated
+            }
+            
+            return True
+            
         except Exception as e:
-            self.log_result("URL Update Endpoint", False, error=str(e))
+            self.log_result("MongoDB URL Update Execution", False, error=str(e))
             return False
     
     def verify_url_update_results(self):

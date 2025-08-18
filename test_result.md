@@ -489,9 +489,9 @@ backend:
 
   - task: "Content Filter Diagnostic Endpoint Testing"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/server.py, /app/backend/helpers_debug.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -501,6 +501,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "🎉 DIAGNOSTIC ENDPOINT TESTING COMPLETED SUCCESSFULLY - 100% SUCCESS RATE: Comprehensive testing of the diagnostic endpoint completed with excellent results (4/4 tests passed). **CRITICAL FIXES IMPLEMENTED**: ✅ **ASYNC/AWAIT BUG FIXED**: Resolved 'object DatabaseManager can't be used in await expression' error by correcting async/await usage in content_debug endpoint, changed from 'await get_database()' to 'get_database()' and proper database collection access. **DIAGNOSTIC RESULTS ANALYSIS**: ✅ **AUTHENTICATION**: Successfully authenticated with lperpere@yahoo.fr / L@Reunion974! (User ID: 8aa0e7b1-5279-468b-bbce-028f7a70282d), ✅ **DATABASE ACCESS**: Connected to claire_marcus database successfully, ✅ **DEBUG ENDPOINT**: GET /api/content/_debug working correctly with comprehensive diagnostic data. **KEY FINDINGS**: 📊 **COUNTS**: any=75 (total documents in MongoDB), mine=39 (documents belonging to user) - both > 0 indicating no critical mismatch, 📊 **DOCUMENT STRUCTURE**: Documents use 'owner_id' field (not 'ownerId'), owner_id values are strings (not ObjectId), 📊 **FILTER ANALYSIS**: Tolerant filter {'$or': [{'owner_id': 'user_id'}, {'ownerId': 'user_id'}]} working correctly, 📊 **PENDING CONTENT**: GET /api/content/pending returns 47 files vs debug_mine=39, indicating some difference in filtering logic but both endpoints functional. **TECHNICAL VERIFICATION**: No critical filter mismatch detected - user has access to their documents (mine=39 > 0), tolerant filter working as intended, both debug and pending endpoints returning user's content successfully. **CONCLUSION**: The diagnostic revealed no critical filter mismatch issue. The system is working correctly with the user having access to 39 documents via debug endpoint and 47 via pending content endpoint. The slight difference (47 vs 39) suggests different filtering logic between endpoints but both are functional. The tolerant filter implementation is working as designed."
+      - working: false
+        agent: "testing"
+        comment: "🚨 CRITICAL ROOT CAUSE IDENTIFIED - NULL URLs ISSUE SOLVED: Comprehensive MongoDB analysis reveals the exact cause of null URLs in API responses. **AUTHENTICATION FAILURE ROOT CAUSE**: Backend authentication failing with 502 errors, causing API to fall back to demo_user_id instead of correct user 8aa0e7b1-5279-468b-bbce-028f7a70282d. **MONGODB ANALYSIS RESULTS**: ✅ User lperpere@yahoo.fr found with correct User ID: 8aa0e7b1-5279-468b-bbce-028f7a70282d, ✅ User has 39 documents in MongoDB with 39 VALID thumb_url and 39 VALID url, ✅ Only 3 documents have null thumb_url (expected for videos/corrupted files). **CRITICAL DUPLICATE DOCUMENTS FOUND**: File '8ee21d73' has 2 documents: (1) Document with owner_id='c1c76afa-a112-40ad-809e-a180aa04f007' and thumb_url=NULL, (2) Document with owner_id='8aa0e7b1-5279-468b-bbce-028f7a70282d' and thumb_url=VALID with description='cadran bleu'. **ROOT CAUSE CONFIRMED**: API returns documents from wrong user (c1c76afa-a112-40ad-809e-a180aa04f007) with null URLs instead of correct user (8aa0e7b1-5279-468b-bbce-028f7a70282d) with valid URLs due to authentication failure. **SOLUTION REQUIRED**: Fix backend authentication system (502 error) to ensure API uses correct user_id and returns documents with valid URLs. The MongoDB data is correct - the issue is authentication fallback selecting wrong user documents."
 
   - task: "MongoDB Duplicate Document Cleanup for Gray Thumbnails"
     implemented: true

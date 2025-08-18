@@ -13,8 +13,11 @@ from PIL import Image
 import io
 import mimetypes
 
-# Ensure proper MIME type for WEBP images (ChatGPT fix)
-mimetypes.add_type('image/webp', '.webp')
+# Ensure proper MIME types for all image formats (ChatGPT solution)
+mimetypes.add_type('image/webp', '.webp')   # Safari/iOS
+mimetypes.add_type('image/jpeg', '.jpg')
+mimetypes.add_type('image/jpeg', '.jpeg')
+mimetypes.add_type('image/png', '.png')
 
 # Import database
 from database import get_database, DatabaseManager

@@ -15,11 +15,17 @@ from PIL import Image
 import io
 import mimetypes
 
-# Ensure proper MIME types for all image formats (ChatGPT solution)
+# Enable HEIC/HEIF support for iPhone photos
+import pillow_heif
+pillow_heif.register_heif_opener()
+
+# Ensure proper MIME types for all image formats including HEIC/HEIF
 mimetypes.add_type('image/webp', '.webp')   # Safari/iOS
 mimetypes.add_type('image/jpeg', '.jpg')
 mimetypes.add_type('image/jpeg', '.jpeg')
 mimetypes.add_type('image/png', '.png')
+mimetypes.add_type('image/heic', '.heic')   # iPhone/iOS photos
+mimetypes.add_type('image/heif', '.heif')   # iPhone/iOS photos
 
 # Import database
 from database import get_database, DatabaseManager

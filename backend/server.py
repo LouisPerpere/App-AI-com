@@ -587,12 +587,12 @@ async def get_pending_content_mongo(
         query = {"owner_id": user_id, "deleted": {"$ne": True}}
         
         # Count total
-        total = await media_collection.count_documents(query)
+        total = media_collection.count_documents(query)
         
         # Fetch documents with pagination and stable sorting
         cursor = media_collection.find(query).sort([("created_at", -1), ("_id", -1)]).skip(offset).limit(limit)
         docs = []
-        async for doc in cursor:
+        for doc in cursor:
             docs.append(doc)
         
         # Build response (selon ChatGPT)

@@ -745,6 +745,58 @@ const UpgradeModal = ({ isOpen, onClose, user, canClose = true, title = "Débloq
 function MainApp() {
   const location = useLocation();
   
+  // User settings save functions (for Réglages tab)
+  const saveUserSettings = async (field, value) => {
+    try {
+      console.log(`💾 Saving user ${field}:`, value);
+      
+      const response = await axios.put(`${API}/user/settings`, {
+        [field]: value
+      }, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.data.success) {
+        console.log(`✅ User ${field} saved successfully`);
+        toast.success(`${field} sauvegardé`);
+        return true;
+      } else {
+        console.error(`❌ Failed to save user ${field}:`, response.data.message);
+        toast.error(`Erreur sauvegarde ${field}`);
+        return false;
+      }
+    } catch (error) {
+      console.error(`❌ Error saving user ${field}:`, error);
+      toast.error(`Erreur sauvegarde ${field}`);
+      return false;
+    }
+  };
+
+  const loadUserSettings = async () => {
+    try {
+      const response = await axios.get(`${API}/user/settings`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.data) {
+        console.log('📋 Loaded user settings:', response.data);
+        setEditUserFirstName(response.data.first_name || '');
+        setEditUserLastName(response.data.last_name || '');
+        setEditUserEmail(response.data.email || '');
+        return response.data;
+      }
+    } catch (error) {
+      console.error('❌ Error loading user settings:', error);
+      return null;
+    }
+  };
+
   // Auto-save function pour sauvegarder un champ spécifique
   const autoSaveField = async (field, value) => {
     try {

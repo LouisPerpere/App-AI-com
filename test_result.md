@@ -489,7 +489,7 @@ backend:
 
   - task: "MongoDB Duplicate Document Cleanup for Gray Thumbnails"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py, MongoDB media collection"
     stuck_count: 1
     priority: "high"

@@ -93,6 +93,15 @@ async def add_no_cache_headers(request, call_next):
         response.headers["Surrogate-Control"] = "no-store"
     return response
 
+# Logs middleware selon plan ChatGPT
+@app.middleware("http")
+async def log_errors(request, call_next):
+    try:
+        return await call_next(request)
+    except Exception as e:
+        print("❌ API ERROR", request.method, request.url.path, repr(e))
+        raise
+
 # API router with prefix
 api_router = APIRouter(prefix="/api")
 

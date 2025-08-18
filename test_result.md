@@ -506,6 +506,10 @@ backend:
     stuck_count: 1
     priority: "high"
     needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "🚨 DIAGNOSTIC URGENT VIGNETTES MANQUANTES COMPLETED - PROBLÈME CRITIQUE IDENTIFIÉ: Test complet du système de vignettes selon demande française révèle 2 problèmes majeurs. **AUTHENTIFICATION**: ✅ Connexion réussie avec lperpere@yahoo.fr / L@Reunion974! (User ID: 8aa0e7b1-5279-468b-bbce-028f7a70282d). **ANALYSE DES 17 FICHIERS TROUVÉS**: ❌ 8 fichiers avec thumb_url = NULL (nouveaux uploads sans vignettes), ❌ 7 fichiers avec expressions MongoDB corrompues au lieu d'URLs, ✅ 2 fichiers avec thumb_url valides (claire-marcus-api.onrender.com). **PROBLÈME 1 - NOUVEAUX UPLOADS**: Les 8 derniers fichiers uploadés (2025-08-18 11:42:xx) n'ont pas de vignettes générées automatiquement. Le système de génération automatique en arrière-plan ne fonctionne pas pour les nouveaux uploads. **PROBLÈME 2 - CORRUPTION BASE DE DONNÉES**: 7 fichiers anciens ont des expressions MongoDB {'$replaceOne': {...}} au lieu d'URLs réelles dans le champ thumb_url. **TESTS ENDPOINTS**: ✅ POST /api/content/thumbnails/rebuild accessible mais ne programme aucune vignette (0 scheduled), ✅ GET /api/content/thumbnails/status retourne 100% completion (incorrect), ❌ POST /api/content/{file_id}/thumbnail retourne 404 'Media not found'. **ACCESSIBILITÉ VIGNETTES**: 1/2 vignettes testées accessibles (50%), problèmes d'URLs 404. **OBJECTIF FRANÇAIS NON ATTEINT**: 0/17 fichiers utilisent claire-marcus.com dans thumb_url, système de vignettes défaillant. SOLUTION REQUISE: (1) Réparer génération automatique vignettes nouveaux uploads, (2) Nettoyer expressions MongoDB corrompues en base, (3) Corriger endpoints thumbnails individuels."
   
   - task: "JWT Token Authentication Fix for Content Access"
     implemented: true

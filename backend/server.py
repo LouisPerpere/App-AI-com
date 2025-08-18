@@ -467,7 +467,7 @@ async def get_current_user_info(user_id: str = Depends(get_current_user_id)):
 
 # Business profile endpoints
 @api_router.get("/business-profile")
-async def get_business_profile(user_id: str = Depends(get_current_user_id)):
+async def get_business_profile(user_id: str = Depends(get_current_user_id_robust)):
     """Get business profile with real database persistence"""
     try:
         if db.is_connected() and user_id != "demo_user_id":

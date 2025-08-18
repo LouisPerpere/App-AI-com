@@ -5552,7 +5552,7 @@ function MainApp() {
                           value={editUserLastName}
                           onChange={(e) => setEditUserLastName(e.target.value)}
                           onBlur={(e) => {
-                            console.log('Auto-saving user last name:', e.target.value);
+                            saveUserSettings('last_name', e.target.value);
                           }}
                           className="mt-1"
                           placeholder="Votre nom"

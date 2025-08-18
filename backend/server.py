@@ -850,7 +850,7 @@ async def put_description_mongo(
 @api_router.delete("/content/{file_id}")
 async def delete_media_mongo(
     file_id: str,
-    user_id: str = Depends(get_current_user_id)
+    user_id: str = Depends(get_current_user_id_robust)
 ):
     """Delete content with MongoDB (VERSION FINALE selon ChatGPT)"""
     try:

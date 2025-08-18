@@ -18,6 +18,9 @@ API_BASE = f"{BACKEND_URL}/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 
+# MongoDB connection from backend/.env
+MONGO_URL = "mongodb+srv://lperpere:ClaireMarcus2025@cluster0.24k0jzd.mongodb.net/claire_marcus?retryWrites=true&w=majority&appName=Cluster0"
+
 class MongoDBURLUpdateTester:
     def __init__(self):
         self.session = requests.Session()

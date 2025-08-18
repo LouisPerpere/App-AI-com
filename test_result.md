@@ -494,6 +494,14 @@ backend:
     stuck_count: 1
     priority: "high"
     needs_retesting: false
+  
+  - task: "JWT Token Authentication Fix for Content Access"
+    implemented: false
+    working: false
+    file: "/app/backend/auth.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "testing"

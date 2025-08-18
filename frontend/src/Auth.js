@@ -92,8 +92,15 @@ const AuthPage = ({ onAuthSuccess }) => {
       console.log('🎉 LOGIN COMPLETE - Calling onAuthSuccess()');
       toast.success('Connexion réussie ! 🎉');
       
-      // Call auth success callback
-      onAuthSuccess();
+      // Call auth success callback with error handling
+      try {
+        console.log('🔄 About to call onAuthSuccess callback...');
+        await onAuthSuccess();
+        console.log('✅ onAuthSuccess callback completed successfully');
+      } catch (callbackError) {
+        console.error('❌ ERROR in onAuthSuccess callback:', callbackError);
+        // Continue anyway - don't let callback errors break login
+      }
     } catch (error) {
       console.error('❌ LOGIN ERROR:', error);
       console.error('❌ LOGIN ERROR RESPONSE:', error.response?.data);

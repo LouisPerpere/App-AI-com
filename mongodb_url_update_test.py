@@ -227,99 +227,95 @@ class MongoDBURLUpdateTester:
             self.log_result("MongoDB URL Update Execution", False, error=str(e))
             return False
     
-    def verify_url_update_results(self):
-        """Step 4: Verify URLs have been updated to claire-marcus-api.onrender.com"""
-        print("✅ STEP 4: Verify URL Update Results")
+    def verify_mongodb_url_update(self):
+        """Step 4: Verify the MongoDB URL update was successful"""
+        print("✅ STEP 4: Verify MongoDB URL Update Results")
         print("=" * 50)
         
         try:
-            # Get all content files to verify URLs after update
-            response = self.session.get(f"{API_BASE}/content/pending?limit=100")
-            
-            if response.status_code == 200:
-                data = response.json()
-                content = data.get("content", [])
-                total_files = len(content)
-                
-                # Analyze URL patterns after update
-                claire_marcus_com_urls = 0
-                claire_marcus_api_urls = 0
-                libfusion_urls = 0
-                null_urls = 0
-                other_urls = 0
-                
-                claire_marcus_api_examples = []
-                remaining_com_examples = []
-                
-                for item in content:
-                    thumb_url = item.get("thumb_url")
-                    filename = item.get("filename", "unknown")
-                    
-                    if thumb_url is None or thumb_url == "":
-                        null_urls += 1
-                    elif "claire-marcus.com/uploads/" in thumb_url:
-                        claire_marcus_com_urls += 1
-                        if len(remaining_com_examples) < 3:
-                            remaining_com_examples.append(f"{filename}: {thumb_url}")
-                    elif "claire-marcus-api.onrender.com/uploads/" in thumb_url:
-                        claire_marcus_api_urls += 1
-                        if len(claire_marcus_api_examples) < 3:
-                            claire_marcus_api_examples.append(f"{filename}: {thumb_url}")
-                    elif "libfusion.preview.emergentagent.com" in thumb_url:
-                        libfusion_urls += 1
-                    else:
-                        other_urls += 1
-                
-                # Calculate update success
-                update_successful = claire_marcus_api_urls > 0 and claire_marcus_com_urls == 0
-                
-                # Compare with before state if available
-                if hasattr(self, 'before_update'):
-                    before = self.before_update
-                    urls_converted = before['claire_marcus_com_urls'] - claire_marcus_com_urls
-                    details = f"RÉSULTATS MISE À JOUR: {total_files} fichiers analysés. "
-                    details += f"AVANT: {before['claire_marcus_com_urls']} URLs claire-marcus.com. "
-                    details += f"APRÈS: {claire_marcus_com_urls} URLs claire-marcus.com restantes, "
-                    details += f"{claire_marcus_api_urls} URLs claire-marcus-api.onrender.com. "
-                    details += f"URLs converties: {urls_converted}. "
-                else:
-                    details = f"RÉSULTATS MISE À JOUR: {total_files} fichiers analysés. "
-                    details += f"URLs claire-marcus-api.onrender.com: {claire_marcus_api_urls}, "
-                    details += f"URLs claire-marcus.com restantes: {claire_marcus_com_urls}. "
-                
-                if claire_marcus_api_examples:
-                    details += f"Exemples API: {claire_marcus_api_examples}. "
-                if remaining_com_examples:
-                    details += f"URLs .com restantes: {remaining_com_examples}. "
-                
-                details += f"OBJECTIF ATTEINT: {'✅ OUI' if update_successful else '❌ NON'}"
-                
+            if not self.media_collection:
                 self.log_result(
-                    "Vérification mise à jour URLs", 
-                    update_successful, 
-                    details
-                )
-                
-                # Store results for final summary
-                self.after_update = {
-                    "total_files": total_files,
-                    "claire_marcus_com_urls": claire_marcus_com_urls,
-                    "claire_marcus_api_urls": claire_marcus_api_urls,
-                    "update_successful": update_successful
-                }
-                
-                return update_successful
-            else:
-                self.log_result(
-                    "Vérification mise à jour URLs", 
+                    "MongoDB URL Update Verification", 
                     False, 
-                    f"Status: {response.status_code}",
-                    response.text
+                    "MongoDB connection not available"
                 )
                 return False
-                
+            
+            # Count documents with different URL patterns after update
+            claire_marcus_thumb_after = self.media_collection.count_documents({
+                "thumb_url": {"$regex": "claire-marcus.com"}
+            })
+            
+            claire_marcus_api_thumb_after = self.media_collection.count_documents({
+                "thumb_url": {"$regex": "claire-marcus-api.onrender.com"}
+            })
+            
+            claire_marcus_url_after = self.media_collection.count_documents({
+                "url": {"$regex": "claire-marcus.com"}
+            })
+            
+            claire_marcus_api_url_after = self.media_collection.count_documents({
+                "url": {"$regex": "claire-marcus-api.onrender.com"}
+            })
+            
+            # Check if all claire-marcus.com URLs were updated
+            all_thumb_updated = claire_marcus_thumb_after == 0
+            all_url_updated = claire_marcus_url_after == 0
+            
+            # Verify the increase in claire-marcus-api.onrender.com URLs
+            if hasattr(self, 'before_update'):
+                thumb_increase = claire_marcus_api_thumb_after - self.before_update["claire_marcus_api_thumb"]
+                url_increase = claire_marcus_api_url_after - self.before_update["claire_marcus_api_url"]
+            else:
+                thumb_increase = claire_marcus_api_thumb_after
+                url_increase = claire_marcus_api_url_after
+            
+            # Get some examples of updated URLs
+            examples = []
+            sample_docs = self.media_collection.find({
+                "$or": [
+                    {"thumb_url": {"$regex": "claire-marcus-api.onrender.com"}},
+                    {"url": {"$regex": "claire-marcus-api.onrender.com"}}
+                ]
+            }).limit(3)
+            
+            for doc in sample_docs:
+                filename = doc.get("filename", "unknown")
+                thumb_url = doc.get("thumb_url", "")
+                if "claire-marcus-api.onrender.com" in thumb_url:
+                    examples.append(f"{filename}: {thumb_url}")
+            
+            details = f"VÉRIFICATION MONGODB: "
+            details += f"thumb_url claire-marcus.com restants: {claire_marcus_thumb_after} (devrait être 0), "
+            details += f"thumb_url claire-marcus-api.onrender.com: {claire_marcus_api_thumb_after} (+{thumb_increase}), "
+            details += f"url claire-marcus.com restants: {claire_marcus_url_after} (devrait être 0), "
+            details += f"url claire-marcus-api.onrender.com: {claire_marcus_api_url_after} (+{url_increase}). "
+            if examples:
+                details += f"Exemples mis à jour: {examples}"
+            
+            success = all_thumb_updated and all_url_updated and (thumb_increase > 0 or url_increase > 0)
+            
+            self.log_result(
+                "MongoDB URL Update Verification", 
+                success, 
+                details
+            )
+            
+            # Store for final summary
+            self.after_update = {
+                "claire_marcus_thumb_after": claire_marcus_thumb_after,
+                "claire_marcus_api_thumb_after": claire_marcus_api_thumb_after,
+                "claire_marcus_url_after": claire_marcus_url_after,
+                "claire_marcus_api_url_after": claire_marcus_api_url_after,
+                "thumb_increase": thumb_increase,
+                "url_increase": url_increase,
+                "success": success
+            }
+            
+            return success
+            
         except Exception as e:
-            self.log_result("Vérification mise à jour URLs", False, error=str(e))
+            self.log_result("MongoDB URL Update Verification", False, error=str(e))
             return False
     
     def test_api_accessibility(self):

@@ -583,18 +583,18 @@ async def content_debug(user_id: str = Depends(get_current_user_id)):
         from helpers_debug import build_owner_filter
         from bson import ObjectId
         
-        db = await get_database()
-        media_collection = db.media
+        db_manager = get_database()
+        media_collection = db_manager.db.media
         
         q_owner = build_owner_filter(user_id)
-        total_any = await media_collection.count_documents({})
-        total_mine = await media_collection.count_documents(q_owner)
+        total_any = media_collection.count_documents({})
+        total_mine = media_collection.count_documents(q_owner)
         
-        one_any = await media_collection.find_one({})
-        one_mine = await media_collection.find_one(q_owner)
+        one_any = media_collection.find_one({})
+        one_mine = media_collection.find_one(q_owner)
         
         # Get database name
-        db_name = db.name if hasattr(db, 'name') else str(db)
+        db_name = db_manager.db_name
         
         return {
             "db": db_name,

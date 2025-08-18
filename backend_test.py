@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for Thumbnail Generation System
-Testing the recently fixed MongoDB comparison bug and thumbnail generation functionality
+Backend Test Suite for MongoDB URL Update - French Review Request
+Testing the URL update from claire-marcus.com to claire-marcus-api.onrender.com
 """
 
 import requests
@@ -12,8 +12,8 @@ import base64
 from io import BytesIO
 from PIL import Image
 
-# Configuration
-BACKEND_URL = "https://libfusion.preview.emergentagent.com"
+# Configuration - Using the correct backend URL from frontend/.env
+BACKEND_URL = "https://5f4ed9f9-c147-4a28-b85c-5a25b4d4a7d1.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request

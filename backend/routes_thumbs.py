@@ -7,6 +7,8 @@ from thumbs import generate_image_thumb, generate_video_thumb, build_thumb_path
 from database import get_database
 import asyncio
 import pymongo
+import jwt
+from typing import Optional
 
 router = APIRouter()
 

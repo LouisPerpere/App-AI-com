@@ -342,14 +342,15 @@ async def login_robust(body: LoginIn):
             print(f"❌ User not found: {email_clean}")
             raise HTTPException(401, "Invalid credentials")
         
-        # Check password - assuming password is stored hashed
-        stored_password = user.get("password") or user.get("password_hash") or user.get("hashed_password")
-        if not stored_password:
-            print(f"❌ No password stored for user: {email_clean}")
+        # Check password using bcrypt
+        stored_password_hash = user.get("password_hash") or user.get("hashed_password")
+        if not stored_password_hash:
+            print(f"❌ No password hash stored for user: {email_clean}")
             raise HTTPException(401, "Invalid credentials")
         
-        # Simple password check (adjust based on your hashing method)
-        if body.password != stored_password:  # TODO: Use proper bcrypt check if hashed
+        # Proper bcrypt password verification
+        import bcrypt
+        if not bcrypt.checkpw(body.password.encode('utf-8'), stored_password_hash.encode('utf-8')):
             print(f"❌ Invalid password for user: {email_clean}")
             raise HTTPException(401, "Invalid credentials")
         

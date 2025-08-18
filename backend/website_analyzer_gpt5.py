@@ -50,47 +50,10 @@ except ImportError as e:
     print(f"⚠️ JWT authentication not available: {e}")
     JWT_AVAILABLE = False
 
-# Import robust authentication from server.py
-# Use EXACT same configuration as server.py to avoid signature mismatch
-import jwt as jwt_lib
-import os
+# Import robust authentication from shared security module
+from security import get_current_user_id_robust
 
-# EXACT same JWT config as server.py
-JWT_SECRET = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-this-in-production')
-JWT_ALG = os.environ.get("JWT_ALG", "HS256")
-JWT_TTL = int(os.environ.get("JWT_TTL_SECONDS", "604800"))  # 7 jours
-JWT_ISS = os.environ.get("JWT_ISS", "claire-marcus-api")
-
-def get_current_user_id_robust(authorization: Optional[str] = Header(None)) -> str:
-    """EXACT COPY of server.py authentication function"""
-    if not authorization or not authorization.lower().startswith("bearer "):
-        raise HTTPException(401, "Missing bearer token")
-    
-    token = authorization.split(" ", 1)[1]
-    
-    try:
-        payload = jwt_lib.decode(
-            token, 
-            JWT_SECRET, 
-            algorithms=[JWT_ALG], 
-            options={"require": ["sub", "exp"]}, 
-            issuer=JWT_ISS
-        )
-        
-        sub = payload.get("sub")
-        if not sub:
-            raise HTTPException(401, "Invalid token: sub missing")
-        
-        print(f"🔑 Website Analyzer: Authenticated user_id: {sub}")
-        return sub
-        
-    except jwt_lib.ExpiredSignatureError:
-        raise HTTPException(401, "Token expired")
-    except jwt_lib.InvalidTokenError as e:
-        print(f"❌ Website Analyzer JWT error: {e}")
-        raise HTTPException(401, f"Invalid token: {e}")
-        
-print("✅ Website Analyzer authentication configured with same JWT settings as server.py")
+print("✅ Website Analyzer using shared security authentication")
 
 def get_current_user_id(authorization: str = Header(None)) -> str:
     """Extract user ID from JWT token - compatible with server.py"""

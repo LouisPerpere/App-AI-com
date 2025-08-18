@@ -5576,7 +5576,7 @@ function MainApp() {
                           placeholder="votre@email.com"
                           onBlur={(e) => {
                             setEditUserEmail(e.target.value);
-                            console.log('Auto-saving user email:', e.target.value);
+                            saveUserSettings('email', e.target.value);
                           }}
                         />
                       ) : (

@@ -1592,7 +1592,7 @@ app.add_middleware(
     allow_origins=[
         "https://claire-marcus.com",
         "https://www.claire-marcus.com", 
-        "https://libfusion.preview.emergentagent.com",
+        "https://saasboost-1.preview.emergentagent.com",
         "http://localhost:3000",
         "http://10.64.167.140:3000"
     ],

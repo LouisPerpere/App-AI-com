@@ -11,7 +11,7 @@ from datetime import datetime
 
 class FrontendIntegrationTest:
     def __init__(self):
-        self.base_url = "https://libfusion.preview.emergentagent.com"
+        self.base_url = "https://saasboost-1.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         

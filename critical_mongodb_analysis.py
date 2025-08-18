@@ -331,7 +331,7 @@ class CriticalMongoDBAnalyzer:
             # First, try to authenticate
             session = requests.Session()
             
-            auth_response = session.post("https://5f4ed9f9-c147-4a28-b85c-5a25b4d4a7d1.preview.emergentagent.com/api/auth/login", json={
+            auth_response = session.post("https://saasboost-1.preview.emergentagent.com/api/auth/login", json={
                 "email": TEST_EMAIL,
                 "password": TEST_PASSWORD
             })
@@ -346,7 +346,7 @@ class CriticalMongoDBAnalyzer:
                 })
                 
                 # Test API with authentication
-                api_response = session.get("https://5f4ed9f9-c147-4a28-b85c-5a25b4d4a7d1.preview.emergentagent.com/api/content/pending?limit=100")
+                api_response = session.get("https://saasboost-1.preview.emergentagent.com/api/content/pending?limit=100")
                 
                 if api_response.status_code == 200:
                     api_data = api_response.json()

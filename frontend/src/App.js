@@ -1652,6 +1652,10 @@ function MainApp() {
           setActiveStep('dashboard');
         }
       }
+      
+      // Load user settings for Réglages tab
+      console.log('🔄 Loading user settings');
+      loadUserSettings();
     } catch (error) {
       console.error('❌ APP DEBUG - Auth check failed:', error);
       console.error('❌ APP DEBUG - Error response:', error.response?.data);

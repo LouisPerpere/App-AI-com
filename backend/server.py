@@ -710,7 +710,7 @@ async def get_pending_content_mongo(
     try:
         from bson import ObjectId
         
-        media_collection = await get_media_collection()
+        media_collection = get_media_collection()
         
         # Filtre tolérant selon plan ChatGPT (différents champs et types)
         q_owner_parts = [
@@ -733,7 +733,7 @@ async def get_pending_content_mongo(
         print(f"🔍 Query for user {user_id}: {q}")
         
         # Count total
-        total = await media_collection.count_documents(q)
+        total = media_collection.count_documents(q)
         print(f"📊 Found {total} documents for user {user_id}")
         
         # Fetch documents with pagination and stable sorting
@@ -744,7 +744,7 @@ async def get_pending_content_mongo(
             .limit(limit)
         )
         docs = []
-        async for doc in cursor:
+        for doc in cursor:
             docs.append(doc)
         
         # Build response (selon ChatGPT)

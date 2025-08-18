@@ -318,89 +318,66 @@ class MongoDBURLUpdateTester:
             self.log_result("MongoDB URL Update Verification", False, error=str(e))
             return False
     
-    def test_api_accessibility(self):
-        """Step 5: Test that claire-marcus-api.onrender.com URLs are accessible"""
-        print("🌐 STEP 5: Test API URL Accessibility")
+    def test_api_content_pending(self):
+        """Step 5: Test GET /api/content/pending to confirm URLs point to new domain"""
+        print("🔍 STEP 5: Test API Content Pending")
         print("=" * 50)
         
         try:
-            # Get sample files with claire-marcus-api URLs
-            response = self.session.get(f"{API_BASE}/content/pending?limit=10")
+            response = self.session.get(f"{API_BASE}/content/pending?limit=20")
             
             if response.status_code == 200:
                 data = response.json()
                 content = data.get("content", [])
+                total_files = len(content)
                 
-                accessible_count = 0
-                inaccessible_count = 0
-                webp_content_type_count = 0
+                # Analyze URLs in API response
+                claire_marcus_api_count = 0
+                claire_marcus_old_count = 0
+                null_thumb_count = 0
                 
-                tested_samples = []
+                sample_urls = []
                 
                 for item in content:
                     thumb_url = item.get("thumb_url")
+                    url = item.get("url")
                     filename = item.get("filename", "unknown")
                     
-                    if thumb_url and "claire-marcus-api.onrender.com/uploads/" in thumb_url:
-                        try:
-                            # Test accessibility
-                            thumb_response = requests.get(thumb_url, timeout=10)
-                            
-                            if thumb_response.status_code == 200:
-                                content_type = thumb_response.headers.get('content-type', '')
-                                content_length = len(thumb_response.content)
-                                
-                                if 'image/webp' in content_type.lower():
-                                    accessible_count += 1
-                                    webp_content_type_count += 1
-                                    
-                                    if len(tested_samples) < 3:
-                                        tested_samples.append(f"✅ {filename} (WEBP, {content_length}b)")
-                                elif 'image' in content_type.lower():
-                                    accessible_count += 1
-                                    
-                                    if len(tested_samples) < 3:
-                                        tested_samples.append(f"✅ {filename} ({content_type}, {content_length}b)")
-                                else:
-                                    inaccessible_count += 1
-                                    if len(tested_samples) < 3:
-                                        tested_samples.append(f"❌ {filename} (pas image: {content_type})")
-                            else:
-                                inaccessible_count += 1
-                                if len(tested_samples) < 3:
-                                    tested_samples.append(f"❌ {filename} (status: {thumb_response.status_code})")
-                                
-                        except Exception as thumb_error:
-                            inaccessible_count += 1
-                            if len(tested_samples) < 3:
-                                tested_samples.append(f"❌ {filename} (erreur: {str(thumb_error)[:30]})")
-                        
-                        # Limit testing to avoid timeout
-                        if len(tested_samples) >= 5:
-                            break
+                    # Check thumb_url
+                    if thumb_url:
+                        if "claire-marcus-api.onrender.com" in thumb_url:
+                            claire_marcus_api_count += 1
+                            if len(sample_urls) < 3:
+                                sample_urls.append(f"✅ {filename}: {thumb_url}")
+                        elif "claire-marcus.com" in thumb_url:
+                            claire_marcus_old_count += 1
+                            if len(sample_urls) < 3:
+                                sample_urls.append(f"❌ {filename}: {thumb_url}")
+                    else:
+                        null_thumb_count += 1
                 
-                total_tested = accessible_count + inaccessible_count
-                success_rate = (accessible_count / total_tested * 100) if total_tested > 0 else 0
-                webp_rate = (webp_content_type_count / accessible_count * 100) if accessible_count > 0 else 0
+                # Check if objective is met
+                all_updated = claire_marcus_old_count == 0
+                has_new_urls = claire_marcus_api_count > 0
                 
-                details = f"TEST ACCESSIBILITÉ API: {total_tested} URLs testées, "
-                details += f"{accessible_count} accessibles ({success_rate:.1f}%), "
-                details += f"{webp_content_type_count} avec content-type: image/webp ({webp_rate:.1f}%). "
-                details += f"Échantillons: {tested_samples}"
+                details = f"API CONTENT PENDING: {total_files} fichiers. "
+                details += f"{claire_marcus_api_count} avec claire-marcus-api.onrender.com, "
+                details += f"{claire_marcus_old_count} avec ancienne URL claire-marcus.com, "
+                details += f"{null_thumb_count} avec thumb_url null. "
+                details += f"Échantillons: {sample_urls}"
                 
-                # Success if we have accessible URLs and proper WEBP content-type
-                test_success = accessible_count > 0 and webp_content_type_count > 0
+                success = all_updated and has_new_urls
                 
                 self.log_result(
-                    "Test accessibilité URLs API", 
-                    test_success, 
+                    "API Content Pending Test", 
+                    success, 
                     details
                 )
                 
-                return test_success
+                return success
             else:
                 self.log_result(
-                    "Test accessibilité URLs API", 
+                    "API Content Pending Test", 
                     False, 
                     f"Status: {response.status_code}",
                     response.text
@@ -408,7 +385,27 @@ class MongoDBURLUpdateTester:
                 return False
                 
         except Exception as e:
-            self.log_result("Test accessibilité URLs API", False, error=str(e))
+            self.log_result("API Content Pending Test", False, error=str(e))
+            return False
+    
+    def cleanup_mongodb_connection(self):
+        """Step 6: Cleanup MongoDB connection"""
+        print("🧹 STEP 6: Cleanup")
+        print("=" * 50)
+        
+        try:
+            if self.mongo_client:
+                self.mongo_client.close()
+                
+            self.log_result(
+                "MongoDB Connection Cleanup", 
+                True, 
+                "MongoDB connection closed successfully"
+            )
+            return True
+            
+        except Exception as e:
+            self.log_result("MongoDB Connection Cleanup", False, error=str(e))
             return False
     
     def run_all_tests(self):

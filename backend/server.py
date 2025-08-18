@@ -297,32 +297,61 @@ async def register(user_data: RegisterRequest):
 
 @api_router.post("/auth/login")
 async def login(credentials: LoginRequest):
-    """User login with real database"""
+    """User login robuste selon plan ChatGPT - PAS DE FALLBACK"""
     try:
-        if db.is_connected():
-            # Use real database
-            result = db.authenticate_user(credentials.email, credentials.password)
-            if result:
-                return {
-                    "message": "Login successful",
-                    **result
-                }
-            else:
-                raise HTTPException(status_code=401, detail="Invalid credentials")
-        else:
-            # Fallback to demo mode
-            return {
-                "message": "Login successful (demo mode - database unavailable)",
-                "user_id": str(uuid.uuid4()),
-                "email": credentials.email,
-                "access_token": f"demo_token_{uuid.uuid4()}",
-                "refresh_token": f"demo_refresh_{uuid.uuid4()}",
-                "expires_in": 3600
-            }
+        print(f"🔑 Login attempt for: {credentials.email}")
+        
+        # Use existing auth infrastructure pour compatibility
+        from auth import create_access_token, create_refresh_token
+        
+        # Get database
+        db_manager = get_database()
+        users_collection = db_manager.db.users
+        
+        # Find user (case insensitive)
+        email_clean = credentials.email.lower().strip()
+        user = users_collection.find_one({"email": email_clean})
+        
+        if not user:
+            print(f"❌ User not found: {email_clean}")
+            raise HTTPException(401, "Invalid credentials")
+        
+        # Check password using bcrypt
+        stored_password_hash = user.get("password_hash") or user.get("hashed_password")
+        if not stored_password_hash:
+            print(f"❌ No password hash stored for user: {email_clean}")
+            raise HTTPException(401, "Invalid credentials")
+        
+        # Proper bcrypt password verification
+        import bcrypt
+        if not bcrypt.checkpw(credentials.password.encode('utf-8'), stored_password_hash.encode('utf-8')):
+            print(f"❌ Invalid password for user: {email_clean}")
+            raise HTTPException(401, "Invalid credentials")
+        
+        user_id = user.get("user_id") or str(user.get("_id"))
+        
+        # Create tokens using existing infrastructure with 'sub' claim
+        token_data = {"sub": user["email"], "user_id": user_id}  # 'sub' requis par FastAPI
+        access_token = create_access_token(token_data)
+        refresh_token = create_refresh_token(token_data)
+        
+        print(f"✅ Login successful for: {email_clean}, user_id: {user_id}")
+        
+        return {
+            "message": "Login successful",
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+            "user_id": user_id,
+            "email": user["email"],
+            "expires_in": 3600
+        }
+        
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Login failed: {str(e)}")
+        print(f"❌ Login error for {credentials.email}: {str(e)}")
+        raise HTTPException(500, f"Login failed: {str(e)}")  # PAS DE FALLBACK
 
 @api_router.post("/auth/login-robust")
 async def login_robust(body: LoginIn):

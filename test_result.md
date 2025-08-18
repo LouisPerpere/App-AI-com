@@ -61,6 +61,8 @@
 ##     message: "Phase 1: Test de bugs prioritaires - Vérification de l'état actuel des corrections de persistance de données business profile et module d'analyse de site web. Tests backend requis pour valider les corrections récentes avant implémentation de nouvelles fonctionnalités."
 ##   - agent: "main"
 ##     message: "🔧 RÉSOLUTION BIBLIOTHÈQUE - URL Configuration Fix: Corrigé l'URL du frontend de https://saasboost-1.preview.emergentagent.com vers http://localhost:8001/api pour résoudre les problèmes de synchronisation. Services redémarrés. Phase de test des 3 symptômes identifiés par ChatGPT: (1) médias supprimés qui reviennent, (2) commentaires non enregistrés, (3) badges non affichés. Tests requis pour validation."
+##   - agent: "main"
+##     message: "🔧 PHASE CRITIQUE - DIAGNOSTIC VIGNETTES: Commencer le diagnostic des problèmes de vignettes identifiés par l'utilisateur: (1) 8/9 nouveaux uploads sans vignettes (icônes bleues), (2) 7 fichiers anciens avec thumb_url corrompus (expressions MongoDB au lieu d'URLs), (3) Images ne s'affichent pas même au clic. Investigation MongoDB et système de génération automatique de vignettes en cours."
 
 # Protocol Guidelines for Main agent
 #

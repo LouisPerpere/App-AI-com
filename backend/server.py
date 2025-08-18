@@ -412,7 +412,7 @@ async def login_robust(body: LoginIn):
         raise HTTPException(500, "Internal server error during login")
 
 @api_router.get("/auth/whoami")
-async def whoami(user_id: str = Depends(get_current_user_id_robust)):
+async def whoami(user_id: str = Depends(get_current_user_id)):
     """Test de la chaîne auth selon plan ChatGPT"""
     return {"user_id": user_id, "authentication": "success"}
 

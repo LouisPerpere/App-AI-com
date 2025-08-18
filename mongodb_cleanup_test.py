@@ -117,7 +117,7 @@ class MongoDBCleanupTester:
             self.db = self.mongo_client[DB_NAME]
             
             # Test connection
-            self.db.admin.command('ping')
+            self.mongo_client.admin.command('ping')
             
             self.log_result(
                 "MongoDB Connection", 

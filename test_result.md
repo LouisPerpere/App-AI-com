@@ -1494,10 +1494,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Frontend Testing of MongoDB Content Library with Thumbnails"
-    - "Content Upload, Display, and Thumbnail Integration"
-    - "Photo Deletion and Description Persistence"
-  stuck_tasks: []
+    - "JWT Token Authentication Fix for Content Access"
+    - "Content Filter Diagnostic Endpoint Testing"
+  stuck_tasks:
+    - "JWT Token Authentication Fix for Content Access"
+    - "MongoDB Duplicate Document Cleanup for Gray Thumbnails"
   test_all: false
   test_priority: "high_first"
 

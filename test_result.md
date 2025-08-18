@@ -1508,15 +1508,16 @@ metadata:
 
 test_plan:
   current_focus:
-    - "JWT Token Authentication Fix for Content Access"
-    - "Content Filter Diagnostic Endpoint Testing"
-  stuck_tasks:
-    - "JWT Token Authentication Fix for Content Access"
-    - "MongoDB Duplicate Document Cleanup for Gray Thumbnails"
+    - "Virtual Keyboard Fix in Settings Tab"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
+  - agent: "testing"
+    message: "🚨 CRITICAL BACKEND ISSUE IDENTIFIED: Claire et Marcus registration flow testing reveals that the backend API at https://claire-marcus-api.onrender.com is completely unresponsive. Frontend is correctly implemented and making proper API calls, but backend times out after 30+ seconds with no response. This is a production-critical issue that requires immediate backend service investigation and restart. The registration flow cannot function until the backend API is restored. Recommend checking Render.com service status, logs, and database connectivity."
+  - agent: "testing"
+    message: "🚨 VIRTUAL KEYBOARD FIX ISSUE IDENTIFIED: Comprehensive testing of the Settings tab virtual keyboard fix reveals that the correction is properly implemented in code but NOT working due to detection logic limitations. The isVirtualKeyboardDevice detection requires iPad/iPhone/Android user agents or MacIntel platform with touch points, but headless Chrome test environment (Linux x86_64, no touch support) doesn't meet these conditions. The React component correctly switches between native HTML input (with 16px font and anti-zoom attributes) and React Input component based on detection, but detection returns false in test environment. RECOMMENDATION: The fix is correctly implemented and would work on actual mobile/tablet devices. Manual testing on real iPad/iPhone/Android devices is required to verify the virtual keyboard fix functionality. The code implementation follows the exact specifications from the review request."
     - agent: "main"
       message: "Continue with the backend testing as planned. Focus on: 1. Business Profile API testing (priority for keyboard bug fix verification) 2. Authentication endpoints 3. Notes API endpoints. Use credentials: lperpere@yahoo.fr / L@Reunion974! Proceed with comprehensive testing now."
     - agent: "main"

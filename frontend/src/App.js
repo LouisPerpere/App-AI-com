@@ -5508,7 +5508,7 @@ function MainApp() {
                           placeholder="Votre prénom"
                           onBlur={(e) => {
                             setEditUserFirstName(e.target.value);
-                            console.log('Auto-saving user first name:', e.target.value);
+                            saveUserSettings('first_name', e.target.value);
                           }}
                         />
                       ) : (

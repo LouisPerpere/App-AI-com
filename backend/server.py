@@ -1339,6 +1339,60 @@ def sync_descriptions_with_files():
         print(f"❌ Error syncing descriptions with files: {e}")
         return False
 
+def create_thumbnail_job(file_id: str, unique_filename: str, file_path: str, content_type: str):
+    """Create a thumbnail generation job with proper closure handling"""
+    def generate_thumbnail_job():
+        try:
+            from thumbs import generate_image_thumb, generate_video_thumb, build_thumb_path
+            import pymongo
+            from bson import ObjectId
+            
+            print(f"🔄 Starting thumbnail generation for: {unique_filename} (type: {content_type})")
+            
+            thumb_path = build_thumb_path(unique_filename)
+            os.makedirs(os.path.dirname(thumb_path), exist_ok=True)
+            
+            # Handle different image formats including HEIC/HEIF
+            if content_type.startswith('image/'):
+                generate_image_thumb(file_path, thumb_path)
+                print(f"✅ Image thumbnail generated: {thumb_path}")
+            elif content_type.startswith('video/'):
+                generate_video_thumb(file_path, thumb_path)
+                print(f"✅ Video thumbnail generated: {thumb_path}")
+            else:
+                print(f"⚠️ Unsupported content type for thumbnail: {content_type}")
+                return
+            
+            # Update MongoDB with correct thumb_url
+            thumb_url = f"https://claire-marcus-api.onrender.com/uploads/thumbs/" + os.path.basename(thumb_path)
+            
+            # Use synchronous MongoDB update in background task
+            mongo_url = os.environ.get("MONGO_URL")
+            if mongo_url:
+                client = pymongo.MongoClient(mongo_url)
+                db = client.claire_marcus
+                
+                result = db.media.update_one(
+                    {"_id": ObjectId(file_id)}, 
+                    {"$set": {"thumb_url": thumb_url}}
+                )
+                
+                if result.modified_count == 1:
+                    print(f"✅ MongoDB updated with thumb_url: {thumb_url}")
+                else:
+                    print(f"❌ Failed to update MongoDB for {unique_filename}")
+                    
+                client.close()
+            else:
+                print(f"❌ MONGO_URL not available for thumbnail update")
+                
+        except Exception as e:
+            print(f"❌ Thumbnail generation failed for {unique_filename}: {str(e)}")
+            import traceback
+            traceback.print_exc()
+    
+    return generate_thumbnail_job
+
 # Content upload endpoints (enhanced with image optimization)
 @api_router.post("/content/batch-upload")
 async def batch_upload_files(

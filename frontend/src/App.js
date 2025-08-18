@@ -5441,49 +5441,106 @@ function MainApp() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="firstName">Prénom</Label>
-                      <Input
-                        key="first_name_input"
-                        id="firstName"
-                        value={editUserFirstName}
-                        onChange={(e) => setEditUserFirstName(e.target.value)}
-                        onBlur={(e) => {
-                          // Auto-save user profile
-                          console.log('Auto-saving user first name:', e.target.value);
-                        }}
-                        className="mt-1"
-                        placeholder="Votre prénom"
-                      />
+                      {isVirtualKeyboardDevice ? (
+                        <input
+                          key="first_name_settings_input"
+                          id="firstName"
+                          type="text"
+                          className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none mt-1"
+                          style={{ fontSize: '16px' }}
+                          autoCorrect={false}
+                          autoComplete="off"
+                          spellCheck={false}
+                          autoCapitalize="off"
+                          defaultValue={editUserFirstName}
+                          placeholder="Votre prénom"
+                          onBlur={(e) => {
+                            setEditUserFirstName(e.target.value);
+                            console.log('Auto-saving user first name:', e.target.value);
+                          }}
+                        />
+                      ) : (
+                        <Input
+                          key="first_name_settings_input"
+                          id="firstName"
+                          value={editUserFirstName}
+                          onChange={(e) => setEditUserFirstName(e.target.value)}
+                          onBlur={(e) => {
+                            console.log('Auto-saving user first name:', e.target.value);
+                          }}
+                          className="mt-1"
+                          placeholder="Votre prénom"
+                        />
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="lastName">Nom</Label>
-                      <Input
-                        key="last_name_input"
-                        id="lastName"
-                        value={editUserLastName}
-                        onChange={(e) => setEditUserLastName(e.target.value)}
-                        onBlur={(e) => {
-                          // Auto-save user profile
-                          console.log('Auto-saving user last name:', e.target.value);
-                        }}
-                        className="mt-1"
-                        placeholder="Votre nom"
-                      />
+                      {isVirtualKeyboardDevice ? (
+                        <input
+                          key="last_name_settings_input"
+                          id="lastName"
+                          type="text"
+                          className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none mt-1"
+                          style={{ fontSize: '16px' }}
+                          autoCorrect={false}
+                          autoComplete="off"
+                          spellCheck={false}
+                          autoCapitalize="off"
+                          defaultValue={editUserLastName}
+                          placeholder="Votre nom"
+                          onBlur={(e) => {
+                            setEditUserLastName(e.target.value);
+                            console.log('Auto-saving user last name:', e.target.value);
+                          }}
+                        />
+                      ) : (
+                        <Input
+                          key="last_name_settings_input"
+                          id="lastName"
+                          value={editUserLastName}
+                          onChange={(e) => setEditUserLastName(e.target.value)}
+                          onBlur={(e) => {
+                            console.log('Auto-saving user last name:', e.target.value);
+                          }}
+                          className="mt-1"
+                          placeholder="Votre nom"
+                        />
+                      )}
                     </div>
                     <div className="md:col-span-2">
                       <Label htmlFor="email">Email</Label>
-                      <Input
-                        key="email_input"
-                        id="email"
-                        type="email"
-                        value={editUserEmail}
-                        onChange={(e) => setEditUserEmail(e.target.value)}
-                        onBlur={(e) => {
-                          // Auto-save user profile
-                          console.log('Auto-saving user email:', e.target.value);
-                        }}
-                        className="mt-1"
-                        placeholder="votre@email.com"
-                      />
+                      {isVirtualKeyboardDevice ? (
+                        <input
+                          key="email_settings_input"
+                          id="email"
+                          type="email"
+                          className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none mt-1"
+                          style={{ fontSize: '16px' }}
+                          autoCorrect={false}
+                          autoComplete="off"
+                          spellCheck={false}
+                          autoCapitalize="off"
+                          defaultValue={editUserEmail}
+                          placeholder="votre@email.com"
+                          onBlur={(e) => {
+                            setEditUserEmail(e.target.value);
+                            console.log('Auto-saving user email:', e.target.value);
+                          }}
+                        />
+                      ) : (
+                        <Input
+                          key="email_settings_input"
+                          id="email"
+                          type="email"
+                          value={editUserEmail}
+                          onChange={(e) => setEditUserEmail(e.target.value)}
+                          onBlur={(e) => {
+                            console.log('Auto-saving user email:', e.target.value);
+                          }}
+                          className="mt-1"
+                          placeholder="votre@email.com"
+                        />
+                      )}
                     </div>
                   </div>
                   <div className="flex justify-center pt-4 border-t border-gray-200">

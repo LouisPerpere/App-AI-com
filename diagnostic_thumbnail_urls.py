@@ -209,7 +209,7 @@ class ThumbnailURLDiagnostic:
             return False
     
     def check_physical_files_existence(self):
-        """ÉTAPE 4: Vérifier l'existence physique des fichiers correspondants"""
+        """ÉTAPE 4: Vérifier l'existence physique des fichiers via API content/pending"""
         print("📁 ÉTAPE 4: VÉRIFICATION EXISTENCE FICHIERS PHYSIQUES")
         print("=" * 60)
         
@@ -222,41 +222,61 @@ class ThumbnailURLDiagnostic:
             return False
         
         try:
-            # Check physical files via backend API
-            response = self.session.get(f"{API_BASE}/content/thumbnails/test")
+            # Get content via API to see what's actually available
+            response = self.session.get(f"{API_BASE}/content/pending?limit=50")
             
             if response.status_code == 200:
                 data = response.json()
-                physical_thumbnails = data.get("thumbnails", [])
-                physical_filenames = [thumb["filename"] for thumb in physical_thumbnails]
+                api_content = data.get("content", [])
                 
-                # Check correspondence
+                # Build list of available files from API
+                api_files = {}
+                for item in api_content:
+                    filename = item.get("filename", "")
+                    thumb_url = item.get("thumb_url", "")
+                    url = item.get("url", "")
+                    if filename:
+                        api_files[filename] = {
+                            "thumb_url": thumb_url,
+                            "url": url,
+                            "has_thumb_url": bool(thumb_url and thumb_url != "None")
+                        }
+                
+                # Check correspondence with MongoDB examples
                 correspondence_results = []
                 for example in self.thumb_url_examples:
-                    thumb_url = example["thumb_url"]
+                    filename = example["filename"]
+                    mongo_thumb_url = example["thumb_url"]
                     
-                    # Extract expected physical filename from thumb_url
-                    parsed_url = urlparse(thumb_url)
-                    expected_filename = os.path.basename(parsed_url.path)
+                    # Check if file exists in API response
+                    api_file_exists = filename in api_files
                     
-                    # Check if physical file exists
-                    physical_exists = expected_filename in physical_filenames
+                    if api_file_exists:
+                        api_thumb_url = api_files[filename]["thumb_url"]
+                        thumb_urls_match = mongo_thumb_url == api_thumb_url
+                    else:
+                        api_thumb_url = "FILE_NOT_IN_API"
+                        thumb_urls_match = False
                     
                     correspondence_results.append({
-                        "thumb_url": thumb_url,
-                        "expected_filename": expected_filename,
-                        "physical_exists": physical_exists,
-                        "original_filename": example["filename"]
+                        "filename": filename,
+                        "mongo_thumb_url": mongo_thumb_url,
+                        "api_thumb_url": api_thumb_url,
+                        "api_file_exists": api_file_exists,
+                        "thumb_urls_match": thumb_urls_match
                     })
                 
                 # Summary
-                existing_count = sum(1 for result in correspondence_results if result["physical_exists"])
+                existing_count = sum(1 for result in correspondence_results if result["api_file_exists"])
+                matching_thumbs = sum(1 for result in correspondence_results if result["thumb_urls_match"])
                 total_checked = len(correspondence_results)
                 
-                details = f"Vérification physique: {existing_count}/{total_checked} fichiers trouvés. "
+                details = f"Vérification via API: {len(api_files)} fichiers dans API, {existing_count}/{total_checked} exemples MongoDB trouvés dans API, {matching_thumbs} avec thumb_url identiques. "
+                
                 for i, result in enumerate(correspondence_results, 1):
-                    status = "✅" if result["physical_exists"] else "❌"
-                    details += f"Ex{i}: {result['expected_filename']} {status}. "
+                    api_status = "✅" if result["api_file_exists"] else "❌"
+                    thumb_status = "✅" if result["thumb_urls_match"] else "❌"
+                    details += f"Ex{i}: {result['filename']} API:{api_status} Thumb:{thumb_status}. "
                 
                 self.log_diagnostic(
                     "Vérification fichiers physiques", 
@@ -266,12 +286,13 @@ class ThumbnailURLDiagnostic:
                 
                 # Store for next step
                 self.correspondence_results = correspondence_results
+                self.api_files = api_files
                 return True
             else:
                 self.log_diagnostic(
                     "Vérification fichiers physiques", 
                     False, 
-                    f"API test endpoint failed. Status: {response.status_code}",
+                    f"API content/pending failed. Status: {response.status_code}",
                     response.text
                 )
                 return False

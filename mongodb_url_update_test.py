@@ -8,6 +8,7 @@ import requests
 import json
 import os
 import time
+from pymongo import MongoClient
 
 # Configuration - Using the correct backend URL from frontend/.env
 BACKEND_URL = "https://5f4ed9f9-c147-4a28-b85c-5a25b4d4a7d1.preview.emergentagent.com"

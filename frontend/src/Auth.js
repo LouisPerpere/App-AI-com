@@ -118,6 +118,9 @@ const AuthPage = ({ onAuthSuccess }) => {
       console.log('🎉 LOGIN COMPLETE - Calling onAuthSuccess()');
       toast.success('Connexion réussie ! 🎉');
       
+      // Small delay to ensure defaults and state are applied before navigation
+      await new Promise(r => setTimeout(r, 100));
+      
       // Call auth success callback with error handling
       try {
         console.log('🔄 About to call onAuthSuccess callback...');

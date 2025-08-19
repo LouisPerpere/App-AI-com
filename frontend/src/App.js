@@ -302,9 +302,7 @@ const ContentPreviewModal = ({
                 className="w-full h-auto max-h-[60vh] object-contain rounded-2xl shadow-lg"
                 onError={(e) => {
                   // Fallback for modal images
-                  if (content.thumb_url && e.currentTarget.src !== content.thumb_url) {
-                    e.currentTarget.src = content.thumb_url;
-                  }
+                  // No further fallback; keep clean UI
                 }}
               />
             ) : (

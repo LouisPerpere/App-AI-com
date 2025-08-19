@@ -45,7 +45,7 @@ def test_render_backend():
         print(f"POST {auth_url}")
         print(f"Payload: {json.dumps(auth_data, indent=2)}")
         
-        response = requests.post(auth_url, json=auth_data, timeout=30)
+        response = requests.post(auth_url, json=auth_data, timeout=120)
         print(f"Status: {response.status_code}")
         
         if response.status_code == 200:

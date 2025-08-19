@@ -59,7 +59,7 @@ const AuthPage = ({ onAuthSuccess }) => {
         password: loginForm.password
       }, {
         timeout: 15000,
-        withCredentials: true,  // For cross-site authentication (ChatGPT fix)
+        withCredentials: false,
         headers: {
           'Content-Type': 'application/json'
         }

@@ -5232,8 +5232,14 @@ function MainApp() {
                     </div>
                     
                     <div className="grid gap-4">
-                      {notes.map((note) => (
-                        <div key={note.id} className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition-all">
+                      {/* Debug info */}
+                      <div className="text-sm text-gray-500 mb-2">
+                        📊 Notes chargées: {notes?.length || 0}
+                      </div>
+                      
+                      {notes && notes.length > 0 ? (
+                        notes.map((note) => (
+                          <div key={note.id} className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition-all">
                           <div className="flex items-start justify-between mb-3">
                             <div className="flex items-center space-x-3">
                               <div className={`w-3 h-3 rounded-full ${

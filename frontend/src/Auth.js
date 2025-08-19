@@ -27,6 +27,24 @@ const API = `${BACKEND_URL}/api`;
 
 console.log('🔍 AUTH DEBUG - API URL:', API);
 
+// Ping backend to wake Render free instance (can take 20-40s)
+const pingBackend = async (maxWaitMs = 60000) => {
+  const start = Date.now();
+  let lastErr = null;
+  while (Date.now() - start < maxWaitMs) {
+    try {
+      const res = await axios.get(`${API}/health`, { timeout: 12000 });
+      if (res?.status === 200) return true;
+    } catch (e) {
+      lastErr = e;
+      // short pause then retry
+      await new Promise(r => setTimeout(r, 1500));
+    }
+  }
+  console.warn('⚠️ Backend ping timeout after', maxWaitMs, 'ms', lastErr?.message);
+  return false;
+};
+
 const AuthPage = ({ onAuthSuccess }) => {
   const [activeTab, setActiveTab] = useState('login');
   const [showPassword, setShowPassword] = useState(false);

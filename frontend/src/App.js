@@ -3264,8 +3264,9 @@ function MainApp() {
       } else if (error.response?.data?.detail) {
         errorMessage = `❌ ${error.response.data.detail}`;
       } else if (error.message) {
-        // Inclure le message d'erreur JavaScript pour debug
-        errorMessage = `❌ ${error.message}`;
+        // Inclure le message d'erreur JavaScript pour debug (avec protection object)
+        const errorMsg = typeof error.message === 'string' ? error.message : JSON.stringify(error.message);
+        errorMessage = `❌ ${errorMsg}`;
       }
       
       console.log('💬 Message d\'erreur affiché:', errorMessage);

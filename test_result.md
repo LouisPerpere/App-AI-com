@@ -137,6 +137,17 @@ frontend:
       - working: false
         agent: "testing"
         comment: "🚨 VIRTUAL KEYBOARD FIX NOT WORKING IN SETTINGS TAB: Comprehensive testing completed with tablet viewport (768x1024) to trigger virtual keyboard detection. ISSUE IDENTIFIED: The virtual keyboard detection logic is NOT working in the test environment. TECHNICAL FINDINGS: (1) ❌ Virtual keyboard detection returns FALSE - User agent: Linux x86_64 HeadlessChrome (not iPad/iPhone/Android), Platform: Linux x86_64 (not MacIntel), Max touch points: 0 (no touch support), Touch support: False, Detection result: False, (2) ❌ React component using wrong input type - Field shows React Input component (14px font, no anti-zoom attributes), Should be native HTML input with 16px font and anti-zoom attributes, Autocorrect/autocomplete/spellcheck/autocapitalize all None instead of false/off, (3) ✅ Settings tab accessible and fields functional - Successfully accessed Réglages tab, Found all three corrected fields (Prénom, Nom, Email), Fields accept input and onBlur events work, Auto-save functionality working. ROOT CAUSE: The isVirtualKeyboardDevice detection logic requires iPad/iPhone/Android user agents or MacIntel with touch points, but headless Chrome test environment doesn't meet these conditions. RECOMMENDATION: The fix is correctly implemented in code but cannot be tested in headless browser environment. Manual testing on actual iPad/iPhone/Android devices would be required to verify the virtual keyboard fix is working."
+  - task: "Website Analysis Frontend error handling"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Implemented extractErrorMessage() and integrated into analyzeWebsite() flow. UI shows spinner 'Analyse en cours…', success and error states. Expectation: no more [object Object]; readable French error messages from backend {error: '...'} appear in UI. Ready for automated frontend testing."
 
   - task: "Frontend React Corrections for UI Unblocking"
     implemented: true

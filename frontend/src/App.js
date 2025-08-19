@@ -1616,17 +1616,6 @@ function MainApp() {
     }
   }, [isAuthenticated, user, businessProfile]);
 
-  // Récupérer le token depuis localStorage, avec fallback pour Safari navigation privée
-  const getAccessToken = () => {
-    try {
-      const raw = localStorage.getItem('access_token');
-      if (raw) return raw;
-    } catch (e) {
-      console.warn('⚠️ localStorage inaccessible, utilisation du token mémoire');
-    }
-    return window.__ACCESS_TOKEN || null;
-  };
-
   const checkAuth = async () => {
     const token = localStorage.getItem('access_token');
     console.log('🔍 checkAuth called - token exists:', !!token);

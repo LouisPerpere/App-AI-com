@@ -138,6 +138,18 @@ frontend:
     working: false
     file: "/app/frontend/src/App.js"
     stuck_count: 0
+  - task: "Thumbnail persistence in MongoDB (API streaming)"
+    implemented: true
+    working: false
+    file: "/app/backend/routes_thumbs.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Implemented DB-backed thumbnails: storing 320px WEBP/PNG/JPEG bytes in MongoDB 'thumbnails' collection, updating media.thumb_url to relative /api/content/{file_id}/thumb, on-demand generation when missing, and backfill endpoint. Needs backend tests to verify streaming endpoint and backfill." 
+
     priority: "high"
     needs_retesting: false
     status_history:

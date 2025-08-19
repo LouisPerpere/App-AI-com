@@ -5274,7 +5274,12 @@ function MainApp() {
                             Ajoutée le {new Date(note.created_at).toLocaleDateString('fr-FR')} à {new Date(note.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                           </div>
                         </div>
-                      ))}
+                        ))
+                      ) : (
+                        <div className="text-center py-6 text-gray-500">
+                          Aucune note trouvée. Créez votre première note ci-dessus !
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

@@ -12,16 +12,11 @@ import { toast } from 'sonner';
 // Ensure we always have a valid backend URL
 const getBackendURL = () => {
   const envURL = process.env.REACT_APP_BACKEND_URL;
-  const fallbackURL = 'https://claire-marcus-api.onrender.com';
-  
-  console.log('🔍 AUTH DEBUG - Raw ENV:', process.env.REACT_APP_BACKEND_URL);
-  console.log('🔍 AUTH DEBUG - All REACT_APP vars:', Object.keys(process.env).filter(key => key.startsWith('REACT_APP_')));
-  
-  // Use env URL if it exists and is valid, otherwise use fallback
-  const finalURL = (envURL && envURL.trim() && envURL !== 'undefined') ? envURL : fallbackURL;
-  
-  console.log('🔍 AUTH DEBUG - Final Backend URL:', finalURL);
-  return finalURL;
+  if (!envURL || envURL === 'undefined') {
+    console.error('❌ REACT_APP_BACKEND_URL is not set. Configure it in Netlify environment variables.');
+    return '';
+  }
+  return envURL;
 };
 
 const BACKEND_URL = getBackendURL();

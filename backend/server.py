@@ -77,6 +77,14 @@ except ImportError as e:
     print(f"⚠️ Thumbnails module not available: {e}")
     THUMBNAILS_AVAILABLE = False
 
+try:
+    from routes_uploads import router as uploads_router
+    UPLOADS_AVAILABLE = True
+    print("✅ Uploads (GridFS) module loaded")
+except ImportError as e:
+    print(f"⚠️ Uploads module not available: {e}")
+    UPLOADS_AVAILABLE = False
+
 app = FastAPI(title="Claire et Marcus API", version="1.0.0")
 
 # Enable CORS for external frontends (Netlify, etc.)
@@ -237,13 +245,25 @@ async def diagnostic():
         "timestamp": datetime.now().isoformat()
     }
 
+@app.get("/")
+async def root():
+    return {
+        "message": "🎉 Claire et Marcus API is running!",
+        "version": "1.0.0",
+        "status": "healthy",
+        "endpoints": {
+            "health": "/api/health",
+            "docs": "/docs",
+            "auth": "/api/auth/*",
+            "business_profile": "/api/business-profile"
+        }
+    }
 
 # ----------------------------
-# AUTH: /api/auth/login-robust (minimal, for tests and production)
+# AUTH: /api/auth/login-robust
 # ----------------------------
 @api_router.post("/auth/login-robust")
 async def login_robust(body: LoginIn):
-    """Robust login that returns a JWT with sub=user_id"""
     try:
         dbm = get_database()
         users = dbm.db.users
@@ -303,30 +323,25 @@ async def get_pending_content_mongo(offset: int = 0, limit: int = 24, user_id: s
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch content: {str(e)}")
 
-@app.get("/")
-async def root():
-    return {
-        "message": "🎉 Claire et Marcus API is running!",
-        "version": "1.0.0",
-        "status": "healthy",
-        "endpoints": {
-            "health": "/api/health",
-            "docs": "/docs",
-            "auth": "/api/auth/*",
-            "business_profile": "/api/business-profile"
-        }
-    }
-
-# [Rest of server.py remains same as previously present and already running]
-
-# Website analyzer endpoints - REPLACED BY GPT-5 MODULE
+# Include the API router
 app.include_router(api_router)
+
+# Include GPT-5 Website Analyzer
 if WEBSITE_ANALYZER_AVAILABLE:
     app.include_router(website_router, prefix="/api")
     print("✅ GPT-5 Website Analyzer endpoints added")
+
+# Include thumbnails router
 if THUMBNAILS_AVAILABLE:
     app.include_router(thumbnails_router, prefix="/api")
     print("✅ Thumbnails router included")
+
+# Include uploads router (GridFS)
+if UPLOADS_AVAILABLE:
+    app.include_router(uploads_router, prefix="/api")
+    print("✅ Uploads router included")
+
+# Include payments router
 if PAYMENTS_V2_AVAILABLE:
     app.include_router(payments_router)
     print("✅ Modern Stripe payments endpoints added")

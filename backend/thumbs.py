@@ -50,6 +50,22 @@ def generate_image_thumb_bytes(src_path: str) -> bytes:
             content_type = "image/png"
         return buf.getvalue()
 
+def generate_image_thumb_from_bytes(data: bytes) -> bytes:
+    """Generate thumbnail from in-memory image bytes and return bytes"""
+    with Image.open(io.BytesIO(data)) as im:
+        im = im.convert("RGB")
+        im = _square_crop(im)
+        im.thumbnail((THUMB_SIZE, THUMB_SIZE), Image.LANCZOS)
+        buf = io.BytesIO()
+        ext = THUMB_FORMAT.lower()
+        if ext == "webp":
+            im.save(buf, format="WEBP", quality=QUALITY, method=6)
+        elif ext in ("jpeg", "jpg"):
+            im.save(buf, format="JPEG", quality=QUALITY, optimize=True, progressive=True)
+        else:
+            im.save(buf, format="PNG", optimize=True)
+        return buf.getvalue()
+
 def generate_video_thumb(src_path: str, thumb_path: str, time_pos="00:00:01") -> None:
     """Generate thumbnail from video file using ffmpeg (filesystem output)"""
     # 1) extraire une frame
@@ -79,6 +95,20 @@ def generate_video_thumb_bytes(src_path: str, time_pos="00:00:01") -> bytes:
     finally:
         try:
             os.remove(jpg_frame)
+        except FileNotFoundError:
+            pass
+
+def generate_video_thumb_from_bytes(data: bytes, time_pos="00:00:01") -> bytes:
+    """Generate thumbnail from in-memory video bytes: write to temp file, extract frame via ffmpeg, then make square thumb"""
+    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp_vid:
+        tmp_vid.write(data)
+        tmp_vid.flush()
+        tmp_path = tmp_vid.name
+    try:
+        return generate_video_thumb_bytes(tmp_path, time_pos=time_pos)
+    finally:
+        try:
+            os.remove(tmp_path)
         except FileNotFoundError:
             pass
 

@@ -5,7 +5,8 @@ from bson import ObjectId
 from datetime import datetime
 from thumbs import (
     generate_image_thumb, generate_video_thumb, build_thumb_path,
-    generate_image_thumb_bytes, generate_video_thumb_bytes
+    generate_image_thumb_bytes, generate_video_thumb_bytes,
+    generate_image_thumb_from_bytes, generate_video_thumb_from_bytes
 )
 from database import get_database
 import asyncio
@@ -18,14 +19,24 @@ from io import BytesIO
 router = APIRouter()
 
 UPLOADS_DIR = os.environ.get("UPLOADS_DIR", "uploads")
-# We will no longer build absolute public base URLs; API will return relative /api paths
 RELATIVE_THUMB_ENDPOINT = "/api/content/{file_id}/thumb"
 
-# JWT Configuration (same as server.py)
+# JWT Configuration
 JWT_SECRET = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-this-in-production')
 JWT_ALG = os.environ.get("JWT_ALG", "HS256")
-JWT_TTL = int(os.environ.get("JWT_TTL_SECONDS", "604800"))  # 7 jours
+JWT_TTL = int(os.environ.get("JWT_TTL_SECONDS", "604800"))
 JWT_ISS = os.environ.get("JWT_ISS", "claire-marcus-api")
+
+# Sync DB client for GridFS access
+_sync_client = None
+
+def get_sync_db():
+    global _sync_client
+    if _sync_client is None:
+        from pymongo import MongoClient
+        mongo_url = os.environ.get("MONGO_URL")
+        _sync_client = MongoClient(mongo_url)
+    return _sync_client[os.environ.get("DB_NAME", "claire_marcus")]
 
 async def get_media_collection():
     db = get_database()
@@ -35,21 +46,9 @@ def get_sync_media_collection():
     db = get_database()
     return db.db.media
 
-# Thumbnails collection (binary storage)
-_sync_client = None
-
-def get_sync_db():
-    global _sync_client
-    if _sync_client is None:
-        from pymongo import MongoClient
-        mongo_url = os.environ.get("MONGO_URL")
-        _sync_client = MongoClient(mongo_url)
-    return _sync_client.claire_marcus
-
 THUMBS_COLLECTION = "thumbnails"
 
 def save_db_thumbnail(owner_id: str, media_obj_id: ObjectId, content: bytes, content_type: str = "image/webp"):
-    """Upsert thumbnail binary into MongoDB thumbnails collection and update media.thumb_url to relative API path"""
     dbp = get_sync_db()
     thumbs_col = dbp[THUMBS_COLLECTION]
     now = datetime.utcnow()
@@ -101,14 +100,50 @@ def is_image(ft: str) -> bool:
 def is_video(ft: str) -> bool:
     return ft and ft.startswith("video/")
 
+# Helpers to fetch original media bytes (GridFS or disk)
+
+def _fetch_original_bytes(media_doc) -> Optional[bytes]:
+    storage = media_doc.get("storage")
+    filename = media_doc.get("filename")
+    if storage == "gridfs":
+        try:
+            from gridfs import GridFS
+            dbp = get_sync_db()
+            fs = GridFS(dbp)
+            grid_id = media_doc.get("gridfs_id")
+            if not grid_id:
+                return None
+            if isinstance(grid_id, str):
+                try:
+                    gid = ObjectId(grid_id)
+                except Exception:
+                    gid = None
+            else:
+                gid = grid_id
+            if gid is None:
+                return None
+            f = fs.get(gid)
+            return f.read()
+        except Exception:
+            return None
+    # Fallback to disk if present
+    if filename:
+        src_path = os.path.join(UPLOADS_DIR, filename)
+        if os.path.isfile(src_path):
+            try:
+                with open(src_path, 'rb') as fh:
+                    return fh.read()
+            except Exception:
+                return None
+    return None
+
 @router.get("/content/{file_id}/thumb")
 async def stream_thumbnail(file_id: str, user_id: str = Depends(get_current_user_id_robust)):
-    """Stream thumbnail from MongoDB; if missing, attempt on-demand generation from source and save to DB."""
+    """Stream thumbnail from MongoDB; if missing, attempt generation from original (GridFS or disk) and save to DB."""
     media_collection = get_sync_media_collection()
     try:
         id_filter = {"_id": ObjectId(file_id)}
     except Exception:
-        # fallback UUID filter
         id_filter = {"external_id": file_id}
     media_doc = media_collection.find_one({**id_filter, "owner_id": user_id, "deleted": {"$ne": True}})
     if not media_doc:
@@ -118,20 +153,22 @@ async def stream_thumbnail(file_id: str, user_id: str = Depends(get_current_user
     thumb_doc = get_db_thumbnail(media_obj_id)
 
     if not thumb_doc:
-        # try to generate from source
-        filename = media_doc.get("filename")
-        src_path = os.path.join(UPLOADS_DIR, filename)
-        if not os.path.isfile(src_path):
-            raise HTTPException(status_code=404, detail="Source file missing on disk")
+        # try to generate from original
+        file_type = media_doc.get("file_type")
+        original_bytes = _fetch_original_bytes(media_doc)
+        if not original_bytes:
+            raise HTTPException(status_code=404, detail="Original media missing")
         try:
-            if is_image(media_doc.get("file_type")):
-                content = generate_image_thumb_bytes(src_path)
-            elif is_video(media_doc.get("file_type")):
-                content = generate_video_thumb_bytes(src_path)
+            if is_image(file_type):
+                content = generate_image_thumb_from_bytes(original_bytes)
+            elif is_video(file_type):
+                content = generate_video_thumb_from_bytes(original_bytes)
             else:
                 raise HTTPException(status_code=415, detail="Unsupported media type for thumbnail")
             save_db_thumbnail(media_doc.get("owner_id"), media_obj_id, content)
             thumb_doc = get_db_thumbnail(media_obj_id)
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Thumbnail generation failed: {str(e)}")
 
@@ -148,7 +185,7 @@ async def generate_single_thumb(
     bg: BackgroundTasks,
     user_id: str = Depends(get_current_user_id_robust),
 ):
-    """Generate and store thumbnail in DB for a single file; update media.thumb_url to relative API path."""
+    """Generate and store thumbnail in DB for a single file; source may be GridFS or disk."""
     media_collection = get_sync_media_collection()
     try:
         id_filter = {"_id": ObjectId(file_id)}
@@ -158,23 +195,23 @@ async def generate_single_thumb(
     if not doc:
         raise HTTPException(status_code=404, detail="Media not found")
 
-    filename = doc["filename"]
-    src_path = os.path.join(UPLOADS_DIR, filename)
-    if not os.path.isfile(src_path):
-        raise HTTPException(status_code=404, detail="File missing on disk")
-
     def _job():
         try:
-            if is_image(doc.get("file_type")):
-                content = generate_image_thumb_bytes(src_path)
-            elif is_video(doc.get("file_type")):
-                content = generate_video_thumb_bytes(src_path)
+            file_type = doc.get("file_type")
+            original_bytes = _fetch_original_bytes(doc)
+            if not original_bytes:
+                print(f"❌ Original missing for media {doc.get('_id')}")
+                return
+            if is_image(file_type):
+                content = generate_image_thumb_from_bytes(original_bytes)
+            elif is_video(file_type):
+                content = generate_video_thumb_from_bytes(original_bytes)
             else:
                 return
             save_db_thumbnail(doc.get("owner_id"), doc["_id"], content)
-            print(f"✅ DB thumbnail saved for {filename}")
+            print(f"✅ DB thumbnail saved for {doc.get('filename')}")
         except Exception as e:
-            print(f"❌ Thumbnail generation failed for {filename}: {str(e)}")
+            print(f"❌ Thumbnail generation failed for {doc.get('filename')}: {str(e)}")
 
     bg.add_task(_job)
     return {"ok": True, "scheduled": True, "file_id": str(doc["_id"])}
@@ -187,7 +224,6 @@ async def rebuild_missing_thumbs(
 ):
     """Rebuild missing DB thumbnails for user (backfill)"""
     media_collection = get_sync_media_collection()
-    # find media missing thumb doc
     q = {"owner_id": user_id, "deleted": {"$ne": True}}
     cursor = media_collection.find(q).sort([("created_at", -1)]).limit(limit)
     docs = list(cursor)
@@ -195,37 +231,33 @@ async def rebuild_missing_thumbs(
     scheduled = 0
     for d in docs:
         media_obj_id = d.get("_id")
-        # check if thumbnail exists in DB
         if get_db_thumbnail(media_obj_id):
-            # also ensure media.thumb_url points to relative API endpoint
             media_collection.update_one({"_id": media_obj_id}, {"$set": {"thumb_url": RELATIVE_THUMB_ENDPOINT.format(file_id=str(media_obj_id))}})
             continue
 
-        filename = d.get("filename")
-        src_path = os.path.join(UPLOADS_DIR, filename)
-        if not os.path.isfile(src_path):
-            continue
-
-        def make_job(doc_id, file_type, owner_id, src=src_path, fname=filename):
+        def make_job(doc):
             def _job():
                 try:
-                    if is_image(file_type):
-                        content = generate_image_thumb_bytes(src)
-                    elif is_video(file_type):
-                        content = generate_video_thumb_bytes(src)
+                    original_bytes = _fetch_original_bytes(doc)
+                    if not original_bytes:
+                        return
+                    if is_image(doc.get("file_type")):
+                        content = generate_image_thumb_from_bytes(original_bytes)
+                    elif is_video(doc.get("file_type")):
+                        content = generate_video_thumb_from_bytes(original_bytes)
                     else:
                         return
-                    save_db_thumbnail(owner_id, doc_id, content)
-                    print(f"✅ DB thumbnail backfilled for {fname}")
+                    save_db_thumbnail(doc.get("owner_id"), doc["_id"], content)
+                    print(f"✅ DB thumbnail backfilled for {doc.get('filename')}")
                 except Exception as e:
-                    print(f"❌ Thumbnail generation failed for {fname}: {str(e)}")
+                    print(f"❌ Thumbnail generation failed for {doc.get('filename')}: {str(e)}")
             return _job
 
         if bg is not None:
-            bg.add_task(make_job(media_obj_id, d.get("file_type"), d.get("owner_id")))
+            bg.add_task(make_job(d))
             scheduled += 1
         else:
-            job = make_job(media_obj_id, d.get("file_type"), d.get("owner_id"))
+            job = make_job(d)
             job()
             scheduled += 1
 
@@ -273,19 +305,36 @@ async def list_orphan_media(
     limit: int = 50,
     user_id: str = Depends(get_current_user_id_robust),
 ):
-    """List media records where source file is missing on disk"""
+    """List media records where source file is missing on disk and not present in GridFS"""
     media_collection = get_sync_media_collection()
+    from gridfs import GridFS
+    dbp = get_sync_db()
+    fs = GridFS(dbp)
+
     q = {"owner_id": user_id, "$or": [{"deleted": {"$ne": True}}, {"deleted": {"$exists": False}}]}
     cursor = media_collection.find(q).limit(max(1, int(limit)))
     orphans = []
     for d in cursor:
+        storage = d.get("storage")
         filename = d.get("filename")
-        src_path = os.path.join(UPLOADS_DIR, filename) if filename else None
-        if not filename or not os.path.isfile(src_path):
+        is_missing = False
+        if storage == "gridfs":
+            gid = d.get("gridfs_id")
+            try:
+                gid = ObjectId(gid) if isinstance(gid, str) else gid
+                file_exists = gid is not None and fs.exists(gid)
+                is_missing = not file_exists
+            except Exception:
+                is_missing = True
+        else:
+            src_path = os.path.join(UPLOADS_DIR, filename) if filename else None
+            is_missing = (not filename) or (not os.path.isfile(src_path))
+        if is_missing:
             orphans.append({
                 "id": str(d.get("_id")),
                 "filename": filename,
                 "file_type": d.get("file_type"),
-                "reason": "missing_on_disk" if filename else "no_filename"
+                "storage": storage or "disk",
+                "reason": "missing_in_gridfs" if storage == "gridfs" else ("no_filename" if not filename else "missing_on_disk")
             })
     return {"orphans": orphans, "count": len(orphans)}

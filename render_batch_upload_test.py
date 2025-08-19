@@ -127,6 +127,10 @@ def test_render_batch_upload():
             timeout=60
         )
         
+        print(f"   Response Status: {upload_response.status_code}")
+        print(f"   Response Headers: {dict(upload_response.headers)}")
+        print(f"   Response Text: {upload_response.text[:500]}...")
+        
         if upload_response.status_code == 200:
             upload_data = upload_response.json()
             created_items = upload_data.get('created', [])

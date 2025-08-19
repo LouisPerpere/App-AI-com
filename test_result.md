@@ -178,6 +178,17 @@ frontend:
     implemented: true
     working: true
     file: "/app/frontend/src/App.js"
+  - task: "Emergent backend login diagnosis"
+    implemented: true
+    working: false
+    file: "https://saasboost-1.preview.emergentagent.com"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "User reports login failing on both preview and production with REACT_APP_BACKEND_URL pointing to Emergent. Running backend tests against https://saasboost-1.preview.emergentagent.com to verify /api/health and /api/auth/login-robust behavior."
     stuck_count: 0
     priority: "high"
     needs_retesting: false

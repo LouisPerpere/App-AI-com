@@ -3099,6 +3099,24 @@ function MainApp() {
   const saveBusinessName = () => saveField('business_name');
 
 
+  // Function to extract readable error messages (fix for [object Object])
+  const extractErrorMessage = (err) => {
+    // Axios error handling
+    const data = err?.response?.data;
+    if (typeof data === "string") return data;
+    if (typeof data?.detail === "string") return data.detail;
+    if (typeof data?.error === "string") return data.error;
+    if (data?.detail && typeof data.detail === "object" && typeof data.detail.msg === "string") return data.detail.msg;
+    if (typeof err?.message === "string") return err.message;
+    
+    // Try to stringify the object as fallback
+    try { 
+      return JSON.stringify(data || err); 
+    } catch { 
+      return "Erreur inconnue"; 
+    }
+  };
+
   // Enhanced website analysis functions
   const analyzeWebsite = async (forceReanalysis = false) => {
     // CORRECTION DÉFINITIVE : Protection contre les références circulaires DOM

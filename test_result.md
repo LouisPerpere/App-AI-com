@@ -113,7 +113,6 @@ user_problem_statement: "Test du correctif du clavier virtuel dans l'onglet Rég
 
 test_plan:
   current_focus:
-    - "Website Analysis API hardening"
     - "Website Analysis Frontend error handling"
   stuck_tasks:
     - "Thumbnail persistence across builds (deferred to Phase C)"

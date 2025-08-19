@@ -11,6 +11,10 @@ from io import BytesIO
 
 router = APIRouter()
 
+# Upload multiple files to GridFS (batch) to stay compatible with existing frontend
+from typing import List
+from fastapi import File as FastFile
+
 # Upload a single file to GridFS and create media record
 @router.post("/content/upload")
 async def upload_content(

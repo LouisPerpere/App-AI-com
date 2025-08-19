@@ -2113,10 +2113,15 @@ function MainApp() {
         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
       });  
       console.log('📝 Notes loaded:', response.data);
-      setNotes(response.data);
+      
+      // Fix: Extract notes array from response
+      const notesData = response.data.notes || response.data || [];
+      setNotes(notesData);
+      console.log(`✅ ${notesData.length} notes set in state`);
     } catch (error) {
       console.error('❌ Error loading notes:', error);
       console.error('❌ Error response:', error.response?.data);
+      setNotes([]); // Set empty array on error
     }
   };
 

@@ -741,7 +741,7 @@ async def get_notes(user_id: str = Depends(get_current_user_id)):
         return {"notes": []}
 
 @api_router.post("/notes")
-async def create_note(note: ContentNote, user_id: str = Depends(get_current_user_id)):
+async def create_note(note: ContentNote, user_id: str = Depends(get_current_user_id_robust)):
     """Create note with real database persistence"""
     try:
         if db.is_connected() and user_id != "demo_user_id":

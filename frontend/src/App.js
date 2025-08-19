@@ -210,7 +210,7 @@ const ContentPreviewModal = ({
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Authorization': `Bearer ${getAccessToken()}`,
         },
         body: JSON.stringify({ description: desc }),
       });

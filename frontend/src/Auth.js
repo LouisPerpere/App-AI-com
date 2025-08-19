@@ -50,6 +50,7 @@ const AuthPage = ({ onAuthSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showConnecting, setShowConnecting] = useState(false);
 
   // Login form state
   const [loginForm, setLoginForm] = useState({

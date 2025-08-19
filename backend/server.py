@@ -79,6 +79,15 @@ except ImportError as e:
 
 app = FastAPI(title="Claire et Marcus API", version="1.0.0")
 
+# Enable CORS for external frontends (Netlify, etc.)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # We rely on Authorization header, not cookies
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=False,
+)
+
 @app.middleware("http")
 async def add_no_cache_headers(request, call_next):
     response = await call_next(request)

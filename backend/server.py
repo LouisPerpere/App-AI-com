@@ -228,6 +228,72 @@ async def diagnostic():
         "timestamp": datetime.now().isoformat()
     }
 
+
+# ----------------------------
+# AUTH: /api/auth/login-robust (minimal, for tests and production)
+# ----------------------------
+@api_router.post("/auth/login-robust")
+async def login_robust(body: LoginIn):
+    """Robust login that returns a JWT with sub=user_id"""
+    try:
+        dbm = get_database()
+        users = dbm.db.users
+        email_clean = body.email.lower().strip()
+        user = users.find_one({"email": email_clean})
+        if not user:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        stored_pw = user.get("password_hash") or user.get("hashed_password")
+        if not stored_pw:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        import bcrypt
+        if not bcrypt.checkpw(body.password.encode("utf-8"), stored_pw.encode("utf-8")):
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        user_id = user.get("user_id") or str(user.get("_id"))
+        now = datetime.now(timezone.utc)
+        payload = {
+            "sub": user_id,
+            "email": user["email"],
+            "iat": int(now.timestamp()),
+            "exp": int((now + timedelta(seconds=JWT_TTL)).timestamp()),
+            "iss": JWT_ISS,
+        }
+        token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALG)
+        return {"access_token": token, "token_type": "bearer", "user_id": user_id, "email": user["email"]}
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal server error during login")
+
+# ----------------------------
+# CONTENT LISTING: /api/content/pending
+# ----------------------------
+@api_router.get("/content/pending")
+async def get_pending_content_mongo(offset: int = 0, limit: int = 24, user_id: str = Depends(get_current_user_id_robust)):
+    try:
+        media_collection = get_media_collection()
+        q = {"owner_id": user_id, "$or": [{"deleted": {"$ne": True}}, {"deleted": {"$exists": False}}]}
+        total = media_collection.count_documents(q)
+        cursor = (
+            media_collection.find(q)
+            .sort([("created_at", -1), ("_id", -1)])
+            .skip(max(0, int(offset)))
+            .limit(max(1, int(limit)))
+        )
+        items = []
+        for d in cursor:
+            items.append({
+                "id": str(d.get("_id")),
+                "filename": d.get("filename", ""),
+                "file_type": d.get("file_type", ""),
+                "url": d.get("url", ""),
+                "thumb_url": d.get("thumb_url", ""),
+                "description": d.get("description", ""),
+                "created_at": d.get("created_at").isoformat() if d.get("created_at") else None
+            })
+        return {"content": items, "total": total, "offset": offset, "limit": limit, "has_more": offset + limit < total, "loaded": len(items)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch content: {str(e)}")
+
 @app.get("/")
 async def root():
     return {

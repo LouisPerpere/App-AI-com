@@ -795,7 +795,7 @@ function MainApp() {
     try {
       const response = await axios.get(`${API}/user/settings`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Authorization': `Bearer ${getAccessToken()}`,
           'Content-Type': 'application/json'
         }
       });

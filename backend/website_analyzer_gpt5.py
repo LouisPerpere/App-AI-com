@@ -582,20 +582,22 @@ def create_fallback_analysis(content_data: dict, website_url: str, reason: str =
         }
 
 @website_router.get("/analysis")
-async def get_website_analysis(user_id: str = Depends(get_current_user_id_robust)):
+def get_website_analysis(user_id: str = Depends(get_current_user_id_robust)):
     """Get latest website analysis for user"""
     try:
         print(f"🔍 Getting website analysis for user: {user_id}")
         
-        # Get database
-        db_manager = DatabaseManager()
-        if not await db_manager.connect():
-            raise HTTPException(status_code=500, detail="Database connection failed")
+        # Use direct MongoDB connection (same as analyze endpoint)
+        import pymongo
+        import os
+        
+        mongo_url = os.environ.get("MONGO_URL")
+        client = pymongo.MongoClient(mongo_url)
+        db = client.claire_marcus
+        collection = db.website_analyses
         
         # Get latest analysis
-        collection = db_manager.db.website_analyses
-        
-        latest_analysis = await collection.find_one(
+        latest_analysis = collection.find_one(
             {"user_id": user_id},
             sort=[("created_at", -1)]
         )
@@ -614,15 +616,19 @@ async def get_website_analysis(user_id: str = Depends(get_current_user_id_robust
                 "next_analysis_due": latest_analysis.get("next_analysis_due", "")
             }
             
-            print(f"✅ Found website analysis created at: {analysis_data['created_at']}")
+            print(f"✅ Found website analysis for URL: {analysis_data['website_url']}")
+            client.close()
             return {"analysis": analysis_data}
         else:
             print(f"⚠️ No website analysis found for user: {user_id}")
+            client.close()
             return {"analysis": None}
             
     except Exception as e:
         print(f"❌ Error getting website analysis: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        import traceback
+        traceback.print_exc()
+        return {"analysis": None}
 
 @website_router.post("/analyze")
 async def analyze_website(

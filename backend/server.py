@@ -716,7 +716,7 @@ async def generate_posts(request: dict):
 
 # Notes endpoints
 @api_router.get("/notes")
-async def get_notes(user_id: str = Depends(get_current_user_id)):
+async def get_notes(user_id: str = Depends(get_current_user_id_robust)):
     """Get notes with real database persistence"""
     try:
         if db.is_connected() and user_id != "demo_user_id":

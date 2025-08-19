@@ -1680,9 +1680,9 @@ function MainApp() {
       // Only remove token if it's actually invalid (not just network error)
       if (error.response?.status === 401 || error.response?.status === 403) {
         console.log('🔍 APP DEBUG - Token invalid, removing from storage');
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
+        try { localStorage.removeItem('access_token'); localStorage.removeItem('refresh_token'); } catch {}
         delete axios.defaults.headers.common['Authorization'];
+        window.__ACCESS_TOKEN = null; window.__REFRESH_TOKEN = null;
       }
       
       setIsAuthenticated(false);

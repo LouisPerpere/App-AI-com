@@ -967,7 +967,7 @@ function MainApp() {
   const autoSaveProfile = async (updatedProfile) => {
     try {
       const response = await axios.put(`${API}/business-profile`, updatedProfile, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+        headers: { Authorization: `Bearer ${getAccessToken()}` }
       });
       
       if (response.data && response.data.business_name) {

@@ -761,17 +761,6 @@ const UpgradeModal = ({ isOpen, onClose, user, canClose = true, title = "Débloq
 function MainApp() {
   const location = useLocation();
   
-  // Récupérer le token depuis localStorage, avec fallback pour Safari navigation privée
-  const getAccessToken = () => {
-    try {
-      const raw = localStorage.getItem('access_token');
-      if (raw) return raw;
-    } catch (e) {
-      console.warn('⚠️ localStorage inaccessible, utilisation du token mémoire');
-    }
-    return window.__ACCESS_TOKEN || null;
-  };
-  
   // User settings save functions (for Réglages tab)
   const saveUserSettings = async (field, value) => {
     try {

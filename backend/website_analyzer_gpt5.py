@@ -581,6 +581,49 @@ def create_fallback_analysis(content_data: dict, website_url: str, reason: str =
             ]
         }
 
+@website_router.get("/analysis")
+async def get_website_analysis(user_id: str = Depends(get_current_user_id_robust)):
+    """Get latest website analysis for user"""
+    try:
+        print(f"🔍 Getting website analysis for user: {user_id}")
+        
+        # Get database
+        db_manager = DatabaseManager()
+        if not await db_manager.connect():
+            raise HTTPException(status_code=500, detail="Database connection failed")
+        
+        # Get latest analysis
+        collection = db_manager.db.website_analyses
+        
+        latest_analysis = await collection.find_one(
+            {"user_id": user_id},
+            sort=[("created_at", -1)]
+        )
+        
+        if latest_analysis:
+            # Convert ObjectId to string and clean data
+            analysis_data = {
+                "analysis_summary": latest_analysis.get("analysis_summary", ""),
+                "key_topics": latest_analysis.get("key_topics", []),
+                "brand_tone": latest_analysis.get("brand_tone", "professional"),
+                "target_audience": latest_analysis.get("target_audience", ""),
+                "main_services": latest_analysis.get("main_services", []),
+                "content_suggestions": latest_analysis.get("content_suggestions", []),
+                "website_url": latest_analysis.get("website_url", ""),
+                "created_at": latest_analysis.get("created_at", ""),
+                "next_analysis_due": latest_analysis.get("next_analysis_due", "")
+            }
+            
+            print(f"✅ Found website analysis created at: {analysis_data['created_at']}")
+            return {"analysis": analysis_data}
+        else:
+            print(f"⚠️ No website analysis found for user: {user_id}")
+            return {"analysis": None}
+            
+    except Exception as e:
+        print(f"❌ Error getting website analysis: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @website_router.post("/analyze")
 async def analyze_website(
     request: WebsiteAnalysisRequest,

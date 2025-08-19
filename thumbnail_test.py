@@ -120,7 +120,7 @@ class ThumbnailTester:
             return False
     
     def test_content_pending_endpoint(self) -> Optional[Dict]:
-        """Test 1: List media - GET /api/content/pending?limit=24&offset=0"""
+        """Test 1: List media - GET /api/content/pending?limit=24&offset=0 (or simulate with database data)"""
         print("📋 STEP 1: LIST MEDIA CONTENT")
         print("=" * 50)
         
@@ -152,6 +152,48 @@ class ThumbnailTester:
                 else:
                     self.log_test("GET /api/content/pending", False, 
                                 "Response is not a list or doesn't contain 'content' array", data)
+                    return None
+            elif response.status_code == 404:
+                # Endpoint doesn't exist, simulate with database data
+                self.log_test("GET /api/content/pending", False, 
+                            "Endpoint not implemented (404) - simulating with database data")
+                
+                # Get media data directly from database
+                try:
+                    import os
+                    from pymongo import MongoClient
+                    
+                    mongo_url = os.environ.get("MONGO_URL")
+                    client = MongoClient(mongo_url)
+                    db = client.claire_marcus
+                    
+                    # Find media for the authenticated user
+                    user_id = "11d1e3d2-0223-4ddd-9407-74e0bb626818"  # From JWT token
+                    media_doc = db.media.find_one({
+                        "owner_id": user_id, 
+                        "deleted": {"$ne": True},
+                        "file_type": {"$regex": "^(image|video)/"}
+                    })
+                    
+                    if media_doc:
+                        # Convert ObjectId to string for API compatibility
+                        media_item = {
+                            "id": str(media_doc["_id"]),
+                            "filename": media_doc.get("filename"),
+                            "file_type": media_doc.get("file_type"),
+                            "thumb_url": media_doc.get("thumb_url")
+                        }
+                        
+                        self.log_test("Database Media Simulation", True, 
+                                    f"Found media from database: {media_item['filename']} (type: {media_item['file_type']})")
+                        return media_item
+                    else:
+                        self.log_test("Database Media Simulation", False, 
+                                    "No suitable media found in database")
+                        return None
+                        
+                except Exception as e:
+                    self.log_test("Database Media Simulation", False, f"Database error: {str(e)}")
                     return None
             else:
                 self.log_test("GET /api/content/pending", False, 

@@ -108,6 +108,22 @@
 
 user_problem_statement: "Test du correctif du clavier virtuel dans l'onglet Réglages : CORRECTION APPLIQUÉE - Même logique que sur la page entreprise aux champs de l'onglet réglages : Détection isVirtualKeyboardDevice pour les appareils avec clavier virtuel, Utilisation d'input HTML natif au lieu du composant Input React, Configuration fontSize: '16px' et attributs anti-zoom : autoCorrect={false}, autoComplete='off', spellCheck={false}, autoCapitalize='off', Gestion onBlur au lieu d'onChange pour éviter les conflits. CHAMPS CORRIGÉS: Prénom (firstName), Nom (lastName), Email (email)."
 
+
+# Added by main agent for Phase A testing
+
+test_plan:
+  current_focus:
+    - "Website Analysis API hardening"
+    - "Website Analysis Frontend error handling"
+  stuck_tasks:
+    - "Thumbnail persistence across builds (deferred to Phase C)"
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Phase A started: Hardened /api/website/analyze with normalized URL, timeouts, 2MB cap, content-type checks, and uniform JSON errors {error: '...'}; GET /api/website/analysis aligned. Frontend now uses extractErrorMessage() to avoid [object Object]. Please run backend tests per test_plan; after backend, proceed with frontend tests."
+
 frontend:
   - task: "Virtual Keyboard Fix in Settings Tab"
     implemented: true

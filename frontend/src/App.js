@@ -35,6 +35,9 @@ import { toast } from 'react-hot-toast';
 const BACKEND_URL = import.meta?.env?.REACT_APP_BACKEND_URL || process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+// Helper to build API thumbnail URL
+const buildThumbUrl = (id) => `${API}/content/${id}/thumb`;
+
 // Subscription plans data
 const SUBSCRIPTION_PLANS = [
   {

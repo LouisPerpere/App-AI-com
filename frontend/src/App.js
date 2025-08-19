@@ -36,6 +36,17 @@ import { toast } from 'react-hot-toast';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+// Récupérer le token depuis localStorage, avec fallback pour Safari navigation privée
+const getAccessToken = () => {
+  try {
+    const raw = localStorage.getItem('access_token');
+    if (raw) return raw;
+  } catch (e) {
+    console.warn('⚠️ localStorage inaccessible, utilisation du token mémoire');
+  }
+  return window.__ACCESS_TOKEN || null;
+};
+
 // Helper to build API thumbnail URL
 const buildThumbUrl = (id) => `${API}/content/${id}/thumb`;
 

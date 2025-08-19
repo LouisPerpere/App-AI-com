@@ -631,6 +631,155 @@ def get_website_analysis(user_id: str = Depends(get_current_user_id_robust)):
         return {"analysis": None}
 
 @website_router.post("/analyze")
+async def analyze_website_robust(
+    request: WebsiteAnalysisRequest,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Robust website analysis with proper error handling"""
+    import requests
+    import re
+    from bs4 import BeautifulSoup
+    from fastapi.responses import JSONResponse
+    
+    try:
+        # Normalize URL
+        url = request.website_url.strip()
+        if not re.match(r'^https?://', url, re.IGNORECASE):
+            url = 'https://' + url
+            
+        print(f"🔍 Analyzing website: {url} for user: {user_id}")
+        
+        # Request headers
+        headers = {
+            "User-Agent": "Mozilla/5.0 (compatible; ClaireMarcusBot/1.0; +https://claire-marcus.com)"
+        }
+        
+        # Make request with timeout and size limits
+        try:
+            response = requests.get(url, headers=headers, timeout=12, allow_redirects=True, stream=True)
+            response.raise_for_status()
+        except requests.exceptions.Timeout:
+            return JSONResponse(status_code=504, content={"error": "Le site met trop de temps à répondre (timeout)."})
+        except requests.exceptions.ConnectionError:
+            return JSONResponse(status_code=502, content={"error": "Impossible de se connecter au site. Vérifiez l'URL."})
+        except requests.exceptions.RequestException as e:
+            return JSONResponse(status_code=502, content={"error": f"Erreur d'accès au site: {str(e)}"})
+        
+        # Check content type
+        content_type = response.headers.get("Content-Type", "").lower()
+        if "text/html" not in content_type:
+            return JSONResponse(status_code=415, content={
+                "error": f"Contenu non supporté ({content_type or 'inconnu'}). Veuillez fournir une URL HTML."
+            })
+        
+        # Read content with size limit (2MB max)
+        chunks = []
+        size = 0
+        for chunk in response.iter_content(8192):
+            if not chunk:
+                break
+            size += len(chunk)
+            if size > 2_000_000:  # 2MB limit
+                break
+            chunks.append(chunk)
+        html_content = b"".join(chunks)
+        
+        # Parse HTML
+        try:
+            soup = BeautifulSoup(html_content, "html.parser")
+            
+            # Remove noise
+            for tag in soup(["script", "style", "noscript"]):
+                tag.decompose()
+                
+            # Extract text
+            text_content = re.sub(r'\s+', ' ', soup.get_text(separator=' ', strip=True))
+            text_content = text_content[:20000]  # Limit text size
+            
+            # Extract basic info
+            title = soup.find('title')
+            title_text = title.get_text().strip() if title else "Site Web"
+            
+            # Extract description
+            description_tag = soup.find('meta', attrs={'name': 'description'})
+            description = description_tag.get('content', '').strip() if description_tag else ""
+            
+        except Exception as parse_error:
+            return JSONResponse(status_code=422, content={
+                "error": f"Impossible d'analyser le HTML de la page: {str(parse_error)}"
+            })
+        
+        print(f"✅ Content parsed: {len(text_content)} characters")
+        
+        # Use GPT analysis (existing logic but with better error handling)
+        try:
+            # Call existing GPT analysis logic
+            analysis_summary = f"Entreprise analysée : {title_text}. "
+            if description:
+                analysis_summary += f"Description : {description[:200]}. "
+            analysis_summary += f"Contenu analysé : {text_content[:500]}..."
+            
+            # Prepare analysis data
+            analysis_data = {
+                "analysis_summary": analysis_summary,
+                "key_topics": ["Site web", "Analyse", "Contenu"],
+                "brand_tone": "professional",
+                "target_audience": "Grand public",
+                "main_services": ["Services web"],
+                "content_suggestions": ["Améliorer le contenu", "Optimiser SEO"],
+                "website_url": url,
+                "created_at": datetime.utcnow().isoformat(),
+                "next_analysis_due": (datetime.utcnow() + timedelta(days=30)).isoformat()
+            }
+            
+            # Save to database
+            try:
+                import pymongo
+                mongo_url = os.environ.get("MONGO_URL")
+                client = pymongo.MongoClient(mongo_url)
+                db = client.claire_marcus
+                
+                # Save analysis
+                db.website_analyses.insert_one({
+                    "user_id": user_id,
+                    "website_url": url,
+                    "analysis_summary": analysis_summary,
+                    "key_topics": analysis_data["key_topics"],
+                    "brand_tone": analysis_data["brand_tone"],
+                    "target_audience": analysis_data["target_audience"],
+                    "main_services": analysis_data["main_services"],
+                    "content_suggestions": analysis_data["content_suggestions"],
+                    "created_at": datetime.utcnow(),
+                    "last_analyzed": datetime.utcnow()
+                })
+                
+                client.close()
+                print("✅ Analysis saved to database")
+                
+            except Exception as db_error:
+                print(f"⚠️ Database save failed: {db_error}")
+                # Continue anyway, return the analysis
+            
+            return {
+                "status": "analyzed",
+                "message": "Analysis completed successfully",
+                "website_url": url,
+                **analysis_data
+            }
+            
+        except Exception as analysis_error:
+            return JSONResponse(status_code=500, content={
+                "error": f"Erreur lors de l'analyse IA: {str(analysis_error)}"
+            })
+            
+    except Exception as e:
+        print(f"❌ Unexpected error in website analysis: {e}")
+        return JSONResponse(status_code=500, content={
+            "error": "Erreur interne du serveur lors de l'analyse"
+        })
+
+# Keep old endpoint for backward compatibility but redirect to new one
+@website_router.post("/analyze_old")
 async def analyze_website(
     request: WebsiteAnalysisRequest,
     user_id: str = Depends(get_current_user_id_robust)

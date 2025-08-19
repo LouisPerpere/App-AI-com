@@ -822,7 +822,7 @@ function MainApp() {
       };
       
       const response = await axios.put(`${API}/business-profile`, updatedProfile, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+        headers: { Authorization: `Bearer ${getAccessToken()}` }
       });
       
       // Mettre à jour businessProfile avec les données de la réponse pour maintenir la cohérence

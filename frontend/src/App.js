@@ -3209,8 +3209,21 @@ function MainApp() {
       });
 
       // Utiliser l'URL copiée pour l'analyse, pas l'URL du champ visible
+      // If we already have an analysis and user forces reanalysis, delete first to avoid stale data
+      try {
+        if (forceReanalysis) {
+          await axios.delete(`${API}/website/analysis`, {
+            headers: { Authorization: `Bearer ${getAccessToken()}` },
+            timeout: 15000
+          });
+        }
+      } catch (e) {
+        console.warn('⚠️ DELETE /website/analysis failed (ignored):', e?.response?.data || e?.message);
+      }
+
       const response = await axios.post(`${API}/website/analyze`, requestData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+        headers: { Authorization: `Bearer ${getAccessToken()}` },
+        timeout: 30000
       });
 
       console.log('📡 Réponse API reçue:', response.data);

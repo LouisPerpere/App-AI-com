@@ -297,7 +297,7 @@ const ContentPreviewModal = ({
           <div className="mb-6">
             {content.file_type?.startsWith('image/') ? (
               <img 
-                src={content.url || content.thumb_url}
+                src={content.url}
                 alt={content.filename}
                 className="w-full h-auto max-h-[60vh] object-contain rounded-2xl shadow-lg"
                 onError={(e) => {

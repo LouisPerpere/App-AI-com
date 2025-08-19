@@ -80,6 +80,35 @@ def test_render_batch_upload():
         results['details'].append(f"❌ Step 1: Authentication error - {e}")
         return results
     
+    # Step 1.5: Check available endpoints
+    print("\n📋 Step 1.5: Check available endpoints")
+    try:
+        # Test if the batch-upload endpoint exists by checking different methods
+        options_response = session.options(f"{RENDER_BASE_URL}/api/content/batch-upload", timeout=10)
+        print(f"   OPTIONS /api/content/batch-upload: {options_response.status_code}")
+        
+        # Also test the single upload endpoint
+        options_single = session.options(f"{RENDER_BASE_URL}/api/content/upload", timeout=10)
+        print(f"   OPTIONS /api/content/upload: {options_single.status_code}")
+        
+        # Check if content endpoints are available at all
+        get_response = session.get(f"{RENDER_BASE_URL}/api/content/pending", timeout=10)
+        print(f"   GET /api/content/pending: {get_response.status_code}")
+        
+        if get_response.status_code == 200:
+            print("✅ Content endpoints are available")
+            results['passed'] += 1
+            results['details'].append("✅ Step 1.5: Content endpoints accessible")
+        else:
+            print("❌ Content endpoints not accessible")
+            results['failed'] += 1
+            results['details'].append("❌ Step 1.5: Content endpoints not accessible")
+            
+    except Exception as e:
+        print(f"❌ Endpoint discovery error: {e}")
+        results['failed'] += 1
+        results['details'].append(f"❌ Step 1.5: Endpoint discovery error - {e}")
+
     # Step 2: Batch Upload
     print("\n📋 Step 2: Batch upload with multipart form-data")
     try:

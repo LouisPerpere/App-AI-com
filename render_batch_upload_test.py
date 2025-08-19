@@ -35,7 +35,7 @@ def test_render_batch_upload():
     })
     
     results = {
-        'total_tests': 6,
+        'total_tests': 7,  # Added endpoint discovery test
         'passed': 0,
         'failed': 0,
         'details': []

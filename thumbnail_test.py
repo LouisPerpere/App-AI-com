@@ -82,12 +82,42 @@ class ThumbnailTester:
                 print(f"⚠️ Exception with {endpoint}: {str(e)}")
                 continue
         
-        # If no auth endpoints work, try demo mode (no auth header)
-        print("⚠️ No auth endpoints available, testing in demo mode...")
-        self.headers = {}  # No authorization header
-        self.log_test("Authentication (Demo Mode)", True, 
-                    "Using demo mode - no authentication required")
-        return True
+        # If no auth endpoints work, create a test JWT token
+        print("⚠️ No auth endpoints available, creating test JWT token...")
+        try:
+            import jwt
+            from datetime import datetime, timedelta
+            import os
+            
+            # JWT Configuration (same as server.py)
+            JWT_SECRET = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-this-in-production')
+            JWT_ALG = os.environ.get("JWT_ALG", "HS256")
+            JWT_TTL = int(os.environ.get("JWT_TTL_SECONDS", "604800"))
+            JWT_ISS = os.environ.get("JWT_ISS", "claire-marcus-api")
+            
+            # Use the user ID from existing media documents
+            USER_ID = "11d1e3d2-0223-4ddd-9407-74e0bb626818"
+            
+            # Create token payload
+            now = datetime.utcnow()
+            payload = {
+                "sub": USER_ID,
+                "iss": JWT_ISS,
+                "iat": now,
+                "exp": now + timedelta(seconds=JWT_TTL)
+            }
+            
+            # Generate token
+            test_token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALG)
+            self.headers = {'Authorization': f'Bearer {test_token}'}
+            
+            self.log_test("Authentication (Test JWT Token)", True, 
+                        f"Created test JWT token for user: {USER_ID}")
+            return True
+            
+        except Exception as e:
+            self.log_test("Authentication (Test JWT Token)", False, f"Failed to create test token: {str(e)}")
+            return False
     
     def test_content_pending_endpoint(self) -> Optional[Dict]:
         """Test 1: List media - GET /api/content/pending?limit=24&offset=0"""

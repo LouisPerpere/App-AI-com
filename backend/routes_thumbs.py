@@ -253,3 +253,39 @@ async def get_thumbnail_status(
         "missing_thumbnails": missing_thumbs,
         "completion_percentage": round((with_thumbs / total_files * 100) if total_files > 0 else 0, 1)
     }
+
+@router.post("/content/thumbnails/normalize")
+async def normalize_thumb_urls(
+    user_id: str = Depends(get_current_user_id_robust),
+):
+    """Normalize all media.thumb_url to relative API endpoint for this user"""
+    media_collection = get_sync_media_collection()
+    q = {"owner_id": user_id, "$or": [{"deleted": {"$ne": True}}, {"deleted": {"$exists": False}}]}
+    cursor = media_collection.find(q, {"_id": 1})
+    updated = 0
+    for d in cursor:
+        media_collection.update_one({"_id": d["_id"]}, {"$set": {"thumb_url": RELATIVE_THUMB_ENDPOINT.format(file_id=str(d["_id"]))}})
+        updated += 1
+    return {"ok": True, "updated": updated}
+
+@router.get("/content/thumbnails/orphans")
+async def list_orphan_media(
+    limit: int = 50,
+    user_id: str = Depends(get_current_user_id_robust),
+):
+    """List media records where source file is missing on disk"""
+    media_collection = get_sync_media_collection()
+    q = {"owner_id": user_id, "$or": [{"deleted": {"$ne": True}}, {"deleted": {"$exists": False}}]}
+    cursor = media_collection.find(q).limit(max(1, int(limit)))
+    orphans = []
+    for d in cursor:
+        filename = d.get("filename")
+        src_path = os.path.join(UPLOADS_DIR, filename) if filename else None
+        if not filename or not os.path.isfile(src_path):
+            orphans.append({
+                "id": str(d.get("_id")),
+                "filename": filename,
+                "file_type": d.get("file_type"),
+                "reason": "missing_on_disk" if filename else "no_filename"
+            })
+    return {"orphans": orphans, "count": len(orphans)}

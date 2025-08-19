@@ -17,6 +17,69 @@ from fastapi import File as FastFile
 
 # Upload a single file to GridFS and create media record
 @router.post("/content/upload")
+# Batch upload to GridFS: accepts multiple files under field name 'files'
+@router.post("/content/batch-upload")
+async def upload_content_batch(
+    files: list[UploadFile] = FastFile(...),
+    bg: BackgroundTasks = None,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    try:
+        dbm = get_database()
+        db = dbm.db
+        from gridfs import GridFS
+        fs = GridFS(db)
+
+        created = []
+        for file in files:
+            data = await file.read()
+            if not data:
+                continue
+            grid_id = fs.put(data, filename=file.filename, content_type=file.content_type, uploadDate=datetime.utcnow())
+            media_doc = {
+                "owner_id": user_id,
+                "filename": file.filename,
+                "file_type": file.content_type or "application/octet-stream",
+                "storage": "gridfs",
+                "gridfs_id": grid_id,
+                "size": len(data),
+                "description": "",
+                "created_at": datetime.utcnow(),
+                "deleted": False
+            }
+            res = db.media.insert_one(media_doc)
+            media_id = res.inserted_id
+
+            def _thumb_job_local(fid=media_id, bytes_data=data, ctype=file.content_type):
+                try:
+                    if ctype and ctype.startswith('image/'):
+                        thumb_bytes = generate_image_thumb_from_bytes(bytes_data)
+                        save_db_thumbnail(user_id, fid, thumb_bytes)
+                    elif ctype and ctype.startswith('video/'):
+                        thumb_bytes = generate_video_thumb_from_bytes(bytes_data)
+                        save_db_thumbnail(user_id, fid, thumb_bytes)
+                except Exception as e:
+                    print(f"⚠️ Thumbnail generation error for upload {fid}: {e}")
+
+            if bg is not None:
+                bg.add_task(_thumb_job_local)
+            else:
+                _thumb_job_local()
+
+            created.append({
+                "id": str(media_id),
+                "filename": file.filename,
+                "file_type": file.content_type,
+                "size": len(data),
+                "thumb_url": f"/api/content/{media_id}/thumb"
+            })
+
+        return {"ok": True, "created": created, "count": len(created)}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, f"Batch upload failed: {str(e)}")
+
 async def upload_content(
     file: UploadFile = File(...),
     bg: BackgroundTasks = None,

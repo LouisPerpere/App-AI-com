@@ -131,6 +131,8 @@ const AuthPage = ({ onAuthSuccess }) => {
       } catch (callbackError) {
         console.error('❌ ERROR in onAuthSuccess callback:', callbackError);
         // Continue anyway - don't let callback errors break login
+      } finally {
+        setShowConnecting(false);
       }
     } catch (error) {
       console.error('❌ LOGIN ERROR:', error);

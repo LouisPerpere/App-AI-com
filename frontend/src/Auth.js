@@ -219,6 +219,19 @@ const AuthPage = ({ onAuthSuccess }) => {
       if (refreshToken) {
         localStorage.setItem('refresh_token', refreshToken);
       }
+
+        {showConnecting && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm text-center border border-purple-100">
+              <div className="mx-auto mb-4 w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center animate-pulse">
+                <span className="text-white text-lg font-bold">CM</span>
+              </div>
+              <p className="text-gray-900 font-semibold mb-2">Connexion en cours…</p>
+              <p className="text-gray-600 text-sm">Merci de patienter quelques instants, nous appelons Claire et Marcus.</p>
+            </div>
+          </div>
+        )}
+
       
       // Set axios default header
       axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;

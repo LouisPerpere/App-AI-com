@@ -142,7 +142,8 @@ website_router = APIRouter(prefix="/website")
 
 # Models
 class WebsiteAnalysisRequest(BaseModel):
-    website_url: HttpUrl
+    # Accept plain string so we can normalize missing scheme (http/https) ourselves
+    website_url: str
     force_reanalysis: bool = False
 
 class WebsiteData(BaseModel):

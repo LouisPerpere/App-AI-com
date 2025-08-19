@@ -182,7 +182,10 @@ class ThumbnailAPITester:
                 except:
                     error_detail = response.text
                 
-                if "missing on disk" in error_detail.lower():
+                print(f"    DEBUG: Full 404 response: {response.text}")
+                print(f"    DEBUG: Error detail: '{error_detail}'")
+                
+                if "missing on disk" in error_detail.lower() or "file missing on disk" in error_detail.lower():
                     self.log_result(
                         "Generate thumbnail", 
                         True, 
@@ -190,6 +193,9 @@ class ThumbnailAPITester:
                         response.status_code
                     )
                     return "skip"
+                elif "media not found" in error_detail.lower():
+                    self.log_result("Generate thumbnail", False, f"Media not found: {error_detail}", response.status_code)
+                    return False
                 else:
                     self.log_result("Generate thumbnail", False, f"Unexpected 404: {error_detail}", response.status_code)
                     return False

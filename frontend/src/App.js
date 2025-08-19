@@ -770,7 +770,7 @@ function MainApp() {
         [field]: value
       }, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Authorization': `Bearer ${getAccessToken()}`,
           'Content-Type': 'application/json'
         }
       });

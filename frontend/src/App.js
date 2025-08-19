@@ -9,7 +9,8 @@ import AdminDashboard from './AdminDashboard';
 import FacebookCallback from './FacebookCallback';
 
 // Configure axios for cross-site authentication (ChatGPT fix)
-axios.defaults.withCredentials = true;
+// Do not use cookies for cross-site requests; rely on Authorization header
+axios.defaults.withCredentials = false;
 
 // Import UI components
 import { Button } from './components/ui/button';

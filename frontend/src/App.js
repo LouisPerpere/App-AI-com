@@ -420,7 +420,7 @@ const SubscriptionUpgrade = ({ user, onUpgradeSuccess }) => {
     }
 
     try {
-      const token = localStorage.getItem('access_token');
+      const token = getAccessToken();
       const response = await axios.get(`${API}/payments/v1/checkout/status/${sessionId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });

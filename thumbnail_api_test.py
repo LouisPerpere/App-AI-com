@@ -178,7 +178,7 @@ class ThumbnailAPITester:
                 error_detail = ""
                 try:
                     error_data = response.json()
-                    error_detail = error_data.get("detail", "")
+                    error_detail = error_data.get("detail", "") or error_data.get("error", "")
                 except:
                     error_detail = response.text
                 

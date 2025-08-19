@@ -11,7 +11,7 @@ import time
 from pymongo import MongoClient
 
 # Configuration - Using the correct backend URL from frontend/.env
-BACKEND_URL = "https://saasboost-1.preview.emergentagent.com"
+BACKEND_URL = "https://social-boost-pwa.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request

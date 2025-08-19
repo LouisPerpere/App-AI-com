@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Configuration - Using production URL as specified in review request
-BACKEND_URL = "https://saasboost-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://social-boost-pwa.preview.emergentagent.com/api"
 TEST_USER_EMAIL = "lperpere@yahoo.fr"
 TEST_USER_PASSWORD = "L@Reunion974!"
 

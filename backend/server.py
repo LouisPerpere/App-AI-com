@@ -1763,7 +1763,7 @@ app.add_middleware(
     allow_origins=[
         "https://claire-marcus.com",
         "https://www.claire-marcus.com", 
-        "https://saasboost-1.preview.emergentagent.com",
+        "https://social-boost-pwa.preview.emergentagent.com",
         "http://localhost:3000",
         "http://10.64.167.140:3000"
     ],

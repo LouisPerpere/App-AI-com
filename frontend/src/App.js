@@ -120,9 +120,11 @@ const ContentThumbnail = React.memo(({
           />
         ) : content.file_type?.startsWith('video/') ? (
           <div className="relative w-full h-full">
-            {content.thumb_url ? (
+            {
+              // Always request via API; if 404, fallback to icon
+              true ? (
               <img 
-                src={content.thumb_url}
+                src={`${API}/content/${content.id}/thumb`}
                 alt={content.filename}
                 className="w-full h-full object-cover"
                 loading="lazy"

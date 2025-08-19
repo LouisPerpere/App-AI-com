@@ -3,17 +3,23 @@ import os
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Header
 from bson import ObjectId
 from datetime import datetime
-from thumbs import generate_image_thumb, generate_video_thumb, build_thumb_path
+from thumbs import (
+    generate_image_thumb, generate_video_thumb, build_thumb_path,
+    generate_image_thumb_bytes, generate_video_thumb_bytes
+)
 from database import get_database
 import asyncio
 import pymongo
 import jwt
 from typing import Optional
+from fastapi.responses import StreamingResponse, JSONResponse
+from io import BytesIO
 
 router = APIRouter()
 
 UPLOADS_DIR = os.environ.get("UPLOADS_DIR", "uploads")
-PUBLIC_BASE = os.environ.get("PUBLIC_BASE", "https://claire-marcus-api.onrender.com")  # API direct selon ChatGPT
+# We will no longer build absolute public base URLs; API will return relative /api paths
+RELATIVE_THUMB_ENDPOINT = "/api/content/{file_id}/thumb"
 
 # JWT Configuration (same as server.py)
 JWT_SECRET = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-this-in-production')
@@ -22,75 +28,72 @@ JWT_TTL = int(os.environ.get("JWT_TTL_SECONDS", "604800"))  # 7 jours
 JWT_ISS = os.environ.get("JWT_ISS", "claire-marcus-api")
 
 async def get_media_collection():
-    """Get MongoDB media collection"""
     db = get_database()
     return db.db.media
 
 def get_sync_media_collection():
-    """Get MongoDB media collection synchronously"""
     db = get_database()
     return db.db.media
 
+# Thumbnails collection (binary storage)
+_sync_client = None
+
+def get_sync_db():
+    global _sync_client
+    if _sync_client is None:
+        from pymongo import MongoClient
+        mongo_url = os.environ.get("MONGO_URL")
+        _sync_client = MongoClient(mongo_url)
+    return _sync_client.claire_marcus
+
+THUMBS_COLLECTION = "thumbnails"
+
+def save_db_thumbnail(owner_id: str, media_obj_id: ObjectId, content: bytes, content_type: str = "image/webp"):
+    """Upsert thumbnail binary into MongoDB thumbnails collection and update media.thumb_url to relative API path"""
+    dbp = get_sync_db()
+    thumbs_col = dbp[THUMBS_COLLECTION]
+    now = datetime.utcnow()
+    thumbs_col.update_one(
+        {"media_id": media_obj_id},
+        {"$set": {
+            "media_id": media_obj_id,
+            "owner_id": owner_id,
+            "content_type": content_type,
+            "size": len(content),
+            "data": content,
+            "updated_at": now
+        }, "$setOnInsert": {"created_at": now}},
+        upsert=True
+    )
+    # update media doc to point to API relative endpoint
+    dbp.media.update_one({"_id": media_obj_id}, {"$set": {"thumb_url": RELATIVE_THUMB_ENDPOINT.format(file_id=str(media_obj_id))}})
+
+def get_db_thumbnail(media_obj_id: ObjectId):
+    dbp = get_sync_db()
+    thumbs_col = dbp[THUMBS_COLLECTION]
+    return thumbs_col.find_one({"media_id": media_obj_id})
+
+# Robust auth (duplicated to avoid import cycles)
 def get_current_user_id_robust(authorization: Optional[str] = Header(None)) -> str:
-    """Robust JWT token validation - PAS DE FALLBACK"""
     if not authorization or not authorization.lower().startswith("bearer "):
         raise HTTPException(401, "Missing bearer token")
-    
     token = authorization.split(" ", 1)[1]
-    
     try:
         payload = jwt.decode(
-            token, 
-            JWT_SECRET, 
-            algorithms=[JWT_ALG], 
-            options={"require": ["sub", "exp"]}, 
+            token,
+            JWT_SECRET,
+            algorithms=[JWT_ALG],
+            options={"require": ["sub", "exp"]},
             issuer=JWT_ISS
         )
-        
         sub = payload.get("sub")
         if not sub:
             raise HTTPException(401, "Invalid token: sub missing")
-        
-        print(f"🔑 Thumbnails: Authenticated user_id: {sub}")
         return sub
-        
     except jwt.ExpiredSignatureError:
         raise HTTPException(401, "Token expired")
     except jwt.InvalidTokenError as e:
         raise HTTPException(401, f"Invalid token: {e}")
-
-def get_current_user_id(authorization: str = Header(None)):
-    """Extract user ID from JWT token - compatible with server.py"""
-    if not authorization or not authorization.startswith("Bearer "):
-        # For demo mode compatibility, return a demo user ID
-        print(f"⚠️ No Authorization header found in request, falling back to demo mode")
-        return "demo_user_id"
-    
-    token = authorization.replace("Bearer ", "")
-    print(f"🔍 Processing token: {token[:20]}..." if len(token) > 20 else f"🔍 Processing token: {token}")
-    
-    # Try to get real user from database
-    try:
-        from database import get_database
-        import asyncio
-        
-        # Get database synchronously for this function
-        db_manager = get_database()
-        if hasattr(db_manager, 'is_connected') and db_manager.is_connected():
-            user_data = db_manager.get_user_by_token(token)
-            if user_data:
-                print(f"✅ Token validation successful for user: {user_data['email']}")
-                return user_data["user_id"]
-            else:
-                print(f"❌ Token validation failed - invalid or expired token")
-        else:
-            print(f"❌ Database not connected - falling back to demo mode")
-    except Exception as e:
-        print(f"❌ Error validating token: {e}")
-    
-    # Fallback to demo mode for invalid/expired tokens
-    print(f"⚠️ Falling back to demo_user_id due to token validation failure")
-    return "demo_user_id"
 
 def is_image(ft: str) -> bool:
     return ft and ft.startswith("image/")
@@ -98,26 +101,46 @@ def is_image(ft: str) -> bool:
 def is_video(ft: str) -> bool:
     return ft and ft.startswith("video/")
 
-# Synchronous MongoDB client for background tasks
-_sync_client = None
-def get_sync_db():
-    global _sync_client
-    if _sync_client is None:
-        import os
-        from pymongo import MongoClient
-        mongo_url = os.environ.get("MONGO_URL")
-        _sync_client = MongoClient(mongo_url)
-    return _sync_client.claire_marcus
-
-def parse_any_id(file_id: str) -> dict:
-    """Parse file ID - accepts both ObjectId and UUID for backwards compatibility"""
+@router.get("/content/{file_id}/thumb")
+async def stream_thumbnail(file_id: str, user_id: str = Depends(get_current_user_id_robust)):
+    """Stream thumbnail from MongoDB; if missing, attempt on-demand generation from source and save to DB."""
+    media_collection = get_sync_media_collection()
     try:
-        from bson import ObjectId
-        return {"_id": ObjectId(file_id)}
+        id_filter = {"_id": ObjectId(file_id)}
     except Exception:
-        # Fallback for UUID external_id (temporary compatibility)
-        print(f"⚠️ Using UUID fallback for file_id: {file_id}")
-        return {"external_id": file_id}
+        # fallback UUID filter
+        id_filter = {"external_id": file_id}
+    media_doc = media_collection.find_one({**id_filter, "owner_id": user_id, "deleted": {"$ne": True}})
+    if not media_doc:
+        raise HTTPException(status_code=404, detail="Media not found")
+
+    media_obj_id = media_doc.get("_id")
+    thumb_doc = get_db_thumbnail(media_obj_id)
+
+    if not thumb_doc:
+        # try to generate from source
+        filename = media_doc.get("filename")
+        src_path = os.path.join(UPLOADS_DIR, filename)
+        if not os.path.isfile(src_path):
+            raise HTTPException(status_code=404, detail="Source file missing on disk")
+        try:
+            if is_image(media_doc.get("file_type")):
+                content = generate_image_thumb_bytes(src_path)
+            elif is_video(media_doc.get("file_type")):
+                content = generate_video_thumb_bytes(src_path)
+            else:
+                raise HTTPException(status_code=415, detail="Unsupported media type for thumbnail")
+            save_db_thumbnail(media_doc.get("owner_id"), media_obj_id, content)
+            thumb_doc = get_db_thumbnail(media_obj_id)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Thumbnail generation failed: {str(e)}")
+
+    content_type = thumb_doc.get("content_type", "image/webp")
+    data = thumb_doc.get("data")
+    if data is None:
+        raise HTTPException(status_code=500, detail="Thumbnail data not found")
+
+    return StreamingResponse(BytesIO(data), media_type=content_type)
 
 @router.post("/content/{file_id}/thumbnail")
 async def generate_single_thumb(
@@ -125,49 +148,36 @@ async def generate_single_thumb(
     bg: BackgroundTasks,
     user_id: str = Depends(get_current_user_id_robust),
 ):
-    """Generate thumbnail for a single file"""
+    """Generate and store thumbnail in DB for a single file; update media.thumb_url to relative API path."""
     media_collection = get_sync_media_collection()
-    
     try:
-        # Parse ID (ObjectId or UUID fallback)
-        id_filter = parse_any_id(file_id)
-        query = {**id_filter, "owner_id": user_id, "deleted": {"$ne": True}}
-        
-        doc = media_collection.find_one(query)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Invalid file ID: {str(e)}")
-        
+        id_filter = {"_id": ObjectId(file_id)}
+    except Exception:
+        id_filter = {"external_id": file_id}
+    doc = media_collection.find_one({**id_filter, "owner_id": user_id, "deleted": {"$ne": True}})
     if not doc:
         raise HTTPException(status_code=404, detail="Media not found")
-        
+
     filename = doc["filename"]
-    mongo_id = str(doc["_id"])
     src_path = os.path.join(UPLOADS_DIR, filename)
     if not os.path.isfile(src_path):
         raise HTTPException(status_code=404, detail="File missing on disk")
 
-    thumb_path = build_thumb_path(filename)
-
     def _job():
         try:
-            os.makedirs(os.path.dirname(thumb_path), exist_ok=True)
             if is_image(doc.get("file_type")):
-                generate_image_thumb(src_path, thumb_path)
+                content = generate_image_thumb_bytes(src_path)
             elif is_video(doc.get("file_type")):
-                generate_video_thumb(src_path, thumb_path)
+                content = generate_video_thumb_bytes(src_path)
             else:
                 return
-            # URL publique de la vignette
-            thumb_url = f"{PUBLIC_BASE}/uploads/thumbs/" + os.path.basename(thumb_path)
-            # Mise à jour Mongo
-            sync_db = get_sync_db()
-            sync_db.media.update_one({"_id": doc["_id"]}, {"$set": {"thumb_url": thumb_url}})
-            print(f"✅ Thumbnail generated for {filename}: {thumb_url}")
+            save_db_thumbnail(doc.get("owner_id"), doc["_id"], content)
+            print(f"✅ DB thumbnail saved for {filename}")
         except Exception as e:
             print(f"❌ Thumbnail generation failed for {filename}: {str(e)}")
 
     bg.add_task(_job)
-    return {"ok": True, "scheduled": True, "file_id": mongo_id}  # Always return MongoDB ObjectId
+    return {"ok": True, "scheduled": True, "file_id": str(doc["_id"])}
 
 @router.post("/content/thumbnails/rebuild")
 async def rebuild_missing_thumbs(
@@ -175,46 +185,47 @@ async def rebuild_missing_thumbs(
     bg: BackgroundTasks = None,
     user_id: str = Depends(get_current_user_id_robust),
 ):
-    """Rebuild missing thumbnails for user (backfill)"""
+    """Rebuild missing DB thumbnails for user (backfill)"""
     media_collection = get_sync_media_collection()
-    
-    # backfill thumbnails manquantes de l'utilisateur
-    q = {"owner_id": user_id, "deleted": {"$ne": True}, "$or": [{"thumb_url": None}, {"thumb_url": ""}]}
+    # find media missing thumb doc
+    q = {"owner_id": user_id, "deleted": {"$ne": True}}
     cursor = media_collection.find(q).sort([("created_at", -1)]).limit(limit)
     docs = list(cursor)
 
     scheduled = 0
     for d in docs:
-        filename = d["filename"]
+        media_obj_id = d.get("_id")
+        # check if thumbnail exists in DB
+        if get_db_thumbnail(media_obj_id):
+            # also ensure media.thumb_url points to relative API endpoint
+            media_collection.update_one({"_id": media_obj_id}, {"$set": {"thumb_url": RELATIVE_THUMB_ENDPOINT.format(file_id=str(media_obj_id))}})
+            continue
+
+        filename = d.get("filename")
         src_path = os.path.join(UPLOADS_DIR, filename)
         if not os.path.isfile(src_path):
             continue
-        thumb_path = build_thumb_path(filename)
 
-        def make_job(doc_id, file_type, src=src_path, dst=thumb_path, fname=filename):
+        def make_job(doc_id, file_type, owner_id, src=src_path, fname=filename):
             def _job():
                 try:
-                    os.makedirs(os.path.dirname(dst), exist_ok=True)
                     if is_image(file_type):
-                        generate_image_thumb(src, dst)
+                        content = generate_image_thumb_bytes(src)
                     elif is_video(file_type):
-                        generate_video_thumb(src, dst)
+                        content = generate_video_thumb_bytes(src)
                     else:
                         return
-                    thumb_url = f"{PUBLIC_BASE}/uploads/thumbs/" + os.path.basename(dst)
-                    sync_db = get_sync_db()
-                    sync_db.media.update_one({"_id": ObjectId(doc_id)}, {"$set": {"thumb_url": thumb_url}})
-                    print(f"✅ Thumbnail generated for {fname}: {thumb_url}")
+                    save_db_thumbnail(owner_id, doc_id, content)
+                    print(f"✅ DB thumbnail backfilled for {fname}")
                 except Exception as e:
                     print(f"❌ Thumbnail generation failed for {fname}: {str(e)}")
             return _job
 
         if bg is not None:
-            bg.add_task(make_job(d["_id"], d.get("file_type")))
+            bg.add_task(make_job(media_obj_id, d.get("file_type"), d.get("owner_id")))
             scheduled += 1
         else:
-            # fallback synchrone (évite si beaucoup d'items)
-            job = make_job(d["_id"], d.get("file_type"))
+            job = make_job(media_obj_id, d.get("file_type"), d.get("owner_id"))
             job()
             scheduled += 1
 
@@ -224,20 +235,18 @@ async def rebuild_missing_thumbs(
 async def get_thumbnail_status(
     user_id: str = Depends(get_current_user_id_robust),
 ):
-    """Get thumbnail generation status for user"""
+    """Get thumbnail generation status for user (DB-based)"""
     media_collection = get_sync_media_collection()
-    
-    # Count total files
+    dbp = get_sync_db()
+    thumbs_col = dbp[THUMBS_COLLECTION]
+
     total_query = {"owner_id": user_id, "deleted": {"$ne": True}}
     total_files = media_collection.count_documents(total_query)
-    
-    # Count files with thumbnails
-    with_thumbs_query = {"owner_id": user_id, "deleted": {"$ne": True}, "thumb_url": {"$ne": None, "$ne": ""}}
-    with_thumbs = media_collection.count_documents(with_thumbs_query)
-    
-    # Count missing thumbnails
-    missing_thumbs = total_files - with_thumbs
-    
+
+    with_thumbs = thumbs_col.count_documents({"owner_id": user_id})
+
+    missing_thumbs = max(total_files - with_thumbs, 0)
+
     return {
         "total_files": total_files,
         "with_thumbnails": with_thumbs,

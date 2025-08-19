@@ -33,7 +33,15 @@ import { Building, Sparkles, Crown, Upload, ImageIcon, FileText, X, Edit, Calend
 import { toast } from 'react-hot-toast';
 
 // Use ONLY process.env for Netlify/CRA compatibility (avoid import.meta)
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+// Normalize backend URL (trim, remove trailing slashes and any trailing /api)
+const getBackendURL = () => {
+  let envURL = process.env.REACT_APP_BACKEND_URL;
+  if (!envURL || envURL === 'undefined') return '';
+  envURL = envURL.trim().replace(/\/+$/, '');
+  envURL = envURL.replace(/\/api$/, '');
+  return envURL;
+};
+const BACKEND_URL = getBackendURL();
 const API = `${BACKEND_URL}/api`;
 
 // Récupérer le token depuis localStorage, avec fallback pour Safari navigation privée

@@ -75,6 +75,9 @@ const AuthPage = ({ onAuthSuccess }) => {
       console.log('🚀 LOGIN START - API URL:', API);
       console.log('🚀 LOGIN DATA:', { email: loginForm.email });
 
+      // Ensure backend is awake (Render free instances may be cold)
+      await pingBackend(60000);
+
       const response = await axios.post(`${API}/auth/login-robust`, {
         email: loginForm.email,
         password: loginForm.password

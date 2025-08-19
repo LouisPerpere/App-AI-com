@@ -75,14 +75,21 @@ const AuthPage = ({ onAuthSuccess }) => {
         throw new Error('No access token received from server');
       }
 
-      localStorage.setItem('access_token', accessToken);
-      if (refreshToken) {
-        localStorage.setItem('refresh_token', refreshToken);
+      // Store tokens with Safari Private fallback
+      try {
+        localStorage.setItem('access_token', accessToken);
+        if (refreshToken) {
+          localStorage.setItem('refresh_token', refreshToken);
+        }
+      } catch (storageErr) {
+        console.warn('⚠️ localStorage unavailable, using in-memory token fallback');
+        window.__ACCESS_TOKEN = accessToken;
+        if (refreshToken) window.__REFRESH_TOKEN = refreshToken;
       }
       
-      // Set axios default header and credentials for cross-site requests (ChatGPT fix)
+      // Set axios default header (no cookies)
       axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-      axios.defaults.withCredentials = true;
+      axios.defaults.withCredentials = false;
       
       console.log('🎉 LOGIN COMPLETE - Calling onAuthSuccess()');
       toast.success('Connexion réussie ! 🎉');

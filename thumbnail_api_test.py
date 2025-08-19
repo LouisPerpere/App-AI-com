@@ -73,7 +73,7 @@ class ThumbnailAPITester:
             return False
 
     def get_pending_content(self):
-        """Step 1: Get pending content and find first image item"""
+        """Step 1: Get pending content and find first image item that exists on disk"""
         print("📋 STEP 1: Get pending content and find first image item")
         try:
             response = self.session.get(f"{API_BASE}/content/pending")
@@ -82,13 +82,21 @@ class ThumbnailAPITester:
                 data = response.json()
                 content_items = data.get("content", [])
                 
-                # Find first image item
+                # Find first image item that exists on disk
                 image_item = None
                 for item in content_items:
                     file_type = item.get("file_type", "")
                     if file_type.startswith("image/"):
-                        image_item = item
-                        break
+                        filename = item.get("filename", "")
+                        # Check if file exists on disk
+                        import os
+                        file_path = f"/app/backend/uploads/{filename}"
+                        if os.path.exists(file_path):
+                            image_item = item
+                            print(f"    Found image on disk: {filename}")
+                            break
+                        else:
+                            print(f"    Image not on disk: {filename}")
                 
                 if image_item:
                     self.test_image_id = image_item["id"]
@@ -101,7 +109,7 @@ class ThumbnailAPITester:
                     )
                     return True
                 else:
-                    self.log_result("Get pending content - Find image", False, "No image items found in content", response.status_code)
+                    self.log_result("Get pending content - Find image", False, "No image items found that exist on disk", response.status_code)
                     return False
             else:
                 self.log_result("Get pending content", False, f"Failed to get content: {response.text}", response.status_code)

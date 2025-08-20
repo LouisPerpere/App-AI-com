@@ -134,7 +134,7 @@ const ContentThumbnail = React.memo(({
       }`}>
         {content.file_type?.startsWith('image/') ? (
           <img 
-            src={`${API}/content/${content.id}/thumb`}
+            src={buildThumbUrl(content.id)}
             alt={content.filename}
             className="w-full h-full object-cover"
             loading="lazy"

@@ -343,6 +343,60 @@ async def get_pending_content_mongo(offset: int = 0, limit: int = 24, user_id: s
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch content: {str(e)}")
 
+# ----------------------------
+# BUSINESS PROFILE: /api/business-profile
+# ----------------------------
+BUSINESS_FIELDS = [
+    "business_name", "business_type", "business_description", "target_audience",
+    "brand_tone", "posting_frequency", "preferred_platforms", "budget_range",
+    "email", "website_url", "hashtags_primary", "hashtags_secondary"
+]
+
+@api_router.get("/business-profile")
+async def get_business_profile(user_id: str = Depends(get_current_user_id_robust)):
+    try:
+        dbm = get_database()
+        users = dbm.db.users
+        user = users.find_one({"user_id": user_id})
+        out = {}
+        for f in BUSINESS_FIELDS:
+            out[f] = (user.get(f) if user else None)
+        return out
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch business profile: {str(e)}")
+
+class BusinessProfileIn(BaseModel):
+    business_name: Optional[str] = None
+    business_type: Optional[str] = None
+    business_description: Optional[str] = None
+    target_audience: Optional[str] = None
+    brand_tone: Optional[str] = None
+    posting_frequency: Optional[str] = None
+    preferred_platforms: Optional[List[str]] = None
+    budget_range: Optional[str] = None
+    email: Optional[str] = None
+    website_url: Optional[str] = None
+    hashtags_primary: Optional[List[str]] = None
+    hashtags_secondary: Optional[List[str]] = None
+
+@api_router.put("/business-profile")
+async def put_business_profile(body: BusinessProfileIn, user_id: str = Depends(get_current_user_id_robust)):
+    try:
+        dbm = get_database()
+        users = dbm.db.users
+        update = {k: v for k, v in body.dict().items() if v is not None}
+        if not update:
+            return {"success": True, "message": "No changes"}
+        users.update_one({"user_id": user_id}, {"$set": update}, upsert=True)
+        return {"success": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update business profile: {str(e)}")
+
+@api_router.post("/business-profile")
+async def post_business_profile(body: BusinessProfileIn, user_id: str = Depends(get_current_user_id_robust)):
+    # For compatibility with existing frontend that may POST
+    return await put_business_profile(body, user_id)
+
 # Include the API router
 app.include_router(api_router)
 

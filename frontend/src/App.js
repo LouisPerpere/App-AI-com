@@ -998,7 +998,7 @@ function MainApp() {
   // Active step state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
-  const [activeStep, setActiveStep] = useState('onboarding');
+  const [activeStep, setActiveStep] = useState('dashboard');
   
   // Business profile state
   const [businessProfile, setBusinessProfile] = useState(null);

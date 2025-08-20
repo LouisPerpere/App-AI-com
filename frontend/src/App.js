@@ -1640,9 +1640,8 @@ function MainApp() {
   }, [isAuthenticated, user, businessProfile]);
 
   const checkAuth = async () => {
-    const token = localStorage.getItem('access_token');
+    const token = getAccessToken();
     console.log('🔍 checkAuth called - token exists:', !!token);
-    console.log('🔍 checkAuth stack trace:', new Error().stack);
     
     if (!token) {
       console.log('🔍 APP DEBUG - No token found, setting authenticated to false');
@@ -1653,52 +1652,61 @@ function MainApp() {
     // Set axios header before making request
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
+    // Primary path: /auth/me if available
     try {
-      console.log('🔍 APP DEBUG - Making /auth/me request to:', `${API}/auth/me`);
+      console.log('🔍 APP DEBUG - Trying /auth/me:', `${API}/auth/me`);
       const response = await axios.get(`${API}/auth/me`, {
         timeout: 15000,
         headers: { Authorization: `Bearer ${token}` }
       });
-      
-      console.log('✅ APP DEBUG - Auth check successful:', response.data);
-      setUser(response.data);
+      console.log('✅ APP DEBUG - /auth/me success');
+      const userPayload = response.data || {};
+      setUser(userPayload);
       setIsAuthenticated(true);
-      
-      if (response.data.subscription_status) {
-        setSubscriptionStatus(response.data.subscription_status);
-      }
-      
-      // Load business profile after successful authentication ONLY if not already loaded
-      if (!businessProfile) {
-        console.log('🔄 Loading business profile - not loaded yet');
-        loadBusinessProfile();
-      } else {
-        console.log('✅ Business profile already loaded, skipping reload to preserve user data');
-        // CRITICAL FIX: Always ensure we go to dashboard when authenticated
-        if (activeStep === 'onboarding') {
-          console.log('🎯 FORCING DASHBOARD TRANSITION - user authenticated with business profile');
-          setActiveStep('dashboard');
+      if (userPayload.subscription_status) setSubscriptionStatus(userPayload.subscription_status);
+    } catch (errMe) {
+      const status = errMe?.response?.status;
+      console.warn('⚠️ /auth/me failed, status:', status, '-> trying /content/pending as fallback');
+      // Fallback path: use a protected endpoint to validate token
+      try {
+        const res = await axios.get(`${API}/content/pending`, {
+          timeout: 15000,
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.status === 200) {
+          console.log('✅ APP DEBUG - Fallback /content/pending success -> session valid');
+          setIsAuthenticated(true);
+        } else {
+          throw new Error(`Unexpected status ${res.status}`);
         }
+      } catch (fallbackErr) {
+        console.error('❌ APP DEBUG - Fallback auth validation failed:', fallbackErr?.response?.data || fallbackErr?.message);
+        if (fallbackErr.response?.status === 401 || fallbackErr.response?.status === 403) {
+          console.log('🔍 APP DEBUG - Token invalid, removing from storage');
+          try { localStorage.removeItem('access_token'); localStorage.removeItem('refresh_token'); } catch {}
+          delete axios.defaults.headers.common['Authorization'];
+          window.__ACCESS_TOKEN = null; window.__REFRESH_TOKEN = null;
+        }
+        setIsAuthenticated(false);
+        return;
       }
-      
-      // Load user settings for Réglages tab
-      console.log('🔄 Loading user settings');
-      loadUserSettings();
-    } catch (error) {
-      console.error('❌ APP DEBUG - Auth check failed:', error);
-      console.error('❌ APP DEBUG - Error response:', error.response?.data);
-      console.error('❌ APP DEBUG - Error status:', error.response?.status);
-      
-      // Only remove token if it's actually invalid (not just network error)
-      if (error.response?.status === 401 || error.response?.status === 403) {
-        console.log('🔍 APP DEBUG - Token invalid, removing from storage');
-        try { localStorage.removeItem('access_token'); localStorage.removeItem('refresh_token'); } catch {}
-        delete axios.defaults.headers.common['Authorization'];
-        window.__ACCESS_TOKEN = null; window.__REFRESH_TOKEN = null;
-      }
-      
-      setIsAuthenticated(false);
     }
+
+    // Load business profile after validated authentication ONLY if not already loaded
+    if (!businessProfile) {
+      console.log('🔄 Loading business profile - not loaded yet');
+      loadBusinessProfile();
+    } else {
+      console.log('✅ Business profile already loaded, skipping reload to preserve user data');
+      if (activeStep === 'onboarding') {
+        console.log('🎯 FORCING DASHBOARD TRANSITION - user authenticated with business profile');
+        setActiveStep('dashboard');
+      }
+    }
+
+    // Load user settings for Réglages tab
+    console.log('🔄 Loading user settings');
+    loadUserSettings();
   };
 
   const handleAuthSuccess = async () => {

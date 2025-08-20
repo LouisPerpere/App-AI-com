@@ -152,6 +152,7 @@ const AuthPage = ({ onAuthSuccess }) => {
         errorMessage = error.message || 'Erreur inattendue';
       }
       
+      setShowConnecting(false);
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {

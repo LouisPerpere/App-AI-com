@@ -37,12 +37,16 @@ import { toast } from 'react-hot-toast';
 const getBackendURL = () => {
   let envURL = process.env.REACT_APP_BACKEND_URL;
   if (!envURL || envURL === 'undefined') return '';
-  envURL = envURL.trim().replace(/\/+$/, '');
+  // Remove surrounding quotes if mistakenly added in Netlify env
+  envURL = envURL.trim().replace(/^['"]|['"]$/g, '');
+  envURL = envURL.replace(/\/+$/, '');
   envURL = envURL.replace(/\/api$/, '');
   return envURL;
 };
 const BACKEND_URL = getBackendURL();
 const API = `${BACKEND_URL}/api`;
+console.log('🔧 APP DEBUG - BACKEND_URL:', BACKEND_URL);
+console.log('🔧 APP DEBUG - API:', API);
 
 // Récupérer le token depuis localStorage, avec fallback pour Safari navigation privée
 const getAccessToken = () => {

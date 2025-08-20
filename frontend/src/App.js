@@ -151,7 +151,7 @@ const ContentThumbnail = React.memo(({
               // Always request via API; if 404, fallback to icon
               true ? (
               <img 
-                src={`${API}/content/${content.id}/thumb`}
+                src={buildThumbUrl(content.id)}
                 alt={content.filename}
                 className="w-full h-full object-cover"
                 loading="lazy"

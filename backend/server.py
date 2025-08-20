@@ -262,6 +262,26 @@ async def root():
 # ----------------------------
 # AUTH: /api/auth/login-robust
 # ----------------------------
+@api_router.get("/auth/me")
+async def who_am_i(user_id: str = Depends(get_current_user_id_robust)):
+    """Return basic user payload for the current token"""
+    try:
+        dbm = get_database()
+        user = dbm.db.users.find_one({"user_id": user_id})
+        if user:
+            return {
+                "user_id": user.get("user_id"),
+                "email": user.get("email"),
+                "first_name": user.get("first_name"),
+                "last_name": user.get("last_name"),
+                "business_name": user.get("business_name"),
+                "subscription_status": user.get("subscription_status", "trial"),
+            }
+        # Basic payload if user doc not found but token valid
+        return {"user_id": user_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch user: {str(e)}")
+
 @api_router.post("/auth/login-robust")
 async def login_robust(body: LoginIn):
     try:

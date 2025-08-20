@@ -15,9 +15,13 @@ from PIL import Image
 import io
 import mimetypes
 
-# Enable HEIC/HEIF support for iPhone photos
-import pillow_heif
-pillow_heif.register_heif_opener()
+# Enable HEIC/HEIF support for iPhone photos (optional)
+try:
+    import pillow_heif
+    pillow_heif.register_heif_opener()
+    print("✅ HEIF/HEIC support enabled")
+except Exception as e:
+    print(f"⚠️ HEIF/HEIC support not available: {e}")
 
 # Ensure proper MIME types for all image formats including HEIC/HEIF
 mimetypes.add_type('image/webp', '.webp')

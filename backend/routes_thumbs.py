@@ -137,8 +137,23 @@ def _fetch_original_bytes(media_doc) -> Optional[bytes]:
                 return None
     return None
 
+def _decode_user_from_token(token: str) -> Optional[str]:
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG], options={"require": ["sub", "exp"]}, issuer=JWT_ISS)
+        return payload.get("sub")
+    except Exception:
+        return None
+
 @router.get("/content/{file_id}/thumb")
-async def stream_thumbnail(file_id: str, user_id: str = Depends(get_current_user_id_robust)):
+async def stream_thumbnail(file_id: str, token: Optional[str] = None, authorization: Optional[str] = Header(None)):
+    # Allow auth via Authorization header or ?token=
+    user_id = None
+    if token:
+        user_id = _decode_user_from_token(token)
+    if not user_id and authorization and authorization.lower().startswith("bearer "):
+        user_id = _decode_user_from_token(authorization.split(" ", 1)[1])
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Unauthorized")
     """Stream thumbnail from MongoDB; if missing, attempt generation from original (GridFS or disk) and save to DB."""
     media_collection = get_sync_media_collection()
     try:

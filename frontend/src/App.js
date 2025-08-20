@@ -60,7 +60,7 @@ const getAccessToken = () => {
 };
 
 // Helper to build API thumbnail URL
-const buildThumbUrl = (id) => `${API}/content/${id}/thumb`;
+const buildThumbUrl = (id) => `${API}/content/${id}/thumb?token=${getAccessToken() || ''}`;
 
 // Subscription plans data
 const SUBSCRIPTION_PLANS = [

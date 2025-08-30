@@ -9,7 +9,7 @@ import tempfile
 import os
 
 def test_batch_upload():
-    base_url = "https://social-boost-pwa.preview.emergentagent.com"
+    base_url = "https://social-ai-manager-7.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     # Login first

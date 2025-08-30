@@ -17,7 +17,7 @@ import piexif
 
 class FocusedEXIFTester:
     def __init__(self):
-        self.base_url = "https://social-boost-pwa.preview.emergentagent.com"
+        self.base_url = "https://social-ai-manager-7.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.user_id = None

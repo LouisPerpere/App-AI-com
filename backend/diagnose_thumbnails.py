@@ -18,7 +18,7 @@ def diagnose_thumbnails():
     print("=" * 50)
     
     # Backend URL
-    backend_url = 'https://social-boost-pwa.preview.emergentagent.com'
+    backend_url = 'https://social-ai-manager-7.preview.emergentagent.com'
     
     # Login
     login_data = {'email': 'lperpere@yahoo.fr', 'password': 'L@Reunion974!'}

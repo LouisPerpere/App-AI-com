@@ -518,9 +518,10 @@ class ClaireMarcusDashboardTester:
         print("=" * 50)
         
         try:
-            # Test with a simple website
+            # Test with a simple website - check what parameters are required
             test_data = {
-                "url": "https://example.com"
+                "website_url": "https://example.com",
+                "url": "https://example.com"  # Try both parameter names
             }
             
             response = self.session.post(f"{API_BASE}/website/analyze", json=test_data, timeout=60)
@@ -543,6 +544,16 @@ class ClaireMarcusDashboardTester:
                     f"Analysis created for: {website_url}, Summary length: {len(analysis_summary)}, Key topics: {len(key_topics)}, Main services: {len(main_services)}, Brand tone: {brand_tone}, Target audience: {target_audience}, Created: {created_at}, Next due: {next_analysis_due}"
                 )
                 return True
+            elif response.status_code == 422:
+                # Try to understand what field is required
+                error_text = response.text
+                self.log_result(
+                    "Website Analysis (POST)", 
+                    False, 
+                    f"Parameter validation error - need to check required fields",
+                    f"422 Validation Error: {error_text}"
+                )
+                return False
             else:
                 self.log_result(
                     "Website Analysis (POST)", 

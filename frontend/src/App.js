@@ -9,8 +9,7 @@ import AdminDashboard from './AdminDashboard';
 import FacebookCallback from './FacebookCallback';
 
 // Configure axios for cross-site authentication (ChatGPT fix)
-// Do not use cookies for cross-site requests; rely on Authorization header
-axios.defaults.withCredentials = false;
+axios.defaults.withCredentials = true;
 
 // Import UI components
 import { Button } from './components/ui/button';
@@ -25,27 +24,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog';
 import { Label } from './components/ui/label';
 
+
 // Import icons
 import { Building, Sparkles, Crown, Upload, ImageIcon, FileText, X, Edit, CalendarIcon, Target, LogOut, Check, Send, Clock, ChevronLeft, ChevronRight, CreditCard, Settings, Globe, Save, Search, Users, Cog, Trash } from 'lucide-react';
 
 // Import toast for notifications
 import { toast } from 'react-hot-toast';
 
-// Use ONLY process.env for Netlify/CRA compatibility (avoid import.meta)
-// Normalize backend URL (trim, remove trailing slashes and any trailing /api)
-const getBackendURL = () => {
-  let envURL = process.env.REACT_APP_BACKEND_URL;
-  if (!envURL || envURL === 'undefined') return '';
-  // Remove surrounding quotes if mistakenly added in Netlify env
-  envURL = envURL.trim().replace(/^['"]|['"]$/g, '');
-  envURL = envURL.replace(/\/+$/, '');
-  envURL = envURL.replace(/\/api$/, '');
-  return envURL;
-};
-const BACKEND_URL = getBackendURL();
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://claire-marcus-api.onrender.com';
 const API = `${BACKEND_URL}/api`;
-console.log('🔧 APP DEBUG - BACKEND_URL:', BACKEND_URL);
-console.log('🔧 APP DEBUG - API:', API);
 
 // Récupérer le token depuis localStorage, avec fallback pour Safari navigation privée
 const getAccessToken = () => {

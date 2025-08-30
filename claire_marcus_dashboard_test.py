@@ -360,6 +360,14 @@ class ClaireMarcusDashboardTester:
                 # Store notes for other tests
                 self.existing_notes = notes
                 return True
+            elif response.status_code == 404:
+                self.log_result(
+                    "Notes System (GET)", 
+                    False, 
+                    "Notes endpoints not implemented in current backend deployment",
+                    "404 Not Found - Notes API missing"
+                )
+                return False
             else:
                 self.log_result(
                     "Notes System (GET)", 

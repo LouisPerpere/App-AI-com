@@ -1131,3 +1131,119 @@ function MainApp() {
   // Hashtag management
   const [newPrimaryHashtag, setNewPrimaryHashtag] = useState('');
   const [newSecondaryHashtag, setNewSecondaryHashtag] = useState('');
+
+  // Force reload business profile and notes with localStorage support
+  const forceLoadBusinessProfileAndNotes = useCallback(async () => {
+    console.log('🔄 Force loading business profile and notes');
+    
+    // First restore from localStorage for immediate response
+    restoreFieldsFromStorage();
+    
+    // Then fetch fresh data from database after a delay
+    setTimeout(async () => {
+      try {
+        const response = await axios.get(`${API}/business-profile`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+        });
+        
+        console.log('✅ Fresh data loaded from backend');
+        setBusinessProfile(response.data);
+        
+        // Always sync fresh backend data to localStorage to prevent stale cache
+        console.log('🔄 Syncing fresh backend data to localStorage');
+        saveToLocalStorage(response.data);
+        
+        // Force update all fields with fresh backend data to override any stale values
+        if (isVirtualKeyboardDevice) {
+          // Update refs for virtual keyboard devices
+          setTimeout(() => {
+            if (businessNameRef.current) businessNameRef.current.value = response.data.business_name || '';
+            if (businessDescriptionRef.current) businessDescriptionRef.current.value = response.data.business_description || '';
+            if (targetAudienceRef.current) targetAudienceRef.current.value = response.data.target_audience || '';
+            if (emailRef.current) emailRef.current.value = response.data.email || '';
+            if (websiteUrlRef.current) websiteUrlRef.current.value = response.data.website_url || '';
+            if (budgetRangeRef.current) budgetRangeRef.current.value = response.data.budget_range || '';
+            console.log('✅ Virtual keyboard refs updated with fresh data');
+          }, 100);
+        } else {
+          // Update states for desktop
+          setEditBusinessName(response.data.business_name || '');
+          setEditBusinessDescription(response.data.business_description || '');
+          setEditTargetAudience(response.data.target_audience || '');
+          setEditEmail(response.data.email || '');
+          setEditWebsiteUrl(response.data.website_url || '');
+          setEditBudgetRange(response.data.budget_range || '');
+          console.log('✅ Desktop states updated with fresh data');
+        }
+        
+        setEditBusinessType(response.data.business_type || '');
+        
+        // Reload notes as well
+        await loadNotes();
+        
+      } catch (error) {
+        console.error('❌ Error force loading business profile:', error);
+      }
+    }, 1000); // 1 second delay for smooth UX
+  }, [isVirtualKeyboardDevice]);
+
+  // Enhanced virtual keyboard event handlers
+  useEffect(() => {
+    if (!isVirtualKeyboardDevice) return;
+    
+    const handleResize = () => {
+      // Ajuster la hauteur du body dynamiquement pour les PWA sur iPad
+      document.body.style.height = `${window.innerHeight}px`;
+      
+      // Scroll to focused input when keyboard appears/disappears
+      const activeElement = document.activeElement;
+      if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+        setTimeout(() => {
+          activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      }
+    };
+    
+    const handleFocusIn = (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        // Add specific class for focused state
+        e.target.classList.add('virtual-keyboard-focused');
+        
+        // Ajuster la hauteur immédiatement
+        document.body.style.height = `${window.innerHeight}px`;
+        
+        // Ensure element is visible above keyboard
+        setTimeout(() => {
+          e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    };
+    
+    const handleFocusOut = (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        e.target.classList.remove('virtual-keyboard-focused');
+        
+        // Restaurer la hauteur normale
+        setTimeout(() => {
+          document.body.style.height = '100vh';
+        }, 300);
+      }
+    };
+    
+    // Add event listeners
+    window.addEventListener('resize', handleResize);
+    document.addEventListener('focusin', handleFocusIn);
+    document.addEventListener('focusout', handleFocusOut);
+    
+    // Initialiser la hauteur
+    document.body.style.height = `${window.innerHeight}px`;
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      document.removeEventListener('focusin', handleFocusIn);
+      document.removeEventListener('focusout', handleFocusOut);
+      
+      // Restaurer la hauteur normale
+      document.body.style.height = '100vh';
+    };
+  }, [isVirtualKeyboardDevice]);

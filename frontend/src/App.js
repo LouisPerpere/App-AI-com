@@ -34,6 +34,48 @@ import { toast } from 'react-hot-toast';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://claire-marcus-api.onrender.com';
 const API = `${BACKEND_URL}/api`;
 
+// Subscription plans data
+const SUBSCRIPTION_PLANS = [
+  {
+    id: 'starter',
+    name: 'Starter',
+    monthlyPrice: 14.99,
+    yearlyPrice: 149.99,
+    features: ['4 posts par mois', '1 réseau social', 'Programmation automatique', 'Support par email'],
+    color: 'blue',
+    popular: false,
+    badge: null
+  },
+  {
+    id: 'rocket',
+    name: 'Rocket',
+    monthlyPrice: 29.99,
+    yearlyPrice: 299.99,
+    features: ['Posts illimités', 'Tous les réseaux sociaux', 'Analytics avancés', 'Support prioritaire', 'Calendrier de contenu'],
+    color: 'purple',
+    popular: true,
+    badge: 'Plus populaire'
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    monthlyPrice: 199.99,
+    yearlyPrice: 1999.99,
+    features: ['Posts illimités', 'Tous les réseaux sociaux', 'Gestion multi-comptes', 'Support dédié', 'Analytics complets', 'Community management'],
+    color: 'gold',
+    popular: false,
+    badge: 'Community Managers'
+  }
+];
+
+// Free trial plan (shown separately)
+const FREE_TRIAL_PLAN = {
+  name: 'Essai Gratuit',
+  duration: '1 mois offert',
+  features: ['Posts illimités', '1 réseau social', 'Découverte complète', 'Support par email'],
+  color: 'green'
+};
+
 // Récupérer le token depuis localStorage, avec fallback pour Safari navigation privée
 const getAccessToken = () => {
   try {

@@ -13,8 +13,8 @@ import base64
 from io import BytesIO
 from PIL import Image
 
-# Configuration from review request
-BACKEND_URL = "https://4d05663d-caa0-419c-bdc1-d9f2d4c5a00c.preview.emergentagent.com"
+# Configuration - Using the actual backend API URL from test history
+BACKEND_URL = "https://claire-marcus-api.onrender.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request

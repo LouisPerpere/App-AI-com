@@ -1357,11 +1357,15 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Bibliothèque Upload Functionality"
-    - "Business Profile Description Field Integration"
+    - "Restauration Dashboard Complet"
+    - "Configuration .env Backend URL"
   stuck_tasks: []
   test_all: false
-  test_priority: "high_first"
+  test_priority: "critical_first"
+
+agent_communication:
+  - agent: "main"
+    message: "DÉBUT RESTAURATION DASHBOARD: L'utilisateur a fourni le fichier App.js complet avec tous les onglets du dashboard et le nouveau .env avec l'URL backend mise à jour. Je procède à la restauration complète: (1) Remplacer App.js par la version complète fournie, (2) Mettre à jour frontend/.env avec la nouvelle URL backend, (3) Tester le backend pour s'assurer de la compatibilité. Tous les autres fichiers sont confirmés corrects selon l'utilisateur."
 
 agent_communication:
   - agent: "testing"

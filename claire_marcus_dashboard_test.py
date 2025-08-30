@@ -409,6 +409,14 @@ class ClaireMarcusDashboardTester:
                 # Store note ID for delete test
                 self.test_note_id = note_id
                 return True
+            elif response.status_code == 404:
+                self.log_result(
+                    "Notes System (POST)", 
+                    False, 
+                    "Notes endpoints not implemented in current backend deployment",
+                    "404 Not Found - Notes API missing"
+                )
+                return False
             else:
                 self.log_result(
                     "Notes System (POST)", 

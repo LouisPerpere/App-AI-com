@@ -113,11 +113,10 @@ user_problem_statement: "CORRECTION CRITIQUE - White Screen Fix: L'utilisateur a
 
 test_plan:
   current_focus:
-    - "Website Analysis Frontend error handling"
-  stuck_tasks:
-    - "Thumbnail persistence across builds (deferred to Phase C)"
+    - "App.js White Screen Fix"
+  stuck_tasks: []
   test_all: false
-  test_priority: "high_first"
+  test_priority: "critical_first"
 
 agent_communication:
   - agent: "main"

@@ -521,11 +521,45 @@ function MainApp() {
                   Analysez votre site web pour optimiser votre contenu et stratégie social media
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-gray-500">
+              <CardContent className="space-y-6">
+                {/* Champ URL du site */}
+                <div className="space-y-2">
+                  <Label htmlFor="website_analysis_url" className="text-gray-700 font-medium">
+                    URL de votre site web
+                  </Label>
+                  <Input
+                    id="website_analysis_url"
+                    type="url"
+                    placeholder="https://votre-site.com"
+                    className="w-full bg-white border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                    style={{
+                      fontSize: '16px',
+                      WebkitAppearance: 'none',
+                      borderRadius: '8px'
+                    }}
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck="false"
+                  />
+                </div>
+
+                {/* Bouton d'analyse */}
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2"
+                  >
+                    <Search className="w-4 h-4" />
+                    <span>Analyser le site</span>
+                  </Button>
+                </div>
+
+                {/* Message si pas d'analyse */}
+                <div className="text-center py-8 text-gray-500">
                   <Search className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                  <p className="text-lg mb-2">Fonctionnalité d'analyse</p>
-                  <p className="text-sm">Entrez l'URL de votre site web pour une analyse complète</p>
+                  <p className="text-lg mb-2">Aucune analyse disponible</p>
+                  <p className="text-sm">Entrez l'URL de votre site web et cliquez sur "Analyser le site" pour commencer</p>
                 </div>
               </CardContent>
             </Card>

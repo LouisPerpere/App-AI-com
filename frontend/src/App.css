@@ -32,10 +32,26 @@ body {
   input[type="text"],
   input[type="email"],
   input[type="url"],
+  input[type="password"],
   textarea {
     font-size: 16px !important; /* Prevent iOS zoom */
-    -webkit-appearance: none; /* Remove default iOS styling */
-    border-radius: 8px; /* Consistent border radius */
+    line-height: 1.5 !important;
+    -webkit-appearance: none !important; /* Remove default iOS styling */
+    -webkit-border-radius: 8px !important; /* iOS specific border radius */
+    border-radius: 8px !important; /* Consistent border radius */
+    box-shadow: none !important; /* Remove default shadows */
+    -webkit-box-shadow: none !important;
+    touch-action: manipulation !important; /* Optimize touch interactions */
+    user-select: text !important; /* Ensure text selection works */
+    -webkit-user-select: text !important;
+    -webkit-touch-callout: default !important; /* Enable touch callout for text selection */
+  }
+  
+  /* Force virtual keyboard to appear on focus */
+  input:not([readonly]):not([disabled]),
+  textarea:not([readonly]):not([disabled]) {
+    -webkit-appearance: none !important;
+    appearance: none !important;
   }
   
   /* Ensure stable layout during keyboard appearance */
@@ -48,6 +64,10 @@ body {
   input:focus,
   textarea:focus {
     scroll-margin-top: 100px; /* Ensure focused field is visible above keyboard */
+    outline: 2px solid #3b82f6; /* Clear focus indication */
+    outline-offset: 2px;
+  }
+}
     transform: translateZ(0); /* Force hardware acceleration */
     backface-visibility: hidden; /* Improve rendering performance */
   }

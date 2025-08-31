@@ -68,9 +68,6 @@ body {
     outline-offset: 2px;
   }
 }
-    transform: translateZ(0); /* Force hardware acceleration */
-    backface-visibility: hidden; /* Improve rendering performance */
-  }
   
   /* PWA-specific optimizations for iPad */
   @supports (-webkit-touch-callout: none) {

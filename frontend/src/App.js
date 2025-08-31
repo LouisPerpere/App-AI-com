@@ -495,18 +495,20 @@ function MainApp() {
                       </div>
                     </div>
                     
-                    {/* TEST CLAVIER VIRTUEL - Section de test */}
+                    {/* TEST CLAVIER VIRTUEL - Section de test améliorée */}
                     <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-xl p-6 border-2 border-green-200">
-                      <h3 className="text-lg font-bold text-green-800 mb-4">🧪 Test Clavier Virtuel</h3>
-                      <div className="space-y-4">
-                        <div>
+                      <h3 className="text-lg font-bold text-green-800 mb-4">🧪 Test Clavier Virtuel Mobile/Tablet</h3>
+                      <div className="space-y-6">
+                        
+                        {/* Test 1 - Input Simple */}
+                        <div className="bg-white p-4 rounded-lg border border-green-200">
                           <label htmlFor="test_input_simple" className="block text-sm font-medium text-gray-700 mb-2">
-                            Test Simple (Input natif)
+                            📱 Test 1 - Champ texte simple
                           </label>
                           <input
                             id="test_input_simple"
                             type="text"
-                            placeholder="Tapez ici pour tester le clavier virtuel"
+                            placeholder="Tapez ici - le clavier virtuel doit s'ouvrir"
                             className="w-full p-4 border-2 border-green-300 rounded-lg bg-white focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none"
                             style={{
                               fontSize: '16px',
@@ -526,16 +528,19 @@ function MainApp() {
                             autoCapitalize="sentences"
                             spellCheck="true"
                             inputMode="text"
-                            enterKeyHint="done"
+                            enterKeyHint="next"
                           />
+                          <p className="text-xs text-green-600 mt-1">💡 Cliquez ici - le clavier doit apparaître immédiatement</p>
                         </div>
-                        <div>
+
+                        {/* Test 2 - Textarea */}
+                        <div className="bg-white p-4 rounded-lg border border-green-200">
                           <label htmlFor="test_textarea_simple" className="block text-sm font-medium text-gray-700 mb-2">
-                            Test Zone de texte
+                            📝 Test 2 - Zone de texte multi-lignes
                           </label>
                           <textarea
                             id="test_textarea_simple"
-                            placeholder="Zone de texte pour tester le clavier virtuel sur plusieurs lignes"
+                            placeholder="Zone de texte pour tester le clavier virtuel sur plusieurs lignes..."
                             className="w-full p-4 border-2 border-green-300 rounded-lg bg-white focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none resize-none"
                             style={{
                               fontSize: '16px',
@@ -559,10 +564,85 @@ function MainApp() {
                             inputMode="text"
                             enterKeyHint="enter"
                           />
+                          <p className="text-xs text-green-600 mt-1">💡 Pour texte multi-lignes - clavier avec Entrée</p>
                         </div>
-                        <p className="text-sm text-green-700 font-medium">
-                          💡 Si le clavier virtuel ne s'ouvre pas en cliquant dans ces champs, il y a un problème technique à résoudre.
-                        </p>
+
+                        {/* Test 3 - URL */}
+                        <div className="bg-white p-4 rounded-lg border border-green-200">
+                          <label htmlFor="test_url_field" className="block text-sm font-medium text-gray-700 mb-2">
+                            🌐 Test 3 - Champ URL
+                          </label>
+                          <input
+                            id="test_url_field"
+                            type="url"
+                            placeholder="https://example.com"
+                            className="w-full p-4 border-2 border-green-300 rounded-lg bg-white focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                            style={{
+                              fontSize: '16px',
+                              lineHeight: '1.5',
+                              WebkitAppearance: 'none',
+                              WebkitBorderRadius: '8px',
+                              borderRadius: '8px',
+                              boxShadow: 'none',
+                              WebkitBoxShadow: 'none',
+                              touchAction: 'manipulation',
+                              userSelect: 'text',
+                              WebkitUserSelect: 'text',
+                              WebkitTouchCallout: 'default'
+                            }}
+                            autoComplete="url"
+                            autoCorrect="off"
+                            autoCapitalize="off"
+                            spellCheck="false"
+                            inputMode="url"
+                            enterKeyHint="go"
+                          />
+                          <p className="text-xs text-green-600 mt-1">💡 Clavier avec suggestions URL et raccourcis</p>
+                        </div>
+
+                        {/* Test 4 - Email */}
+                        <div className="bg-white p-4 rounded-lg border border-green-200">
+                          <label htmlFor="test_email_field" className="block text-sm font-medium text-gray-700 mb-2">
+                            📧 Test 4 - Champ Email  
+                          </label>
+                          <input
+                            id="test_email_field"
+                            type="email"
+                            placeholder="votre@email.com"
+                            className="w-full p-4 border-2 border-green-300 rounded-lg bg-white focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                            style={{
+                              fontSize: '16px',
+                              lineHeight: '1.5',
+                              WebkitAppearance: 'none',
+                              WebkitBorderRadius: '8px',
+                              borderRadius: '8px',
+                              boxShadow: 'none',
+                              WebkitBoxShadow: 'none',
+                              touchAction: 'manipulation',
+                              userSelect: 'text',
+                              WebkitUserSelect: 'text',
+                              WebkitTouchCallout: 'default'
+                            }}
+                            autoComplete="email"
+                            autoCorrect="off"
+                            autoCapitalize="off"
+                            spellCheck="false"
+                            inputMode="email"
+                            enterKeyHint="done"
+                          />
+                          <p className="text-xs text-green-600 mt-1">💡 Clavier avec @ accessible et suggestions email</p>
+                        </div>
+
+                        {/* Instructions */}
+                        <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                          <h4 className="font-semibold text-yellow-800 mb-2">📋 Instructions de test :</h4>
+                          <ul className="text-sm text-yellow-700 space-y-1">
+                            <li>• Cliquez dans chaque champ de saisie ci-dessus</li>
+                            <li>• Vérifiez que le clavier virtuel s'ouvre sur votre mobile/tablet</li>
+                            <li>• Testez la saisie de texte dans chaque champ</li>
+                            <li>• Si aucun clavier ne s'ouvre, le problème technique est confirmé</li>
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   </div>

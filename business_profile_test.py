@@ -35,275 +35,440 @@ class BusinessProfileTester:
         self.user_id = None
         self.test_results = []
         
-        print(f"🚀 BUSINESS PROFILE SAVE FUNCTIONS TESTING")
+    def log_result(self, test_name, success, details="", error=""):
+        """Log test result"""
+        status = "✅ PASS" if success else "❌ FAIL"
+        result = {
+            "test": test_name,
+            "status": status,
+            "success": success,
+            "details": details,
+            "error": error
+        }
+        self.test_results.append(result)
+        print(f"{status}: {test_name}")
+        if details:
+            print(f"   Details: {details}")
+        if error:
+            print(f"   Error: {error}")
+        print()
+    
+    def authenticate(self):
+        """Step 1: Authenticate with specified credentials"""
+        print("🔐 STEP 1: Authentication")
+        print("=" * 50)
+        
+        try:
+            response = self.session.post(f"{API_BASE}/auth/login-robust", json={
+                "email": TEST_EMAIL,
+                "password": TEST_PASSWORD
+            })
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.access_token = data.get("access_token")
+                self.user_id = data.get("user_id")
+                
+                # Set authorization header for future requests
+                self.session.headers.update({
+                    "Authorization": f"Bearer {self.access_token}"
+                })
+                
+                self.log_result(
+                    "Authentication", 
+                    True, 
+                    f"Successfully authenticated as {TEST_EMAIL}, User ID: {self.user_id}"
+                )
+                return True
+            else:
+                self.log_result(
+                    "Authentication", 
+                    False, 
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result("Authentication", False, error=str(e))
+            return False
+    
+    def test_get_business_profile_initial(self):
+        """Step 2: Get initial business profile state"""
+        print("📋 STEP 2: Get Initial Business Profile")
+        print("=" * 50)
+        
+        try:
+            response = self.session.get(f"{API_BASE}/business-profile")
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Store initial state for comparison
+                self.initial_profile = data
+                
+                # Check which fields are already populated
+                populated_fields = [k for k, v in data.items() if v is not None and v != ""]
+                empty_fields = [k for k, v in data.items() if v is None or v == ""]
+                
+                self.log_result(
+                    "Get Initial Business Profile", 
+                    True, 
+                    f"Retrieved profile. Populated fields: {len(populated_fields)}, Empty fields: {len(empty_fields)}. Populated: {populated_fields[:5]}..."
+                )
+                return True
+            else:
+                self.log_result(
+                    "Get Initial Business Profile", 
+                    False, 
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result("Get Initial Business Profile", False, error=str(e))
+            return False
+    
+    def test_put_business_profile_complete(self):
+        """Step 3: Test PUT /api/business-profile with complete test data"""
+        print("💾 STEP 3: PUT Business Profile - Complete Data")
+        print("=" * 50)
+        
+        try:
+            response = self.session.put(f"{API_BASE}/business-profile", json=TEST_BUSINESS_DATA)
+            
+            if response.status_code == 200:
+                data = response.json()
+                success = data.get("success", False)
+                
+                if success:
+                    self.log_result(
+                        "PUT Business Profile - Complete Data", 
+                        True, 
+                        f"Successfully saved complete business profile. Fields saved: {list(TEST_BUSINESS_DATA.keys())}"
+                    )
+                    return True
+                else:
+                    self.log_result(
+                        "PUT Business Profile - Complete Data", 
+                        False, 
+                        "API returned success=false",
+                        data.get("message", "No message provided")
+                    )
+                    return False
+            else:
+                self.log_result(
+                    "PUT Business Profile - Complete Data", 
+                    False, 
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result("PUT Business Profile - Complete Data", False, error=str(e))
+            return False
+    
+    def test_get_business_profile_verification(self):
+        """Step 4: Verify data persistence by retrieving saved data"""
+        print("🔍 STEP 4: Verify Data Persistence")
+        print("=" * 50)
+        
+        try:
+            response = self.session.get(f"{API_BASE}/business-profile")
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Verify each field was saved correctly
+                verification_results = {}
+                all_correct = True
+                
+                for field, expected_value in TEST_BUSINESS_DATA.items():
+                    actual_value = data.get(field)
+                    is_correct = actual_value == expected_value
+                    verification_results[field] = {
+                        "expected": expected_value,
+                        "actual": actual_value,
+                        "correct": is_correct
+                    }
+                    if not is_correct:
+                        all_correct = False
+                
+                # Count correct fields
+                correct_count = sum(1 for result in verification_results.values() if result["correct"])
+                total_count = len(verification_results)
+                
+                # Detailed verification report
+                details = f"Data persistence verification: {correct_count}/{total_count} fields correct. "
+                
+                # Show first few field verifications
+                sample_verifications = []
+                for field, result in list(verification_results.items())[:3]:
+                    status = "✅" if result["correct"] else "❌"
+                    sample_verifications.append(f"{status} {field}: '{result['actual']}'")
+                
+                details += f"Sample: {', '.join(sample_verifications)}"
+                
+                if not all_correct:
+                    # Show incorrect fields
+                    incorrect_fields = [f for f, r in verification_results.items() if not r["correct"]]
+                    details += f". Incorrect fields: {incorrect_fields}"
+                
+                self.log_result(
+                    "Verify Data Persistence", 
+                    all_correct, 
+                    details,
+                    "" if all_correct else f"Some fields not saved correctly: {incorrect_fields}"
+                )
+                
+                # Store verification results for summary
+                self.verification_results = verification_results
+                
+                return all_correct
+            else:
+                self.log_result(
+                    "Verify Data Persistence", 
+                    False, 
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result("Verify Data Persistence", False, error=str(e))
+            return False
+    
+    def test_put_business_profile_partial(self):
+        """Step 5: Test PUT /api/business-profile with partial data"""
+        print("📝 STEP 5: PUT Business Profile - Partial Data")
+        print("=" * 50)
+        
+        # Test with only a few fields
+        partial_data = {
+            "business_name": "Claire et Marcus Test - Updated",
+            "brand_tone": "luxe"
+        }
+        
+        try:
+            response = self.session.put(f"{API_BASE}/business-profile", json=partial_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                success = data.get("success", False)
+                
+                if success:
+                    # Verify the partial update worked
+                    verify_response = self.session.get(f"{API_BASE}/business-profile")
+                    if verify_response.status_code == 200:
+                        verify_data = verify_response.json()
+                        
+                        # Check if partial fields were updated
+                        name_updated = verify_data.get("business_name") == partial_data["business_name"]
+                        tone_updated = verify_data.get("brand_tone") == partial_data["brand_tone"]
+                        
+                        # Check if other fields remained unchanged
+                        email_unchanged = verify_data.get("email") == TEST_BUSINESS_DATA["email"]
+                        
+                        partial_success = name_updated and tone_updated and email_unchanged
+                        
+                        self.log_result(
+                            "PUT Business Profile - Partial Data", 
+                            partial_success, 
+                            f"Partial update test. Name updated: {name_updated}, Tone updated: {tone_updated}, Email unchanged: {email_unchanged}"
+                        )
+                        return partial_success
+                    else:
+                        self.log_result(
+                            "PUT Business Profile - Partial Data", 
+                            False, 
+                            "Could not verify partial update"
+                        )
+                        return False
+                else:
+                    self.log_result(
+                        "PUT Business Profile - Partial Data", 
+                        False, 
+                        "API returned success=false",
+                        data.get("message", "No message provided")
+                    )
+                    return False
+            else:
+                self.log_result(
+                    "PUT Business Profile - Partial Data", 
+                    False, 
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result("PUT Business Profile - Partial Data", False, error=str(e))
+            return False
+    
+    def test_brand_tone_validation(self):
+        """Step 6: Test brand_tone dropdown values validation"""
+        print("🎨 STEP 6: Brand Tone Validation")
+        print("=" * 50)
+        
+        # Test different brand_tone values from dropdown
+        brand_tones_to_test = ["professionnel", "luxe", "simple", "créatif", "amical"]
+        
+        successful_tones = []
+        failed_tones = []
+        
+        for tone in brand_tones_to_test:
+            try:
+                test_data = {"brand_tone": tone}
+                response = self.session.put(f"{API_BASE}/business-profile", json=test_data)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get("success", False):
+                        # Verify it was actually saved
+                        verify_response = self.session.get(f"{API_BASE}/business-profile")
+                        if verify_response.status_code == 200:
+                            verify_data = verify_response.json()
+                            if verify_data.get("brand_tone") == tone:
+                                successful_tones.append(tone)
+                            else:
+                                failed_tones.append(f"{tone} (not saved)")
+                        else:
+                            failed_tones.append(f"{tone} (verify failed)")
+                    else:
+                        failed_tones.append(f"{tone} (success=false)")
+                else:
+                    failed_tones.append(f"{tone} (status {response.status_code})")
+                    
+            except Exception as e:
+                failed_tones.append(f"{tone} (error: {str(e)[:30]})")
+        
+        success_count = len(successful_tones)
+        total_count = len(brand_tones_to_test)
+        all_successful = success_count == total_count
+        
+        details = f"Brand tone validation: {success_count}/{total_count} tones accepted. "
+        details += f"Successful: {successful_tones}. "
+        if failed_tones:
+            details += f"Failed: {failed_tones}"
+        
+        self.log_result(
+            "Brand Tone Validation", 
+            all_successful, 
+            details,
+            "" if all_successful else f"Some brand tones failed: {failed_tones}"
+        )
+        
+        return all_successful
+    
+    def test_health_check(self):
+        """Step 0: Health check to ensure backend is accessible"""
+        print("🏥 STEP 0: Backend Health Check")
+        print("=" * 50)
+        
+        try:
+            response = self.session.get(f"{API_BASE}/health")
+            
+            if response.status_code == 200:
+                data = response.json()
+                status = data.get("status")
+                service = data.get("service")
+                
+                self.log_result(
+                    "Backend Health Check", 
+                    status == "healthy", 
+                    f"Backend status: {status}, Service: {service}"
+                )
+                return status == "healthy"
+            else:
+                self.log_result(
+                    "Backend Health Check", 
+                    False, 
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result("Backend Health Check", False, error=str(e))
+            return False
+    
+    def run_all_tests(self):
+        """Run all business profile tests"""
+        print("🚀 BUSINESS PROFILE SAVE FUNCTIONS TESTING")
+        print("=" * 60)
         print(f"Backend URL: {BACKEND_URL}")
         print(f"Test User: {TEST_EMAIL}")
         print(f"Test Data: {TEST_BUSINESS_DATA}")
         print("=" * 60)
-
-    def run_test(self, name, method, endpoint, expected_status, data=None, headers=None):
-        """Run a single API test"""
-        url = f"{self.api_url}/{endpoint}"
-        test_headers = {}
+        print()
         
-        # Add authentication header if we have a token
-        if self.access_token:
-            test_headers['Authorization'] = f'Bearer {self.access_token}'
+        # Initialize test variables
+        self.initial_profile = None
+        self.verification_results = None
         
-        # Add custom headers
-        if headers:
-            test_headers.update(headers)
+        # Run tests in sequence
+        tests = [
+            self.test_health_check,
+            self.authenticate,
+            self.test_get_business_profile_initial,
+            self.test_put_business_profile_complete,
+            self.test_get_business_profile_verification,
+            self.test_put_business_profile_partial,
+            self.test_brand_tone_validation
+        ]
         
-        # Set Content-Type for JSON requests
-        if method in ['POST', 'PUT'] and data:
-            test_headers['Content-Type'] = 'application/json'
-
-        self.tests_run += 1
-        print(f"\n🔍 Testing {name}...")
-        print(f"   URL: {url}")
-        print(f"   Method: {method}")
+        for test in tests:
+            if not test():
+                print("❌ Test failed, continuing with remaining tests...")
+            print()
         
-        try:
-            if method == 'GET':
-                response = requests.get(url, headers=test_headers, params=data)
-            elif method == 'POST':
-                response = requests.post(url, json=data, headers=test_headers)
-            elif method == 'PUT':
-                response = requests.put(url, json=data, headers=test_headers)
-            elif method == 'DELETE':
-                response = requests.delete(url, headers=test_headers)
-
-            success = response.status_code == expected_status
-            if success:
-                self.tests_passed += 1
-                print(f"✅ PASSED - Status: {response.status_code}")
-                try:
-                    response_data = response.json()
-                    # Pretty print response for business profile data
-                    if 'business_name' in response_data:
-                        print(f"   Business Name: {response_data.get('business_name', 'N/A')}")
-                        print(f"   Business Type: {response_data.get('business_type', 'N/A')}")
-                        print(f"   Email: {response_data.get('email', 'N/A')}")
-                        print(f"   Website: {response_data.get('website_url', 'N/A')}")
-                    else:
-                        print(f"   Response: {json.dumps(response_data, indent=2)[:300]}...")
-                    return True, response_data
-                except:
-                    return True, {}
-            else:
-                print(f"❌ FAILED - Expected {expected_status}, got {response.status_code}")
-                try:
-                    error_data = response.json()
-                    print(f"   Error: {json.dumps(error_data, indent=2)}")
-                except:
-                    print(f"   Error: {response.text}")
-                return False, {}
-
-        except Exception as e:
-            print(f"❌ FAILED - Exception: {str(e)}")
-            return False, {}
-
-    def test_authentication(self):
-        """Test authentication with specified credentials"""
-        login_data = {
-            "email": self.test_email,
-            "password": self.test_password
-        }
+        # Summary
+        print("📋 TEST SUMMARY - BUSINESS PROFILE SAVE FUNCTIONS")
+        print("=" * 60)
         
-        success, response = self.run_test(
-            "Authentication Login",
-            "POST",
-            "auth/login",
-            200,
-            data=login_data
-        )
+        passed = sum(1 for result in self.test_results if result["success"])
+        total = len(self.test_results)
+        success_rate = (passed / total * 100) if total > 0 else 0
         
-        if success and 'access_token' in response:
-            self.access_token = response['access_token']
-            print(f"   ✅ Access Token Obtained: {self.access_token[:20]}...")
-            return True
-        else:
-            print(f"   ❌ Authentication failed - cannot proceed with business profile tests")
-            return False
-
-    def test_get_business_profile(self):
-        """Test GET /api/business-profile endpoint"""
-        success, response = self.run_test(
-            "GET Business Profile",
-            "GET",
-            "business-profile",
-            200
-        )
+        print(f"Total Tests: {total}")
+        print(f"Passed: {passed}")
+        print(f"Failed: {total - passed}")
+        print(f"Success Rate: {success_rate:.1f}%")
+        print()
         
-        if success:
-            # Verify expected fields are present
-            expected_fields = [
-                'business_name', 'business_type', 'business_description',
-                'target_audience', 'brand_tone', 'posting_frequency',
-                'preferred_platforms', 'budget_range', 'email', 'website_url',
-                'hashtags_primary', 'hashtags_secondary'
-            ]
-            
-            missing_fields = []
-            for field in expected_fields:
-                if field not in response:
-                    missing_fields.append(field)
-            
-            if missing_fields:
-                print(f"   ⚠️ Missing fields: {missing_fields}")
-            else:
-                print(f"   ✅ All expected fields present")
-            
-            return True, response
+        # Detailed results
+        print("DETAILED TEST RESULTS:")
+        print("-" * 40)
+        for result in self.test_results:
+            print(f"{result['status']}: {result['test']}")
+            if result['details']:
+                print(f"   {result['details']}")
+            if result['error']:
+                print(f"   Error: {result['error']}")
         
-        return False, {}
-
-    def test_put_business_profile(self):
-        """Test PUT /api/business-profile endpoint"""
-        # Test data for business profile update
-        profile_data = {
-            "business_name": "Restaurant Le Bon Goût Réunionnais Test",
-            "business_type": "restaurant",
-            "business_description": "Restaurant spécialisé dans la cuisine créole réunionnaise authentique, proposant des plats traditionnels préparés avec des ingrédients locaux de qualité.",
-            "target_audience": "Familles et gourmets amateurs de cuisine créole, touristes et locaux de 25-65 ans",
-            "brand_tone": "friendly",
-            "posting_frequency": "3x_week",
-            "preferred_platforms": ["Facebook", "Instagram", "LinkedIn"],
-            "budget_range": "1000-2000€",
-            "email": "contact@bongoût-test.re",
-            "website_url": "https://www.restaurant-bon-gout-reunion-test.fr",
-            "hashtags_primary": ["#CuisineCreole", "#RestaurantReunion", "#BonGoût"],
-            "hashtags_secondary": ["#TraditionReunionnaise", "#IngrédientsLocaux", "#Gastronomie"]
-        }
+        # Field-by-field verification summary if available
+        if hasattr(self, 'verification_results') and self.verification_results:
+            print()
+            print("FIELD VERIFICATION DETAILS:")
+            print("-" * 40)
+            for field, result in self.verification_results.items():
+                status = "✅" if result["correct"] else "❌"
+                print(f"{status} {field}: Expected '{result['expected']}', Got '{result['actual']}'")
         
-        success, response = self.run_test(
-            "PUT Business Profile",
-            "PUT",
-            "business-profile",
-            200,
-            data=profile_data
-        )
+        print()
+        print("🎯 BUSINESS PROFILE TESTING COMPLETED")
         
-        if success:
-            print(f"   ✅ Business profile update successful")
-            return True, response, profile_data
-        
-        return False, {}, profile_data
-
-    def test_data_persistence(self, original_data):
-        """Test data persistence by doing PUT followed by GET"""
-        print(f"\n🔄 Testing Data Persistence...")
-        
-        # Wait a moment to ensure data is saved
-        import time
-        time.sleep(1)
-        
-        # Get the business profile again
-        success, response = self.run_test(
-            "GET Business Profile (After PUT)",
-            "GET",
-            "business-profile",
-            200
-        )
-        
-        if success:
-            # Compare key fields to verify persistence
-            key_fields = ['business_name', 'business_type', 'email', 'website_url']
-            persistence_verified = True
-            
-            for field in key_fields:
-                original_value = original_data.get(field, '')
-                retrieved_value = response.get(field, '')
-                
-                if original_value == retrieved_value:
-                    print(f"   ✅ {field}: '{retrieved_value}' (persisted correctly)")
-                else:
-                    print(f"   ❌ {field}: Expected '{original_value}', got '{retrieved_value}'")
-                    persistence_verified = False
-            
-            if persistence_verified:
-                print(f"   ✅ Data persistence verified - PUT followed by GET returns same data")
-                return True
-            else:
-                print(f"   ❌ Data persistence failed - PUT and GET data mismatch")
-                return False
-        
-        return False
-
-    def run_comprehensive_test(self):
-        """Run comprehensive business profile API test"""
-        print("🚀 BUSINESS PROFILE API COMPREHENSIVE TEST")
-        print("Testing business profile endpoints after virtual keyboard fix implementation")
-        print("=" * 80)
-        
-        # Step 1: Authentication
-        print(f"\n📋 STEP 1: Authentication Test")
-        if not self.test_authentication():
-            print(f"❌ CRITICAL: Authentication failed - cannot proceed")
-            return False
-        
-        # Step 2: GET business profile (initial state)
-        print(f"\n📋 STEP 2: GET Business Profile (Initial)")
-        get_success, initial_profile = self.test_get_business_profile()
-        if not get_success:
-            print(f"❌ CRITICAL: GET business profile failed")
-            return False
-        
-        # Step 3: PUT business profile (update)
-        print(f"\n📋 STEP 3: PUT Business Profile (Update)")
-        put_success, put_response, test_data = self.test_put_business_profile()
-        if not put_success:
-            print(f"❌ CRITICAL: PUT business profile failed")
-            return False
-        
-        # Step 4: Data persistence verification
-        print(f"\n📋 STEP 4: Data Persistence Verification")
-        persistence_success = self.test_data_persistence(test_data)
-        if not persistence_success:
-            print(f"❌ CRITICAL: Data persistence verification failed")
-            return False
-        
-        # Final summary
-        print(f"\n" + "=" * 80)
-        print(f"🎯 BUSINESS PROFILE API TEST SUMMARY")
-        print(f"=" * 80)
-        print(f"   Tests Run: {self.tests_run}")
-        print(f"   Tests Passed: {self.tests_passed}")
-        print(f"   Success Rate: {(self.tests_passed/self.tests_run)*100:.1f}%")
-        
-        if self.tests_passed == self.tests_run:
-            print(f"   ✅ ALL TESTS PASSED - Business Profile API is working correctly")
-            print(f"   ✅ Authentication working with {self.test_email}")
-            print(f"   ✅ GET /api/business-profile returns proper business profile data")
-            print(f"   ✅ PUT /api/business-profile can save business profile updates")
-            print(f"   ✅ Data persistence verified - PUT followed by GET returns same data")
-            return True
-        else:
-            print(f"   ❌ SOME TESTS FAILED - Business Profile API has issues")
-            return False
-
-def main():
-    """Main test execution"""
-    tester = BusinessProfileTester()
-    
-    try:
-        success = tester.run_comprehensive_test()
-        
-        if success:
-            print(f"\n🎉 BUSINESS PROFILE API TEST COMPLETED SUCCESSFULLY")
-            print(f"The business profile endpoints are working correctly after virtual keyboard fix implementation.")
-            sys.exit(0)
-        else:
-            print(f"\n💥 BUSINESS PROFILE API TEST FAILED")
-            print(f"Issues detected with business profile endpoints.")
-            sys.exit(1)
-            
-    except KeyboardInterrupt:
-        print(f"\n⚠️ Test interrupted by user")
-        sys.exit(1)
-    except Exception as e:
-        print(f"\n💥 Test failed with exception: {e}")
-        sys.exit(1)
+        return success_rate >= 85  # High threshold for business profile functionality
 
 if __name__ == "__main__":
-    main()
+    tester = BusinessProfileTester()
+    success = tester.run_all_tests()
+    
+    if success:
+        print("✅ Overall testing: SUCCESS")
+        exit(0)
+    else:
+        print("❌ Overall testing: FAILED")
+        exit(1)

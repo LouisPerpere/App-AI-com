@@ -813,6 +813,12 @@ function MainApp() {
       </div>
     </div>
   );
+
+  return (
+    <div className="App">
+      <Dashboard />
+    </div>
+  );
 }
 
 function App() {

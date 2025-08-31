@@ -562,12 +562,57 @@ function MainApp() {
                           enterKeyHint="enter"
                         />
                       </div>
+                      
+                      {/* Ton de marque */}
+                      <div className="mt-4">
+                        <label htmlFor="brand_tone_edit" className="block text-sm font-medium text-gray-700 mb-2">
+                          Ton de marque
+                        </label>
+                        <select
+                          id="brand_tone_edit"
+                          defaultValue={businessProfile?.brand_tone || 'professionnel'}
+                          className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                          style={{
+                            fontSize: '16px',
+                            lineHeight: '1.5',
+                            WebkitAppearance: 'none',
+                            WebkitBorderRadius: '8px',
+                            borderRadius: '8px',
+                            boxShadow: 'none',
+                            WebkitBoxShadow: 'none',
+                            touchAction: 'manipulation'
+                          }}
+                        >
+                          <option value="professionnel">👔 Professionnel</option>
+                          <option value="luxe">💎 Luxe</option>
+                          <option value="simple">🎯 Simple</option>
+                          <option value="humouristique">😄 Humoristique</option>
+                          <option value="proximite">🤝 Proximité</option>
+                          <option value="amical">😊 Amical</option>
+                          <option value="moderne">⚡ Moderne</option>
+                          <option value="traditionnel">🏛️ Traditionnel</option>
+                          <option value="creatif">🎨 Créatif</option>
+                          <option value="technique">🔧 Technique</option>
+                        </select>
+                      </div>
+                      
                       <div className="mt-4">
                         <Button
                           type="button"
+                          onClick={handleSaveBusinessInfo}
+                          disabled={isSavingBusinessInfo}
                           className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg"
                         >
-                          💾 Sauvegarder les modifications
+                          {isSavingBusinessInfo ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                              Sauvegarde...
+                            </>
+                          ) : (
+                            <>
+                              💾 Sauvegarder les informations
+                            </>
+                          )}
                         </Button>
                       </div>
                     </div>

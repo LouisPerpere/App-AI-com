@@ -79,7 +79,6 @@ body {
       min-height: -webkit-fill-available;
     }
   }
-}
 
 /* Specific fixes for iPadOS and modern tablet browsers */
 @media screen and (max-width: 1024px) and (orientation: landscape) {

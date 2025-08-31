@@ -1,30 +1,44 @@
 #!/usr/bin/env python3
 """
-Business Profile API Testing Script
-Focused testing for business profile endpoints after virtual keyboard fix implementation
+Business Profile Save Functions Testing - French Review Request
+Testing PUT /api/business-profile and GET /api/business-profile endpoints
+with specific test data for Claire et Marcus business profile functionality
 """
 
 import requests
 import json
-import sys
-from datetime import datetime
+import time
+
+# Configuration - Using the correct backend URL from review request
+BACKEND_URL = "https://claire-marcus-api.onrender.com"
+API_BASE = f"{BACKEND_URL}/api"
+
+# Test credentials as specified in review request
+TEST_EMAIL = "lperpere@yahoo.fr"
+TEST_PASSWORD = "L@Reunion974!"
+
+# Specific test data from review request
+TEST_BUSINESS_DATA = {
+    "business_name": "Claire et Marcus Test",
+    "business_type": "Agence SaaS", 
+    "business_description": "Automatisation social media avec IA",
+    "brand_tone": "professionnel",
+    "email": "test@claireetmarcus.com",
+    "website_url": "https://test.claireetmarcus.com",
+    "target_audience": "PME 25-50 ans, entrepreneurs"
+}
 
 class BusinessProfileTester:
     def __init__(self):
-        # Use production backend URL from frontend/.env
-        self.base_url = "https://pwa-dashboard-fix.preview.emergentagent.com"
-        self.api_url = f"{self.base_url}/api"
+        self.session = requests.Session()
         self.access_token = None
-        self.tests_run = 0
-        self.tests_passed = 0
+        self.user_id = None
+        self.test_results = []
         
-        # Test credentials as specified in review request
-        self.test_email = "lperpere@yahoo.fr"
-        self.test_password = "L@Reunion974!"
-        
-        print(f"🔧 Business Profile API Tester Initialized")
-        print(f"   Backend URL: {self.base_url}")
-        print(f"   Test User: {self.test_email}")
+        print(f"🚀 BUSINESS PROFILE SAVE FUNCTIONS TESTING")
+        print(f"Backend URL: {BACKEND_URL}")
+        print(f"Test User: {TEST_EMAIL}")
+        print(f"Test Data: {TEST_BUSINESS_DATA}")
         print("=" * 60)
 
     def run_test(self, name, method, endpoint, expected_status, data=None, headers=None):

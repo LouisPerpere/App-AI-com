@@ -684,12 +684,93 @@ function MainApp() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {/* Add New Note Section */}
+                <div className="mb-8">
+                  <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-6 border-2 border-indigo-200">
+                    <div className="flex items-center mb-4">
+                      <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center mr-3">
+                        <Edit className="w-5 h-5 text-white" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-900">Ajouter une nouvelle note</h3>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {/* Titre de la note */}
+                      <div className="space-y-2">
+                        <Label htmlFor="note_title" className="text-gray-700 font-medium">Titre de la note</Label>
+                        <Input
+                          id="note_title"
+                          type="text"
+                          placeholder="Ex: Nouvelle promotion, Événement spécial..."
+                          className="w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                          style={{
+                            fontSize: '16px',
+                            WebkitAppearance: 'none',
+                            borderRadius: '8px'
+                          }}
+                          autoComplete="off"
+                          autoCorrect="off"
+                          autoCapitalize="off"
+                          spellCheck="false"
+                        />
+                      </div>
+                      
+                      {/* Contenu de la note */}
+                      <div className="space-y-2">
+                        <Label htmlFor="note_content" className="text-gray-700 font-medium">Contenu</Label>
+                        <Textarea
+                          id="note_content"
+                          placeholder="Décrivez les détails importants que vous voulez voir apparaître dans vos posts..."
+                          className="w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                          style={{
+                            fontSize: '16px',
+                            WebkitAppearance: 'none',
+                            borderRadius: '8px'
+                          }}
+                          rows={4}
+                          autoComplete="off"
+                          autoCorrect="off"
+                          autoCapitalize="off"
+                          spellCheck="false"
+                        />
+                      </div>
+                      
+                      {/* Priorité */}
+                      <div className="space-y-2">
+                        <Label className="text-gray-700 font-medium">Priorité</Label>
+                        <Input
+                          type="text"
+                          placeholder="low / medium / high"
+                          className="w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                          style={{
+                            fontSize: '16px',
+                            WebkitAppearance: 'none',
+                            borderRadius: '8px'
+                          }}
+                          autoComplete="off"
+                          autoCorrect="off"
+                          autoCapitalize="off"
+                          spellCheck="false"
+                        />
+                      </div>
+                      
+                      <Button
+                        type="button"
+                        className="btn-gradient-primary w-full"
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Ajouter cette note
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="text-center py-12 card-glass rounded-3xl border-2 border-dashed border-indigo-300">
                   <div className="w-24 h-24 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
                     <Edit className="w-12 h-12 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-700 mb-4">Gestionnaire de notes 📝</h3>
-                  <p className="text-xl text-gray-500">Ajoutez vos premières notes pour personnaliser vos posts ! ✍️</p>
+                  <h3 className="text-2xl font-bold text-gray-700 mb-4">Vos notes apparaîtront ici 📝</h3>
+                  <p className="text-xl text-gray-500">Ajoutez votre première note pour commencer ! ✍️</p>
                 </div>
               </CardContent>
             </Card>

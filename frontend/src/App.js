@@ -494,6 +494,77 @@ function MainApp() {
                         />
                       </div>
                     </div>
+                    
+                    {/* TEST CLAVIER VIRTUEL - Section de test */}
+                    <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-xl p-6 border-2 border-green-200">
+                      <h3 className="text-lg font-bold text-green-800 mb-4">🧪 Test Clavier Virtuel</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <label htmlFor="test_input_simple" className="block text-sm font-medium text-gray-700 mb-2">
+                            Test Simple (Input natif)
+                          </label>
+                          <input
+                            id="test_input_simple"
+                            type="text"
+                            placeholder="Tapez ici pour tester le clavier virtuel"
+                            className="w-full p-4 border-2 border-green-300 rounded-lg bg-white focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                            style={{
+                              fontSize: '16px',
+                              lineHeight: '1.5',
+                              WebkitAppearance: 'none',
+                              WebkitBorderRadius: '8px',
+                              borderRadius: '8px',
+                              boxShadow: 'none',
+                              WebkitBoxShadow: 'none',
+                              touchAction: 'manipulation',
+                              userSelect: 'text',
+                              WebkitUserSelect: 'text',
+                              WebkitTouchCallout: 'default'
+                            }}
+                            autoComplete="off"
+                            autoCorrect="on"
+                            autoCapitalize="sentences"
+                            spellCheck="true"
+                            inputMode="text"
+                            enterKeyHint="done"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="test_textarea_simple" className="block text-sm font-medium text-gray-700 mb-2">
+                            Test Zone de texte
+                          </label>
+                          <textarea
+                            id="test_textarea_simple"
+                            placeholder="Zone de texte pour tester le clavier virtuel sur plusieurs lignes"
+                            className="w-full p-4 border-2 border-green-300 rounded-lg bg-white focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none resize-none"
+                            style={{
+                              fontSize: '16px',
+                              lineHeight: '1.5',
+                              WebkitAppearance: 'none',
+                              WebkitBorderRadius: '8px',
+                              borderRadius: '8px',
+                              boxShadow: 'none',
+                              WebkitBoxShadow: 'none',
+                              touchAction: 'manipulation',
+                              userSelect: 'text',
+                              WebkitUserSelect: 'text',
+                              WebkitTouchCallout: 'default',
+                              minHeight: '100px'
+                            }}
+                            rows={4}
+                            autoComplete="off"
+                            autoCorrect="on"
+                            autoCapitalize="sentences"
+                            spellCheck="true"
+                            inputMode="text"
+                            enterKeyHint="enter"
+                          />
+                        </div>
+                        <p className="text-sm text-green-700 font-medium">
+                          💡 Si le clavier virtuel ne s'ouvre pas en cliquant dans ces champs, il y a un problème technique à résoudre.
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="text-center py-20 card-glass rounded-3xl">

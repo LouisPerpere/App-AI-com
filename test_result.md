@@ -106,7 +106,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "RESTAURATION DASHBOARD COMPLET: L'utilisateur demande la restauration complète de son Dashboard tel qu'il était précédemment. Il a fourni le fichier App.js complet avec tous les onglets du dashboard (Entreprise, Analyse, Bibliothèque, Notes, Posts, Calendrier, Social, Réglages) ainsi que le nouveau fichier .env avec l'URL backend mise à jour (https://pwa-dashboard-fix.preview.emergentagent.com). L'utilisateur confirme que les autres fichiers (CSS, package.json, components, payment page) sont corrects et antérieurs aux modifications problématiques. Objectif: Restaurer entièrement le dashboard avec toutes ses fonctionnalités originales."
+user_problem_statement: "FONCTIONNALITÉ SAUVEGARDE PROFIL BUSINESS : L'utilisateur signale que les boutons 'save' des champs de profil business dans l'onglet 'Entreprise' ne fonctionnent pas et que les changements ne sont pas persistants. Il demande aussi l'ajout d'un champ 'ton de marque' avec dropdown. L'application fonctionne par ailleurs correctement (dashboard restauré, clavier virtuel fixé). Objectif: Implémenter les fonctions handleSaveBusinessInfo et handleSaveMarketingInfo pour la persistance des données business profile, et s'assurer que le champ 'ton de marque' est bien intégré."
 
 
 # Added by main agent for Phase A testing

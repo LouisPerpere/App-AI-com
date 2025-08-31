@@ -188,6 +188,8 @@ function MainApp() {
   // Form states
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSavingBusinessInfo, setIsSavingBusinessInfo] = useState(false);
+  const [isSavingMarketingInfo, setIsSavingMarketingInfo] = useState(false);
 
   // Configure axios defaults
   useEffect(() => {

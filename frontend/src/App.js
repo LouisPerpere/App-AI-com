@@ -522,25 +522,34 @@ function MainApp() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Champ URL du site */}
+                {/* Champ URL du site avec input HTML natif */}
                 <div className="space-y-2">
-                  <Label htmlFor="website_analysis_url" className="text-gray-700 font-medium">
+                  <label htmlFor="website_analysis_url_native" className="block text-sm font-medium text-gray-700">
                     URL de votre site web
-                  </Label>
-                  <Input
-                    id="website_analysis_url"
+                  </label>
+                  <input
+                    id="website_analysis_url_native"
                     type="url"
                     placeholder="https://votre-site.com"
-                    className="w-full bg-white border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                    className="w-full p-4 border border-gray-300 rounded-lg bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
                     style={{
                       fontSize: '16px',
+                      lineHeight: '1.5',
                       WebkitAppearance: 'none',
-                      borderRadius: '8px'
+                      WebkitBorderRadius: '8px',
+                      borderRadius: '8px',
+                      boxShadow: 'none',
+                      WebkitBoxShadow: 'none',
+                      touchAction: 'manipulation',
+                      userSelect: 'text',
+                      WebkitUserSelect: 'text'
                     }}
-                    autoComplete="off"
+                    autoComplete="url"
                     autoCorrect="off"
                     autoCapitalize="off"
                     spellCheck="false"
+                    inputMode="url"
+                    enterKeyHint="go"
                   />
                 </div>
 

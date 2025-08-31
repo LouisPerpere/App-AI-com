@@ -113,10 +113,10 @@ user_problem_statement: "FONCTIONNALITÉ SAUVEGARDE PROFIL BUSINESS : L'utilisat
 
 test_plan:
   current_focus:
-    - "Dashboard restoration completed successfully"
+    - "Business Profile Save Functions Implementation"
   stuck_tasks: []
   test_all: false
-  test_priority: "completed"
+  test_priority: "high_first"
 
 agent_communication:
   - agent: "main"

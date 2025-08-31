@@ -313,6 +313,82 @@ function MainApp() {
     setActiveStep('onboarding');
   };
 
+  const handleSaveBusinessInfo = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    setIsSavingBusinessInfo(true);
+    
+    try {
+      // Récupérer les valeurs des champs
+      const businessName = document.getElementById('business_name_edit')?.value;
+      const businessType = document.getElementById('business_type_edit')?.value;
+      const businessDescription = document.getElementById('business_description_edit')?.value;
+      const brandTone = document.getElementById('brand_tone_edit')?.value;
+
+      const updateData = {
+        business_name: businessName,
+        business_type: businessType,
+        business_description: businessDescription,
+        brand_tone: brandTone
+      };
+
+      const response = await axios.put(`${API}/business-profile`, updateData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data.success) {
+        toast.success('Informations sauvegardées avec succès !');
+        // Recharger le profil pour mettre à jour l'affichage
+        await loadBusinessProfile();
+      } else {
+        toast.error('Erreur lors de la sauvegarde');
+      }
+    } catch (error) {
+      console.error('Save business info error:', error);
+      toast.error('Erreur lors de la sauvegarde des informations');
+    } finally {
+      setIsSavingBusinessInfo(false);
+    }
+  };
+
+  const handleSaveMarketingInfo = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    setIsSavingMarketingInfo(true);
+    
+    try {
+      // Récupérer les valeurs des champs marketing
+      const email = document.getElementById('business_email_edit')?.value;
+      const websiteUrl = document.getElementById('business_website_edit')?.value;
+      const targetAudience = document.getElementById('target_audience_edit')?.value;
+
+      const updateData = {
+        email: email,
+        website_url: websiteUrl,
+        target_audience: targetAudience
+      };
+
+      const response = await axios.put(`${API}/business-profile`, updateData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data.success) {
+        toast.success('Informations marketing sauvegardées avec succès !');
+        // Recharger le profil pour mettre à jour l'affichage
+        await loadBusinessProfile();
+      } else {
+        toast.error('Erreur lors de la sauvegarde');
+      }
+    } catch (error) {
+      console.error('Save marketing info error:', error);
+      toast.error('Erreur lors de la sauvegarde des informations marketing');
+    } finally {
+      setIsSavingMarketingInfo(false);
+    }
+  };
+
   const handleBatchUpload = async () => {
     if (selectedFiles.length === 0) return;
 

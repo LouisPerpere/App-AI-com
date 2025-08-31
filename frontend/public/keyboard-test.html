@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Clavier Virtuel - Claire et Marcus</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            background: #f9f9f9;
+        }
+        
+        .test-section h3 {
+            color: #666;
+            margin-top: 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px !important;
+            line-height: 1.5 !important;
+            background: white;
+            box-sizing: border-box;
+            
+            /* Optimisations clavier virtuel */
+            -webkit-appearance: none !important;
+            -webkit-border-radius: 8px !important;
+            box-shadow: none !important;
+            -webkit-box-shadow: none !important;
+            touch-action: manipulation !important;
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            -webkit-touch-callout: default !important;
+        }
+        
+        input:focus, textarea:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Clavier Virtuel</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Cette page teste si le clavier virtuel s'ouvre correctement sur votre appareil mobile/tablet.
+        </p>
+        
+        <div class="test-section">
+            <h3>📱 Test 1 - Input Simple</h3>
+            <label for="test1">Champ de texte simple :</label>
+            <input 
+                type="text" 
+                id="test1" 
+                placeholder="Tapez ici - le clavier virtuel doit s'ouvrir"
+                autocomplete="off"
+                autocorrect="on"
+                autocapitalize="sentences"
+                spellcheck="true"
+                inputmode="text"
+                enterkeyhint="next"
+            >
+            <div class="status info">
+                💡 Cliquez dans ce champ. Le clavier virtuel doit apparaître immédiatement.
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📝 Test 2 - Zone de Texte</h3>
+            <label for="test2">Zone de texte multi-lignes :</label>
+            <textarea 
+                id="test2" 
+                placeholder="Tapez votre texte ici sur plusieurs lignes..."
+                autocomplete="off"
+                autocorrect="on"
+                autocapitalize="sentences"
+                spellcheck="true"
+                inputmode="text"
+                enterkeyhint="enter"
+            ></textarea>
+            <div class="status info">
+                💡 Cliquez dans cette zone. Le clavier virtuel doit s'ouvrir pour la saisie multi-lignes.
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🌐 Test 3 - URL</h3>
+            <label for="test3">Champ URL :</label>
+            <input 
+                type="url" 
+                id="test3" 
+                placeholder="https://example.com"
+                autocomplete="url"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                inputmode="url"
+                enterkeyhint="go"
+            >
+            <div class="status info">
+                💡 Cliquez ici. Le clavier virtuel doit s'ouvrir avec des suggestions d'URL.
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📧 Test 4 - Email</h3>
+            <label for="test4">Champ Email :</label>
+            <input 
+                type="email" 
+                id="test4" 
+                placeholder="votre@email.com"
+                autocomplete="email"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                inputmode="email"
+                enterkeyhint="done"
+            >
+            <div class="status info">
+                💡 Cliquez ici. Le clavier virtuel doit s'ouvrir avec le layout email (@ accessible).
+            </div>
+        </div>
+        
+        <div class="status warning" style="margin-top: 30px;">
+            ⚠️ <strong>Instructions de test :</strong><br>
+            1. Ouvrez cette page sur votre appareil mobile/tablet<br>
+            2. Cliquez dans chaque champ<br>
+            3. Vérifiez que le clavier virtuel s'ouvre<br>
+            4. Si aucun clavier ne s'ouvre, le problème est confirmé
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/" style="color: #667eea; text-decoration: none; font-weight: 500;">
+                ← Retour au Dashboard Claire et Marcus
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // Script pour détecter les interactions et donner du feedback
+        const inputs = document.querySelectorAll('input, textarea');
+        
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                console.log('Focus sur:', this.id);
+                this.style.borderColor = '#667eea';
+            });
+            
+            input.addEventListener('blur', function() {
+                console.log('Blur sur:', this.id);
+                this.style.borderColor = '#ddd';
+            });
+            
+            input.addEventListener('input', function() {
+                console.log('Input sur:', this.id, 'Valeur:', this.value);
+            });
+        });
+        
+        // Log des informations sur l'appareil
+        console.log('User Agent:', navigator.userAgent);
+        console.log('Touch support:', 'ontouchstart' in window);
+        console.log('Viewport:', window.innerWidth + 'x' + window.innerHeight);
+    </script>
+</body>
+</html>

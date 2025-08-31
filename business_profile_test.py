@@ -9,8 +9,8 @@ import requests
 import json
 import time
 
-# Configuration - Using the correct backend URL from review request
-BACKEND_URL = "https://claire-marcus-api.onrender.com"
+# Configuration - Using the correct backend URL from frontend/.env
+BACKEND_URL = "https://pwa-dashboard-fix.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request

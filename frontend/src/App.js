@@ -797,9 +797,20 @@ function MainApp() {
                       <div className="mt-4">
                         <Button
                           type="button"
+                          onClick={handleSaveMarketingInfo}
+                          disabled={isSavingMarketingInfo}
                           className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg"
                         >
-                          💾 Sauvegarder le marketing
+                          {isSavingMarketingInfo ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                              Sauvegarde...
+                            </>
+                          ) : (
+                            <>
+                              💾 Sauvegarder le marketing
+                            </>
+                          )}
                         </Button>
                       </div>
                     </div>

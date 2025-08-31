@@ -11,7 +11,7 @@ import time
 from datetime import datetime
 
 # Configuration - Using the correct backend URL from frontend/.env
-BACKEND_URL = "https://social-ai-hub-12.preview.emergentagent.com"
+BACKEND_URL = "https://pwa-dashboard-fix.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request
@@ -279,7 +279,7 @@ class AppJSBackendTester:
         try:
             # Test preflight request
             headers = {
-                'Origin': 'https://social-ai-hub-12.preview.emergentagent.com',
+                'Origin': 'https://pwa-dashboard-fix.preview.emergentagent.com',
                 'Access-Control-Request-Method': 'POST',
                 'Access-Control-Request-Headers': 'authorization,content-type'
             }

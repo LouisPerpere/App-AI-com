@@ -16,7 +16,7 @@ import json
 import time
 
 # Configuration - Using the correct backend URL from frontend/.env
-BACKEND_URL = "https://social-ai-hub-12.preview.emergentagent.com"
+BACKEND_URL = "https://pwa-dashboard-fix.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request

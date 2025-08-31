@@ -12,7 +12,7 @@ from datetime import datetime
 class BusinessProfileTester:
     def __init__(self):
         # Use production backend URL from frontend/.env
-        self.base_url = "https://social-ai-hub-12.preview.emergentagent.com"
+        self.base_url = "https://pwa-dashboard-fix.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.tests_run = 0

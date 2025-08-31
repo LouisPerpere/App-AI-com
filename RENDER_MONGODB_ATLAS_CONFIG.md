@@ -45,7 +45,7 @@ Au lieu de:
 ### 5. TEST FINAL
 Une fois corrigé:
 ```
-curl https://social-ai-hub-12.preview.emergentagent.com/api/diag
+curl https://pwa-dashboard-fix.preview.emergentagent.com/api/diag
 ```
 
 Devrait retourner: `"database_connected": true`

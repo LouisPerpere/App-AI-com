@@ -2,7 +2,7 @@
 """
 Claire et Marcus Dashboard Restoration Backend Compatibility Test
 Testing critical endpoints for dashboard restoration as per review request
-Backend URL: https://4d05663d-caa0-419c-bdc1-d9f2d4c5a00c.preview.emergentagent.com
+Backend URL: https://pwa-dashboard-fix.preview.emergentagent.com
 """
 
 import requests
@@ -575,7 +575,7 @@ class ClaireMarcusDashboardTester:
         try:
             # Test CORS preflight request
             headers = {
-                'Origin': 'https://4d05663d-caa0-419c-bdc1-d9f2d4c5a00c.preview.emergentagent.com',
+                'Origin': 'https://pwa-dashboard-fix.preview.emergentagent.com',
                 'Access-Control-Request-Method': 'POST',
                 'Access-Control-Request-Headers': 'authorization,content-type'
             }

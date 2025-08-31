@@ -12,7 +12,7 @@ from urllib.parse import urlparse
 import re
 
 # Configuration
-BACKEND_URL = "https://social-ai-hub-12.preview.emergentagent.com"
+BACKEND_URL = "https://pwa-dashboard-fix.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials

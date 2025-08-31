@@ -11,7 +11,7 @@ import time
 def test_specific_endpoints():
     """Test the exact endpoints mentioned in the review request"""
     
-    base_url = "https://social-ai-hub-12.preview.emergentagent.com"
+    base_url = "https://pwa-dashboard-fix.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     # Test credentials from review request

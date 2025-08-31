@@ -14,7 +14,7 @@ import tempfile
 from pathlib import Path
 
 class SchedulerSystemTester:
-    def __init__(self, base_url="https://social-ai-hub-12.preview.emergentagent.com"):
+    def __init__(self, base_url="https://pwa-dashboard-fix.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.access_token = None

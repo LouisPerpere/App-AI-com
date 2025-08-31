@@ -366,38 +366,42 @@ function MainApp() {
   const Dashboard = () => (
     <div className="min-h-screen bg-pattern">
       <div className="card-glass border-0 border-b border-purple-100/50">
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
-              <Avatar className="w-16 h-16 ring-4 ring-purple-200/50">
+            <div className="flex items-center space-x-4">
+              <Avatar className="w-14 h-14 ring-4 ring-purple-200/50">
                 <AvatarImage src={businessProfile?.logo_url ? `${BACKEND_URL}${businessProfile.logo_url}` : ""} />
-                <AvatarFallback className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 text-white text-xl font-bold">
-                  <div className="logo-cm text-white text-xl">
+                <AvatarFallback className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 text-white text-lg font-bold">
+                  <div className="logo-cm text-white text-lg">
                     <span className="logo-c">C</span>
                     <span className="logo-m">M</span>
                   </div>
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <h1 className="claire-marcus-main-title bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 bg-clip-text text-transparent">
+              <div className="flex-1 min-w-0">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 bg-clip-text text-transparent">
                   Claire et Marcus
                 </h1>
-                <p className="text-lg text-gray-600 font-medium">{businessProfile?.business_name}</p>
-                <div className="text-sm text-gray-500 claire-marcus-subtitle">
-                  <p>Claire rédige, Marcus programme.</p>
-                  <p className="text-purple-600 font-bold text-base mt-1 breathing-text">Vous respirez.</p>
+                <p className="text-base text-gray-600 font-medium truncate">{businessProfile?.business_name || 'Mon entreprise'}</p>
+                <div className="text-sm text-gray-500">
+                  <p className="text-purple-600 font-semibold">Claire rédige, Marcus programme. Vous respirez.</p>
                 </div>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center">
               <Button
                 onClick={handleLogout}
                 variant="ghost"
-                className="text-gray-600 hover:text-red-600"
+                size="sm"
+                className="text-gray-500 hover:text-red-600 p-2"
+                title="Déconnexion"
               >
-                <LogOut className="w-4 h-4 mr-2" />
-                Déconnexion
+                <LogOut className="w-5 h-5" />
               </Button>
+            </div>
+          </div>
+        </div>
+      </div>
             </div>
           </div>
         </div>

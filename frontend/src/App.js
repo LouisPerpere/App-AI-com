@@ -729,68 +729,103 @@ function MainApp() {
                     </div>
                     
                     <div className="space-y-4">
-                      {/* Titre de la note */}
+                      {/* Titre de la note avec input HTML natif */}
                       <div className="space-y-2">
-                        <Label htmlFor="note_title" className="text-gray-700 font-medium">Titre de la note</Label>
-                        <Input
-                          id="note_title"
+                        <label htmlFor="note_title_native" className="block text-sm font-medium text-gray-700">
+                          Titre de la note
+                        </label>
+                        <input
+                          id="note_title_native"
                           type="text"
                           placeholder="Ex: Nouvelle promotion, Événement spécial..."
-                          className="w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                          className="w-full p-4 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                           style={{
                             fontSize: '16px',
+                            lineHeight: '1.5',
                             WebkitAppearance: 'none',
-                            borderRadius: '8px'
+                            WebkitBorderRadius: '8px',
+                            borderRadius: '8px',
+                            boxShadow: 'none',
+                            WebkitBoxShadow: 'none',
+                            touchAction: 'manipulation',
+                            userSelect: 'text',
+                            WebkitUserSelect: 'text'
                           }}
                           autoComplete="off"
                           autoCorrect="off"
                           autoCapitalize="off"
                           spellCheck="false"
+                          inputMode="text"
+                          enterKeyHint="next"
                         />
                       </div>
                       
-                      {/* Contenu de la note */}
+                      {/* Contenu de la note avec textarea HTML native */}
                       <div className="space-y-2">
-                        <Label htmlFor="note_content" className="text-gray-700 font-medium">Contenu</Label>
-                        <Textarea
-                          id="note_content"
+                        <label htmlFor="note_content_native" className="block text-sm font-medium text-gray-700">
+                          Contenu
+                        </label>
+                        <textarea
+                          id="note_content_native"
                           placeholder="Décrivez les détails importants que vous voulez voir apparaître dans vos posts..."
-                          className="w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                          className="w-full p-4 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
                           style={{
                             fontSize: '16px',
+                            lineHeight: '1.5',
                             WebkitAppearance: 'none',
-                            borderRadius: '8px'
+                            WebkitBorderRadius: '8px',
+                            borderRadius: '8px',
+                            boxShadow: 'none',
+                            WebkitBoxShadow: 'none',
+                            touchAction: 'manipulation',
+                            userSelect: 'text',
+                            WebkitUserSelect: 'text',
+                            minHeight: '120px'
                           }}
-                          rows={4}
+                          rows={5}
                           autoComplete="off"
-                          autoCorrect="off"
-                          autoCapitalize="off"
-                          spellCheck="false"
+                          autoCorrect="on"
+                          autoCapitalize="sentences"
+                          spellCheck="true"
+                          inputMode="text"
+                          enterKeyHint="enter"
                         />
                       </div>
                       
-                      {/* Priorité */}
+                      {/* Priorité avec input HTML natif */}
                       <div className="space-y-2">
-                        <Label className="text-gray-700 font-medium">Priorité</Label>
-                        <Input
+                        <label htmlFor="note_priority_native" className="block text-sm font-medium text-gray-700">
+                          Priorité
+                        </label>
+                        <input
+                          id="note_priority_native"
                           type="text"
                           placeholder="low / medium / high"
-                          className="w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                          className="w-full p-4 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                           style={{
                             fontSize: '16px',
+                            lineHeight: '1.5',
                             WebkitAppearance: 'none',
-                            borderRadius: '8px'
+                            WebkitBorderRadius: '8px',
+                            borderRadius: '8px',
+                            boxShadow: 'none',
+                            WebkitBoxShadow: 'none',
+                            touchAction: 'manipulation',
+                            userSelect: 'text',
+                            WebkitUserSelect: 'text'
                           }}
                           autoComplete="off"
                           autoCorrect="off"
                           autoCapitalize="off"
                           spellCheck="false"
+                          inputMode="text"
+                          enterKeyHint="done"
                         />
                       </div>
                       
                       <Button
                         type="button"
-                        className="btn-gradient-primary w-full"
+                        className="btn-gradient-primary w-full mt-6"
                       >
                         <Edit className="w-4 h-4 mr-2" />
                         Ajouter cette note

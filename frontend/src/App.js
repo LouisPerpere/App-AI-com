@@ -465,33 +465,110 @@ function MainApp() {
                 {businessProfile ? (
                   <div className="space-y-6">
                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
-                      <h3 className="text-lg font-bold text-blue-800 mb-4">Informations de l'entreprise</h3>
+                      <h3 className="text-lg font-bold text-blue-800 mb-4">Informations de l'entreprise (Modifiables)</h3>
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
-                          <Label className="text-sm font-medium text-gray-700">Nom de l'entreprise</Label>
-                          <Input
-                            value={businessProfile?.business_name || 'Mon entreprise'}
-                            readOnly
-                            className="bg-gray-50 text-gray-700 cursor-default mt-1"
+                          <label htmlFor="business_name_edit" className="block text-sm font-medium text-gray-700 mb-2">
+                            Nom de l'entreprise
+                          </label>
+                          <input
+                            id="business_name_edit"
+                            type="text"
+                            defaultValue={businessProfile?.business_name || 'Mon entreprise'}
+                            placeholder="Nom de votre entreprise"
+                            className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            style={{
+                              fontSize: '16px',
+                              lineHeight: '1.5',
+                              WebkitAppearance: 'none',
+                              WebkitBorderRadius: '8px',
+                              borderRadius: '8px',
+                              boxShadow: 'none',
+                              WebkitBoxShadow: 'none',
+                              touchAction: 'manipulation',
+                              userSelect: 'text',
+                              WebkitUserSelect: 'text',
+                              WebkitTouchCallout: 'default'
+                            }}
+                            autoComplete="organization"
+                            autoCorrect="on"
+                            autoCapitalize="words"
+                            spellCheck="true"
+                            inputMode="text"
+                            enterKeyHint="next"
                           />
                         </div>
                         <div>
-                          <Label className="text-sm font-medium text-gray-700">Type d'entreprise</Label>
-                          <Input
-                            value={businessProfile?.business_type || 'service'}
-                            readOnly
-                            className="bg-gray-50 text-gray-700 cursor-default mt-1"
+                          <label htmlFor="business_type_edit" className="block text-sm font-medium text-gray-700 mb-2">
+                            Type d'entreprise
+                          </label>
+                          <input
+                            id="business_type_edit"
+                            type="text"
+                            defaultValue={businessProfile?.business_type || 'service'}
+                            placeholder="Ex: restaurant, commerce, service, etc."
+                            className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            style={{
+                              fontSize: '16px',
+                              lineHeight: '1.5',
+                              WebkitAppearance: 'none',
+                              WebkitBorderRadius: '8px',
+                              borderRadius: '8px',
+                              boxShadow: 'none',
+                              WebkitBoxShadow: 'none',
+                              touchAction: 'manipulation',
+                              userSelect: 'text',
+                              WebkitUserSelect: 'text',
+                              WebkitTouchCallout: 'default'
+                            }}
+                            autoComplete="off"
+                            autoCorrect="on"
+                            autoCapitalize="words"
+                            spellCheck="true"
+                            inputMode="text"
+                            enterKeyHint="next"
                           />
                         </div>
                       </div>
                       <div className="mt-4">
-                        <Label className="text-sm font-medium text-gray-700">Description de l'activité</Label>
-                        <Textarea
-                          value={businessProfile?.business_description || 'Décrivez votre activité'}
-                          readOnly
-                          className="bg-gray-50 text-gray-700 cursor-default mt-1"
-                          rows={3}
+                        <label htmlFor="business_description_edit" className="block text-sm font-medium text-gray-700 mb-2">
+                          Description de l'activité
+                        </label>
+                        <textarea
+                          id="business_description_edit"
+                          defaultValue={businessProfile?.business_description || ''}
+                          placeholder="Décrivez votre activité, vos services ou produits..."
+                          className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+                          style={{
+                            fontSize: '16px',
+                            lineHeight: '1.5',
+                            WebkitAppearance: 'none',
+                            WebkitBorderRadius: '8px',
+                            borderRadius: '8px',
+                            boxShadow: 'none',
+                            WebkitBoxShadow: 'none',
+                            touchAction: 'manipulation',
+                            userSelect: 'text',
+                            WebkitUserSelect: 'text',
+                            WebkitTouchCallout: 'default',
+                            minHeight: '100px'
+                          }}
+                          rows={4}
+                          autoComplete="off"
+                          autoCorrect="on"
+                          autoCapitalize="sentences"
+                          spellCheck="true"
+                          inputMode="text"
+                          enterKeyHint="enter"
                         />
+                      </div>
+                      <div className="mt-4">
+                        <Button
+                          type="button"
+                          className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg"
+                        >
+                          💾 Sauvegarder les modifications
+                        </Button>
                       </div>
                     </div>
                     

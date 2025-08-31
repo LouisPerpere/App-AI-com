@@ -572,6 +572,115 @@ function MainApp() {
                       </div>
                     </div>
                     
+                    {/* Section Contact et Marketing */}
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200">
+                      <h3 className="text-lg font-bold text-purple-800 mb-4">Contact et Marketing</h3>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div>
+                          <label htmlFor="business_email_edit" className="block text-sm font-medium text-gray-700 mb-2">
+                            Email professionnel
+                          </label>
+                          <input
+                            id="business_email_edit"
+                            type="email"
+                            defaultValue={businessProfile?.email || ''}
+                            placeholder="contact@votre-entreprise.com"
+                            className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                            style={{
+                              fontSize: '16px',
+                              lineHeight: '1.5',
+                              WebkitAppearance: 'none',
+                              WebkitBorderRadius: '8px',
+                              borderRadius: '8px',
+                              boxShadow: 'none',
+                              WebkitBoxShadow: 'none',
+                              touchAction: 'manipulation',
+                              userSelect: 'text',
+                              WebkitUserSelect: 'text',
+                              WebkitTouchCallout: 'default'
+                            }}
+                            autoComplete="email"
+                            autoCorrect="off"
+                            autoCapitalize="off"
+                            spellCheck="false"
+                            inputMode="email"
+                            enterKeyHint="next"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="business_website_edit" className="block text-sm font-medium text-gray-700 mb-2">
+                            Site web
+                          </label>
+                          <input
+                            id="business_website_edit"
+                            type="url"
+                            defaultValue={businessProfile?.website_url || ''}
+                            placeholder="https://votre-site.com"
+                            className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                            style={{
+                              fontSize: '16px',
+                              lineHeight: '1.5',
+                              WebkitAppearance: 'none',
+                              WebkitBorderRadius: '8px',
+                              borderRadius: '8px',
+                              boxShadow: 'none',
+                              WebkitBoxShadow: 'none',
+                              touchAction: 'manipulation',
+                              userSelect: 'text',
+                              WebkitUserSelect: 'text',
+                              WebkitTouchCallout: 'default'
+                            }}
+                            autoComplete="url"
+                            autoCorrect="off"
+                            autoCapitalize="off"
+                            spellCheck="false"
+                            inputMode="url"
+                            enterKeyHint="go"
+                          />
+                        </div>
+                      </div>
+                      <div className="mt-4">
+                        <label htmlFor="target_audience_edit" className="block text-sm font-medium text-gray-700 mb-2">
+                          Audience cible
+                        </label>
+                        <textarea
+                          id="target_audience_edit"
+                          defaultValue={businessProfile?.target_audience || ''}
+                          placeholder="Décrivez votre audience cible (âge, centres d'intérêt, localisation...)"
+                          className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none resize-none"
+                          style={{
+                            fontSize: '16px',
+                            lineHeight: '1.5',
+                            WebkitAppearance: 'none',
+                            WebkitBorderRadius: '8px',
+                            borderRadius: '8px',
+                            boxShadow: 'none',
+                            WebkitBoxShadow: 'none',
+                            touchAction: 'manipulation',
+                            userSelect: 'text',
+                            WebkitUserSelect: 'text',
+                            WebkitTouchCallout: 'default',
+                            minHeight: '80px'
+                          }}
+                          rows={3}
+                          autoComplete="off"
+                          autoCorrect="on"
+                          autoCapitalize="sentences"
+                          spellCheck="true"
+                          inputMode="text"
+                          enterKeyHint="enter"
+                        />
+                      </div>
+                      <div className="mt-4">
+                        <Button
+                          type="button"
+                          className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg"
+                        >
+                          💾 Sauvegarder le marketing
+                        </Button>
+                      </div>
+                    </div>
+                    
                     {/* TEST CLAVIER VIRTUEL - Section de test améliorée */}
                     <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-xl p-6 border-2 border-green-200">
                       <h3 className="text-lg font-bold text-green-800 mb-4">🧪 Test Clavier Virtuel Mobile/Tablet</h3>

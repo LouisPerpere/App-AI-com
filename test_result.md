@@ -145,6 +145,31 @@ agent_communication:
 
 frontend:
   - task: "Restauration Dashboard Complet"
+frontend:
+  - task: "Business Profile Save Functions Implementation"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "🔧 IMPLÉMENTATION SAUVEGARDE PROFIL: Ajouté handleSaveBusinessInfo() pour sauvegarder business_name, business_type, business_description, brand_tone + handleSaveMarketingInfo() pour email, website_url, target_audience. Champ 'ton de marque' dropdown déjà présent avec 10 options. Boutons connectés avec loading states et toasts. État initial: needs_retesting = true pour validation complète."
+
+backend:
+  - task: "Business Profile API Endpoint Testing"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"  
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "API PUT /api/business-profile disponible avec BusinessProfileIn model supportant tous les champs requis (business_name, business_type, business_description, brand_tone, email, website_url, target_audience). Endpoint testé précédemment mais needs_retesting = true pour validation avec nouvelles fonctions frontend."
     implemented: true
     working: true
     file: "/app/frontend/src/App.js"

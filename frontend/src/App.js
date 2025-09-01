@@ -546,37 +546,37 @@ function MainApp() {
   const Dashboard = () => (
     <div className="min-h-screen bg-pattern">
       <div className="card-glass border-0 border-b border-purple-100/50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Avatar className="w-14 h-14 ring-4 ring-purple-200/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center space-x-3 min-w-0 flex-1">
+              <Avatar className="w-12 h-12 sm:w-14 sm:h-14 ring-4 ring-purple-200/50 flex-shrink-0">
                 <AvatarImage src={businessProfile?.logo_url ? `${BACKEND_URL}${businessProfile.logo_url}` : ""} />
-                <AvatarFallback className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 text-white text-lg font-bold">
-                  <div className="logo-cm text-white text-lg">
+                <AvatarFallback className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 text-white text-sm sm:text-lg font-bold">
+                  <div className="logo-cm text-white">
                     <span className="logo-c">C</span>
                     <span className="logo-m">M</span>
                   </div>
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1 min-w-0">
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 bg-clip-text text-transparent">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 bg-clip-text text-transparent">
                   Claire et Marcus
                 </h1>
-                <p className="text-base text-gray-600 font-medium truncate">{businessProfile?.business_name || 'Mon entreprise'}</p>
-                <div className="text-sm text-gray-500">
-                  <p className="text-purple-600 font-semibold">Claire rédige, Marcus programme. Vous respirez.</p>
+                <p className="text-sm sm:text-base text-gray-600 font-medium truncate">{businessProfile?.business_name || 'Mon entreprise'}</p>
+                <div className="text-xs sm:text-sm text-gray-500">
+                  <p className="text-purple-600 font-semibold truncate">Claire rédige, Marcus programme. Vous respirez.</p>
                 </div>
               </div>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center flex-shrink-0">
               <Button
                 onClick={handleLogout}
                 variant="ghost"
                 size="sm"
-                className="text-gray-500 hover:text-red-600 p-2"
+                className="text-gray-500 hover:text-red-600 p-2 hover:bg-red-50 rounded-full"
                 title="Déconnexion"
               >
-                <LogOut className="w-5 h-5" />
+                <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
             </div>
           </div>

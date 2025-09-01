@@ -551,6 +551,123 @@ function MainApp() {
     }
   };
 
+  // Composant EditableField pour les champs verrouillés/déverrouillés
+  const EditableField = ({ 
+    fieldId, 
+    label, 
+    type = 'text', 
+    placeholder = '', 
+    defaultValue = '', 
+    isTextarea = false,
+    isSelect = false,
+    options = [],
+    fieldType = 'business' 
+  }) => {
+    const isEditing = editingFields[fieldId];
+    const displayValue = fieldValues[fieldId] !== undefined ? fieldValues[fieldId] : defaultValue;
+
+    if (isEditing) {
+      return (
+        <div className="space-y-2">
+          <label htmlFor={fieldId} className="block text-sm font-medium text-gray-700">
+            {label}
+          </label>
+          <div className="relative">
+            {isSelect ? (
+              <select
+                id={fieldId}
+                defaultValue={displayValue}
+                className="w-full p-3 pr-20 border-2 border-blue-500 rounded-lg bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                style={{
+                  fontSize: '16px',
+                  lineHeight: '1.5',
+                  WebkitAppearance: 'none',
+                  touchAction: 'manipulation'
+                }}
+              >
+                {options.map((option, index) => (
+                  <option key={index} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            ) : isTextarea ? (
+              <textarea
+                id={fieldId}
+                defaultValue={displayValue}
+                placeholder={placeholder}
+                className="w-full p-3 pr-20 border-2 border-blue-500 rounded-lg bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+                style={{
+                  fontSize: '16px',
+                  lineHeight: '1.5',
+                  WebkitAppearance: 'none',
+                  touchAction: 'manipulation',
+                  minHeight: '100px'
+                }}
+                rows={4}
+              />
+            ) : (
+              <input
+                id={fieldId}
+                type={type}
+                defaultValue={displayValue}
+                placeholder={placeholder}
+                className="w-full p-3 pr-20 border-2 border-blue-500 rounded-lg bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                style={{
+                  fontSize: '16px',
+                  lineHeight: '1.5',
+                  WebkitAppearance: 'none',
+                  touchAction: 'manipulation'
+                }}
+              />
+            )}
+            
+            {/* Boutons confirmer/annuler */}
+            <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex space-x-1">
+              <button
+                onClick={() => confirmEditing(fieldId, fieldType)}
+                className="w-8 h-8 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center transition-colors"
+                title="Confirmer"
+              >
+                <Check className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => cancelEditing(fieldId)}
+                className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors"
+                title="Annuler"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Mode verrouillé (lecture seule)
+    return (
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
+          {label}
+        </label>
+        <div className="relative">
+          <div className="w-full p-3 pr-12 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 min-h-[48px] flex items-center">
+            {displayValue || <span className="text-gray-400 italic">{placeholder || 'Non renseigné'}</span>}
+          </div>
+          
+          {/* Bouton stylo pour déverrouiller */}
+          <button
+            onClick={() => startEditing(fieldId)}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-colors"
+            title="Modifier"
+          >
+            <Edit className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   const handleBatchUpload = async () => {
     if (selectedFiles.length === 0) return;
 

@@ -795,6 +795,7 @@ function MainApp() {
                             type="email"
                             defaultValue={businessProfile?.email || ''}
                             placeholder="contact@votre-entreprise.com"
+                            onBlur={() => handleAutoSave('marketing')}
                             className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
                             style={{
                               fontSize: '16px',

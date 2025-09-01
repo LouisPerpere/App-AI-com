@@ -1015,10 +1015,21 @@ function MainApp() {
                 <div className="flex gap-3">
                   <Button
                     type="button"
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2"
+                    onClick={handleAnalyzeWebsite}
+                    disabled={isAnalyzing}
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Search className="w-4 h-4" />
-                    <span>Analyser le site</span>
+                    {isAnalyzing ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Analyse en cours...</span>
+                      </>
+                    ) : (  
+                      <>
+                        <Search className="w-4 h-4" />
+                        <span>Analyser le site</span>
+                      </>
+                    )}
                   </Button>
                 </div>
 

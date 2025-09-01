@@ -190,6 +190,10 @@ function MainApp() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSavingBusinessInfo, setIsSavingBusinessInfo] = useState(false);
   const [isSavingMarketingInfo, setIsSavingMarketingInfo] = useState(false);
+  
+  // Website analysis states
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [websiteAnalysis, setWebsiteAnalysis] = useState(null);
 
   // Configure axios defaults
   useEffect(() => {

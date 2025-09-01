@@ -194,6 +194,10 @@ function MainApp() {
   // Website analysis states
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [websiteAnalysis, setWebsiteAnalysis] = useState(null);
+  
+  // Field editing states (verrouillage/déverrouillage)
+  const [editingFields, setEditingFields] = useState({});
+  const [fieldValues, setFieldValues] = useState({});
 
   // Configure axios defaults
   useEffect(() => {

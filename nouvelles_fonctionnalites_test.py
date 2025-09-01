@@ -15,9 +15,9 @@ import time
 BACKEND_URL = "https://pwa-dashboard-fix.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
-# Test credentials as specified in review request
-TEST_EMAIL = "lperpere@yahoo.fr"
-TEST_PASSWORD = "L@Reunion974!"
+# Test credentials - using newly created user for testing
+TEST_EMAIL = "test.nouvelles.fonctionnalites@claireetmarcus.com"
+TEST_PASSWORD = "TestPassword123!"
 
 class NouvellesFonctionnalitesTester:
     def __init__(self):

@@ -859,6 +859,7 @@ function MainApp() {
                           id="target_audience_edit"
                           defaultValue={businessProfile?.target_audience || ''}
                           placeholder="Décrivez votre audience cible (âge, centres d'intérêt, localisation...)"
+                          onBlur={() => handleAutoSave('marketing')}
                           className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none resize-none"
                           style={{
                             fontSize: '16px',

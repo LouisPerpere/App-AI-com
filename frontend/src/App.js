@@ -393,6 +393,56 @@ function MainApp() {
     }
   };
 
+  // Auto-sauvegarde silencieuse (sans toast de confirmation)
+  const handleAutoSave = async (fieldType = 'business') => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      let updateData = {};
+      
+      if (fieldType === 'business') {
+        // Récupérer tous les champs business
+        const businessName = document.getElementById('business_name_edit')?.value;
+        const businessType = document.getElementById('business_type_edit')?.value;
+        const businessDescription = document.getElementById('business_description_edit')?.value;
+        const brandTone = document.getElementById('brand_tone_edit')?.value;
+        const postingFrequency = document.getElementById('posting_frequency_edit')?.value;
+        
+        updateData = {
+          business_name: businessName,
+          business_type: businessType,
+          business_description: businessDescription,
+          brand_tone: brandTone,
+          posting_frequency: postingFrequency
+        };
+      } else if (fieldType === 'marketing') {
+        // Récupérer tous les champs marketing
+        const email = document.getElementById('business_email_edit')?.value;
+        const websiteUrl = document.getElementById('business_website_edit')?.value;
+        const targetAudience = document.getElementById('target_audience_edit')?.value;
+        
+        updateData = {
+          email: email,
+          website_url: websiteUrl,
+          target_audience: targetAudience
+        };
+      }
+
+      await axios.put(`${API}/business-profile`, updateData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // Auto-sauvegarde silencieuse - pas de toast de confirmation
+      console.log('Auto-sauvegarde réussie:', fieldType);
+      
+    } catch (error) {
+      console.error('Auto-save error:', error);
+      // En cas d'erreur, on peut afficher un toast discret
+      toast.error('Erreur auto-sauvegarde');
+    }
+  };
+
   const handleBatchUpload = async () => {
     if (selectedFiles.length === 0) return;
 

@@ -1033,12 +1033,59 @@ function MainApp() {
                   </Button>
                 </div>
 
-                {/* Message si pas d'analyse */}
-                <div className="text-center py-8 text-gray-500">
-                  <Search className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                  <p className="text-lg mb-2">Aucune analyse disponible</p>
-                  <p className="text-sm">Entrez l'URL de votre site web et cliquez sur "Analyser le site" pour commencer</p>
-                </div>
+                {/* Affichage des résultats ou message par défaut */}
+                {websiteAnalysis ? (
+                  <div className="space-y-4">
+                    <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border-2 border-green-200">
+                      <h3 className="text-lg font-bold text-green-800 mb-4 flex items-center">
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        Analyse terminée ! 
+                      </h3>
+                      <div className="grid md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="font-semibold text-gray-700 mb-1">Site analysé:</p>
+                          <p className="text-gray-600">{websiteAnalysis.website_url}</p>
+                        </div>
+                        {websiteAnalysis.brand_tone && (
+                          <div>
+                            <p className="font-semibold text-gray-700 mb-1">Ton de marque détecté:</p>
+                            <p className="text-gray-600">{websiteAnalysis.brand_tone}</p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {websiteAnalysis.analysis_summary && (
+                        <div className="mt-4">
+                          <p className="font-semibold text-gray-700 mb-2">Résumé de l'analyse:</p>
+                          <p className="text-gray-600 leading-relaxed">{websiteAnalysis.analysis_summary}</p>
+                        </div>
+                      )}
+                      
+                      {websiteAnalysis.key_topics && websiteAnalysis.key_topics.length > 0 && (
+                        <div className="mt-4">
+                          <p className="font-semibold text-gray-700 mb-2">Sujets clés:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {websiteAnalysis.key_topics.map((topic, index) => (
+                              <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                                {topic}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <Search className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                    <p className="text-lg mb-2">Aucune analyse disponible</p>
+                    <p className="text-sm">Entrez l'URL de votre site web et cliquez sur "Analyser le site" pour commencer</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

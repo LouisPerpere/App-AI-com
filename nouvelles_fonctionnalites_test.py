@@ -296,9 +296,9 @@ class NouvellesFonctionnalitesTester:
         print("=" * 50)
         
         try:
-            # Test data as specified in review request
+            # Test data - correct parameter name is website_url
             test_data = {
-                "website_url_to_analyze": "https://example.com"  # As specified in review request
+                "website_url": "https://example.com"  # Correct parameter name from API
             }
             
             response = self.session.post(f"{API_BASE}/website/analyze", json=test_data)

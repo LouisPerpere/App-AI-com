@@ -672,6 +672,7 @@ function MainApp() {
                           id="business_description_edit"
                           defaultValue={businessProfile?.business_description || ''}
                           placeholder="Décrivez votre activité, vos services ou produits..."
+                          onBlur={() => handleAutoSave('business')}
                           className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
                           style={{
                             fontSize: '16px',

@@ -325,12 +325,17 @@ function MainApp() {
       const businessType = document.getElementById('business_type_edit')?.value;
       const businessDescription = document.getElementById('business_description_edit')?.value;
       const brandTone = document.getElementById('brand_tone_edit')?.value;
+      
+      // Récupérer la valeur du rythme de publications (boutons radio)
+      const postingFrequencyRadio = document.querySelector('input[name="posting_frequency"]:checked');
+      const postingFrequency = postingFrequencyRadio?.value;
 
       const updateData = {
         business_name: businessName,
         business_type: businessType,
         business_description: businessDescription,
-        brand_tone: brandTone
+        brand_tone: brandTone,
+        posting_frequency: postingFrequency
       };
 
       const response = await axios.put(`${API}/business-profile`, updateData, {

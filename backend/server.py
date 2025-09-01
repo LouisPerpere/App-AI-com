@@ -287,7 +287,7 @@ async def who_am_i(user_id: str = Depends(get_current_user_id_robust)):
         raise HTTPException(status_code=500, detail=f"Failed to fetch user: {str(e)}")
 
 @api_router.post("/auth/register")
-async def register(body: RegisterIn):
+async def register(body: RegisterRequest):
     try:
         dbm = get_database()
         users = dbm.db.users

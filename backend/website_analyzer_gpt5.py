@@ -310,12 +310,152 @@ def get_website_analysis(user_id: str = Depends(get_current_user_id_robust)):
         print(f"❌ Error getting website analysis: {e}")
         return {"analysis": None}
 
+def discover_website_pages(base_url: str, max_pages: int = 5) -> list:
+    """Discover important pages of a website"""
+    try:
+        from urllib.parse import urljoin, urlparse
+        import requests
+        from bs4 import BeautifulSoup
+        
+        print(f"🔍 Discovering pages for: {base_url}")
+        discovered_pages = [base_url]  # Always include homepage
+        
+        # Get homepage to find links
+        try:
+            response = requests.get(base_url, timeout=10, headers={
+                'User-Agent': 'Mozilla/5.0 (compatible; Website Analyzer Bot)'
+            })
+            if response.status_code != 200:
+                return discovered_pages
+                
+            soup = BeautifulSoup(response.content, 'html.parser')
+            base_domain = urlparse(base_url).netloc
+            
+            # Keywords to look for in URLs and link text
+            important_keywords = [
+                'about', 'qui-sommes-nous', 'notre-histoire', 'entreprise',
+                'services', 'produits', 'solutions', 'offres',
+                'contact', 'contacts', 'nous-contacter',
+                'concept', 'notre-concept', 'philosophie',
+                'portfolio', 'realisations', 'projets',
+                'equipe', 'team', 'notre-equipe'
+            ]
+            
+            # Skip technical pages
+            skip_keywords = [
+                'mentions-legales', 'legal', 'privacy', 'cookies', 'cgv', 'cgu',
+                'terms', 'politique', 'sitemap', 'admin', 'login', 'wp-',
+                'feed', 'rss', 'xml'
+            ]
+            
+            # Find all links
+            links = soup.find_all('a', href=True)
+            
+            for link in links:
+                href = link.get('href', '').lower()
+                text = link.get_text(strip=True).lower()
+                
+                # Skip empty links, anchors, external links
+                if not href or href.startswith('#') or href.startswith('mailto:'):
+                    continue
+                
+                # Build full URL
+                full_url = urljoin(base_url, href)
+                parsed_url = urlparse(full_url)
+                
+                # Skip external domains
+                if parsed_url.netloc != base_domain:
+                    continue
+                
+                # Skip technical pages
+                if any(skip in href or skip in text for skip in skip_keywords):
+                    continue
+                
+                # Check if it's an important page
+                if any(keyword in href or keyword in text for keyword in important_keywords):
+                    if full_url not in discovered_pages and len(discovered_pages) < max_pages:
+                        discovered_pages.append(full_url)
+                        print(f"📄 Found important page: {full_url}")
+            
+        except Exception as e:
+            print(f"⚠️ Error discovering pages: {e}")
+            
+        return discovered_pages[:max_pages]
+        
+    except Exception as e:
+        print(f"❌ Page discovery failed: {e}")
+        return [base_url]
+
+async def analyze_multiple_pages(pages: list, base_url: str) -> dict:
+    """Analyze multiple pages and combine insights"""
+    try:
+        all_content = {
+            "title": "",
+            "description": "",
+            "text_content": "",
+            "h1_tags": [],
+            "h2_tags": [],
+            "pages_analyzed": []
+        }
+        
+        for page_url in pages:
+            try:
+                print(f"📄 Analyzing page: {page_url}")
+                extracted = extract_website_content_with_limits(page_url)
+                
+                if "error" not in extracted:
+                    # Combine content from all pages
+                    if not all_content["title"] and extracted.get("title"):
+                        all_content["title"] = extracted["title"]
+                    
+                    if not all_content["description"] and extracted.get("description"):
+                        all_content["description"] = extracted["description"]
+                    
+                    # Combine text content (with limits)
+                    page_text = extracted.get("text_content", "")[:2000]  # Limit per page
+                    all_content["text_content"] += f"\n\n=== Page: {page_url} ===\n{page_text}"
+                    
+                    # Combine headers
+                    all_content["h1_tags"].extend(extracted.get("h1_tags", []))
+                    all_content["h2_tags"].extend(extracted.get("h2_tags", []))
+                    
+                    all_content["pages_analyzed"].append({
+                        "url": page_url,
+                        "title": extracted.get("title", ""),
+                        "status": "analyzed"
+                    })
+                else:
+                    all_content["pages_analyzed"].append({
+                        "url": page_url,
+                        "title": "",
+                        "status": "error"
+                    })
+                    
+            except Exception as e:
+                print(f"⚠️ Error analyzing {page_url}: {e}")
+                all_content["pages_analyzed"].append({
+                    "url": page_url,
+                    "status": "error"
+                })
+        
+        # Limit total content to avoid GPT limits
+        all_content["text_content"] = all_content["text_content"][:8000]
+        all_content["h1_tags"] = list(set(all_content["h1_tags"]))[:20]
+        all_content["h2_tags"] = list(set(all_content["h2_tags"]))[:30]
+        
+        return all_content
+        
+    except Exception as e:
+        print(f"❌ Multi-page analysis failed: {e}")
+        # Fallback to single page
+        return extract_website_content_with_limits(base_url)
+
 @website_router.post("/analyze")
 async def analyze_website_robust(
     request: WebsiteAnalysisRequest,
     user_id: str = Depends(get_current_user_id_robust)
 ):
-    """Robust website analysis with GPT and proper error handling"""
+    """Enhanced website analysis with multi-page scanning"""
     from fastapi.responses import JSONResponse
 
     # Normalize URL
@@ -323,62 +463,76 @@ async def analyze_website_robust(
     if not re.match(r'^https?://', url, re.IGNORECASE):
         url = 'https://' + url
 
-    print(f"🔍 Analyzing website: {url} for user: {user_id}")
+    print(f"🔍 Starting enhanced website analysis: {url} for user: {user_id}")
 
-    # Extract content with strict limits
-    extracted = extract_website_content_with_limits(url)
-    if "error" in extracted:
-        code, msg = extracted["error"]
-        return JSONResponse(status_code=code, content={"error": msg})
-
-    # Build content_data for GPT
-    content_data = extracted
-
-    # GPT analysis with fallback
-    analysis_result = await analyze_with_gpt5(content_data, url)
-
-    # Prepare response payload
-    analysis_data = {
-        "analysis_summary": analysis_result.get("analysis_summary", ""),
-        "key_topics": analysis_result.get("key_topics", []),
-        "brand_tone": analysis_result.get("brand_tone", "professional"),
-        "target_audience": analysis_result.get("target_audience", ""),
-        "main_services": analysis_result.get("main_services", []),
-        "content_suggestions": analysis_result.get("content_suggestions", []),
-        "website_url": url,
-        "created_at": datetime.utcnow().isoformat(),
-        "next_analysis_due": (datetime.utcnow() + timedelta(days=30)).isoformat()
-    }
-
-    # Save to MongoDB (best-effort)
     try:
-        import pymongo
-        mongo_url = os.environ.get("MONGO_URL")
-        client = pymongo.MongoClient(mongo_url)
-        dbp = client.claire_marcus
-        dbp.website_analyses.insert_one({
-            "user_id": user_id,
-            "website_url": url,
-            "analysis_summary": analysis_data["analysis_summary"],
-            "key_topics": analysis_data["key_topics"],
-            "brand_tone": analysis_data["brand_tone"],
-            "target_audience": analysis_data["target_audience"],
-            "main_services": analysis_data["main_services"],
-            "content_suggestions": analysis_data["content_suggestions"],
-            "created_at": datetime.utcnow(),
-            "last_analyzed": datetime.utcnow(),
-            "next_analysis_due": datetime.utcnow() + timedelta(days=30)
-        })
-        client.close()
-        print("✅ Analysis saved to database")
-    except Exception as db_error:
-        print(f"⚠️ Database save failed: {db_error}")
+        # Step 1: Discover important pages
+        important_pages = discover_website_pages(url, max_pages=5)
+        print(f"📋 Found {len(important_pages)} pages to analyze: {important_pages}")
+        
+        # Step 2: Analyze multiple pages
+        content_data = await analyze_multiple_pages(important_pages, url)
+        
+        if "error" in content_data:
+            code, msg = content_data["error"]
+            return JSONResponse(status_code=code, content={"error": msg})
 
-    return {
-        "status": "analyzed",
-        "message": "Analysis completed successfully",
-        **analysis_data
-    }
+        # Step 3: Enhanced GPT analysis with multi-page context
+        analysis_result = await analyze_with_gpt5(content_data, url)
+
+        # Step 4: Prepare enhanced response with page details
+        analysis_data = {
+            "analysis_summary": analysis_result.get("analysis_summary", ""),
+            "key_topics": analysis_result.get("key_topics", []),
+            "brand_tone": analysis_result.get("brand_tone", "professional"),
+            "target_audience": analysis_result.get("target_audience", ""),
+            "main_services": analysis_result.get("main_services", []),
+            "content_suggestions": analysis_result.get("content_suggestions", []),
+            "website_url": url,
+            "pages_analyzed": content_data.get("pages_analyzed", []),
+            "pages_count": len(important_pages),
+            "created_at": datetime.utcnow().isoformat(),
+            "next_analysis_due": (datetime.utcnow() + timedelta(days=30)).isoformat()
+        }
+
+        # Step 5: Save enhanced analysis to MongoDB
+        try:
+            import pymongo
+            mongo_url = os.environ.get("MONGO_URL")
+            client = pymongo.MongoClient(mongo_url)
+            dbp = client.claire_marcus
+            dbp.website_analyses.insert_one({
+                "user_id": user_id,
+                "website_url": url,
+                "analysis_summary": analysis_data["analysis_summary"],
+                "key_topics": analysis_data["key_topics"],
+                "brand_tone": analysis_data["brand_tone"],
+                "target_audience": analysis_data["target_audience"],
+                "main_services": analysis_data["main_services"],
+                "content_suggestions": analysis_data["content_suggestions"],
+                "pages_analyzed": analysis_data["pages_analyzed"],
+                "pages_count": analysis_data["pages_count"],
+                "created_at": datetime.utcnow(),
+                "last_analyzed": datetime.utcnow(),
+                "next_analysis_due": datetime.utcnow() + timedelta(days=30)
+            })
+            client.close()
+            print("✅ Enhanced analysis saved to database")
+        except Exception as db_error:
+            print(f"⚠️ Database save failed: {db_error}")
+
+        return {
+            "status": "analyzed",
+            "message": f"Enhanced analysis completed - {analysis_data['pages_count']} pages analyzed",
+            **analysis_data
+        }
+        
+    except Exception as e:
+        print(f"❌ Analysis failed: {e}")
+        return JSONResponse(
+            status_code=500, 
+            content={"error": "Erreur lors de l'analyse du site web"}
+        )
 
 # Remove duplicate GET definition (keep only the one above) and keep delete endpoint
 

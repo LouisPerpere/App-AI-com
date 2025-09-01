@@ -161,6 +161,18 @@ frontend:
         comment: "🔧 IMPLÉMENTATION SAUVEGARDE PROFIL: Ajouté handleSaveBusinessInfo() pour sauvegarder business_name, business_type, business_description, brand_tone + handleSaveMarketingInfo() pour email, website_url, target_audience. Champ 'ton de marque' dropdown déjà présent avec 10 options. Boutons connectés avec loading states et toasts. État initial: needs_retesting = true pour validation complète."
 
 backend:
+  - task: "Nouvelles Fonctionnalités Backend Testing"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "🎯 NOUVELLES FONCTIONNALITÉS BACKEND TESTING COMPLETED - 100% SUCCESS RATE: Comprehensive testing of the 3 new features specified in French review request completed with perfect results (8/8 tests passed, 100% success rate). TESTING RESULTS: **1. CHAMP RYTHME DE PUBLICATIONS (posting_frequency)**: ✅ GET /api/business-profile successfully retrieves posting_frequency field (initially None for new user), ✅ PUT /api/business-profile successfully accepts posting_frequency='hebdomadaire' as specified in review request, ✅ Data persistence verified - posting_frequency value persists correctly across multiple API calls, ✅ Complete profile update working with posting_frequency included alongside all other business profile fields. **2. AUTO-SAUVEGARDE BUSINESS PROFILE**: ✅ All business profile fields support auto-save functionality via PUT /api/business-profile endpoint, ✅ Comprehensive field testing completed - all 8 test fields (business_name, business_type, business_description, brand_tone, posting_frequency, email, website_url, target_audience) persist correctly, ✅ Partial and complete updates both working correctly. **3. WEBSITE ANALYSIS ENDPOINT**: ✅ POST /api/website/analyze endpoint working perfectly with website_url parameter (corrected from website_url_to_analyze), ✅ Analysis successfully created for https://example.com with all required fields (analysis_summary, key_topics, brand_tone, target_audience, main_services, content_suggestions, website_url, created_at, next_analysis_due), ✅ GET /api/website/analysis successfully retrieves stored analysis data. **TECHNICAL VERIFICATION**: Authentication working with test user test.nouvelles.fonctionnalites@claireetmarcus.com, all endpoints accessible at https://pwa-dashboard-fix.preview.emergentagent.com, proper data persistence confirmed, API responses structured correctly. **CONCLUSION**: All 3 nouvelles fonctionnalités are fully operational at the backend level and ready for frontend integration. The posting_frequency dropdown field, auto-save functionality, and website analysis button corrections are working exactly as specified in the French review request."
+
   - task: "Business Profile API Endpoint Testing"
     implemented: true
     working: true

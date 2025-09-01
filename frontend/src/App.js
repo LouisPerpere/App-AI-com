@@ -447,6 +447,50 @@ function MainApp() {
     }
   };
 
+  // Analyse de site web
+  const handleAnalyzeWebsite = async () => {
+    const websiteUrl = document.getElementById('website_analysis_url_native')?.value;
+    
+    if (!websiteUrl || !websiteUrl.trim()) {
+      toast.error('Veuillez saisir une URL de site web');
+      return;
+    }
+
+    // Validation basique de l'URL
+    try {
+      new URL(websiteUrl);
+    } catch {
+      toast.error('Veuillez saisir une URL valide (ex: https://exemple.com)');
+      return;
+    }
+
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast.error('Vous devez être connecté pour analyser un site web');
+      return;
+    }
+
+    setIsAnalyzing(true);
+    
+    try {
+      const response = await axios.post(`${API}/website/analyze`, {
+        website_url: websiteUrl.trim()
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setWebsiteAnalysis(response.data);
+      toast.success('Analyse du site web terminée avec succès !');
+      
+    } catch (error) {
+      console.error('Website analysis error:', error);
+      const errorMessage = error.response?.data?.error || error.response?.data?.detail || 'Erreur lors de l\'analyse du site web';
+      toast.error(errorMessage);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   const handleBatchUpload = async () => {
     if (selectedFiles.length === 0) return;
 

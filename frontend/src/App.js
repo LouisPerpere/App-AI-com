@@ -815,195 +815,77 @@ function MainApp() {
                   </span>
                 </CardTitle>
                 <CardDescription className="text-lg text-gray-600">
-                  Gérez les informations de votre entreprise et personnalisez votre stratégie 🎯
+                  Cliquez sur le stylo ✏️ pour modifier, puis validez ✅ ou annulez ❌
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {businessProfile ? (
                   <div className="space-y-6">
                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
-                      <h3 className="text-lg font-bold text-blue-800 mb-4">Informations de l'entreprise (Modifiables)</h3>
+                      <h3 className="text-lg font-bold text-blue-800 mb-4">Informations de l'entreprise</h3>
                       <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                          <label htmlFor="business_name_edit" className="block text-sm font-medium text-gray-700 mb-2">
-                            Nom de l'entreprise
-                          </label>
-                          <input
-                            id="business_name_edit"
-                            type="text"
-                            defaultValue={businessProfile?.business_name || 'Mon entreprise'}
-                            placeholder="Nom de votre entreprise"
-                            onBlur={() => handleAutoSave('business')}
-                            className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            style={{
-                              fontSize: '16px',
-                              lineHeight: '1.5',
-                              WebkitAppearance: 'none',
-                              WebkitBorderRadius: '8px',
-                              borderRadius: '8px',
-                              boxShadow: 'none',
-                              WebkitBoxShadow: 'none',
-                              touchAction: 'manipulation',
-                              userSelect: 'text',
-                              WebkitUserSelect: 'text',
-                              WebkitTouchCallout: 'default'
-                            }}
-                            autoComplete="organization"
-                            autoCorrect="on"
-                            autoCapitalize="words"
-                            spellCheck="true"
-                            inputMode="text"
-                            enterKeyHint="next"
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="business_type_edit" className="block text-sm font-medium text-gray-700 mb-2">
-                            Type d'entreprise
-                          </label>
-                          <input
-                            id="business_type_edit"
-                            type="text"
-                            defaultValue={businessProfile?.business_type || 'service'}
-                            placeholder="Ex: restaurant, commerce, service, etc."
-                            onBlur={() => handleAutoSave('business')}
-                            className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            style={{
-                              fontSize: '16px',
-                              lineHeight: '1.5',
-                              WebkitAppearance: 'none',
-                              WebkitBorderRadius: '8px',
-                              borderRadius: '8px',
-                              boxShadow: 'none',
-                              WebkitBoxShadow: 'none',
-                              touchAction: 'manipulation',
-                              userSelect: 'text',
-                              WebkitUserSelect: 'text',
-                              WebkitTouchCallout: 'default'
-                            }}
-                            autoComplete="off"
-                            autoCorrect="on"
-                            autoCapitalize="words"
-                            spellCheck="true"
-                            inputMode="text"
-                            enterKeyHint="next"
-                          />
-                        </div>
+                        <EditableField
+                          fieldId="business_name_edit"
+                          label="Nom de l'entreprise"
+                          type="text"
+                          placeholder="Nom de votre entreprise"
+                          defaultValue={businessProfile?.business_name || ''}
+                          fieldType="business"
+                        />
+                        <EditableField
+                          fieldId="business_type_edit"
+                          label="Type d'entreprise"
+                          type="text"
+                          placeholder="Ex: restaurant, commerce, service..."
+                          defaultValue={businessProfile?.business_type || ''}
+                          fieldType="business"
+                        />
                       </div>
                       <div className="mt-4">
-                        <label htmlFor="business_description_edit" className="block text-sm font-medium text-gray-700 mb-2">
-                          Description de l'activité
-                        </label>
-                        <textarea
-                          id="business_description_edit"
-                          defaultValue={businessProfile?.business_description || ''}
+                        <EditableField
+                          fieldId="business_description_edit"
+                          label="Description de l'activité"
                           placeholder="Décrivez votre activité, vos services ou produits..."
-                          onBlur={() => handleAutoSave('business')}
-                          className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
-                          style={{
-                            fontSize: '16px',
-                            lineHeight: '1.5',
-                            WebkitAppearance: 'none',
-                            WebkitBorderRadius: '8px',
-                            borderRadius: '8px',
-                            boxShadow: 'none',
-                            WebkitBoxShadow: 'none',
-                            touchAction: 'manipulation',
-                            userSelect: 'text',
-                            WebkitUserSelect: 'text',
-                            WebkitTouchCallout: 'default',
-                            minHeight: '100px'
-                          }}
-                          rows={4}
-                          autoComplete="off"
-                          autoCorrect="on"
-                          autoCapitalize="sentences"
-                          spellCheck="true"
-                          inputMode="text"
-                          enterKeyHint="enter"
+                          defaultValue={businessProfile?.business_description || ''}
+                          isTextarea={true}
+                          fieldType="business"
                         />
                       </div>
                       
-                      {/* Ton de marque */}
-                      <div className="mt-4">
-                        <label htmlFor="brand_tone_edit" className="block text-sm font-medium text-gray-700 mb-2">
-                          Ton de marque
-                        </label>
-                        <select
-                          id="brand_tone_edit"
+                      <div className="grid md:grid-cols-2 gap-4 mt-4">
+                        <EditableField
+                          fieldId="brand_tone_edit"
+                          label="Ton de marque"
                           defaultValue={businessProfile?.brand_tone || 'professionnel'}
-                          onChange={() => handleAutoSave('business')}
-                          className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                          style={{
-                            fontSize: '16px',
-                            lineHeight: '1.5',
-                            WebkitAppearance: 'none',
-                            WebkitBorderRadius: '8px',
-                            borderRadius: '8px',
-                            boxShadow: 'none',
-                            WebkitBoxShadow: 'none',
-                            touchAction: 'manipulation'
-                          }}
-                        >
-                          <option value="professionnel">👔 Professionnel</option>
-                          <option value="luxe">💎 Luxe</option>
-                          <option value="simple">🎯 Simple</option>
-                          <option value="humouristique">😄 Humoristique</option>
-                          <option value="proximite">🤝 Proximité</option>
-                          <option value="amical">😊 Amical</option>
-                          <option value="moderne">⚡ Moderne</option>
-                          <option value="traditionnel">🏛️ Traditionnel</option>
-                          <option value="creatif">🎨 Créatif</option>
-                          <option value="technique">🔧 Technique</option>
-                        </select>
-                      </div>
-
-                      {/* Rythme de publications */}
-                      <div className="mt-4">
-                        <label htmlFor="posting_frequency_edit" className="block text-sm font-medium text-gray-700 mb-2">
-                          Rythme de publications
-                        </label>
-                        <select
-                          id="posting_frequency_edit"
+                          isSelect={true}
+                          options={[
+                            { value: 'professionnel', label: '👔 Professionnel' },
+                            { value: 'luxe', label: '💎 Luxe' },
+                            { value: 'simple', label: '🎯 Simple' },
+                            { value: 'humouristique', label: '😄 Humoristique' },
+                            { value: 'proximite', label: '🤝 Proximité' },
+                            { value: 'amical', label: '😊 Amical' },
+                            { value: 'moderne', label: '⚡ Moderne' },
+                            { value: 'traditionnel', label: '🏛️ Traditionnel' },
+                            { value: 'creatif', label: '🎨 Créatif' },
+                            { value: 'technique', label: '🔧 Technique' }
+                          ]}
+                          fieldType="business"
+                        />
+                        <EditableField
+                          fieldId="posting_frequency_edit"
+                          label="Rythme de publications"
                           defaultValue={businessProfile?.posting_frequency || 'hebdomadaire'}
-                          onChange={() => handleAutoSave('business')}
-                          className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                          style={{
-                            fontSize: '16px',
-                            lineHeight: '1.5',
-                            WebkitAppearance: 'none',
-                            WebkitBorderRadius: '8px',
-                            borderRadius: '8px',
-                            boxShadow: 'none',
-                            WebkitBoxShadow: 'none',
-                            touchAction: 'manipulation'
-                          }}
-                        >
-                          <option value="quotidien">📅 Quotidien (tous les jours)</option>
-                          <option value="3_semaine">🔥 3 fois par semaine</option>
-                          <option value="hebdomadaire">📋 Hebdomadaire (1 fois par semaine)</option>
-                          <option value="2_mois">📆 2 fois par mois</option>
-                          <option value="mensuel">🗓️ Mensuel (1 fois par mois)</option>
-                        </select>
-                      </div>
-                      
-                      <div className="mt-4">
-                        <Button
-                          type="button"
-                          onClick={handleSaveBusinessInfo}
-                          disabled={isSavingBusinessInfo}
-                          className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg"
-                        >
-                          {isSavingBusinessInfo ? (
-                            <>
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                              Sauvegarde...
-                            </>
-                          ) : (
-                            <>
-                              💾 Sauvegarder les informations
-                            </>
-                          )}
-                        </Button>
+                          isSelect={true}
+                          options={[
+                            { value: 'quotidien', label: '📅 Quotidien (tous les jours)' },
+                            { value: '3_semaine', label: '🔥 3 fois par semaine' },
+                            { value: 'hebdomadaire', label: '📋 Hebdomadaire (1 fois par semaine)' },
+                            { value: '2_mois', label: '📆 2 fois par mois' },
+                            { value: 'mensuel', label: '🗓️ Mensuel (1 fois par mois)' }
+                          ]}
+                          fieldType="business"
+                        />
                       </div>
                     </div>
                     
@@ -1011,122 +893,32 @@ function MainApp() {
                     <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200">
                       <h3 className="text-lg font-bold text-purple-800 mb-4">Contact et Marketing</h3>
                       <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                          <label htmlFor="business_email_edit" className="block text-sm font-medium text-gray-700 mb-2">
-                            Email professionnel
-                          </label>
-                          <input
-                            id="business_email_edit"
-                            type="email"
-                            defaultValue={businessProfile?.email || ''}
-                            placeholder="contact@votre-entreprise.com"
-                            onBlur={() => handleAutoSave('marketing')}
-                            className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                            style={{
-                              fontSize: '16px',
-                              lineHeight: '1.5',
-                              WebkitAppearance: 'none',
-                              WebkitBorderRadius: '8px',
-                              borderRadius: '8px',
-                              boxShadow: 'none',
-                              WebkitBoxShadow: 'none',
-                              touchAction: 'manipulation',
-                              userSelect: 'text',
-                              WebkitUserSelect: 'text',
-                              WebkitTouchCallout: 'default'
-                            }}
-                            autoComplete="email"
-                            autoCorrect="off"
-                            autoCapitalize="off"
-                            spellCheck="false"
-                            inputMode="email"
-                            enterKeyHint="next"
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="business_website_edit" className="block text-sm font-medium text-gray-700 mb-2">
-                            Site web
-                          </label>
-                          <input
-                            id="business_website_edit"
-                            type="url"
-                            defaultValue={businessProfile?.website_url || ''}
-                            placeholder="https://votre-site.com"
-                            onBlur={() => handleAutoSave('marketing')}
-                            className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                            style={{
-                              fontSize: '16px',
-                              lineHeight: '1.5',
-                              WebkitAppearance: 'none',
-                              WebkitBorderRadius: '8px',
-                              borderRadius: '8px',
-                              boxShadow: 'none',
-                              WebkitBoxShadow: 'none',
-                              touchAction: 'manipulation',
-                              userSelect: 'text',
-                              WebkitUserSelect: 'text',
-                              WebkitTouchCallout: 'default'
-                            }}
-                            autoComplete="url"
-                            autoCorrect="off"
-                            autoCapitalize="off"
-                            spellCheck="false"
-                            inputMode="url"
-                            enterKeyHint="go"
-                          />
-                        </div>
-                      </div>
-                      <div className="mt-4">
-                        <label htmlFor="target_audience_edit" className="block text-sm font-medium text-gray-700 mb-2">
-                          Audience cible
-                        </label>
-                        <textarea
-                          id="target_audience_edit"
-                          defaultValue={businessProfile?.target_audience || ''}
-                          placeholder="Décrivez votre audience cible (âge, centres d'intérêt, localisation...)"
-                          onBlur={() => handleAutoSave('marketing')}
-                          className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none resize-none"
-                          style={{
-                            fontSize: '16px',
-                            lineHeight: '1.5',
-                            WebkitAppearance: 'none',
-                            WebkitBorderRadius: '8px',
-                            borderRadius: '8px',
-                            boxShadow: 'none',
-                            WebkitBoxShadow: 'none',
-                            touchAction: 'manipulation',
-                            userSelect: 'text',
-                            WebkitUserSelect: 'text',
-                            WebkitTouchCallout: 'default',
-                            minHeight: '80px'
-                          }}
-                          rows={3}
-                          autoComplete="off"
-                          autoCorrect="on"
-                          autoCapitalize="sentences"
-                          spellCheck="true"
-                          inputMode="text"
-                          enterKeyHint="enter"
+                        <EditableField
+                          fieldId="business_email_edit"
+                          label="Email professionnel"
+                          type="email"
+                          placeholder="contact@votre-entreprise.com"
+                          defaultValue={businessProfile?.email || ''}
+                          fieldType="marketing"
+                        />
+                        <EditableField
+                          fieldId="business_website_edit"
+                          label="Site web"
+                          type="url"
+                          placeholder="https://votre-site.com"
+                          defaultValue={businessProfile?.website_url || ''}
+                          fieldType="marketing"
                         />
                       </div>
                       <div className="mt-4">
-                        <Button
-                          type="button"
-                          onClick={handleSaveMarketingInfo}
-                          disabled={isSavingMarketingInfo}
-                          className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg"
-                        >
-                          {isSavingMarketingInfo ? (
-                            <>
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                              Sauvegarde...
-                            </>
-                          ) : (
-                            <>
-                              💾 Sauvegarder le marketing
-                            </>
-                          )}
-                        </Button>
+                        <EditableField
+                          fieldId="target_audience_edit"
+                          label="Audience cible"
+                          placeholder="Décrivez votre audience cible (âge, centres d'intérêt, localisation...)"
+                          defaultValue={businessProfile?.target_audience || ''}
+                          isTextarea={true}
+                          fieldType="marketing"
+                        />
                       </div>
                     </div>
                   </div>

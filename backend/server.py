@@ -286,6 +286,76 @@ async def who_am_i(user_id: str = Depends(get_current_user_id_robust)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch user: {str(e)}")
 
+@api_router.post("/auth/register")
+async def register(body: RegisterIn):
+    try:
+        dbm = get_database()
+        users = dbm.db.users
+        email_clean = body.email.lower().strip()
+        
+        # Check if user already exists
+        if users.find_one({"email": email_clean}):
+            raise HTTPException(status_code=400, detail="Email already registered")
+        
+        # Hash password with bcrypt
+        import bcrypt
+        salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(body.password.encode("utf-8"), salt).decode("utf-8")
+        
+        # Create user
+        user_id = str(uuid.uuid4())
+        business_name = body.business_name or f"{body.first_name or ''} {body.last_name or ''}".strip()
+        
+        user_data = {
+            "user_id": user_id,
+            "email": email_clean,
+            "password_hash": hashed_password,
+            "business_name": business_name,
+            "first_name": body.first_name,
+            "last_name": body.last_name,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "is_active": True,
+            "is_admin": False,
+            "subscription_status": "active",
+            # Default business profile fields
+            "business_type": None,
+            "business_description": None,
+            "target_audience": None,
+            "brand_tone": None,
+            "posting_frequency": None,
+            "website_url": None,
+            "preferred_platforms": [],
+            "budget_range": None,
+            "hashtags_primary": [],
+            "hashtags_secondary": []
+        }
+        
+        users.insert_one(user_data)
+        
+        # Generate JWT token for immediate login
+        now = datetime.now(timezone.utc)
+        payload = {
+            "sub": user_id,
+            "email": email_clean,
+            "iat": int(now.timestamp()),
+            "exp": int((now + timedelta(seconds=JWT_TTL)).timestamp()),
+            "iss": JWT_ISS,
+        }
+        token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALG)
+        
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "user_id": user_id,
+            "email": email_clean,
+            "message": "User registered successfully"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Registration error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error during registration")
+
 @api_router.post("/auth/login-robust")
 async def login_robust(body: LoginIn):
     try:

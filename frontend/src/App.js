@@ -495,6 +495,62 @@ function MainApp() {
     }
   };
 
+  // Fonctions pour le système d'édition verrouillé/déverrouillé
+  const startEditing = (fieldName) => {
+    setEditingFields(prev => ({ ...prev, [fieldName]: true }));
+    // Stocker la valeur actuelle pour pouvoir l'annuler
+    const currentValue = document.getElementById(fieldName)?.value || '';
+    setFieldValues(prev => ({ ...prev, [fieldName]: currentValue }));
+  };
+
+  const cancelEditing = (fieldName) => {
+    setEditingFields(prev => ({ ...prev, [fieldName]: false }));
+    // Restaurer la valeur originale
+    const originalValue = fieldValues[fieldName] || '';
+    const element = document.getElementById(fieldName);
+    if (element) {
+      element.value = originalValue;
+    }
+  };
+
+  const confirmEditing = async (fieldName, fieldType = 'business') => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      let updateData = {};
+      const newValue = document.getElementById(fieldName)?.value || '';
+      
+      // Mappage des noms de champs vers les clés API
+      const fieldMapping = {
+        'business_name_edit': 'business_name',
+        'business_type_edit': 'business_type', 
+        'business_description_edit': 'business_description',
+        'brand_tone_edit': 'brand_tone',
+        'posting_frequency_edit': 'posting_frequency',
+        'business_email_edit': 'email',
+        'business_website_edit': 'website_url',
+        'target_audience_edit': 'target_audience'
+      };
+
+      const apiField = fieldMapping[fieldName] || fieldName;
+      updateData[apiField] = newValue;
+
+      await axios.put(`${API}/business-profile`, updateData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setEditingFields(prev => ({ ...prev, [fieldName]: false }));
+      setFieldValues(prev => ({ ...prev, [fieldName]: newValue }));
+      
+      toast.success('✅ Champ sauvegardé !');
+      
+    } catch (error) {
+      console.error('Save field error:', error);
+      toast.error('Erreur lors de la sauvegarde');
+    }
+  };
+
   const handleBatchUpload = async () => {
     if (selectedFiles.length === 0) return;
 

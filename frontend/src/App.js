@@ -673,6 +673,100 @@ function MainApp() {
                           <option value="technique">🔧 Technique</option>
                         </select>
                       </div>
+
+                      {/* Rythme de publications */}
+                      <div className="mt-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                          Rythme de publications
+                        </label>
+                        <div className="space-y-3">
+                          <div className="flex items-center">
+                            <input
+                              id="frequency_daily"
+                              type="radio"
+                              name="posting_frequency"
+                              value="quotidien"
+                              defaultChecked={businessProfile?.posting_frequency === 'quotidien'}
+                              className="w-4 h-4 text-blue-500 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                              style={{
+                                fontSize: '16px',
+                                touchAction: 'manipulation'
+                              }}
+                            />
+                            <label htmlFor="frequency_daily" className="ml-3 text-sm text-gray-700 font-medium cursor-pointer">
+                              📅 Quotidien (tous les jours)
+                            </label>
+                          </div>
+                          <div className="flex items-center">
+                            <input
+                              id="frequency_3week"
+                              type="radio"
+                              name="posting_frequency"
+                              value="3_semaine"
+                              defaultChecked={businessProfile?.posting_frequency === '3_semaine'}
+                              className="w-4 h-4 text-blue-500 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                              style={{
+                                fontSize: '16px',
+                                touchAction: 'manipulation'
+                              }}
+                            />
+                            <label htmlFor="frequency_3week" className="ml-3 text-sm text-gray-700 font-medium cursor-pointer">
+                              🔥 3 fois par semaine
+                            </label>
+                          </div>
+                          <div className="flex items-center">
+                            <input
+                              id="frequency_weekly"
+                              type="radio"
+                              name="posting_frequency"
+                              value="hebdomadaire"
+                              defaultChecked={businessProfile?.posting_frequency === 'hebdomadaire'}
+                              className="w-4 h-4 text-blue-500 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                              style={{
+                                fontSize: '16px',
+                                touchAction: 'manipulation'
+                              }}
+                            />
+                            <label htmlFor="frequency_weekly" className="ml-3 text-sm text-gray-700 font-medium cursor-pointer">
+                              📋 Hebdomadaire (1 fois par semaine)
+                            </label>
+                          </div>
+                          <div className="flex items-center">
+                            <input
+                              id="frequency_2month"
+                              type="radio"
+                              name="posting_frequency"
+                              value="2_mois"
+                              defaultChecked={businessProfile?.posting_frequency === '2_mois'}
+                              className="w-4 h-4 text-blue-500 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                              style={{
+                                fontSize: '16px',
+                                touchAction: 'manipulation'
+                              }}
+                            />
+                            <label htmlFor="frequency_2month" className="ml-3 text-sm text-gray-700 font-medium cursor-pointer">
+                              📆 2 fois par mois
+                            </label>
+                          </div>
+                          <div className="flex items-center">
+                            <input
+                              id="frequency_monthly"
+                              type="radio"
+                              name="posting_frequency"
+                              value="mensuel"
+                              defaultChecked={businessProfile?.posting_frequency === 'mensuel'}
+                              className="w-4 h-4 text-blue-500 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                              style={{
+                                fontSize: '16px',
+                                touchAction: 'manipulation'
+                              }}
+                            />
+                            <label htmlFor="frequency_monthly" className="ml-3 text-sm text-gray-700 font-medium cursor-pointer">
+                              🗓️ Mensuel (1 fois par mois)
+                            </label>
+                          </div>
+                        </div>
+                      </div>
                       
                       <div className="mt-4">
                         <Button

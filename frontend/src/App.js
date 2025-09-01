@@ -326,9 +326,8 @@ function MainApp() {
       const businessDescription = document.getElementById('business_description_edit')?.value;
       const brandTone = document.getElementById('brand_tone_edit')?.value;
       
-      // Récupérer la valeur du rythme de publications (boutons radio)
-      const postingFrequencyRadio = document.querySelector('input[name="posting_frequency"]:checked');
-      const postingFrequency = postingFrequencyRadio?.value;
+      // Récupérer la valeur du rythme de publications (select)
+      const postingFrequency = document.getElementById('posting_frequency_edit')?.value;
 
       const updateData = {
         business_name: businessName,

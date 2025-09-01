@@ -706,6 +706,7 @@ function MainApp() {
                         <select
                           id="brand_tone_edit"
                           defaultValue={businessProfile?.brand_tone || 'professionnel'}
+                          onChange={() => handleAutoSave('business')}
                           className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                           style={{
                             fontSize: '16px',

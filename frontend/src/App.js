@@ -1914,6 +1914,8 @@ function MainApp() {
                               {/* Bouton supprimer */}
                               <button
                                 onClick={() => alert('BOUTON CLIQUÉ!')}
+                                onMouseDown={() => alert('MOUSE DOWN!')}
+                                onTouchStart={() => alert('TOUCH START!')}
                                 style={{
                                   padding: '8px',
                                   margin: '4px',
@@ -1922,7 +1924,10 @@ function MainApp() {
                                   border: 'none',
                                   borderRadius: '4px',
                                   cursor: 'pointer',
-                                  fontSize: '12px'
+                                  fontSize: '12px',
+                                  position: 'relative',
+                                  zIndex: 9999,
+                                  pointerEvents: 'auto'
                                 }}
                               >
                                 SUPPR 🗑️

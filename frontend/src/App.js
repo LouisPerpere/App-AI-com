@@ -699,6 +699,147 @@ function MainApp() {
     }
   };
 
+  // Fonctions pour la bibliothèque de contenus
+  
+  // Basculer le mode sélection
+  const toggleSelectionMode = useCallback(() => {
+    setIsSelectionMode(!isSelectionMode);
+    setSelectedContentIds(new Set()); // Reset selections
+  }, [isSelectionMode]);
+
+  // Gérer la sélection d'un contenu
+  const handleToggleSelection = useCallback((contentId) => {
+    setSelectedContentIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(contentId)) {
+        newSet.delete(contentId);
+      } else {
+        newSet.add(contentId);
+      }
+      return newSet;
+    });
+  }, []);
+
+  // Sélectionner tout / Désélectionner tout
+  const handleSelectAll = useCallback(() => {
+    if (selectedContentIds.size === pendingContent.length) {
+      // Tout désélectionner
+      setSelectedContentIds(new Set());
+    } else {
+      // Tout sélectionner
+      setSelectedContentIds(new Set(pendingContent.map(content => content.id)));
+    }
+  }, [selectedContentIds.size, pendingContent]);
+
+  // Supprimer les contenus sélectionnés
+  const handleDeleteSelected = async () => {
+    if (selectedContentIds.size === 0) {
+      toast.error('Aucun contenu sélectionné');
+      return;
+    }
+
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer ${selectedContentIds.size} contenu(s) ?`)) {
+      return;
+    }
+
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast.error('Vous devez être connecté');
+      return;
+    }
+
+    setIsDeletingContent(true);
+    let successCount = 0;
+    let errorCount = 0;
+
+    try {
+      // Supprimer chaque contenu sélectionné
+      for (const contentId of selectedContentIds) {
+        try {
+          await axios.delete(`${API}/content/${contentId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          successCount++;
+        } catch (error) {
+          console.error(`Error deleting content ${contentId}:`, error);
+          errorCount++;
+        }
+      }
+
+      // Messages de retour
+      if (successCount > 0) {
+        toast.success(`${successCount} contenu(s) supprimé(s) avec succès ! 🗑️`);
+      }
+      if (errorCount > 0) {
+        toast.error(`Erreur lors de la suppression de ${errorCount} contenu(s)`);
+      }
+
+      // Reset et rechargement
+      setSelectedContentIds(new Set());
+      setIsSelectionMode(false);
+      await loadPendingContent();
+
+    } catch (error) {
+      console.error('Error in batch delete:', error);
+      toast.error('Erreur lors de la suppression en masse');
+    } finally {
+      setIsDeletingContent(false);
+    }
+  };
+
+  // Ouvrir l'aperçu d'un contenu
+  const handleContentClick = useCallback((content) => {
+    if (isSelectionMode) {
+      handleToggleSelection(content.id);
+    } else {
+      setPreviewContent(content);
+      setContentContext(content.context || ''); // Charger le contexte existant
+    }
+  }, [isSelectionMode, handleToggleSelection]);
+
+  // Fermer l'aperçu
+  const handleClosePreview = useCallback(() => {
+    setPreviewContent(null);
+    setContentContext('');
+  }, []);
+
+  // Sauvegarder le contexte d'un contenu
+  const handleSaveContext = async () => {
+    if (!previewContent) return;
+
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast.error('Vous devez être connecté');
+      return;
+    }
+
+    setIsSavingContext(true);
+
+    try {
+      await axios.put(`${API}/content/${previewContent.id}/context`, {
+        context: contentContext.trim()
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      toast.success('Contexte sauvegardé ! 💾');
+      
+      // Mettre à jour le contenu local
+      const updatedContent = { ...previewContent, context: contentContext.trim() };
+      setPreviewContent(updatedContent);
+      
+      // Recharger la liste
+      await loadPendingContent();
+
+    } catch (error) {
+      console.error('Error saving context:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`Erreur lors de la sauvegarde: ${errorMessage}`);
+    } finally {
+      setIsSavingContext(false);
+    }
+  };
+
   // Analyse de site web
   const handleAnalyzeWebsite = async () => {
     const websiteUrl = document.getElementById('website_analysis_url_native')?.value;

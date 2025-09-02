@@ -2100,7 +2100,29 @@ function MainApp() {
 
 function App() {
   return (
-    <Router>
+    <>
+      {/* BOUTON TEST NIVEAU RACINE */}
+      <button
+        onClick={() => alert('BOUTON RACINE FONCTIONNE!')}
+        style={{
+          position: 'fixed',
+          top: '10px',
+          right: '10px',
+          padding: '15px 30px',
+          backgroundColor: 'orange',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          fontSize: '18px',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          zIndex: 99999
+        }}
+      >
+        TEST RACINE 🧡
+      </button>
+      
+      <Router>
       <Routes>
         <Route path="/auth/facebook/callback" element={<FacebookCallback />} />
         <Route path="/*" element={<MainApp />} />

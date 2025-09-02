@@ -853,7 +853,7 @@ function MainApp() {
                   <div className="space-y-2">
                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-2 border border-blue-200">
                       <h3 className="text-sm font-bold text-blue-800 mb-2">Informations de l'entreprise</h3>
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                         <div className="min-w-0">
                           <EditableField
                             fieldId="business_name_edit"
@@ -875,7 +875,7 @@ function MainApp() {
                           />
                         </div>
                       </div>
-                      <div className="mt-3">
+                      <div className="mt-2">
                         <EditableField
                           fieldId="business_description_edit"
                           label="Description de l'activité"
@@ -886,7 +886,7 @@ function MainApp() {
                         />
                       </div>
                       
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 mt-2">
                         <div className="min-w-0">
                           <EditableField
                             fieldId="brand_tone_edit"

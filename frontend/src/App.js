@@ -522,11 +522,16 @@ function MainApp() {
           nextAnalysisDue: analysis.next_analysis_due
         });
         
-        // Pré-remplir l'URL si disponible
-        const urlInput = document.getElementById('website_analysis_url_native');
-        if (urlInput && analysis.website_url) {
-          urlInput.value = analysis.website_url;
-        }
+        // Pré-remplir l'URL si disponible - avec un délai pour s'assurer que l'élément existe
+        setTimeout(() => {
+          const urlInput = document.getElementById('website_analysis_url_native');
+          if (urlInput && analysis.website_url) {
+            urlInput.value = analysis.website_url;
+            console.log(`✅ URL pré-remplie: ${analysis.website_url}`);
+          } else {
+            console.log(`❌ Input non trouvé ou URL manquante. Input: ${!!urlInput}, URL: ${analysis.website_url}`);
+          }
+        }, 100);
       }
     } catch (error) {
       console.error('Error loading existing analysis:', error);

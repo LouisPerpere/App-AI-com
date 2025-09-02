@@ -1688,7 +1688,9 @@ function MainApp() {
                             boxShadow: 'none',
                             WebkitBoxShadow: 'none',
                             touchAction: 'manipulation',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            userSelect: 'text',
+                            WebkitUserSelect: 'text'
                           }}
                         >
                           <option value="low">🟢 Priorité faible</option>

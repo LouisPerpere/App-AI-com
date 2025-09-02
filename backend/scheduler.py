@@ -43,6 +43,71 @@ EMAIL_FROM = os.environ.get('EMAIL_FROM', 'noreply@socialgenie.com')
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Website analysis auto-refresh functionality
+async def check_and_update_website_analyses():
+    """Check for website analyses that need monthly refresh and update them"""
+    try:
+        logger.info("🔍 Checking for website analyses that need monthly updates...")
+        
+        # Get all analyses that are due for refresh
+        now = datetime.utcnow()
+        analyses_collection = db.website_analyses
+        
+        # Find analyses where next_analysis_due is in the past
+        due_analyses = await analyses_collection.find({
+            "next_analysis_due": {"$lt": now}
+        }).to_list(length=100)
+        
+        logger.info(f"📊 Found {len(due_analyses)} website analyses due for refresh")
+        
+        for analysis in due_analyses:
+            try:
+                user_id = analysis.get("user_id")
+                website_url = analysis.get("website_url")
+                
+                if not user_id or not website_url:
+                    continue
+                
+                logger.info(f"🔄 Auto-refreshing analysis for user {user_id}, website {website_url}")
+                
+                # Import and call the website analysis function
+                from website_analyzer_gpt5 import analyze_multiple_pages, discover_website_pages, analyze_with_gpt5
+                
+                # Discover and analyze pages
+                important_pages = discover_website_pages(website_url, max_pages=5)
+                content_data = await analyze_multiple_pages(important_pages, website_url)
+                
+                if "error" not in content_data:
+                    # Analyze with GPT
+                    analysis_result = await analyze_with_gpt5(content_data, website_url)
+                    
+                    # Update the analysis in database
+                    updated_analysis = {
+                        "analysis_summary": analysis_result.get("analysis_summary", ""),
+                        "key_topics": analysis_result.get("key_topics", []),
+                        "brand_tone": analysis_result.get("brand_tone", "professional"),
+                        "target_audience": analysis_result.get("target_audience", ""),
+                        "main_services": analysis_result.get("main_services", []),
+                        "content_suggestions": analysis_result.get("content_suggestions", []),
+                        "pages_analyzed": content_data.get("pages_analyzed", []),
+                        "pages_count": len(important_pages),
+                        "last_analyzed": now,
+                        "next_analysis_due": now + timedelta(days=30)
+                    }
+                    
+                    await analyses_collection.update_one(
+                        {"_id": analysis["_id"]},
+                        {"$set": updated_analysis}
+                    )
+                    
+                    logger.info(f"✅ Auto-refresh completed for {website_url}")
+                    
+            except Exception as e:
+                logger.error(f"❌ Error auto-refreshing analysis for {analysis.get('website_url', 'unknown')}: {e}")
+                
+    except Exception as e:
+        logger.error(f"❌ Error in check_and_update_website_analyses: {e}")
+
 class ScheduledTask(BaseModel):
     id: str
     business_id: str

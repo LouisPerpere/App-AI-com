@@ -827,29 +827,41 @@ function MainApp() {
           <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-br from-emerald-400/10 to-teal-400/10 rounded-full blur-2xl animate-pulse" style={{animationDelay: '4s'}}></div>
         </div>
-      <div className="card-glass border-0 border-b border-purple-100/50">
-        <div className="max-w-7xl mx-auto px-2 sm:px-3 py-2">
+      {/* Header moderne avec glassmorphism */}
+      <div className="relative z-10 backdrop-blur-xl bg-white/80 border-0 border-b border-white/20 shadow-lg shadow-purple-500/10">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3">
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center space-x-3 min-w-0 flex-1">
-              <Avatar className="w-12 h-12 sm:w-14 sm:h-14 ring-4 ring-purple-200/50 flex-shrink-0">
-                <AvatarImage src={businessProfile?.logo_url ? `${BACKEND_URL}${businessProfile.logo_url}` : ""} />
-                <AvatarFallback className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 text-white text-sm sm:text-lg font-bold">
-                  <div className="logo-cm text-white">
-                    <span className="logo-c">C</span>
-                    <span className="logo-m">M</span>
-                  </div>
-                </AvatarFallback>
-              </Avatar>
+            <div className="flex items-center space-x-4 min-w-0 flex-1">
+              <div className="relative">
+                <Avatar className="w-14 h-14 sm:w-16 sm:h-16 ring-4 ring-gradient-to-r ring-purple-400/30 flex-shrink-0 shadow-lg shadow-purple-500/25 transition-all duration-300 hover:scale-105">
+                  <AvatarImage src={businessProfile?.logo_url ? `${BACKEND_URL}${businessProfile.logo_url}` : ""} />
+                  <AvatarFallback className="bg-gradient-to-br from-purple-600 via-pink-500 to-red-500 text-white text-lg sm:text-xl font-bold">
+                    <div className="logo-cm text-white transform transition-transform duration-300 hover:rotate-12">
+                      <span className="logo-c">C</span>
+                      <span className="logo-m">M</span>
+                    </div>
+                  </AvatarFallback>
+                </Avatar>
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full animate-ping"></div>
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
+              </div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 bg-clip-text text-transparent">
+                <h1 className="text-xl sm:text-3xl font-extrabold bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 bg-clip-text text-transparent drop-shadow-sm">
                   Claire et Marcus
                 </h1>
-                <p className="text-sm sm:text-base text-gray-600 font-medium truncate">{businessProfile?.business_name || 'Mon entreprise'}</p>
-                <div className="text-xs sm:text-sm text-gray-500">
-                  <p className="text-purple-600 font-semibold">Claire rédige, Marcus programme.</p>
-                  <p className="text-purple-600 font-semibold animate-pulse" style={{
-                    animation: 'breathe 3s ease-in-out infinite'
-                  }}>Vous respirez.</p>
+                <p className="text-sm sm:text-base text-slate-700 font-semibold truncate bg-gradient-to-r from-slate-600 to-slate-800 bg-clip-text text-transparent">
+                  {businessProfile?.business_name || 'Mon entreprise'}
+                </p>
+                <div className="text-xs sm:text-sm">
+                  <p className="text-purple-600 font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    Claire rédige, Marcus programme.
+                  </p>
+                  <p className="text-purple-600 font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent transform transition-all duration-300 hover:scale-105" 
+                     style={{
+                       animation: 'breathe 3s ease-in-out infinite'
+                     }}>
+                    Vous respirez.
+                  </p>
                 </div>
               </div>
             </div>
@@ -858,10 +870,11 @@ function MainApp() {
                 onClick={handleLogout}
                 variant="ghost"
                 size="sm"
-                className="text-gray-500 hover:text-red-600 p-2 hover:bg-red-50 rounded-full"
+                className="group relative overflow-hidden text-slate-600 hover:text-white p-3 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-red-500/25 hover:scale-110"
                 title="Déconnexion"
               >
-                <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full"></div>
+                <LogOut className="w-4 h-4 sm:w-5 sm:h-5 relative z-10 transition-transform duration-300 group-hover:rotate-12" />
               </Button>
             </div>
           </div>

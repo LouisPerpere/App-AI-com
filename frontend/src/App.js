@@ -856,17 +856,17 @@ function MainApp() {
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-xl sm:text-3xl font-extrabold bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 bg-clip-text text-transparent drop-shadow-sm">
+                <h1 className="text-xl sm:text-3xl font-extrabold bg-gradient-to-r from-slate-800 via-purple-700 to-pink-600 bg-clip-text text-transparent drop-shadow-sm">
                   Claire et Marcus
                 </h1>
-                <p className="text-sm sm:text-base text-slate-700 font-semibold truncate bg-gradient-to-r from-slate-600 to-slate-800 bg-clip-text text-transparent">
+                <p className="text-sm sm:text-base text-slate-800 font-semibold truncate">
                   {businessProfile?.business_name || 'Mon entreprise'}
                 </p>
                 <div className="text-xs sm:text-sm">
-                  <p className="text-purple-600 font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  <p className="text-slate-700 font-bold">
                     Claire rédige, Marcus programme.
                   </p>
-                  <p className="text-purple-600 font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent transform transition-all duration-300 hover:scale-105" 
+                  <p className="text-slate-700 font-bold transform transition-all duration-300 hover:scale-105" 
                      style={{
                        animation: 'breathe 3s ease-in-out infinite'
                      }}>

@@ -489,7 +489,11 @@ function MainApp() {
       });
 
       setWebsiteAnalysis(response.data);
-      toast.success('Analyse du site web terminée avec succès !');
+      setLastAnalysisInfo({
+        lastAnalyzed: response.data.created_at,
+        nextAnalysisDue: response.data.next_analysis_due
+      });
+      toast.success(`Analyse terminée ! ${response.data.pages_count || 1} page(s) analysée(s)`);
       
     } catch (error) {
       console.error('Website analysis error:', error);

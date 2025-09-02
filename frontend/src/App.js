@@ -1722,7 +1722,7 @@ function MainApp() {
                         <textarea
                           id="note_content_native"
                           value={noteContent}
-                          onChange={(e) => setNoteContent(e.target.value)}
+                          onChange={handleNoteContentChange}
                           placeholder="Décrivez les détails importants que vous voulez voir apparaître dans vos posts..."
                           className="w-full p-4 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
                           style={{

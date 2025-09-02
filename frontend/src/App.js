@@ -1872,10 +1872,8 @@ function MainApp() {
                   <div className="space-y-4">
                     <h3 className="text-xl font-semibold text-gray-900 mb-4">📝 Mes notes ({notes.length})</h3>
                     <div className="grid gap-4">
-                      {notes.map((note, index) => {
-                        console.log('📄 Note affichée:', note); // Debug
-                        return (
-                        <div key={note.note_id || index} className="card-glass p-6 rounded-2xl border border-indigo-200">
+                      {notes.map((note, index) => (
+                        <div key={note.note_id || note.id || index} className="card-glass p-6 rounded-2xl border border-indigo-200">
                           <div className="flex items-start justify-between mb-3">
                             <div className="flex items-center space-x-3 flex-1">
                               <div className={`w-3 h-3 rounded-full ${

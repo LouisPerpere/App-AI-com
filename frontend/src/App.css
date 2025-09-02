@@ -588,3 +588,30 @@ select:focus-visible {
     min-height: -webkit-fill-available;
   }
 }
+
+/* Notes page specific virtual keyboard fixes */
+#note_title_native,
+#note_content_native,
+#note_priority_native {
+  font-size: 16px !important;
+  -webkit-appearance: none !important;
+  -webkit-border-radius: 8px !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  touch-action: manipulation !important;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -webkit-touch-callout: default !important;
+}
+
+/* Ensure select elements behave correctly on mobile */
+select#note_priority_native {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px !important;
+}

@@ -1694,10 +1694,21 @@ function MainApp() {
                       
                       <Button
                         type="button"
+                        onClick={handleSaveNote}
+                        disabled={isSavingNote}
                         className="btn-gradient-primary w-full mt-6"
                       >
-                        <Edit className="w-4 h-4 mr-2" />
-                        Ajouter cette note
+                        {isSavingNote ? (
+                          <>
+                            <div className="animate-spin rounded-full mr-2 h-4 w-4 border-b-2 border-white"></div>
+                            Enregistrement...
+                          </>
+                        ) : (
+                          <>
+                            <Edit className="w-4 h-4 mr-2" />
+                            Ajouter cette note
+                          </>
+                        )}
                       </Button>
                     </div>
                   </div>

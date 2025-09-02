@@ -495,26 +495,15 @@ async def create_note(note: NoteRequest, user_id: str = Depends(get_current_user
     """Create a new note"""
     try:
         dbm = get_database()
-        # Using the existing create_note function which takes content and description
-        # We'll use title as description and content as content
+        # Using the existing create_note function with priority parameter
         created_note = dbm.create_note(
             user_id=user_id,
             content=note.content,
-            description=note.title  # Use title as description for compatibility
+            description=note.title,  # Use title as description for compatibility
+            priority=note.priority
         )
-        # Add the priority field to the created note
-        if hasattr(created_note, 'priority') or 'priority' in created_note:
-            created_note['priority'] = note.priority
-        else:
-            # Update the note with priority if not already included
-            note_id = created_note.get('note_id')
-            if note_id:
-                dbm.db.content_notes.update_one(
-                    {"note_id": note_id},
-                    {"$set": {"priority": note.priority, "title": note.title}}
-                )
-                created_note['priority'] = note.priority
-                created_note['title'] = note.title
+        # Add title field for frontend compatibility
+        created_note['title'] = note.title
         
         return {
             "message": "Note créée avec succès",

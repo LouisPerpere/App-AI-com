@@ -754,13 +754,15 @@ function MainApp() {
             {displayValue || <span className="text-gray-400 italic text-xs">{placeholder || 'Non renseigné'}</span>}
           </div>
           
-          {/* Bouton stylo moderne pour déverrouiller */}
+          {/* Bouton stylo ultra-moderne pour déverrouiller */}
           <button
             onClick={() => startEditing(fieldId)}
-            className="absolute right-1 top-1/2 transform -translate y-1/2 w-7 h-7 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+            className="group absolute right-1 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-purple-500/50 transform hover:scale-110 hover:rotate-12 relative overflow-hidden"
             title="Modifier"
           >
-            <Edit className="w-3.5 h-3.5" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <Edit className="w-4 h-4 relative z-10 transition-all duration-300 group-hover:scale-110" />
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
           </button>
         </div>
       </div>

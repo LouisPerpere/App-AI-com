@@ -254,9 +254,10 @@ function MainApp() {
       setIsAuthenticated(true);
       setActiveStep('dashboard');
       
-      // Load business profile and notes
+      // Load business profile, notes and content
       loadBusinessProfile();
       loadNotes();
+      loadPendingContent();
       
     } catch (error) {
       console.error('Auth check failed:', error);

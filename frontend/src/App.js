@@ -741,7 +741,10 @@ function MainApp() {
                 </h1>
                 <p className="text-sm sm:text-base text-gray-600 font-medium truncate">{businessProfile?.business_name || 'Mon entreprise'}</p>
                 <div className="text-xs sm:text-sm text-gray-500">
-                  <p className="text-purple-600 font-semibold truncate">Claire rédige, Marcus programme. Vous respirez.</p>
+                  <p className="text-purple-600 font-semibold">Claire rédige, Marcus programme.</p>
+                  <p className="text-purple-600 font-semibold animate-pulse" style={{
+                    animation: 'breathe 3s ease-in-out infinite'
+                  }}>Vous respirez.</p>
                 </div>
               </div>
             </div>

@@ -682,13 +682,13 @@ function MainApp() {
             {displayValue || <span className="text-gray-400 italic">{placeholder || 'Non renseigné'}</span>}
           </div>
           
-          {/* Bouton stylo pour déverrouiller */}
+          {/* Bouton stylo moderne pour déverrouiller */}
           <button
             onClick={() => startEditing(fieldId)}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-colors"
+            className="absolute right-1 top-1/2 transform -translate y-1/2 w-7 h-7 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
             title="Modifier"
           >
-            <Edit className="w-4 h-4" />
+            <Edit className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>

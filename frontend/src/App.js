@@ -888,14 +888,20 @@ function MainApp() {
           className="space-y-8"
         >
           <div className="overflow-x-auto">
-            <TabsList className="grid grid-cols-8 w-full max-w-5xl mx-auto bg-white/80 backdrop-blur-lg p-2 rounded-2xl shadow-xl min-w-max">
-              <TabsTrigger value="entreprise" className="tab-sexy">
-                <Building className="w-5 h-5" />
-                <span className="ml-2 font-semibold">Entreprise</span>
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-2 bg-white/70 backdrop-blur-xl p-3 rounded-3xl border-0 shadow-xl shadow-purple-500/10">
+              <TabsTrigger value="entreprise" className="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:scale-105 data-[state=active]:scale-105 data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/25 bg-gradient-to-br from-blue-50 to-purple-50 data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 border-0">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-data-[state=active]:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+                <div className="relative z-10 flex items-center text-slate-700 group-data-[state=active]:text-white transition-colors duration-300">
+                  <Building className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
+                  <span className="ml-2 font-bold text-sm">Entreprise</span>
+                </div>
               </TabsTrigger>
-              <TabsTrigger value="analyse" className="tab-sexy">
-                <Search className="w-5 h-5" />
-                <span className="ml-2 font-semibold">Analyse</span>
+              <TabsTrigger value="analyse" className="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:scale-105 data-[state=active]:scale-105 data-[state=active]:shadow-lg data-[state=active]:shadow-purple-500/25 bg-gradient-to-br from-purple-50 to-pink-50 data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 border-0">
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-data-[state=active]:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+                <div className="relative z-10 flex items-center text-slate-700 group-data-[state=active]:text-white transition-colors duration-300">
+                  <Search className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
+                  <span className="ml-2 font-bold text-sm">Analyse</span>
+                </div>
               </TabsTrigger>
               <TabsTrigger value="bibliotheque" className="tab-sexy">
                 <ImageIcon className="w-5 h-5" />

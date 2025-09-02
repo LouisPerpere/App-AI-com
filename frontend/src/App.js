@@ -1800,6 +1800,7 @@ function MainApp() {
                           Priorité
                         </label>
                         <select
+                          ref={priorityInputRef}
                           id="note_priority_native"
                           value={notePriority}
                           onChange={handleNotePriorityChange}

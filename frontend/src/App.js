@@ -223,6 +223,14 @@ function MainApp() {
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [isDeletingNote, setIsDeletingNote] = useState(null);
   
+  // Content library states
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedContentIds, setSelectedContentIds] = useState(new Set());
+  const [isDeletingContent, setIsDeletingContent] = useState(false);
+  const [previewContent, setPreviewContent] = useState(null);
+  const [contentContext, setContentContext] = useState('');
+  const [isSavingContext, setIsSavingContext] = useState(false);
+  
   // Refs for direct DOM manipulation to avoid re-renders
   const titleInputRef = useRef(null);
   const contentInputRef = useRef(null);

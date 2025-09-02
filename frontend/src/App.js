@@ -1928,26 +1928,20 @@ function MainApp() {
                               </Button>
                               
                               {/* Bouton supprimer */}
-                              <button
-                                onClick={() => alert('BOUTON CLIQUÉ!')}
-                                onMouseDown={() => alert('MOUSE DOWN!')}
-                                onTouchStart={() => alert('TOUCH START!')}
-                                style={{
-                                  padding: '8px',
-                                  margin: '4px',
-                                  backgroundColor: 'red',
-                                  color: 'white',
-                                  border: 'none',
-                                  borderRadius: '4px',
-                                  cursor: 'pointer',
-                                  fontSize: '12px',
-                                  position: 'relative',
-                                  zIndex: 9999,
-                                  pointerEvents: 'auto'
-                                }}
+                              <Button
+                                onClick={() => handleDeleteNote(note.note_id)}
+                                disabled={isDeletingNote === note.note_id}
+                                variant="ghost"
+                                size="sm"
+                                className="p-2 h-8 w-8 text-red-600 hover:text-red-800 hover:bg-red-50"
+                                title="Supprimer cette note"
                               >
-                                SUPPR 🗑️
-                              </button>
+                                {isDeletingNote === note.note_id ? (
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                                ) : (
+                                  <Trash className="w-4 h-4" />
+                                )}
+                              </Button>
                             </div>
                           </div>
                           <p className="text-gray-700 leading-relaxed">

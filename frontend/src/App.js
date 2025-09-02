@@ -564,7 +564,15 @@ function MainApp() {
     fieldType = 'business' 
   }) => {
     const isEditing = editingFields[fieldId];
-    const displayValue = fieldValues[fieldId] !== undefined ? fieldValues[fieldId] : defaultValue;
+    // Utiliser la valeur courante du DOM ou la valeur par défaut
+    const getCurrentValue = () => {
+      const element = document.getElementById(fieldId);
+      if (element) {
+        return element.value || element.textContent || defaultValue;
+      }
+      return fieldValues[fieldId] !== undefined ? fieldValues[fieldId] : defaultValue;
+    };
+    const displayValue = getCurrentValue();
 
     if (isEditing) {
       return (

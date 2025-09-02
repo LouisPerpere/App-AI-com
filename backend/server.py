@@ -471,6 +471,78 @@ async def post_business_profile(body: BusinessProfileIn, user_id: str = Depends(
     # For compatibility with existing frontend that may POST
     return await put_business_profile(body, user_id)
 
+# ----------------------------
+# NOTES: /api/notes
+# ----------------------------
+
+class NoteRequest(BaseModel):
+    title: str
+    content: str
+    priority: Optional[str] = "normal"
+
+@api_router.get("/notes")
+async def get_notes(user_id: str = Depends(get_current_user_id_robust)):
+    """Get all notes for user"""
+    try:
+        dbm = get_database()
+        notes = dbm.get_notes(user_id)
+        return {"notes": notes}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch notes: {str(e)}")
+
+@api_router.post("/notes")
+async def create_note(note: NoteRequest, user_id: str = Depends(get_current_user_id_robust)):
+    """Create a new note"""
+    try:
+        dbm = get_database()
+        # Using the existing create_note function which takes content and description
+        # We'll use title as description and content as content
+        created_note = dbm.create_note(
+            user_id=user_id,
+            content=note.content,
+            description=note.title  # Use title as description for compatibility
+        )
+        # Add the priority field to the created note
+        if hasattr(created_note, 'priority') or 'priority' in created_note:
+            created_note['priority'] = note.priority
+        else:
+            # Update the note with priority if not already included
+            note_id = created_note.get('note_id')
+            if note_id:
+                dbm.db.content_notes.update_one(
+                    {"note_id": note_id},
+                    {"$set": {"priority": note.priority, "title": note.title}}
+                )
+                created_note['priority'] = note.priority
+                created_note['title'] = note.title
+        
+        return {
+            "message": "Note créée avec succès",
+            "note": created_note
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create note: {str(e)}")
+
+@api_router.delete("/notes/{note_id}")
+async def delete_note(note_id: str, user_id: str = Depends(get_current_user_id_robust)):
+    """Delete a note"""
+    try:
+        dbm = get_database()
+        # Delete note from content_notes collection
+        result = dbm.db.content_notes.delete_one({
+            "note_id": note_id,
+            "user_id": user_id
+        })
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Note not found")
+        
+        return {"message": "Note supprimée avec succès"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete note: {str(e)}")
+
 # Include the API router
 app.include_router(api_router)
 

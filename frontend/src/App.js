@@ -194,7 +194,7 @@ function MainApp() {
   // Note form states
   const [noteTitle, setNoteTitle] = useState('');
   const [noteContent, setNoteContent] = useState('');
-  const [notePriority, setNotePriority] = useState('normale');
+  const [notePriority, setNotePriority] = useState('normal');
   const [isSavingNote, setIsSavingNote] = useState(false);
   
   // Website analysis states

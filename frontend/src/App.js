@@ -1725,14 +1725,15 @@ function MainApp() {
                           <div className="flex items-start justify-between mb-3">
                             <div className="flex items-center space-x-3">
                               <div className={`w-3 h-3 rounded-full ${
-                                note.priority === 'élevée' ? 'bg-red-500' :
-                                note.priority === 'normale' ? 'bg-yellow-500' : 'bg-green-500'
+                                note.priority === 'high' ? 'bg-red-500' :
+                                note.priority === 'normal' ? 'bg-yellow-500' : 'bg-green-500'
                               }`}></div>
                               <h4 className="font-semibold text-gray-900">
                                 {note.description || note.title || 'Note sans titre'}
                               </h4>
                               <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                {note.priority || 'normale'}
+                                {note.priority === 'high' ? 'élevée' : 
+                                 note.priority === 'low' ? 'faible' : 'normale'}
                               </span>
                             </div>
                             <div className="text-xs text-gray-500">

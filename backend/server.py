@@ -568,6 +568,58 @@ async def delete_note(note_id: str, user_id: str = Depends(get_current_user_id_r
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete note: {str(e)}")
 
+# ----------------------------
+# CONTENT CONTEXT: /api/content/{content_id}/context
+# ----------------------------
+
+class ContentContextRequest(BaseModel):
+    context: str
+
+@api_router.put("/content/{content_id}/context")
+async def update_content_context(content_id: str, body: ContentContextRequest, user_id: str = Depends(get_current_user_id_robust)):
+    """Update context/description for a content item"""
+    try:
+        dbm = get_database()
+        
+        # Update content context in the media collection
+        result = dbm.db.media.update_one(
+            {"id": content_id, "user_id": user_id},
+            {"$set": {
+                "context": body.context,
+                "updated_at": datetime.now().isoformat()
+            }}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Content not found")
+        
+        return {"message": "Contexte mis à jour avec succès"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update content context: {str(e)}")
+
+@api_router.delete("/content/{content_id}")
+async def delete_content(content_id: str, user_id: str = Depends(get_current_user_id_robust)):
+    """Delete a content item"""
+    try:
+        dbm = get_database()
+        
+        # Delete content from media collection
+        result = dbm.db.media.delete_one({
+            "id": content_id,
+            "user_id": user_id
+        })
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Content not found")
+        
+        return {"message": "Contenu supprimé avec succès"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete content: {str(e)}")
+
 # Include the API router
 app.include_router(api_router)
 

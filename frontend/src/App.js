@@ -513,8 +513,10 @@ function MainApp() {
   const setFormValues = useCallback((title = '', content = '', priority = 'normal') => {
     if (titleInputRef.current) titleInputRef.current.value = title;
     if (contentInputRef.current) contentInputRef.current.value = content;
-    if (priorityInputRef.current) priorityInputRef.current.value = priority;
-    // Plus besoin de setState pour priority
+    if (priorityInputRef.current) {
+      priorityInputRef.current.value = priority;
+      console.log('🔧 Priorité définie:', priority, 'Valeur lue:', priorityInputRef.current.value); // Debug
+    }
   }, []);
 
   // Sauvegarder une note

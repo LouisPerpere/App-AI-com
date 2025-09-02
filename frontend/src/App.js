@@ -649,21 +649,21 @@ function MainApp() {
               />
             )}
             
-            {/* Boutons confirmer/annuler */}
-            <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex space-x-1">
+            {/* Boutons confirmer/annuler modernes */}
+            <div className="absolute right-1 top-1/2 transform -translate-y-1/2 flex space-x-1">
               <button
                 onClick={() => confirmEditing(fieldId, fieldType)}
-                className="w-8 h-8 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center transition-colors"
+                className="w-7 h-7 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
                 title="Confirmer"
               >
-                <Check className="w-4 h-4" />
+                <Check className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => cancelEditing(fieldId)}
-                className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors"
+                className="w-7 h-7 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
                 title="Annuler"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>

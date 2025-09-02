@@ -309,7 +309,7 @@ class DatabaseManager:
         return result.modified_count > 0 or result.upserted_id is not None
     
     # Content Notes Management
-    def create_note(self, user_id: str, content: str, description: str = None) -> Dict[str, Any]:
+    def create_note(self, user_id: str, content: str, description: str = None, priority: str = "normal") -> Dict[str, Any]:
         """Create a content note"""
         if not self.is_connected():
             raise Exception("Database not connected")
@@ -319,7 +319,7 @@ class DatabaseManager:
             "user_id": user_id,
             "content": content,
             "description": description,
-            "priority": "normal",
+            "priority": priority,
             "created_at": datetime.utcnow()
         }
         

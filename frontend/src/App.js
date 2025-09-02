@@ -196,6 +196,8 @@ function MainApp() {
   const [noteContent, setNoteContent] = useState('');
   const [notePriority, setNotePriority] = useState('normal');
   const [isSavingNote, setIsSavingNote] = useState(false);
+  const [editingNoteId, setEditingNoteId] = useState(null);
+  const [isDeletingNote, setIsDeletingNote] = useState(null);
   
   // Website analysis states
   const [isAnalyzing, setIsAnalyzing] = useState(false);

@@ -263,14 +263,40 @@ async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
             print(f"❌ Falling back - EMERGENT_AVAILABLE: {EMERGENT_AVAILABLE}, API_KEY: {'Yes' if API_KEY else 'No'}")
             return create_fallback_analysis(content_data, website_url, "no_api_or_sdk")
 
-        analysis = json.loads(raw)
+        # Parse GPT-4o response
+        if not raw or len(raw.strip()) < 10:
+            print(f"❌ Empty or too short GPT-4o response: '{raw}'")
+            return create_fallback_analysis(content_data, website_url, "empty_response")
+        
+        # Clean the response (remove potential markdown artifacts)
+        clean_raw = raw.strip()
+        if clean_raw.startswith('```json'):
+            clean_raw = clean_raw[7:]
+        if clean_raw.endswith('```'):
+            clean_raw = clean_raw[:-3]
+        clean_raw = clean_raw.strip()
+        
+        print(f"🔍 Parsing GPT-4o JSON response: {clean_raw[:200]}...")
+        
+        analysis = json.loads(clean_raw)
+        
+        # Validate required fields
+        required_fields = ["analysis_summary", "key_topics", "brand_tone", "target_audience", "main_services", "content_suggestions"]
+        missing_fields = [field for field in required_fields if not analysis.get(field)]
+        
+        if missing_fields:
+            print(f"⚠️ Missing fields in GPT-4o response: {missing_fields}")
+            return create_fallback_analysis(content_data, website_url, f"missing_fields_{missing_fields}")
+        
+        print(f"✅ GPT-4o analysis successful - Summary length: {len(analysis.get('analysis_summary', ''))}")
         return analysis
 
     except json.JSONDecodeError as e:
-        logging.error(f"❌ JSON parsing error: {e}")
+        print(f"❌ JSON parsing error from GPT-4o: {e}")
+        print(f"❌ Raw response was: {raw[:500] if raw else 'None'}")
         return create_fallback_analysis(content_data, website_url, "json_error")
     except Exception as e:
-        logging.error(f"❌ GPT analysis error: {e}")
+        print(f"❌ GPT-4o analysis error: {e}")
         return create_fallback_analysis(content_data, website_url, "gpt_error")
 
 def create_fallback_analysis(content_data: dict, website_url: str, reason: str = "fallback") -> dict:

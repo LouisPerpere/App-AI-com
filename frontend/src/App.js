@@ -515,7 +515,7 @@ function MainApp() {
     if (titleInputRef.current) titleInputRef.current.value = title;
     if (contentInputRef.current) contentInputRef.current.value = content;
     if (priorityInputRef.current) priorityInputRef.current.value = priority;
-    setNotePriority(priority); // Keep state for priority dropdown
+    // Plus besoin de setState pour priority
   }, []);
 
   // Sauvegarder une note

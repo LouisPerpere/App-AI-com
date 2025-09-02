@@ -212,6 +212,18 @@ function MainApp() {
   useEffect(() => {
     checkAuth();
   }, []);
+  // S'assurer que l'URL est bien pré-remplie quand l'analyse existe
+  useEffect(() => {
+    if (websiteAnalysis?.website_url) {
+      setTimeout(() => {
+        const urlInput = document.getElementById('website_analysis_url_native');
+        if (urlInput && !urlInput.value) {
+          urlInput.value = websiteAnalysis.website_url;
+          console.log(`✅ URL restaurée depuis websiteAnalysis: ${websiteAnalysis.website_url}`);
+        }
+      }, 200);
+    }
+  }, [websiteAnalysis]);
 
   const checkAuth = async () => {
     const token = localStorage.getItem('access_token');

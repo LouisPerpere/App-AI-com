@@ -485,17 +485,37 @@ function MainApp() {
     }
   };
 
-  // Optimized handlers with useCallback to prevent re-renders
+  // Modified handlers to prevent re-renders - using direct DOM access
   const handleNoteTitleChange = useCallback((e) => {
-    setNoteTitle(e.target.value);
+    // Don't use setState to avoid re-renders that close keyboard
+    // Value will be read directly from DOM when needed
   }, []);
 
   const handleNoteContentChange = useCallback((e) => {
-    setNoteContent(e.target.value);
+    // Don't use setState to avoid re-renders that close keyboard
+    // Value will be read directly from DOM when needed
   }, []);
 
   const handleNotePriorityChange = useCallback((e) => {
+    // Priority can use state since it's a dropdown, not text input
     setNotePriority(e.target.value);
+  }, []);
+
+  // Get current form values from DOM
+  const getCurrentFormValues = useCallback(() => {
+    return {
+      title: titleInputRef.current?.value || '',
+      content: contentInputRef.current?.value || '',
+      priority: priorityInputRef.current?.value || 'normal'
+    };
+  }, []);
+
+  // Set form values in DOM
+  const setFormValues = useCallback((title = '', content = '', priority = 'normal') => {
+    if (titleInputRef.current) titleInputRef.current.value = title;
+    if (contentInputRef.current) contentInputRef.current.value = content;
+    if (priorityInputRef.current) priorityInputRef.current.value = priority;
+    setNotePriority(priority); // Keep state for priority dropdown
   }, []);
 
   // Sauvegarder une note

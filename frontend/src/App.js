@@ -520,14 +520,19 @@ function MainApp() {
 
   // Sauvegarder une note
   const handleSaveNote = async () => {
+    // Get values directly from DOM to avoid state issues
+    const formValues = getCurrentFormValues();
+    
     // Validation des champs
-    if (!noteTitle.trim()) {
+    if (!formValues.title.trim()) {
       toast.error('Veuillez saisir un titre pour la note');
+      titleInputRef.current?.focus();
       return;
     }
     
-    if (!noteContent.trim()) {
+    if (!formValues.content.trim()) {
       toast.error('Veuillez saisir le contenu de la note');
+      contentInputRef.current?.focus();
       return;
     }
 
@@ -541,14 +546,31 @@ function MainApp() {
     
     try {
       if (editingNoteId) {
-        // Mode édition - UPDATE (pas encore implémenté côté backend)
-        toast.info('Fonction d\'édition en cours de développement');
+        // Mode édition - PUT
+        const response = await axios.put(`${API}/notes/${editingNoteId}`, {
+          title: formValues.title.trim(),
+          content: formValues.content.trim(),
+          priority: formValues.priority
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.data) {
+          toast.success('Note modifiée avec succès ! ✏️');
+          
+          // Réinitialiser le formulaire
+          setFormValues('', '', 'normal');
+          setEditingNoteId(null);
+          
+          // Recharger les notes
+          await loadNotes();
+        }
       } else {
         // Mode création - POST
         const response = await axios.post(`${API}/notes`, {
-          title: noteTitle.trim(),
-          content: noteContent.trim(),
-          priority: notePriority
+          title: formValues.title.trim(),
+          content: formValues.content.trim(),
+          priority: formValues.priority
         }, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -557,9 +579,7 @@ function MainApp() {
           toast.success('Note sauvegardée avec succès ! 📝');
           
           // Réinitialiser le formulaire
-          setNoteTitle('');
-          setNoteContent('');
-          setNotePriority('normal');
+          setFormValues('', '', 'normal');
           setEditingNoteId(null);
           
           // Recharger les notes

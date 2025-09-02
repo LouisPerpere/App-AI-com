@@ -835,20 +835,20 @@ function MainApp() {
 
           <TabsContent value="entreprise" className="space-y-4">
             <Card className="card-gradient">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-3 text-xl">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center">
-                    <Building className="w-5 h-5 text-white" />
+              <CardHeader className="pb-2 px-3 pt-3">
+                <CardTitle className="flex items-center space-x-2 text-lg">
+                  <div className="w-7 h-7 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
+                    <Building className="w-4 h-4 text-white" />
                   </div>
                   <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                     Profil d'entreprise ✨
                   </span>
                 </CardTitle>
-                <CardDescription className="text-sm text-gray-600">
+                <CardDescription className="text-xs text-gray-600">
                   Cliquez sur le stylo ✏️ pour modifier, puis validez ✅ ou annulez ❌
                 </CardDescription>
               </CardHeader>
-              <CardContent className="pt-0">
+              <CardContent className="px-3 pb-3">
                 {businessProfile ? (
                   <div className="space-y-4">
                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">

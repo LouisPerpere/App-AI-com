@@ -191,6 +191,12 @@ function MainApp() {
   const [isSavingBusinessInfo, setIsSavingBusinessInfo] = useState(false);
   const [isSavingMarketingInfo, setIsSavingMarketingInfo] = useState(false);
   
+  // Note form states
+  const [noteTitle, setNoteTitle] = useState('');
+  const [noteContent, setNoteContent] = useState('');
+  const [notePriority, setNotePriority] = useState('normale');
+  const [isSavingNote, setIsSavingNote] = useState(false);
+  
   // Website analysis states
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [websiteAnalysis, setWebsiteAnalysis] = useState(null);

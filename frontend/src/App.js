@@ -1521,45 +1521,56 @@ function MainApp() {
                   )}
                 </div>
 
-                {/* Content Gallery */}
-                {pendingContent.length > 0 ? (
-                  <div>
-                    <h4 className="text-xl font-semibold text-gray-900 flex items-center mb-4">
-                      <ImageIcon className="w-6 h-6 mr-2 text-purple-600" />
-                      Vos contenus ({pendingContent.length})
-                    </h4>
-                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                      {pendingContent.map((content) => (
-                        <ContentThumbnail
-                          key={content.id}
-                          content={content}
-                          isSelectionMode={false}
-                          isSelected={false}
-                          onContentClick={() => {}}
-                          onToggleSelection={() => {}}
-                        />
-                      ))}
-                    </div>
-                    <div className="text-center mt-6">
+                {/* Content Gallery - Always visible */}
+                <div>
+                  <h4 className="text-xl font-semibold text-gray-900 flex items-center mb-4">
+                    <ImageIcon className="w-6 h-6 mr-2 text-purple-600" />
+                    Vos contenus ({pendingContent.length})
+                  </h4>
+                  
+                  {pendingContent.length > 0 ? (
+                    <>
+                      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-6">
+                        {pendingContent.map((content) => (
+                          <ContentThumbnail
+                            key={content.id}
+                            content={content}
+                            isSelectionMode={false}
+                            isSelected={false}
+                            onContentClick={() => {}}
+                            onToggleSelection={() => {}}
+                          />
+                        ))}
+                      </div>
+                      <div className="text-center">
+                        <Button
+                          onClick={loadPendingContent}
+                          variant="outline"
+                          className="text-purple-600 border-purple-300 hover:bg-purple-50"
+                        >
+                          <ChevronRight className="w-4 h-4 mr-2 rotate-90" />
+                          Recharger le contenu
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-12 card-glass rounded-3xl border-2 border-dashed border-purple-300">
+                      <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
+                        <ImageIcon className="w-12 h-12 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-gray-700 mb-4">Votre bibliothèque de contenus 📚</h3>
+                      <p className="text-xl text-gray-500 mb-6">Uploadez vos premiers contenus pour voir votre succès exploser ! 🚀</p>
                       <Button
                         onClick={loadPendingContent}
                         variant="outline"
                         className="text-purple-600 border-purple-300 hover:bg-purple-50"
                       >
                         <ChevronRight className="w-4 h-4 mr-2 rotate-90" />
-                        Recharger le contenu
+                        Charger le contenu existant
                       </Button>
                     </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-12 card-glass rounded-3xl border-2 border-dashed border-purple-300">
-                    <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
-                      <ImageIcon className="w-12 h-12 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-700 mb-4">Votre bibliothèque de contenus 📚</h3>
-                    <p className="text-xl text-gray-500">Uploadez vos premiers contenus pour voir votre succès exploser ! 🚀</p>
-                  </div>
-                )}
+                  )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

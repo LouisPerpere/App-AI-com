@@ -750,7 +750,7 @@ function MainApp() {
   const Dashboard = () => (
     <div className="min-h-screen bg-pattern">
       <div className="card-glass border-0 border-b border-purple-100/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+        <div className="max-w-7xl mx-auto px-2 sm:px-3 py-2">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center space-x-3 min-w-0 flex-1">
               <Avatar className="w-12 h-12 sm:w-14 sm:h-14 ring-4 ring-purple-200/50 flex-shrink-0">

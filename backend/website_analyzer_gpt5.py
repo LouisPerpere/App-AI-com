@@ -221,6 +221,11 @@ async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
 
         MISSION: Créer une analyse marketing approfondie et actionnable. Sois très spécifique et détaillé dans chaque section.
 
+        IMPORTANT: 
+        - NE PAS utiliser l'extension du domaine (.fr, .com, .net, etc.) comme partie du nom de l'entreprise
+        - Identifier le vrai nom commercial de l'entreprise à partir du contenu, titres, et textes du site
+        - Si le nom n'est pas clair, utiliser une description générique plutôt que l'URL
+
         Réponds UNIQUEMENT avec ce JSON (sans ``` ni markdown):
         {{
             "analysis_summary": "Résumé détaillé et complet de l'entreprise, ses activités, son positionnement et sa proposition de valeur unique. 5-8 phrases complètes qui donnent une vision claire de ce que fait cette entreprise et comment elle se différencie. Inclure le secteur d'activité, la localisation si mentionnée, et les points forts identifiés.",

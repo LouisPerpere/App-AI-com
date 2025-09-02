@@ -1090,6 +1090,8 @@ function MainApp() {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
                 ) : (
                   <div className="text-center py-12 card-glass rounded-2xl">
                     <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-4">

@@ -1690,7 +1690,7 @@ function MainApp() {
                           id="note_title_native"
                           type="text"
                           value={noteTitle}
-                          onChange={(e) => setNoteTitle(e.target.value)}
+                          onChange={handleNoteTitleChange}
                           placeholder="Ex: Nouvelle promotion, Événement spécial..."
                           className="w-full p-4 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                           style={{

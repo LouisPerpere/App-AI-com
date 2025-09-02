@@ -213,18 +213,19 @@ function MainApp() {
   useEffect(() => {
     checkAuth();
   }, []);
-  // S'assurer que l'URL est bien pré-remplie quand l'analyse existe
+  // S'assurer que l'URL est bien pré-remplie quand l'analyse existe ou qu'on change d'onglet
   useEffect(() => {
-    if (websiteAnalysis?.website_url) {
+    const urlToUse = websiteAnalysis?.website_url || persistedUrl;
+    if (urlToUse) {
       setTimeout(() => {
         const urlInput = document.getElementById('website_analysis_url_native');
         if (urlInput && !urlInput.value) {
-          urlInput.value = websiteAnalysis.website_url;
-          console.log(`✅ URL restaurée depuis websiteAnalysis: ${websiteAnalysis.website_url}`);
+          urlInput.value = urlToUse;
+          console.log(`✅ URL restaurée: ${urlToUse}`);
         }
       }, 200);
     }
-  }, [websiteAnalysis]);
+  }, [websiteAnalysis, persistedUrl, activeTab]); // Ajouter activeTab pour déclencher quand on change d'onglet
 
   const checkAuth = async () => {
     const token = localStorage.getItem('access_token');

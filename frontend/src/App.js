@@ -1821,7 +1821,6 @@ function MainApp() {
                           ref={priorityInputRef}
                           id="note_priority_native"
                           onChange={handleNotePriorityChange}
-                          defaultValue="normal"
                           className="w-full p-4 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                           style={{
                             fontSize: '16px',
@@ -1838,7 +1837,7 @@ function MainApp() {
                           }}
                         >
                           <option value="low">🟢 Priorité faible</option>
-                          <option value="normal">🟡 Priorité normale</option>
+                          <option value="normal" selected>🟡 Priorité normale</option>
                           <option value="high">🔴 Priorité élevée</option>
                         </select>
                       </div>

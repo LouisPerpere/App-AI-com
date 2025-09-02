@@ -1687,9 +1687,9 @@ function MainApp() {
                             cursor: 'pointer'
                           }}
                         >
-                          <option value="faible">🟢 Priorité faible</option>
-                          <option value="normale">🟡 Priorité normale</option>
-                          <option value="élevée">🔴 Priorité élevée</option>
+                          <option value="low">🟢 Priorité faible</option>
+                          <option value="normal">🟡 Priorité normale</option>
+                          <option value="high">🔴 Priorité élevée</option>
                         </select>
                       </div>
                       

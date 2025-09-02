@@ -191,13 +191,18 @@ function MainApp() {
   const [isSavingBusinessInfo, setIsSavingBusinessInfo] = useState(false);
   const [isSavingMarketingInfo, setIsSavingMarketingInfo] = useState(false);
   
-  // Note form states
+  // Note form states - using refs to prevent re-renders that close virtual keyboard
   const [noteTitle, setNoteTitle] = useState('');
   const [noteContent, setNoteContent] = useState('');
   const [notePriority, setNotePriority] = useState('normal');
   const [isSavingNote, setIsSavingNote] = useState(false);
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [isDeletingNote, setIsDeletingNote] = useState(null);
+  
+  // Refs for direct DOM manipulation to avoid re-renders
+  const titleInputRef = useRef(null);
+  const contentInputRef = useRef(null);
+  const priorityInputRef = useRef(null);
   
   // Website analysis states
   const [isAnalyzing, setIsAnalyzing] = useState(false);

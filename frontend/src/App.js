@@ -1834,10 +1834,67 @@ function MainApp() {
 
                 {/* Content Gallery - Always visible */}
                 <div>
-                  <h4 className="text-xl font-semibold text-gray-900 flex items-center mb-4">
-                    <ImageIcon className="w-6 h-6 mr-2 text-purple-600" />
-                    Vos contenus ({pendingContent.length})
-                  </h4>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-xl font-semibold text-gray-900 flex items-center">
+                      <ImageIcon className="w-6 h-6 mr-2 text-purple-600" />
+                      Vos contenus ({pendingContent.length})
+                    </h4>
+                    
+                    {/* Boutons de contrôle */}
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        onClick={toggleSelectionMode}
+                        variant={isSelectionMode ? "default" : "outline"}
+                        size="sm"
+                        className={isSelectionMode ? "bg-purple-600 text-white" : "text-purple-600 border-purple-300"}
+                      >
+                        {isSelectionMode ? (
+                          <>
+                            <X className="w-4 h-4 mr-1" />
+                            Annuler
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-4 h-4 mr-1" />
+                            Sélectionner
+                          </>
+                        )}
+                      </Button>
+                      
+                      {isSelectionMode && (
+                        <>
+                          <Button
+                            onClick={handleSelectAll}
+                            variant="outline"
+                            size="sm"
+                            className="text-blue-600 border-blue-300"
+                          >
+                            {selectedContentIds.size === pendingContent.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+                          </Button>
+                          
+                          <Button
+                            onClick={handleDeleteSelected}
+                            disabled={selectedContentIds.size === 0 || isDeletingContent}
+                            variant="outline"
+                            size="sm"
+                            className="text-red-600 border-red-300 hover:bg-red-50"
+                          >
+                            {isDeletingContent ? (
+                              <>
+                                <div className="animate-spin rounded-full mr-1 h-4 w-4 border-b-2 border-red-600"></div>
+                                Suppression...
+                              </>
+                            ) : (
+                              <>
+                                <Trash className="w-4 h-4 mr-1" />
+                                Supprimer ({selectedContentIds.size})
+                              </>
+                            )}
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
                   
                   {pendingContent.length > 0 ? (
                     <>
@@ -1846,10 +1903,10 @@ function MainApp() {
                           <ContentThumbnail
                             key={content.id}
                             content={content}
-                            isSelectionMode={false}
-                            isSelected={false}
-                            onContentClick={() => {}}
-                            onToggleSelection={() => {}}
+                            isSelectionMode={isSelectionMode}
+                            isSelected={selectedContentIds.has(content.id)}
+                            onContentClick={handleContentClick}
+                            onToggleSelection={handleToggleSelection}
                           />
                         ))}
                       </div>

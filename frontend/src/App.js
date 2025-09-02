@@ -1106,8 +1106,8 @@ function MainApp() {
                   </div>
                 )}
 
-                {/* Boutons d'analyse */}
-                <div className="flex gap-3 flex-wrap">
+                {/* Bouton d'analyse unique et intelligent */}
+                <div className="flex gap-3">
                   <Button
                     type="button"
                     onClick={handleAnalyzeWebsite}
@@ -1121,24 +1121,16 @@ function MainApp() {
                       </>
                     ) : (  
                       <>
-                        <Search className="w-4 h-4" />
-                        <span>{lastAnalysisInfo ? 'Relancer l\'analyse' : 'Analyser le site'}</span>
+                        {lastAnalysisInfo ? <RefreshCw className="w-4 h-4" /> : <Search className="w-4 h-4" />}
+                        <span>
+                          {lastAnalysisInfo 
+                            ? (needsNewAnalysis() ? 'Nouvelle analyse recommandée' : 'Relancer l\'analyse') 
+                            : 'Analyser le site'
+                          }
+                        </span>
                       </>
                     )}
                   </Button>
-                  
-                  {lastAnalysisInfo && !needsNewAnalysis() && (
-                    <Button
-                      type="button"
-                      onClick={handleAnalyzeWebsite}
-                      disabled={isAnalyzing}
-                      variant="outline"
-                      className="border-purple-300 text-purple-700 hover:bg-purple-50 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 text-sm"
-                    >
-                      <RefreshCw className="w-3.5 h-3.5" />
-                      <span>Analyse manuelle</span>
-                    </Button>
-                  )}
                 </div>
 
                 {/* Affichage des résultats ou message par défaut */}

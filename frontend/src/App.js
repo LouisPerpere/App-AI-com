@@ -497,8 +497,8 @@ function MainApp() {
   }, []);
 
   const handleNotePriorityChange = useCallback((e) => {
-    // Priority can use state since it's a dropdown, not text input
-    setNotePriority(e.target.value);
+    // Pas de setState pour éviter re-render qui vide les autres champs
+    // La valeur sera lue directement du DOM
   }, []);
 
   // Get current form values from DOM

@@ -608,7 +608,7 @@ function MainApp() {
       note.content || '', 
       note.priority || 'normal'
     );
-    setEditingNoteId(note.note_id || note.id || note._id);
+    setEditingNoteId(note.note_id);
     
     // Scroll vers le formulaire
     setTimeout(() => {

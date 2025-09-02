@@ -476,6 +476,57 @@ function MainApp() {
     }
   };
 
+  // Sauvegarder une note
+  const handleSaveNote = async () => {
+    // Validation des champs
+    if (!noteTitle.trim()) {
+      toast.error('Veuillez saisir un titre pour la note');
+      return;
+    }
+    
+    if (!noteContent.trim()) {
+      toast.error('Veuillez saisir le contenu de la note');
+      return;
+    }
+
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast.error('Vous devez être connecté pour sauvegarder une note');
+      return;
+    }
+
+    setIsSavingNote(true);
+    
+    try {
+      const response = await axios.post(`${API}/notes`, {
+        title: noteTitle.trim(),
+        content: noteContent.trim(),
+        priority: notePriority
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data) {
+        toast.success('Note sauvegardée avec succès ! 📝');
+        
+        // Réinitialiser le formulaire
+        setNoteTitle('');
+        setNoteContent('');
+        setNotePriority('normale');
+        
+        // Recharger les notes
+        await loadNotes();
+      }
+      
+    } catch (error) {
+      console.error('Error saving note:', error);
+      const errorMessage = extractErrorMessage(error);
+      toast.error(`Erreur lors de la sauvegarde: ${errorMessage}`);
+    } finally {
+      setIsSavingNote(false);
+    }
+  };
+
   // Analyse de site web
   const handleAnalyzeWebsite = async () => {
     const websiteUrl = document.getElementById('website_analysis_url_native')?.value;

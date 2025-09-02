@@ -1939,6 +1939,108 @@ function MainApp() {
                     </div>
                   )}
                 </div>
+                
+                {/* Modal d'aperçu du contenu */}
+                {previewContent && (
+                  <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+                      {/* Header de la modal */}
+                      <div className="flex items-center justify-between p-4 border-b">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {previewContent.filename}
+                        </h3>
+                        <Button
+                          onClick={handleClosePreview}
+                          variant="ghost"
+                          size="sm"
+                          className="text-gray-500 hover:text-gray-700"
+                        >
+                          <X className="w-5 h-5" />
+                        </Button>
+                      </div>
+                      
+                      {/* Contenu de la modal */}
+                      <div className="flex-1 overflow-auto p-4">
+                        <div className="grid md:grid-cols-2 gap-6">
+                          {/* Aperçu du média */}
+                          <div className="space-y-4">
+                            {previewContent.file_type?.startsWith('image/') ? (
+                              <img 
+                                src={previewContent.url}
+                                alt={previewContent.filename}
+                                className="w-full h-auto max-h-96 object-contain rounded-lg border"
+                              />
+                            ) : previewContent.file_type?.startsWith('video/') ? (
+                              <video 
+                                src={previewContent.url}
+                                controls
+                                className="w-full h-auto max-h-96 rounded-lg border"
+                              />
+                            ) : (
+                              <div className="w-full h-48 bg-gray-100 rounded-lg border flex items-center justify-center">
+                                <FileText className="w-12 h-12 text-gray-400" />
+                              </div>
+                            )}
+                            
+                            {/* Informations du fichier */}
+                            <div className="text-sm text-gray-600 space-y-1">
+                              <p><strong>Type:</strong> {previewContent.file_type}</p>
+                              <p><strong>Taille:</strong> {previewContent.file_size ? `${Math.round(previewContent.file_size / 1024)} KB` : 'N/A'}</p>
+                              <p><strong>Ajouté le:</strong> {previewContent.uploaded_at ? new Date(previewContent.uploaded_at).toLocaleDateString('fr-FR') : 'N/A'}</p>
+                            </div>
+                          </div>
+                          
+                          {/* Zone d'édition du contexte */}
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Contexte et description 📝
+                              </label>
+                              <textarea
+                                value={contentContext}
+                                onChange={(e) => setContentContext(e.target.value)}
+                                placeholder="Ajoutez une description, du contexte, des mots-clés pour utiliser cette image dans vos posts..."
+                                className="w-full h-48 p-3 border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none resize-none"
+                                style={{
+                                  fontSize: '16px', // Pour éviter le zoom sur mobile
+                                }}
+                              />
+                            </div>
+                            
+                            {/* Boutons d'action */}
+                            <div className="flex space-x-3">
+                              <Button
+                                onClick={handleSaveContext}
+                                disabled={isSavingContext}
+                                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                              >
+                                {isSavingContext ? (
+                                  <>
+                                    <div className="animate-spin rounded-full mr-2 h-4 w-4 border-b-2 border-white"></div>
+                                    Sauvegarde...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Save className="w-4 h-4 mr-2" />
+                                    Sauvegarder
+                                  </>
+                                )}
+                              </Button>
+                              
+                              <Button
+                                onClick={handleClosePreview}
+                                variant="outline"
+                                className="flex-1"
+                              >
+                                Fermer
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

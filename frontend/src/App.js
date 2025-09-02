@@ -520,7 +520,7 @@ function MainApp() {
       
     } catch (error) {
       console.error('Error saving note:', error);
-      const errorMessage = extractErrorMessage(error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
       toast.error(`Erreur lors de la sauvegarde: ${errorMessage}`);
     } finally {
       setIsSavingNote(false);

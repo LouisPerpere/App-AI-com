@@ -914,30 +914,49 @@ function MainApp() {
                   <span className="ml-2 font-bold text-sm">Analyse</span>
                 </div>
               </TabsTrigger>
-              <TabsTrigger value="bibliotheque" className="tab-sexy">
-                <ImageIcon className="w-5 h-5" />
-                <span className="ml-2 font-semibold">Bibliothèque</span>
-              </TabsTrigger>
-              <TabsTrigger value="notes" className="tab-sexy">
-                <Edit className="w-5 h-5" />
-                <span className="ml-2 font-semibold">Notes</span>
-              </TabsTrigger>
-              <TabsTrigger value="posts" className="tab-sexy">
-                <FileText className="w-5 h-5" />
-                <span className="ml-2 font-semibold">Posts</span>
-              </TabsTrigger>
-              <TabsTrigger value="calendar" className="tab-sexy">
-                <CalendarIcon className="w-5 h-5" />
-                <span className="ml-2 font-semibold">Calendrier</span>
-              </TabsTrigger>
-              <TabsTrigger value="social" className="tab-sexy">
-                <Users className="w-5 h-5" />
-                <span className="ml-2 font-semibold">Social</span>
-              </TabsTrigger>
-              <TabsTrigger value="reglages" className="tab-sexy">
-                <Cog className="w-5 h-5" />
-                <span className="ml-2 font-semibold">Réglages</span>
-              </TabsTrigger>
+                <TabsTrigger value="bibliotheque" className="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:scale-105 data-[state=active]:scale-105 data-[state=active]:shadow-lg data-[state=active]:shadow-emerald-500/25 bg-gradient-to-br from-emerald-50 to-teal-50 data-[state=active]:from-emerald-500 data-[state=active]:to-teal-500 border-0">
+                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600 opacity-0 group-data-[state=active]:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+                  <div className="relative z-10 flex items-center text-slate-700 group-data-[state=active]:text-white transition-colors duration-300">
+                    <ImageIcon className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
+                    <span className="ml-2 font-bold text-sm">Bibliothèque</span>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger value="notes" className="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:scale-105 data-[state=active]:scale-105 data-[state=active]:shadow-lg data-[state=active]:shadow-cyan-500/25 bg-gradient-to-br from-cyan-50 to-blue-50 data-[state=active]:from-cyan-500 data-[state=active]:to-blue-500 border-0">
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-blue-600 opacity-0 group-data-[state=active]:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+                  <div className="relative z-10 flex items-center text-slate-700 group-data-[state=active]:text-white transition-colors duration-300">
+                    <Edit className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
+                    <span className="ml-2 font-bold text-sm">Notes</span>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger value="posts" className="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:scale-105 data-[state=active]:scale-105 data-[state=active]:shadow-lg data-[state=active]:shadow-orange-500/25 bg-gradient-to-br from-orange-50 to-red-50 data-[state=active]:from-orange-500 data-[state=active]:to-red-500 border-0">
+                  <div className="absolute inset-0 bg-gradient-to-r from-orange-600 to-red-600 opacity-0 group-data-[state=active]:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+                  <div className="relative z-10 flex items-center text-slate-700 group-data-[state=active]:text-white transition-colors duration-300">
+                    <FileText className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
+                    <span className="ml-2 font-bold text-sm">Posts</span>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger value="calendar" className="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:scale-105 data-[state=active]:scale-105 data-[state=active]:shadow-lg data-[state=active]:shadow-indigo-500/25 bg-gradient-to-br from-indigo-50 to-violet-50 data-[state=active]:from-indigo-500 data-[state=active]:to-violet-500 border-0">
+                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 opacity-0 group-data-[state=active]:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+                  <div className="relative z-10 flex items-center text-slate-700 group-data-[state=active]:text-white transition-colors duration-300">
+                    <CalendarIcon className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
+                    <span className="ml-2 font-bold text-sm">Calendrier</span>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger value="social" className="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:scale-105 data-[state=active]:scale-105 data-[state=active]:shadow-lg data-[state=active]:shadow-rose-500/25 bg-gradient-to-br from-rose-50 to-pink-50 data-[state=active]:from-rose-500 data-[state=active]:to-pink-500 border-0">
+                  <div className="absolute inset-0 bg-gradient-to-r from-rose-600 to-pink-600 opacity-0 group-data-[state=active]:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+                  <div className="relative z-10 flex items-center text-slate-700 group-data-[state=active]:text-white transition-colors duration-300">
+                    <Users className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
+                    <span className="ml-2 font-bold text-sm">Social</span>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger value="reglages" className="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:scale-105 data-[state=active]:scale-105 data-[state=active]:shadow-lg data-[state=active]:shadow-slate-500/25 bg-gradient-to-br from-slate-50 to-gray-50 data-[state=active]:from-slate-500 data-[state=active]:to-gray-500 border-0">
+                  <div className="absolute inset-0 bg-gradient-to-r from-slate-600 to-gray-600 opacity-0 group-data-[state=active]:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+                  <div className="relative z-10 flex items-center text-slate-700 group-data-[state=active]:text-white transition-colors duration-300">
+                    <Cog className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
+                    <span className="ml-2 font-bold text-sm">Réglages</span>
+                  </div>
+                </TabsTrigger>
+              </div>
             </TabsList>
           </div>
 

@@ -1921,8 +1921,8 @@ function MainApp() {
                               
                               {/* Bouton supprimer */}
                               <Button
-                                onClick={() => handleDeleteNote(note.note_id)}
-                                disabled={isDeletingNote === note.note_id}
+                                onClick={() => handleDeleteNote(note.note_id || note.id || note._id)}
+                                disabled={isDeletingNote === (note.note_id || note.id || note._id)}
                                 variant="ghost"
                                 size="sm"
                                 className="p-2 h-8 w-8 text-red-600 hover:text-red-800 hover:bg-red-50"

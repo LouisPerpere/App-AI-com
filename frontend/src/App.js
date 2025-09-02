@@ -223,6 +223,14 @@ function MainApp() {
   useEffect(() => {
     checkAuth();
   }, []);
+
+  // Initialize priority select to default value
+  useEffect(() => {
+    if (priorityInputRef.current && !editingNoteId) {
+      priorityInputRef.current.value = 'normal';
+      console.log('🎯 Priorité initialisée à:', priorityInputRef.current.value); // Debug
+    }
+  }, [editingNoteId]);
   // S'assurer que l'URL est bien pré-remplie quand l'analyse existe ou qu'on change d'onglet
   useEffect(() => {
     const urlToUse = websiteAnalysis?.website_url || persistedUrl;

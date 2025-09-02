@@ -480,6 +480,19 @@ function MainApp() {
     }
   };
 
+  // Optimized handlers with useCallback to prevent re-renders
+  const handleNoteTitleChange = useCallback((e) => {
+    setNoteTitle(e.target.value);
+  }, []);
+
+  const handleNoteContentChange = useCallback((e) => {
+    setNoteContent(e.target.value);
+  }, []);
+
+  const handleNotePriorityChange = useCallback((e) => {
+    setNotePriority(e.target.value);
+  }, []);
+
   // Sauvegarder une note
   const handleSaveNote = async () => {
     // Validation des champs

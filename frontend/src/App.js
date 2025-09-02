@@ -121,10 +121,19 @@ const ContentThumbnail = React.memo(({
             className="w-full h-full object-cover"
             loading="lazy"
             onError={(e) => {
-              // Fallback hierarchy: thumb_url -> url
+              console.log('❌ Image failed to load:', content.thumb_url || content.url);
+              // Fallback hierarchy: thumb_url -> url -> placeholder
               if (content.url && e.currentTarget.src !== content.url) {
                 e.currentTarget.src = content.url;
+              } else {
+                // Show error placeholder
+                e.currentTarget.style.display = 'none';
+                const placeholder = e.currentTarget.parentElement.querySelector('.error-placeholder');
+                if (placeholder) placeholder.style.display = 'flex';
               }
+            }}
+            onLoad={() => {
+              console.log('✅ Image loaded successfully:', content.thumb_url || content.url);
             }}
           />
         ) : content.file_type?.startsWith('video/') ? (

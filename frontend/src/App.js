@@ -500,11 +500,13 @@ function MainApp() {
 
   // Get current form values from DOM
   const getCurrentFormValues = useCallback(() => {
-    return {
+    const values = {
       title: titleInputRef.current?.value || '',
       content: contentInputRef.current?.value || '',
       priority: priorityInputRef.current?.value || 'normal'
     };
+    console.log('📝 Valeurs du formulaire:', values); // Debug
+    return values;
   }, []);
 
   // Set form values in DOM

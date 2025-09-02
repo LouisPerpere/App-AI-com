@@ -1664,15 +1664,15 @@ function MainApp() {
                         />
                       </div>
                       
-                      {/* Priorité avec input HTML natif */}
+                      {/* Priorité avec dropdown HTML natif */}
                       <div className="space-y-2">
                         <label htmlFor="note_priority_native" className="block text-sm font-medium text-gray-700">
                           Priorité
                         </label>
-                        <input
+                        <select
                           id="note_priority_native"
-                          type="text"
-                          placeholder="low / medium / high"
+                          value={notePriority}
+                          onChange={(e) => setNotePriority(e.target.value)}
                           className="w-full p-4 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                           style={{
                             fontSize: '16px',
@@ -1683,16 +1683,13 @@ function MainApp() {
                             boxShadow: 'none',
                             WebkitBoxShadow: 'none',
                             touchAction: 'manipulation',
-                            userSelect: 'text',
-                            WebkitUserSelect: 'text'
+                            cursor: 'pointer'
                           }}
-                          autoComplete="off"
-                          autoCorrect="off"
-                          autoCapitalize="off"
-                          spellCheck="false"
-                          inputMode="text"
-                          enterKeyHint="done"
-                        />
+                        >
+                          <option value="faible">🟢 Priorité faible</option>
+                          <option value="normale">🟡 Priorité normale</option>
+                          <option value="élevée">🔴 Priorité élevée</option>
+                        </select>
                       </div>
                       
                       <Button

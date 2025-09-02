@@ -497,10 +497,29 @@ function MainApp() {
 
   // Fonctions pour le système d'édition verrouillé/déverrouillé
   const startEditing = (fieldName) => {
-    setEditingFields(prev => ({ ...prev, [fieldName]: true }));
-    // Stocker la valeur actuelle pour pouvoir l'annuler
-    const currentValue = document.getElementById(fieldName)?.value || '';
+    // Récupérer la valeur actuelle visible dans l'interface
+    const element = document.getElementById(fieldName);
+    let currentValue = '';
+    
+    if (element) {
+      currentValue = element.value || element.textContent || '';
+    } else {
+      // Fallback: chercher dans le profil business
+      const fieldMapping = {
+        'business_name_edit': businessProfile?.business_name || '',
+        'business_type_edit': businessProfile?.business_type || '',
+        'business_description_edit': businessProfile?.business_description || '',
+        'brand_tone_edit': businessProfile?.brand_tone || 'professionnel',
+        'posting_frequency_edit': businessProfile?.posting_frequency || 'hebdomadaire',
+        'business_email_edit': businessProfile?.email || '',
+        'business_website_edit': businessProfile?.website_url || '',
+        'target_audience_edit': businessProfile?.target_audience || ''
+      };
+      currentValue = fieldMapping[fieldName] || '';
+    }
+    
     setFieldValues(prev => ({ ...prev, [fieldName]: currentValue }));
+    setEditingFields(prev => ({ ...prev, [fieldName]: true }));
   };
 
   const cancelEditing = (fieldName) => {

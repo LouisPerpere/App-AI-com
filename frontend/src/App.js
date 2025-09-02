@@ -868,10 +868,10 @@ function MainApp() {
                   {businessProfile?.business_name || 'Mon entreprise'}
                 </p>
                 <div className="text-xs sm:text-sm">
-                  <p className="text-slate-700 font-bold">
+                  <p className="text-purple-600 font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                     Claire rédige, Marcus programme.
                   </p>
-                  <p className="text-slate-700 font-bold transform transition-all duration-300 hover:scale-105" 
+                  <p className="text-purple-600 font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent transform transition-all duration-300 hover:scale-105" 
                      style={{
                        animation: 'breathe 3s ease-in-out infinite'
                      }}>

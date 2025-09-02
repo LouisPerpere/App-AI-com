@@ -521,7 +521,6 @@ function MainApp() {
     if (contentInputRef.current) contentInputRef.current.value = content;
     if (priorityInputRef.current) {
       priorityInputRef.current.value = priority;
-      console.log('🔧 Priorité définie:', priority, 'Valeur lue:', priorityInputRef.current.value); // Debug
     }
   }, []);
 

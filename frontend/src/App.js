@@ -265,6 +265,10 @@ function MainApp() {
         headers: { Authorization: `Bearer ${token}` }
       });
       setBusinessProfile(response.data);
+      
+      // Charger aussi l'analyse de site web existante
+      await loadExistingAnalysis();
+      
       setActiveStep('dashboard');
     } catch (error) {
       console.log('Business profile fetch error:', error.response?.status);

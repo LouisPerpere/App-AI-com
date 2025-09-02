@@ -92,6 +92,16 @@ const ContentThumbnail = React.memo(({
     }
   }, [isSelectionMode, content, onContentClick, onToggleSelection]);
 
+  // Debug pour voir les URLs des vignettes
+  console.log('🖼️ Content thumbnail:', {
+    id: content.id,
+    filename: content.filename,
+    file_type: content.file_type,
+    thumb_url: content.thumb_url,
+    url: content.url,
+    full_content: content
+  });
+
   return (
     <div 
       className={`relative group transform hover:scale-105 transition-all duration-200 ${

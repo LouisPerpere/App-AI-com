@@ -194,6 +194,7 @@ function MainApp() {
   // Website analysis states
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [websiteAnalysis, setWebsiteAnalysis] = useState(null);
+  const [lastAnalysisInfo, setLastAnalysisInfo] = useState(null);
   
   // Field editing states (verrouillage/déverrouillage)
   const [editingFields, setEditingFields] = useState({});

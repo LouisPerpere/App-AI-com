@@ -1068,8 +1068,41 @@ function MainApp() {
                   />
                 </div>
 
-                {/* Bouton d'analyse */}
-                <div className="flex gap-3">
+                {/* Informations sur l'analyse existante */}
+                {lastAnalysisInfo && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div>
+                        <span className="font-medium text-blue-800">Dernière analyse :</span>
+                        <span className="text-blue-700 ml-1">
+                          {new Date(lastAnalysisInfo.lastAnalyzed).toLocaleDateString('fr-FR', {
+                            day: '2-digit',
+                            month: '2-digit', 
+                            year: 'numeric'
+                          })}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-blue-800">Prochaine analyse :</span>
+                        <span className="text-blue-700 ml-1">
+                          {new Date(lastAnalysisInfo.nextAnalysisDue).toLocaleDateString('fr-FR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                          })}
+                        </span>
+                        {needsNewAnalysis() && (
+                          <span className="ml-2 px-2 py-0.5 bg-orange-100 text-orange-800 text-xs rounded-full">
+                            Analyse recommandée
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Boutons d'analyse */}
+                <div className="flex gap-3 flex-wrap">
                   <Button
                     type="button"
                     onClick={handleAnalyzeWebsite}
@@ -1084,10 +1117,23 @@ function MainApp() {
                     ) : (  
                       <>
                         <Search className="w-4 h-4" />
-                        <span>Analyser le site</span>
+                        <span>{lastAnalysisInfo ? 'Relancer l\'analyse' : 'Analyser le site'}</span>
                       </>
                     )}
                   </Button>
+                  
+                  {lastAnalysisInfo && !needsNewAnalysis() && (
+                    <Button
+                      type="button"
+                      onClick={handleAnalyzeWebsite}
+                      disabled={isAnalyzing}
+                      variant="outline"
+                      className="border-purple-300 text-purple-700 hover:bg-purple-50 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 text-sm"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>Analyse manuelle</span>
+                    </Button>
+                  )}
                 </div>
 
                 {/* Affichage des résultats ou message par défaut */}

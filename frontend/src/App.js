@@ -493,6 +493,15 @@ function MainApp() {
         lastAnalyzed: response.data.created_at,
         nextAnalysisDue: response.data.next_analysis_due
       });
+      
+      // S'assurer que l'URL reste dans le champ après l'analyse
+      setTimeout(() => {
+        const urlInput = document.getElementById('website_analysis_url_native');
+        if (urlInput && websiteUrl) {
+          urlInput.value = websiteUrl.trim();
+        }
+      }, 100);
+      
       toast.success(`Analyse terminée ! ${response.data.pages_count || 1} page(s) analysée(s)`);
       
     } catch (error) {

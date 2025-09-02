@@ -508,11 +508,13 @@ function MainApp() {
         nextAnalysisDue: response.data.next_analysis_due
       });
       
-      // S'assurer que l'URL reste dans le champ après l'analyse
+      // Persister l'URL et s'assurer qu'elle reste dans le champ
+      const trimmedUrl = websiteUrl.trim();
+      setPersistedUrl(trimmedUrl);
       setTimeout(() => {
         const urlInput = document.getElementById('website_analysis_url_native');
-        if (urlInput && websiteUrl) {
-          urlInput.value = websiteUrl.trim();
+        if (urlInput) {
+          urlInput.value = trimmedUrl;
         }
       }, 100);
       

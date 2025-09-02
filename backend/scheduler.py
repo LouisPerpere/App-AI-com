@@ -1078,6 +1078,12 @@ async def main_scheduler():
             await ContentScheduler.run_scheduled_generations()
             await ContentScheduler.send_content_reminders()
             
+            # Check for website analyses that need monthly refresh (run every hour)
+            import time
+            current_minute = int(time.time() / 60)
+            if current_minute % 60 == 0:  # Run every hour (when minutes = 0)
+                await check_and_update_website_analyses()
+            
             # Wait 60 seconds before next check
             await asyncio.sleep(60)
             

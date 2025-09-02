@@ -678,8 +678,8 @@ function MainApp() {
           {label}
         </label>
         <div className="relative">
-          <div className="w-full p-3 pr-12 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 min-h-[48px] flex items-center">
-            {displayValue || <span className="text-gray-400 italic">{placeholder || 'Non renseigné'}</span>}
+          <div className="w-full p-2 pr-10 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 min-h-[40px] flex items-center text-sm">
+            {displayValue || <span className="text-gray-400 italic text-xs">{placeholder || 'Non renseigné'}</span>}
           </div>
           
           {/* Bouton stylo moderne pour déverrouiller */}

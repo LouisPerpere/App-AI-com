@@ -623,7 +623,7 @@ function MainApp() {
                 id={fieldId}
                 defaultValue={displayValue}
                 placeholder={placeholder}
-                className="w-full p-3 pr-20 border-2 border-blue-500 rounded-lg bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+                className="w-full p-2 pr-16 border-2 border-blue-500 rounded-lg bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
                 style={{
                   fontSize: '16px',
                   lineHeight: '1.5',

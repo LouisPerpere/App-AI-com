@@ -513,7 +513,7 @@ function MainApp() {
         // Réinitialiser le formulaire
         setNoteTitle('');
         setNoteContent('');
-        setNotePriority('normale');
+        setNotePriority('normal');
         
         // Recharger les notes
         await loadNotes();

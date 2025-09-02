@@ -721,21 +721,25 @@ function MainApp() {
               />
             )}
             
-            {/* Boutons confirmer/annuler modernes */}
-            <div className="absolute right-1 top-1/2 transform -translate-y-1/2 flex space-x-1">
+            {/* Boutons confirmer/annuler ultra-modernes */}
+            <div className="absolute right-1 top-1/2 transform -translate-y-1/2 flex space-x-1.5">
               <button
                 onClick={() => confirmEditing(fieldId, fieldType)}
-                className="w-7 h-7 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                className="group w-8 h-8 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 hover:from-emerald-600 hover:via-green-600 hover:to-teal-600 text-white rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-emerald-500/50 transform hover:scale-110 hover:rotate-12 relative overflow-hidden"
                 title="Confirmer"
               >
-                <Check className="w-3.5 h-3.5" />
+                <div className="absolute inset-0 bg-gradient-to-r from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <Check className="w-4 h-4 relative z-10 transition-all duration-300 group-hover:scale-110" />
+                <div className="absolute inset-0 rounded-xl bg-emerald-400/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </button>
               <button
                 onClick={() => cancelEditing(fieldId)}
-                className="w-7 h-7 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                className="group w-8 h-8 bg-gradient-to-br from-red-500 via-pink-500 to-rose-500 hover:from-red-600 hover:via-pink-600 hover:to-rose-600 text-white rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-red-500/50 transform hover:scale-110 hover:-rotate-12 relative overflow-hidden"
                 title="Annuler"
               >
-                <X className="w-3.5 h-3.5" />
+                <div className="absolute inset-0 bg-gradient-to-r from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <X className="w-4 h-4 relative z-10 transition-all duration-300 group-hover:scale-110" />
+                <div className="absolute inset-0 rounded-xl bg-red-400/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </button>
             </div>
           </div>

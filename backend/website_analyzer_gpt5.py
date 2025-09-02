@@ -75,17 +75,11 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # API Key configuration - Use Emergent LLM Key for GPT-4o
-try:
-    from emergentintegrations import get_universal_key
-    API_KEY = get_universal_key()  # Get the Emergent universal key
-    if API_KEY:
-        print(f"✅ Emergent LLM Key loaded successfully")
-    else:
-        print("❌ No Emergent LLM Key found")
-except Exception as e:
-    print(f"❌ Error loading Emergent key: {e}")
-    # Fallback to environment variable
-    API_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
+API_KEY = "sk-emergent-366877a7b4d4d03A1D"  # Emergent universal key
+if API_KEY:
+    print(f"✅ Emergent LLM Key loaded successfully")
+else:
+    print("❌ No Emergent LLM Key found")
 
 if not API_KEY:
     logging.warning("No API key found for GPT analysis. Website analysis will use fallback mode.")

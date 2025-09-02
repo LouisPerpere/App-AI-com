@@ -1074,6 +1074,7 @@ function MainApp() {
                   </div>
                 )}
               </CardContent>
+            </div>
             </Card>
           </TabsContent>
 

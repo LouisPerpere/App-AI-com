@@ -14,7 +14,7 @@ from datetime import datetime
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Configuration
-BACKEND_URL = "https://pwa-dashboard-fix.preview.emergentagent.com"
+BACKEND_URL = "https://claire-marcus-app.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request

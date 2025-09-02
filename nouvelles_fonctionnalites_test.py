@@ -12,7 +12,7 @@ import json
 import time
 
 # Configuration - Using the backend URL from review request
-BACKEND_URL = "https://pwa-dashboard-fix.preview.emergentagent.com"
+BACKEND_URL = "https://claire-marcus-app.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials - using newly created user for testing

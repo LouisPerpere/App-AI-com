@@ -1930,8 +1930,7 @@ function MainApp() {
                             {note.content}
                           </p>
                         </div>
-                        );
-                      })}
+                      ))}
                     </div>
                   </div>
                 ) : (

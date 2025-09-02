@@ -628,8 +628,6 @@ function MainApp() {
 
   // Supprimer une note
   const handleDeleteNote = async (noteId) => {
-    alert(`Debug: Tentative suppression note ID: ${noteId}`); // Debug temporaire
-    
     if (!noteId) {
       toast.error('ID de note manquant');
       return;

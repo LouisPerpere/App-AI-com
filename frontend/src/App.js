@@ -192,9 +192,6 @@ function MainApp() {
   const [isSavingMarketingInfo, setIsSavingMarketingInfo] = useState(false);
   
   // Note form states - using refs to prevent re-renders that close virtual keyboard
-  const [noteTitle, setNoteTitle] = useState('');
-  const [noteContent, setNoteContent] = useState('');
-  const [notePriority, setNotePriority] = useState('normal');
   const [isSavingNote, setIsSavingNote] = useState(false);
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [isDeletingNote, setIsDeletingNote] = useState(null);

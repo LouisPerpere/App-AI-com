@@ -1873,6 +1873,24 @@ function MainApp() {
                 {notes.length > 0 ? (
                   <div className="space-y-4">
                     <h3 className="text-xl font-semibold text-gray-900 mb-4">📝 Mes notes ({notes.length})</h3>
+                    
+                    {/* TEST BOUTON EN DEHORS */}
+                    <button
+                      onClick={() => alert('TEST BOUTON DEHORS!')}
+                      style={{
+                        padding: '12px 24px',
+                        backgroundColor: 'green',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '16px',
+                        cursor: 'pointer',
+                        margin: '10px 0'
+                      }}
+                    >
+                      TEST BOUTON ✅
+                    </button>
+                    
                     <div className="grid gap-4">
                       {notes.map((note, index) => (
                         <div key={note.note_id || index} className="card-glass p-6 rounded-2xl border border-indigo-200">

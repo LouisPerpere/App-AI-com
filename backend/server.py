@@ -523,6 +523,42 @@ async def create_note(note: NoteRequest, user_id: str = Depends(get_current_user
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create note: {str(e)}")
 
+@api_router.put("/notes/{note_id}")
+async def update_note(note_id: str, note: NoteRequest, user_id: str = Depends(get_current_user_id_robust)):
+    """Update an existing note"""
+    try:
+        dbm = get_database()
+        
+        # Update note in content_notes collection
+        result = dbm.db.content_notes.update_one(
+            {"note_id": note_id, "user_id": user_id},
+            {"$set": {
+                "content": note.content,
+                "description": note.title,  # title maps to description
+                "priority": note.priority,
+                "title": note.title,
+                "updated_at": datetime.now().isoformat()
+            }}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Note not found")
+        
+        # Get the updated note
+        updated_note = dbm.db.content_notes.find_one(
+            {"note_id": note_id, "user_id": user_id},
+            {"_id": 0}
+        )
+        
+        return {
+            "message": "Note modifiée avec succès",
+            "note": updated_note
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update note: {str(e)}")
+
 @api_router.delete("/notes/{note_id}")
 async def delete_note(note_id: str, user_id: str = Depends(get_current_user_id_robust)):
     """Delete a note"""

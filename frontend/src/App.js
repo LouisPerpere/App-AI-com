@@ -1714,13 +1714,50 @@ function MainApp() {
                   </div>
                 </div>
 
-                <div className="text-center py-12 card-glass rounded-3xl border-2 border-dashed border-indigo-300">
-                  <div className="w-24 h-24 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
-                    <Edit className="w-12 h-12 text-white" />
+                {/* Display saved notes */}
+                {notes.length > 0 ? (
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">📝 Mes notes ({notes.length})</h3>
+                    <div className="grid gap-4">
+                      {notes.map((note, index) => (
+                        <div key={note.note_id || index} className="card-glass p-6 rounded-2xl border border-indigo-200">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center space-x-3">
+                              <div className={`w-3 h-3 rounded-full ${
+                                note.priority === 'élevée' ? 'bg-red-500' :
+                                note.priority === 'normale' ? 'bg-yellow-500' : 'bg-green-500'
+                              }`}></div>
+                              <h4 className="font-semibold text-gray-900">
+                                {note.description || note.title || 'Note sans titre'}
+                              </h4>
+                              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                {note.priority || 'normale'}
+                              </span>
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {note.created_at ? new Date(note.created_at).toLocaleDateString('fr-FR', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric'
+                              }) : ''}
+                            </div>
+                          </div>
+                          <p className="text-gray-700 leading-relaxed">
+                            {note.content}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-700 mb-4">Vos notes apparaîtront ici 📝</h3>
-                  <p className="text-xl text-gray-500">Ajoutez votre première note pour commencer ! ✍️</p>
-                </div>
+                ) : (
+                  <div className="text-center py-12 card-glass rounded-3xl border-2 border-dashed border-indigo-300">
+                    <div className="w-24 h-24 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
+                      <Edit className="w-12 h-12 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-700 mb-4">Vos notes apparaîtront ici 📝</h3>
+                    <p className="text-xl text-gray-500">Ajoutez votre première note pour commencer ! ✍️</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

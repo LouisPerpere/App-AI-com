@@ -111,9 +111,22 @@ user_problem_statement: "FONCTIONNALITÉ SAUVEGARDE PROFIL BUSINESS : L'utilisat
 
 # Added by main agent for Phase A testing
 
+backend:
+  - task: "Notes API Endpoints Implementation"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "🔧 IMPLÉMENTATION ENDPOINTS NOTES: Ajouté 3 endpoints notes dans server.py: (1) GET /api/notes pour récupérer toutes les notes utilisateur, (2) POST /api/notes pour créer une nouvelle note avec titre/contenu/priorité, (3) DELETE /api/notes/{note_id} pour supprimer une note. Utilise la fonction existante create_note() de database.py avec adaptation pour title/priority. NoteRequest model avec title, content, priority (optional, default='normal'). Tests backend requis pour validation."
+
 test_plan:
   current_focus:
-    - "Enhanced Website Analysis and Business Profile Final Improvements"
+    - "Notes API Endpoints Implementation"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

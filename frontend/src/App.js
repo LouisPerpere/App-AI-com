@@ -1665,7 +1665,7 @@ function MainApp() {
                   
                   {pendingContent.length > 0 ? (
                     <>
-                      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-6">
+                      <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-5 gap-3 mb-6">
                         {pendingContent.map((content) => (
                           <ContentThumbnail
                             key={content.id}

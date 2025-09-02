@@ -671,58 +671,60 @@ function MainApp() {
           <label htmlFor={fieldId} className="block text-sm font-medium text-gray-700">
             {label}
           </label>
-          <div className="relative">
-            {isSelect ? (
-              <select
-                id={fieldId}
-                defaultValue={displayValue}
-                className="w-full p-2 pr-16 border-2 border-blue-500 rounded-lg bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                style={{
-                  fontSize: '16px',
-                  lineHeight: '1.5',
-                  WebkitAppearance: 'none',
-                  touchAction: 'manipulation'
-                }}
-              >
-                {options.map((option, index) => (
-                  <option key={index} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            ) : isTextarea ? (
-              <textarea
-                id={fieldId}
-                defaultValue={displayValue}
-                placeholder={placeholder}
-                className="w-full p-2 pr-16 border-2 border-blue-500 rounded-lg bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
-                style={{
-                  fontSize: '16px',
-                  lineHeight: '1.5',
-                  WebkitAppearance: 'none',
-                  touchAction: 'manipulation',
-                  minHeight: '100px'
-                }}
-                rows={4}
-              />
-            ) : (
-              <input
-                id={fieldId}
-                type={type}
-                defaultValue={displayValue}
-                placeholder={placeholder}
-                className="w-full p-2 pr-16 border-2 border-blue-500 rounded-lg bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                style={{
-                  fontSize: '16px',
-                  lineHeight: '1.5',
-                  WebkitAppearance: 'none',
-                  touchAction: 'manipulation'
-                }}
-              />
-            )}
+          <div className="flex items-start gap-3">
+            <div className="flex-1 min-w-0">
+              {isSelect ? (
+                <select
+                  id={fieldId}
+                  defaultValue={displayValue}
+                  className="w-full p-2 border-2 border-blue-500 rounded-lg bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  style={{
+                    fontSize: '16px',
+                    lineHeight: '1.5',
+                    WebkitAppearance: 'none',
+                    touchAction: 'manipulation'
+                  }}
+                >
+                  {options.map((option, index) => (
+                    <option key={index} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              ) : isTextarea ? (
+                <textarea
+                  id={fieldId}
+                  defaultValue={displayValue}
+                  placeholder={placeholder}
+                  className="w-full p-2 border-2 border-blue-500 rounded-lg bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+                  style={{
+                    fontSize: '16px',
+                    lineHeight: '1.5',
+                    WebkitAppearance: 'none',
+                    touchAction: 'manipulation',
+                    minHeight: '100px'
+                  }}
+                  rows={4}
+                />
+              ) : (
+                <input
+                  id={fieldId}
+                  type={type}
+                  defaultValue={displayValue}
+                  placeholder={placeholder}
+                  className="w-full p-2 border-2 border-blue-500 rounded-lg bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  style={{
+                    fontSize: '16px',
+                    lineHeight: '1.5',
+                    WebkitAppearance: 'none',
+                    touchAction: 'manipulation'
+                  }}
+                />
+              )}
+            </div>
             
-            {/* Boutons confirmer/annuler ultra-modernes */}
-            <div className="absolute right-1 top-1/2 transform -translate-y-1/2 flex space-x-1.5">
+            {/* Boutons confirmer/annuler à droite */}
+            <div className="flex flex-col gap-1.5 flex-shrink-0">
               <button
                 onClick={() => confirmEditing(fieldId, fieldType)}
                 className="group w-8 h-8 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 hover:from-emerald-600 hover:via-green-600 hover:to-teal-600 text-white rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-emerald-500/50 transform hover:scale-110 hover:rotate-12 relative overflow-hidden"

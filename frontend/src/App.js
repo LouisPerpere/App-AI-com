@@ -850,9 +850,9 @@ function MainApp() {
               </CardHeader>
               <CardContent className="px-3 pb-3">
                 {businessProfile ? (
-                  <div className="space-y-4">
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
-                      <h3 className="text-base font-bold text-blue-800 mb-3">Informations de l'entreprise</h3>
+                  <div className="space-y-2">
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-2 border border-blue-200">
+                      <h3 className="text-sm font-bold text-blue-800 mb-2">Informations de l'entreprise</h3>
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                         <div className="min-w-0">
                           <EditableField

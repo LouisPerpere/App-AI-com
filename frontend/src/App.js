@@ -952,7 +952,7 @@ function MainApp() {
                           />
                         </div>
                       </div>
-                      <div className="mt-3">
+                      <div className="mt-2">
                         <EditableField
                           fieldId="target_audience_edit"
                           label="Audience cible"

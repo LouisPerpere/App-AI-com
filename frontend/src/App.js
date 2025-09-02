@@ -753,15 +753,17 @@ function MainApp() {
         <label className="block text-sm font-medium text-gray-700">
           {label}
         </label>
-        <div className="relative">
-          <div className="w-full p-2 pr-10 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 min-h-[40px] flex items-center text-sm">
-            {displayValue || <span className="text-gray-400 italic text-xs">{placeholder || 'Non renseigné'}</span>}
+        <div className="flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 min-h-[40px] flex items-center text-sm">
+              {displayValue || <span className="text-gray-400 italic text-xs">{placeholder || 'Non renseigné'}</span>}
+            </div>
           </div>
           
-          {/* Bouton stylo ultra-moderne pour déverrouiller */}
+          {/* Bouton stylo ultra-moderne à droite du champ */}
           <button
             onClick={() => startEditing(fieldId)}
-            className="group absolute right-1 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-purple-500/50 transform hover:scale-110 hover:rotate-12 relative overflow-hidden"
+            className="group flex-shrink-0 w-8 h-8 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-purple-500/50 transform hover:scale-110 hover:rotate-12 relative overflow-hidden"
             title="Modifier"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

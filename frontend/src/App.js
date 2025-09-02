@@ -902,34 +902,34 @@ function MainApp() {
         </div>
       {/* Header moderne avec glassmorphism */}
       <div className="relative z-10 backdrop-blur-xl bg-white/80 border-0 border-b border-white/20 shadow-lg shadow-purple-500/10">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center space-x-4 min-w-0 flex-1">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center space-x-3 min-w-0 flex-1">
               <div className="relative">
-                <Avatar className="w-14 h-14 sm:w-16 sm:h-16 ring-4 ring-gradient-to-r ring-purple-400/30 flex-shrink-0 shadow-lg shadow-purple-500/25 transition-all duration-300 hover:scale-105">
+                <Avatar className="w-12 h-12 sm:w-14 sm:h-14 ring-4 ring-gradient-to-r ring-purple-400/30 flex-shrink-0 shadow-lg shadow-purple-500/25 transition-all duration-300 hover:scale-105">
                   <AvatarImage src={businessProfile?.logo_url ? `${BACKEND_URL}${businessProfile.logo_url}` : ""} />
-                  <AvatarFallback className="bg-gradient-to-br from-purple-600 via-pink-500 to-red-500 text-white text-lg sm:text-xl font-bold">
+                  <AvatarFallback className="bg-gradient-to-br from-purple-600 via-pink-500 to-red-500 text-white text-base sm:text-lg font-bold">
                     <div className="logo-cm text-white transform transition-transform duration-300 hover:rotate-12">
                       <span className="logo-c">C</span>
                       <span className="logo-m">M</span>
                     </div>
                   </AvatarFallback>
                 </Avatar>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full animate-ping"></div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full animate-ping"></div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-xl sm:text-3xl font-extrabold bg-gradient-to-r from-slate-800 via-purple-700 to-pink-600 bg-clip-text text-transparent drop-shadow-sm">
+                <h1 className="text-lg sm:text-2xl font-extrabold bg-gradient-to-r from-slate-800 via-purple-700 to-pink-600 bg-clip-text text-transparent drop-shadow-sm">
                   Claire et Marcus
                 </h1>
-                <p className="text-sm sm:text-base text-slate-800 font-semibold truncate">
+                <p className="text-xs sm:text-sm text-slate-800 font-semibold truncate -mt-1">
                   {businessProfile?.business_name || 'Mon entreprise'}
                 </p>
-                <div className="text-xs sm:text-sm">
+                <div className="text-xs -mt-1">
                   <p className="text-purple-600 font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                     Claire rédige, Marcus programme.
                   </p>
-                  <p className="text-purple-600 font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent transform transition-all duration-300 hover:scale-105" 
+                  <p className="text-purple-600 font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent transform transition-all duration-300 hover:scale-105 -mt-1" 
                      style={{
                        animation: 'breathe 3s ease-in-out infinite'
                      }}>
@@ -943,11 +943,11 @@ function MainApp() {
                 onClick={handleLogout}
                 variant="ghost"
                 size="sm"
-                className="group relative overflow-hidden text-slate-600 hover:text-white p-3 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-red-500/25 hover:scale-110"
+                className="group relative overflow-hidden text-slate-600 hover:text-white p-2 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-red-500/25 hover:scale-110"
                 title="Déconnexion"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full"></div>
-                <LogOut className="w-4 h-4 sm:w-5 sm:h-5 relative z-10 transition-transform duration-300 group-hover:rotate-12" />
+                <LogOut className="w-4 h-4 relative z-10 transition-transform duration-300 group-hover:rotate-12" />
               </Button>
             </div>
           </div>

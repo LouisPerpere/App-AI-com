@@ -1778,6 +1778,17 @@ function MainApp() {
                         </select>
                       </div>
                       
+                      {editingNoteId && (
+                        <Button
+                          type="button"
+                          onClick={handleCancelEdit}
+                          variant="outline"
+                          className="w-full mt-4 border-gray-300 text-gray-600 hover:bg-gray-50"
+                        >
+                          Annuler l'édition
+                        </Button>
+                      )}
+                      
                       <Button
                         type="button"
                         onClick={handleSaveNote}
@@ -1792,7 +1803,7 @@ function MainApp() {
                         ) : (
                           <>
                             <Edit className="w-4 h-4 mr-2" />
-                            Ajouter cette note
+                            {editingNoteId ? 'Modifier cette note' : 'Ajouter cette note'}
                           </>
                         )}
                       </Button>

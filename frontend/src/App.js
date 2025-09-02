@@ -515,24 +515,31 @@ function MainApp() {
     setIsSavingNote(true);
     
     try {
-      const response = await axios.post(`${API}/notes`, {
-        title: noteTitle.trim(),
-        content: noteContent.trim(),
-        priority: notePriority
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      if (editingNoteId) {
+        // Mode édition - UPDATE (pas encore implémenté côté backend)
+        toast.info('Fonction d\'édition en cours de développement');
+      } else {
+        // Mode création - POST
+        const response = await axios.post(`${API}/notes`, {
+          title: noteTitle.trim(),
+          content: noteContent.trim(),
+          priority: notePriority
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
 
-      if (response.data) {
-        toast.success('Note sauvegardée avec succès ! 📝');
-        
-        // Réinitialiser le formulaire
-        setNoteTitle('');
-        setNoteContent('');
-        setNotePriority('normal');
-        
-        // Recharger les notes
-        await loadNotes();
+        if (response.data) {
+          toast.success('Note sauvegardée avec succès ! 📝');
+          
+          // Réinitialiser le formulaire
+          setNoteTitle('');
+          setNoteContent('');
+          setNotePriority('normal');
+          setEditingNoteId(null);
+          
+          // Recharger les notes
+          await loadNotes();
+        }
       }
       
     } catch (error) {
@@ -541,6 +548,63 @@ function MainApp() {
       toast.error(`Erreur lors de la sauvegarde: ${errorMessage}`);
     } finally {
       setIsSavingNote(false);
+    }
+  };
+
+  // Éditer une note existante
+  const handleEditNote = useCallback((note) => {
+    setNoteTitle(note.description || note.title || '');
+    setNoteContent(note.content || '');
+    setNotePriority(note.priority || 'normal');
+    setEditingNoteId(note.note_id);
+    
+    // Scroll vers le formulaire
+    setTimeout(() => {
+      document.getElementById('note_title_native')?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+    }, 100);
+  }, []);
+
+  // Annuler l'édition
+  const handleCancelEdit = useCallback(() => {
+    setNoteTitle('');
+    setNoteContent('');
+    setNotePriority('normal');
+    setEditingNoteId(null);
+  }, []);
+
+  // Supprimer une note
+  const handleDeleteNote = async (noteId) => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette note ?')) {
+      return;
+    }
+
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast.error('Vous devez être connecté pour supprimer une note');
+      return;
+    }
+
+    setIsDeletingNote(noteId);
+    
+    try {
+      await axios.delete(`${API}/notes/${noteId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      toast.success('Note supprimée avec succès ! 🗑️');
+      
+      // Recharger les notes
+      await loadNotes();
+      
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`Erreur lors de la suppression: ${errorMessage}`);
+    } finally {
+      setIsDeletingNote(null);
     }
   };
 

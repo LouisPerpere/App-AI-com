@@ -924,21 +924,30 @@ function MainApp() {
             </TabsList>
           </div>
 
-          <TabsContent value="entreprise" className="space-y-4">
-            <Card className="card-gradient">
-              <CardHeader className="pb-2 px-3 pt-3">
-                <CardTitle className="flex items-center space-x-2 text-lg">
-                  <div className="w-7 h-7 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
-                    <Building className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    Profil d'entreprise ✨
-                  </span>
-                </CardTitle>
-                <CardDescription className="text-xs text-gray-600">
-                  Cliquez sur le stylo ✏️ pour modifier, puis validez ✅ ou annulez ❌
-                </CardDescription>
-              </CardHeader>
+          <TabsContent value="entreprise" className="space-y-3">
+            <Card className="relative backdrop-blur-xl bg-white/70 border-0 shadow-2xl shadow-purple-500/10 rounded-2xl overflow-hidden group hover:shadow-3xl hover:shadow-purple-500/20 transition-all duration-500 hover:scale-[1.02]">
+              {/* Bordure animée */}
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
+              <div className="relative z-10">
+                <CardHeader className="pb-3 px-4 pt-4">
+                  <CardTitle className="flex items-center space-x-3 text-xl">
+                    <div className="relative">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/40 hover:rotate-12">
+                        <Building className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full animate-pulse"></div>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent font-extrabold">
+                        Profil d'entreprise
+                      </span>
+                      <span className="text-2xl filter drop-shadow-sm">✨</span>
+                    </div>
+                  </CardTitle>
+                  <CardDescription className="text-sm text-slate-600 bg-gradient-to-r from-slate-600 to-slate-700 bg-clip-text text-transparent font-medium">
+                    Cliquez sur le stylo ✏️ pour modifier, puis validez ✅ ou annulez ❌
+                  </CardDescription>
+                </CardHeader>
               <CardContent className="px-3 pb-3">
                 {businessProfile ? (
                   <div className="space-y-2">

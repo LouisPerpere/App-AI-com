@@ -1046,11 +1046,11 @@ function MainApp() {
 
                 {/* Affichage des résultats ou message par défaut */}
                 {websiteAnalysis ? (
-                  <div className="space-y-6">
-                    <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border-2 border-green-200">
-                      <h3 className="text-lg font-bold text-green-800 mb-4 flex items-center">
-                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mr-3">
-                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="space-y-3">
+                    <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 border border-green-200">
+                      <h3 className="text-base font-bold text-green-800 mb-3 flex items-center">
+                        <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
+                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
                         </div>
@@ -1058,10 +1058,10 @@ function MainApp() {
                       </h3>
                       
                       {/* Informations sur l'analyse */}
-                      <div className="grid md:grid-cols-3 gap-4 text-sm mb-6">
-                        <div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs mb-4">
+                        <div className="min-w-0">
                           <p className="font-semibold text-gray-700 mb-1">Site analysé:</p>
-                          <p className="text-gray-600 break-all">{websiteAnalysis.website_url}</p>
+                          <p className="text-gray-600 break-all text-xs">{websiteAnalysis.website_url}</p>
                         </div>
                         <div>
                           <p className="font-semibold text-gray-700 mb-1">Pages analysées:</p>
@@ -1069,7 +1069,7 @@ function MainApp() {
                         </div>
                         {websiteAnalysis.brand_tone && (
                           <div>
-                            <p className="font-semibold text-gray-700 mb-1">Ton de marque détecté:</p>
+                            <p className="font-semibold text-gray-700 mb-1">Ton de marque:</p>
                             <p className="text-gray-600 capitalize">{websiteAnalysis.brand_tone}</p>
                           </div>
                         )}
@@ -1077,25 +1077,25 @@ function MainApp() {
 
                       {/* Pages analysées */}
                       {websiteAnalysis.pages_analyzed && websiteAnalysis.pages_analyzed.length > 0 && (
-                        <div className="mb-6">
-                          <p className="font-semibold text-gray-700 mb-3">📄 Pages analysées:</p>
-                          <div className="grid gap-2">
+                        <div className="mb-4">
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">📄 Pages analysées:</p>
+                          <div className="space-y-1">
                             {websiteAnalysis.pages_analyzed.map((page, index) => (
-                              <div key={index} className="flex items-center justify-between bg-white rounded-lg p-3 border">
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium text-gray-900 truncate">
+                              <div key={index} className="flex items-center justify-between bg-white rounded p-2 border text-xs">
+                                <div className="flex-1 min-w-0 mr-2">
+                                  <p className="font-medium text-gray-900 truncate text-xs">
                                     {page.title || 'Page sans titre'}
                                   </p>
-                                  <p className="text-xs text-gray-600 truncate">{page.url}</p>
+                                  <p className="text-gray-600 truncate text-xs">{page.url}</p>
                                 </div>
-                                <div className="flex-shrink-0 ml-3">
+                                <div className="flex-shrink-0">
                                   {page.status === 'analyzed' ? (
-                                    <span className="inline-flex px-2 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">
-                                      ✓ Analysée
+                                    <span className="inline-flex px-1.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800 rounded">
+                                      ✓
                                     </span>
                                   ) : (
-                                    <span className="inline-flex px-2 py-1 text-xs font-semibold bg-red-100 text-red-800 rounded-full">
-                                      ✗ Erreur
+                                    <span className="inline-flex px-1.5 py-0.5 text-xs font-semibold bg-red-100 text-red-800 rounded">
+                                      ✗
                                     </span>
                                   )}
                                 </div>
@@ -1107,32 +1107,32 @@ function MainApp() {
                       
                       {/* Résumé de l'analyse */}
                       {websiteAnalysis.analysis_summary && (
-                        <div className="mb-6">
-                          <p className="font-semibold text-gray-700 mb-2">📋 Résumé de l'analyse:</p>
-                          <div className="bg-white rounded-lg p-4 border">
-                            <p className="text-gray-700 leading-relaxed">{websiteAnalysis.analysis_summary}</p>
+                        <div className="mb-4">
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">📋 Résumé de l'analyse:</p>
+                          <div className="bg-white rounded p-3 border">
+                            <p className="text-gray-700 leading-relaxed text-sm">{websiteAnalysis.analysis_summary}</p>
                           </div>
                         </div>
                       )}
 
                       {/* Audience cible */}
                       {websiteAnalysis.target_audience && (
-                        <div className="mb-6">
-                          <p className="font-semibold text-gray-700 mb-2">🎯 Audience cible:</p>
-                          <div className="bg-white rounded-lg p-4 border">
-                            <p className="text-gray-700">{websiteAnalysis.target_audience}</p>
+                        <div className="mb-4">
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">🎯 Audience cible:</p>
+                          <div className="bg-white rounded p-3 border">
+                            <p className="text-gray-700 text-sm leading-relaxed">{websiteAnalysis.target_audience}</p>
                           </div>
                         </div>
                       )}
 
                       {/* Services principaux */}
                       {websiteAnalysis.main_services && websiteAnalysis.main_services.length > 0 && (
-                        <div className="mb-6">
-                          <p className="font-semibold text-gray-700 mb-3">🛠️ Services principaux:</p>
-                          <div className="grid sm:grid-cols-2 gap-2">
+                        <div className="mb-4">
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">🛠️ Services principaux:</p>
+                          <div className="grid grid-cols-1 gap-1">
                             {websiteAnalysis.main_services.map((service, index) => (
-                              <div key={index} className="bg-white rounded-lg p-3 border">
-                                <p className="text-sm text-gray-700">{service}</p>
+                              <div key={index} className="bg-white rounded p-2 border">
+                                <p className="text-xs text-gray-700">{service}</p>
                               </div>
                             ))}
                           </div>
@@ -1141,11 +1141,11 @@ function MainApp() {
                       
                       {/* Sujets clés */}
                       {websiteAnalysis.key_topics && websiteAnalysis.key_topics.length > 0 && (
-                        <div className="mb-6">
-                          <p className="font-semibold text-gray-700 mb-3">🔑 Sujets clés identifiés:</p>
-                          <div className="flex flex-wrap gap-2">
+                        <div className="mb-4">
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">🔑 Sujets clés:</p>
+                          <div className="flex flex-wrap gap-1">
                             {websiteAnalysis.key_topics.map((topic, index) => (
-                              <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                              <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
                                 {topic}
                               </span>
                             ))}
@@ -1156,11 +1156,11 @@ function MainApp() {
                       {/* Suggestions de contenu */}
                       {websiteAnalysis.content_suggestions && websiteAnalysis.content_suggestions.length > 0 && (
                         <div>
-                          <p className="font-semibold text-gray-700 mb-3">💡 Suggestions de contenu:</p>
-                          <div className="space-y-2">
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">💡 Suggestions de contenu:</p>
+                          <div className="space-y-1">
                             {websiteAnalysis.content_suggestions.map((suggestion, index) => (
-                              <div key={index} className="bg-white rounded-lg p-3 border border-l-4 border-l-yellow-400">
-                                <p className="text-sm text-gray-700">{suggestion}</p>
+                              <div key={index} className="bg-white rounded p-2 border-l-2 border-l-yellow-400">
+                                <p className="text-xs text-gray-700">{suggestion}</p>
                               </div>
                             ))}
                           </div>
@@ -1169,11 +1169,11 @@ function MainApp() {
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <Search className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                    <p className="text-lg mb-2">Aucune analyse disponible</p>
-                    <p className="text-sm">Entrez l'URL de votre site web et cliquez sur "Analyser le site" pour commencer une analyse approfondie</p>
-                    <p className="text-xs text-gray-400 mt-2">L'analyse inclura la page d'accueil et les pages importantes (À propos, Services, Contact, etc.)</p>
+                  <div className="text-center py-6 text-gray-500">
+                    <Search className="w-8 h-8 mx-auto mb-3 text-gray-400" />
+                    <p className="text-base mb-2">Aucune analyse disponible</p>
+                    <p className="text-xs">Entrez l'URL de votre site web et cliquez sur "Analyser le site"</p>
+                    <p className="text-xs text-gray-400 mt-1">Analyse multi-pages : Accueil + pages importantes</p>
                   </div>
                 )}
               </CardContent>

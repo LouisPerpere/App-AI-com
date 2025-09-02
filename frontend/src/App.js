@@ -1912,12 +1912,10 @@ function MainApp() {
                               </Button>
                               
                               {/* Bouton supprimer */}
-                              <Button
+                              <button
                                 onClick={() => handleDeleteNote(note.note_id)}
                                 disabled={isDeletingNote === note.note_id}
-                                variant="ghost"
-                                size="sm"
-                                className="p-2 h-8 w-8 text-red-600 hover:text-red-800 hover:bg-red-50"
+                                className="p-2 h-8 w-8 text-red-600 hover:text-red-800 hover:bg-red-50 rounded border-none bg-transparent cursor-pointer"
                                 title="Supprimer cette note"
                               >
                                 {isDeletingNote === note.note_id ? (
@@ -1925,7 +1923,7 @@ function MainApp() {
                                 ) : (
                                   <Trash className="w-4 h-4" />
                                 )}
-                              </Button>
+                              </button>
                             </div>
                           </div>
                           <p className="text-gray-700 leading-relaxed">

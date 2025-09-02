@@ -246,29 +246,22 @@ async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
         IMPORTANT: Sois très généreux dans les détails. Plus c'est précis et détaillé, plus ce sera utile pour créer du contenu marketing pertinent.
         """
 
-        # Prefer direct OpenAI when available
-        if OPENAI_API_KEY and OpenAI is not None:
-            client = OpenAI(api_key=API_KEY)
-            resp = client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": "Tu es un expert en analyse de contenu web et marketing. Réponds UNIQUEMENT en JSON valide."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7,
-                max_tokens=1200
-            )
-            raw = resp.choices[0].message.content.strip()
-        elif EMERGENT_AVAILABLE:
+        # Use Emergent integrations with GPT-4o (user requested ChatGPT-4o)
+        if EMERGENT_AVAILABLE and API_KEY:
+            print(f"🤖 Using GPT-4o via Emergent integrations for analysis")
             chat = LlmChat(
                 api_key=API_KEY,
                 session_id=f"website_analysis_{uuid.uuid4()}",
-                system_message="Tu es un expert en analyse de contenu web et marketing. Réponds UNIQUEMENT en JSON valide."
+                system_message="Tu es un expert en analyse de contenu web et marketing digital. Tu analyses les sites web en profondeur pour créer du contenu social media. Réponds UNIQUEMENT en JSON valide et structuré."
             ).with_model("openai", "gpt-4o")
+            
             user_message = UserMessage(text=prompt)
             raw = await chat.send_message(user_message)
+            print(f"🤖 GPT-4o raw response length: {len(raw) if raw else 0} characters")
+            
         else:
-            return create_fallback_analysis(content_data, website_url, "no_sdk")
+            print(f"❌ Falling back - EMERGENT_AVAILABLE: {EMERGENT_AVAILABLE}, API_KEY: {'Yes' if API_KEY else 'No'}")
+            return create_fallback_analysis(content_data, website_url, "no_api_or_sdk")
 
         analysis = json.loads(raw)
         return analysis

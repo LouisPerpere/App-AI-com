@@ -165,6 +165,14 @@ const ContentThumbnail = React.memo(({
           </div>
         )}
         
+        {/* Error placeholder (hidden by default) */}
+        <div className="error-placeholder w-full h-full items-center justify-center bg-gradient-to-br from-red-100 to-pink-100" style={{ display: 'none' }}>
+          <div className="text-center">
+            <X className="w-8 h-8 text-red-600 mx-auto mb-1" />
+            <span className="text-xs text-red-800">ERREUR</span>
+          </div>
+        </div>
+        
         {/* Selection checkbox */}
         {isSelectionMode && (
           <div className="absolute top-2 left-2">

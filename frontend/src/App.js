@@ -2123,11 +2123,12 @@ function App() {
       </button>
       
       <Router>
-      <Routes>
-        <Route path="/auth/facebook/callback" element={<FacebookCallback />} />
-        <Route path="/*" element={<MainApp />} />
-      </Routes>
-    </Router>
+        <Routes>
+          <Route path="/auth/facebook/callback" element={<FacebookCallback />} />
+          <Route path="/*" element={<MainApp />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
 

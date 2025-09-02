@@ -197,31 +197,48 @@ async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
         return create_fallback_analysis(content_data, website_url, "no_api_key")
 
     try:
+        # Construire le contenu détaillé avec informations des pages multiples
         main_content = f"""
-        URL: {website_url}
-        Titre: {content_data.get('meta_title', 'N/A')}
-        Description: {content_data.get('meta_description', 'N/A')}
-        Titres H1: {', '.join(content_data.get('h1_tags', [])[:10])}
-        Titres H2: {', '.join(content_data.get('h2_tags', [])[:15])}
-        Contenu principal: {content_data.get('content_text', '')[:1200]}
+        URL PRINCIPALE: {website_url}
+        TITRE PRINCIPAL: {content_data.get('title', 'N/A')}
+        META DESCRIPTION: {content_data.get('description', 'N/A')}
+        
+        PAGES ANALYSÉES: {len(content_data.get('pages_analyzed', []))} pages
+        {chr(10).join([f"- {page.get('url', '')}: {page.get('title', 'Sans titre')}" for page in content_data.get('pages_analyzed', [])[:5]])}
+        
+        TITRES H1 COLLECTÉS: {', '.join(content_data.get('h1_tags', [])[:15])}
+        TITRES H2 COLLECTÉS: {', '.join(content_data.get('h2_tags', [])[:20])}
+        
+        CONTENU TEXTUEL COMPLET (multi-pages):
+        {content_data.get('text_content', '')[:4000]}
         """
+        
         prompt = f"""
-        Analyse ce site web et génère une analyse marketing approfondie en JSON strict:
-        CONTENU:
+        Tu es un expert en analyse de sites web et marketing digital. Analyse ce site web de manière TRÈS DÉTAILLÉE pour aider à la génération de posts sur les réseaux sociaux.
+
+        CONTENU À ANALYSER:
         {main_content}
+
+        MISSION: Créer une analyse marketing approfondie et actionnable. Sois très spécifique et détaillé dans chaque section.
+
         Réponds UNIQUEMENT avec ce JSON (sans ``` ni markdown):
         {{
-            "analysis_summary": "Résumé complet (3-4 phrases)",
-            "key_topics": ["mot-clé1", "mot-clé2", "mot-clé3"],
-            "brand_tone": "professionnel|décontracté|créatif|technique|luxueux|convivial|artisanal|innovant",
-            "target_audience": "Description de l'audience",
-            "main_services": ["service/produit1", "service/produit2"],
+            "analysis_summary": "Résumé détaillé et complet de l'entreprise, ses activités, son positionnement et sa proposition de valeur unique. 5-8 phrases complètes qui donnent une vision claire de ce que fait cette entreprise et comment elle se différencie. Inclure le secteur d'activité, la localisation si mentionnée, et les points forts identifiés.",
+            
+            "key_topics": ["10 à 15 mots-clés et expressions stratégiques identifiés sur le site, incluant secteur d'activité, services spécifiques, valeurs de l'entreprise, expertises techniques, zone géographique"],
+            
+            "brand_tone": "Choisir parmi: professionnel, décontracté, créatif, technique, luxueux, convivial, artisanal, innovant, éco-responsable, dynamique",
+            
+            "target_audience": "Description précise et détaillée de l'audience cible: âge, profil socio-professionnel, besoins spécifiques, centres d'intérêt, localisation géographique, niveau de revenus estimé, problématiques qu'ils cherchent à résoudre. Minimum 4-5 phrases avec des détails concrets.",
+            
+            "main_services": ["Liste complète et détaillée de tous les services/produits identifiés. Pour chaque service, être spécifique: ne pas juste dire 'conseil' mais 'conseil en transformation digitale pour PME'. Minimum 5-8 services/produits détaillés"],
+            
             "content_suggestions": [
-                "Suggestion 1",
-                "Suggestion 2",
-                "Suggestion 3"
+                "10 suggestions concrètes et spécifiques de posts pour les réseaux sociaux, adaptées à cette entreprise. Chaque suggestion doit être actionnable et précise, par exemple: 'Post avant/après montrant une réalisation client avec témoignage', 'Infographie sur les 5 étapes de leur processus métier', 'Story derrière l'équipe avec présentation individuelle', etc. Varier les formats: posts éducatifs, témoignages clients, coulisses, actualités secteur, conseils pratiques, études de cas, événements."
             ]
         }}
+
+        IMPORTANT: Sois très généreux dans les détails. Plus c'est précis et détaillé, plus ce sera utile pour créer du contenu marketing pertinent.
         """
 
         # Prefer direct OpenAI when available

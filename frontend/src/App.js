@@ -496,6 +496,43 @@ function MainApp() {
     }
   };
 
+  // Charger l'analyse de site web existante
+  const loadExistingAnalysis = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      const response = await axios.get(`${API}/website/analysis`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data && response.data.analysis) {
+        const analysis = response.data.analysis;
+        setWebsiteAnalysis(analysis);
+        setLastAnalysisInfo({
+          lastAnalyzed: analysis.created_at || analysis.last_analyzed,
+          nextAnalysisDue: analysis.next_analysis_due
+        });
+        
+        // Pré-remplir l'URL si disponible
+        const urlInput = document.getElementById('website_analysis_url_native');
+        if (urlInput && analysis.website_url) {
+          urlInput.value = analysis.website_url;
+        }
+      }
+    } catch (error) {
+      console.error('Error loading existing analysis:', error);
+    }
+  };
+
+  // Fonction pour déterminer si une nouvelle analyse est nécessaire
+  const needsNewAnalysis = () => {
+    if (!lastAnalysisInfo?.nextAnalysisDue) return true;
+    const nextDue = new Date(lastAnalysisInfo.nextAnalysisDue);
+    const now = new Date();
+    return now > nextDue;
+  };
+
   // Fonctions pour le système d'édition verrouillé/déverrouillé
   const startEditing = (fieldName) => {
     // Récupérer la valeur actuelle visible dans l'interface

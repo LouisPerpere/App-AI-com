@@ -898,7 +898,8 @@ function MainApp() {
           className="space-y-8"
         >
           <div className="overflow-x-auto">
-            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-2 bg-white/70 backdrop-blur-xl p-3 rounded-3xl border-0 shadow-xl shadow-purple-500/10">
+            <TabsList className="w-full bg-white/70 backdrop-blur-xl p-3 rounded-3xl border-0 shadow-xl shadow-purple-500/10">
+              <div className="grid grid-cols-4 lg:grid-cols-8 gap-2">
               <TabsTrigger value="entreprise" className="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:scale-105 data-[state=active]:scale-105 data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/25 bg-gradient-to-br from-blue-50 to-purple-50 data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 border-0">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-data-[state=active]:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
                 <div className="relative z-10 flex items-center text-slate-700 group-data-[state=active]:text-white transition-colors duration-300">

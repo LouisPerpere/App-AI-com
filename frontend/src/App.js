@@ -833,45 +833,49 @@ function MainApp() {
             </TabsList>
           </div>
 
-          <TabsContent value="entreprise" className="space-y-8">
+          <TabsContent value="entreprise" className="space-y-4">
             <Card className="card-gradient">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-3 text-2xl">
-                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center">
-                    <Building className="w-6 h-6 text-white" />
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center space-x-3 text-xl">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center">
+                    <Building className="w-5 h-5 text-white" />
                   </div>
                   <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                     Profil d'entreprise ✨
                   </span>
                 </CardTitle>
-                <CardDescription className="text-lg text-gray-600">
+                <CardDescription className="text-sm text-gray-600">
                   Cliquez sur le stylo ✏️ pour modifier, puis validez ✅ ou annulez ❌
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 {businessProfile ? (
-                  <div className="space-y-6">
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
-                      <h3 className="text-lg font-bold text-blue-800 mb-4">Informations de l'entreprise</h3>
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <EditableField
-                          fieldId="business_name_edit"
-                          label="Nom de l'entreprise"
-                          type="text"
-                          placeholder="Nom de votre entreprise"
-                          defaultValue={businessProfile?.business_name || ''}
-                          fieldType="business"
-                        />
-                        <EditableField
-                          fieldId="business_type_edit"
-                          label="Type d'entreprise"
-                          type="text"
-                          placeholder="Ex: restaurant, commerce, service..."
-                          defaultValue={businessProfile?.business_type || ''}
-                          fieldType="business"
-                        />
+                  <div className="space-y-4">
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
+                      <h3 className="text-base font-bold text-blue-800 mb-3">Informations de l'entreprise</h3>
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                        <div className="min-w-0">
+                          <EditableField
+                            fieldId="business_name_edit"
+                            label="Nom de l'entreprise"
+                            type="text"
+                            placeholder="Nom de votre entreprise"
+                            defaultValue={businessProfile?.business_name || ''}
+                            fieldType="business"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <EditableField
+                            fieldId="business_type_edit"
+                            label="Type d'entreprise"
+                            type="text"
+                            placeholder="Ex: restaurant, commerce, service..."
+                            defaultValue={businessProfile?.business_type || ''}
+                            fieldType="business"
+                          />
+                        </div>
                       </div>
-                      <div className="mt-4">
+                      <div className="mt-3">
                         <EditableField
                           fieldId="business_description_edit"
                           label="Description de l'activité"
@@ -882,65 +886,73 @@ function MainApp() {
                         />
                       </div>
                       
-                      <div className="grid md:grid-cols-2 gap-4 mt-4">
-                        <EditableField
-                          fieldId="brand_tone_edit"
-                          label="Ton de marque"
-                          defaultValue={businessProfile?.brand_tone || 'professionnel'}
-                          isSelect={true}
-                          options={[
-                            { value: 'professionnel', label: '👔 Professionnel' },
-                            { value: 'luxe', label: '💎 Luxe' },
-                            { value: 'simple', label: '🎯 Simple' },
-                            { value: 'humouristique', label: '😄 Humoristique' },
-                            { value: 'proximite', label: '🤝 Proximité' },
-                            { value: 'amical', label: '😊 Amical' },
-                            { value: 'moderne', label: '⚡ Moderne' },
-                            { value: 'traditionnel', label: '🏛️ Traditionnel' },
-                            { value: 'creatif', label: '🎨 Créatif' },
-                            { value: 'technique', label: '🔧 Technique' }
-                          ]}
-                          fieldType="business"
-                        />
-                        <EditableField
-                          fieldId="posting_frequency_edit"
-                          label="Rythme de publications"
-                          defaultValue={businessProfile?.posting_frequency || 'hebdomadaire'}
-                          isSelect={true}
-                          options={[
-                            { value: 'quotidien', label: '📅 Quotidien (tous les jours)' },
-                            { value: '3_semaine', label: '🔥 3 fois par semaine' },
-                            { value: 'hebdomadaire', label: '📋 Hebdomadaire (1 fois par semaine)' },
-                            { value: '2_mois', label: '📆 2 fois par mois' },
-                            { value: 'mensuel', label: '🗓️ Mensuel (1 fois par mois)' }
-                          ]}
-                          fieldType="business"
-                        />
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
+                        <div className="min-w-0">
+                          <EditableField
+                            fieldId="brand_tone_edit"
+                            label="Ton de marque"
+                            defaultValue={businessProfile?.brand_tone || 'professionnel'}
+                            isSelect={true}
+                            options={[
+                              { value: 'professionnel', label: '👔 Professionnel' },
+                              { value: 'luxe', label: '💎 Luxe' },
+                              { value: 'simple', label: '🎯 Simple' },
+                              { value: 'humouristique', label: '😄 Humoristique' },
+                              { value: 'proximite', label: '🤝 Proximité' },
+                              { value: 'amical', label: '😊 Amical' },
+                              { value: 'moderne', label: '⚡ Moderne' },
+                              { value: 'traditionnel', label: '🏛️ Traditionnel' },
+                              { value: 'creatif', label: '🎨 Créatif' },
+                              { value: 'technique', label: '🔧 Technique' }
+                            ]}
+                            fieldType="business"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <EditableField
+                            fieldId="posting_frequency_edit"
+                            label="Rythme de publications"
+                            defaultValue={businessProfile?.posting_frequency || 'hebdomadaire'}
+                            isSelect={true}
+                            options={[
+                              { value: 'quotidien', label: '📅 Quotidien' },
+                              { value: '3_semaine', label: '🔥 3x/semaine' },
+                              { value: 'hebdomadaire', label: '📋 Hebdomadaire' },
+                              { value: '2_mois', label: '📆 2x/mois' },
+                              { value: 'mensuel', label: '🗓️ Mensuel' }
+                            ]}
+                            fieldType="business"
+                          />
+                        </div>
                       </div>
                     </div>
                     
                     {/* Section Contact et Marketing */}
-                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200">
-                      <h3 className="text-lg font-bold text-purple-800 mb-4">Contact et Marketing</h3>
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <EditableField
-                          fieldId="business_email_edit"
-                          label="Email professionnel"
-                          type="email"
-                          placeholder="contact@votre-entreprise.com"
-                          defaultValue={businessProfile?.email || ''}
-                          fieldType="marketing"
-                        />
-                        <EditableField
-                          fieldId="business_website_edit"
-                          label="Site web"
-                          type="url"
-                          placeholder="https://votre-site.com"
-                          defaultValue={businessProfile?.website_url || ''}
-                          fieldType="marketing"
-                        />
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200">
+                      <h3 className="text-base font-bold text-purple-800 mb-3">Contact et Marketing</h3>
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                        <div className="min-w-0">
+                          <EditableField
+                            fieldId="business_email_edit"
+                            label="Email professionnel"
+                            type="email"
+                            placeholder="contact@votre-entreprise.com"
+                            defaultValue={businessProfile?.email || ''}
+                            fieldType="marketing"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <EditableField
+                            fieldId="business_website_edit"
+                            label="Site web"
+                            type="url"
+                            placeholder="https://votre-site.com"
+                            defaultValue={businessProfile?.website_url || ''}
+                            fieldType="marketing"
+                          />
+                        </div>
                       </div>
-                      <div className="mt-4">
+                      <div className="mt-3">
                         <EditableField
                           fieldId="target_audience_edit"
                           label="Audience cible"
@@ -953,12 +965,12 @@ function MainApp() {
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-20 card-glass rounded-3xl">
-                    <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
-                      <Building className="w-12 h-12 text-white" />
+                  <div className="text-center py-12 card-glass rounded-2xl">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Building className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-700 mb-4">Créez votre profil d'entreprise 🏢</h3>
-                    <p className="text-xl text-gray-500 mb-8">Configurez votre profil pour des posts sur mesure ! 🚀</p>
+                    <h3 className="text-xl font-bold text-gray-700 mb-2">Créez votre profil d'entreprise 🏢</h3>
+                    <p className="text-gray-500">Configurez votre profil pour des posts sur mesure ! 🚀</p>
                   </div>
                 )}
               </CardContent>

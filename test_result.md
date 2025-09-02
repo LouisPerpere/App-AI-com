@@ -113,7 +113,7 @@ user_problem_statement: "FONCTIONNALITÉ SAUVEGARDE PROFIL BUSINESS : L'utilisat
 
 test_plan:
   current_focus:
-    - "Business Profile Save Functions Implementation"
+    - "Enhanced Website Analysis and Business Profile Final Improvements"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

@@ -598,27 +598,28 @@ function MainApp() {
 
   // Éditer une note existante
   const handleEditNote = useCallback((note) => {
-    setNoteTitle(note.description || note.title || '');
-    setNoteContent(note.content || '');
-    setNotePriority(note.priority || 'normal');
+    setFormValues(
+      note.description || note.title || '', 
+      note.content || '', 
+      note.priority || 'normal'
+    );
     setEditingNoteId(note.note_id);
     
     // Scroll vers le formulaire
     setTimeout(() => {
-      document.getElementById('note_title_native')?.scrollIntoView({ 
+      titleInputRef.current?.scrollIntoView({ 
         behavior: 'smooth', 
         block: 'center' 
       });
+      titleInputRef.current?.focus();
     }, 100);
-  }, []);
+  }, [setFormValues]);
 
   // Annuler l'édition
   const handleCancelEdit = useCallback(() => {
-    setNoteTitle('');
-    setNoteContent('');
-    setNotePriority('normal');
+    setFormValues('', '', 'normal');
     setEditingNoteId(null);
-  }, []);
+  }, [setFormValues]);
 
   // Supprimer une note
   const handleDeleteNote = async (noteId) => {

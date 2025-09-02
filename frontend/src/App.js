@@ -622,6 +622,13 @@ function MainApp() {
 
   // Supprimer une note
   const handleDeleteNote = async (noteId) => {
+    console.log('🗑️ Tentative suppression note:', noteId); // Debug
+    
+    if (!noteId) {
+      toast.error('ID de note manquant');
+      return;
+    }
+    
     if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette note ?')) {
       return;
     }
@@ -635,6 +642,8 @@ function MainApp() {
     setIsDeletingNote(noteId);
     
     try {
+      console.log('🗑️ Appel API DELETE:', `${API}/notes/${noteId}`); // Debug
+      
       await axios.delete(`${API}/notes/${noteId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });

@@ -74,12 +74,17 @@ def get_current_user_id(authorization: str = Header(None)) -> str:
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# API Key configuration - supports both Universal Key and OpenAI Key
-EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
-
-# Prefer OpenAI key if provided explicitly (user requested ChatGPT)
-API_KEY = OPENAI_API_KEY if OPENAI_API_KEY else EMERGENT_LLM_KEY
+# API Key configuration - Use Emergent LLM Key for GPT-4o
+from emergentintegrations.llm import get_key
+try:
+    API_KEY = get_key()  # Get the Emergent universal key
+    if API_KEY:
+        print(f"✅ Emergent LLM Key loaded successfully")
+    else:
+        print("❌ No Emergent LLM Key found")
+except Exception as e:
+    print(f"❌ Error loading Emergent key: {e}")
+    API_KEY = None
 
 if not API_KEY:
     logging.warning("No API key found for GPT analysis. Website analysis will use fallback mode.")

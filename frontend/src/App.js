@@ -1913,16 +1913,19 @@ function MainApp() {
                               
                               {/* Bouton supprimer */}
                               <button
-                                onClick={() => handleDeleteNote(note.note_id)}
-                                disabled={isDeletingNote === note.note_id}
-                                className="p-2 h-8 w-8 text-red-600 hover:text-red-800 hover:bg-red-50 rounded border-none bg-transparent cursor-pointer"
-                                title="Supprimer cette note"
+                                onClick={() => alert('BOUTON CLIQUÉ!')}
+                                style={{
+                                  padding: '8px',
+                                  margin: '4px',
+                                  backgroundColor: 'red',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  fontSize: '12px'
+                                }}
                               >
-                                {isDeletingNote === note.note_id ? (
-                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
-                                ) : (
-                                  <Trash className="w-4 h-4" />
-                                )}
+                                SUPPR 🗑️
                               </button>
                             </div>
                           </div>

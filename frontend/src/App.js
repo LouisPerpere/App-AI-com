@@ -2248,27 +2248,25 @@ function MainApp() {
                         </div>
 
                         {/* Categories */}
-                        {pixabayCategories.length > 0 && (
-                          <div className="mt-4">
-                            <p className="text-sm text-gray-600 mb-2">Catégories populaires :</p>
-                            <div className="flex flex-wrap gap-2">
-                              {pixabayCategories.slice(0, 8).map((category) => (
-                                <Button
-                                  key={category}
-                                  onClick={() => {
-                                    setPixabayQuery(category);
-                                    searchPixabayImages();
-                                  }}
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-200"
-                                >
-                                  {category}
-                                </Button>
-                              ))}
-                            </div>
+                        <div className="mt-4">
+                          <p className="text-sm text-gray-600 mb-2">Catégories populaires :</p>
+                          <div className="flex flex-wrap gap-2">
+                            {[
+                              'entreprise', 'marketing', 'équipe', 'bureau', 
+                              'technologie', 'nature', 'personnes', 'arrière-plans'
+                            ].map((category) => (
+                              <Button
+                                key={category}
+                                onClick={() => searchPixabayCategory(category)}
+                                variant="ghost"
+                                size="sm"
+                                className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-200"
+                              >
+                                {category}
+                              </Button>
+                            ))}
                           </div>
-                        )}
+                        </div>
                       </div>
                     </div>
 

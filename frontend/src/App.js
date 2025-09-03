@@ -983,7 +983,8 @@ function MainApp() {
         'posting_frequency_edit': businessProfile?.posting_frequency || 'weekly',
         'business_email_edit': businessProfile?.email || '',
         'business_website_edit': businessProfile?.website_url || '',
-        'target_audience_edit': businessProfile?.target_audience || ''
+        'target_audience_edit': businessProfile?.target_audience || '',
+        'business_coordinates_edit': businessProfile?.coordinates || ''
       };
       currentValue = fieldMapping[fieldName] || '';
     }

@@ -228,13 +228,13 @@ function MainApp() {
   const [selectedContentIds, setSelectedContentIds] = useState(new Set());
   const [isDeletingContent, setIsDeletingContent] = useState(false);
   const [previewContent, setPreviewContent] = useState(null);
-  const [contentContext, setContentContext] = useState('');
   const [isSavingContext, setIsSavingContext] = useState(false);
   
   // Refs for direct DOM manipulation to avoid re-renders
   const titleInputRef = useRef(null);
   const contentInputRef = useRef(null);
   const priorityInputRef = useRef(null);
+  const contextTextareaRef = useRef(null); // Ref pour éviter bug clavier virtuel
   
   // Website analysis states
   const [isAnalyzing, setIsAnalyzing] = useState(false);

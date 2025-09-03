@@ -328,9 +328,9 @@ class PixabayAPITester:
         
         # Test invalid search parameters
         test_cases = [
-            {"params": {"q": "", "per_page": 1}, "description": "empty query"},
-            {"params": {"q": "test", "per_page": 300}, "description": "excessive per_page"},
-            {"params": {"q": "test", "image_type": "invalid"}, "description": "invalid image_type"}
+            {"params": {"query": "", "per_page": 1}, "description": "empty query"},
+            {"params": {"query": "test", "per_page": 300}, "description": "excessive per_page"},
+            {"params": {"query": "test", "image_type": "invalid"}, "description": "invalid image_type"}
         ]
         
         success_count = 0

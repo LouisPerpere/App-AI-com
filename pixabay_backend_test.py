@@ -200,10 +200,10 @@ class PixabayAPITester:
                 if response.status_code == 200:
                     data = response.json()
                     hits = data.get("hits", [])
-                    self.log(f"✅ Parameter test {i} successful - Query: '{params['q']}', Results: {len(hits)}")
+                    self.log(f"✅ Parameter test {i} successful - Query: '{params['query']}', Results: {len(hits)}")
                     success_count += 1
                 elif response.status_code == 429:
-                    self.log(f"⚠️ Parameter test {i} rate limited - Query: '{params['q']}'")
+                    self.log(f"⚠️ Parameter test {i} rate limited - Query: '{params['query']}'")
                     success_count += 1  # Count as success since API is working
                 else:
                     self.log(f"❌ Parameter test {i} failed: {response.status_code}")

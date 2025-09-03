@@ -305,10 +305,11 @@ function MainApp() {
       setIsAuthenticated(true);
       setActiveStep('dashboard');
       
-      // Load business profile, notes and content
+      // Load business profile, notes, content and posts
       loadBusinessProfile();
       loadNotes();
       loadPendingContent();
+      loadGeneratedPosts();
       
     } catch (error) {
       console.error('Auth check failed:', error);

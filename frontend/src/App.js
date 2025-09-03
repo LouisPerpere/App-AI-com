@@ -2191,6 +2191,7 @@ function MainApp() {
                     </div>
                   )}
                 </div>
+                )}
 
                 {/* Pixabay search content */}
                 {activeLibraryTab === 'pixabay-search' && (

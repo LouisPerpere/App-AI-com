@@ -678,6 +678,170 @@ async def get_generated_posts(user_id: str = Depends(get_current_user_id_robust)
 # Include the API router
 app.include_router(api_router)
 
+# ----------------------------
+# PIXABAY INTEGRATION: /api/pixabay
+# ----------------------------
+
+import aiohttp
+import uuid
+from PIL import Image
+import aiofiles
+
+PIXABAY_API_KEY = os.environ.get('PIXABAY_API_KEY')
+PIXABAY_BASE_URL = "https://pixabay.com/api/"
+
+class PixabaySearchRequest(BaseModel):
+    query: str
+    page: int = 1
+    per_page: int = 20
+    image_type: str = "photo"
+    orientation: str = "all"
+    min_width: int = 0
+    min_height: int = 0
+    safesearch: bool = True
+
+class PixabayImage(BaseModel):
+    id: int
+    pageURL: str
+    type: str
+    tags: str
+    previewURL: str
+    webformatURL: str
+    largeImageURL: str
+    views: int
+    downloads: int
+    favorites: int
+    likes: int
+    user: str
+    userImageURL: str
+
+@api_router.get("/pixabay/search")
+async def search_pixabay_images(
+    query: str,
+    page: int = 1,
+    per_page: int = 20,
+    image_type: str = "photo",
+    orientation: str = "all",
+    min_width: int = 0,
+    min_height: int = 0,
+    safesearch: bool = True
+):
+    """Search for images on Pixabay"""
+    if not PIXABAY_API_KEY:
+        raise HTTPException(status_code=500, detail="Pixabay API key not configured")
+    
+    params = {
+        "key": PIXABAY_API_KEY,
+        "q": query,
+        "page": page,
+        "per_page": min(per_page, 200),
+        "image_type": image_type,
+        "orientation": orientation,
+        "min_width": min_width,
+        "min_height": min_height,
+        "safesearch": str(safesearch).lower(),
+        "order": "popular"
+    }
+    
+    try:
+        timeout = aiohttp.ClientTimeout(total=30)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            async with session.get(PIXABAY_BASE_URL, params=params) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return {
+                        "total": data.get("total", 0),
+                        "totalHits": data.get("totalHits", 0),
+                        "hits": data.get("hits", [])
+                    }
+                elif response.status == 429:
+                    raise HTTPException(status_code=429, detail="Rate limit exceeded. Please try again later.")
+                else:
+                    raise HTTPException(status_code=response.status, detail=f"Pixabay API error: {response.reason}")
+                    
+    except aiohttp.ClientError as e:
+        raise HTTPException(status_code=500, detail=f"Network error: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+
+@api_router.post("/pixabay/save-image")
+async def save_pixabay_image(
+    pixabay_id: int,
+    image_url: str,
+    tags: str = "",
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Save a Pixabay image to user's library"""
+    try:
+        # Generate unique filename
+        unique_id = str(uuid.uuid4())[:8]
+        filename = f"pixabay_{pixabay_id}_{unique_id}.jpg"
+        
+        # Create upload directory if it doesn't exist
+        upload_dir = "uploads"
+        os.makedirs(upload_dir, exist_ok=True)
+        file_path = os.path.join(upload_dir, filename)
+        
+        # Download image from Pixabay
+        timeout = aiohttp.ClientTimeout(total=60)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            async with session.get(image_url) as response:
+                if response.status == 200:
+                    async with aiofiles.open(file_path, 'wb') as f:
+                        async for chunk in response.content.iter_chunked(8192):
+                            await f.write(chunk)
+                else:
+                    raise HTTPException(status_code=500, detail="Failed to download image")
+        
+        # Get image dimensions and file size
+        with Image.open(file_path) as img:
+            width, height = img.size
+        file_size = os.path.getsize(file_path)
+        
+        # Save to database
+        dbm = get_database()
+        media_doc = {
+            "id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "filename": filename,
+            "original_filename": f"pixabay_{pixabay_id}.jpg",
+            "file_path": file_path,
+            "file_size": file_size,
+            "file_type": "image/jpeg",
+            "width": width,
+            "height": height,
+            "uploaded_at": datetime.now().isoformat(),
+            "source": "pixabay",
+            "pixabay_id": pixabay_id,
+            "tags": tags,
+            "context": f"Image from Pixabay - {tags}"
+        }
+        
+        dbm.db.media.insert_one(media_doc)
+        media_doc.pop('_id', None)  # Remove MongoDB _id
+        
+        return {
+            "message": "Image saved successfully",
+            "image": media_doc
+        }
+        
+    except Exception as e:
+        # Clean up file if it was created
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        raise HTTPException(status_code=500, detail=f"Failed to save image: {str(e)}")
+
+@api_router.get("/pixabay/categories")
+async def get_pixabay_categories():
+    """Get available Pixabay image categories"""
+    categories = [
+        "backgrounds", "fashion", "nature", "science", "education",
+        "feelings", "health", "people", "religion", "places",
+        "animals", "industry", "computer", "food", "sports",
+        "transportation", "travel", "buildings", "business", "music"
+    ]
+    return {"categories": categories}
+
 # Include GPT-5 Website Analyzer
 if WEBSITE_ANALYZER_AVAILABLE:
     app.include_router(website_router, prefix="/api")

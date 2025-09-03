@@ -173,6 +173,16 @@ async def upload_content_batch(
 @router.get("/content/{file_id}/file")
 async def get_original_file(file_id: str, token: Optional[str] = None, authorization: Optional[str] = Header(None)):
     """Stream original file from GridFS with auth."""
+    # Allow auth via Authorization header or ?token=
+    user_id = None
+    if token:
+        user_id = _decode_user_from_token(token)
+    elif authorization and authorization.startswith("Bearer "):
+        user_id = _decode_user_from_token(authorization[7:])
+    
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
     try:
         dbm = get_database()
         db = dbm.db

@@ -188,9 +188,9 @@ class PixabayAPITester:
         self.log("🔍 Testing Pixabay search with various parameters...")
         
         test_cases = [
-            {"q": "technology", "category": "computer", "per_page": 3},
-            {"q": "nature", "image_type": "photo", "orientation": "vertical"},
-            {"q": "people", "min_width": 800, "min_height": 600}
+            {"query": "technology", "per_page": 3},
+            {"query": "nature", "image_type": "photo", "orientation": "vertical"},
+            {"query": "people", "min_width": 800, "min_height": 600}
         ]
         
         success_count = 0

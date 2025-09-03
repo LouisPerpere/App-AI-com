@@ -298,7 +298,7 @@ class PixabayAPITester:
         self.log("🔍 Testing Pixabay API key configuration...")
         try:
             # Test with a simple search that should work if API key is valid
-            params = {"q": "test", "per_page": 1}
+            params = {"query": "test", "per_page": 1}
             response = self.session.get(f"{BACKEND_URL}/pixabay/search", params=params, timeout=15)
             
             if response.status_code == 200:

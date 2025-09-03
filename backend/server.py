@@ -582,8 +582,11 @@ async def update_content_context(content_id: str, body: ContentContextRequest, u
         dbm = get_database()
         
         # Update content context in the media collection
+        query = parse_any_id(content_id)
+        query["owner_id"] = user_id  # Use owner_id to match the content retrieval query
+        
         result = dbm.db.media.update_one(
-            {"id": content_id, "user_id": user_id},
+            query,
             {"$set": {
                 "context": body.context,
                 "updated_at": datetime.now().isoformat()

@@ -235,6 +235,14 @@ function MainApp() {
   const [isGeneratingPosts, setIsGeneratingPosts] = useState(false);
   const [generatedPosts, setGeneratedPosts] = useState([]);
   
+  // Pixabay integration states
+  const [activeLibraryTab, setActiveLibraryTab] = useState('my-library'); // 'my-library' or 'pixabay-search'
+  const [pixabayQuery, setPixabayQuery] = useState('');
+  const [pixabayResults, setPixabayResults] = useState([]);
+  const [pixabayCategories, setPixabayCategories] = useState([]);
+  const [isSearchingPixabay, setIsSearchingPixabay] = useState(false);
+  const [isSavingPixabayImage, setIsSavingPixabayImage] = useState(null);
+  
   // Refs for direct DOM manipulation to avoid re-renders
   const titleInputRef = useRef(null);
   const contentInputRef = useRef(null);

@@ -226,8 +226,8 @@ class PixabayAPITester:
         self.log(f"🔍 Testing POST /api/pixabay/save-image with image ID {self.test_image['id']}...")
         
         try:
-            # Note: The endpoint expects form data, not JSON
-            data = {
+            # The endpoint expects query parameters, not form data or JSON
+            params = {
                 "pixabay_id": self.test_image["id"],
                 "image_url": self.test_image["url"],
                 "tags": self.test_image["tags"]
@@ -235,7 +235,7 @@ class PixabayAPITester:
             
             response = self.session.post(
                 f"{BACKEND_URL}/pixabay/save-image",
-                data=data,  # Use form data instead of JSON
+                params=params,  # Use query parameters
                 timeout=60  # Longer timeout for image download
             )
             

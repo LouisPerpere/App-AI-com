@@ -1503,6 +1503,16 @@ function MainApp() {
                           fieldType="marketing"
                         />
                       </div>
+                      <div className="mt-2">
+                        <EditableField
+                          fieldId="business_coordinates_edit"
+                          label="Coordonnées"
+                          placeholder="Adresse, téléphone, horaires d'ouverture..."
+                          defaultValue={businessProfile?.coordinates || ''}
+                          isTextarea={true}
+                          fieldType="marketing"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

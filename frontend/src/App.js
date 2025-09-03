@@ -2006,6 +2006,9 @@ function MainApp() {
                 {/* Ma bibliothèque content */}
                 {activeLibraryTab === 'my-library' && (
                   <div>
+                    <p className="text-center text-gray-600 py-8">Ma bibliothèque - Contenu à restaurer</p>
+                  </div>
+                )}
                 {/* Upload Section */}
                 <div className="mb-8">
                   <input

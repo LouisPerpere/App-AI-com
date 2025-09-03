@@ -2005,13 +2005,6 @@ function MainApp() {
 
                 {/* Ma bibliothèque content */}
                 {activeLibraryTab === 'my-library' && (
-                  <div className="temp-my-library">
-                    <p>My Library Content - Temporarily simplified</p>
-                  </div>
-                )}
-
-                {/* Temporarily hidden full content */}
-                {false && (
                   <div>
                 {/* Upload Section */}
                 <div className="mb-8">

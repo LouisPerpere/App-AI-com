@@ -2293,9 +2293,13 @@ function MainApp() {
                                 {/* Overlay with actions */}
                                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
                                   <Button
-                                    onClick={() => savePixabayImage(image)}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      savePixabayImage(image);
+                                    }}
                                     disabled={isSavingPixabayImage === image.id}
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-blue-600 hover:bg-blue-700 text-white"
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
                                     size="sm"
                                   >
                                     {isSavingPixabayImage === image.id ? (

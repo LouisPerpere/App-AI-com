@@ -797,8 +797,11 @@ async def save_pixabay_image(
         
         # Save to database using the same collection as content/pending
         media_collection = get_media_collection()
+        # Generate document ID first
+        doc_id = str(uuid.uuid4())
+        
         media_doc = {
-            "id": str(uuid.uuid4()),
+            "id": doc_id,
             "owner_id": user_id,  # Use owner_id to match content/pending query
             "filename": filename,
             "original_filename": f"pixabay_{pixabay_id}.jpg",
@@ -812,7 +815,9 @@ async def save_pixabay_image(
             "source": "pixabay",
             "pixabay_id": pixabay_id,
             "tags": tags,
-            "context": f"Image from Pixabay - {tags}"
+            "context": f"Image from Pixabay - {tags}",
+            "url": f"/api/content/{doc_id}/file",
+            "thumb_url": f"/api/content/{doc_id}/thumb"
         }
         
         media_collection.insert_one(media_doc)

@@ -230,6 +230,11 @@ function MainApp() {
   const [previewContent, setPreviewContent] = useState(null);
   const [isSavingContext, setIsSavingContext] = useState(false);
   
+  // Posts generation states
+  const [showGenerationModal, setShowGenerationModal] = useState(false);
+  const [isGeneratingPosts, setIsGeneratingPosts] = useState(false);
+  const [generatedPosts, setGeneratedPosts] = useState([]);
+  
   // Refs for direct DOM manipulation to avoid re-renders
   const titleInputRef = useRef(null);
   const contentInputRef = useRef(null);

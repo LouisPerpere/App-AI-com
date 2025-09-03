@@ -116,20 +116,16 @@ const ContentThumbnail = React.memo(({
       }`}>
         {content.file_type?.startsWith('image/') ? (
           <img 
-            src={content.thumb_url || content.url}
+            src={`${content.thumb_url || content.url}${content.thumb_url?.includes('?') ? '&' : '?'}token=${localStorage.getItem('access_token')}`}
             alt={content.filename}
             className="w-full h-full object-cover"
             loading="lazy"
             onError={(e) => {
               console.log('❌ Image failed to load:', content.thumb_url || content.url);
               // Fallback hierarchy: thumb_url -> url -> placeholder
-              if (content.url && e.currentTarget.src !== content.url) {
-                e.currentTarget.src = content.url;
-              } else {
-                // Show error placeholder
-                e.currentTarget.style.display = 'none';
-                const placeholder = e.currentTarget.parentElement.querySelector('.error-placeholder');
-                if (placeholder) placeholder.style.display = 'flex';
+              const fallbackUrl = content.url ? `${content.url}?token=${localStorage.getItem('access_token')}` : '/api/placeholder.png';
+              if (e.currentTarget.src !== fallbackUrl) {
+                e.currentTarget.src = fallbackUrl;
               }
             }}
             onLoad={() => {

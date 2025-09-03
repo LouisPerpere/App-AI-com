@@ -989,9 +989,12 @@ function MainApp() {
 
       if (response.data && response.data.hits) {
         setPixabayResults(response.data.hits);
+        // Reset saved images state for new search
+        setSavedPixabayImages(new Set());
         toast.success(`${response.data.hits.length} images trouvées ! 🖼️`);
       } else {
         setPixabayResults([]);
+        setSavedPixabayImages(new Set());
         toast.info('Aucune image trouvée pour cette recherche');
       }
 

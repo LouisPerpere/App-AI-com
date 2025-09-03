@@ -1446,11 +1446,10 @@ function MainApp() {
                             defaultValue={businessProfile?.posting_frequency || 'hebdomadaire'}
                             isSelect={true}
                             options={[
-                              { value: 'quotidien', label: '📅 Quotidien' },
-                              { value: '3_semaine', label: '🔥 3x/semaine' },
-                              { value: 'hebdomadaire', label: '📋 Hebdomadaire' },
-                              { value: '2_mois', label: '📆 2x/mois' },
-                              { value: 'mensuel', label: '🗓️ Mensuel' }
+                              { value: 'daily', label: '📅 Quotidien (7 posts/semaine)' },
+                              { value: '3x_week', label: '🔥 3x/semaine (3 posts/semaine)' },
+                              { value: 'weekly', label: '📋 Hebdomadaire (1 post/semaine)' },
+                              { value: 'bi_weekly', label: '📆 Bi-hebdomadaire (2 posts/2 semaines)' }
                             ]}
                             fieldType="business"
                           />

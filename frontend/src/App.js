@@ -2425,13 +2425,13 @@ function MainApp() {
                           <div className="space-y-4">
                             {previewContent.file_type?.startsWith('image/') ? (
                               <img 
-                                src={previewContent.url}
+                                src={`${previewContent.url}?token=${localStorage.getItem('access_token')}`}
                                 alt={previewContent.filename}
                                 className="w-full h-auto max-h-96 object-contain rounded-lg border"
                               />
                             ) : previewContent.file_type?.startsWith('video/') ? (
                               <video 
-                                src={previewContent.url}
+                                src={`${previewContent.url}?token=${localStorage.getItem('access_token')}`}
                                 controls
                                 className="w-full h-auto max-h-96 rounded-lg border"
                               />

@@ -2351,16 +2351,27 @@ function MainApp() {
                                   onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    savePixabayImage(image);
+                                    if (!savedPixabayImages.has(image.id)) {
+                                      savePixabayImage(image);
+                                    }
                                   }}
-                                  disabled={isSavingPixabayImage === image.id}
-                                  className="w-full mt-2 text-xs bg-blue-600 hover:bg-blue-700 text-white sm:hidden"
+                                  disabled={isSavingPixabayImage === image.id || savedPixabayImages.has(image.id)}
+                                  className={`w-full mt-2 text-xs sm:hidden text-white ${
+                                    savedPixabayImages.has(image.id) 
+                                      ? 'bg-green-600 hover:bg-green-700' 
+                                      : 'bg-blue-600 hover:bg-blue-700'
+                                  }`}
                                   size="sm"
                                 >
                                   {isSavingPixabayImage === image.id ? (
                                     <>
                                       <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1"></div>
                                       Ajout...
+                                    </>
+                                  ) : savedPixabayImages.has(image.id) ? (
+                                    <>
+                                      <Check className="w-3 h-3 mr-1" />
+                                      Ajouté ✓
                                     </>
                                   ) : (
                                     <>

@@ -2191,6 +2191,143 @@ function MainApp() {
                     </div>
                   )}
                 </div>
+                )}
+
+                {/* Pixabay search content */}
+                {activeLibraryTab === 'pixabay-search' && (
+                  <div>
+                    {/* Search Section */}
+                    <div className="mb-8">
+                      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-6 border-2 border-blue-200">
+                        <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                          <Search className="w-6 h-6 mr-2 text-blue-600" />
+                          Rechercher des images gratuites
+                        </h3>
+                        <p className="text-gray-600 mb-4">
+                          Trouvez des millions d'images gratuites et libres de droits pour vos contenus ! 🖼️
+                        </p>
+                        
+                        <div className="flex space-x-3">
+                          <Input
+                            type="text"
+                            placeholder="Ex: business, marketing, équipe..."
+                            value={pixabayQuery}
+                            onChange={(e) => setPixabayQuery(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && searchPixabayImages()}
+                            className="flex-1 text-base border-blue-200 focus:border-blue-400"
+                            style={{ fontSize: '16px', WebkitAppearance: 'none' }}
+                          />
+                          <Button
+                            onClick={searchPixabayImages}
+                            disabled={isSearchingPixabay || !pixabayQuery.trim()}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                          >
+                            {isSearchingPixabay ? (
+                              <>
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                Recherche...
+                              </>
+                            ) : (
+                              <>
+                                <Search className="w-4 h-4 mr-2" />
+                                Rechercher
+                              </>
+                            )}
+                          </Button>
+                        </div>
+
+                        {/* Categories */}
+                        {pixabayCategories.length > 0 && (
+                          <div className="mt-4">
+                            <p className="text-sm text-gray-600 mb-2">Catégories populaires :</p>
+                            <div className="flex flex-wrap gap-2">
+                              {pixabayCategories.slice(0, 8).map((category) => (
+                                <Button
+                                  key={category}
+                                  onClick={() => {
+                                    setPixabayQuery(category);
+                                    searchPixabayImages();
+                                  }}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-200"
+                                >
+                                  {category}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Search Results */}
+                    {pixabayResults.length > 0 && (
+                      <div>
+                        <h4 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                          <ImageIcon className="w-6 h-6 mr-2 text-blue-600" />
+                          Résultats de recherche ({pixabayResults.length})
+                        </h4>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                          {pixabayResults.map((image) => (
+                            <div key={image.id} className="group relative">
+                              <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200 group-hover:border-blue-300 transition-all duration-300">
+                                <img 
+                                  src={image.webformatURL} 
+                                  alt={image.tags}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                />
+                                
+                                {/* Overlay with actions */}
+                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+                                  <Button
+                                    onClick={() => savePixabayImage(image)}
+                                    disabled={isSavingPixabayImage === image.id}
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-blue-600 hover:bg-blue-700 text-white"
+                                    size="sm"
+                                  >
+                                    {isSavingPixabayImage === image.id ? (
+                                      <>
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-1"></div>
+                                        Ajout...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Upload className="w-4 h-4 mr-1" />
+                                        Ajouter
+                                      </>
+                                    )}
+                                  </Button>
+                                </div>
+                              </div>
+                              
+                              {/* Image info */}
+                              <div className="mt-2">
+                                <p className="text-xs text-gray-600 truncate">{image.tags}</p>
+                                <div className="flex items-center justify-between text-xs text-gray-500 mt-1">
+                                  <span>{image.views} vues</span>
+                                  <span>{image.downloads} téléchargements</span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Empty state for Pixabay search */}
+                    {pixabayResults.length === 0 && !isSearchingPixabay && (
+                      <div className="text-center py-12 card-glass rounded-3xl border-2 border-dashed border-blue-300">
+                        <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
+                          <Search className="w-12 h-12 text-white" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-700 mb-4">Recherchez des images gratuites ! 🔍</h3>
+                        <p className="text-xl text-gray-500 mb-6">Utilisez la barre de recherche ci-dessus pour trouver des images parfaites</p>
+                      </div>
+                    )}
+                  </div>
+                )}
                 
                 {/* Modal d'aperçu du contenu */}
                 {previewContent && (

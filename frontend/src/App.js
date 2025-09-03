@@ -116,16 +116,28 @@ const ContentThumbnail = React.memo(({
       }`}>
         {content.file_type?.startsWith('image/') ? (
           <img 
-            src={`${content.thumb_url || content.url}${content.thumb_url?.includes('?') ? '&' : '?'}token=${localStorage.getItem('access_token')}`}
+            src={content.source === 'pixabay' 
+              ? (content.thumb_url || content.url)
+              : `${content.thumb_url || content.url}${content.thumb_url?.includes('?') ? '&' : '?'}token=${localStorage.getItem('access_token')}`
+            }
             alt={content.filename}
             className="w-full h-full object-cover"
             loading="lazy"
             onError={(e) => {
               console.log('❌ Image failed to load:', content.thumb_url || content.url);
-              // Fallback hierarchy: thumb_url -> url -> placeholder
-              const fallbackUrl = content.url ? `${content.url}?token=${localStorage.getItem('access_token')}` : '/api/placeholder.png';
-              if (e.currentTarget.src !== fallbackUrl) {
-                e.currentTarget.src = fallbackUrl;
+              // Fallback based on source
+              if (content.source === 'pixabay') {
+                // For Pixabay, try the original URL without token
+                const fallbackUrl = content.url || '/api/placeholder.png';
+                if (e.currentTarget.src !== fallbackUrl) {
+                  e.currentTarget.src = fallbackUrl;
+                }
+              } else {
+                // For uploads, try with token
+                const fallbackUrl = content.url ? `${content.url}?token=${localStorage.getItem('access_token')}` : '/api/placeholder.png';
+                if (e.currentTarget.src !== fallbackUrl) {
+                  e.currentTarget.src = fallbackUrl;
+                }
               }
             }}
             onLoad={() => {

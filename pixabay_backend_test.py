@@ -102,7 +102,7 @@ class PixabayAPITester:
         self.log("🔍 Testing GET /api/pixabay/search with query 'business'...")
         try:
             params = {
-                "q": "business",
+                "query": "business",
                 "per_page": 10,
                 "image_type": "photo",
                 "safesearch": True

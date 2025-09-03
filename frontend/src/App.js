@@ -2219,7 +2219,7 @@ function MainApp() {
                           Trouvez des millions d'images gratuites et libres de droits pour vos contenus ! 🖼️
                         </p>
                         
-                        <div className="flex space-x-3">
+                        <div className="flex space-x-2 sm:space-x-3">
                           <input
                             ref={pixabaySearchRef}
                             type="text"
@@ -2231,7 +2231,7 @@ function MainApp() {
                           <Button
                             onClick={searchPixabayImages}
                             disabled={isSearchingPixabay}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-6 whitespace-nowrap"
                           >
                             {isSearchingPixabay ? (
                               <>

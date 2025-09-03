@@ -868,6 +868,66 @@ function MainApp() {
     }
   };
 
+  // Fonctions pour la génération de posts
+  
+  // Ouvrir la modal de génération
+  const handleOpenGenerationModal = useCallback(() => {
+    setShowGenerationModal(true);
+  }, []);
+
+  // Fermer la modal de génération
+  const handleCloseGenerationModal = useCallback(() => {
+    setShowGenerationModal(false);
+  }, []);
+
+  // Lancer la génération manuelle des posts
+  const handleGeneratePosts = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast.error('Vous devez être connecté pour générer des posts');
+      return;
+    }
+
+    setIsGeneratingPosts(true);
+    setShowGenerationModal(false);
+
+    try {
+      const response = await axios.post(`${API}/posts/generate`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      toast.success('Posts générés avec succès ! 🎉');
+      
+      // Recharger les posts générés
+      await loadGeneratedPosts();
+
+    } catch (error) {
+      console.error('Error generating posts:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`Erreur lors de la génération: ${errorMessage}`);
+    } finally {
+      setIsGeneratingPosts(false);
+    }
+  };
+
+  // Charger les posts générés
+  const loadGeneratedPosts = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      const response = await axios.get(`${API}/posts/generated`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data && response.data.posts) {
+        setGeneratedPosts(response.data.posts);
+      }
+    } catch (error) {
+      console.error('Error loading generated posts:', error);
+    }
+  };
+
   // Analyse de site web
   const handleAnalyzeWebsite = async () => {
     const websiteUrl = document.getElementById('website_analysis_url_native')?.value;

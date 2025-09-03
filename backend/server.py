@@ -805,7 +805,7 @@ async def save_pixabay_image(
             "owner_id": user_id,  # Use owner_id to match content/pending query
             "filename": filename,
             "original_filename": f"pixabay_{pixabay_id}.jpg",
-            "file_path": file_path,
+            "file_path": image_url,  # Store original Pixabay URL
             "file_size": file_size,
             "file_type": "image/jpeg",
             "width": width,
@@ -816,8 +816,9 @@ async def save_pixabay_image(
             "pixabay_id": pixabay_id,
             "tags": tags,
             "context": f"Image from Pixabay - {tags}",
-            "url": f"/api/content/{doc_id}/file",
-            "thumb_url": f"/api/content/{doc_id}/thumb"
+            "url": image_url,  # Use original Pixabay URL for full image
+            "thumb_url": image_url,  # Use original Pixabay URL for thumbnail too
+            "is_external": True  # Flag to indicate external image
         }
         
         media_collection.insert_one(media_doc)

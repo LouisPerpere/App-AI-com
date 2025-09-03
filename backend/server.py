@@ -14,6 +14,8 @@ import base64
 from PIL import Image
 import io
 import mimetypes
+import aiohttp
+import aiofiles
 
 # Enable HEIC/HEIF support for iPhone photos (optional)
 try:

@@ -1973,6 +1973,39 @@ function MainApp() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {/* Sub-tabs for Library */}
+                <div className="mb-6">
+                  <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg">
+                    <Button
+                      onClick={() => setActiveLibraryTab('my-library')}
+                      variant={activeLibraryTab === 'my-library' ? 'default' : 'ghost'}
+                      className={`flex-1 ${
+                        activeLibraryTab === 'my-library'
+                          ? 'bg-white shadow-sm text-purple-600'
+                          : 'text-gray-600 hover:text-purple-600'
+                      }`}
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      Ma bibliothèque
+                    </Button>
+                    <Button
+                      onClick={() => setActiveLibraryTab('pixabay-search')}
+                      variant={activeLibraryTab === 'pixabay-search' ? 'default' : 'ghost'}
+                      className={`flex-1 ${
+                        activeLibraryTab === 'pixabay-search'
+                          ? 'bg-white shadow-sm text-purple-600'
+                          : 'text-gray-600 hover:text-purple-600'
+                      }`}
+                    >
+                      <Search className="w-4 h-4 mr-2" />
+                      Rechercher des images
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Ma bibliothèque content */}
+                {activeLibraryTab === 'my-library' && (
+                  <div>
                 {/* Upload Section */}
                 <div className="mb-8">
                   <input

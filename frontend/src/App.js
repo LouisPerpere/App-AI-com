@@ -502,11 +502,13 @@ function MainApp() {
         const email = document.getElementById('business_email_edit')?.value;
         const websiteUrl = document.getElementById('business_website_edit')?.value;
         const targetAudience = document.getElementById('target_audience_edit')?.value;
+        const coordinates = document.getElementById('business_coordinates_edit')?.value;
         
         updateData = {
           email: email,
           website_url: websiteUrl,
-          target_audience: targetAudience
+          target_audience: targetAudience,
+          coordinates: coordinates
         };
       }
 

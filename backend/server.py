@@ -796,7 +796,7 @@ async def save_pixabay_image(
         dbm = get_database()
         media_doc = {
             "id": str(uuid.uuid4()),
-            "user_id": user_id,
+            "owner_id": user_id,  # Use owner_id to match content/pending query
             "filename": filename,
             "original_filename": f"pixabay_{pixabay_id}.jpg",
             "file_path": file_path,

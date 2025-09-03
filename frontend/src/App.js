@@ -241,6 +241,7 @@ function MainApp() {
   const [pixabayCategories, setPixabayCategories] = useState([]);
   const [isSearchingPixabay, setIsSearchingPixabay] = useState(false);
   const [isSavingPixabayImage, setIsSavingPixabayImage] = useState(null);
+  const [savedPixabayImages, setSavedPixabayImages] = useState(new Set()); // Track successfully saved images
   
   // Refs for direct DOM manipulation to avoid re-renders
   const titleInputRef = useRef(null);

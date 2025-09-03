@@ -171,6 +171,7 @@ class BusinessProfile(BaseModel):
     budget_range: str
     email: Optional[str] = None
     website_url: Optional[str] = None
+    coordinates: Optional[str] = None
     hashtags_primary: List[str] = []
     hashtags_secondary: List[str] = []
 

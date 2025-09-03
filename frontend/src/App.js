@@ -237,7 +237,6 @@ function MainApp() {
   
   // Pixabay integration states
   const [activeLibraryTab, setActiveLibraryTab] = useState('my-library'); // 'my-library' or 'pixabay-search'
-  const [pixabayQuery, setPixabayQuery] = useState('');
   const [pixabayResults, setPixabayResults] = useState([]);
   const [pixabayCategories, setPixabayCategories] = useState([]);
   const [isSearchingPixabay, setIsSearchingPixabay] = useState(false);

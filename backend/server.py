@@ -452,6 +452,7 @@ class BusinessProfileIn(BaseModel):
     budget_range: Optional[str] = None
     email: Optional[str] = None
     website_url: Optional[str] = None
+    coordinates: Optional[str] = None
     hashtags_primary: Optional[List[str]] = None
     hashtags_secondary: Optional[List[str]] = None
 

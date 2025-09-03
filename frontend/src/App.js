@@ -2194,7 +2194,7 @@ function MainApp() {
                 )}
 
                 {/* Pixabay search content */}
-                {activeLibraryTab === 'pixabay-search' && (
+                {false && (
                   <div>
                     {/* Search Section */}
                     <div className="mb-8">

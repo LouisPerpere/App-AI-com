@@ -33,7 +33,10 @@ const pingBackend = async (maxWaitMs = 60000) => {
   let lastErr = null;
   while (Date.now() - start < maxWaitMs) {
     try {
-      const res = await axios.get(`${API}/health`, { timeout: 12000 });
+      const res = await axios.get(`${API}/health`, { 
+        timeout: 12000, 
+        withCredentials: false 
+      });
       if (res?.status === 200) return true;
     } catch (e) {
       lastErr = e;

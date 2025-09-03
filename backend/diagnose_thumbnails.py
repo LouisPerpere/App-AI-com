@@ -18,7 +18,7 @@ def diagnose_thumbnails():
     print("=" * 50)
     
     # Backend URL
-    backend_url = 'https://claire-marcus-app.preview.emergentagent.com'
+    backend_url = 'https://social-ai-assist-1.preview.emergentagent.com'
     
     # Login
     login_data = {'email': 'lperpere@yahoo.fr', 'password': 'L@Reunion974!'}

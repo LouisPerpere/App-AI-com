@@ -13,7 +13,7 @@ from io import BytesIO
 from PIL import Image
 
 # Configuration
-BACKEND_URL = "https://claire-marcus-app.preview.emergentagent.com"
+BACKEND_URL = "https://social-ai-assist-1.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Credentials

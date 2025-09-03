@@ -24,7 +24,7 @@ from urllib.parse import urlparse
 import re
 
 # Configuration
-BACKEND_URL = "https://claire-marcus-app.preview.emergentagent.com"
+BACKEND_URL = "https://social-ai-assist-1.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request

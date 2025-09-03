@@ -1,69 +1,66 @@
 <analysis>
-The trajectory details an iterative development process where the previous AI engineer evolved an AI-powered SaaS PWA. Initially, the focus was on restoring the dashboard, fixing frontend layout issues (header, virtual keyboard compatibility), and establishing basic backend functionality for business profile management. A significant recurring challenge was the  authentication errors, often due to a desynchronized or reset database state on the deployed environment, necessitating repeated user account re-creations.
+The trajectory details the iterative development of an AI-powered SaaS PWA. Initially, the focus was on critical UI/UX fixes: restoring the dashboard, resolving header layout, and making virtual keyboard input functional across various components. Authentication issues, often linked to database resets, were a persistent challenge, necessitating backend adjustments.
 
-As core functionality solidified, the work shifted towards feature enhancements and significant UI/UX improvements. This included the implementation of new business profile fields (brand tone, posting frequency), the evolution of input field interaction from basic auto-save to a sophisticated locked/unlocked editing system, and a major overhaul of the website analysis module to use multi-page GPT-4o with highly detailed outputs and automated scheduling. A substantial design modernization was also undertaken, incorporating glassmorphism, animations, and responsive elements. The latest interactions highlight a continued cycle of fine-tuning UI elements (header, tabs, margins) and addressing outstanding issues in the Notes and Library sections, indicating an ongoing commitment to user feedback and polish.
+The previous AI engineer then systematically enhanced core features. This included adding business profile fields (, ), refining input interactions to a locked/unlocked  component, and a major overhaul of the website analysis module to leverage multi-page GPT-4o with automated monthly scheduling. Design modernization with glassmorphism and animations was also a significant effort. Recurring issues, particularly the virtual keyboard closing on iPhone bug, were addressed through multiple iterations, finally resolved by converting controlled inputs to uncontrolled inputs with . The notes module received full CRUD functionality and UI polish. The content library gained multi-selection, mass deletion, and an image preview modal with context editing. Most recently, the posts generation tab was built out, offering manual generation with a confirmation workflow. The work is currently focused on integrating Pixabay for external image search and management.
 </analysis>
 
 <product_requirements>
-The Claire et Marcus PWA is an AI-powered SaaS for small businesses, automating social media content and profile management. It needs reliable content saving, display, and deletion via MongoDB, a 5-column content library grid with pop-up previews and batch operations, automatic 320px WEBP thumbnails, AI-powered website analysis using GPT-4o, a notes module, persistent business profiles, and robust authentication. The infrastructure is being migrated towards autonomy with Emergent. The immediate goal was to restore the full application interface and functionality, including a working dashboard, correct header layout, and functional virtual keyboard input.
-
-Subsequent requirements included:
-- Adding ton de marque (brand tone) and rythme de publications (posting frequency) fields with dropdowns.
-- Implementing an intuitive editing system (initially auto-save, then locked fields with explicit edit/save/cancel buttons).
-- Enhancing website analysis to be multi-page, ignore technical content, provide highly detailed outputs (summary, audience, services, content suggestions, keywords), feature automatic monthly re-analysis, display last/next analysis dates, and persist the analyzed URL.
-- Modernizing the overall design with an animated background, glassmorphism, vibrant colors, and dynamic interactive elements.
-- Resolving recurring 401 login errors, fixing header display issues (text visibility, layout, breathing effect), improving mobile tab layout (2 lines, 4 per line, no overflow), and addressing bugs in the Notes (priority dropdown, French translation, save/display) and Library (thumbnail display, size, style) pages.
+The Claire et Marcus PWA is an AI-powered SaaS designed for small businesses to automate social media content and profile management. Key requirements included: reliable content saving, display, and deletion via MongoDB; a 5-column content library grid with pop-up previews and batch operations; automatic 320px WEBP thumbnails; AI-powered website analysis using GPT-4o; a notes module; persistent business profiles; and robust authentication. Initial work focused on restoring the dashboard, fixing header layout, and enabling virtual keyboard input. Subsequent requirements involved adding brand tone and posting frequency dropdowns, implementing a locked/unlocked  system, enhancing multi-page AI website analysis with monthly re-analysis and detailed outputs, and modernizing the design with animations and glassmorphism. Critical bug fixes included persistent 401 login errors, header display, mobile tab layout, and full CRUD functionality with UI/UX improvements for the Notes and Library sections. Most recently, the user requested manual post generation and Pixabay integration for royalty-free images within the content library.
 </product_requirements>
 
 <key_technical_concepts>
 - **Full-stack**: React.js (frontend), FastAPI (backend), MongoDB/GridFS (database).
-- **Authentication**: JWT,  for tokens, ,  for password hashing, user registration/login.
-- **AI Integration**: GPT-4o (via  library) for website analysis.
-- **Frontend UI/UX**: Responsive design, virtual keyboard compatibility,  component, Tailwind CSS, Glassmorphism, CSS animations.
-- **API Interaction**: RESTful endpoints,  prefix for Kubernetes ingress.
-- **Scheduled Tasks**:  for automated website analysis.
+- **Authentication**: JWT, , , .
+- **AI Integration**: GPT-4o (via ) for website analysis and post generation.
+- **Frontend UI/UX**: Responsive design, virtual keyboard compatibility (uncontrolled inputs with ), Tailwind CSS, Glassmorphism, CSS animations.
+- **API Interaction**: RESTful endpoints,  prefix, .
+- **Scheduled Tasks**:  for automated website analysis and post generation.
 </key_technical_concepts>
 
 <code_architecture>
 
--   ****: The main React component.
-    -   **Importance**: Central hub for UI, logic, and backend interaction. It renders the  with all tabs and their functionalities.
-    -   **Changes Made**: Underwent significant restoration and modifications. Fixed a bug where  wasn't returned. Refactored header for layout, logout, and added a breathing effect. Implemented robust virtual keyboard handling for mobile inputs. Integrated  and  dropdowns. Replaced auto-save with a new  component that provides locked/unlocked editing with specific icons. Enhanced website analysis display, dates, and a smart re-analysis button. Global design updated with animated background, glassmorphism, and modern tabs/buttons. Moved edit buttons to the right, adjusted header text colors, and restructured mobile tab layout for 2 lines. URL persistence for analysis was improved.
+-   ****: The main React component, central to UI and logic.
+    -   **Importance**: Renders the  with all tabs. Underwent significant modifications for UI layout, virtual keyboard compatibility, new input fields, website analysis display, and global design.
+    -   **Changes Made**: Header text color and breathing animation restored. Mobile tab layout optimized (2 lines, 4 per line, reduced font/padding, no icons).  buttons moved right. Notes module: states (, , , refs for uncontrolled inputs),  (POST/PUT), ,  functions added. Priority dropdown implemented, translated values. Library module: , , ,  states. , , ,  functions.  added with uncontrolled textarea for context. Posting frequency labels and Coordonnées field added to Business profile. Posts module: , ,  states, ,  functions. Logic for Pixabay integration.
 -   ****: Main stylesheet.
-    -   **Importance**: Defines global styles and component-specific styling.
-    -   **Changes Made**: Added mobile/touch-specific CSS for virtual keyboard, corrected syntax. Introduced , , , ,  animations for modern design.
+    -   **Importance**: Global styles and component styling.
+    -   **Changes Made**: Added mobile/touch CSS for virtual keyboard, , , , ,  animations. Specific CSS rules for notes form fields (, , ) to force  and reset WebKit appearance, .
 -   ****: Frontend environment variables.
-    -   **Importance**: Stores  for backend API calls.
-    -   **Changes Made**: Updated  multiple times based on deployment environments (Emergent preview, Render.com).
+    -   **Importance**: Stores .
+    -   **Changes Made**: Updated  for deployment environments.
 -   ****: Main FastAPI backend server.
-    -   **Importance**: Defines core API routes for authentication, user management, and business profile operations.
-    -   **Changes Made**: Added  enum. Implemented a  endpoint for user registration, including email validation,  password hashing, and JWT token generation. Adjusted authentication logic to correctly handle password hash storage.
--   ****: AI-powered website analysis module.
-    -   **Importance**: Responsible for crawling, processing, and generating detailed website analyses using an LLM.
-    -   **Changes Made**: Enhanced to perform multi-page analysis (identifying key content pages, ignoring technical ones). The GPT prompt was significantly improved to generate much more detailed summaries, target audience descriptions, main services, content suggestions, and keywords. Integrated  to use GPT-4o, including fixing import paths and ensuring the LLM key is correctly accessed. The prompt was refined to ensure the business name is extracted without including domain extensions.
+    -   **Importance**: Core API routes.
+    -   **Changes Made**:  model for notes,  and  updated with . , ,  endpoints added from .  for saving content context.  and  for post generation. Pixabay search/download endpoints integrated.
+-   ****: Handles MongoDB interactions.
+    -   **Importance**: Database operations.
+    -   **Changes Made**:  function modified to accept  parameter instead of forcing normal.
 -   ****: Backend scheduler for automated tasks.
     -   **Importance**: Manages background jobs.
-    -   **Changes Made**: Added  function to automatically re-analyze websites monthly, ensuring up-to-date analysis data.
--   ** (temporary)** and ** (temporary)**: Debugging scripts.
-    -   **Importance**:  was used to directly add/update users in MongoDB for testing purposes during authentication issues.  was used to isolate and test bcrypt hashing and login logic.
+    -   **Changes Made**:  for monthly re-analysis. Contains  logic and  for AI post creation.
+-   ****: Backend environment variables.
+    -   **Importance**: Stores .
+    -   **Changes Made**: Added .
+-   ****: Python dependencies.
+    -   **Importance**: Lists all backend libraries.
+    -   **Changes Made**:  is being added.
 </code_architecture>
 
 <pending_tasks>
--   **Notes page**: Modify the priority field to a dropdown menu, translate relevant UI elements to French, and fix the ajouter la note functionality (notes are not saving or appearing).
--   **Library page**: Resolve the issue where uploaded photo thumbnails are not displayed. Implement smaller, square thumbnails with pointed corners, displaying 5 photos per line, in an iPhone-like grid layout.
+-   Add  to  and install it.
+-   Implement the frontend UI for the Pixabay integration, including Ma bibliothèque and Rechercher des images sub-tabs within the Bibliothèque section.
+-   Display Pixabay search results and allow users to add selected images to Ma bibliothèque.
 </pending_tasks>
 
 <current_work>
-Immediately prior to this summary, the AI engineer was diligently addressing multiple UI/UX issues and functional bugs reported by the user. The primary focus was on polishing the frontend interface and resolving outstanding problems that emerged after significant design modernization and feature additions.
+Immediately prior to this summary, the AI engineer was implementing the Pixabay integration. This was requested by the user to allow the system to fetch royalty-free images to complement user uploads, and for users to manually select images for post generation.
 
 The engineer has successfully:
-1.  **Rectified Header Display**: The header text Claire redige, Marcus programme, vous respirez has been restored to its intended violet color, and the breathing animation effect is applied. This addresses the user's feedback about text being masked and the gradient color.
-2.  **Improved Mobile Tab Layout**: The tab styling has been adjusted to prevent overflow on mobile devices, ensuring that the 2-line, 4-tabs-per-line structure is always visible. This involved reducing font size for tab labels and making the active tab's highlight less rounded to optimize space and appearance.
-3.  **Moved Edit Buttons**: The edit, save, and cancel buttons within the  component have been relocated to the right of the input fields. This prevents them from obscuring the text being edited, enhancing the user experience.
+1.  **Added Pixabay API Key**: The provided Pixabay API key () has been securely added to the backend's  file.
+2.  **Integrated Backend Endpoints**: New API endpoints related to Pixabay search and image download have been added to the backend's  file. These endpoints will handle communication with the Pixabay API.
 
-The current activity is focused on the **Notes page**. The engineer has just located the relevant section in  (around line 1516) and is poised to implement the required changes. These changes include transforming the priority field into a dropdown menu, translating necessary text to French, and crucially, fixing the bug that prevents new notes from being saved and displayed in Mes notes. This work is the next step in addressing the comprehensive list of user feedback from Chat Message 496.
+The current activity is at the very beginning of the Pixabay implementation, specifically at the point of ensuring all necessary backend dependencies are in place. The engineer has just started adding  to  to support asynchronous file operations, which will likely be used for handling image downloads from Pixabay. The next step is to complete this dependency update before moving on to the frontend implementation of the Pixabay search and integration UI.
 </current_work>
 
 <optional_next_step>
-Continue implementing the required fixes and enhancements for the Notes page.
+Add  to , install it, and then proceed with the frontend implementation for Pixabay.
 </optional_next_step>

@@ -15,7 +15,7 @@ from bson import ObjectId
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://claire-marcus-app.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://social-ai-assist-1.preview.emergentagent.com')
 API_BASE = f"{BACKEND_URL}/api"
 
 # Known credentials

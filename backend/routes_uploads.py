@@ -38,6 +38,14 @@ def get_current_user_id_robust(authorization: Optional[str] = Header(None)) -> s
     except jwt.InvalidTokenError as e:
         raise HTTPException(401, f"Invalid token: {e}")
 
+def _decode_user_from_token(token: str) -> Optional[str]:
+    """Decode user ID from JWT token - same as in routes_thumbs.py"""
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG], options={"require": ["sub", "exp"]}, issuer=JWT_ISS)
+        return payload.get("sub")
+    except Exception:
+        return None
+
 
 @router.post("/content/upload")
 async def upload_content(

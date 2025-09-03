@@ -159,6 +159,7 @@ test_plan:
   current_focus:
     - "Notes API Endpoints Implementation"
     - "Notes Page Frontend Implementation"
+    - "Content Context Endpoints Implementation"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

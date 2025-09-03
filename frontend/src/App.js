@@ -839,8 +839,18 @@ function MainApp() {
       const updatedContent = { ...previewContent, context: contextValue.trim() };
       setPreviewContent(updatedContent);
       
+      // Remettre le texte dans la textarea après sauvegarde pour qu'il reste visible
+      if (contextTextareaRef.current) {
+        contextTextareaRef.current.value = contextValue.trim();
+      }
+      
       // Recharger la liste pour persister les changements
       await loadPendingContent();
+      
+      // Fermer automatiquement la modal après 1 seconde
+      setTimeout(() => {
+        handleClosePreview();
+      }, 1000);
 
     } catch (error) {
       console.error('Error saving context:', error);

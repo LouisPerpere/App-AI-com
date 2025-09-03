@@ -2008,13 +2008,21 @@ function MainApp() {
                                 Contexte et description 📝
                               </label>
                               <textarea
-                                value={contentContext}
-                                onChange={(e) => setContentContext(e.target.value)}
+                                ref={contextTextareaRef}
                                 placeholder="Ajoutez une description, du contexte, des mots-clés pour utiliser cette image dans vos posts..."
                                 className="w-full h-48 p-3 border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none resize-none"
                                 style={{
                                   fontSize: '16px', // Pour éviter le zoom sur mobile
+                                  WebkitAppearance: 'none',
+                                  WebkitBorderRadius: '8px',
+                                  borderRadius: '8px',
+                                  boxShadow: 'none',
+                                  WebkitBoxShadow: 'none',
+                                  touchAction: 'manipulation',
+                                  userSelect: 'text',
+                                  WebkitUserSelect: 'text'
                                 }}
+                                onChange={() => {}} // Handler vide pour éviter re-renders
                               />
                             </div>
                             

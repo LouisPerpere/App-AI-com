@@ -960,7 +960,9 @@ function MainApp() {
 
   // Rechercher des images sur Pixabay
   const searchPixabayImages = async () => {
-    if (!pixabayQuery.trim()) {
+    const query = pixabaySearchRef.current?.value?.trim();
+    
+    if (!query) {
       toast.error('Veuillez saisir un terme de recherche');
       return;
     }
@@ -976,7 +978,7 @@ function MainApp() {
     try {
       const response = await axios.get(`${API}/pixabay/search`, {
         params: {
-          query: pixabayQuery.trim(),
+          query: query,
           per_page: 20,
           image_type: 'photo',
           safesearch: true
@@ -1000,6 +1002,14 @@ function MainApp() {
     } finally {
       setIsSearchingPixabay(false);
     }
+  };
+
+  // Fonction pour recherche rapide avec catégorie
+  const searchPixabayCategory = async (category) => {
+    if (pixabaySearchRef.current) {
+      pixabaySearchRef.current.value = category;
+    }
+    await searchPixabayImages();
   };
 
   // Sauvegarder une image Pixabay dans la bibliothèque

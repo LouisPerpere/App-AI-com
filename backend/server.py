@@ -795,8 +795,8 @@ async def save_pixabay_image(
             width, height = img.size
         file_size = os.path.getsize(file_path)
         
-        # Save to database
-        dbm = get_database()
+        # Save to database using the same collection as content/pending
+        media_collection = get_media_collection()
         media_doc = {
             "id": str(uuid.uuid4()),
             "owner_id": user_id,  # Use owner_id to match content/pending query

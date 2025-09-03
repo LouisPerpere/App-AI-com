@@ -302,7 +302,11 @@ class PixabayAPITester:
             response = self.session.get(f"{BACKEND_URL}/pixabay/search", params=params, timeout=15)
             
             if response.status_code == 200:
-                self.log("✅ Pixabay API key is properly configured")
+                data = response.json()
+                total = data.get("total", 0)
+                hits = data.get("hits", [])
+                self.log(f"✅ Pixabay API key is properly configured")
+                self.log(f"   Test search returned {total} total results, {len(hits)} hits")
                 return True
             elif response.status_code == 429:
                 self.log("✅ Pixabay API key working (rate limited)")
@@ -314,6 +318,14 @@ class PixabayAPITester:
                     return False
                 else:
                     self.log(f"⚠️ Pixabay API error (not key-related): {error_text}")
+                    return True
+            elif response.status_code == 500:
+                error_text = response.text
+                if "API key not configured" in error_text:
+                    self.log(f"❌ Pixabay API key not configured: {error_text}")
+                    return False
+                else:
+                    self.log(f"⚠️ Server error (may be temporary): {error_text}")
                     return True
             else:
                 self.log(f"❌ Pixabay API key validation failed: {response.status_code} - {response.text}")

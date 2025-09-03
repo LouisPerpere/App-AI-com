@@ -425,7 +425,7 @@ async def get_pending_content_mongo(offset: int = 0, limit: int = 24, user_id: s
 BUSINESS_FIELDS = [
     "business_name", "business_type", "business_description", "target_audience",
     "brand_tone", "posting_frequency", "preferred_platforms", "budget_range",
-    "email", "website_url", "hashtags_primary", "hashtags_secondary"
+    "email", "website_url", "coordinates", "hashtags_primary", "hashtags_secondary"
 ]
 
 @api_router.get("/business-profile")

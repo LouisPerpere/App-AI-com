@@ -2444,6 +2444,7 @@ function MainApp() {
                       </div>
                     </div>
                   </div>
+                </div>
                 )}
               </CardContent>
             </Card>

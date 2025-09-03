@@ -318,6 +318,7 @@ function MainApp() {
       loadNotes();
       loadPendingContent();
       loadGeneratedPosts();
+      loadPixabayCategories();
       
     } catch (error) {
       console.error('Auth check failed:', error);

@@ -1040,6 +1040,9 @@ function MainApp() {
       console.log('✅ Image saved successfully:', response.data);
       toast.success('Image ajoutée à votre bibliothèque ! 📚');
       
+      // Marquer l'image comme sauvegardée avec succès
+      setSavedPixabayImages(prev => new Set([...prev, pixabayImage.id]));
+      
       // Recharger le contenu pour voir la nouvelle image
       await loadPendingContent();
 

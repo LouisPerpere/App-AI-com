@@ -815,7 +815,7 @@ async def save_pixabay_image(
             "context": f"Image from Pixabay - {tags}"
         }
         
-        dbm.db.media.insert_one(media_doc)
+        media_collection.insert_one(media_doc)
         media_doc.pop('_id', None)  # Remove MongoDB _id
         
         return {

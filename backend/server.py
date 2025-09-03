@@ -677,9 +677,6 @@ async def get_generated_posts(user_id: str = Depends(get_current_user_id_robust)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch generated posts: {str(e)}")
 
-# Include the API router
-app.include_router(api_router)
-
 # ----------------------------
 # PIXABAY INTEGRATION: /api/pixabay
 # ----------------------------
@@ -838,6 +835,9 @@ async def get_pixabay_categories():
         "transportation", "travel", "buildings", "business", "music"
     ]
     return {"categories": categories}
+
+# Include the API router
+app.include_router(api_router)
 
 # Include GPT-5 Website Analyzer
 if WEBSITE_ANALYZER_AVAILABLE:

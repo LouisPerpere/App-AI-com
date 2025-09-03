@@ -169,6 +169,7 @@ frontend:
 
 test_plan:
   current_focus:
+    - "Pixabay Integration Frontend Implementation"
     - "Notes API Endpoints Implementation"
     - "Notes Page Frontend Implementation"
     - "Content Context Endpoints Implementation"

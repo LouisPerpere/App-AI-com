@@ -765,6 +765,11 @@ async def save_pixabay_image(
 ):
     """Save a Pixabay image to user's library"""
     try:
+        # Extract data from request
+        pixabay_id = request.get("pixabay_id")
+        image_url = request.get("image_url")
+        tags = request.get("tags", "")
+        
         # Generate unique filename
         unique_id = str(uuid.uuid4())[:8]
         filename = f"pixabay_{pixabay_id}_{unique_id}.jpg"

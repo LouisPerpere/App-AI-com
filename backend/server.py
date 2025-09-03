@@ -760,9 +760,7 @@ async def search_pixabay_images(
 
 @api_router.post("/pixabay/save-image")
 async def save_pixabay_image(
-    pixabay_id: int,
-    image_url: str,
-    tags: str = "",
+    request: dict,
     user_id: str = Depends(get_current_user_id_robust)
 ):
     """Save a Pixabay image to user's library"""

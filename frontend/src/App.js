@@ -2330,6 +2330,30 @@ function MainApp() {
                                   <span>{image.views} vues</span>
                                   <span>{image.downloads} téléchargements</span>
                                 </div>
+                                
+                                {/* Mobile-friendly button - visible on small screens */}
+                                <Button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    savePixabayImage(image);
+                                  }}
+                                  disabled={isSavingPixabayImage === image.id}
+                                  className="w-full mt-2 text-xs bg-blue-600 hover:bg-blue-700 text-white sm:hidden"
+                                  size="sm"
+                                >
+                                  {isSavingPixabayImage === image.id ? (
+                                    <>
+                                      <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1"></div>
+                                      Ajout...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Upload className="w-3 h-3 mr-1" />
+                                      Ajouter
+                                    </>
+                                  )}
+                                </Button>
                               </div>
                             </div>
                           ))}

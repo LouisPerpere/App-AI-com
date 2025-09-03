@@ -805,6 +805,7 @@ async def save_pixabay_image(
             "width": width,
             "height": height,
             "uploaded_at": datetime.now().isoformat(),
+            "created_at": datetime.now(),
             "source": "pixabay",
             "pixabay_id": pixabay_id,
             "tags": tags,

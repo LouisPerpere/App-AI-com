@@ -171,7 +171,7 @@ async def upload_content_batch(
 
 
 @router.get("/content/{file_id}/file")
-async def get_original_file(file_id: str, user_id: str = Depends(get_current_user_id_robust)):
+async def get_original_file(file_id: str, token: Optional[str] = None, authorization: Optional[str] = Header(None)):
     """Stream original file from GridFS with auth."""
     try:
         dbm = get_database()

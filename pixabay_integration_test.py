@@ -190,7 +190,7 @@ class PixabayIntegrationTester:
         try:
             response = self.session.post(
                 f"{BACKEND_URL}/pixabay/save-image",
-                json=save_data,
+                data=save_data,  # Use form data instead of JSON
                 timeout=60  # Longer timeout for image download
             )
             if response.status_code == 200:

@@ -411,6 +411,7 @@ async def get_pending_content_mongo(offset: int = 0, limit: int = 24, user_id: s
                 "url": d.get("url", ""),
                 "thumb_url": d.get("thumb_url", ""),
                 "description": d.get("description", ""),
+                "context": d.get("context", ""),  # Include context field
                 "created_at": d.get("created_at").isoformat() if d.get("created_at") else None
             })
         return {"content": items, "total": total, "offset": offset, "limit": limit, "has_more": offset + limit < total, "loaded": len(items)}

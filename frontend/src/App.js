@@ -2220,18 +2220,17 @@ function MainApp() {
                         </p>
                         
                         <div className="flex space-x-3">
-                          <Input
+                          <input
+                            ref={pixabaySearchRef}
                             type="text"
-                            placeholder="Ex: business, marketing, équipe..."
-                            value={pixabayQuery}
-                            onChange={(e) => setPixabayQuery(e.target.value)}
+                            placeholder="Ex: entreprise, marketing, équipe..."
                             onKeyPress={(e) => e.key === 'Enter' && searchPixabayImages()}
-                            className="flex-1 text-base border-blue-200 focus:border-blue-400"
-                            style={{ fontSize: '16px', WebkitAppearance: 'none' }}
+                            className="flex-1 text-base border-blue-200 focus:border-blue-400 rounded-md border px-3 py-2"
+                            style={{ fontSize: '16px', WebkitAppearance: 'none', touchAction: 'manipulation' }}
                           />
                           <Button
                             onClick={searchPixabayImages}
-                            disabled={isSearchingPixabay || !pixabayQuery.trim()}
+                            disabled={isSearchingPixabay}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-6"
                           >
                             {isSearchingPixabay ? (

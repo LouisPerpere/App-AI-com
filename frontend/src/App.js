@@ -247,6 +247,7 @@ function MainApp() {
   const contentInputRef = useRef(null);
   const priorityInputRef = useRef(null);
   const contextTextareaRef = useRef(null); // Ref pour éviter bug clavier virtuel
+  const pixabaySearchRef = useRef(null); // Ref pour recherche Pixabay
   
   // Website analysis states
   const [isAnalyzing, setIsAnalyzing] = useState(false);

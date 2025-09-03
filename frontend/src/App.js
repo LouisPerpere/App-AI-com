@@ -793,19 +793,30 @@ function MainApp() {
       handleToggleSelection(content.id);
     } else {
       setPreviewContent(content);
-      setContentContext(content.context || ''); // Charger le contexte existant
+      // Charger le contexte existant directement dans la textarea après un court délai
+      setTimeout(() => {
+        if (contextTextareaRef.current) {
+          contextTextareaRef.current.value = content.context || '';
+        }
+      }, 100);
     }
   }, [isSelectionMode, handleToggleSelection]);
 
   // Fermer l'aperçu
   const handleClosePreview = useCallback(() => {
     setPreviewContent(null);
-    setContentContext('');
+    // Vider la textarea
+    if (contextTextareaRef.current) {
+      contextTextareaRef.current.value = '';
+    }
   }, []);
 
   // Sauvegarder le contexte d'un contenu
   const handleSaveContext = async () => {
     if (!previewContent) return;
+
+    // Lire la valeur directement du DOM
+    const contextValue = contextTextareaRef.current?.value || '';
 
     const token = localStorage.getItem('access_token');
     if (!token) {
@@ -817,18 +828,18 @@ function MainApp() {
 
     try {
       await axios.put(`${API}/content/${previewContent.id}/context`, {
-        context: contentContext.trim()
+        context: contextValue.trim()
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
       toast.success('Contexte sauvegardé ! 💾');
       
-      // Mettre à jour le contenu local
-      const updatedContent = { ...previewContent, context: contentContext.trim() };
+      // Mettre à jour le contenu local avec le nouveau contexte
+      const updatedContent = { ...previewContent, context: contextValue.trim() };
       setPreviewContent(updatedContent);
       
-      // Recharger la liste
+      // Recharger la liste pour persister les changements
       await loadPendingContent();
 
     } catch (error) {

@@ -1020,7 +1020,8 @@ function MainApp() {
         'posting_frequency_edit': 'posting_frequency',
         'business_email_edit': 'email',
         'business_website_edit': 'website_url',
-        'target_audience_edit': 'target_audience'
+        'target_audience_edit': 'target_audience',
+        'business_coordinates_edit': 'coordinates'
       };
 
       const apiField = fieldMapping[fieldName] || fieldName;

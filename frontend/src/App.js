@@ -937,6 +937,103 @@ function MainApp() {
     }
   };
 
+  // Fonctions Pixabay
+  
+  // Charger les catégories Pixabay
+  const loadPixabayCategories = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      const response = await axios.get(`${API}/pixabay/categories`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data && response.data.categories) {
+        setPixabayCategories(response.data.categories);
+      }
+    } catch (error) {
+      console.error('Error loading Pixabay categories:', error);
+    }
+  };
+
+  // Rechercher des images sur Pixabay
+  const searchPixabayImages = async () => {
+    if (!pixabayQuery.trim()) {
+      toast.error('Veuillez saisir un terme de recherche');
+      return;
+    }
+
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast.error('Vous devez être connecté');
+      return;
+    }
+
+    setIsSearchingPixabay(true);
+
+    try {
+      const response = await axios.get(`${API}/pixabay/search`, {
+        params: {
+          query: pixabayQuery.trim(),
+          per_page: 20,
+          image_type: 'photo',
+          safesearch: true
+        },
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data && response.data.hits) {
+        setPixabayResults(response.data.hits);
+        toast.success(`${response.data.hits.length} images trouvées ! 🖼️`);
+      } else {
+        setPixabayResults([]);
+        toast.info('Aucune image trouvée pour cette recherche');
+      }
+
+    } catch (error) {
+      console.error('Error searching Pixabay:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`Erreur lors de la recherche: ${errorMessage}`);
+      setPixabayResults([]);
+    } finally {
+      setIsSearchingPixabay(false);
+    }
+  };
+
+  // Sauvegarder une image Pixabay dans la bibliothèque
+  const savePixabayImage = async (pixabayImage) => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast.error('Vous devez être connecté');
+      return;
+    }
+
+    setIsSavingPixabayImage(pixabayImage.id);
+
+    try {
+      await axios.post(`${API}/pixabay/save-image`, {
+        pixabay_id: pixabayImage.id,
+        image_url: pixabayImage.webformatURL,
+        tags: pixabayImage.tags
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      toast.success('Image ajoutée à votre bibliothèque ! 📚');
+      
+      // Recharger le contenu pour voir la nouvelle image
+      await loadPendingContent();
+
+    } catch (error) {
+      console.error('Error saving Pixabay image:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`Erreur lors de la sauvegarde: ${errorMessage}`);
+    } finally {
+      setIsSavingPixabayImage(null);
+    }
+  };
+
   // Analyse de site web
   const handleAnalyzeWebsite = async () => {
     const websiteUrl = document.getElementById('website_analysis_url_native')?.value;

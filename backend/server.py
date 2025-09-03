@@ -609,10 +609,10 @@ async def delete_content(content_id: str, user_id: str = Depends(get_current_use
         dbm = get_database()
         
         # Delete content from media collection
-        result = dbm.db.media.delete_one({
-            "id": content_id,
-            "user_id": user_id
-        })
+        query = parse_any_id(content_id)
+        query["owner_id"] = user_id  # Use owner_id to match the content retrieval query
+        
+        result = dbm.db.media.delete_one(query)
         
         if result.deleted_count == 0:
             raise HTTPException(status_code=404, detail="Content not found")

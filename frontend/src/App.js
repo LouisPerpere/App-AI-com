@@ -1998,7 +1998,8 @@ function MainApp() {
                       }`}
                     >
                       <Search className="w-4 h-4 mr-2" />
-                      Rechercher des images
+                      <span className="hidden sm:inline">Rechercher des images</span>
+                      <span className="sm:hidden">Rechercher</span>
                     </Button>
                   </div>
                 </div>

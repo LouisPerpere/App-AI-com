@@ -2113,12 +2113,12 @@ function MainApp() {
                         </h4>
                         
                         {/* Boutons de contrôle */}
-                        <div className="flex items-center space-x-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2">
                           <Button
                             onClick={toggleSelectionMode}
                             variant={isSelectionMode ? "default" : "outline"}
                             size="sm"
-                            className={isSelectionMode ? "bg-purple-600 text-white" : "text-purple-600 border-purple-300"}
+                            className={`${isSelectionMode ? "bg-purple-600 text-white" : "text-purple-600 border-purple-300"} whitespace-nowrap`}
                           >
                             {isSelectionMode ? (
                               <>
@@ -2134,14 +2134,19 @@ function MainApp() {
                           </Button>
                           
                           {isSelectionMode && (
-                            <>
+                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 w-full sm:w-auto">
                               <Button
                                 onClick={handleSelectAll}
                                 variant="outline"
                                 size="sm"
-                                className="text-blue-600 border-blue-300"
+                                className="text-blue-600 border-blue-300 text-xs sm:text-sm whitespace-nowrap"
                               >
-                                {selectedContentIds.size === pendingContent.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+                                <span className="hidden sm:inline">
+                                  {selectedContentIds.size === pendingContent.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+                                </span>
+                                <span className="sm:hidden">
+                                  {selectedContentIds.size === pendingContent.length ? 'Désélectionner' : 'Sélectionner tout'}
+                                </span>
                               </Button>
                               
                               <Button
@@ -2149,21 +2154,23 @@ function MainApp() {
                                 disabled={selectedContentIds.size === 0 || isDeletingContent}
                                 variant="outline"
                                 size="sm"
-                                className="text-red-600 border-red-300 hover:bg-red-50"
+                                className="text-red-600 border-red-300 hover:bg-red-50 text-xs sm:text-sm whitespace-nowrap"
                               >
                                 {isDeletingContent ? (
                                   <>
-                                    <div className="animate-spin rounded-full mr-1 h-4 w-4 border-b-2 border-red-600"></div>
-                                    Suppression...
+                                    <div className="animate-spin rounded-full mr-1 h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-red-600"></div>
+                                    <span className="hidden sm:inline">Suppression...</span>
+                                    <span className="sm:hidden">...</span>
                                   </>
                                 ) : (
                                   <>
-                                    <Trash className="w-4 h-4 mr-1" />
-                                    Supprimer ({selectedContentIds.size})
+                                    <Trash className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                                    <span className="hidden sm:inline">Supprimer ({selectedContentIds.size})</span>
+                                    <span className="sm:hidden">Suppr. ({selectedContentIds.size})</span>
                                   </>
                                 )}
                               </Button>
-                            </>
+                            </div>
                           )}
                         </div>
                       </div>

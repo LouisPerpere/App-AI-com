@@ -684,11 +684,6 @@ app.include_router(api_router)
 # PIXABAY INTEGRATION: /api/pixabay
 # ----------------------------
 
-import aiohttp
-import uuid
-from PIL import Image
-import aiofiles
-
 PIXABAY_API_KEY = os.environ.get('PIXABAY_API_KEY')
 PIXABAY_BASE_URL = "https://pixabay.com/api/"
 

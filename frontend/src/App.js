@@ -1158,7 +1158,20 @@ function MainApp() {
         <div className="flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <div className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 min-h-[40px] flex items-center text-sm">
-              {displayValue || <span className="text-gray-400 italic text-xs">{placeholder || 'Non renseigné'}</span>}
+              {(() => {
+                if (!displayValue) {
+                  return <span className="text-gray-400 italic text-xs">{placeholder || 'Non renseigné'}</span>;
+                }
+                
+                // Si c'est un select, trouver le libellé correspondant à la valeur
+                if (isSelect && options.length > 0) {
+                  const matchingOption = options.find(option => option.value === displayValue);
+                  return matchingOption ? matchingOption.label : displayValue;
+                }
+                
+                // Sinon, afficher la valeur directement
+                return displayValue;
+              })()}
             </div>
           </div>
           

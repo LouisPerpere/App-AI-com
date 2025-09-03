@@ -2235,13 +2235,15 @@ function MainApp() {
                           >
                             {isSearchingPixabay ? (
                               <>
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                Recherche...
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-1 sm:mr-2"></div>
+                                <span className="hidden sm:inline">Recherche...</span>
+                                <span className="sm:hidden">...</span>
                               </>
                             ) : (
                               <>
-                                <Search className="w-4 h-4 mr-2" />
-                                Rechercher
+                                <Search className="w-4 h-4 mr-1 sm:mr-2" />
+                                <span className="hidden sm:inline">Rechercher</span>
+                                <span className="sm:hidden">Go</span>
                               </>
                             )}
                           </Button>

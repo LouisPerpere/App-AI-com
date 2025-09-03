@@ -136,7 +136,7 @@ const ContentThumbnail = React.memo(({
           <div className="relative w-full h-full">
             {content.thumb_url ? (
               <img 
-                src={content.thumb_url}
+                src={`${content.thumb_url}?token=${localStorage.getItem('access_token')}`}
                 alt={content.filename}
                 className="w-full h-full object-cover"
                 loading="lazy"

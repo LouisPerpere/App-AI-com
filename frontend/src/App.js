@@ -1014,6 +1014,8 @@ function MainApp() {
 
   // Sauvegarder une image Pixabay dans la bibliothèque
   const savePixabayImage = async (pixabayImage) => {
+    console.log('🎯 Save Pixabay Image clicked:', pixabayImage.id);
+    
     const token = localStorage.getItem('access_token');
     if (!token) {
       toast.error('Vous devez être connecté');
@@ -1023,21 +1025,25 @@ function MainApp() {
     setIsSavingPixabayImage(pixabayImage.id);
 
     try {
-      await axios.post(`${API}/pixabay/save-image`, {
+      console.log('📤 Saving to API:', `${API}/pixabay/save-image`);
+      
+      const response = await axios.post(`${API}/pixabay/save-image`, {
         pixabay_id: pixabayImage.id,
         image_url: pixabayImage.webformatURL,
         tags: pixabayImage.tags
       }, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: 15000
       });
 
+      console.log('✅ Image saved successfully:', response.data);
       toast.success('Image ajoutée à votre bibliothèque ! 📚');
       
       // Recharger le contenu pour voir la nouvelle image
       await loadPendingContent();
 
     } catch (error) {
-      console.error('Error saving Pixabay image:', error);
+      console.error('❌ Error saving Pixabay image:', error);
       const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
       toast.error(`Erreur lors de la sauvegarde: ${errorMessage}`);
     } finally {

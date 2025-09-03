@@ -626,6 +626,55 @@ async def delete_content(content_id: str, user_id: str = Depends(get_current_use
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete content: {str(e)}")
 
+# ----------------------------
+# POSTS GENERATION: /api/posts
+# ----------------------------
+
+@api_router.post("/posts/generate")
+async def generate_posts_manual(user_id: str = Depends(get_current_user_id_robust)):
+    """Generate posts manually for the current month"""
+    try:
+        # Import the scheduler here to avoid circular imports
+        from scheduler import ContentScheduler
+        
+        scheduler = ContentScheduler()
+        
+        # Generate posts for the current user/business
+        result = await scheduler.generate_posts_automatically(user_id)
+        
+        if result:
+            return {
+                "message": "Posts générés avec succès",
+                "posts_generated": result.get("posts_generated", 0),
+                "business_id": user_id
+            }
+        else:
+            return {
+                "message": "Génération terminée",
+                "posts_generated": 0,
+                "business_id": user_id
+            }
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate posts: {str(e)}")
+
+@api_router.get("/posts/generated")
+async def get_generated_posts(user_id: str = Depends(get_current_user_id_robust)):
+    """Get all generated posts for the user"""
+    try:
+        dbm = get_database()
+        
+        # Get generated posts from the database
+        posts = list(dbm.db.generated_posts.find(
+            {"user_id": user_id},
+            {"_id": 0}  # Exclude MongoDB _id field
+        ).sort("scheduled_date", -1))  # Sort by scheduled date, newest first
+        
+        return {"posts": posts}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch generated posts: {str(e)}")
+
 # Include the API router
 app.include_router(api_router)
 

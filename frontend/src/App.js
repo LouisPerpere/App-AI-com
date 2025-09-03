@@ -978,7 +978,7 @@ function MainApp() {
         'business_type_edit': businessProfile?.business_type || '',
         'business_description_edit': businessProfile?.business_description || '',
         'brand_tone_edit': businessProfile?.brand_tone || 'professionnel',
-        'posting_frequency_edit': businessProfile?.posting_frequency || 'hebdomadaire',
+        'posting_frequency_edit': businessProfile?.posting_frequency || 'weekly',
         'business_email_edit': businessProfile?.email || '',
         'business_website_edit': businessProfile?.website_url || '',
         'target_audience_edit': businessProfile?.target_audience || ''

@@ -1400,27 +1400,31 @@ function MainApp() {
   const handleBatchUpload = async () => {
     if (selectedFiles.length === 0) return;
 
+    console.log(`🚀 Starting batch upload of ${selectedFiles.length} files`);
     setIsUploading(true);
     const formData = new FormData();
     
-    selectedFiles.forEach((file) => {
+    selectedFiles.forEach((file, index) => {
+      console.log(`📎 Adding file ${index + 1}: ${file.name} (${file.size} bytes)`);
       formData.append('files', file);
     });
 
     try {
-      await axios.post(`${API}/content/batch-upload`, formData, {
+      const response = await axios.post(`${API}/content/batch-upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${localStorage.getItem('access_token')}`
         },
       });
       
-      toast.success('Fichiers uploadés avec succès !');
+      console.log('📤 Upload response:', response.data);
+      toast.success(`${response.data.count || selectedFiles.length} fichiers uploadés avec succès !`);
       setSelectedFiles([]);
       loadPendingContent();
     } catch (error) {
-      toast.error('Erreur lors de l\'upload');
-      console.error('Upload error:', error);
+      console.error('❌ Upload error:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`Erreur lors de l'upload: ${errorMessage}`);
     } finally {
       setIsUploading(false);
     }

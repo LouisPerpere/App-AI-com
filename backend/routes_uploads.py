@@ -129,13 +129,15 @@ async def upload_content(
         def _thumb_job():
             try:
                 if file.content_type and file.content_type.startswith('image/'):
-                    thumb_bytes = generate_image_thumb_from_bytes(data)
-                    save_db_thumbnail(user_id, media_id, thumb_bytes)
+                    thumb_bytes = generate_image_thumb_from_bytes(final_data)  # Use processed data
+                    save_db_thumbnail(user_id, doc_id, thumb_bytes)  # Use doc_id instead of media_id
+                    print(f"✅ Thumbnail generated for {doc_id}")
                 elif file.content_type and file.content_type.startswith('video/'):
-                    thumb_bytes = generate_video_thumb_from_bytes(data)
-                    save_db_thumbnail(user_id, media_id, thumb_bytes)
+                    thumb_bytes = generate_video_thumb_from_bytes(final_data)
+                    save_db_thumbnail(user_id, doc_id, thumb_bytes)
+                    print(f"✅ Video thumbnail generated for {doc_id}")
             except Exception as e:
-                print(f"⚠️ Thumbnail generation error for upload {media_id}: {e}")
+                print(f"⚠️ Thumbnail generation error for upload {doc_id}: {e}")
         if bg is not None:
             bg.add_task(_thumb_job)
         else:

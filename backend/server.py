@@ -179,12 +179,12 @@ class BusinessProfile(BaseModel):
     hashtags_secondary: List[str] = []
 
 class ContentNote(BaseModel):
-    content: str
-    description: Optional[str] = None
-    priority: Optional[str] = "normal"
-    is_permanent: bool = False  # Note valable tous les mois
-    target_month: Optional[int] = None  # Mois (1-12)
-    target_year: Optional[int] = None   # Année
+    description: Optional[str] = Field(None, description="Note title/description")
+    content: str = Field(..., description="Note content") 
+    priority: Optional[str] = Field("normal", description="Priority level")
+    is_monthly_note: Optional[bool] = Field(False, description="Note valid every month")
+    note_month: Optional[int] = Field(None, description="Specific month (1-12)")  
+    note_year: Optional[int] = Field(None, description="Specific year")
 
 class LoginRequest(BaseModel):
     email: str

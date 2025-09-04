@@ -406,6 +406,79 @@ function MainApp() {
     }
   };
 
+  // Fonction de tri des notes selon les spécifications périodiques
+  const sortNotes = useCallback((notes) => {
+    if (!Array.isArray(notes)) return [];
+    
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11, we need 1-12
+    const currentYear = currentDate.getFullYear();
+    
+    return notes.sort((a, b) => {
+      // 1. Notes "toujours valides" (mensuelles) en premier
+      if (a.is_monthly_note && !b.is_monthly_note) return -1;
+      if (!a.is_monthly_note && b.is_monthly_note) return 1;
+      
+      // 2. Entre deux notes mensuelles, trier par date de création (plus récent en premier)
+      if (a.is_monthly_note && b.is_monthly_note) {
+        const dateA = new Date(a.created_at || 0);
+        const dateB = new Date(b.created_at || 0);
+        return dateB - dateA;
+      }
+      
+      // 3. Entre deux notes spécifiques, trier chronologiquement par mois/année (plus proche en premier)
+      if (!a.is_monthly_note && !b.is_monthly_note) {
+        // Notes sans mois/année spécifiés vont à la fin
+        if (!a.note_month && !a.note_year && (b.note_month || b.note_year)) return 1;
+        if ((a.note_month || a.note_year) && !b.note_month && !b.note_year) return -1;
+        if (!a.note_month && !a.note_year && !b.note_month && !b.note_year) {
+          // Trier par date de création si aucune n'a de mois/année
+          const dateA = new Date(a.created_at || 0);
+          const dateB = new Date(b.created_at || 0);
+          return dateB - dateA;
+        }
+        
+        // Calculer la "distance" temporelle depuis maintenant
+        const getMonthDistance = (note) => {
+          if (!note.note_month || !note.note_year) return Infinity;
+          
+          const noteDate = new Date(note.note_year, note.note_month - 1, 1);
+          const currentDateStart = new Date(currentYear, currentMonth - 1, 1);
+          
+          // Calcul en mois depuis maintenant
+          const monthDiff = (noteDate.getFullYear() - currentDateStart.getFullYear()) * 12 + 
+                           (noteDate.getMonth() - currentDateStart.getMonth());
+          
+          // Les dates passées ont une distance négative, les futures positive
+          // On veut les plus proches en premier, donc on utilise la valeur absolue
+          // mais on favorise les dates futures (distance positive plus petite)
+          if (monthDiff >= 0) {
+            return monthDiff; // Dates futures ou actuelles
+          } else {
+            return Math.abs(monthDiff) + 1000; // Dates passées (repoussées à la fin)
+          }
+        };
+        
+        const distanceA = getMonthDistance(a);
+        const distanceB = getMonthDistance(b);
+        
+        if (distanceA !== distanceB) {
+          return distanceA - distanceB; // Plus proche = distance plus petite
+        }
+        
+        // Si même distance, trier par date de création
+        const dateA = new Date(a.created_at || 0);
+        const dateB = new Date(b.created_at || 0);
+        return dateB - dateA;
+      }
+      
+      // Fallback: trier par date de création
+      const dateA = new Date(a.created_at || 0);
+      const dateB = new Date(b.created_at || 0);
+      return dateB - dateA;
+    });
+  }, []);
+
   const loadNotes = async () => {
     try {
       const response = await axios.get(`${API}/notes`, {

@@ -579,6 +579,20 @@ async def delete_note(note_id: str, user_id: str = Depends(get_current_user_id_r
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete note: {str(e)}")
 
+@api_router.post("/notes/cleanup-expired")
+async def cleanup_expired_periodic_notes_manual(user_id: str = Depends(get_current_user_id_robust)):
+    """Manually trigger cleanup of expired periodic notes (admin/test function)"""
+    try:
+        dbm = get_database()
+        result = dbm.cleanup_expired_periodic_notes()
+        
+        return {
+            "message": "Cleanup completed",
+            "result": result
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to cleanup notes: {str(e)}")
+
 # ----------------------------
 # CONTENT CONTEXT: /api/content/{content_id}/context
 # ----------------------------

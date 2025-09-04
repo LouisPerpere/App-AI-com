@@ -992,7 +992,7 @@ function MainApp() {
       const response = await axios.get(`${API}/pixabay/search`, {
         params: {
           query: query,
-          per_page: 20,
+          per_page: 50,
           image_type: 'photo',
           safesearch: true
         },

@@ -81,7 +81,8 @@ def save_db_thumbnail(owner_id: str, media_obj_id: ObjectId, content: bytes, con
             {"$set": {"thumb_url": RELATIVE_THUMB_ENDPOINT.format(file_id=str(media_obj_id))}}
         )
 
-def get_db_thumbnail(media_obj_id: ObjectId):
+def get_db_thumbnail(media_obj_id):
+    """Get thumbnail from DB - supports both ObjectId and string UUID"""
     dbp = get_sync_db()
     thumbs_col = dbp[THUMBS_COLLECTION]
     return thumbs_col.find_one({"media_id": media_obj_id})

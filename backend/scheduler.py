@@ -1124,6 +1124,15 @@ async def main_scheduler():
             if current_minute % 60 == 0:  # Run every hour (when minutes = 0)
                 await check_and_update_website_analyses()
             
+            # Check for periodic notes cleanup (run once daily at midnight UTC)
+            current_hour = datetime.utcnow().hour
+            current_minute_exact = datetime.utcnow().minute
+            
+            # Run cleanup daily at 00:05 UTC to ensure we're past midnight
+            if current_hour == 0 and current_minute_exact == 5:
+                logger.info("🕐 Daily cleanup time reached - checking for expired periodic notes...")
+                cleanup_expired_periodic_notes()
+            
             # Wait 60 seconds before next check
             await asyncio.sleep(60)
             

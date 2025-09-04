@@ -500,19 +500,23 @@ async def get_notes(user_id: str = Depends(get_current_user_id_robust)):
         raise HTTPException(status_code=500, detail=f"Failed to fetch notes: {str(e)}")
 
 @api_router.post("/notes")
-async def create_note(note: NoteRequest, user_id: str = Depends(get_current_user_id_robust)):
+async def create_note(note: ContentNote, user_id: str = Depends(get_current_user_id_robust)):
     """Create a new note"""
     try:
         dbm = get_database()
-        # Using the existing create_note function with priority parameter
+        # Using the existing create_note function with all parameters
         created_note = dbm.create_note(
             user_id=user_id,
             content=note.content,
-            description=note.title,  # Use title as description for compatibility
-            priority=note.priority
+            description=note.description,
+            priority=note.priority,
+            is_permanent=note.is_permanent,
+            target_month=note.target_month,
+            target_year=note.target_year
         )
-        # Add title field for frontend compatibility
-        created_note['title'] = note.title
+        # Add title field for frontend compatibility if description exists
+        if note.description:
+            created_note['title'] = note.description
         
         return {
             "message": "Note créée avec succès",

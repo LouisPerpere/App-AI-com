@@ -229,7 +229,92 @@ async def upload_content_batch(
             data = await file.read()
             if not data:
                 continue
-            grid_id = fs.put(data, filename=file.filename, content_type=file.content_type, uploadDate=datetime.utcnow())
+            
+            # Resize image if it's an image file (same logic as single upload)
+            final_data = data
+            if file.content_type and file.content_type.startswith('image/'):
+                try:
+                    import tempfile
+                    import os
+                    from PIL import Image
+                    from PIL.ExifTags import ORIENTATION
+                    
+                    # Create temp files
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.tmp') as temp_input:
+                        temp_input.write(data)
+                        temp_input_path = temp_input.name
+                    
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_output:
+                        temp_output_path = temp_output.name
+                    
+                    try:
+                        with Image.open(temp_input_path) as im:
+                            # Fix EXIF orientation
+                            try:
+                                exif = im._getexif()
+                                if exif is not None:
+                                    for tag, value in exif.items():
+                                        if tag == ORIENTATION:
+                                            if value == 3:
+                                                im = im.rotate(180, expand=True)
+                                            elif value == 6:
+                                                im = im.rotate(270, expand=True)
+                                            elif value == 8:
+                                                im = im.rotate(90, expand=True)
+                                            break
+                            except (AttributeError, KeyError, TypeError):
+                                pass
+                            
+                            # Convert to RGB and resize
+                            im = im.convert("RGB")
+                            original_width, original_height = im.size
+                            
+                            # Calculate new dimensions (1024px on smallest side)
+                            min_dimension = 1024
+                            
+                            if original_width <= original_height:
+                                if original_width > min_dimension:
+                                    new_width = min_dimension
+                                    new_height = int((original_height * new_width) / original_width)
+                                else:
+                                    new_width = original_width
+                                    new_height = original_height
+                            else:
+                                if original_height > min_dimension:
+                                    new_height = min_dimension
+                                    new_width = int((original_width * new_height) / original_height)
+                                else:
+                                    new_width = original_width
+                                    new_height = original_height
+                            
+                            # Resize if needed
+                            if new_width != original_width or new_height != original_height:
+                                im = im.resize((new_width, new_height), Image.LANCZOS)
+                            
+                            # Save with optimizations
+                            im.save(temp_output_path, format="JPEG", quality=85, optimize=True, progressive=True, dpi=(72, 72))
+                        
+                        # Read resized data if successful
+                        with open(temp_output_path, 'rb') as f:
+                            final_data = f.read()
+                        
+                        print(f"✅ Batch image resized: {new_width}x{new_height}")
+                        
+                    except Exception as resize_error:
+                        print(f"⚠️ Batch image resize failed: {resize_error}")
+                        # Use original data if resize fails
+                        final_data = data
+                    
+                    # Cleanup temp files
+                    os.unlink(temp_input_path)
+                    if os.path.exists(temp_output_path):
+                        os.unlink(temp_output_path)
+                        
+                except Exception as e:
+                    print(f"⚠️ Image processing error: {e}")
+                    final_data = data
+            
+            grid_id = fs.put(final_data, filename=file.filename, content_type=file.content_type, uploadDate=datetime.utcnow())
             
             # Generate unique ID first for URLs
             doc_id = str(uuid.uuid4())

@@ -356,6 +356,95 @@ class DatabaseManager:
         })
         
         return result.deleted_count > 0
+
+    def cleanup_expired_periodic_notes(self) -> Dict[str, Any]:
+        """Clean up expired periodic notes (specific month notes past their expiration date)
+        
+        Notes for a specific month should be deleted on the 5th of the following month.
+        For example: January 2025 notes should be deleted on February 5, 2025.
+        """
+        if not self.is_connected():
+            return {"deleted_count": 0, "error": "Database not connected"}
+        
+        from datetime import datetime, timedelta
+        import calendar
+        
+        current_date = datetime.utcnow()
+        current_month = current_date.month
+        current_year = current_date.year
+        current_day = current_date.day
+        
+        # Only perform cleanup on or after the 5th of the month
+        if current_day < 5:
+            return {"deleted_count": 0, "reason": f"Cleanup only runs on/after 5th of month, today is {current_day}th"}
+        
+        # Calculate which month's notes should be deleted
+        # If today is February 5+, delete January notes
+        # If today is March 5+, delete February notes, etc.
+        
+        if current_month == 1:
+            # January: delete December notes from previous year
+            target_month = 12
+            target_year = current_year - 1
+        else:
+            # Other months: delete previous month's notes
+            target_month = current_month - 1
+            target_year = current_year
+        
+        try:
+            # Find specific month notes that should be deleted
+            # Criteria: is_monthly_note = false, note_month = target_month, note_year = target_year
+            delete_filter = {
+                "is_monthly_note": {"$ne": True},  # Not monthly notes (those should persist)
+                "note_month": target_month,
+                "note_year": target_year
+            }
+            
+            # Get notes that will be deleted for logging
+            notes_to_delete = list(self.db.content_notes.find(delete_filter, {"note_id": 1, "description": 1, "owner_id": 1}))
+            
+            # Perform the deletion
+            result = self.db.content_notes.delete_many(delete_filter)
+            
+            month_names = [
+                "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+                "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+            ]
+            target_month_name = month_names[target_month - 1]
+            
+            cleanup_log = {
+                "deleted_count": result.deleted_count,
+                "target_month": target_month,
+                "target_year": target_year,
+                "target_month_name": target_month_name,
+                "current_date": current_date.isoformat(),
+                "deleted_notes": [
+                    {
+                        "note_id": note.get("note_id"),
+                        "title": note.get("description", "Sans titre"),
+                        "owner_id": note.get("owner_id")
+                    } for note in notes_to_delete
+                ],
+                "success": True
+            }
+            
+            print(f"🗑️ Notes cleanup: Deleted {result.deleted_count} notes from {target_month_name} {target_year}")
+            for note in notes_to_delete:
+                print(f"   - Deleted: '{note.get('description', 'Sans titre')}' (owner: {note.get('owner_id')})")
+            
+            return cleanup_log
+            
+        except Exception as e:
+            error_log = {
+                "deleted_count": 0,
+                "error": str(e),
+                "target_month": target_month,
+                "target_year": target_year,
+                "current_date": current_date.isoformat(),
+                "success": False
+            }
+            print(f"❌ Error during notes cleanup: {e}")
+            return error_log
     
     # Generated Posts Management
     def create_generated_post(self, user_id: str, content: str, platform: str, 

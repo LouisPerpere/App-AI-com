@@ -69,8 +69,8 @@ def migrate_user_data():
             
             total_modified = result1.modified_count + result2.modified_count
             
-            print(f"   ✅ {collection_name}: {result.modified_count} documents migrés")
-            total_migrated += result.modified_count
+            print(f"   ✅ {collection_name}: {total_modified} documents migrés")
+            total_migrated += total_modified
             
         except Exception as e:
             print(f"   ❌ Erreur avec {collection_name}: {e}")

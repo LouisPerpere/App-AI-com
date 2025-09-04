@@ -438,11 +438,23 @@ BUSINESS_FIELDS = [
 async def get_business_profile(user_id: str = Depends(get_current_user_id_robust)):
     try:
         dbm = get_database()
-        users = dbm.db.users
-        user = users.find_one({"user_id": user_id})
+        business_profiles = dbm.db.business_profiles
+        
+        # Récupérer le profil business de l'utilisateur depuis business_profiles
+        business_profile = business_profiles.find_one({"owner_id": user_id})
+        
+        if not business_profile:
+            # Si pas de profil business, retourner des valeurs par défaut
+            return {field: None for field in BUSINESS_FIELDS}
+        
+        # Mapper les champs du business profile vers la structure attendue
         out = {}
-        for f in BUSINESS_FIELDS:
-            out[f] = (user.get(f) if user else None)
+        for field in BUSINESS_FIELDS:
+            if field in business_profile:
+                out[field] = business_profile[field]
+            else:
+                out[field] = None
+        
         return out
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch business profile: {str(e)}")

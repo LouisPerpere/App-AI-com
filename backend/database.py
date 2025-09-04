@@ -328,10 +328,10 @@ class DatabaseManager:
             "updated_at": datetime.now().isoformat()
         }
         
-        self.db.content_notes.insert_one(note_doc)
-        note_doc.pop('_id', None)
+        self.db.content_notes.insert_one(note_data)
+        note_data.pop('_id', None)
         
-        return note_doc
+        return note_data
     
     def get_notes(self, user_id: str) -> List[Dict[str, Any]]:
         """Get all notes for user"""

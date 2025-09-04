@@ -20,21 +20,27 @@ def _square_crop(im: Image.Image) -> Image.Image:
 def generate_image_thumb(src_path: str, thumb_path: str) -> None:
     """Generate thumbnail from image file (filesystem output)"""
     with Image.open(src_path) as im:
-        # Fix EXIF orientation before processing
+        # Fix EXIF orientation before processing (Pillow 11.x compatible)
         try:
-            from PIL.ExifTags import ORIENTATION
+            import PIL.ExifTags
             exif = im._getexif()
             if exif is not None:
-                for tag, value in exif.items():
-                    if tag == ORIENTATION:
-                        if value == 3:
-                            im = im.rotate(180, expand=True)
-                        elif value == 6:
-                            im = im.rotate(270, expand=True)
-                        elif value == 8:
-                            im = im.rotate(90, expand=True)
+                # Use the orientation value directly (Pillow 11.x compatibility)
+                orientation_key = None
+                for tag, value in PIL.ExifTags.TAGS.items():
+                    if value == 'Orientation':
+                        orientation_key = tag
                         break
-        except (AttributeError, KeyError, TypeError):
+                
+                if orientation_key and orientation_key in exif:
+                    orientation = exif[orientation_key]
+                    if orientation == 3:
+                        im = im.rotate(180, expand=True)
+                    elif orientation == 6:
+                        im = im.rotate(270, expand=True)
+                    elif orientation == 8:
+                        im = im.rotate(90, expand=True)
+        except (AttributeError, KeyError, TypeError, ImportError):
             pass  # No EXIF data or orientation
         
         im = im.convert("RGB")

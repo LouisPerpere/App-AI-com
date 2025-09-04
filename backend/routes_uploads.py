@@ -104,6 +104,9 @@ async def upload_content(
         fs = GridFS(db)
         grid_id = fs.put(final_data, filename=file.filename, content_type=file.content_type, uploadDate=datetime.utcnow())
 
+        # Generate unique ID first for URLs
+        doc_id = str(uuid.uuid4())
+        
         # Create media document
         media_doc = {
             "owner_id": user_id,
@@ -114,7 +117,10 @@ async def upload_content(
             "size": size,
             "description": "",
             "created_at": datetime.utcnow(),
-            "deleted": False
+            "deleted": False,
+            "id": doc_id,
+            "url": f"/api/content/{doc_id}/file",
+            "thumb_url": f"/api/content/{doc_id}/thumb"
         }
         res = db.media.insert_one(media_doc)
         media_id = res.inserted_id

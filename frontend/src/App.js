@@ -735,7 +735,7 @@ function MainApp() {
 
   // Annuler l'édition
   const handleCancelEdit = useCallback(() => {
-    setFormValues('', '', 'normal');
+    setFormValues('', '', 'normal', false, null, null);
     setEditingNoteId(null);
   }, [setFormValues]);
 

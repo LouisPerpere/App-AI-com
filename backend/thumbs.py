@@ -98,8 +98,8 @@ def resize_image_to_1024(src_path: str, dst_path: str) -> tuple:
         if new_width != original_width or new_height != original_height:
             im = im.resize((new_width, new_height), Image.LANCZOS)
         
-        # Save as JPEG with good quality and 72 DPI
-        im.save(dst_path, format="JPEG", quality=90, optimize=True, progressive=True, dpi=(72, 72))
+        # Save as JPEG with good quality, 72 DPI, and optimal compression
+        im.save(dst_path, format="JPEG", quality=85, optimize=True, progressive=True, dpi=(72, 72))
         
         return new_width, new_height
 

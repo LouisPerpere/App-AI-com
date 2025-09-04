@@ -976,8 +976,8 @@ function MainApp() {
   };
 
   // Rechercher des images sur Pixabay
-  const searchPixabayImages = async () => {
-    const query = pixabaySearchRef.current?.value?.trim();
+  const searchPixabayImages = async (loadMore = false) => {
+    const query = loadMore ? pixabayCurrentQuery : pixabaySearchRef.current?.value?.trim();
     
     if (!query) {
       toast.error('Veuillez saisir un terme de recherche');
@@ -990,12 +990,19 @@ function MainApp() {
       return;
     }
 
-    setIsSearchingPixabay(true);
+    const page = loadMore ? pixabayCurrentPage + 1 : 1;
+    
+    if (loadMore) {
+      setIsLoadingMorePixabay(true);
+    } else {
+      setIsSearchingPixabay(true);
+    }
 
     try {
       const response = await axios.get(`${API}/pixabay/search`, {
         params: {
           query: query,
+          page: page,
           per_page: 50,
           image_type: 'photo',
           safesearch: true
@@ -1004,23 +1011,39 @@ function MainApp() {
       });
 
       if (response.data && response.data.hits) {
-        setPixabayResults(response.data.hits);
-        // Reset saved images state for new search
-        setSavedPixabayImages(new Set());
-        toast.success(`${response.data.hits.length} images trouvées ! 🖼️`);
+        if (loadMore) {
+          // Ajouter les nouveaux résultats aux existants
+          setPixabayResults(prev => [...prev, ...response.data.hits]);
+          setPixabayCurrentPage(page);
+          toast.success(`${response.data.hits.length} images supplémentaires chargées ! 📖`);
+        } else {
+          // Nouvelle recherche : remplacer les résultats
+          setPixabayResults(response.data.hits);
+          setPixabayCurrentPage(1);
+          setPixabayCurrentQuery(query);
+          setPixabayTotalHits(response.data.total || 0);
+          // Reset saved images state for new search
+          setSavedPixabayImages(new Set());
+          toast.success(`${response.data.hits.length} images trouvées sur ${response.data.total} ! 🖼️`);
+        }
       } else {
-        setPixabayResults([]);
-        setSavedPixabayImages(new Set());
-        toast.info('Aucune image trouvée pour cette recherche');
+        if (!loadMore) {
+          setPixabayResults([]);
+          setSavedPixabayImages(new Set());
+          toast.info('Aucune image trouvée pour cette recherche');
+        }
       }
 
     } catch (error) {
       console.error('Error searching Pixabay:', error);
       const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
       toast.error(`Erreur lors de la recherche: ${errorMessage}`);
-      setPixabayResults([]);
+      if (!loadMore) {
+        setPixabayResults([]);
+      }
     } finally {
       setIsSearchingPixabay(false);
+      setIsLoadingMorePixabay(false);
     }
   };
 

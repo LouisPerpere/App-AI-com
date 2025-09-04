@@ -526,19 +526,21 @@ async def create_note(note: ContentNote, user_id: str = Depends(get_current_user
         raise HTTPException(status_code=500, detail=f"Failed to create note: {str(e)}")
 
 @api_router.put("/notes/{note_id}")
-async def update_note(note_id: str, note: NoteRequest, user_id: str = Depends(get_current_user_id_robust)):
+async def update_note(note_id: str, note: ContentNote, user_id: str = Depends(get_current_user_id_robust)):
     """Update an existing note"""
     try:
         dbm = get_database()
         
         # Update note in content_notes collection
         result = dbm.db.content_notes.update_one(
-            {"note_id": note_id, "user_id": user_id},
+            {"note_id": note_id, "owner_id": user_id},
             {"$set": {
                 "content": note.content,
-                "description": note.title,  # title maps to description
+                "description": note.description,
                 "priority": note.priority,
-                "title": note.title,
+                "is_permanent": note.is_permanent,
+                "target_month": note.target_month,
+                "target_year": note.target_year,
                 "updated_at": datetime.now().isoformat()
             }}
         )

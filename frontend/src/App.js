@@ -641,7 +641,10 @@ function MainApp() {
         const response = await axios.put(`${API}/notes/${editingNoteId}`, {
           title: formValues.title.trim(),
           content: formValues.content.trim(),
-          priority: formValues.priority
+          priority: formValues.priority,
+          is_monthly_note: formValues.is_monthly_note,
+          note_month: formValues.note_month,
+          note_year: formValues.note_year
         }, {
           headers: { Authorization: `Bearer ${token}` }
         });

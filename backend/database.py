@@ -339,7 +339,7 @@ class DatabaseManager:
             return []
         
         notes = list(self.db.content_notes.find(
-            {"user_id": user_id},
+            {"owner_id": user_id},
             {"_id": 0}
         ).sort("created_at", -1))
         

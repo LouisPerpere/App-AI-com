@@ -48,6 +48,51 @@ def generate_image_thumb(src_path: str, thumb_path: str) -> None:
         else:
             im.save(thumb_path, format="PNG", optimize=True)
 
+def resize_image_to_1024(src_path: str, dst_path: str) -> tuple:
+    """Resize image to 1024px on smallest side, respecting EXIF orientation"""
+    with Image.open(src_path) as im:
+        # Fix EXIF orientation first
+        try:
+            from PIL.ExifTags import ORIENTATION
+            exif = im._getexif()
+            if exif is not None:
+                for tag, value in exif.items():
+                    if tag == ORIENTATION:
+                        if value == 3:
+                            im = im.rotate(180, expand=True)
+                        elif value == 6:
+                            im = im.rotate(270, expand=True)
+                        elif value == 8:
+                            im = im.rotate(90, expand=True)
+                        break
+        except (AttributeError, KeyError, TypeError):
+            pass
+        
+        # Convert to RGB for consistency
+        im = im.convert("RGB")
+        
+        # Get original dimensions
+        original_width, original_height = im.size
+        
+        # Calculate new dimensions (1024px on smallest side)
+        if original_width <= original_height:
+            # Width is smaller or equal
+            new_width = min(1024, original_width)
+            new_height = int((original_height * new_width) / original_width)
+        else:
+            # Height is smaller
+            new_height = min(1024, original_height)
+            new_width = int((original_width * new_height) / original_height)
+        
+        # Resize only if needed
+        if new_width != original_width or new_height != original_height:
+            im = im.resize((new_width, new_height), Image.LANCZOS)
+        
+        # Save as JPEG with good quality
+        im.save(dst_path, format="JPEG", quality=90, optimize=True, progressive=True)
+        
+        return new_width, new_height
+
 def generate_image_thumb_bytes(src_path: str) -> bytes:
     """Generate thumbnail from image file and return bytes (for DB storage)"""
     with Image.open(src_path) as im:

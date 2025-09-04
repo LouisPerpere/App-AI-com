@@ -198,12 +198,9 @@ async def get_original_file(file_id: str, token: Optional[str] = None, authoriza
         from gridfs import GridFS
         fs = GridFS(db)
 
-        # Find media
-        try:
-            filter_id = {"_id": ObjectId(file_id)}
-        except Exception:
-            filter_id = {"external_id": file_id}
-        media = db.media.find_one({**filter_id, "owner_id": user_id, "deleted": {"$ne": True}})
+        # Find media using the proper collection and field
+        media_collection = get_media_collection()
+        media = media_collection.find_one({"id": file_id, "owner_id": user_id, "deleted": {"$ne": True}})
         if not media:
             raise HTTPException(404, "Media not found")
         if media.get("storage") != "gridfs" or not media.get("gridfs_id"):

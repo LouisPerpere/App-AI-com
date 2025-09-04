@@ -189,7 +189,8 @@ async def stream_thumbnail(file_id: str, token: Optional[str] = None, authorizat
     if not media_doc:
         raise HTTPException(status_code=404, detail="Media not found")
 
-    media_obj_id = media_doc.get("_id")
+    # Get the media identifier (ObjectId or string UUID)
+    media_obj_id = media_doc.get("_id") or media_doc.get("id")
     thumb_doc = get_db_thumbnail(media_obj_id)
 
     if not thumb_doc:

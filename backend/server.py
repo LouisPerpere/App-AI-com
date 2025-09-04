@@ -534,9 +534,9 @@ async def update_note(note_id: str, note: ContentNote, user_id: str = Depends(ge
                 "content": note.content,
                 "description": note.description,
                 "priority": note.priority,
-                "is_permanent": note.is_permanent,
-                "target_month": note.target_month,
-                "target_year": note.target_year,
+                "is_permanent": note.is_monthly_note,
+                "target_month": note.note_month,
+                "target_year": note.note_year,
                 "updated_at": datetime.now().isoformat()
             }}
         )

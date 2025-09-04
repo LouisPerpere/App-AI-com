@@ -142,6 +142,23 @@ def generate_image_thumb_bytes(src_path: str) -> bytes:
 def generate_image_thumb_from_bytes(data: bytes) -> bytes:
     """Generate thumbnail from in-memory image bytes and return bytes"""
     with Image.open(io.BytesIO(data)) as im:
+        # Fix EXIF orientation before processing
+        try:
+            from PIL.ExifTags import ORIENTATION
+            exif = im._getexif()
+            if exif is not None:
+                for tag, value in exif.items():
+                    if tag == ORIENTATION:
+                        if value == 3:
+                            im = im.rotate(180, expand=True)
+                        elif value == 6:
+                            im = im.rotate(270, expand=True)
+                        elif value == 8:
+                            im = im.rotate(90, expand=True)
+                        break
+        except (AttributeError, KeyError, TypeError):
+            pass  # No EXIF data or orientation
+        
         im = im.convert("RGB")
         im = _square_crop(im)
         im.thumbnail((THUMB_SIZE, THUMB_SIZE), Image.LANCZOS)

@@ -74,21 +74,21 @@ def resize_image_to_1024(src_path: str, dst_path: str) -> tuple:
         # Get original dimensions
         original_width, original_height = im.size
         
-        # Calculate new dimensions (1024px on longest side to preserve aspect ratio)
-        max_dimension = 1024
+        # Calculate new dimensions (1024px on SMALLEST side as requested)
+        min_dimension = 1024
         
-        if original_width > original_height:
-            # Landscape - limit width
-            if original_width > max_dimension:
-                new_width = max_dimension
+        if original_width <= original_height:
+            # Width is smaller - resize to 1024 width
+            if original_width > min_dimension:
+                new_width = min_dimension
                 new_height = int((original_height * new_width) / original_width)
             else:
                 new_width = original_width
                 new_height = original_height
         else:
-            # Portrait or square - limit height
-            if original_height > max_dimension:
-                new_height = max_dimension
+            # Height is smaller - resize to 1024 height
+            if original_height > min_dimension:
+                new_height = min_dimension
                 new_width = int((original_width * new_height) / original_height)
             else:
                 new_width = original_width

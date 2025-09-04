@@ -309,18 +309,23 @@ class DatabaseManager:
         return result.modified_count > 0 or result.upserted_id is not None
     
     # Content Notes Management
-    def create_note(self, user_id: str, content: str, description: str = None, priority: str = "normal") -> Dict[str, Any]:
+    def create_note(self, user_id: str, content: str, description: str = None, priority: str = "normal", 
+                   is_permanent: bool = False, target_month: Optional[int] = None, target_year: Optional[int] = None) -> Dict[str, Any]:
         """Create a content note"""
         if not self.is_connected():
             raise Exception("Database not connected")
         
-        note_doc = {
+        note_data = {
             "note_id": str(uuid.uuid4()),
-            "user_id": user_id,
-            "content": content,
+            "owner_id": user_id,
             "description": description,
+            "content": content,
             "priority": priority,
-            "created_at": datetime.utcnow()
+            "is_permanent": is_permanent,
+            "target_month": target_month,
+            "target_year": target_year,
+            "created_at": datetime.now().isoformat(),
+            "updated_at": datetime.now().isoformat()
         }
         
         self.db.content_notes.insert_one(note_doc)

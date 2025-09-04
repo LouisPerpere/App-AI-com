@@ -705,7 +705,10 @@ function MainApp() {
       setFormValues(
         note.description || note.title || '', 
         note.content || '', 
-        note.priority || 'normal'
+        note.priority || 'normal',
+        note.is_monthly_note || false,
+        note.note_month || null,
+        note.note_year || null
       );
       
       console.log('📝 Champs remplis avec:', {

@@ -192,7 +192,13 @@ async def stream_thumbnail(file_id: str, token: Optional[str] = None, authorizat
     if data is None:
         raise HTTPException(status_code=500, detail="Thumbnail data not found")
 
-    return StreamingResponse(BytesIO(data), media_type=content_type)
+    # Add cache headers for better performance
+    headers = {
+        "Cache-Control": "public, max-age=86400",  # Cache for 24 hours
+        "ETag": f'"{file_id}-thumb"',
+        "Vary": "Authorization"
+    }
+    return StreamingResponse(BytesIO(data), media_type=content_type, headers=headers)
 
 @router.post("/content/{file_id}/thumbnail")
 async def generate_single_thumb(

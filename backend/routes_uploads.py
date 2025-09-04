@@ -336,7 +336,7 @@ async def upload_content_batch(
             res = db.media.insert_one(media_doc)
             media_id = res.inserted_id
 
-            def _thumb_job_local(fid=doc_id, bytes_data=final_data, ctype=file.content_type):  # Use doc_id and final_data
+            def _thumb_job_local(fid=doc_id, bytes_data=final_data, ctype=file.content_type):
                 try:
                     if ctype and ctype.startswith('image/'):
                         thumb_bytes = generate_image_thumb_from_bytes(bytes_data)

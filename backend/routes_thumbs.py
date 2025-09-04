@@ -9,7 +9,12 @@ from thumbs import (
     generate_image_thumb_from_bytes, generate_video_thumb_from_bytes
 )
 from database import get_database
-from routes_uploads import get_media_collection
+# Local function to avoid circular import
+def get_media_collection():
+    """Get media collection for thumbnails"""
+    from database import get_database
+    dbm = get_database()
+    return dbm.db.media
 import asyncio
 import pymongo
 import jwt

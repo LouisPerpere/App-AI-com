@@ -580,6 +580,9 @@ async def delete_note(note_id: str, user_id: str = Depends(get_current_user_id_r
 class ContentContextRequest(BaseModel):
     context: str
 
+class ContentTitleRequest(BaseModel):
+    title: str
+
 @api_router.put("/content/{content_id}/context")
 async def update_content_context(content_id: str, body: ContentContextRequest, user_id: str = Depends(get_current_user_id_robust)):
     """Update context/description for a content item"""

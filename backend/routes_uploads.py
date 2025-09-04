@@ -6,6 +6,7 @@ from bson import ObjectId
 from database import get_database
 from routes_thumbs import save_db_thumbnail
 from thumbs import generate_image_thumb_from_bytes, generate_video_thumb_from_bytes
+from server import get_media_collection
 import jwt
 
 router = APIRouter()

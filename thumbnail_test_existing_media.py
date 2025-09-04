@@ -15,7 +15,7 @@ from database import get_database
 from bson import ObjectId
 
 # Configuration
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://social-ai-assist-1.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://bizpost-manager-1.preview.emergentagent.com')
 API_BASE = f"{BACKEND_URL}/api"
 
 # Known credentials

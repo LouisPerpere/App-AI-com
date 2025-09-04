@@ -1,66 +1,87 @@
 <analysis>
-The trajectory details the iterative development of an AI-powered SaaS PWA. Initially, the focus was on critical UI/UX fixes: restoring the dashboard, resolving header layout, and making virtual keyboard input functional across various components. Authentication issues, often linked to database resets, were a persistent challenge, necessitating backend adjustments.
-
-The previous AI engineer then systematically enhanced core features. This included adding business profile fields (, ), refining input interactions to a locked/unlocked  component, and a major overhaul of the website analysis module to leverage multi-page GPT-4o with automated monthly scheduling. Design modernization with glassmorphism and animations was also a significant effort. Recurring issues, particularly the virtual keyboard closing on iPhone bug, were addressed through multiple iterations, finally resolved by converting controlled inputs to uncontrolled inputs with . The notes module received full CRUD functionality and UI polish. The content library gained multi-selection, mass deletion, and an image preview modal with context editing. Most recently, the posts generation tab was built out, offering manual generation with a confirmation workflow. The work is currently focused on integrating Pixabay for external image search and management.
+The trajectory outlines the previous AI engineer's work on the Claire et Marcus PWA, a full-stack application. Initial phases focused on fixing core UI/UX issues like dashboard restoration, header layout, and enabling virtual keyboard input using uncontrolled components. A significant effort was dedicated to robust authentication and persistent data storage. Feature expansion included refining the business profile, overhauling website analysis with GPT-4o, and enhancing the content library with CRUD for notes and multi-selection for media. The most recent and extended work involved integrating Pixabay for royalty-free image search, which exposed and subsequently fixed numerous authentication, display, image processing (EXIF, resizing, caching), and data migration bugs. The engineer then began implementing a complex periodic notes system. The overall approach was iterative, with frequent user feedback and systematic debugging, often relying on the  for complex issues, culminating in a stable Pixabay integration and a partially implemented new notes feature.
 </analysis>
 
 <product_requirements>
-The Claire et Marcus PWA is an AI-powered SaaS designed for small businesses to automate social media content and profile management. Key requirements included: reliable content saving, display, and deletion via MongoDB; a 5-column content library grid with pop-up previews and batch operations; automatic 320px WEBP thumbnails; AI-powered website analysis using GPT-4o; a notes module; persistent business profiles; and robust authentication. Initial work focused on restoring the dashboard, fixing header layout, and enabling virtual keyboard input. Subsequent requirements involved adding brand tone and posting frequency dropdowns, implementing a locked/unlocked  system, enhancing multi-page AI website analysis with monthly re-analysis and detailed outputs, and modernizing the design with animations and glassmorphism. Critical bug fixes included persistent 401 login errors, header display, mobile tab layout, and full CRUD functionality with UI/UX improvements for the Notes and Library sections. Most recently, the user requested manual post generation and Pixabay integration for royalty-free images within the content library.
+The Claire et Marcus PWA is an AI-powered SaaS for small businesses to automate social media content and profile management. Core requirements include: reliable content saving, display, and deletion via MongoDB; a 5-column content library grid with pop-up previews and batch operations; automatic 320px WEBP thumbnails; AI-powered website analysis using GPT-4o with monthly re-analysis and detailed outputs; a notes module; persistent business profiles; and robust authentication. Initial work involved restoring the dashboard, header layout, and enabling virtual keyboard input. Subsequent requirements added brand tone and posting frequency dropdowns, a locked/unlocked  system, and design modernization. Critical bug fixes addressed persistent 401 errors, header display, and mobile tab layout. Recent user requests focused on: manual post generation; Pixabay integration for royalty-free images (search, add to library); a visual added feedback (green checkmark) for Pixabay images; responsive Pixabay search layout; French categories for Pixabay; fixing virtual keyboard on Pixabay inputs; resolving all thumbnail/preview loading issues for both uploaded and Pixabay images; correcting image orientation (EXIF); resizing uploaded images to 1024px on the smallest side at 72dpi; optimizing image loading/caching; enabling title editing for photos; full multi-file upload functionality; and a new advanced periodic notes system with a monthly note checkbox, specific month/year assignments, and intelligent sorting/deletion.
 </product_requirements>
 
 <key_technical_concepts>
 - **Full-stack**: React.js (frontend), FastAPI (backend), MongoDB/GridFS (database).
-- **Authentication**: JWT, , , .
-- **AI Integration**: GPT-4o (via ) for website analysis and post generation.
+- **Authentication**: JWT, , , , robust token handling.
+- **AI Integration**: GPT-4o via  for website analysis and post generation.
 - **Frontend UI/UX**: Responsive design, virtual keyboard compatibility (uncontrolled inputs with ), Tailwind CSS, Glassmorphism, CSS animations.
-- **API Interaction**: RESTful endpoints,  prefix, .
+- **API Interaction**: RESTful endpoints,  prefix, , CORS handling.
 - **Scheduled Tasks**:  for automated website analysis and post generation.
+- **Image Processing**: PIL/Pillow for EXIF rotation, resizing, quality optimization (JPEG, WEBP, DPI).
+- **Data Persistence**: MongoDB ObjectId vs. UUID string for document IDs, data migration scripts.
 </key_technical_concepts>
 
 <code_architecture>
 
 -   ****: The main React component, central to UI and logic.
-    -   **Importance**: Renders the  with all tabs. Underwent significant modifications for UI layout, virtual keyboard compatibility, new input fields, website analysis display, and global design.
-    -   **Changes Made**: Header text color and breathing animation restored. Mobile tab layout optimized (2 lines, 4 per line, reduced font/padding, no icons).  buttons moved right. Notes module: states (, , , refs for uncontrolled inputs),  (POST/PUT), ,  functions added. Priority dropdown implemented, translated values. Library module: , , ,  states. , , ,  functions.  added with uncontrolled textarea for context. Posting frequency labels and Coordonnées field added to Business profile. Posts module: , ,  states, ,  functions. Logic for Pixabay integration.
+    -   **Importance**: Renders the  with all tabs. Heavily modified for Pixabay integration UI (states, functions, sub-tabs, pagination, responsive layout), virtual keyboard compatibility fixes, thumbnail/preview URL generation (with token), and  for image titles. It also handles the states and logic for the new periodic notes system.
+    -   **Changes Made**: Added states like , , , , , , , . Pixabay API functions (, ). Logic to include token in thumbnail/file URLs. Responsive adjustments for Pixabay search buttons and Ajouter buttons.  modified for race condition. New states , ,  added for notes.
 -   ****: Main stylesheet.
     -   **Importance**: Global styles and component styling.
-    -   **Changes Made**: Added mobile/touch CSS for virtual keyboard, , , , ,  animations. Specific CSS rules for notes form fields (, , ) to force  and reset WebKit appearance, .
+    -   **Changes Made**: Added mobile/touch CSS for virtual keyboard, animations. Specific CSS rules for notes form fields (, , ) for font size and touch-action. No specific new changes were shown here for Pixabay or notes in the trajectory.
 -   ****: Frontend environment variables.
     -   **Importance**: Stores .
-    -   **Changes Made**: Updated  for deployment environments.
+    -   **Changes Made**: Corrected  from local Emergent to Render, then back to local Emergent repeatedly to address login/data issues.
+-   ****: Authentication component.
+    -   **Importance**: Handles user login and registration.
+    -   **Changes Made**: Added  to the  request to resolve CORS policy errors during authentication.
 -   ****: Main FastAPI backend server.
-    -   **Importance**: Core API routes.
-    -   **Changes Made**:  model for notes,  and  updated with . , ,  endpoints added from .  for saving content context.  and  for post generation. Pixabay search/download endpoints integrated.
+    -   **Importance**: Core API routes and Pydantic models.
+    -   **Changes Made**:  model updated with , , .  model added.  and  endpoints implemented/modified (to accept JSON body, use correct collection).  endpoint added for updating content titles.
 -   ****: Handles MongoDB interactions.
     -   **Importance**: Database operations.
-    -   **Changes Made**:  function modified to accept  parameter instead of forcing normal.
--   ****: Backend scheduler for automated tasks.
-    -   **Importance**: Manages background jobs.
-    -   **Changes Made**:  for monthly re-analysis. Contains  logic and  for AI post creation.
+    -   **Changes Made**:  function modified to accept , ,  parameters.
 -   ****: Backend environment variables.
-    -   **Importance**: Stores .
-    -   **Changes Made**: Added .
+    -   **Importance**: Stores , .
+    -   **Changes Made**:  added.  updated multiple times to switch between local and user's external MongoDB Atlas.
 -   ****: Python dependencies.
     -   **Importance**: Lists all backend libraries.
-    -   **Changes Made**:  is being added.
+    -   **Changes Made**:  confirmed to be present.
+-   ****: Handles thumbnail generation.
+    -   **Importance**: Image processing, resizing, and EXIF handling.
+    -   **Changes Made**: Added  function for EXIF rotation.  and  updated to use EXIF.  (moved to  locally later) was created for precise image resizing (1024px on smallest side, 72 DPI, 85% JPEG quality).  was updated to handle UUID strings.
+-   ****: Handles file uploads and serving media.
+    -   **Importance**: Manages GridFS storage, image resizing, and content delivery.
+    -   **Changes Made**:  function added to allow token-based authentication for  endpoint.  function moved inline to prevent circular imports.  logic updated to resize *each* image, apply EXIF, generate correct  and  fields (using UUIDs) before saving to GridFS. Corrected  that broke backend.  called with  (UUID) instead of  (ObjectId).
+-   ****: Manages thumbnail specific routes.
+    -   **Importance**: Provides endpoints for accessing thumbnails.
+    -   **Changes Made**: Added  function to allow token-based authentication for . Updated  endpoint to search for media documents using  (for UUIDs) first, then . Added aggressive cache headers to thumbnail responses.
+-   ****: Temporary script for data migration.
+    -   **Importance**: Used to transfer user data (business profiles, media) from old user IDs to new user IDs after authentication issues led to new account creation.
+    -   **Changes Made**: Iteratively refined to correctly identify  and handle   fields, migrating , , and  collections. This script was created and subsequently removed.
+
 </code_architecture>
 
 <pending_tasks>
--   Add  to  and install it.
--   Implement the frontend UI for the Pixabay integration, including Ma bibliothèque and Rechercher des images sub-tabs within the Bibliothèque section.
--   Display Pixabay search results and allow users to add selected images to Ma bibliothèque.
+- Complete the frontend interface for the new periodic notes system, including the note valable tous les mois checkbox and month/year dropdowns.
+- Implement the sorting logic for notes (always valid first, then month by month).
+- Implement the automatic deletion of monthly notes.
+- Integrate the frontend editing for the photo title.
 </pending_tasks>
 
 <current_work>
-Immediately prior to this summary, the AI engineer was implementing the Pixabay integration. This was requested by the user to allow the system to fetch royalty-free images to complement user uploads, and for users to manually select images for post generation.
+Immediately before this summary request, the AI engineer was deep into enhancing the content notes module based on new user requirements. The user requested a new system for periodic notes, including:
+1.  **Fixing a note editing bug**: The edit button (crayon) required two clicks to populate the fields, and the page should scroll to the editing area upon clicking it.
+2.  **Implementing a monthly note system**:
+    *   A checkbox note valable tous les mois (note valid every month).
+    *   Month and year dropdowns (attribuer cette note à) which are grayed out if the monthly note checkbox is active.
+    *   Notes should be sorted: always valid first, then chronologically by month (closest first).
+    *   Notes for a specific month should be deleted on the first day of the following month.
 
-The engineer has successfully:
-1.  **Added Pixabay API Key**: The provided Pixabay API key () has been securely added to the backend's  file.
-2.  **Integrated Backend Endpoints**: New API endpoints related to Pixabay search and image download have been added to the backend's  file. These endpoints will handle communication with the Pixabay API.
+The AI engineer has already initiated the implementation of this new feature by:
+-   **Correcting the note editing bug in **: The  function was modified to address the race condition, ensuring  and  updates correctly populate the note fields on the first click and scroll to the top.
+-   **Modifying the backend model ( in )**: Added new fields: , , .
+-   **Updating the note creation/update function in **: Modified  (and implicitly ) to accept and store these new periodic note fields.
 
-The current activity is at the very beginning of the Pixabay implementation, specifically at the point of ensuring all necessary backend dependencies are in place. The engineer has just started adding  to  to support asynchronous file operations, which will likely be used for handling image downloads from Pixabay. The next step is to complete this dependency update before moving on to the frontend implementation of the Pixabay search and integration UI.
+The current activity is at the very beginning of the frontend implementation for the new periodic notes system, specifically at the point of adding the new input fields (checkbox, month, year dropdowns) to the note form in .
 </current_work>
 
 <optional_next_step>
-Add  to , install it, and then proceed with the frontend implementation for Pixabay.
+Implement the new monthly note UI fields (checkbox, month/year dropdowns) in .
 </optional_next_step>

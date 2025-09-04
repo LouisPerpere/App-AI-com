@@ -8,7 +8,7 @@ import requests
 import json
 
 # Configuration
-BACKEND_URL = "https://social-ai-assist-1.preview.emergentagent.com"
+BACKEND_URL = "https://bizpost-manager-1.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"

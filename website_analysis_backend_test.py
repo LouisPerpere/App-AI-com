@@ -10,7 +10,7 @@ import os
 import time
 
 # Configuration - Using the correct backend URL from frontend/.env
-BACKEND_URL = "https://social-ai-assist-1.preview.emergentagent.com"
+BACKEND_URL = "https://bizpost-manager-1.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request

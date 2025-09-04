@@ -133,19 +133,16 @@ async def upload_content(
                         # Save with optimizations
                         im.save(temp_output_path, format="JPEG", quality=85, optimize=True, progressive=True, dpi=(72, 72))
                         
-                except Exception as resize_error:
-                    print(f"⚠️ Image resize failed: {resize_error}")
-                    # Use original data if resize fails
-                    with open(temp_input_path, 'rb') as f:
-                        final_data = f.read()
-                    os.unlink(temp_input_path)
-                    continue  # Skip reading from temp_output_path
-                
-                        # Read resized data
+                        # Read resized data if successful
                         with open(temp_output_path, 'rb') as f:
                             final_data = f.read()
                         
                         print(f"✅ Image resized: {new_width}x{new_height}")
+                        
+                except Exception as resize_error:
+                    print(f"⚠️ Image resize failed: {resize_error}")
+                    # Use original data if resize fails
+                    final_data = data
                 
                 # Cleanup temp files
                 os.unlink(temp_input_path)

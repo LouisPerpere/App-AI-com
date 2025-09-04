@@ -227,12 +227,9 @@ async def delete_content(file_id: str, user_id: str = Depends(get_current_user_i
         from gridfs import GridFS
         fs = GridFS(db)
 
-        # Find media
-        try:
-            filter_id = {"_id": ObjectId(file_id)}
-        except Exception:
-            filter_id = {"external_id": file_id}
-        media = db.media.find_one({**filter_id, "owner_id": user_id, "deleted": {"$ne": True}})
+        # Find media using the proper collection and field
+        media_collection = get_media_collection()
+        media = media_collection.find_one({"id": file_id, "owner_id": user_id, "deleted": {"$ne": True}})
         if not media:
             raise HTTPException(404, "Media not found")
 

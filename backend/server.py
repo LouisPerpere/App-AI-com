@@ -484,10 +484,6 @@ async def post_business_profile(body: BusinessProfileIn, user_id: str = Depends(
 # NOTES: /api/notes
 # ----------------------------
 
-class NoteRequest(BaseModel):
-    title: str
-    content: str
-    priority: Optional[str] = "normal"
 
 @api_router.get("/notes")
 async def get_notes(user_id: str = Depends(get_current_user_id_robust)):

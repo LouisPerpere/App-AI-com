@@ -499,7 +499,7 @@ async def delete_user(
         # Delete user data in order
         await db.generated_posts.delete_many({"user_id": user_id})
         await db.content_uploads.delete_many({"user_id": user_id})
-        await db.content_notes.delete_many({"user_id": user_id})
+        await db.content_notes.delete_many({"owner_id": user_id})
         await db.business_profiles.delete_many({"user_id": user_id})
         await db.subscriptions.delete_many({"user_id": user_id})
         await db.payments.delete_many({"user_id": user_id})

@@ -73,7 +73,7 @@ async def upload_content(
                 import tempfile
                 import os
                 from PIL import Image
-                from PIL.ExifTags import ORIENTATION
+                import PIL.ExifTags
                 
                 # Create temp files
                 with tempfile.NamedTemporaryFile(delete=False, suffix='.tmp') as temp_input:
@@ -86,19 +86,25 @@ async def upload_content(
                 # Resize image inline instead of importing
                 try:
                     with Image.open(temp_input_path) as im:
-                        # Fix EXIF orientation
+                        # Fix EXIF orientation (Pillow 11.x compatible)
                         try:
                             exif = im._getexif()
                             if exif is not None:
-                                for tag, value in exif.items():
-                                    if tag == ORIENTATION:
-                                        if value == 3:
-                                            im = im.rotate(180, expand=True)
-                                        elif value == 6:
-                                            im = im.rotate(270, expand=True)
-                                        elif value == 8:
-                                            im = im.rotate(90, expand=True)
+                                # Use the orientation value directly (Pillow 11.x compatibility)
+                                orientation_key = None
+                                for tag, value in PIL.ExifTags.TAGS.items():
+                                    if value == 'Orientation':
+                                        orientation_key = tag
                                         break
+                                
+                                if orientation_key and orientation_key in exif:
+                                    orientation = exif[orientation_key]
+                                    if orientation == 3:
+                                        im = im.rotate(180, expand=True)
+                                    elif orientation == 6:
+                                        im = im.rotate(270, expand=True)
+                                    elif orientation == 8:
+                                        im = im.rotate(90, expand=True)
                         except (AttributeError, KeyError, TypeError):
                             pass
                         

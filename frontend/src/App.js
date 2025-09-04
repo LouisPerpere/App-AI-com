@@ -2990,7 +2990,12 @@ function MainApp() {
                 {/* Display saved notes */}
                 {notes.length > 0 ? (
                   <div className="space-y-4">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-4">📝 Mes notes ({notes.length})</h3>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xl font-semibold text-gray-900">📝 Mes notes ({notes.length})</h3>
+                      <div className="text-sm text-gray-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+                        <span className="font-semibold">Tri :</span> 🔁 Mensuelles → 📅 Chronologique
+                      </div>
+                    </div>
                     <div className="grid gap-4">
                       {notes.map((note, index) => (
                         <div key={note.note_id || index} className="card-glass p-6 rounded-2xl border border-indigo-200">

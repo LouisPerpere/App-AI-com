@@ -662,7 +662,7 @@ function MainApp() {
       } else {
         // Mode création - POST
         const response = await axios.post(`${API}/notes`, {
-          title: formValues.title.trim(),
+          description: formValues.title.trim(), // Le backend utilise 'description' pour le titre
           content: formValues.content.trim(),
           priority: formValues.priority,
           is_monthly_note: formValues.is_monthly_note,

@@ -1,11 +1,30 @@
 #!/usr/bin/env python3
 """
-🎯 PERIODIC NOTES BACKEND INTEGRATION TESTING - Phase 1 Validation
-Comprehensive testing of the newly implemented periodic notes system backend functionality.
+🎯 NOTES SORTING VALIDATION TEST - Phase 2
+Create multiple notes with different periodic settings and verify proper sorting implementation.
 
-TEST FOCUS: Periodic notes CRUD operations with proper field validation
+TEST OBJECTIVE: Create multiple notes with different periodic settings and verify proper sorting implementation.
+
+BACKEND TESTING STRATEGY:
+1. Clean up existing notes (optional - delete some test notes if too many)
+2. Create test notes in mixed order:
+   - Note A: Specific month (January 2025) - should appear after monthly notes
+   - Note B: Monthly note (high priority) - should appear FIRST  
+   - Note C: Specific month (March 2025) - should appear after January 2025
+   - Note D: Monthly note (normal priority) - should appear SECOND
+   - Note E: Past month (December 2024) - should appear last
+3. Retrieve all notes and verify they exist in backend
+4. Frontend will handle sorting - backend just needs to provide the data
+
+EXPECTED SORTING ORDER (frontend will sort):
+1. Monthly notes (by creation date, newest first)
+2. Future/current specific month notes (by chronological closeness)  
+3. Past specific month notes
+
 AUTHENTICATION: lperpere@yahoo.fr / L@Reunion974!
 BACKEND URL: https://bizpost-manager-1.preview.emergentagent.com/api
+
+TEST FOCUS: Create varied test data to validate sorting logic.
 """
 
 import requests

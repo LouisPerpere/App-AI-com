@@ -141,16 +141,16 @@ async def upload_content(
                     os.unlink(temp_input_path)
                     continue  # Skip reading from temp_output_path
                 
-                # Read resized data
-                with open(temp_output_path, 'rb') as f:
-                    final_data = f.read()
+                        # Read resized data
+                        with open(temp_output_path, 'rb') as f:
+                            final_data = f.read()
+                        
+                        print(f"✅ Image resized: {new_width}x{new_height}")
                 
                 # Cleanup temp files
-                import os
                 os.unlink(temp_input_path)
-                os.unlink(temp_output_path)
-                
-                print(f"✅ Image resized: {new_width}x{new_height}")
+                if os.path.exists(temp_output_path):
+                    os.unlink(temp_output_path)
                 
             except Exception as e:
                 print(f"⚠️ Image resize failed, using original: {e}")

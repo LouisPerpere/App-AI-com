@@ -590,11 +590,22 @@ function MainApp() {
   }, []);
 
   // Set form values in DOM
-  const setFormValues = useCallback((title = '', content = '', priority = 'normal') => {
+  const setFormValues = useCallback((title = '', content = '', priority = 'normal', isMonthlyNote = false, noteMonth = null, noteYear = null) => {
     if (titleInputRef.current) titleInputRef.current.value = title;
     if (contentInputRef.current) contentInputRef.current.value = content;
     if (priorityInputRef.current) {
       priorityInputRef.current.value = priority;
+    }
+    if (isPermanentCheckboxRef.current) {
+      isPermanentCheckboxRef.current.checked = isMonthlyNote;
+    }
+    if (targetMonthRef.current) {
+      targetMonthRef.current.value = noteMonth ? noteMonth.toString() : '';
+      targetMonthRef.current.disabled = isMonthlyNote;
+    }
+    if (targetYearRef.current) {
+      targetYearRef.current.value = noteYear ? noteYear.toString() : '';
+      targetYearRef.current.disabled = isMonthlyNote;
     }
   }, []);
 

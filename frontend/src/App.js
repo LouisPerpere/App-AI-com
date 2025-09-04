@@ -653,7 +653,7 @@ function MainApp() {
           toast.success('Note modifiée avec succès ! ✏️');
           
           // Réinitialiser le formulaire
-          setFormValues('', '', 'normal');
+          setFormValues('', '', 'normal', false, null, null);
           setEditingNoteId(null);
           
           // Recharger les notes

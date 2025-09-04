@@ -20,6 +20,23 @@ def _square_crop(im: Image.Image) -> Image.Image:
 def generate_image_thumb(src_path: str, thumb_path: str) -> None:
     """Generate thumbnail from image file (filesystem output)"""
     with Image.open(src_path) as im:
+        # Fix EXIF orientation before processing
+        try:
+            from PIL.ExifTags import ORIENTATION
+            exif = im._getexif()
+            if exif is not None:
+                for tag, value in exif.items():
+                    if tag == ORIENTATION:
+                        if value == 3:
+                            im = im.rotate(180, expand=True)
+                        elif value == 6:
+                            im = im.rotate(270, expand=True)
+                        elif value == 8:
+                            im = im.rotate(90, expand=True)
+                        break
+        except (AttributeError, KeyError, TypeError):
+            pass  # No EXIF data or orientation
+        
         im = im.convert("RGB")
         im = _square_crop(im)
         im.thumbnail((THUMB_SIZE, THUMB_SIZE), Image.LANCZOS)

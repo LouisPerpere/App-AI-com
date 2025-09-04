@@ -108,6 +108,46 @@ async def check_and_update_website_analyses():
     except Exception as e:
         logger.error(f"❌ Error in check_and_update_website_analyses: {e}")
 
+# Periodic notes cleanup functionality (Phase 3)
+def cleanup_expired_periodic_notes():
+    """Clean up expired periodic notes on the 5th of each month"""
+    try:
+        logger.info("🗑️ Starting periodic notes cleanup...")
+        
+        # Import database manager
+        from database import get_database, DatabaseManager
+        
+        # Get database instance
+        dbm = get_database()
+        
+        # Perform cleanup
+        result = dbm.cleanup_expired_periodic_notes()
+        
+        if result.get("success", False):
+            deleted_count = result.get("deleted_count", 0)
+            target_month_name = result.get("target_month_name", "Unknown")
+            target_year = result.get("target_year", "Unknown")
+            
+            if deleted_count > 0:
+                logger.info(f"🗑️ Periodic notes cleanup successful: {deleted_count} notes from {target_month_name} {target_year} deleted")
+                
+                # Log details of deleted notes
+                deleted_notes = result.get("deleted_notes", [])
+                for note in deleted_notes:
+                    logger.info(f"   ✅ Deleted note: '{note.get('title', 'Sans titre')}' (ID: {note.get('note_id')})")
+            else:
+                reason = result.get("reason", "No notes to delete")
+                logger.info(f"🗑️ Periodic notes cleanup: {reason}")
+        else:
+            error = result.get("error", "Unknown error")
+            logger.error(f"❌ Periodic notes cleanup failed: {error}")
+            
+        return result
+        
+    except Exception as e:
+        logger.error(f"❌ Error in cleanup_expired_periodic_notes: {e}")
+        return {"deleted_count": 0, "error": str(e), "success": False}
+
 class ScheduledTask(BaseModel):
     id: str
     business_id: str

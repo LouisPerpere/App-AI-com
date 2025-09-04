@@ -506,9 +506,9 @@ async def create_note(note: ContentNote, user_id: str = Depends(get_current_user
             content=note.content,
             description=note.description,
             priority=note.priority,
-            is_permanent=note.is_monthly_note,
-            target_month=note.note_month,
-            target_year=note.note_year
+            is_monthly_note=note.is_monthly_note,
+            note_month=note.note_month,
+            note_year=note.note_year
         )
         # Add title field for frontend compatibility if description exists
         if note.description:

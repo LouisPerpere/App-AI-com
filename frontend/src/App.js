@@ -672,21 +672,39 @@ function MainApp() {
 
   // Éditer une note existante
   const handleEditNote = useCallback((note) => {
-    setFormValues(
-      note.description || note.title || '', 
-      note.content || '', 
-      note.priority || 'normal'
-    );
+    console.log('🖊️ Édition de la note:', note);
+    
+    // D'abord définir l'état d'édition
     setEditingNoteId(note.note_id);
     
-    // Scroll vers le formulaire
+    // Ensuite remplir les champs avec un délai pour s'assurer que les refs sont prêts
     setTimeout(() => {
-      titleInputRef.current?.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center' 
+      setFormValues(
+        note.description || note.title || '', 
+        note.content || '', 
+        note.priority || 'normal'
+      );
+      
+      console.log('📝 Champs remplis avec:', {
+        title: note.description || note.title,
+        content: note.content,
+        priority: note.priority
       });
-      titleInputRef.current?.focus();
-    }, 100);
+      
+      // Scroll vers le formulaire après avoir rempli les champs
+      setTimeout(() => {
+        const titleElement = titleInputRef.current;
+        if (titleElement) {
+          titleElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start',
+            inline: 'nearest'
+          });
+          titleElement.focus();
+          console.log('📍 Scroll vers le formulaire effectué');
+        }
+      }, 200);
+    }, 50);
   }, [setFormValues]);
 
   // Annuler l'édition

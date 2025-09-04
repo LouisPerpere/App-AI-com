@@ -639,7 +639,7 @@ function MainApp() {
       if (editingNoteId) {
         // Mode édition - PUT
         const response = await axios.put(`${API}/notes/${editingNoteId}`, {
-          title: formValues.title.trim(),
+          description: formValues.title.trim(), // Le backend utilise 'description' pour le titre
           content: formValues.content.trim(),
           priority: formValues.priority,
           is_monthly_note: formValues.is_monthly_note,

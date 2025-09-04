@@ -182,14 +182,19 @@ async def upload_content_batch(
 @router.get("/content/{file_id}/file")
 async def get_original_file(file_id: str, token: Optional[str] = None, authorization: Optional[str] = Header(None)):
     """Stream original file from GridFS with auth."""
+    print(f"🔍 GET /content/{file_id}/file - token: {token is not None}, auth: {authorization is not None}")
+    
     # Allow auth via Authorization header or ?token=
     user_id = None
     if token:
         user_id = _decode_user_from_token(token)
+        print(f"🔑 Token decoded to user_id: {user_id}")
     elif authorization and authorization.startswith("Bearer "):
         user_id = _decode_user_from_token(authorization[7:])
+        print(f"🔑 Bearer decoded to user_id: {user_id}")
     
     if not user_id:
+        print("❌ No valid authentication found")
         raise HTTPException(status_code=401, detail="Authentication required")
     
     try:

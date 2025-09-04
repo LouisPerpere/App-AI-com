@@ -1066,6 +1066,17 @@ function MainApp() {
       contextTextareaRef.current.value = '';
     }
   }, []);
+  // Handle content title updates
+  const handleContentTitleUpdate = useCallback((contentId, newTitle) => {
+    // Update the title in pendingContent state
+    setPendingContent(prevContent => 
+      prevContent.map(content => 
+        content.id === contentId 
+          ? { ...content, filename: newTitle }
+          : content
+      )
+    );
+  }, []);
 
   // Sauvegarder le contexte d'un contenu
   const handleSaveContext = async () => {

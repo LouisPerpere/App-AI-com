@@ -254,6 +254,10 @@ function MainApp() {
   const [isSearchingPixabay, setIsSearchingPixabay] = useState(false);
   const [isSavingPixabayImage, setIsSavingPixabayImage] = useState(null);
   const [savedPixabayImages, setSavedPixabayImages] = useState(new Set()); // Track successfully saved images
+  const [pixabayCurrentPage, setPixabayCurrentPage] = useState(1);
+  const [pixabayTotalHits, setPixabayTotalHits] = useState(0);
+  const [pixabayCurrentQuery, setPixabayCurrentQuery] = useState('');
+  const [isLoadingMorePixabay, setIsLoadingMorePixabay] = useState(false);
   
   // Refs for direct DOM manipulation to avoid re-renders
   const titleInputRef = useRef(null);

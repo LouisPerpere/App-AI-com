@@ -65,7 +65,20 @@ def save_db_thumbnail(owner_id: str, media_obj_id: ObjectId, content: bytes, con
         upsert=True
     )
     # update media doc to point to API relative endpoint
-    dbp.media.update_one({"_id": media_obj_id}, {"$set": {"thumb_url": RELATIVE_THUMB_ENDPOINT.format(file_id=str(media_obj_id))}})
+    # Handle both ObjectId (old) and string UUID (new) media IDs
+    if isinstance(media_obj_id, str):
+        # New UUID string format
+        media_collection = get_media_collection()
+        media_collection.update_one(
+            {"id": media_obj_id}, 
+            {"$set": {"thumb_url": RELATIVE_THUMB_ENDPOINT.format(file_id=media_obj_id)}}
+        )
+    else:
+        # Old ObjectId format
+        dbp.media.update_one(
+            {"_id": media_obj_id}, 
+            {"$set": {"thumb_url": RELATIVE_THUMB_ENDPOINT.format(file_id=str(media_obj_id))}}
+        )
 
 def get_db_thumbnail(media_obj_id: ObjectId):
     dbp = get_sync_db()

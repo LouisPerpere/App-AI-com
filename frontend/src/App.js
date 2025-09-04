@@ -840,7 +840,7 @@ function MainApp() {
 
       toast.success('Note supprimée avec succès ! 🗑️');
       
-      // Recharger les notes
+      // Recharger les notes avec tri
       await loadNotes();
       
     } catch (error) {

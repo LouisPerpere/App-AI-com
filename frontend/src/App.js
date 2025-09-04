@@ -123,6 +123,7 @@ const ContentThumbnail = React.memo(({
             alt={content.filename}
             className="w-full h-full object-cover"
             loading="lazy"
+            crossOrigin="anonymous"
             onError={(e) => {
               console.log('❌ Image failed to load:', content.thumb_url || content.url);
               // Fallback based on source

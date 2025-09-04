@@ -967,6 +967,75 @@ function MainApp() {
       contextTextareaRef.current.value = '';
     }
   }, []);
+  // Handle content title updates in preview modal
+  const [isEditingPreviewTitle, setIsEditingPreviewTitle] = useState(false);
+  const [previewTempTitle, setPreviewTempTitle] = useState('');
+  const [isSavingPreviewTitle, setIsSavingPreviewTitle] = useState(false);
+
+  const handlePreviewTitleEdit = useCallback(() => {
+    if (!previewContent) return;
+    setIsEditingPreviewTitle(true);
+    setPreviewTempTitle(previewContent.filename || '');
+  }, [previewContent]);
+
+  const handlePreviewTitleSave = useCallback(async () => {
+    if (!previewContent || isSavingPreviewTitle || previewTempTitle.trim() === previewContent.filename) {
+      setIsEditingPreviewTitle(false);
+      return;
+    }
+
+    setIsSavingPreviewTitle(true);
+    try {
+      const response = await axios.put(
+        `${API}/content/${previewContent.id}/title`,
+        { title: previewTempTitle.trim() },
+        {
+          headers: { 
+            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        // Update the preview content with new title
+        const updatedContent = { ...previewContent, filename: previewTempTitle.trim() };
+        setPreviewContent(updatedContent);
+        
+        // Update the title in pendingContent state as well
+        setPendingContent(prevContent => 
+          prevContent.map(content => 
+            content.id === previewContent.id 
+              ? { ...content, filename: previewTempTitle.trim() }
+              : content
+          )
+        );
+        
+        toast.success('Titre modifié avec succès');
+      }
+      setIsEditingPreviewTitle(false);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du titre:', error);
+      toast.error('Erreur lors de la modification du titre');
+      setPreviewTempTitle(previewContent.filename || ''); // Restaurer l'ancien titre
+    } finally {
+      setIsSavingPreviewTitle(false);
+    }
+  }, [previewContent, previewTempTitle, isSavingPreviewTitle]);
+
+  const handlePreviewTitleCancel = useCallback(() => {
+    setIsEditingPreviewTitle(false);
+    setPreviewTempTitle(previewContent?.filename || '');
+  }, [previewContent]);
+
+  const handlePreviewTitleKeyPress = useCallback((e) => {
+    if (e.key === 'Enter') {
+      handlePreviewTitleSave();
+    } else if (e.key === 'Escape') {
+      handlePreviewTitleCancel();
+    }
+  }, [handlePreviewTitleSave, handlePreviewTitleCancel]);
+
   // Handle content title updates
   const handleContentTitleUpdate = useCallback((contentId, newTitle) => {
     // Update the title in pendingContent state

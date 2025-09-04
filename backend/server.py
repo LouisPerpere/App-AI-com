@@ -610,6 +610,30 @@ async def update_content_context(content_id: str, body: ContentContextRequest, u
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update content context: {str(e)}")
 
+@api_router.put("/content/{content_id}/title")
+async def update_content_title(content_id: str, body: ContentTitleRequest, user_id: str = Depends(get_current_user_id_robust)):
+    """Update title for a content item"""
+    try:
+        dbm = get_database()
+        
+        # Update content title in the media collection
+        query = parse_any_id(content_id)
+        query["owner_id"] = user_id
+        
+        result = dbm.db.media.update_one(
+            query,
+            {"$set": {"title": body.title}}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Content not found")
+        
+        return {"message": "Titre mis à jour avec succès"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update content title: {str(e)}")
+
 @api_router.delete("/content/{content_id}")
 async def delete_content(content_id: str, user_id: str = Depends(get_current_user_id_robust)):
     """Delete a content item"""

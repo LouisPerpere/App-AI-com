@@ -2743,6 +2743,119 @@ function MainApp() {
                         </select>
                       </div>
                       
+                      {/* Nouveaux champs pour les notes périodiques */}
+                      <div className="space-y-4 border-t border-gray-200 pt-4">
+                        <h4 className="text-sm font-medium text-gray-700 flex items-center">
+                          <Calendar className="w-4 h-4 mr-2" />
+                          Planification de la note
+                        </h4>
+                        
+                        {/* Checkbox note mensuelle */}
+                        <div className="flex items-center space-x-3">
+                          <input
+                            ref={isPermanentCheckboxRef}
+                            id="note_monthly_checkbox"
+                            type="checkbox"
+                            className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+                            onChange={(e) => {
+                              const isChecked = e.target.checked;
+                              // Griser/dégriser les dropdowns mois/année
+                              if (targetMonthRef.current) {
+                                targetMonthRef.current.disabled = isChecked;
+                                if (isChecked) {
+                                  targetMonthRef.current.value = '';
+                                }
+                              }
+                              if (targetYearRef.current) {
+                                targetYearRef.current.disabled = isChecked;
+                                if (isChecked) {
+                                  targetYearRef.current.value = '';
+                                }
+                              }
+                            }}
+                          />
+                          <label htmlFor="note_monthly_checkbox" className="text-sm text-gray-700">
+                            Note valable tous les mois
+                          </label>
+                        </div>
+                        
+                        {/* Dropdowns mois et année */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {/* Dropdown mois */}
+                          <div className="space-y-2">
+                            <label htmlFor="note_target_month" className="block text-sm font-medium text-gray-700">
+                              Attribuer cette note à
+                            </label>
+                            <select
+                              ref={targetMonthRef}
+                              id="note_target_month"
+                              className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none disabled:bg-gray-100 disabled:text-gray-500"
+                              style={{
+                                fontSize: '16px',
+                                lineHeight: '1.5',
+                                WebkitAppearance: 'none',
+                                WebkitBorderRadius: '8px',
+                                borderRadius: '8px',
+                                boxShadow: 'none',
+                                WebkitBoxShadow: 'none',
+                                touchAction: 'manipulation',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              <option value="">Choisir un mois</option>
+                              <option value="1">Janvier</option>
+                              <option value="2">Février</option>
+                              <option value="3">Mars</option>
+                              <option value="4">Avril</option>
+                              <option value="5">Mai</option>
+                              <option value="6">Juin</option>
+                              <option value="7">Juillet</option>
+                              <option value="8">Août</option>
+                              <option value="9">Septembre</option>
+                              <option value="10">Octobre</option>
+                              <option value="11">Novembre</option>
+                              <option value="12">Décembre</option>
+                            </select>
+                          </div>
+                          
+                          {/* Dropdown année */}
+                          <div className="space-y-2">
+                            <label htmlFor="note_target_year" className="block text-sm font-medium text-gray-700">
+                              Année
+                            </label>
+                            <select
+                              ref={targetYearRef}
+                              id="note_target_year"
+                              className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none disabled:bg-gray-100 disabled:text-gray-500"
+                              style={{
+                                fontSize: '16px',
+                                lineHeight: '1.5',
+                                WebkitAppearance: 'none',
+                                WebkitBorderRadius: '8px',
+                                borderRadius: '8px',
+                                boxShadow: 'none',
+                                WebkitBoxShadow: 'none',
+                                touchAction: 'manipulation',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              <option value="">Choisir une année</option>
+                              <option value="2024">2024</option>
+                              <option value="2025">2025</option>
+                              <option value="2026">2026</option>
+                              <option value="2027">2027</option>
+                            </select>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                          <p className="text-xs text-blue-700">
+                            💡 <strong>Note valable tous les mois :</strong> La note sera utilisée chaque mois pour la génération de contenu.<br/>
+                            💡 <strong>Note spécifique :</strong> La note ne sera utilisée que pour le mois et l'année sélectionnés, puis supprimée automatiquement le 5 du mois suivant.
+                          </p>
+                        </div>
+                      </div>
+                      
                       {editingNoteId && (
                         <Button
                           type="button"

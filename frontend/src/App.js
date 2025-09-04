@@ -731,7 +731,7 @@ function MainApp() {
           setFormValues('', '', 'normal', false, null, null);
           setEditingNoteId(null);
           
-          // Recharger les notes
+          // Recharger les notes avec tri
           await loadNotes();
         }
       } else {

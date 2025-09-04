@@ -3,7 +3,7 @@ import io, os, subprocess, tempfile
 from PIL import Image
 
 THUMB_DIR = os.environ.get("THUMB_DIR", "uploads/thumbs")
-THUMB_SIZE = int(os.environ.get("THUMB_SIZE", "320"))  # 320x320
+THUMB_SIZE = int(os.environ.get("THUMB_SIZE", "200"))  # 200x200 for better performance
 THUMB_FORMAT = os.environ.get("THUMB_FORMAT", "WEBP")  # WEBP|JPEG|PNG
 QUALITY = int(os.environ.get("THUMB_QUALITY", "85"))
 

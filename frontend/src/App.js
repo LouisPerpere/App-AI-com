@@ -486,7 +486,9 @@ function MainApp() {
       });  
       
       const notesData = response.data.notes || response.data || [];
-      setNotes(notesData);
+      // Appliquer le tri personnalisé pour les notes périodiques
+      const sortedNotes = sortNotes(notesData);
+      setNotes(sortedNotes);
     } catch (error) {
       console.error('Error loading notes:', error);
       setNotes([]);

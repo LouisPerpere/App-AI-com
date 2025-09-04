@@ -582,7 +582,10 @@ function MainApp() {
     return {
       title: titleInputRef.current?.value || '',
       content: contentInputRef.current?.value || '',
-      priority: priorityInputRef.current?.value || 'normal'
+      priority: priorityInputRef.current?.value || 'normal',
+      is_monthly_note: isPermanentCheckboxRef.current?.checked || false,
+      note_month: targetMonthRef.current?.value ? parseInt(targetMonthRef.current.value) : null,
+      note_year: targetYearRef.current?.value ? parseInt(targetYearRef.current.value) : null
     };
   }, []);
 

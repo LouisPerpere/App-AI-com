@@ -170,11 +170,22 @@ async def stream_thumbnail(file_id: str, token: Optional[str] = None, authorizat
         raise HTTPException(status_code=401, detail="Unauthorized")
     """Stream thumbnail from MongoDB; if missing, attempt generation from original (GridFS or disk) and save to DB."""
     media_collection = get_sync_media_collection()
-    try:
-        id_filter = {"_id": ObjectId(file_id)}
-    except Exception:
-        id_filter = {"external_id": file_id}
-    media_doc = media_collection.find_one({**id_filter, "owner_id": user_id, "deleted": {"$ne": True}})
+    # Try multiple ID formats: new UUID string, old ObjectId, external_id
+    media_doc = None
+    
+    # First try: new format with string UUID
+    media_doc = media_collection.find_one({"id": file_id, "owner_id": user_id, "deleted": {"$ne": True}})
+    
+    if not media_doc:
+        # Second try: old format with ObjectId
+        try:
+            media_doc = media_collection.find_one({"_id": ObjectId(file_id), "owner_id": user_id, "deleted": {"$ne": True}})
+        except Exception:
+            pass
+    
+    if not media_doc:
+        # Third try: external_id fallback
+        media_doc = media_collection.find_one({"external_id": file_id, "owner_id": user_id, "deleted": {"$ne": True}})
     if not media_doc:
         raise HTTPException(status_code=404, detail="Media not found")
 

@@ -550,7 +550,7 @@ async def update_note(note_id: str, note: ContentNote, user_id: str = Depends(ge
         
         # Get the updated note
         updated_note = dbm.db.content_notes.find_one(
-            {"note_id": note_id, "user_id": user_id},
+            {"note_id": note_id, "owner_id": user_id},
             {"_id": 0}
         )
         

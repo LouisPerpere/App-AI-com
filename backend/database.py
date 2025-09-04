@@ -310,7 +310,7 @@ class DatabaseManager:
     
     # Content Notes Management
     def create_note(self, user_id: str, content: str, description: str = None, priority: str = "normal", 
-                   is_permanent: bool = False, target_month: Optional[int] = None, target_year: Optional[int] = None) -> Dict[str, Any]:
+                   is_monthly_note: bool = False, note_month: Optional[int] = None, note_year: Optional[int] = None) -> Dict[str, Any]:
         """Create a content note"""
         if not self.is_connected():
             raise Exception("Database not connected")
@@ -321,9 +321,9 @@ class DatabaseManager:
             "description": description,
             "content": content,
             "priority": priority,
-            "is_permanent": is_permanent,
-            "target_month": target_month,
-            "target_year": target_year,
+            "is_monthly_note": is_monthly_note,
+            "note_month": note_month,
+            "note_year": note_year,
             "created_at": datetime.now().isoformat(),
             "updated_at": datetime.now().isoformat()
         }

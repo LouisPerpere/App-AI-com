@@ -2367,7 +2367,6 @@ function MainApp() {
                                 isSelected={selectedContentIds.has(content.id)}
                                 onContentClick={handleContentClick}
                                 onToggleSelection={handleToggleSelection}
-                                onTitleUpdate={handleContentTitleUpdate}
                               />
                             ))}
                           </div>

@@ -118,7 +118,7 @@ const ContentThumbnail = React.memo(({
           <img 
             src={content.source === 'pixabay' 
               ? (content.thumb_url || content.url)
-              : `${content.thumb_url || content.url}${content.thumb_url?.includes('?') ? '&' : '?'}token=${localStorage.getItem('access_token')}&v=${content.id?.substring(0,8)}`
+              : `${content.thumb_url || content.url}${content.thumb_url?.includes('?') ? '&' : '?'}token=${localStorage.getItem('access_token')}`
             }
             alt={content.filename}
             className="w-full h-full object-cover"

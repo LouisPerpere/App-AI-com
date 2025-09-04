@@ -571,7 +571,7 @@ async def delete_note(note_id: str, user_id: str = Depends(get_current_user_id_r
         # Delete note from content_notes collection
         result = dbm.db.content_notes.delete_one({
             "note_id": note_id,
-            "user_id": user_id
+            "owner_id": user_id
         })
         
         if result.deleted_count == 0:

@@ -82,8 +82,13 @@ const ContentThumbnail = React.memo(({
   isSelectionMode, 
   isSelected, 
   onContentClick, 
-  onToggleSelection 
+  onToggleSelection,
+  onTitleUpdate  // Nouvelle prop pour gérer la mise à jour des titres
 }) => {
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [tempTitle, setTempTitle] = useState(content.filename || '');
+  const [isSavingTitle, setIsSavingTitle] = useState(false);
+
   const handleClick = useCallback(() => {
     if (isSelectionMode) {
       onToggleSelection(content.id);
@@ -91,6 +96,60 @@ const ContentThumbnail = React.memo(({
       onContentClick(content);
     }
   }, [isSelectionMode, content, onContentClick, onToggleSelection]);
+
+  const handleTitleEdit = useCallback((e) => {
+    e.stopPropagation(); // Empêcher la propagation du clic
+    setIsEditingTitle(true);
+    setTempTitle(content.filename || '');
+  }, [content.filename]);
+
+  const handleTitleSave = useCallback(async () => {
+    if (isSavingTitle || tempTitle.trim() === content.filename) {
+      setIsEditingTitle(false);
+      return;
+    }
+
+    setIsSavingTitle(true);
+    try {
+      const API = `${process.env.REACT_APP_BACKEND_URL || 'https://claire-marcus-api.onrender.com'}/api`;
+      const response = await axios.put(
+        `${API}/content/${content.id}/title`,
+        { title: tempTitle.trim() },
+        {
+          headers: { 
+            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.status === 200 && onTitleUpdate) {
+        // Notifier le parent de la mise à jour
+        onTitleUpdate(content.id, tempTitle.trim());
+        toast.success('Titre modifié avec succès');
+      }
+      setIsEditingTitle(false);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du titre:', error);
+      toast.error('Erreur lors de la modification du titre');
+      setTempTitle(content.filename || ''); // Restaurer l'ancien titre
+    } finally {
+      setIsSavingTitle(false);
+    }
+  }, [content.id, content.filename, tempTitle, isSavingTitle, onTitleUpdate]);
+
+  const handleTitleCancel = useCallback(() => {
+    setIsEditingTitle(false);
+    setTempTitle(content.filename || '');
+  }, [content.filename]);
+
+  const handleKeyPress = useCallback((e) => {
+    if (e.key === 'Enter') {
+      handleTitleSave();
+    } else if (e.key === 'Escape') {
+      handleTitleCancel();
+    }
+  }, [handleTitleSave, handleTitleCancel]);
 
   // Debug pour voir les URLs des vignettes
   console.log('🖼️ Content thumbnail:', {
@@ -199,9 +258,53 @@ const ContentThumbnail = React.memo(({
             </div>
           </div>
         )}
+        
+        {/* Edit title button - Only show for images and when not in selection mode */}
+        {!isSelectionMode && content.file_type?.startsWith('image/') && (
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button
+              onClick={handleTitleEdit}
+              variant="ghost"
+              size="sm"
+              className="p-1 h-6 w-6 bg-white/90 hover:bg-white text-gray-700 hover:text-blue-600 rounded-full shadow-sm"
+              title="Modifier le titre"
+            >
+              <Edit className="w-3 h-3" />
+            </Button>
+          </div>
+        )}
       </div>
       
-      <p className="text-xs text-gray-600 mt-1 truncate text-center">{content.filename}</p>
+      {/* Editable title */}
+      <div className="mt-1 px-1">
+        {isEditingTitle ? (
+          <div className="flex items-center space-x-1">
+            <input
+              type="text"
+              value={tempTitle}
+              onChange={(e) => setTempTitle(e.target.value)}
+              onKeyDown={handleKeyPress}
+              onBlur={handleTitleSave}
+              className="text-xs text-gray-600 bg-white border border-gray-300 rounded px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              style={{ fontSize: '11px' }}
+              autoFocus
+              disabled={isSavingTitle}
+            />
+            {isSavingTitle && (
+              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+            )}
+          </div>
+        ) : (
+          <p 
+            className="text-xs text-gray-600 truncate text-center cursor-pointer hover:text-blue-600 transition-colors"
+            onClick={handleTitleEdit}
+            title="Cliquer pour modifier le titre"
+          >
+            {content.filename || 'Sans titre'}
+          </p>
+        )}
+      </div>
+      
       {Boolean(content.description?.trim()) && !isSelectionMode && (
         <Badge className="absolute top-1 right-1 bg-green-100 text-green-800 text-xs px-1 py-0">
           💬

@@ -9,6 +9,7 @@ from thumbs import (
     generate_image_thumb_from_bytes, generate_video_thumb_from_bytes
 )
 from database import get_database
+from server import get_media_collection
 import asyncio
 import pymongo
 import jwt

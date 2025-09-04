@@ -41,16 +41,33 @@ def migrate_user_data():
             collection = db[collection_name]
             
             # Compter les documents à migrer
-            count = collection.count_documents({"owner_id": OLD_USER_ID})
-            if count == 0:
+            count1 = collection.count_documents({"owner_id": OLD_USER_ID})
+            count2 = 0
+            
+            # Pour business_profiles, aussi migrer ceux sans owner_id
+            if collection_name == "business_profiles" and MIGRATE_NULL_OWNER_ID:
+                count2 = collection.count_documents({"$or": [{"owner_id": None}, {"owner_id": {"$exists": False}}]})
+            
+            total_count = count1 + count2
+            if total_count == 0:
                 print(f"   📂 {collection_name}: 0 documents - aucune migration nécessaire")
                 continue
             
-            # Migrer les documents
-            result = collection.update_many(
+            # Migrer les documents avec OLD_USER_ID
+            result1 = collection.update_many(
                 {"owner_id": OLD_USER_ID},
                 {"$set": {"owner_id": NEW_USER_ID, "migrated_at": datetime.utcnow()}}
             )
+            
+            # Migrer les documents sans owner_id (business_profiles)
+            result2 = {"modified_count": 0}
+            if collection_name == "business_profiles" and MIGRATE_NULL_OWNER_ID and count2 > 0:
+                result2 = collection.update_many(
+                    {"$or": [{"owner_id": None}, {"owner_id": {"$exists": False}}]},
+                    {"$set": {"owner_id": NEW_USER_ID, "migrated_at": datetime.utcnow()}}
+                )
+            
+            total_modified = result1.modified_count + result2.modified_count
             
             print(f"   ✅ {collection_name}: {result.modified_count} documents migrés")
             total_migrated += result.modified_count

@@ -265,6 +265,9 @@ function MainApp() {
   const priorityInputRef = useRef(null);
   const contextTextareaRef = useRef(null); // Ref pour éviter bug clavier virtuel
   const pixabaySearchRef = useRef(null); // Ref pour recherche Pixabay
+  const isPermanentCheckboxRef = useRef(null); // Note permanente
+  const targetMonthRef = useRef(null); // Mois cible
+  const targetYearRef = useRef(null); // Année cible
   
   // Website analysis states
   const [isAnalyzing, setIsAnalyzing] = useState(false);

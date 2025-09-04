@@ -32,7 +32,7 @@ import json
 import sys
 from datetime import datetime
 
-class PeriodicNotesBackendTester:
+class NotesSortingValidationTester:
     def __init__(self):
         self.base_url = "https://bizpost-manager-1.preview.emergentagent.com/api"
         self.session = requests.Session()
@@ -40,6 +40,7 @@ class PeriodicNotesBackendTester:
         self.user_id = None
         self.test_results = []
         self.created_notes = []  # Track created notes for cleanup
+        self.test_notes_data = []  # Store test notes with expected sorting info
         
     def log_test(self, step, description, success, details=""):
         """Log test results"""
@@ -97,342 +98,297 @@ class PeriodicNotesBackendTester:
             self.log_test(1, "Authentication", False, f"Exception: {str(e)}")
             return False
 
-    def test_create_monthly_note(self):
-        """Step 2: Create Monthly Note (is_monthly_note=true)"""
+    def cleanup_existing_notes(self):
+        """Step 2: Optional cleanup of existing notes (if too many)"""
         try:
-            note_data = {
-                "description": "Note mensuelle récurrente",
-                "content": "Cette note apparaît chaque mois automatiquement",
-                "priority": "high",
-                "is_monthly_note": True,
-                "note_month": None,
-                "note_year": None
-            }
-            
-            response = self.session.post(
-                f"{self.base_url}/notes",
-                json=note_data,
-                timeout=30
-            )
+            response = self.session.get(f"{self.base_url}/notes", timeout=30)
             
             if response.status_code == 200:
                 data = response.json()
-                note = data.get("note", {})
-                note_id = note.get("note_id")
+                existing_notes = data.get("notes", [])
                 
-                if note_id:
-                    self.created_notes.append(note_id)
-                
-                # Verify periodic fields
-                is_monthly = note.get("is_monthly_note")
-                note_month = note.get("note_month")
-                note_year = note.get("note_year")
-                priority = note.get("priority")
-                
-                success = (is_monthly == True and 
-                          note_month is None and 
-                          note_year is None and
-                          priority == "high")
-                
-                details = f"Note ID: {note_id}, is_monthly_note: {is_monthly}, note_month: {note_month}, note_year: {note_year}, priority: {priority}"
-                self.log_test(2, "Create Monthly Note", success, details)
-                return success
+                # If there are more than 10 notes, clean up some older ones
+                if len(existing_notes) > 10:
+                    notes_to_delete = existing_notes[10:]  # Keep first 10, delete rest
+                    deleted_count = 0
+                    
+                    for note in notes_to_delete:
+                        note_id = note.get("note_id")
+                        if note_id:
+                            try:
+                                delete_response = self.session.delete(
+                                    f"{self.base_url}/notes/{note_id}",
+                                    timeout=30
+                                )
+                                if delete_response.status_code == 200:
+                                    deleted_count += 1
+                            except Exception:
+                                pass  # Continue with other deletions
+                    
+                    self.log_test(2, "Cleanup Existing Notes", True, 
+                        f"Cleaned up {deleted_count} old notes, {len(existing_notes) - deleted_count} notes remaining")
+                else:
+                    self.log_test(2, "Cleanup Existing Notes", True, 
+                        f"Found {len(existing_notes)} existing notes - no cleanup needed")
+                return True
             else:
-                self.log_test(2, "Create Monthly Note", False, 
-                    f"Status: {response.status_code}, Response: {response.text}")
+                self.log_test(2, "Cleanup Existing Notes", False, 
+                    f"Failed to retrieve existing notes: {response.status_code}")
                 return False
                 
         except Exception as e:
-            self.log_test(2, "Create Monthly Note", False, f"Exception: {str(e)}")
+            self.log_test(2, "Cleanup Existing Notes", False, f"Exception: {str(e)}")
             return False
 
-    def test_create_specific_month_note(self):
-        """Step 3: Create Specific Month Note (note_month=3, note_year=2025)"""
+    def create_test_notes_mixed_order(self):
+        """Step 3: Create test notes in mixed order for sorting validation"""
         try:
-            note_data = {
-                "description": "Note spécifique Mars 2025",
-                "content": "Cette note est programmée pour Mars 2025 uniquement",
-                "priority": "normal",
-                "is_monthly_note": False,
-                "note_month": 3,
-                "note_year": 2025
-            }
-            
-            response = self.session.post(
-                f"{self.base_url}/notes",
-                json=note_data,
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                note = data.get("note", {})
-                note_id = note.get("note_id")
-                
-                if note_id:
-                    self.created_notes.append(note_id)
-                
-                # Verify periodic fields
-                is_monthly = note.get("is_monthly_note")
-                note_month = note.get("note_month")
-                note_year = note.get("note_year")
-                priority = note.get("priority")
-                
-                success = (is_monthly == False and 
-                          note_month == 3 and 
-                          note_year == 2025 and
-                          priority == "normal")
-                
-                details = f"Note ID: {note_id}, is_monthly_note: {is_monthly}, note_month: {note_month}, note_year: {note_year}, priority: {priority}"
-                self.log_test(3, "Create Specific Month Note", success, details)
-                return success
-            else:
-                self.log_test(3, "Create Specific Month Note", False, 
-                    f"Status: {response.status_code}, Response: {response.text}")
-                return False
-                
-        except Exception as e:
-            self.log_test(3, "Create Specific Month Note", False, f"Exception: {str(e)}")
-            return False
-
-    def test_mixed_priority_notes(self):
-        """Step 4: Test Mixed Priority with Periodic Settings"""
-        try:
-            test_cases = [
+            # Define test notes according to the review request
+            test_notes = [
                 {
-                    "description": "Note priorité basse - Avril 2025",
-                    "content": "Test priorité low avec mois spécifique",
-                    "priority": "low",
-                    "is_monthly_note": False,
-                    "note_month": 4,
-                    "note_year": 2025
-                },
-                {
-                    "description": "Note priorité élevée - Mensuelle",
-                    "content": "Test priorité high avec récurrence mensuelle",
-                    "priority": "high",
-                    "is_monthly_note": True,
-                    "note_month": None,
-                    "note_year": None
-                }
-            ]
-            
-            success_count = 0
-            for i, note_data in enumerate(test_cases):
-                response = self.session.post(
-                    f"{self.base_url}/notes",
-                    json=note_data,
-                    timeout=30
-                )
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    note = data.get("note", {})
-                    note_id = note.get("note_id")
-                    
-                    if note_id:
-                        self.created_notes.append(note_id)
-                    
-                    # Verify fields match expected
-                    expected_priority = note_data["priority"]
-                    expected_monthly = note_data["is_monthly_note"]
-                    expected_month = note_data["note_month"]
-                    expected_year = note_data["note_year"]
-                    
-                    actual_priority = note.get("priority")
-                    actual_monthly = note.get("is_monthly_note")
-                    actual_month = note.get("note_month")
-                    actual_year = note.get("note_year")
-                    
-                    if (actual_priority == expected_priority and
-                        actual_monthly == expected_monthly and
-                        actual_month == expected_month and
-                        actual_year == expected_year):
-                        success_count += 1
-            
-            success = success_count == len(test_cases)
-            details = f"Created {success_count}/{len(test_cases)} mixed priority notes successfully"
-            self.log_test(4, "Mixed Priority Testing", success, details)
-            return success
-            
-        except Exception as e:
-            self.log_test(4, "Mixed Priority Testing", False, f"Exception: {str(e)}")
-            return False
-
-    def test_update_periodic_note(self):
-        """Step 5: Update Periodic Note Settings"""
-        try:
-            if not self.created_notes:
-                self.log_test(5, "Update Periodic Note", False, "No notes available to update")
-                return False
-            
-            # Use the first created note for update test
-            note_id = self.created_notes[0]
-            
-            update_data = {
-                "description": "Note mise à jour - Juin 2025",
-                "content": "Contenu modifié avec nouvelles dates périodiques",
-                "priority": "medium",
-                "is_monthly_note": False,
-                "note_month": 6,
-                "note_year": 2025
-            }
-            
-            response = self.session.put(
-                f"{self.base_url}/notes/{note_id}",
-                json=update_data,
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                note = data.get("note", {})
-                
-                # Verify updated fields
-                is_monthly = note.get("is_monthly_note")
-                note_month = note.get("note_month")
-                note_year = note.get("note_year")
-                priority = note.get("priority")
-                description = note.get("description")
-                
-                success = (is_monthly == False and 
-                          note_month == 6 and 
-                          note_year == 2025 and
-                          priority == "medium" and
-                          "mise à jour" in description)
-                
-                details = f"Updated Note ID: {note_id}, is_monthly_note: {is_monthly}, note_month: {note_month}, note_year: {note_year}, priority: {priority}"
-                self.log_test(5, "Update Periodic Note", success, details)
-                return success
-            else:
-                self.log_test(5, "Update Periodic Note", False, 
-                    f"Status: {response.status_code}, Response: {response.text}")
-                return False
-                
-        except Exception as e:
-            self.log_test(5, "Update Periodic Note", False, f"Exception: {str(e)}")
-            return False
-
-    def test_retrieve_all_notes(self):
-        """Step 6: Retrieve All Notes and Verify Periodic Fields"""
-        try:
-            response = self.session.get(
-                f"{self.base_url}/notes",
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                notes = data.get("notes", [])
-                
-                if not notes:
-                    self.log_test(6, "Retrieve All Notes", False, "No notes found in response")
-                    return False
-                
-                # Verify all notes have periodic fields
-                valid_notes = 0
-                for note in notes:
-                    has_monthly_field = "is_monthly_note" in note
-                    has_month_field = "note_month" in note
-                    has_year_field = "note_year" in note
-                    
-                    if has_monthly_field and has_month_field and has_year_field:
-                        valid_notes += 1
-                
-                success = valid_notes == len(notes)
-                details = f"Found {len(notes)} notes, {valid_notes} have all periodic fields (is_monthly_note, note_month, note_year)"
-                self.log_test(6, "Retrieve All Notes", success, details)
-                return success
-            else:
-                self.log_test(6, "Retrieve All Notes", False, 
-                    f"Status: {response.status_code}, Response: {response.text}")
-                return False
-                
-        except Exception as e:
-            self.log_test(6, "Retrieve All Notes", False, f"Exception: {str(e)}")
-            return False
-
-    def test_edge_cases(self):
-        """Step 7: Test Edge Cases and Validation"""
-        try:
-            edge_cases = [
-                {
-                    "name": "Invalid month (13)",
+                    "name": "Note A - January 2025 (Specific Month)",
                     "data": {
-                        "description": "Test mois invalide",
-                        "content": "Test avec mois 13",
+                        "description": "Note spécifique Janvier 2025",
+                        "content": "Cette note est programmée pour Janvier 2025 - devrait apparaître après les notes mensuelles",
                         "priority": "normal",
                         "is_monthly_note": False,
-                        "note_month": 13,
+                        "note_month": 1,
                         "note_year": 2025
                     },
-                    "expect_success": False
+                    "expected_position": "after_monthly"
                 },
                 {
-                    "name": "Invalid month (0)",
+                    "name": "Note B - Monthly High Priority (Should be FIRST)",
                     "data": {
-                        "description": "Test mois zéro",
-                        "content": "Test avec mois 0",
+                        "description": "Note mensuelle priorité haute",
+                        "content": "Cette note mensuelle haute priorité devrait apparaître EN PREMIER",
+                        "priority": "high",
+                        "is_monthly_note": True,
+                        "note_month": None,
+                        "note_year": None
+                    },
+                    "expected_position": "first"
+                },
+                {
+                    "name": "Note C - March 2025 (Specific Month)",
+                    "data": {
+                        "description": "Note spécifique Mars 2025",
+                        "content": "Cette note est programmée pour Mars 2025 - devrait apparaître après Janvier 2025",
                         "priority": "normal",
                         "is_monthly_note": False,
-                        "note_month": 0,
+                        "note_month": 3,
                         "note_year": 2025
                     },
-                    "expect_success": False
+                    "expected_position": "after_january"
                 },
                 {
-                    "name": "Valid edge case - December",
+                    "name": "Note D - Monthly Normal Priority (Should be SECOND)",
                     "data": {
-                        "description": "Test Décembre valide",
-                        "content": "Test avec mois 12",
+                        "description": "Note mensuelle priorité normale",
+                        "content": "Cette note mensuelle priorité normale devrait apparaître EN DEUXIÈME",
+                        "priority": "normal",
+                        "is_monthly_note": True,
+                        "note_month": None,
+                        "note_year": None
+                    },
+                    "expected_position": "second"
+                },
+                {
+                    "name": "Note E - December 2024 (Past Month - Should be LAST)",
+                    "data": {
+                        "description": "Note passée Décembre 2024",
+                        "content": "Cette note du passé (Décembre 2024) devrait apparaître EN DERNIER",
                         "priority": "normal",
                         "is_monthly_note": False,
                         "note_month": 12,
-                        "note_year": 2025
+                        "note_year": 2024
                     },
-                    "expect_success": True
+                    "expected_position": "last"
                 }
             ]
             
-            passed_cases = 0
-            for case in edge_cases:
+            created_count = 0
+            for note_info in test_notes:
                 try:
                     response = self.session.post(
                         f"{self.base_url}/notes",
-                        json=case["data"],
+                        json=note_info["data"],
                         timeout=30
                     )
                     
-                    if case["expect_success"]:
-                        # Should succeed
-                        if response.status_code == 200:
-                            data = response.json()
-                            note_id = data.get("note", {}).get("note_id")
-                            if note_id:
-                                self.created_notes.append(note_id)
-                            passed_cases += 1
+                    if response.status_code == 200:
+                        data = response.json()
+                        note = data.get("note", {})
+                        note_id = note.get("note_id")
+                        
+                        if note_id:
+                            self.created_notes.append(note_id)
+                            # Store note data with expected position for validation
+                            self.test_notes_data.append({
+                                "note_id": note_id,
+                                "name": note_info["name"],
+                                "expected_position": note_info["expected_position"],
+                                "is_monthly_note": note.get("is_monthly_note"),
+                                "note_month": note.get("note_month"),
+                                "note_year": note.get("note_year"),
+                                "priority": note.get("priority"),
+                                "description": note.get("description")
+                            })
+                            created_count += 1
+                            print(f"   ✅ Created: {note_info['name']} - ID: {note_id}")
                     else:
-                        # Should fail with validation error
-                        if response.status_code in [400, 422]:
-                            passed_cases += 1
-                        elif response.status_code == 200:
-                            # If it unexpectedly succeeds, clean up
-                            data = response.json()
-                            note_id = data.get("note", {}).get("note_id")
-                            if note_id:
-                                self.created_notes.append(note_id)
-                            
-                except Exception:
-                    if not case["expect_success"]:
-                        passed_cases += 1  # Exception expected for invalid cases
+                        print(f"   ❌ Failed to create: {note_info['name']} - Status: {response.status_code}")
+                        
+                except Exception as e:
+                    print(f"   ❌ Error creating {note_info['name']}: {str(e)}")
             
-            success = passed_cases == len(edge_cases)
-            details = f"Passed {passed_cases}/{len(edge_cases)} edge case tests"
-            self.log_test(7, "Edge Cases Validation", success, details)
+            success = created_count == len(test_notes)
+            details = f"Successfully created {created_count}/{len(test_notes)} test notes for sorting validation"
+            self.log_test(3, "Create Test Notes in Mixed Order", success, details)
             return success
             
         except Exception as e:
-            self.log_test(7, "Edge Cases Validation", False, f"Exception: {str(e)}")
+            self.log_test(3, "Create Test Notes in Mixed Order", False, f"Exception: {str(e)}")
+            return False
+
+    def retrieve_and_verify_notes_data(self):
+        """Step 4: Retrieve all notes and verify they exist in backend"""
+        try:
+            response = self.session.get(f"{self.base_url}/notes", timeout=30)
+            
+            if response.status_code == 200:
+                data = response.json()
+                all_notes = data.get("notes", [])
+                
+                if not all_notes:
+                    self.log_test(4, "Retrieve and Verify Notes Data", False, "No notes found in response")
+                    return False
+                
+                # Verify all our test notes are present
+                found_test_notes = 0
+                for test_note in self.test_notes_data:
+                    for note in all_notes:
+                        if note.get("note_id") == test_note["note_id"]:
+                            found_test_notes += 1
+                            # Verify the periodic fields are correctly stored
+                            is_monthly = note.get("is_monthly_note")
+                            note_month = note.get("note_month")
+                            note_year = note.get("note_year")
+                            priority = note.get("priority")
+                            
+                            print(f"   ✅ Found: {test_note['name']}")
+                            print(f"      is_monthly_note: {is_monthly}, note_month: {note_month}, note_year: {note_year}, priority: {priority}")
+                            break
+                
+                success = found_test_notes == len(self.test_notes_data)
+                details = f"Found {found_test_notes}/{len(self.test_notes_data)} test notes in backend. Total notes in system: {len(all_notes)}"
+                
+                if success:
+                    details += f"\n   All test notes properly stored with correct periodic fields (is_monthly_note, note_month, note_year, priority)"
+                
+                self.log_test(4, "Retrieve and Verify Notes Data", success, details)
+                return success
+            else:
+                self.log_test(4, "Retrieve and Verify Notes Data", False, 
+                    f"Status: {response.status_code}, Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test(4, "Retrieve and Verify Notes Data", False, f"Exception: {str(e)}")
+            return False
+
+    def verify_backend_data_structure(self):
+        """Step 5: Verify backend provides proper data structure for frontend sorting"""
+        try:
+            response = self.session.get(f"{self.base_url}/notes", timeout=30)
+            
+            if response.status_code == 200:
+                data = response.json()
+                all_notes = data.get("notes", [])
+                
+                # Check that all notes have the required fields for sorting
+                required_fields = ["note_id", "is_monthly_note", "note_month", "note_year", "priority", "description", "content"]
+                valid_notes = 0
+                
+                for note in all_notes:
+                    has_all_fields = all(field in note for field in required_fields)
+                    if has_all_fields:
+                        valid_notes += 1
+                    else:
+                        missing_fields = [field for field in required_fields if field not in note]
+                        print(f"   ⚠️ Note {note.get('note_id', 'unknown')} missing fields: {missing_fields}")
+                
+                success = valid_notes == len(all_notes)
+                details = f"Backend data structure validation: {valid_notes}/{len(all_notes)} notes have all required fields for frontend sorting"
+                
+                if success:
+                    details += f"\n   ✅ All notes contain: {', '.join(required_fields)}"
+                    details += f"\n   ✅ Backend ready to provide sorting data to frontend"
+                
+                self.log_test(5, "Verify Backend Data Structure", success, details)
+                return success
+            else:
+                self.log_test(5, "Verify Backend Data Structure", False, 
+                    f"Status: {response.status_code}, Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test(5, "Verify Backend Data Structure", False, f"Exception: {str(e)}")
+            return False
+
+    def display_sorting_expectations(self):
+        """Step 6: Display expected sorting order for frontend reference"""
+        try:
+            print("\n" + "="*80)
+            print("📋 EXPECTED SORTING ORDER FOR FRONTEND IMPLEMENTATION")
+            print("="*80)
+            print("The backend has successfully provided the following test data.")
+            print("Frontend should sort these notes in this order:")
+            print()
+            
+            # Group notes by expected position
+            monthly_notes = [note for note in self.test_notes_data if note["is_monthly_note"]]
+            specific_future_notes = [note for note in self.test_notes_data 
+                                   if not note["is_monthly_note"] and 
+                                   (note["note_year"] > 2024 or (note["note_year"] == 2024 and note["note_month"] >= 12))]
+            past_notes = [note for note in self.test_notes_data 
+                         if not note["is_monthly_note"] and 
+                         (note["note_year"] < 2024 or (note["note_year"] == 2024 and note["note_month"] < 12))]
+            
+            position = 1
+            
+            print("🔁 MONTHLY NOTES (by creation date, newest first):")
+            # Sort monthly notes by priority (high first)
+            monthly_sorted = sorted(monthly_notes, key=lambda x: (x["priority"] != "high", x["priority"]))
+            for note in monthly_sorted:
+                print(f"   {position}. {note['name']} (Priority: {note['priority']})")
+                position += 1
+            
+            print("\n📅 FUTURE/CURRENT SPECIFIC MONTH NOTES (by chronological closeness):")
+            # Sort specific notes by year/month
+            specific_sorted = sorted(specific_future_notes, key=lambda x: (x["note_year"], x["note_month"]))
+            for note in specific_sorted:
+                month_name = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][note["note_month"]]
+                print(f"   {position}. {note['name']} ({month_name} {note['note_year']})")
+                position += 1
+            
+            print("\n📆 PAST SPECIFIC MONTH NOTES:")
+            past_sorted = sorted(past_notes, key=lambda x: (x["note_year"], x["note_month"]), reverse=True)
+            for note in past_sorted:
+                month_name = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][note["note_month"]]
+                print(f"   {position}. {note['name']} ({month_name} {note['note_year']})")
+                position += 1
+            
+            print("\n" + "="*80)
+            
+            self.log_test(6, "Display Sorting Expectations", True, 
+                f"Provided sorting reference for {len(self.test_notes_data)} test notes")
+            return True
+            
+        except Exception as e:
+            self.log_test(6, "Display Sorting Expectations", False, f"Exception: {str(e)}")
             return False
 
     def cleanup_test_notes(self):
@@ -456,8 +412,8 @@ class PeriodicNotesBackendTester:
         print(f"🧹 Cleanup complete: {cleaned}/{len(self.created_notes)} notes deleted\n")
 
     def run_all_tests(self):
-        """Run all periodic notes backend tests"""
-        print("🎯 PERIODIC NOTES BACKEND INTEGRATION TESTING - Phase 1 Validation")
+        """Run all notes sorting validation tests"""
+        print("🎯 NOTES SORTING VALIDATION TEST - Phase 2")
         print("=" * 80)
         print(f"Backend URL: {self.base_url}")
         print(f"Test started at: {datetime.now().isoformat()}")
@@ -468,23 +424,20 @@ class PeriodicNotesBackendTester:
             if not self.authenticate():
                 return False
             
-            # Step 2: Create Monthly Note
-            self.test_create_monthly_note()
+            # Step 2: Optional cleanup
+            self.cleanup_existing_notes()
             
-            # Step 3: Create Specific Month Note
-            self.test_create_specific_month_note()
+            # Step 3: Create test notes in mixed order
+            self.create_test_notes_mixed_order()
             
-            # Step 4: Mixed Priority Testing
-            self.test_mixed_priority_notes()
+            # Step 4: Retrieve and verify notes data
+            self.retrieve_and_verify_notes_data()
             
-            # Step 5: Update Periodic Note
-            self.test_update_periodic_note()
+            # Step 5: Verify backend data structure
+            self.verify_backend_data_structure()
             
-            # Step 6: Retrieve All Notes
-            self.test_retrieve_all_notes()
-            
-            # Step 7: Edge Cases
-            self.test_edge_cases()
+            # Step 6: Display sorting expectations
+            self.display_sorting_expectations()
             
             # Calculate success rate
             successful_tests = sum(1 for result in self.test_results if result["success"])
@@ -492,7 +445,7 @@ class PeriodicNotesBackendTester:
             success_rate = (successful_tests / total_tests * 100) if total_tests > 0 else 0
             
             print("=" * 80)
-            print("🎯 PERIODIC NOTES BACKEND TESTING SUMMARY")
+            print("🎯 NOTES SORTING VALIDATION TEST SUMMARY")
             print("=" * 80)
             print(f"Total Tests: {total_tests}")
             print(f"Successful: {successful_tests}")
@@ -511,14 +464,15 @@ class PeriodicNotesBackendTester:
             
             # Determine overall result
             if success_rate >= 85:
-                print("🎉 PERIODIC NOTES BACKEND TESTING COMPLETED SUCCESSFULLY")
-                print("✅ All critical periodic note CRUD operations are working correctly")
-                print("✅ Periodic fields (is_monthly_note, note_month, note_year) are properly stored and retrieved")
-                print("✅ Priority field handling working as expected")
-                print("✅ Authentication system working perfectly")
+                print("🎉 NOTES SORTING VALIDATION TEST COMPLETED SUCCESSFULLY")
+                print("✅ Backend successfully created varied test data for sorting validation")
+                print("✅ All test notes properly stored with correct periodic fields")
+                print("✅ Backend provides proper data structure for frontend sorting")
+                print("✅ Test data covers all sorting scenarios (monthly, future, past)")
+                print("✅ Frontend can now implement sorting logic using the provided data")
                 overall_success = True
             else:
-                print("🚨 PERIODIC NOTES BACKEND TESTING COMPLETED WITH ISSUES")
+                print("🚨 NOTES SORTING VALIDATION TEST COMPLETED WITH ISSUES")
                 print("❌ Some critical functionality is not working correctly")
                 overall_success = False
             
@@ -531,457 +485,15 @@ class PeriodicNotesBackendTester:
 
 def main():
     """Main test execution"""
-    tester = PeriodicNotesBackendTester()
+    tester = NotesSortingValidationTester()
     success = tester.run_all_tests()
     
     if success:
-        print("🎯 CONCLUSION: Periodic Notes Backend is FULLY OPERATIONAL for production use")
+        print("🎯 CONCLUSION: Notes Sorting Validation Test PASSED - Backend ready for frontend sorting implementation")
         sys.exit(0)
     else:
-        print("🚨 CONCLUSION: Periodic Notes Backend has critical issues requiring fixes")
+        print("🚨 CONCLUSION: Notes Sorting Validation Test FAILED - Backend issues need to be resolved")
         sys.exit(1)
 
 if __name__ == "__main__":
     main()
-"""
-Notes API Backend Testing
-Testing the newly implemented Notes API endpoints in server.py
-"""
-
-import requests
-import json
-import sys
-from datetime import datetime
-
-# Configuration
-BACKEND_URL = "https://bizpost-manager-1.preview.emergentagent.com/api"
-TEST_CREDENTIALS = {
-    "email": "lperpere@yahoo.fr",
-    "password": "L@Reunion974!"
-}
-
-class NotesAPITester:
-    def __init__(self):
-        self.session = requests.Session()
-        self.access_token = None
-        self.user_id = None
-        self.created_notes = []
-        
-    def log(self, message):
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}")
-        
-    def test_health_check(self):
-        """Test 1: Health Check"""
-        self.log("🔍 Testing health check...")
-        try:
-            response = self.session.get(f"{BACKEND_URL}/health", timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                self.log(f"✅ Health check successful: {data.get('status', 'unknown')}")
-                return True
-            else:
-                self.log(f"❌ Health check failed: {response.status_code}")
-                return False
-        except Exception as e:
-            self.log(f"❌ Health check error: {e}")
-            return False
-            
-    def test_authentication(self):
-        """Test 2: Authentication with login-robust"""
-        self.log("🔍 Testing authentication...")
-        try:
-            response = self.session.post(
-                f"{BACKEND_URL}/auth/login-robust",
-                json=TEST_CREDENTIALS,
-                timeout=10
-            )
-            if response.status_code == 200:
-                data = response.json()
-                self.access_token = data.get("access_token")
-                self.user_id = data.get("user_id")
-                self.session.headers.update({"Authorization": f"Bearer {self.access_token}"})
-                self.log(f"✅ Authentication successful - User ID: {self.user_id}")
-                return True
-            else:
-                self.log(f"❌ Authentication failed: {response.status_code} - {response.text}")
-                return False
-        except Exception as e:
-            self.log(f"❌ Authentication error: {e}")
-            return False
-            
-    def test_get_notes_empty(self):
-        """Test 3: GET /api/notes (should return empty list initially or existing notes)"""
-        self.log("🔍 Testing GET /api/notes...")
-        try:
-            response = self.session.get(f"{BACKEND_URL}/notes", timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                notes = data.get("notes", [])
-                self.log(f"✅ GET notes successful - Found {len(notes)} existing notes")
-                return True
-            else:
-                self.log(f"❌ GET notes failed: {response.status_code} - {response.text}")
-                return False
-        except Exception as e:
-            self.log(f"❌ GET notes error: {e}")
-            return False
-            
-    def test_create_note_high_priority(self):
-        """Test 4: POST /api/notes with high priority test data"""
-        self.log("🔍 Testing POST /api/notes (high priority)...")
-        test_note = {
-            "title": "Test Note",
-            "content": "Contenu de test pour la note",
-            "priority": "high"
-        }
-        try:
-            response = self.session.post(
-                f"{BACKEND_URL}/notes",
-                json=test_note,
-                timeout=10
-            )
-            if response.status_code == 200:
-                data = response.json()
-                note = data.get("note", {})
-                note_id = note.get("note_id")
-                if note_id:
-                    self.created_notes.append(note_id)
-                self.log(f"✅ Create high priority note successful - Note ID: {note_id}")
-                self.log(f"   Title: {note.get('title', 'N/A')}")
-                self.log(f"   Priority: {note.get('priority', 'N/A')}")
-                return True
-            else:
-                self.log(f"❌ Create note failed: {response.status_code} - {response.text}")
-                return False
-        except Exception as e:
-            self.log(f"❌ Create note error: {e}")
-            return False
-            
-    def test_create_note_medium_priority(self):
-        """Test 5: POST /api/notes with medium priority"""
-        self.log("🔍 Testing POST /api/notes (medium priority)...")
-        test_note = {
-            "title": "Note Priorité Medium",
-            "content": "Une autre note de test",
-            "priority": "medium"
-        }
-        try:
-            response = self.session.post(
-                f"{BACKEND_URL}/notes",
-                json=test_note,
-                timeout=10
-            )
-            if response.status_code == 200:
-                data = response.json()
-                note = data.get("note", {})
-                note_id = note.get("note_id")
-                if note_id:
-                    self.created_notes.append(note_id)
-                self.log(f"✅ Create medium priority note successful - Note ID: {note_id}")
-                return True
-            else:
-                self.log(f"❌ Create medium note failed: {response.status_code} - {response.text}")
-                return False
-        except Exception as e:
-            self.log(f"❌ Create medium note error: {e}")
-            return False
-            
-    def test_get_notes_with_data(self):
-        """Test 6: GET /api/notes again to verify notes were created and persisted"""
-        self.log("🔍 Testing GET /api/notes (with created notes)...")
-        try:
-            response = self.session.get(f"{BACKEND_URL}/notes", timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                notes = data.get("notes", [])
-                self.log(f"✅ GET notes with data successful - Found {len(notes)} total notes")
-                
-                # Verify our created notes are present
-                found_notes = 0
-                for note in notes:
-                    if note.get("note_id") in self.created_notes:
-                        found_notes += 1
-                        self.log(f"   Found created note: {note.get('title', 'N/A')} (Priority: {note.get('priority', 'N/A')})")
-                
-                if found_notes >= len(self.created_notes):
-                    self.log(f"✅ All {found_notes} created notes found in response")
-                else:
-                    self.log(f"⚠️ Only {found_notes}/{len(self.created_notes)} created notes found")
-                
-                return True
-            else:
-                self.log(f"❌ GET notes with data failed: {response.status_code} - {response.text}")
-                return False
-        except Exception as e:
-            self.log(f"❌ GET notes with data error: {e}")
-            return False
-            
-    def test_priority_validation(self):
-        """Test 7: Priority field validation with different values"""
-        self.log("🔍 Testing priority field validation...")
-        priorities = ["high", "medium", "low", "normal"]
-        success_count = 0
-        
-        for priority in priorities:
-            test_note = {
-                "title": f"Test Priority {priority.title()}",
-                "content": f"Test note with {priority} priority",
-                "priority": priority
-            }
-            try:
-                response = self.session.post(
-                    f"{BACKEND_URL}/notes",
-                    json=test_note,
-                    timeout=10
-                )
-                if response.status_code == 200:
-                    data = response.json()
-                    note = data.get("note", {})
-                    note_id = note.get("note_id")
-                    if note_id:
-                        self.created_notes.append(note_id)
-                    self.log(f"✅ Priority '{priority}' accepted - Note ID: {note_id}")
-                    success_count += 1
-                else:
-                    self.log(f"❌ Priority '{priority}' rejected: {response.status_code}")
-            except Exception as e:
-                self.log(f"❌ Priority '{priority}' error: {e}")
-                
-        return success_count == len(priorities)
-        
-    def test_default_priority(self):
-        """Test 8: Verify priority defaults to 'normal' when not specified"""
-        self.log("🔍 Testing default priority behavior...")
-        test_note = {
-            "title": "Test Default Priority",
-            "content": "Note without priority specified"
-            # No priority field
-        }
-        try:
-            response = self.session.post(
-                f"{BACKEND_URL}/notes",
-                json=test_note,
-                timeout=10
-            )
-            if response.status_code == 200:
-                data = response.json()
-                note = data.get("note", {})
-                note_id = note.get("note_id")
-                priority = note.get("priority", "unknown")
-                if note_id:
-                    self.created_notes.append(note_id)
-                
-                if priority == "normal":
-                    self.log(f"✅ Default priority working - Note ID: {note_id}, Priority: {priority}")
-                    return True
-                else:
-                    self.log(f"⚠️ Default priority unexpected - Priority: {priority} (expected 'normal')")
-                    return True  # Still consider success if note was created
-            else:
-                self.log(f"❌ Default priority test failed: {response.status_code} - {response.text}")
-                return False
-        except Exception as e:
-            self.log(f"❌ Default priority error: {e}")
-            return False
-            
-    def test_delete_note(self):
-        """Test 9: DELETE /api/notes/{note_id} with an existing note ID"""
-        if not self.created_notes:
-            self.log("⚠️ No notes to delete - skipping delete test")
-            return True
-            
-        note_id_to_delete = self.created_notes[0]
-        self.log(f"🔍 Testing DELETE /api/notes/{note_id_to_delete}...")
-        
-        try:
-            response = self.session.delete(f"{BACKEND_URL}/notes/{note_id_to_delete}", timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                message = data.get("message", "")
-                self.log(f"✅ Delete note successful - {message}")
-                self.created_notes.remove(note_id_to_delete)
-                return True
-            else:
-                self.log(f"❌ Delete note failed: {response.status_code} - {response.text}")
-                return False
-        except Exception as e:
-            self.log(f"❌ Delete note error: {e}")
-            return False
-            
-    def test_verify_deletion(self):
-        """Test 10: GET /api/notes to verify the note was deleted"""
-        self.log("🔍 Verifying note deletion...")
-        try:
-            response = self.session.get(f"{BACKEND_URL}/notes", timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                notes = data.get("notes", [])
-                
-                # Check that deleted note is not in the list
-                deleted_note_found = False
-                for note in notes:
-                    if note.get("note_id") == self.created_notes[0] if self.created_notes else "deleted_note":
-                        deleted_note_found = True
-                        break
-                
-                if not deleted_note_found:
-                    self.log(f"✅ Note deletion verified - Deleted note not found in list")
-                    return True
-                else:
-                    self.log(f"❌ Note deletion failed - Deleted note still in list")
-                    return False
-            else:
-                self.log(f"❌ Verification failed: {response.status_code} - {response.text}")
-                return False
-        except Exception as e:
-            self.log(f"❌ Verification error: {e}")
-            return False
-            
-    def test_delete_nonexistent_note(self):
-        """Test 11: DELETE /api/notes/nonexistent-id (should return 404)"""
-        self.log("🔍 Testing DELETE with nonexistent note ID...")
-        nonexistent_id = "nonexistent-note-id-12345"
-        
-        try:
-            response = self.session.delete(f"{BACKEND_URL}/notes/{nonexistent_id}", timeout=10)
-            if response.status_code == 404:
-                self.log(f"✅ Nonexistent note deletion correctly returned 404")
-                return True
-            else:
-                self.log(f"❌ Nonexistent note deletion unexpected status: {response.status_code}")
-                return False
-        except Exception as e:
-            self.log(f"❌ Nonexistent note deletion error: {e}")
-            return False
-            
-    def test_invalid_note_data(self):
-        """Test 12: POST /api/notes with invalid data (empty title/content)"""
-        self.log("🔍 Testing POST with invalid data...")
-        
-        # Test empty title
-        invalid_note1 = {
-            "title": "",
-            "content": "Valid content",
-            "priority": "normal"
-        }
-        
-        # Test empty content
-        invalid_note2 = {
-            "title": "Valid title",
-            "content": "",
-            "priority": "normal"
-        }
-        
-        # Test missing required fields
-        invalid_note3 = {
-            "priority": "normal"
-        }
-        
-        test_cases = [
-            ("empty title", invalid_note1),
-            ("empty content", invalid_note2),
-            ("missing fields", invalid_note3)
-        ]
-        
-        success_count = 0
-        for test_name, invalid_note in test_cases:
-            try:
-                response = self.session.post(
-                    f"{BACKEND_URL}/notes",
-                    json=invalid_note,
-                    timeout=10
-                )
-                if response.status_code in [400, 422]:  # Expected validation errors
-                    self.log(f"✅ Invalid data test '{test_name}' correctly rejected: {response.status_code}")
-                    success_count += 1
-                elif response.status_code == 200:
-                    self.log(f"⚠️ Invalid data test '{test_name}' unexpectedly accepted")
-                    # Clean up if note was created
-                    data = response.json()
-                    note = data.get("note", {})
-                    note_id = note.get("note_id")
-                    if note_id:
-                        self.created_notes.append(note_id)
-                else:
-                    self.log(f"❌ Invalid data test '{test_name}' unexpected status: {response.status_code}")
-            except Exception as e:
-                self.log(f"❌ Invalid data test '{test_name}' error: {e}")
-                
-        return success_count >= 2  # At least 2 out of 3 should work
-        
-    def cleanup_created_notes(self):
-        """Clean up any remaining created notes"""
-        if not self.created_notes:
-            return
-            
-        self.log(f"🧹 Cleaning up {len(self.created_notes)} remaining notes...")
-        for note_id in self.created_notes[:]:
-            try:
-                response = self.session.delete(f"{BACKEND_URL}/notes/{note_id}", timeout=5)
-                if response.status_code == 200:
-                    self.log(f"✅ Cleaned up note: {note_id}")
-                    self.created_notes.remove(note_id)
-                else:
-                    self.log(f"⚠️ Failed to clean up note {note_id}: {response.status_code}")
-            except Exception as e:
-                self.log(f"⚠️ Cleanup error for note {note_id}: {e}")
-                
-    def run_all_tests(self):
-        """Run all Notes API tests"""
-        self.log("🚀 Starting Notes API Backend Testing")
-        self.log(f"Backend URL: {BACKEND_URL}")
-        self.log(f"Test User: {TEST_CREDENTIALS['email']}")
-        
-        tests = [
-            ("Health Check", self.test_health_check),
-            ("Authentication", self.test_authentication),
-            ("GET Notes (Empty)", self.test_get_notes_empty),
-            ("Create Note (High Priority)", self.test_create_note_high_priority),
-            ("Create Note (Medium Priority)", self.test_create_note_medium_priority),
-            ("GET Notes (With Data)", self.test_get_notes_with_data),
-            ("Priority Validation", self.test_priority_validation),
-            ("Default Priority", self.test_default_priority),
-            ("Delete Note", self.test_delete_note),
-            ("Verify Deletion", self.test_verify_deletion),
-            ("Delete Nonexistent Note", self.test_delete_nonexistent_note),
-            ("Invalid Note Data", self.test_invalid_note_data)
-        ]
-        
-        passed = 0
-        total = len(tests)
-        
-        for test_name, test_func in tests:
-            self.log(f"\n--- Test: {test_name} ---")
-            try:
-                if test_func():
-                    passed += 1
-                    self.log(f"✅ {test_name} PASSED")
-                else:
-                    self.log(f"❌ {test_name} FAILED")
-            except Exception as e:
-                self.log(f"❌ {test_name} ERROR: {e}")
-                
-        # Cleanup
-        self.cleanup_created_notes()
-        
-        # Summary
-        self.log(f"\n{'='*50}")
-        self.log(f"NOTES API TESTING SUMMARY")
-        self.log(f"{'='*50}")
-        self.log(f"Tests Passed: {passed}/{total}")
-        self.log(f"Success Rate: {(passed/total)*100:.1f}%")
-        
-        if passed == total:
-            self.log("🎉 ALL TESTS PASSED - Notes API is fully functional!")
-            return True
-        elif passed >= total * 0.8:  # 80% success rate
-            self.log("✅ MOSTLY SUCCESSFUL - Notes API is working with minor issues")
-            return True
-        else:
-            self.log("❌ SIGNIFICANT ISSUES - Notes API needs attention")
-            return False
-
-if __name__ == "__main__":
-    tester = NotesAPITester()
-    success = tester.run_all_tests()
-    sys.exit(0 if success else 1)

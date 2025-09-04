@@ -2393,10 +2393,13 @@ function MainApp() {
                               
                               {/* Image info */}
                               <div className="mt-2">
-                                <p className="text-xs text-gray-600 truncate">{image.tags}</p>
+                                <p className="text-xs text-gray-600 truncate" title={image.tags}>
+                                  {image.tags.split(',').slice(0, 3).join(' • ')}
+                                  {image.tags.split(',').length > 3 && '...'}
+                                </p>
                                 <div className="flex items-center justify-between text-xs text-gray-500 mt-1">
-                                  <span>{image.views} vues</span>
-                                  <span>{image.downloads} téléchargements</span>
+                                  <span>{image.views?.toLocaleString()} vues</span>
+                                  <span>{image.downloads?.toLocaleString()} ⬇️</span>
                                 </div>
                                 
                                 {/* Mobile-friendly button - visible on small screens */}

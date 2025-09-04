@@ -43,6 +43,7 @@ class MediaResponse(BaseModel):
     filename: str
     file_type: Optional[str] = None
     description: str = ""
+    title: Optional[str] = ""
     url: Optional[str] = None
     thumb_url: Optional[str] = None
     uploaded_at: Optional[str] = None

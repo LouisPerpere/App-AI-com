@@ -192,11 +192,11 @@ async def stream_thumbnail(file_id: str, token: Optional[str] = None, authorizat
     if data is None:
         raise HTTPException(status_code=500, detail="Thumbnail data not found")
 
-    # Add cache headers for better performance
+    # Add aggressive cache headers for better performance
     headers = {
-        "Cache-Control": "public, max-age=86400",  # Cache for 24 hours
-        "ETag": f'"{file_id}-thumb"',
-        "Vary": "Authorization"
+        "Cache-Control": "public, max-age=604800, immutable",  # Cache for 1 week, immutable
+        "ETag": f'"{file_id}-thumb-v2"',
+        "Expires": "Thu, 31 Dec 2025 23:59:59 GMT"
     }
     return StreamingResponse(BytesIO(data), media_type=content_type, headers=headers)
 

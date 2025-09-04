@@ -71,7 +71,9 @@ async def upload_content(
         if file.content_type and file.content_type.startswith('image/'):
             try:
                 import tempfile
-                from thumbs import resize_image_to_1024
+                import os
+                from PIL import Image
+                from PIL.ExifTags import ORIENTATION
                 
                 # Create temp files
                 with tempfile.NamedTemporaryFile(delete=False, suffix='.tmp') as temp_input:

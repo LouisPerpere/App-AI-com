@@ -351,7 +351,7 @@ class DatabaseManager:
             return False
         
         result = self.db.content_notes.delete_one({
-            "user_id": user_id,
+            "owner_id": user_id,
             "note_id": note_id
         })
         

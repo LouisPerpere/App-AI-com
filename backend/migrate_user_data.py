@@ -9,8 +9,11 @@ from database import get_database
 from datetime import datetime
 
 # IDs utilisateur
-OLD_USER_ID = "85ce1656-e7bf-424f-a2c4-f7f5e8189ba0"
+OLD_USER_ID = "11d1e3d2-0223-4ddd-9407-74e0bb626818"  # Vrai owner_id trouvé dans les données
 NEW_USER_ID = "bdf87a74-e3f3-44f3-bac2-649cde3ef93e"
+
+# Aussi migrer les profils business sans owner_id
+MIGRATE_NULL_OWNER_ID = True
 
 def migrate_user_data():
     """Migre toutes les données de l'ancien vers le nouveau user_id"""

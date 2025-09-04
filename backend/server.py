@@ -182,6 +182,9 @@ class ContentNote(BaseModel):
     content: str
     description: Optional[str] = None
     priority: Optional[str] = "normal"
+    is_permanent: bool = False  # Note valable tous les mois
+    target_month: Optional[int] = None  # Mois (1-12)
+    target_year: Optional[int] = None   # Année
 
 class LoginRequest(BaseModel):
     email: str

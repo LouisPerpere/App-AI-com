@@ -65,10 +65,43 @@ async def upload_content(
         if size == 0:
             raise HTTPException(400, "Empty file")
 
+        # Resize image if it's an image file
+        final_data = data
+        if file.content_type and file.content_type.startswith('image/'):
+            try:
+                import tempfile
+                from thumbs import resize_image_to_1024
+                
+                # Create temp files
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.tmp') as temp_input:
+                    temp_input.write(data)
+                    temp_input_path = temp_input.name
+                
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_output:
+                    temp_output_path = temp_output.name
+                
+                # Resize image
+                new_width, new_height = resize_image_to_1024(temp_input_path, temp_output_path)
+                
+                # Read resized data
+                with open(temp_output_path, 'rb') as f:
+                    final_data = f.read()
+                
+                # Cleanup temp files
+                import os
+                os.unlink(temp_input_path)
+                os.unlink(temp_output_path)
+                
+                print(f"✅ Image resized: {new_width}x{new_height}")
+                
+            except Exception as e:
+                print(f"⚠️ Image resize failed, using original: {e}")
+                final_data = data
+        
         # Store in GridFS
         from gridfs import GridFS
         fs = GridFS(db)
-        grid_id = fs.put(data, filename=file.filename, content_type=file.content_type, uploadDate=datetime.utcnow())
+        grid_id = fs.put(final_data, filename=file.filename, content_type=file.content_type, uploadDate=datetime.utcnow())
 
         # Create media document
         media_doc = {

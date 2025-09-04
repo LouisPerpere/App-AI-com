@@ -762,7 +762,9 @@ async def search_pixabay_images(
         "min_width": min_width,
         "min_height": min_height,
         "safesearch": str(safesearch).lower(),
-        "order": "popular"
+        "order": "popular",
+        "lang": "fr",  # Forcer les résultats en français
+        "category": "backgrounds,business,computer,fashion,food,health,people,places,science,sports,travel"
     }
     
     try:

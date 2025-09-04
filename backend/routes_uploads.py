@@ -197,14 +197,16 @@ async def upload_content_batch(
             res = db.media.insert_one(media_doc)
             media_id = res.inserted_id
 
-            def _thumb_job_local(fid=media_id, bytes_data=data, ctype=file.content_type):
+            def _thumb_job_local(fid=doc_id, bytes_data=final_data, ctype=file.content_type):  # Use doc_id and final_data
                 try:
                     if ctype and ctype.startswith('image/'):
                         thumb_bytes = generate_image_thumb_from_bytes(bytes_data)
                         save_db_thumbnail(user_id, fid, thumb_bytes)
+                        print(f"✅ Local thumbnail generated for {fid}")
                     elif ctype and ctype.startswith('video/'):
                         thumb_bytes = generate_video_thumb_from_bytes(bytes_data)
                         save_db_thumbnail(user_id, fid, thumb_bytes)
+                        print(f"✅ Local video thumbnail generated for {fid}")
                 except Exception as e:
                     print(f"⚠️ Thumbnail generation error for upload {fid}: {e}")
 

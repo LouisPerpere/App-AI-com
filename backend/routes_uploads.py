@@ -83,8 +83,63 @@ async def upload_content(
                 with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_output:
                     temp_output_path = temp_output.name
                 
-                # Resize image
-                new_width, new_height = resize_image_to_1024(temp_input_path, temp_output_path)
+                # Resize image inline instead of importing
+                try:
+                    with Image.open(temp_input_path) as im:
+                        # Fix EXIF orientation
+                        try:
+                            exif = im._getexif()
+                            if exif is not None:
+                                for tag, value in exif.items():
+                                    if tag == ORIENTATION:
+                                        if value == 3:
+                                            im = im.rotate(180, expand=True)
+                                        elif value == 6:
+                                            im = im.rotate(270, expand=True)
+                                        elif value == 8:
+                                            im = im.rotate(90, expand=True)
+                                        break
+                        except (AttributeError, KeyError, TypeError):
+                            pass
+                        
+                        # Convert to RGB
+                        im = im.convert("RGB")
+                        original_width, original_height = im.size
+                        
+                        # Calculate new dimensions (1024px on smallest side)
+                        min_dimension = 1024
+                        
+                        if original_width <= original_height:
+                            # Width is smaller - resize to 1024 width
+                            if original_width > min_dimension:
+                                new_width = min_dimension
+                                new_height = int((original_height * new_width) / original_width)
+                            else:
+                                new_width = original_width
+                                new_height = original_height
+                        else:
+                            # Height is smaller - resize to 1024 height
+                            if original_height > min_dimension:
+                                new_height = min_dimension
+                                new_width = int((original_width * new_height) / original_height)
+                            else:
+                                new_width = original_width
+                                new_height = original_height
+                        
+                        # Resize if needed
+                        if new_width != original_width or new_height != original_height:
+                            im = im.resize((new_width, new_height), Image.LANCZOS)
+                        
+                        # Save with optimizations
+                        im.save(temp_output_path, format="JPEG", quality=85, optimize=True, progressive=True, dpi=(72, 72))
+                        
+                except Exception as resize_error:
+                    print(f"⚠️ Image resize failed: {resize_error}")
+                    # Use original data if resize fails
+                    with open(temp_input_path, 'rb') as f:
+                        final_data = f.read()
+                    os.unlink(temp_input_path)
+                    continue  # Skip reading from temp_output_path
                 
                 # Read resized data
                 with open(temp_output_path, 'rb') as f:

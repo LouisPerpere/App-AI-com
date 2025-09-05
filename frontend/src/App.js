@@ -2909,14 +2909,14 @@ function MainApp() {
                             {/* Titre toujours éditable */}
                             <div className="space-y-2">
                               <label className="block text-sm font-medium text-gray-700">
-                                Titre opérationnel (affiché sous l'image)
+                                Titre
                               </label>
                               <input
                                 ref={previewTitleInputRef}
                                 type="text"
                                 className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
                                 disabled={isSavingContext}
-                                placeholder="Laissez vide pour afficher le nom de fichier technique..."
+                                placeholder="Facultatif"
                                 style={{
                                   fontSize: '16px',
                                   lineHeight: '1.5',

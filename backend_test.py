@@ -257,11 +257,11 @@ class BackendTester:
             self.log_test("Modal Title/Context Updates", False, "", str(e))
             return False
 
-    def test_title_persistence(self):
-        """Test that title updates persist correctly"""
+    def test_unified_saving_persistence(self):
+        """Test unified saving logic - both title and context persistence"""
         if not hasattr(self, 'test_content_id') or not self.test_content_id:
             self.log_test(
-                "Title Persistence - No Content ID",
+                "Unified Persistence - No Content ID",
                 False,
                 "",
                 "No content ID available for testing"
@@ -269,7 +269,7 @@ class BackendTester:
             return False
             
         try:
-            # Re-fetch content to verify title persistence
+            # Re-fetch content to verify both title and context persistence
             response = self.session.get(
                 f"{self.base_url}/content/pending",
                 timeout=30
@@ -288,26 +288,37 @@ class BackendTester:
                 
                 if test_item:
                     updated_title = test_item.get("title", "")
-                    expected_title = "Titre opérationnel de test - Contenu marketing"
+                    updated_context = test_item.get("context", "")
+                    expected_title = "Nouveau titre après corrections - Test persistance"
+                    expected_context = "Nouveau contexte après corrections - Test persistance des données"
                     
-                    if updated_title == expected_title:
+                    title_persisted = updated_title == expected_title
+                    context_persisted = updated_context == expected_context
+                    
+                    if title_persisted and context_persisted:
                         self.log_test(
-                            "Title Persistence Verification",
+                            "Unified Saving Persistence Verification",
                             True,
-                            f"Title correctly persisted: '{updated_title}'"
+                            f"Both title and context correctly persisted. Title: '{updated_title}', Context: '{updated_context}'"
                         )
                         return True
                     else:
+                        issues = []
+                        if not title_persisted:
+                            issues.append(f"Title - Expected: '{expected_title}', Found: '{updated_title}'")
+                        if not context_persisted:
+                            issues.append(f"Context - Expected: '{expected_context}', Found: '{updated_context}'")
+                        
                         self.log_test(
-                            "Title Persistence Verification",
+                            "Unified Saving Persistence Verification",
                             False,
-                            f"Expected: '{expected_title}', Found: '{updated_title}'",
-                            "Title not persisted correctly"
+                            "; ".join(issues),
+                            "Title and/or context not persisted correctly"
                         )
                         return False
                 else:
                     self.log_test(
-                        "Title Persistence Verification",
+                        "Unified Saving Persistence Verification",
                         False,
                         "",
                         f"Test content item {self.test_content_id} not found"
@@ -315,7 +326,7 @@ class BackendTester:
                     return False
             else:
                 self.log_test(
-                    "Title Persistence Verification",
+                    "Unified Saving Persistence Verification",
                     False,
                     f"Status: {response.status_code}",
                     response.text
@@ -323,7 +334,7 @@ class BackendTester:
                 return False
                 
         except Exception as e:
-            self.log_test("Title Persistence Verification", False, "", str(e))
+            self.log_test("Unified Saving Persistence Verification", False, "", str(e))
             return False
 
     def test_edge_cases(self):

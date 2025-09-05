@@ -116,6 +116,11 @@ const ContentThumbnail = React.memo(({
     title: content.title, // DEBUG: vérifier le titre opérationnel
     full_content: content
   });
+  
+  // Add debug log for mobile testing
+  if (content.title) {
+    addDebugLog('Thumbnail with title', { filename: content.filename, title: content.title });
+  }
 
   return (
     <div 

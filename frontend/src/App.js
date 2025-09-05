@@ -272,6 +272,7 @@ function MainApp() {
   const isPermanentCheckboxRef = useRef(null); // Note permanente
   const targetMonthRef = useRef(null); // Mois cible
   const targetYearRef = useRef(null); // Année cible
+  const previewTitleInputRef = useRef(null); // Nouveau ref pour le titre de l'aperçu
   
   // Website analysis states
   const [isAnalyzing, setIsAnalyzing] = useState(false);

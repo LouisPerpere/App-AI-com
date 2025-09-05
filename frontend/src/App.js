@@ -1638,49 +1638,45 @@ function MainApp() {
   };
 
   // Handle file custom data (titles and contexts) during upload preview - REFS SIMPLES
-  const getUploadTitleValue = useCallback((fileIndex) => {
-    // Méthode DOM directe plus fiable
-    const allTitleInputs = document.querySelectorAll('input[placeholder="Facultatif"]');
-    console.log(`🔍 Found ${allTitleInputs.length} title inputs`);
-    
-    if (allTitleInputs[fileIndex]) {
-      const value = allTitleInputs[fileIndex].value || '';
-      console.log(`🔍 Upload title [${fileIndex}] via DOM:`, value);
-      
-      if (value && value !== '') {
-        alert(`Debug: Upload title [${fileIndex}] = "${value}"`);
-      } else {
-        alert(`Debug: Upload title [${fileIndex}] = EMPTY! (DOM method)`);
+  // États pour les données d'upload - NOUVELLE APPROCHE AVEC STATE
+  const [uploadData, setUploadData] = useState({});
+  
+  // Fonctions pour gérer les données d'upload avec state
+  const updateUploadData = useCallback((fileIndex, field, value) => {
+    setUploadData(prev => ({
+      ...prev,
+      [fileIndex]: {
+        ...prev[fileIndex],
+        [field]: value
       }
-      
-      return value;
-    } else {
-      alert(`❌ No title input found at index ${fileIndex}`);
-      return '';
-    }
+    }));
   }, []);
 
-  const getUploadContextValue = useCallback((fileIndex) => {
-    // Méthode DOM directe pour les textarea
-    const allContextTextareas = document.querySelectorAll('textarea[placeholder="Facultatif"]');
-    console.log(`🔍 Found ${allContextTextareas.length} context textareas`);
+  const getUploadTitleValue = useCallback((fileIndex) => {
+    const value = uploadData[fileIndex]?.title || '';
+    console.log(`🔍 Upload title [${fileIndex}] via STATE:`, value);
     
-    if (allContextTextareas[fileIndex]) {
-      const value = allContextTextareas[fileIndex].value || '';
-      console.log(`🔍 Upload context [${fileIndex}] via DOM:`, value);
-      
-      if (value && value !== '') {
-        alert(`Debug: Upload context [${fileIndex}] = "${value}"`);
-      } else {
-        alert(`Debug: Upload context [${fileIndex}] = EMPTY! (DOM method)`);
-      }
-      
-      return value;
+    if (value && value !== '') {
+      alert(`Debug: Upload title [${fileIndex}] = "${value}"`);
     } else {
-      alert(`❌ No context textarea found at index ${fileIndex}`);
-      return '';
+      alert(`Debug: Upload title [${fileIndex}] = EMPTY! (STATE method)`);
     }
-  }, []);
+    
+    return value;
+  }, [uploadData]);
+
+  const getUploadContextValue = useCallback((fileIndex) => {
+    const value = uploadData[fileIndex]?.context || '';
+    console.log(`🔍 Upload context [${fileIndex}] via STATE:`, value);
+    
+    if (value && value !== '') {
+      alert(`Debug: Upload context [${fileIndex}] = "${value}"`);
+    } else {
+      alert(`Debug: Upload context [${fileIndex}] = EMPTY! (STATE method)`);
+    }
+    
+    return value;
+  }, [uploadData]);
 
   // Handle file custom data (titles and contexts) during upload preview - ANCIEN CODE SUPPRIMÉ
   const updateFileCustomData = useCallback((fileIndex, field, value) => {

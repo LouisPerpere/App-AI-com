@@ -973,78 +973,7 @@ function MainApp() {
 
 
 
-  const handlePreviewTitleSave = useCallback(async () => {
-    if (!previewContent || isSavingPreviewTitle) {
-      setIsEditingPreviewTitle(false);
-      return;
-    }
 
-    const newTitle = previewTitleInputRef.current?.value?.trim() || '';
-    
-    if (newTitle === previewContent.filename) {
-      setIsEditingPreviewTitle(false);
-      return;
-    }
-
-    // Préserver la valeur actuelle du contexte avant le re-render
-    const currentContextValue = contextTextareaRef.current?.value || '';
-
-    setIsSavingPreviewTitle(true);
-    try {
-      const response = await axios.put(
-        `${API}/content/${previewContent.id}/title`,
-        { title: newTitle },
-        {
-          headers: { 
-            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      if (response.status === 200) {
-        // Update the preview content with new title
-        const updatedContent = { ...previewContent, filename: newTitle };
-        setPreviewContent(updatedContent);
-        
-        // Update the title in pendingContent state as well
-        setPendingContent(prevContent => 
-          prevContent.map(content => 
-            content.id === previewContent.id 
-              ? { ...content, filename: newTitle }
-              : content
-          )
-        );
-        
-        toast.success('Titre modifié avec succès');
-      }
-      setIsEditingPreviewTitle(false);
-      
-      // Restaurer la valeur du contexte après le re-render
-      setTimeout(() => {
-        if (contextTextareaRef.current) {
-          contextTextareaRef.current.value = currentContextValue;
-        }
-      }, 100);
-      
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour du titre:', error);
-      toast.error('Erreur lors de la modification du titre');
-      // Restaurer l'ancien titre
-      if (previewTitleInputRef.current) {
-        previewTitleInputRef.current.value = previewContent.filename || '';
-      }
-      
-      // Restaurer aussi le contexte
-      setTimeout(() => {
-        if (contextTextareaRef.current) {
-          contextTextareaRef.current.value = currentContextValue;
-        }
-      }, 100);
-    } finally {
-      setIsSavingPreviewTitle(false);
-    }
-  }, [previewContent, isSavingPreviewTitle]);
 
   const handlePreviewTitleCancel = useCallback(() => {
     // Préserver la valeur actuelle du contexte avant le re-render

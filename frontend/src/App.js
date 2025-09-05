@@ -2919,18 +2919,17 @@ function MainApp() {
                               <Button
                                 onClick={handleSaveContext}
                                 disabled={isSavingContext}
-                                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                                className={`flex-1 bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2 ${
+                                  isSavingContext ? 'opacity-75 cursor-not-allowed' : ''
+                                }`}
                               >
                                 {isSavingContext ? (
                                   <>
-                                    <div className="animate-spin rounded-full mr-2 h-4 w-4 border-b-2 border-white"></div>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
                                     Sauvegarde...
                                   </>
                                 ) : (
-                                  <>
-                                    <Save className="w-4 h-4 mr-2" />
-                                    Sauvegarder
-                                  </>
+                                  'Sauvegarder'
                                 )}
                               </Button>
                               

@@ -1661,16 +1661,20 @@ function MainApp() {
   }, []);
 
   const getUploadContextValue = useCallback((fileIndex) => {
-    const ref = uploadContextRefs.current[fileIndex];
-    if (!ref?.current) {
+    const element = uploadContextRefs.current[fileIndex];
+    if (!element) {
+      console.log(`❌ No context element found for index ${fileIndex}`);
+      alert(`❌ No context element for index ${fileIndex}`);
       return '';
     }
-    const value = ref.current.value || '';
+    const value = element.value || '';
     console.log(`🔍 Upload context [${fileIndex}]:`, value);
     
     // Show debug alert on mobile for critical values
     if (value && value !== '') {
       alert(`Debug: Upload context [${fileIndex}] = "${value}"`);
+    } else {
+      alert(`Debug: Upload context [${fileIndex}] = EMPTY!`);
     }
     
     return value;

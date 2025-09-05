@@ -2392,7 +2392,7 @@ function MainApp() {
                                       type="text"
                                       placeholder="Facultatif"
                                       defaultValue=""
-                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                                      className="w-full px-3 py-2 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-sm"
                                       style={{
                                         fontSize: '16px',
                                         lineHeight: '1.5',

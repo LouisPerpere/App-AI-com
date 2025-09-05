@@ -79,8 +79,8 @@ class BackendTester:
             self.log_test("Authentication", False, "", str(e))
             return False
 
-    def test_content_listing_with_title(self):
-        """Test GET /api/content/pending includes title field"""
+    def test_content_listing_with_title_and_context(self):
+        """Test GET /api/content/pending includes both title and context fields"""
         try:
             response = self.session.get(
                 f"{self.base_url}/content/pending",
@@ -92,51 +92,71 @@ class BackendTester:
                 content_items = data.get("content", [])
                 total_items = data.get("total", 0)
                 
-                # Check if title field is present in all items
+                # Check if both title and context fields are present in all items
                 title_field_present = True
+                context_field_present = True
                 items_with_title = 0
+                items_with_context = 0
                 items_with_empty_title = 0
+                items_with_empty_context = 0
                 
                 for item in content_items:
                     if "title" not in item:
                         title_field_present = False
-                        break
+                    if "context" not in item:
+                        context_field_present = False
                     
                     title_value = item.get("title", "")
+                    context_value = item.get("context", "")
+                    
                     if title_value:
                         items_with_title += 1
                     else:
                         items_with_empty_title += 1
+                        
+                    if context_value:
+                        items_with_context += 1
+                    else:
+                        items_with_empty_context += 1
                 
-                if title_field_present:
+                if title_field_present and context_field_present:
                     self.log_test(
-                        "Content Listing - Title Field Present",
+                        "Content Listing - Title & Context Fields Present",
                         True,
                         f"Total items: {total_items}, Items loaded: {len(content_items)}, "
-                        f"Items with title: {items_with_title}, Items with empty title: {items_with_empty_title}"
+                        f"Items with title: {items_with_title}, Items with empty title: {items_with_empty_title}, "
+                        f"Items with context: {items_with_context}, Items with empty context: {items_with_empty_context}"
                     )
                     
-                    # Store first content item for title update testing
+                    # Store first content item for title/context update testing
                     if content_items:
                         self.test_content_id = content_items[0].get("id")
+                        current_title = content_items[0].get("title", "")
+                        current_context = content_items[0].get("context", "")
                         self.log_test(
                             "Test Content ID Retrieved",
                             True,
-                            f"Using content ID: {self.test_content_id} for title update tests"
+                            f"Using content ID: {self.test_content_id}, Current title: '{current_title}', Current context: '{current_context}'"
                         )
                     
                     return True
                 else:
+                    missing_fields = []
+                    if not title_field_present:
+                        missing_fields.append("title")
+                    if not context_field_present:
+                        missing_fields.append("context")
+                    
                     self.log_test(
-                        "Content Listing - Title Field Present",
+                        "Content Listing - Title & Context Fields Present",
                         False,
                         "",
-                        "Title field missing from content items"
+                        f"Missing fields: {', '.join(missing_fields)}"
                     )
                     return False
             else:
                 self.log_test(
-                    "Content Listing - Title Field Present",
+                    "Content Listing - Title & Context Fields Present",
                     False,
                     f"Status: {response.status_code}",
                     response.text
@@ -144,7 +164,7 @@ class BackendTester:
                 return False
                 
         except Exception as e:
-            self.log_test("Content Listing - Title Field Present", False, "", str(e))
+            self.log_test("Content Listing - Title & Context Fields Present", False, "", str(e))
             return False
 
     def test_title_update_endpoint(self):

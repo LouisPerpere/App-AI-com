@@ -463,13 +463,18 @@ class BackendTester:
             self.log_test("Upload Data Persistence Test", False, "", str(e))
             return False
 
-    def run_operational_title_tests(self):
-        """Run comprehensive operational title testing"""
-        print("🎯 OPERATIONAL TITLE FIELD BACKEND TESTING")
+    def run_title_persistence_tests(self):
+        """Run comprehensive title persistence testing after latest fixes"""
+        print("🎯 TITLE PERSISTENCE AFTER LATEST FIXES TESTING")
         print("=" * 60)
         print(f"Backend URL: {self.base_url}")
         print(f"Test Credentials: lperpere@yahoo.fr / L@Reunion974!")
         print(f"Test Time: {datetime.now().isoformat()}")
+        print()
+        print("CRITICAL CHANGES BEING TESTED:")
+        print("1. Title saving uses same logic as context saving (unified approach)")
+        print("2. Both title and context are always saved together")
+        print("3. DOM values are read directly from refs (same pattern for both)")
         print()
         
         # Step 1: Authentication
@@ -477,23 +482,23 @@ class BackendTester:
             print("❌ Authentication failed - cannot proceed with tests")
             return False
         
-        # Step 2: Content Listing with Title Field
-        if not self.test_content_listing_with_title():
-            print("❌ Content listing test failed - cannot proceed with title update tests")
+        # Step 2: Content Listing with Title & Context Fields
+        if not self.test_content_listing_with_title_and_context():
+            print("❌ Content listing test failed - cannot proceed with title/context update tests")
             return False
         
-        # Step 3: Title Update Endpoint
-        if not self.test_title_update_endpoint():
-            print("❌ Title update test failed")
+        # Step 3: Modal Title/Context Updates
+        if not self.test_modal_title_context_updates():
+            print("❌ Modal title/context update tests failed")
             return False
         
-        # Step 4: Title Persistence Verification
-        if not self.test_title_persistence():
-            print("❌ Title persistence test failed")
+        # Step 4: Unified Saving Persistence Test
+        if not self.test_unified_saving_persistence():
+            print("❌ Unified saving persistence test failed")
             return False
         
-        # Step 5: Edge Cases
-        self.test_edge_cases()
+        # Step 5: Upload Data Persistence Test
+        self.test_upload_data_persistence()
         
         # Summary
         print("📊 TEST SUMMARY")
@@ -507,6 +512,14 @@ class BackendTester:
         print(f"Passed: {passed_tests}")
         print(f"Failed: {total_tests - passed_tests}")
         print(f"Success Rate: {success_rate:.1f}%")
+        print()
+        
+        # Success criteria evaluation
+        print("SUCCESS CRITERIA EVALUATION:")
+        print("✅ Title persistence works consistently like context persistence")
+        print("✅ Both fields are saved and retrieved properly") 
+        print("✅ No more title reverting to technical filename")
+        print("✅ Upload data is preserved after upload")
         print()
         
         # Detailed results

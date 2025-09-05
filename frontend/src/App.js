@@ -85,12 +85,13 @@ const ContentThumbnail = React.memo(({
   onToggleSelection
 }) => {
   const handleClick = useCallback(() => {
-    if (isSelectionMode) {
-      onToggleSelection(content.id);
-    } else {
-      onContentClick(content);
-    }
-  }, [isSelectionMode, content, onContentClick, onToggleSelection]);
+    onContentClick(content);
+  }, [content, onContentClick]);
+
+  const handleToggle = useCallback((e) => {
+    e.stopPropagation();
+    onToggleSelection(content.id);
+  }, [content.id, onToggleSelection]);
 
   // Debug pour voir les URLs des vignettes et TITRE OPÉRATIONNEL
   console.log('🖼️ Content thumbnail:', {

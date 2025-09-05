@@ -1099,14 +1099,14 @@ function MainApp() {
 
     try {
       // 1. Sauvegarder le contexte (logique existante)
-      await axios.put(`${API.replace('/api', '')}/content/${previewContent.id}/context`, {
+      await axios.put(`${API}/content/${previewContent.id}/context`, {
         context: contextValue.trim()
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
       // 2. Sauvegarder le titre (MÊME LOGIQUE que le contexte)
-      await axios.put(`${API.replace('/api', '')}/content/${previewContent.id}/title`, {
+      await axios.put(`${API}/content/${previewContent.id}/title`, {
         title: titleValue.trim()
       }, {
         headers: { Authorization: `Bearer ${token}` }

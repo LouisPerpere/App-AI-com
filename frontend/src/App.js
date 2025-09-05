@@ -201,9 +201,9 @@ const ContentThumbnail = React.memo(({
         )}
       </div>
       
-      {/* Simple filename display */}
+      {/* Operational title or technical filename display */}
       <p className="text-xs text-gray-600 mt-1 truncate text-center">
-        {content.filename || 'Sans titre'}
+        {content.title?.trim() || content.filename || 'Sans titre'}
       </p>
       
       {Boolean(content.description?.trim()) && !isSelectionMode && (

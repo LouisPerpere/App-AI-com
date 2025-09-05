@@ -1719,9 +1719,9 @@ function MainApp() {
           });
           
           try {
-            // Update title if provided (allow saving even if same as filename)
+            // Update title if provided
             if (customTitle) {
-              await axios.put(`${API}/content/${createdItem.id}/title`, {
+              const titleResponse = await axios.put(`${API}/content/${createdItem.id}/title`, {
                 title: customTitle
               }, {
                 headers: {
@@ -1729,13 +1729,21 @@ function MainApp() {
                 }
               });
               console.log(`✅ Title updated for ${createdItem.filename}: "${customTitle}"`);
+              
+              // Debug alert for mobile
+              if (titleResponse.status === 200) {
+                alert(`✅ Title saved successfully: "${customTitle}"`);
+              } else {
+                alert(`❌ Title save failed: ${titleResponse.status}`);
+              }
             } else {
               console.log(`⏭️ Skipping title update for ${createdItem.filename} (empty)`);
+              alert(`⏭️ No title to save for ${createdItem.filename}`);
             }
             
             // Update context if provided
             if (customContext) {
-              await axios.put(`${API}/content/${createdItem.id}/context`, {
+              const contextResponse = await axios.put(`${API}/content/${createdItem.id}/context`, {
                 context: customContext
               }, {
                 headers: {
@@ -1743,11 +1751,17 @@ function MainApp() {
                 }
               });
               console.log(`✅ Context updated for ${createdItem.filename}: "${customContext}"`);
+              
+              // Debug alert for mobile
+              if (contextResponse.status === 200) {
+                alert(`✅ Context saved successfully: "${customContext}"`);
+              }
             } else {
               console.log(`⏭️ Skipping context update for ${createdItem.filename} (empty)`);
             }
           } catch (updateError) {
             console.warn(`⚠️ Failed to update metadata for ${createdItem.filename}:`, updateError);
+            alert(`❌ API Error: ${updateError.message}`);
           }
         }
       } else {

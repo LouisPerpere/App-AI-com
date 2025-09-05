@@ -2908,10 +2908,8 @@ function MainApp() {
                               )}
                             </div>
                             
-                            {/* Informations du fichier */}
+                            {/* Informations du fichier (simplifiées) */}
                             <div className="text-sm text-gray-600 space-y-1">
-                              <p><strong>Type:</strong> {previewContent.file_type}</p>
-                              <p><strong>Taille:</strong> {previewContent.file_size ? `${Math.round(previewContent.file_size / 1024)} KB` : 'N/A'}</p>
                               <p><strong>Ajouté le:</strong> {previewContent.uploaded_at ? new Date(previewContent.uploaded_at).toLocaleDateString('fr-FR') : 'N/A'}</p>
                             </div>
                           </div>

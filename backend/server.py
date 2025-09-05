@@ -922,8 +922,8 @@ async def get_pixabay_categories():
     ]
     return {"categories": categories}
 
-# Include the API router
-app.include_router(api_router)
+# Include the API router with /api prefix for Kubernetes consistency
+app.include_router(api_router, prefix="/api")
 
 # Include GPT-5 Website Analyzer
 if WEBSITE_ANALYZER_AVAILABLE:

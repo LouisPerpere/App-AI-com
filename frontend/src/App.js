@@ -77,13 +77,7 @@ const FREE_TRIAL_PLAN = {
 };
 
 // ContentThumbnail component optimisé avec memo pour éviter re-renders
-const ContentThumbnail = React.memo(({ 
-  content, 
-  isSelectionMode, 
-  isSelected, 
-  onContentClick, 
-  onToggleSelection
-}) => {
+const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection }) => {
   const handleClick = useCallback(() => {
     onContentClick(content);
   }, [content, onContentClick]);

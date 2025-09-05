@@ -167,11 +167,11 @@ class BackendTester:
             self.log_test("Content Listing - Title & Context Fields Present", False, "", str(e))
             return False
 
-    def test_title_update_endpoint(self):
-        """Test PUT /api/content/{content_id}/title endpoint"""
+    def test_modal_title_context_updates(self):
+        """Test PUT /api/content/{id}/title and PUT /api/content/{id}/context endpoints"""
         if not hasattr(self, 'test_content_id') or not self.test_content_id:
             self.log_test(
-                "Title Update - No Content ID",
+                "Modal Updates - No Content ID",
                 False,
                 "",
                 "No content ID available for testing"
@@ -179,8 +179,8 @@ class BackendTester:
             return False
             
         try:
-            # Test updating operational title
-            test_title = "Titre opérationnel de test - Contenu marketing"
+            # Test 1: Update title
+            test_title = "Nouveau titre après corrections - Test persistance"
             
             response = self.session.put(
                 f"{self.base_url}/content/{self.test_content_id}/title",
@@ -188,36 +188,73 @@ class BackendTester:
                 timeout=30
             )
             
+            title_success = False
             if response.status_code == 200:
                 data = response.json()
                 success_message = data.get("message", "")
                 
                 if "Titre mis à jour avec succès" in success_message:
+                    title_success = True
                     self.log_test(
-                        "Title Update - Success Response",
+                        "Modal Title Update",
                         True,
-                        f"Content ID: {self.test_content_id}, Title: '{test_title}', Message: '{success_message}'"
+                        f"Title updated successfully: '{test_title}', Message: '{success_message}'"
                     )
-                    return True
                 else:
                     self.log_test(
-                        "Title Update - Success Response",
+                        "Modal Title Update",
                         False,
                         f"Unexpected message: {success_message}",
                         "French success message not found"
                     )
-                    return False
             else:
                 self.log_test(
-                    "Title Update - Success Response",
+                    "Modal Title Update",
                     False,
                     f"Status: {response.status_code}",
                     response.text
                 )
-                return False
+            
+            # Test 2: Update context
+            test_context = "Nouveau contexte après corrections - Test persistance des données"
+            
+            response = self.session.put(
+                f"{self.base_url}/content/{self.test_content_id}/context",
+                json={"context": test_context},
+                timeout=30
+            )
+            
+            context_success = False
+            if response.status_code == 200:
+                data = response.json()
+                success_message = data.get("message", "")
+                
+                if "Contexte mis à jour avec succès" in success_message:
+                    context_success = True
+                    self.log_test(
+                        "Modal Context Update",
+                        True,
+                        f"Context updated successfully: '{test_context}', Message: '{success_message}'"
+                    )
+                else:
+                    self.log_test(
+                        "Modal Context Update",
+                        False,
+                        f"Unexpected message: {success_message}",
+                        "French success message not found"
+                    )
+            else:
+                self.log_test(
+                    "Modal Context Update",
+                    False,
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+            
+            return title_success and context_success
                 
         except Exception as e:
-            self.log_test("Title Update - Success Response", False, "", str(e))
+            self.log_test("Modal Title/Context Updates", False, "", str(e))
             return False
 
     def test_title_persistence(self):

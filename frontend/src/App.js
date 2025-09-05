@@ -959,7 +959,7 @@ function MainApp() {
           contextTextareaRef.current.value = content.context || '';
         }
         if (previewTitleInputRef.current) {
-          previewTitleInputRef.current.value = content.filename || '';
+          previewTitleInputRef.current.value = content.title?.trim() || content.filename || '';
         }
       }, 100);
     }

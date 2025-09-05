@@ -2731,6 +2731,27 @@ function MainApp() {
                               />
                             ))}
                           </div>
+                          
+                          {/* Bouton Charger plus - Scroll infini */}
+                          {hasMoreContent && (
+                            <div className="flex justify-center mt-6">
+                              <Button
+                                onClick={loadMoreContent}
+                                disabled={isLoadingMore}
+                                variant="outline"
+                                className="px-6 py-3 border-purple-300 text-purple-600 hover:bg-purple-50"
+                              >
+                                {isLoadingMore ? (
+                                  <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-purple-600 border-t-transparent mr-2"></div>
+                                    Chargement...
+                                  </>
+                                ) : (
+                                  'Charger plus d\'images'
+                                )}
+                              </Button>
+                            </div>
+                          )}
                           <div className="text-center">
                             <Button
                               onClick={loadPendingContent}

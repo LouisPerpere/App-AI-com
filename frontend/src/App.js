@@ -2460,7 +2460,12 @@ function MainApp() {
                                       Description / Contexte
                                     </label>
                                     <textarea
-                                      ref={getUploadContextRef(index)}
+                                      ref={(el) => {
+                                        if (!uploadContextRefs.current[index]) {
+                                          uploadContextRefs.current[index] = { current: null };
+                                        }
+                                        uploadContextRefs.current[index].current = el;
+                                      }}
                                       placeholder="Facultatif"
                                       defaultValue=""
                                       rows={3}

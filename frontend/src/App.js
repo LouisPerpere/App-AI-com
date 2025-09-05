@@ -1653,10 +1653,19 @@ function MainApp() {
       
       // Update titles and contexts for uploaded files using refs
       if (response.data.created && response.data.created.length > 0) {
+        console.log(`🔄 Processing ${response.data.created.length} uploaded files for metadata update`);
+        
         for (let i = 0; i < response.data.created.length; i++) {
           const createdItem = response.data.created[i];
           const customTitle = getUploadTitleValue(i).trim();
           const customContext = getUploadContextValue(i).trim();
+          
+          console.log(`📝 File ${i + 1}/${response.data.created.length} - ${createdItem.filename}:`, {
+            title: customTitle,
+            context: customContext,
+            willUpdateTitle: Boolean(customTitle),
+            willUpdateContext: Boolean(customContext)
+          });
           
           try {
             // Update title if provided (allow saving even if same as filename)
@@ -1669,6 +1678,8 @@ function MainApp() {
                 }
               });
               console.log(`✅ Title updated for ${createdItem.filename}: "${customTitle}"`);
+            } else {
+              console.log(`⏭️ Skipping title update for ${createdItem.filename} (empty)`);
             }
             
             // Update context if provided
@@ -1681,11 +1692,15 @@ function MainApp() {
                 }
               });
               console.log(`✅ Context updated for ${createdItem.filename}: "${customContext}"`);
+            } else {
+              console.log(`⏭️ Skipping context update for ${createdItem.filename} (empty)`);
             }
           } catch (updateError) {
             console.warn(`⚠️ Failed to update metadata for ${createdItem.filename}:`, updateError);
           }
         }
+      } else {
+        console.log('❌ No created items found in upload response');
       }
       
       toast.success(`${response.data.count || selectedFiles.length} fichiers uploadés avec succès !`);

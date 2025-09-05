@@ -2686,49 +2686,16 @@ function MainApp() {
                 {previewContent && (
                   <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-                      {/* Header de la modal avec titre éditable */}
+                      {/* Header de la modal simplifié (sans titre) */}
                       <div className="flex items-center justify-between p-4 border-b">
-                        <div className="flex items-center space-x-2 flex-1 min-w-0">
-                          {isEditingPreviewTitle ? (
-                            <div className="flex items-center space-x-2 flex-1">
-                              <input
-                                type="text"
-                                value={previewTempTitle}
-                                onChange={(e) => setPreviewTempTitle(e.target.value)}
-                                onKeyDown={handlePreviewTitleKeyPress}
-                                onBlur={handlePreviewTitleSave}
-                                className="text-lg font-semibold bg-white border border-gray-300 rounded px-3 py-1 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                autoFocus
-                                disabled={isSavingPreviewTitle}
-                              />
-                              {isSavingPreviewTitle && (
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-                              )}
-                            </div>
-                          ) : (
-                            <div className="flex items-center space-x-2 flex-1 min-w-0">
-                              <h3 className="text-lg font-semibold text-gray-900 truncate flex-1">
-                                {previewContent.filename || 'Sans titre'}
-                              </h3>
-                              {previewContent.file_type?.startsWith('image/') && (
-                                <Button
-                                  onClick={handlePreviewTitleEdit}
-                                  variant="ghost"
-                                  size="sm"
-                                  className="p-2 h-8 w-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-full"
-                                  title="Modifier le titre"
-                                >
-                                  <Edit className="w-4 h-4" />
-                                </Button>
-                              )}
-                            </div>
-                          )}
-                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Aperçu du contenu
+                        </h3>
                         <Button
                           onClick={handleClosePreview}
                           variant="ghost"
                           size="sm"
-                          className="text-gray-500 hover:text-gray-700 ml-2"
+                          className="text-gray-500 hover:text-gray-700"
                         >
                           <X className="w-5 h-5" />
                         </Button>

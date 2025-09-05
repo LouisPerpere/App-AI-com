@@ -953,10 +953,13 @@ function MainApp() {
       handleToggleSelection(content.id);
     } else {
       setPreviewContent(content);
-      // Charger le contexte existant directement dans la textarea après un court délai
+      // Charger le contexte et le titre existants directement dans les champs après un court délai
       setTimeout(() => {
         if (contextTextareaRef.current) {
           contextTextareaRef.current.value = content.context || '';
+        }
+        if (previewTitleInputRef.current) {
+          previewTitleInputRef.current.value = content.filename || '';
         }
       }, 100);
     }

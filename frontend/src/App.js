@@ -1048,7 +1048,7 @@ function MainApp() {
     );
   }, []);
 
-  // Sauvegarder le contexte d'un contenu
+  // Sauvegarder le contexte d'un contenu ET le titre s'il a été modifié
   const handleSaveContext = async () => {
     if (!previewContent) return;
 
@@ -1064,17 +1064,59 @@ function MainApp() {
     setIsSavingContext(true);
 
     try {
+      // 1. Sauvegarder le contexte
       await axios.put(`${API}/content/${previewContent.id}/context`, {
         context: contextValue.trim()
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      toast.success('Contexte sauvegardé ! 💾');
-      
-      // Mettre à jour le contenu local avec le nouveau contexte
-      const updatedContent = { ...previewContent, context: contextValue.trim() };
-      setPreviewContent(updatedContent);
+      // 2. Sauvegarder le titre s'il a été modifié
+      let titleSaved = false;
+      if (isEditingPreviewTitle && previewTempTitle.trim() !== previewContent.filename) {
+        try {
+          const titleResponse = await axios.put(
+            `${API}/content/${previewContent.id}/title`,
+            { title: previewTempTitle.trim() },
+            {
+              headers: { 
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+
+          if (titleResponse.status === 200) {
+            // Mettre à jour le contenu local avec le nouveau titre
+            const updatedContent = { 
+              ...previewContent, 
+              filename: previewTempTitle.trim(),
+              context: contextValue.trim()
+            };
+            setPreviewContent(updatedContent);
+            
+            // Réinitialiser l'état d'édition du titre
+            setIsEditingPreviewTitle(false);
+            setIsSavingPreviewTitle(false);
+            
+            titleSaved = true;
+          }
+        } catch (titleError) {
+          console.error('Erreur lors de la sauvegarde du titre:', titleError);
+          // On continue même si le titre n'a pas pu être sauvegardé
+        }
+      } else {
+        // Mettre à jour seulement le contexte
+        const updatedContent = { ...previewContent, context: contextValue.trim() };
+        setPreviewContent(updatedContent);
+      }
+
+      // Message de succès adapté
+      if (titleSaved) {
+        toast.success('Titre et contexte sauvegardés ! 💾');
+      } else {
+        toast.success('Contexte sauvegardé ! 💾');
+      }
       
       // Remettre le texte dans la textarea après sauvegarde pour qu'il reste visible
       if (contextTextareaRef.current) {

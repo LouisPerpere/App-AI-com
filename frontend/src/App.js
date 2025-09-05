@@ -1740,6 +1740,22 @@ function MainApp() {
     );
   };
 
+  // Handle file custom data (titles and contexts) during upload preview
+  const updateFileCustomData = useCallback((fileIndex, field, value) => {
+    setFileCustomData(prev => ({
+      ...prev,
+      [fileIndex]: {
+        ...prev[fileIndex],
+        [field]: value
+      }
+    }));
+  }, []);
+
+  // Get file custom data
+  const getFileCustomData = useCallback((fileIndex, field, defaultValue = '') => {
+    return fileCustomData[fileIndex]?.[field] || defaultValue;
+  }, [fileCustomData]);
+
   const handleBatchUpload = async () => {
     if (selectedFiles.length === 0) return;
 

@@ -1644,21 +1644,7 @@ function MainApp() {
     );
   };
 
-  // Handle file custom data (titles and contexts) during upload preview - NOUVELLES FONCTIONS AVEC REFS
-  const getUploadTitleRef = useCallback((fileIndex) => {
-    if (!uploadTitleRefs.current[fileIndex]) {
-      uploadTitleRefs.current[fileIndex] = React.createRef();
-    }
-    return uploadTitleRefs.current[fileIndex];
-  }, []);
-
-  const getUploadContextRef = useCallback((fileIndex) => {
-    if (!uploadContextRefs.current[fileIndex]) {
-      uploadContextRefs.current[fileIndex] = React.createRef();
-    }
-    return uploadContextRefs.current[fileIndex];
-  }, []);
-
+  // Handle file custom data (titles and contexts) during upload preview - REFS SIMPLES
   const getUploadTitleValue = useCallback((fileIndex) => {
     const ref = uploadTitleRefs.current[fileIndex];
     return ref?.current?.value || '';

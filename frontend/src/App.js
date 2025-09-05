@@ -1784,6 +1784,9 @@ function MainApp() {
       console.log('🔄 Forcing content refresh after upload...');
       await loadPendingContent();
       console.log('✅ Content refresh completed after upload');
+      
+      // Show debug alert for mobile testing
+      alert(`Upload completed! ${response.data.created?.length || 0} files processed. Check library.`);
     } catch (error) {
       console.error('❌ Upload error:', error);
       const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';

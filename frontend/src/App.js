@@ -970,7 +970,6 @@ function MainApp() {
   }, []);
   // Handle content title updates in preview modal
   const [isEditingPreviewTitle, setIsEditingPreviewTitle] = useState(false);
-  const [previewTempTitle, setPreviewTempTitle] = useState('');
   const [isSavingPreviewTitle, setIsSavingPreviewTitle] = useState(false);
 
   const handlePreviewTitleEdit = useCallback(() => {

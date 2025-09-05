@@ -395,10 +395,21 @@ function MainApp() {
     }
   };
 
-  const loadPendingContent = async () => {
+  // États pour le scroll infini
+  const [hasMoreContent, setHasMoreContent] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [contentPage, setContentPage] = useState(0);
+
+  const loadPendingContent = async (append = false) => {
     try {
+      const page = append ? contentPage + 1 : 0;
+      const limit = 24; // Charge par batches de 24
+      
       const response = await axios.get(`${API}/content/pending`, {
-        params: { limit: 24 },
+        params: { 
+          limit,
+          offset: page * limit 
+        },
         headers: { 
           Authorization: `Bearer ${localStorage.getItem('access_token')}`,
         }
@@ -408,6 +419,8 @@ function MainApp() {
       console.log('📥 Content loaded from API:', {
         total: data.total,
         itemCount: data.content?.length || 0,
+        page,
+        append,
         firstItem: data.content?.[0] ? {
           id: data.content[0].id,
           filename: data.content[0].filename,
@@ -419,19 +432,42 @@ function MainApp() {
       });
       
       // Debug alert for mobile - show first item with title
-      const itemWithTitle = data.content?.find(item => item.title);
-      if (itemWithTitle) {
-        alert(`📥 Found item with title: "${itemWithTitle.title}"`);
-      } else {
-        alert(`📥 No items with titles found in API response`);
+      if (!append) {
+        const itemWithTitle = data.content?.find(item => item.title);
+        if (itemWithTitle) {
+          alert(`📥 Found item with title: "${itemWithTitle.title}"`);
+        } else {
+          alert(`📥 No items with titles found in API response`);
+        }
       }
       
-      setPendingContent(data.content || []);
+      if (append) {
+        // Ajouter à la liste existante
+        setPendingContent(prev => [...prev, ...(data.content || [])]);
+        setContentPage(page);
+      } else {
+        // Remplacer la liste
+        setPendingContent(data.content || []);
+        setContentPage(0);
+      }
+      
+      // Vérifier s'il y a plus de contenu
+      const loadedCount = (append ? pendingContent.length : 0) + (data.content?.length || 0);
+      setHasMoreContent(loadedCount < (data.total || 0));
       
     } catch (error) {
       console.error('Error loading pending content:', error);
     }
   };
+  
+  // Fonction pour charger plus de contenu
+  const loadMoreContent = useCallback(async () => {
+    if (!hasMoreContent || isLoadingMore) return;
+    
+    setIsLoadingMore(true);
+    await loadPendingContent(true);
+    setIsLoadingMore(false);
+  }, [hasMoreContent, isLoadingMore, contentPage, pendingContent.length]);
 
   // Fonction de tri des notes selon les spécifications périodiques
   const sortNotes = useCallback((notes) => {

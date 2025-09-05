@@ -1748,6 +1748,8 @@ function MainApp() {
       toast.success(`${response.data.count || selectedFiles.length} fichiers uploadés avec succès !`);
       setSelectedFiles([]);
       setFileCustomData({}); // Clean up custom data
+      uploadTitleRefs.current = {}; // Clean up title refs
+      uploadContextRefs.current = {}; // Clean up context refs
       loadPendingContent();
     } catch (error) {
       console.error('❌ Upload error:', error);

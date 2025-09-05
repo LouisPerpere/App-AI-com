@@ -1779,6 +1779,7 @@ function MainApp() {
       console.log('📤 Upload response:', response.data);
       toast.success(`${response.data.count || selectedFiles.length} fichiers uploadés avec succès !`);
       setSelectedFiles([]);
+      setFileCustomData({}); // Clean up custom data
       loadPendingContent();
     } catch (error) {
       console.error('❌ Upload error:', error);

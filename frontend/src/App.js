@@ -1050,11 +1050,22 @@ function MainApp() {
   }, [previewContent, isSavingPreviewTitle]);
 
   const handlePreviewTitleCancel = useCallback(() => {
+    // Préserver la valeur actuelle du contexte avant le re-render
+    const currentContextValue = contextTextareaRef.current?.value || '';
+    
     setIsEditingPreviewTitle(false);
-    // Restaurer l'ancien titre
-    if (previewTitleInputRef.current && previewContent) {
-      previewTitleInputRef.current.value = previewContent.filename || '';
-    }
+    
+    // Restaurer les valeurs après le re-render
+    setTimeout(() => {
+      if (previewTitleInputRef.current && previewContent) {
+        previewTitleInputRef.current.value = previewContent.filename || '';
+      }
+      
+      // Restaurer la valeur du contexte qui a été perdue lors du re-render
+      if (contextTextareaRef.current) {
+        contextTextareaRef.current.value = currentContextValue;
+      }
+    }, 100);
   }, [previewContent]);
 
   const handlePreviewTitleKeyPress = useCallback((e) => {

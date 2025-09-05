@@ -2931,70 +2931,27 @@ function MainApp() {
                               </div>
                             )}
                             
-                            {/* Titre éditable sous l'image */}
+                            {/* Titre toujours éditable (comme la textarea) */}
                             <div className="space-y-2">
                               <label className="block text-sm font-medium text-gray-700">
                                 Titre de l'image
                               </label>
-                              {isEditingPreviewTitle ? (
-                                <div className="flex items-center space-x-2">
-                                  <input
-                                    ref={previewTitleInputRef}
-                                    type="text"
-                                    onKeyDown={handlePreviewTitleKeyPress}
-                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    disabled={isSavingPreviewTitle}
-                                    placeholder="Nom du fichier..."
-                                    style={{
-                                      fontSize: '16px',
-                                      lineHeight: '1.5',
-                                      WebkitAppearance: 'none',
-                                      borderRadius: '8px',
-                                      boxShadow: 'none',
-                                      WebkitBoxShadow: 'none',
-                                      touchAction: 'manipulation'
-                                    }}
-                                  />
-                                  <Button
-                                    onClick={handlePreviewTitleSave}
-                                    disabled={isSavingPreviewTitle}
-                                    size="sm"
-                                    className="bg-blue-600 hover:bg-blue-700 text-white px-3"
-                                  >
-                                    {isSavingPreviewTitle ? (
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                    ) : (
-                                      <Check className="w-4 h-4" />
-                                    )}
-                                  </Button>
-                                  <Button
-                                    onClick={handlePreviewTitleCancel}
-                                    disabled={isSavingPreviewTitle}
-                                    variant="outline"
-                                    size="sm"
-                                    className="px-3"
-                                  >
-                                    <X className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              ) : (
-                                <div className="flex items-center space-x-2">
-                                  <p className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-900">
-                                    {previewContent.filename || 'Sans titre'}
-                                  </p>
-                                  {previewContent.file_type?.startsWith('image/') && (
-                                    <Button
-                                      onClick={handlePreviewTitleEdit}
-                                      variant="outline"
-                                      size="sm"
-                                      className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-3"
-                                      title="Modifier le titre"
-                                    >
-                                      <Edit className="w-4 h-4" />
-                                    </Button>
-                                  )}
-                                </div>
-                              )}
+                              <input
+                                ref={previewTitleInputRef}
+                                type="text"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                disabled={isSavingContext}
+                                placeholder="Nom du fichier..."
+                                style={{
+                                  fontSize: '16px',
+                                  lineHeight: '1.5',
+                                  WebkitAppearance: 'none',
+                                  borderRadius: '8px',
+                                  boxShadow: 'none',
+                                  WebkitBoxShadow: 'none',
+                                  touchAction: 'manipulation'
+                                }}
+                              />
                             </div>
                             
                             {/* Informations du fichier (simplifiées) */}

@@ -178,6 +178,19 @@ class BusinessProfile(BaseModel):
     hashtags_primary: List[str] = []
     hashtags_secondary: List[str] = []
 
+class Content(BaseModel):
+    """Content model for media items with operational title support"""
+    id: Optional[str] = None
+    filename: Optional[str] = None
+    file_type: Optional[str] = None
+    description: Optional[str] = ""
+    context: Optional[str] = ""
+    title: Optional[str] = Field(None, description="Operational title for content generation and display")
+    url: Optional[str] = None
+    thumb_url: Optional[str] = None
+    uploaded_at: Optional[str] = None
+    created_at: Optional[str] = None
+
 class ContentNote(BaseModel):
     description: Optional[str] = Field(None, description="Note title/description")
     content: str = Field(..., description="Note content") 

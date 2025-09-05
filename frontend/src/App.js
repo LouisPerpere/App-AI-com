@@ -1767,10 +1767,10 @@ function MainApp() {
           try {
             // Update title if provided
             if (customTitle) {
-              const titleURL = `/content/${createdItem.id}/title`; // CORRECTION: pas de /api prefix !
-              alert(`Debug: Title API URL = ${API}${titleURL}`);
+              const titleURL = `${API.replace('/api', '')}/content/${createdItem.id}/title`; // CORRECTION: enlever /api du domaine !
+              alert(`Debug: Title API URL = ${titleURL}`);
               
-              const titleResponse = await axios.put(`${API}${titleURL}`, {
+              const titleResponse = await axios.put(titleURL, {
                 title: customTitle
               }, {
                 headers: {
@@ -1791,8 +1791,8 @@ function MainApp() {
             
             // Update context if provided
             if (customContext) {
-              const contextURL = `/content/${createdItem.id}/context`; // CORRECTION: pas de /api prefix !
-              const contextResponse = await axios.put(`${API}${contextURL}`, {
+              const contextURL = `${API.replace('/api', '')}/content/${createdItem.id}/context`; // CORRECTION: enlever /api du domaine !
+              const contextResponse = await axios.put(contextURL, {
                 context: customContext
               }, {
                 headers: {

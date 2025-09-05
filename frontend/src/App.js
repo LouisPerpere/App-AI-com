@@ -92,13 +92,14 @@ const ContentThumbnail = React.memo(({
     }
   }, [isSelectionMode, content, onContentClick, onToggleSelection]);
 
-  // Debug pour voir les URLs des vignettes
+  // Debug pour voir les URLs des vignettes et TITRE OPÉRATIONNEL
   console.log('🖼️ Content thumbnail:', {
     id: content.id,
     filename: content.filename,
     file_type: content.file_type,
     thumb_url: content.thumb_url,
     url: content.url,
+    title: content.title, // DEBUG: vérifier le titre opérationnel
     full_content: content
   });
 

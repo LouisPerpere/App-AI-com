@@ -2443,16 +2443,16 @@ function MainApp() {
                                     )}
                                   </div>
                                   
-                                  {/* Custom title input */}
+                                  {/* Custom title input - NON-CONTRÔLÉ AVEC REF */}
                                   <div className="space-y-2">
                                     <label className="block text-sm font-medium text-gray-700">
-                                      Titre opérationnel (optionnel)
+                                      Titre (facultatif)
                                     </label>
                                     <input
+                                      ref={getUploadTitleRef(index)}
                                       type="text"
-                                      placeholder={file.name}
-                                      value={getFileCustomData(index, 'title', file.name)}
-                                      onChange={(e) => updateFileCustomData(index, 'title', e.target.value)}
+                                      placeholder="Facultatif"
+                                      defaultValue=""
                                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
                                       style={{
                                         fontSize: '16px',

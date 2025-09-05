@@ -1640,42 +1640,22 @@ function MainApp() {
   
   // Fonctions pour gérer les refs d'upload (éviter clavier virtuel)
   const getUploadTitleValue = useCallback((fileIndex) => {
-    // Debug ultra-détaillé pour comprendre le problème
-    alert(`🔍 DEBUG ULTRA: Starting title retrieval for index ${fileIndex}`);
-    
-    // Méthode 1: Debug des refs
-    const refsObject = uploadTitleRefs.current;
-    const element = refsObject[fileIndex];
-    alert(`Refs debug: refsObject has ${Object.keys(refsObject).length} keys, element exists: ${!!element}`);
-    
-    if (element && element instanceof HTMLElement) {
-      const refValue = element.value;
-      alert(`Refs method: element.value = "${refValue}" (type: ${typeof refValue})`);
-      if (refValue && refValue.trim()) {
-        return refValue.trim();
+    // Accès direct par sélecteur + index spécifique
+    const titleInputs = document.querySelectorAll('input[placeholder="Facultatif"]');
+    if (titleInputs[fileIndex]) {
+      const value = titleInputs[fileIndex].value;
+      console.log(`🔍 Direct DOM access [${fileIndex}]:`, value);
+      
+      if (value && value.trim()) {
+        alert(`✅ Found title [${fileIndex}]: "${value.trim()}"`);
+        return value.trim();
+      } else {
+        alert(`❌ Empty title [${fileIndex}]: input.value = "${value}"`);
       }
+    } else {
+      alert(`❌ Title input not found at index ${fileIndex}`);
     }
     
-    // Méthode 2: Debug DOM complet
-    const allInputs = document.querySelectorAll('input');
-    const facultatifInputs = document.querySelectorAll('input[placeholder="Facultatif"]');
-    alert(`DOM debug: Total inputs: ${allInputs.length}, Facultatif inputs: ${facultatifInputs.length}`);
-    
-    // Vérifier toutes les valeurs des inputs Facultatif
-    for (let i = 0; i < facultatifInputs.length; i++) {
-      const input = facultatifInputs[i];
-      alert(`Input ${i}: value="${input.value}", type="${input.type}", placeholder="${input.placeholder}"`);
-    }
-    
-    if (facultatifInputs[fileIndex]) {
-      const domValue = facultatifInputs[fileIndex].value;
-      alert(`DOM method for index ${fileIndex}: value = "${domValue}"`);
-      if (domValue && domValue.trim()) {
-        return domValue.trim();
-      }
-    }
-    
-    alert(`Both methods failed - returning empty string`);
     return '';
   }, []);
 

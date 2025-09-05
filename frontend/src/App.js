@@ -1640,24 +1640,25 @@ function MainApp() {
 
   // Handle file custom data (titles and contexts) during upload preview - REFS SIMPLES
   const getUploadTitleValue = useCallback((fileIndex) => {
-    const element = uploadTitleRefs.current[fileIndex];
-    if (!element) {
-      console.log(`❌ No title element found for index ${fileIndex}`);
-      alert(`❌ No title element for index ${fileIndex}`);
+    // Méthode DOM directe plus fiable
+    const allTitleInputs = document.querySelectorAll('input[placeholder="Facultatif"]');
+    console.log(`🔍 Found ${allTitleInputs.length} title inputs`);
+    
+    if (allTitleInputs[fileIndex]) {
+      const value = allTitleInputs[fileIndex].value || '';
+      console.log(`🔍 Upload title [${fileIndex}] via DOM:`, value);
+      
+      if (value && value !== '') {
+        alert(`Debug: Upload title [${fileIndex}] = "${value}"`);
+      } else {
+        alert(`Debug: Upload title [${fileIndex}] = EMPTY! (DOM method)`);
+      }
+      
+      return value;
+    } else {
+      alert(`❌ No title input found at index ${fileIndex}`);
       return '';
     }
-    
-    const value = element.value || '';
-    console.log(`🔍 Upload title [${fileIndex}]:`, value);
-    
-    // Show debug alert on mobile for critical values
-    if (value && value !== '') {
-      alert(`Debug: Upload title [${fileIndex}] = "${value}"`);
-    } else {
-      alert(`Debug: Upload title [${fileIndex}] = EMPTY!`);
-    }
-    
-    return value;
   }, []);
 
   const getUploadContextValue = useCallback((fileIndex) => {

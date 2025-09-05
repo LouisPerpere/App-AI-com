@@ -2855,7 +2855,12 @@ function MainApp() {
                             
                             {/* Informations du fichier (simplifiées) */}
                             <div className="text-sm text-gray-600 space-y-1">
-                              <p><strong>Ajouté le:</strong> {previewContent.uploaded_at ? new Date(previewContent.uploaded_at).toLocaleDateString('fr-FR') : 'N/A'}</p>
+                              <p><strong>Ajouté le:</strong> {
+                                previewContent.uploaded_at ? new Date(previewContent.uploaded_at).toLocaleDateString('fr-FR') :
+                                previewContent.created_at ? new Date(previewContent.created_at).toLocaleDateString('fr-FR') :
+                                previewContent.timestamp ? new Date(previewContent.timestamp).toLocaleDateString('fr-FR') :
+                                'Date inconnue'
+                              }</p>
                             </div>
                           </div>
                           

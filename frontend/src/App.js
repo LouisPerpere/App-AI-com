@@ -1640,9 +1640,20 @@ function MainApp() {
   
   // Fonctions pour gérer les refs d'upload (éviter clavier virtuel)
   const getUploadTitleValue = useCallback((fileIndex) => {
+    console.log(`🔍 Debug refs structure [${fileIndex}]:`, {
+      refsObject: uploadTitleRefs.current,
+      specificRef: uploadTitleRefs.current[fileIndex],
+      isElement: uploadTitleRefs.current[fileIndex] instanceof HTMLElement
+    });
+    
     const element = uploadTitleRefs.current[fileIndex];
     if (!element) {
       alert(`❌ No title element for index ${fileIndex}`);
+      return '';
+    }
+    
+    if (!(element instanceof HTMLElement)) {
+      alert(`❌ Element is not HTML element for index ${fileIndex}`);
       return '';
     }
     
@@ -1652,7 +1663,7 @@ function MainApp() {
     if (value && value !== '') {
       alert(`Debug: Upload title [${fileIndex}] = "${value}"`);
     } else {
-      alert(`Debug: Upload title [${fileIndex}] = EMPTY! (REFS method)`);
+      alert(`Debug: Upload title [${fileIndex}] = EMPTY! Element value: "${element.value}"`);
     }
     
     return value;

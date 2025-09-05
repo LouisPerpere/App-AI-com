@@ -968,9 +968,12 @@ function MainApp() {
   // Fermer l'aperçu
   const handleClosePreview = useCallback(() => {
     setPreviewContent(null);
-    // Vider la textarea
+    // Vider les champs
     if (contextTextareaRef.current) {
       contextTextareaRef.current.value = '';
+    }
+    if (previewTitleInputRef.current) {
+      previewTitleInputRef.current.value = '';
     }
   }, []);
 

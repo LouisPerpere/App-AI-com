@@ -1677,6 +1677,44 @@ function MainApp() {
       });
       
       console.log('📤 Upload response:', response.data);
+      
+      // Update titles and contexts for uploaded files
+      if (response.data.created && response.data.created.length > 0) {
+        for (let i = 0; i < response.data.created.length; i++) {
+          const createdItem = response.data.created[i];
+          const customTitle = getFileCustomData(i, 'title', '').trim();
+          const customContext = getFileCustomData(i, 'context', '').trim();
+          
+          try {
+            // Update title if provided and different from filename
+            if (customTitle && customTitle !== selectedFiles[i].name) {
+              await axios.put(`${API}/content/${createdItem.id}/title`, {
+                title: customTitle
+              }, {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem('access_token')}`
+                }
+              });
+              console.log(`✅ Title updated for ${createdItem.filename}: "${customTitle}"`);
+            }
+            
+            // Update context if provided
+            if (customContext) {
+              await axios.put(`${API}/content/${createdItem.id}/context`, {
+                context: customContext
+              }, {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem('access_token')}`
+                }
+              });
+              console.log(`✅ Context updated for ${createdItem.filename}: "${customContext}"`);
+            }
+          } catch (updateError) {
+            console.warn(`⚠️ Failed to update metadata for ${createdItem.filename}:`, updateError);
+          }
+        }
+      }
+      
       toast.success(`${response.data.count || selectedFiles.length} fichiers uploadés avec succès !`);
       setSelectedFiles([]);
       setFileCustomData({}); // Clean up custom data

@@ -964,7 +964,7 @@ function MainApp() {
           contextTextareaRef.current.value = content.context || '';
         }
         if (previewTitleInputRef.current) {
-          previewTitleInputRef.current.value = content.title?.trim() || content.filename || '';
+          previewTitleInputRef.current.value = content.title?.trim() || '';  // SEULEMENT le titre opérationnel, pas le filename
         }
       }, 100);
     }

@@ -92,21 +92,6 @@ const ContentThumbnail = React.memo(({
     }
   }, [isSelectionMode, content, onContentClick, onToggleSelection]);
 
-  // Debug state for mobile testing
-  const [debugLogs, setDebugLogs] = useState([]);
-  const [showDebugPanel, setShowDebugPanel] = useState(false);
-  
-  // Add debug log function for mobile
-  const addDebugLog = useCallback((message, data = null) => {
-    const timestamp = new Date().toLocaleTimeString();
-    const logEntry = {
-      timestamp,
-      message,
-      data: data ? JSON.stringify(data, null, 2) : null
-    };
-    setDebugLogs(prev => [logEntry, ...prev.slice(0, 19)]); // Keep only last 20 logs
-    console.log(`[${timestamp}] ${message}`, data);
-  }, []);
   console.log('🖼️ Content thumbnail:', {
     id: content.id,
     filename: content.filename,

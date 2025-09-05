@@ -1094,8 +1094,8 @@ function MainApp() {
         contextTextareaRef.current.value = contextValue.trim();
       }
       
-      // Recharger la liste pour persister les changements
-      await loadPendingContent();
+      // NE PAS recharger automatiquement pour éviter d'écraser les modifications
+      // await loadPendingContent();
       
       // Fermer automatiquement la modal après 1 seconde
       setTimeout(() => {

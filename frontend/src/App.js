@@ -1738,7 +1738,10 @@ function MainApp() {
           try {
             // Update title if provided
             if (customTitle) {
-              const titleResponse = await axios.put(`${API}/content/${createdItem.id}/title`, {
+              const titleURL = `${API}/content/${createdItem.id}/title`;
+              alert(`Debug: Title API URL = ${titleURL}`);
+              
+              const titleResponse = await axios.put(titleURL, {
                 title: customTitle
               }, {
                 headers: {
@@ -1754,13 +1757,13 @@ function MainApp() {
                 alert(`❌ Title save failed: ${titleResponse.status}`);
               }
             } else {
-              console.log(`⏭️ Skipping title update for ${createdItem.filename} (empty)`);
               alert(`⏭️ No title to save for ${createdItem.filename}`);
             }
             
             // Update context if provided
             if (customContext) {
-              const contextResponse = await axios.put(`${API}/content/${createdItem.id}/context`, {
+              const contextURL = `${API}/content/${createdItem.id}/context`;
+              const contextResponse = await axios.put(contextURL, {
                 context: customContext
               }, {
                 headers: {
@@ -1778,7 +1781,7 @@ function MainApp() {
             }
           } catch (updateError) {
             console.warn(`⚠️ Failed to update metadata for ${createdItem.filename}:`, updateError);
-            alert(`❌ API Error: ${updateError.message}`);
+            alert(`❌ API Error: ${updateError.message} (URL might be wrong)`);
           }
         }
       } else {

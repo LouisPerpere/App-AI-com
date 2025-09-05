@@ -275,9 +275,8 @@ function MainApp() {
   const targetYearRef = useRef(null); // Année cible
   const previewTitleInputRef = useRef(null); // Pour le titre dans l'aperçu
   
-  // Refs pour les champs d'upload (éviter bug clavier virtuel)
-  const uploadTitleRefs = useRef({}); // Map des refs par index de fichier
-  const uploadContextRefs = useRef({}); // Map des refs par index de fichier
+  // États pour les données d'upload - NOUVELLE APPROCHE
+  const [uploadData, setUploadData] = useState({});
 
   
   // Website analysis states

@@ -2511,10 +2511,7 @@ function MainApp() {
                                     </label>
                                     <textarea
                                       ref={(el) => {
-                                        if (!uploadContextRefs.current[index]) {
-                                          uploadContextRefs.current[index] = { current: null };
-                                        }
-                                        uploadContextRefs.current[index].current = el;
+                                        uploadContextRefs.current[index] = el;
                                       }}
                                       placeholder="Facultatif"
                                       defaultValue=""

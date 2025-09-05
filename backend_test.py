@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Backend Testing Script for Claire et Marcus API
-Focus: Operational Title Field Implementation Testing
+Focus: Title Persistence After Latest Fixes Testing
+Review Request: TEST TITLE PERSISTENCE AFTER LATEST FIXES
 """
 
 import requests

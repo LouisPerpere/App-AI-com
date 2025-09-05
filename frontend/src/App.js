@@ -1030,6 +1030,7 @@ function MainApp() {
 
   const handlePreviewTitleKeyPress = useCallback((e) => {
     if (e.key === 'Enter') {
+      e.preventDefault(); // Empêcher la soumission de formulaire
       handlePreviewTitleSave();
     } else if (e.key === 'Escape') {
       handlePreviewTitleCancel();

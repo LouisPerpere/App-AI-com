@@ -76,7 +76,7 @@ const FREE_TRIAL_PLAN = {
   color: 'green'
 };
 
-// Optimized Content Thumbnail Component (prevents unnecessary re-renders)
+// ContentThumbnail component optimisé avec memo pour éviter re-renders
 const ContentThumbnail = React.memo(({ 
   content, 
   isSelectionMode, 

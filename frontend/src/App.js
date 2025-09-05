@@ -1093,37 +1093,40 @@ function MainApp() {
 
       // 2. Sauvegarder le titre s'il a été modifié
       let titleSaved = false;
-      if (isEditingPreviewTitle && previewTempTitle.trim() !== previewContent.filename) {
-        try {
-          const titleResponse = await axios.put(
-            `${API}/content/${previewContent.id}/title`,
-            { title: previewTempTitle.trim() },
-            {
-              headers: { 
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
+      if (isEditingPreviewTitle && previewTitleInputRef.current) {
+        const newTitle = previewTitleInputRef.current.value.trim();
+        if (newTitle !== previewContent.filename) {
+          try {
+            const titleResponse = await axios.put(
+              `${API}/content/${previewContent.id}/title`,
+              { title: newTitle },
+              {
+                headers: { 
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                }
               }
-            }
-          );
+            );
 
-          if (titleResponse.status === 200) {
-            // Mettre à jour le contenu local avec le nouveau titre
-            const updatedContent = { 
-              ...previewContent, 
-              filename: previewTempTitle.trim(),
-              context: contextValue.trim()
-            };
-            setPreviewContent(updatedContent);
-            
-            // Réinitialiser l'état d'édition du titre
-            setIsEditingPreviewTitle(false);
-            setIsSavingPreviewTitle(false);
-            
-            titleSaved = true;
+            if (titleResponse.status === 200) {
+              // Mettre à jour le contenu local avec le nouveau titre
+              const updatedContent = { 
+                ...previewContent, 
+                filename: newTitle,
+                context: contextValue.trim()
+              };
+              setPreviewContent(updatedContent);
+              
+              // Réinitialiser l'état d'édition du titre
+              setIsEditingPreviewTitle(false);
+              setIsSavingPreviewTitle(false);
+              
+              titleSaved = true;
+            }
+          } catch (titleError) {
+            console.error('Erreur lors de la sauvegarde du titre:', titleError);
+            // On continue même si le titre n'a pas pu être sauvegardé
           }
-        } catch (titleError) {
-          console.error('Erreur lors de la sauvegarde du titre:', titleError);
-          // On continue même si le titre n'a pas pu être sauvegardé
         }
       } else {
         // Mettre à jour seulement le contexte

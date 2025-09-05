@@ -986,6 +986,13 @@ function MainApp() {
 
   // Ouvrir l'aperçu d'un contenu
   const handleContentClick = useCallback((content) => {
+    // Debug alert for mobile testing
+    if (content.title) {
+      alert(`Debug Modal: Title = "${content.title}"`);
+    } else {
+      alert(`Debug Modal: No title (will show placeholder)`);
+    }
+    
     console.log('📱 Modal opening for content:', {
       id: content.id,
       filename: content.filename,

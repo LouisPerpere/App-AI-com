@@ -1613,16 +1613,36 @@ function MainApp() {
 
   // Handle file custom data (titles and contexts) during upload preview - REFS SIMPLES
   const getUploadTitleValue = useCallback((fileIndex) => {
+    console.log(`🔍 Getting upload title for index ${fileIndex}:`);
+    console.log('  - uploadTitleRefs.current:', uploadTitleRefs.current);
+    console.log('  - uploadTitleRefs.current[fileIndex]:', uploadTitleRefs.current[fileIndex]);
+    
     const ref = uploadTitleRefs.current[fileIndex];
-    const value = ref?.current?.value || '';
-    console.log(`🔍 Upload title [${fileIndex}]:`, value);
+    if (!ref) {
+      console.log(`  - ❌ No ref found for index ${fileIndex}`);
+      return '';
+    }
+    
+    console.log('  - ref.current:', ref.current);
+    if (!ref.current) {
+      console.log(`  - ❌ No current element for index ${fileIndex}`);
+      return '';
+    }
+    
+    const value = ref.current.value || '';
+    console.log(`  - ✅ Value found: "${value}"`);
     return value;
   }, []);
 
   const getUploadContextValue = useCallback((fileIndex) => {
+    console.log(`🔍 Getting upload context for index ${fileIndex}:`);
     const ref = uploadContextRefs.current[fileIndex];
-    const value = ref?.current?.value || '';
-    console.log(`🔍 Upload context [${fileIndex}]:`, value);
+    if (!ref?.current) {
+      console.log(`  - ❌ No ref/element found for context index ${fileIndex}`);
+      return '';
+    }
+    const value = ref.current.value || '';
+    console.log(`  - ✅ Context value: "${value}"`);
     return value;
   }, []);
 

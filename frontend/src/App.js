@@ -1662,18 +1662,20 @@ function MainApp() {
   }, []);
 
   const getUploadContextValue = useCallback((fileIndex) => {
-    console.log(`🔍 Getting upload context for index ${fileIndex}:`);
     const ref = uploadContextRefs.current[fileIndex];
     if (!ref?.current) {
-      console.log(`  - ❌ No ref/element found for context index ${fileIndex}`);
-      addDebugLog(`❌ No context ref for index ${fileIndex}`);
       return '';
     }
     const value = ref.current.value || '';
-    console.log(`  - ✅ Context value: "${value}"`);
-    addDebugLog(`✅ Context ref [${fileIndex}]: "${value}"`);
+    console.log(`🔍 Upload context [${fileIndex}]:`, value);
+    
+    // Show debug alert on mobile for critical values
+    if (value && value !== '') {
+      alert(`Debug: Upload context [${fileIndex}] = "${value}"`);
+    }
+    
     return value;
-  }, [addDebugLog]);
+  }, []);
 
   // Handle file custom data (titles and contexts) during upload preview - ANCIEN CODE SUPPRIMÉ
   const updateFileCustomData = useCallback((fileIndex, field, value) => {

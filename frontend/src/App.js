@@ -2453,29 +2453,100 @@ function MainApp() {
                             </Button>
                           </div>
                           
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {selectedFiles.map((file, index) => (
-                              <div key={index} className="relative group">
-                                <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden border-2 border-purple-200">
-                                  {file.type.startsWith('image/') ? (
-                                    <img 
-                                      src={URL.createObjectURL(file)} 
-                                      alt={file.name}
-                                      className="w-full h-full object-cover"
+                              <div key={index} className="relative group bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                                <div className="flex flex-col space-y-3">
+                                  {/* Image preview */}
+                                  <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                                    {file.type.startsWith('image/') ? (
+                                      <img 
+                                        src={URL.createObjectURL(file)} 
+                                        alt={file.name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
+                                        <FileText className="w-8 h-8 text-purple-600" />
+                                      </div>
+                                    )}
+                                  </div>
+                                  
+                                  {/* Custom title input */}
+                                  <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                      Titre de l'image
+                                    </label>
+                                    <input
+                                      type="text"
+                                      placeholder={file.name}
+                                      value={getFileCustomData(index, 'title', file.name)}
+                                      onChange={(e) => updateFileCustomData(index, 'title', e.target.value)}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                                      style={{
+                                        fontSize: '16px',
+                                        lineHeight: '1.5',
+                                        WebkitAppearance: 'none',
+                                        borderRadius: '8px',
+                                        touchAction: 'manipulation'
+                                      }}
                                     />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
-                                      <FileText className="w-8 h-8 text-purple-600" />
-                                    </div>
-                                  )}
+                                  </div>
+                                  
+                                  {/* Custom context input */}
+                                  <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                      Description / Contexte
+                                    </label>
+                                    <textarea
+                                      placeholder="Ajoutez une description pour faciliter la création de posts..."
+                                      value={getFileCustomData(index, 'context', '')}
+                                      onChange={(e) => updateFileCustomData(index, 'context', e.target.value)}
+                                      rows={3}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none"
+                                      style={{
+                                        fontSize: '16px',
+                                        lineHeight: '1.5',
+                                        WebkitAppearance: 'none',
+                                        borderRadius: '8px',
+                                        touchAction: 'manipulation'
+                                      }}
+                                    />
+                                  </div>
+                                  
+                                  {/* File info and remove button */}
+                                  <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                                    <span className="text-xs text-gray-500">
+                                      {Math.round(file.size / 1024)} KB
+                                    </span>
+                                    <button
+                                      onClick={() => {
+                                        setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+                                        // Clean up custom data for removed file
+                                        setFileCustomData(prev => {
+                                          const newData = { ...prev };
+                                          delete newData[index];
+                                          // Reindex remaining files
+                                          const reindexed = {};
+                                          Object.keys(newData).forEach(key => {
+                                            const keyIndex = parseInt(key);
+                                            if (keyIndex > index) {
+                                              reindexed[keyIndex - 1] = newData[key];
+                                            } else {
+                                              reindexed[key] = newData[key];
+                                            }
+                                          });
+                                          return reindexed;
+                                        });
+                                      }}
+                                      className="flex items-center space-x-1 px-2 py-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded text-sm transition-colors"
+                                      title="Supprimer ce fichier"
+                                    >
+                                      <X className="w-4 h-4" />
+                                      <span>Supprimer</span>
+                                    </button>
+                                  </div>
                                 </div>
-                                <p className="text-sm text-gray-600 mt-2 truncate">{file.name}</p>
-                                <button
-                                  onClick={() => setSelectedFiles(prev => prev.filter((_, i) => i !== index))}
-                                  className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                  <X className="w-4 h-4" />
-                                </button>
                               </div>
                             ))}
                           </div>

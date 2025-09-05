@@ -2632,7 +2632,13 @@ function MainApp() {
                             placeholder="Ex: entreprise, marketing, équipe..."
                             onKeyPress={(e) => e.key === 'Enter' && searchPixabayImages()}
                             className="flex-1 text-base border-blue-200 focus:border-blue-400 rounded-md border px-3 py-2"
-                            style={{ fontSize: '16px', WebkitAppearance: 'none', touchAction: 'manipulation' }}
+                            style={{
+                              fontSize: '16px',
+                              lineHeight: '1.5', 
+                              WebkitAppearance: 'none',
+                              borderRadius: '8px',
+                              touchAction: 'manipulation'
+                            }}
                           />
                           <Button
                             onClick={searchPixabayImages}

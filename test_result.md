@@ -112,6 +112,18 @@ user_problem_statement: "FONCTIONNALITÉ SAUVEGARDE PROFIL BUSINESS : L'utilisat
 # Added by main agent for Phase A testing
 
 backend:
+  - task: "Operational Title Field Backend Implementation" 
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "🔧 BACKEND OPERATIONAL TITLE IMPLEMENTATION COMPLETED: Added new Content Pydantic model with title field (Optional[str], description='Operational title for content generation and display'). Modified /api/content/pending endpoint to include 'title' field in response for all content items. Enhanced MediaResponse structure to support both technical filename and operational title. Field is optional and defaults to empty string for backward compatibility. Ready for backend testing to validate operational title CRUD operations."
+
   - task: "Notes API Endpoints Implementation"
     implemented: true
     working: true

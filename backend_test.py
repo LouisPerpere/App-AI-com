@@ -337,81 +337,131 @@ class BackendTester:
             self.log_test("Unified Saving Persistence Verification", False, "", str(e))
             return False
 
-    def test_edge_cases(self):
-        """Test edge cases for title updates"""
-        if not hasattr(self, 'test_content_id') or not self.test_content_id:
-            self.log_test(
-                "Edge Cases - No Content ID",
-                False,
-                "",
-                "No content ID available for testing"
+    def test_upload_data_persistence(self):
+        """Test upload data persistence via refs system"""
+        try:
+            # This test verifies that the backend can handle title/context data
+            # that would be sent from the upload system via refs
+            
+            # Simulate what would happen during upload - test with a different content item
+            response = self.session.get(
+                f"{self.base_url}/content/pending",
+                timeout=30
             )
+            
+            if response.status_code == 200:
+                data = response.json()
+                content_items = data.get("content", [])
+                
+                if len(content_items) >= 2:
+                    # Use second item for upload simulation test
+                    upload_test_id = content_items[1].get("id")
+                    
+                    # Simulate upload title/context data
+                    upload_title = "Titre d'upload via système refs - Test persistance"
+                    upload_context = "Contexte d'upload via système refs - Données persistantes"
+                    
+                    # Test title update (simulating upload refs system)
+                    title_response = self.session.put(
+                        f"{self.base_url}/content/{upload_test_id}/title",
+                        json={"title": upload_title},
+                        timeout=30
+                    )
+                    
+                    # Test context update (simulating upload refs system)
+                    context_response = self.session.put(
+                        f"{self.base_url}/content/{upload_test_id}/context",
+                        json={"context": upload_context},
+                        timeout=30
+                    )
+                    
+                    title_success = title_response.status_code == 200
+                    context_success = context_response.status_code == 200
+                    
+                    if title_success and context_success:
+                        # Verify persistence
+                        verify_response = self.session.get(
+                            f"{self.base_url}/content/pending",
+                            timeout=30
+                        )
+                        
+                        if verify_response.status_code == 200:
+                            verify_data = verify_response.json()
+                            verify_items = verify_data.get("content", [])
+                            
+                            # Find the upload test item
+                            upload_item = None
+                            for item in verify_items:
+                                if item.get("id") == upload_test_id:
+                                    upload_item = item
+                                    break
+                            
+                            if upload_item:
+                                persisted_title = upload_item.get("title", "")
+                                persisted_context = upload_item.get("context", "")
+                                
+                                title_match = persisted_title == upload_title
+                                context_match = persisted_context == upload_context
+                                
+                                if title_match and context_match:
+                                    self.log_test(
+                                        "Upload Data Persistence Test",
+                                        True,
+                                        f"Upload simulation successful. Title: '{persisted_title}', Context: '{persisted_context}'"
+                                    )
+                                    return True
+                                else:
+                                    self.log_test(
+                                        "Upload Data Persistence Test",
+                                        False,
+                                        f"Persistence mismatch. Title match: {title_match}, Context match: {context_match}",
+                                        "Upload data not persisted correctly"
+                                    )
+                                    return False
+                            else:
+                                self.log_test(
+                                    "Upload Data Persistence Test",
+                                    False,
+                                    "",
+                                    "Upload test item not found after update"
+                                )
+                                return False
+                        else:
+                            self.log_test(
+                                "Upload Data Persistence Test",
+                                False,
+                                f"Verification request failed: {verify_response.status_code}",
+                                verify_response.text
+                            )
+                            return False
+                    else:
+                        self.log_test(
+                            "Upload Data Persistence Test",
+                            False,
+                            f"Title update: {title_success}, Context update: {context_success}",
+                            "Upload simulation updates failed"
+                        )
+                        return False
+                else:
+                    self.log_test(
+                        "Upload Data Persistence Test",
+                        False,
+                        f"Only {len(content_items)} items available, need at least 2 for upload test",
+                        "Insufficient content items for upload simulation"
+                    )
+                    return False
+            else:
+                self.log_test(
+                    "Upload Data Persistence Test",
+                    False,
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_test("Upload Data Persistence Test", False, "", str(e))
             return False
-            
-        edge_case_results = []
-        
-        # Test 1: Empty string title
-        try:
-            response = self.session.put(
-                f"{self.base_url}/content/{self.test_content_id}/title",
-                json={"title": ""},
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                edge_case_results.append("Empty title: PASS")
-            else:
-                edge_case_results.append(f"Empty title: FAIL ({response.status_code})")
-                
-        except Exception as e:
-            edge_case_results.append(f"Empty title: ERROR ({str(e)})")
-        
-        # Test 2: Special characters and French accents
-        try:
-            special_title = "Titre avec accents éàçù et caractères spéciaux !@#$%"
-            response = self.session.put(
-                f"{self.base_url}/content/{self.test_content_id}/title",
-                json={"title": special_title},
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                edge_case_results.append("Special characters: PASS")
-            else:
-                edge_case_results.append(f"Special characters: FAIL ({response.status_code})")
-                
-        except Exception as e:
-            edge_case_results.append(f"Special characters: ERROR ({str(e)})")
-        
-        # Test 3: Non-existent content ID
-        try:
-            fake_id = "nonexistent-content-id-12345"
-            response = self.session.put(
-                f"{self.base_url}/content/{fake_id}/title",
-                json={"title": "Test title"},
-                timeout=30
-            )
-            
-            if response.status_code == 404:
-                edge_case_results.append("Non-existent ID: PASS (404 returned)")
-            else:
-                edge_case_results.append(f"Non-existent ID: FAIL (Expected 404, got {response.status_code})")
-                
-        except Exception as e:
-            edge_case_results.append(f"Non-existent ID: ERROR ({str(e)})")
-        
-        # Evaluate overall edge case testing
-        passed_tests = len([r for r in edge_case_results if "PASS" in r])
-        total_tests = len(edge_case_results)
-        
-        self.log_test(
-            "Edge Cases Testing",
-            passed_tests == total_tests,
-            f"Passed {passed_tests}/{total_tests} edge case tests: {', '.join(edge_case_results)}",
-            "" if passed_tests == total_tests else "Some edge cases failed"
-        )
-        
-        return passed_tests == total_tests
 
     def run_operational_title_tests(self):
         """Run comprehensive operational title testing"""

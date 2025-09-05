@@ -1007,8 +1007,9 @@ function MainApp() {
   const handleSaveContext = async () => {
     if (!previewContent) return;
 
-    // Lire la valeur directement du DOM
+    // Lire la valeur directement du DOM pour contexte ET titre (même logique)
     const contextValue = contextTextareaRef.current?.value || '';
+    const titleValue = previewTitleInputRef.current?.value || '';
 
     const token = localStorage.getItem('access_token');
     if (!token) {
@@ -1019,97 +1020,45 @@ function MainApp() {
     setIsSavingContext(true);
 
     try {
-      // 1. Sauvegarder le contexte
+      // 1. Sauvegarder le contexte (logique existante)
       await axios.put(`${API}/content/${previewContent.id}/context`, {
         context: contextValue.trim()
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      // 2. Sauvegarder le titre s'il a été modifié
-      let titleSaved = false;
-      if (previewTitleInputRef.current) {
-        const currentTitleFromInput = previewTitleInputRef.current.value.trim();
-        const originalTitle = previewContent.title?.trim() || '';  // SEULEMENT le titre opérationnel
-        
-        console.log('🔍 Debug titre:', {
-          currentTitleFromInput,
-          originalTitle,
-          willSave: currentTitleFromInput.length > 0
-        });
-        
-        if (currentTitleFromInput.length > 0) {
-          try {
-            console.log('💾 Sauvegarde du titre:', currentTitleFromInput);
-            const titleResponse = await axios.put(
-              `${API}/content/${previewContent.id}/title`,
-              { title: currentTitleFromInput },
-              {
-                headers: { 
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json'
-                }
-              }
-            );
-
-            if (titleResponse.status === 200) {
-              console.log('✅ Titre sauvegardé avec succès');
-              // Mettre à jour le contenu local avec le nouveau titre OPÉRATIONNEL
-              const updatedContent = { 
-                ...previewContent, 
-                title: currentTitleFromInput,  // CORRECTION: mettre à jour le titre opérationnel
-                context: contextValue.trim()
-              };
-              setPreviewContent(updatedContent);
-              
-              // Mettre à jour aussi dans pendingContent
-              setPendingContent(prevContent => 
-                prevContent.map(content => 
-                  content.id === previewContent.id 
-                    ? { ...content, title: currentTitleFromInput }  // CORRECTION: titre opérationnel
-                    : content
-                )
-              );
-              
-              titleSaved = true;
-            }
-          } catch (titleError) {
-            console.error('❌ Erreur lors de la sauvegarde du titre:', titleError);
-            // On continue même si le titre n'a pas pu être sauvegardé
-          }
-        } else {
-          console.log('ℹ️ Pas de sauvegarde titre:', currentTitleFromInput === originalTitle ? 'Identique' : 'Vide');
-        }
-      } else {
-        // Mettre à jour seulement le contexte
-        const updatedContent = { ...previewContent, context: contextValue.trim() };
-        setPreviewContent(updatedContent);
-      }
-
-      // Message de succès adapté
-      if (titleSaved) {
-        toast.success('Titre et contexte sauvegardés ! 💾');
-      } else {
-        toast.success('Contexte sauvegardé ! 💾');
-      }
+      // 2. Sauvegarder le titre (MÊME LOGIQUE que le contexte)
+      await axios.put(`${API}/content/${previewContent.id}/title`, {
+        title: titleValue.trim()
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       
-      // Remettre le texte dans la textarea après sauvegarde pour qu'il reste visible
-      if (contextTextareaRef.current) {
-        contextTextareaRef.current.value = contextValue.trim();
-      }
-      
-      // NE PAS recharger automatiquement pour éviter d'écraser les modifications
-      // await loadPendingContent();
-      
-      // Fermer automatiquement la modal après 1 seconde
-      setTimeout(() => {
-        handleClosePreview();
-      }, 1000);
+      console.log('✅ Titre et contexte sauvegardés:', { title: titleValue.trim(), context: contextValue.trim() });
 
+      // 3. Mettre à jour l'état local avec les nouvelles valeurs
+      const updatedContent = { 
+        ...previewContent, 
+        title: titleValue.trim(),
+        context: contextValue.trim()
+      };
+      setPreviewContent(updatedContent);
+      
+      // 4. Mettre à jour aussi dans pendingContent
+      setPendingContent(prevContent => 
+        prevContent.map(content => 
+          content.id === previewContent.id 
+            ? { ...content, title: titleValue.trim(), context: contextValue.trim() }
+            : content
+        )
+      );
+
+      toast.success('Contenu mis à jour avec succès !');
+      
     } catch (error) {
-      console.error('Error saving context:', error);
-      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
-      toast.error(`Erreur lors de la sauvegarde: ${errorMessage}`);
+      console.error('❌ Erreur lors de la sauvegarde:', error);
+      const errorMessage = error.response?.data?.detail || 'Erreur lors de la sauvegarde';
+      toast.error(errorMessage);
     } finally {
       setIsSavingContext(false);
     }

@@ -2807,28 +2807,7 @@ function MainApp() {
                               </div>
                             )}
                             
-                            {/* Titre toujours éditable (comme la textarea) */}
-                            <div className="space-y-2">
-                              <label className="block text-sm font-medium text-gray-700">
-                                Titre de l'image
-                              </label>
-                              <input
-                                ref={previewTitleInputRef}
-                                type="text"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                disabled={isSavingContext}
-                                placeholder="Nom du fichier..."
-                                style={{
-                                  fontSize: '16px',
-                                  lineHeight: '1.5',
-                                  WebkitAppearance: 'none',
-                                  borderRadius: '8px',
-                                  boxShadow: 'none',
-                                  WebkitBoxShadow: 'none',
-                                  touchAction: 'manipulation'
-                                }}
-                              />
-                            </div>
+
                             
                             {/* Informations du fichier (simplifiées) */}
                             <div className="text-sm text-gray-600 space-y-1">

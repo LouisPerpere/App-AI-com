@@ -1724,9 +1724,13 @@ function MainApp() {
           console.log(`📝 File ${i + 1}/${response.data.created.length} - ${createdItem.filename}:`, {
             title: customTitle,
             context: customContext,
+            itemId: createdItem.id,
             willUpdateTitle: Boolean(customTitle),
             willUpdateContext: Boolean(customContext)
           });
+          
+          // Debug alert for mobile - show the ID being used
+          alert(`Debug: Using ID "${createdItem.id}" for ${createdItem.filename}`);
           
           try {
             // Update title if provided

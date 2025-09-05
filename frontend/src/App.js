@@ -230,6 +230,7 @@ function MainApp() {
   
   // Form states
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [fileCustomData, setFileCustomData] = useState({}); // Store custom titles and contexts for selected files
   const [isUploading, setIsUploading] = useState(false);
   const [isSavingBusinessInfo, setIsSavingBusinessInfo] = useState(false);
   const [isSavingMarketingInfo, setIsSavingMarketingInfo] = useState(false);

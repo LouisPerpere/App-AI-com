@@ -1640,17 +1640,21 @@ function MainApp() {
 
   // Handle file custom data (titles and contexts) during upload preview - REFS SIMPLES
   const getUploadTitleValue = useCallback((fileIndex) => {
-    const ref = uploadTitleRefs.current[fileIndex];
-    if (!ref?.current) {
+    const element = uploadTitleRefs.current[fileIndex];
+    if (!element) {
+      console.log(`❌ No title element found for index ${fileIndex}`);
+      alert(`❌ No title element for index ${fileIndex}`);
       return '';
     }
     
-    const value = ref.current.value || '';
+    const value = element.value || '';
     console.log(`🔍 Upload title [${fileIndex}]:`, value);
     
     // Show debug alert on mobile for critical values
     if (value && value !== '') {
       alert(`Debug: Upload title [${fileIndex}] = "${value}"`);
+    } else {
+      alert(`Debug: Upload title [${fileIndex}] = EMPTY!`);
     }
     
     return value;

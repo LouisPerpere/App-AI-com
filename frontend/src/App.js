@@ -1665,22 +1665,28 @@ function MainApp() {
   }, []);
 
   const getUploadContextValue = useCallback((fileIndex) => {
+    // Méthode 1: Essai avec refs
     const element = uploadContextRefs.current[fileIndex];
-    if (!element) {
-      alert(`❌ No context element for index ${fileIndex}`);
-      return '';
+    if (element && element instanceof HTMLElement && element.value) {
+      const refValue = element.value.trim();
+      if (refValue) {
+        alert(`Debug: Upload context [${fileIndex}] = "${refValue}" (via refs)`);
+        return refValue;
+      }
     }
     
-    const value = element.value || '';
-    console.log(`🔍 Upload context [${fileIndex}] via REFS:`, value);
-    
-    if (value && value !== '') {
-      alert(`Debug: Upload context [${fileIndex}] = "${value}"`);
-    } else {
-      alert(`Debug: Upload context [${fileIndex}] = EMPTY! (REFS method)`);
+    // Méthode 2: Fallback DOM si refs échouent
+    const textareas = document.querySelectorAll('textarea[placeholder="Facultatif"]');
+    if (textareas[fileIndex] && textareas[fileIndex].value) {
+      const domValue = textareas[fileIndex].value.trim();
+      if (domValue) {
+        alert(`Debug: Upload context [${fileIndex}] = "${domValue}" (via DOM fallback)`);
+        return domValue;
+      }
     }
     
-    return value;
+    alert(`Debug: Upload context [${fileIndex}] = EMPTY! (both methods failed)`);
+    return '';
   }, []);
 
   // Handle file custom data (titles and contexts) during upload preview - ANCIEN CODE SUPPRIMÉ

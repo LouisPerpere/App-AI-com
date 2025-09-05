@@ -275,10 +275,6 @@ function MainApp() {
   const targetYearRef = useRef(null); // Année cible
   const previewTitleInputRef = useRef(null); // Pour le titre dans l'aperçu
   
-  // États pour les données d'upload - NOUVELLE APPROCHE
-  const [uploadData, setUploadData] = useState({});
-
-  
   // Website analysis states
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [websiteAnalysis, setWebsiteAnalysis] = useState(null);

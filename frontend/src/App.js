@@ -1721,7 +1721,11 @@ function MainApp() {
       setFileCustomData({}); // Clean up custom data
       uploadTitleRefs.current = {}; // Clean up title refs
       uploadContextRefs.current = {}; // Clean up context refs
-      loadPendingContent();
+      
+      // Force content refresh after all metadata updates complete
+      console.log('🔄 Forcing content refresh after upload...');
+      await loadPendingContent();
+      console.log('✅ Content refresh completed after upload');
     } catch (error) {
       console.error('❌ Upload error:', error);
       const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';

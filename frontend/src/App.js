@@ -1039,7 +1039,7 @@ function MainApp() {
           willSave: currentTitleFromInput !== originalTitle && currentTitleFromInput.length > 0
         });
         
-        if (currentTitleFromInput !== originalTitle && currentTitleFromInput.length > 0) {
+        if (currentTitleFromInput.length > 0) {
           try {
             console.log('💾 Sauvegarde du titre:', currentTitleFromInput);
             const titleResponse = await axios.put(

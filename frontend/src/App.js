@@ -2464,15 +2464,15 @@ function MainApp() {
                                     />
                                   </div>
                                   
-                                  {/* Custom context input */}
+                                  {/* Custom context input - NON-CONTRÔLÉ AVEC REF */}
                                   <div className="space-y-2">
                                     <label className="block text-sm font-medium text-gray-700">
                                       Description / Contexte
                                     </label>
                                     <textarea
-                                      placeholder="Ajoutez une description pour faciliter la création de posts..."
-                                      value={getFileCustomData(index, 'context', '')}
-                                      onChange={(e) => updateFileCustomData(index, 'context', e.target.value)}
+                                      ref={getUploadContextRef(index)}
+                                      placeholder="Facultatif"
+                                      defaultValue=""
                                       rows={3}
                                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none"
                                       style={{

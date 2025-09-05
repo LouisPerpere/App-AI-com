@@ -1638,42 +1638,44 @@ function MainApp() {
   const uploadTitleRefs = useRef({}); // Map des refs par index de fichier
   const uploadContextRefs = useRef({}); // Map des refs par index de fichier
   
-  // Fonctions pour gérer les données d'upload avec state
-  const updateUploadData = useCallback((fileIndex, field, value) => {
-    setUploadData(prev => ({
-      ...prev,
-      [fileIndex]: {
-        ...prev[fileIndex],
-        [field]: value
-      }
-    }));
-  }, []);
-
+  // Fonctions pour gérer les refs d'upload (éviter clavier virtuel)
   const getUploadTitleValue = useCallback((fileIndex) => {
-    const value = uploadData[fileIndex]?.title || '';
-    console.log(`🔍 Upload title [${fileIndex}] via STATE:`, value);
+    const element = uploadTitleRefs.current[fileIndex];
+    if (!element) {
+      alert(`❌ No title element for index ${fileIndex}`);
+      return '';
+    }
+    
+    const value = element.value || '';
+    console.log(`🔍 Upload title [${fileIndex}] via REFS:`, value);
     
     if (value && value !== '') {
       alert(`Debug: Upload title [${fileIndex}] = "${value}"`);
     } else {
-      alert(`Debug: Upload title [${fileIndex}] = EMPTY! (STATE method)`);
+      alert(`Debug: Upload title [${fileIndex}] = EMPTY! (REFS method)`);
     }
     
     return value;
-  }, [uploadData]);
+  }, []);
 
   const getUploadContextValue = useCallback((fileIndex) => {
-    const value = uploadData[fileIndex]?.context || '';
-    console.log(`🔍 Upload context [${fileIndex}] via STATE:`, value);
+    const element = uploadContextRefs.current[fileIndex];
+    if (!element) {
+      alert(`❌ No context element for index ${fileIndex}`);
+      return '';
+    }
+    
+    const value = element.value || '';
+    console.log(`🔍 Upload context [${fileIndex}] via REFS:`, value);
     
     if (value && value !== '') {
       alert(`Debug: Upload context [${fileIndex}] = "${value}"`);
     } else {
-      alert(`Debug: Upload context [${fileIndex}] = EMPTY! (STATE method)`);
+      alert(`Debug: Upload context [${fileIndex}] = EMPTY! (REFS method)`);
     }
     
     return value;
-  }, [uploadData]);
+  }, []);
 
   // Handle file custom data (titles and contexts) during upload preview - ANCIEN CODE SUPPRIMÉ
   const updateFileCustomData = useCallback((fileIndex, field, value) => {

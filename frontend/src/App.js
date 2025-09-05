@@ -423,6 +423,14 @@ function MainApp() {
         } : 'No items'
       });
       
+      // Debug alert for mobile - show first item with title
+      const itemWithTitle = data.content?.find(item => item.title);
+      if (itemWithTitle) {
+        alert(`📥 Found item with title: "${itemWithTitle.title}"`);
+      } else {
+        alert(`📥 No items with titles found in API response`);
+      }
+      
       setPendingContent(data.content || []);
       
     } catch (error) {

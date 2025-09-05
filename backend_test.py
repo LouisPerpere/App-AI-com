@@ -536,13 +536,19 @@ class BackendTester:
 def main():
     """Main test execution"""
     tester = BackendTester()
-    success = tester.run_operational_title_tests()
+    success = tester.run_title_persistence_tests()
     
     if success:
-        print("\n🎉 OPERATIONAL TITLE TESTING COMPLETED SUCCESSFULLY")
+        print("\n🎉 TITLE PERSISTENCE TESTING COMPLETED SUCCESSFULLY")
+        print("All critical changes verified:")
+        print("- Unified title/context saving logic working")
+        print("- Both fields persist correctly")
+        print("- No title reverting issues")
+        print("- Upload data preservation confirmed")
         sys.exit(0)
     else:
-        print("\n🚨 OPERATIONAL TITLE TESTING FAILED")
+        print("\n🚨 TITLE PERSISTENCE TESTING FAILED")
+        print("Some critical functionality may not be working as expected")
         sys.exit(1)
 
 if __name__ == "__main__":

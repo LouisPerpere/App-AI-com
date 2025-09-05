@@ -1687,8 +1687,8 @@ function MainApp() {
           const customContext = getFileCustomData(i, 'context', '').trim();
           
           try {
-            // Update title if provided and different from filename
-            if (customTitle && customTitle !== selectedFiles[i].name) {
+            // Update title if provided (allow saving even if same as filename)
+            if (customTitle) {
               await axios.put(`${API}/content/${createdItem.id}/title`, {
                 title: customTitle
               }, {

@@ -1130,42 +1130,50 @@ function MainApp() {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      // 2. Sauvegarder le titre s'il a été modifié
+      // 2. Sauvegarder le titre s'il a été modifié (en mode édition ou non)
       let titleSaved = false;
+      const displayedTitle = previewContent.filename || '';
+      
+      // Vérifier s'il y a un titre modifié soit dans le champ d'édition, soit affiché
+      let currentTitle = displayedTitle;
       if (isEditingPreviewTitle && previewTitleInputRef.current) {
-        const newTitle = previewTitleInputRef.current.value.trim();
-        if (newTitle !== previewContent.filename) {
-          try {
-            const titleResponse = await axios.put(
-              `${API}/content/${previewContent.id}/title`,
-              { title: newTitle },
-              {
-                headers: { 
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json'
-                }
+        currentTitle = previewTitleInputRef.current.value.trim();
+      }
+      
+      // Récupérer le titre original depuis les données du contenu
+      const originalTitle = previewContent.original_filename || previewContent.filename || '';
+      
+      if (currentTitle !== originalTitle && currentTitle.length > 0) {
+        try {
+          const titleResponse = await axios.put(
+            `${API}/content/${previewContent.id}/title`,
+            { title: currentTitle },
+            {
+              headers: { 
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
               }
-            );
-
-            if (titleResponse.status === 200) {
-              // Mettre à jour le contenu local avec le nouveau titre
-              const updatedContent = { 
-                ...previewContent, 
-                filename: newTitle,
-                context: contextValue.trim()
-              };
-              setPreviewContent(updatedContent);
-              
-              // Réinitialiser l'état d'édition du titre
-              setIsEditingPreviewTitle(false);
-              setIsSavingPreviewTitle(false);
-              
-              titleSaved = true;
             }
-          } catch (titleError) {
-            console.error('Erreur lors de la sauvegarde du titre:', titleError);
-            // On continue même si le titre n'a pas pu être sauvegardé
+          );
+
+          if (titleResponse.status === 200) {
+            // Mettre à jour le contenu local avec le nouveau titre
+            const updatedContent = { 
+              ...previewContent, 
+              filename: currentTitle,
+              context: contextValue.trim()
+            };
+            setPreviewContent(updatedContent);
+            
+            // Réinitialiser l'état d'édition du titre
+            setIsEditingPreviewTitle(false);
+            setIsSavingPreviewTitle(false);
+            
+            titleSaved = true;
           }
+        } catch (titleError) {
+          console.error('Erreur lors de la sauvegarde du titre:', titleError);
+          // On continue même si le titre n'a pas pu être sauvegardé
         }
       } else {
         // Mettre à jour seulement le contexte

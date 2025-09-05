@@ -22,7 +22,7 @@ EXPECTED SORTING ORDER (frontend will sort):
 3. Past specific month notes
 
 AUTHENTICATION: lperpere@yahoo.fr / L@Reunion974!
-BACKEND URL: https://bizpost-manager-1.preview.emergentagent.com/api
+BACKEND URL: https://claire-marcus-pwa.preview.emergentagent.com/api
 
 TEST FOCUS: Create varied test data to validate sorting logic.
 """
@@ -34,7 +34,7 @@ from datetime import datetime
 
 class NotesSortingValidationTester:
     def __init__(self):
-        self.base_url = "https://bizpost-manager-1.preview.emergentagent.com/api"
+        self.base_url = "https://claire-marcus-pwa.preview.emergentagent.com/api"
         self.session = requests.Session()
         self.access_token = None
         self.user_id = None

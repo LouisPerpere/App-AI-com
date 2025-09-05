@@ -28,7 +28,7 @@ from pymongo import MongoClient
 from bson import ObjectId
 
 # Configuration
-BACKEND_URL = "https://bizpost-manager-1.preview.emergentagent.com"
+BACKEND_URL = "https://claire-marcus-pwa.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request

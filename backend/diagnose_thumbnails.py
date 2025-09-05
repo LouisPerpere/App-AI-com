@@ -18,7 +18,7 @@ def diagnose_thumbnails():
     print("=" * 50)
     
     # Backend URL
-    backend_url = 'https://bizpost-manager-1.preview.emergentagent.com'
+    backend_url = 'https://claire-marcus-pwa.preview.emergentagent.com'
     
     # Login
     login_data = {'email': 'lperpere@yahoo.fr', 'password': 'L@Reunion974!'}

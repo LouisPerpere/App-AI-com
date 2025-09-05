@@ -1,87 +1,84 @@
 <analysis>
-The trajectory outlines the previous AI engineer's work on the Claire et Marcus PWA, a full-stack application. Initial phases focused on fixing core UI/UX issues like dashboard restoration, header layout, and enabling virtual keyboard input using uncontrolled components. A significant effort was dedicated to robust authentication and persistent data storage. Feature expansion included refining the business profile, overhauling website analysis with GPT-4o, and enhancing the content library with CRUD for notes and multi-selection for media. The most recent and extended work involved integrating Pixabay for royalty-free image search, which exposed and subsequently fixed numerous authentication, display, image processing (EXIF, resizing, caching), and data migration bugs. The engineer then began implementing a complex periodic notes system. The overall approach was iterative, with frequent user feedback and systematic debugging, often relying on the  for complex issues, culminating in a stable Pixabay integration and a partially implemented new notes feature.
+The trajectory details the AI engineer's work on the Claire et Marcus PWA. It began with enhancing the periodic notes system, which involved fixing a note editing bug, implementing monthly note functionality with month/year dropdowns, and adding backend models and database functions. This was followed by implementing robust frontend sorting logic for notes (monthly first, then chronological) and an automated backend cleanup process for expired notes.
+
+Subsequent work focused on critical bug fixes and feature refinements. This included resolving a persistent Laurent Perpere vs My Own Watch data display issue by correcting database relationships and backend API endpoints. Significant effort was dedicated to fixing image display problems, specifically addressing Pillow library incompatibility, inconsistent data structures for old uploaded images (leading to their loss), and issues with thumbnail generation. The engineer then iterated on the image title editing functionality, moving it from thumbnails to the preview modal, and resolving virtual keyboard and context preservation bugs during title editing. The process culminated in implementing comprehensive title and context editing during the upload process and further refining title saving logic. The trajectory concludes with the user requesting a new operational title field, separate from the technical title, which the engineer has just begun to implement on the backend.
 </analysis>
 
 <product_requirements>
-The Claire et Marcus PWA is an AI-powered SaaS for small businesses to automate social media content and profile management. Core requirements include: reliable content saving, display, and deletion via MongoDB; a 5-column content library grid with pop-up previews and batch operations; automatic 320px WEBP thumbnails; AI-powered website analysis using GPT-4o with monthly re-analysis and detailed outputs; a notes module; persistent business profiles; and robust authentication. Initial work involved restoring the dashboard, header layout, and enabling virtual keyboard input. Subsequent requirements added brand tone and posting frequency dropdowns, a locked/unlocked  system, and design modernization. Critical bug fixes addressed persistent 401 errors, header display, and mobile tab layout. Recent user requests focused on: manual post generation; Pixabay integration for royalty-free images (search, add to library); a visual added feedback (green checkmark) for Pixabay images; responsive Pixabay search layout; French categories for Pixabay; fixing virtual keyboard on Pixabay inputs; resolving all thumbnail/preview loading issues for both uploaded and Pixabay images; correcting image orientation (EXIF); resizing uploaded images to 1024px on the smallest side at 72dpi; optimizing image loading/caching; enabling title editing for photos; full multi-file upload functionality; and a new advanced periodic notes system with a monthly note checkbox, specific month/year assignments, and intelligent sorting/deletion.
+The Claire et Marcus PWA is an AI-powered SaaS for small businesses, automating social media content and profile management. Core features include reliable content CRUD via MongoDB, a 5-column content library grid with pop-up previews, 320px WEBP thumbnails, AI-powered website analysis (GPT-4o), a notes module, persistent business profiles, and robust authentication. Initial work involved UI/UX restoration, virtual keyboard fixes, and adding brand tone/posting frequency options. Recent explicit requests and the problems they solve include:
+- **Periodic Notes System**: Enable monthly notes with month/year assignment, chronological sorting (always valid first), and automatic deletion of specific notes on the 5th of the following month.
+- **Pixabay Integration**: Search and add royalty-free images to the library, with visual feedback.
+- **Image Management**: Correct thumbnail/preview loading, EXIF orientation, resize uploads to 1024px/72dpi, optimize loading/caching, enable title editing for photos.
+- **Business Profile Display**: Ensure My Own Watch business data is correctly displayed instead of user-specific data.
+- **Frontend UI/UX**: Fix notes exceeding iPhone screen, invisible checkbox, virtual keyboard issues on input fields, preserve context during title editing.
+- **Content Editing**: Edit photo titles from the preview page (not thumbnails), save title and context simultaneously, and edit title/context during the upload process.
+- **New Operational Title**: Introduce an optional operational title field for content generation and display, separate from the technical title (filename), which is editable during upload and on display.
 </product_requirements>
 
 <key_technical_concepts>
-- **Full-stack**: React.js (frontend), FastAPI (backend), MongoDB/GridFS (database).
-- **Authentication**: JWT, , , , robust token handling.
-- **AI Integration**: GPT-4o via  for website analysis and post generation.
-- **Frontend UI/UX**: Responsive design, virtual keyboard compatibility (uncontrolled inputs with ), Tailwind CSS, Glassmorphism, CSS animations.
-- **API Interaction**: RESTful endpoints,  prefix, , CORS handling.
-- **Scheduled Tasks**:  for automated website analysis and post generation.
-- **Image Processing**: PIL/Pillow for EXIF rotation, resizing, quality optimization (JPEG, WEBP, DPI).
-- **Data Persistence**: MongoDB ObjectId vs. UUID string for document IDs, data migration scripts.
+- **Full-stack Development**: React.js (frontend), FastAPI (backend), MongoDB/GridFS (database).
+- **Authentication**: JWT, ,  for API calls, token handling.
+- **AI Integration**: GPT-4o for website analysis and content generation.
+- **UI/UX**: Responsive design, virtual keyboard compatibility (uncontrolled inputs with ), Tailwind CSS.
+- **API Interaction**: RESTful,  prefix, CORS.
+- **Scheduled Tasks**: Python  for periodic operations (e.g., note deletion).
+- **Image Processing**: Pillow for EXIF rotation, resizing, WEBP conversion, GridFS storage.
+- **Data Persistence**: MongoDB (UUIDs for document IDs).
 </key_technical_concepts>
 
 <code_architecture>
 
--   ****: The main React component, central to UI and logic.
-    -   **Importance**: Renders the  with all tabs. Heavily modified for Pixabay integration UI (states, functions, sub-tabs, pagination, responsive layout), virtual keyboard compatibility fixes, thumbnail/preview URL generation (with token), and  for image titles. It also handles the states and logic for the new periodic notes system.
-    -   **Changes Made**: Added states like , , , , , , , . Pixabay API functions (, ). Logic to include token in thumbnail/file URLs. Responsive adjustments for Pixabay search buttons and Ajouter buttons.  modified for race condition. New states , ,  added for notes.
+-   ****: The main React component, rendering UI and handling logic.
+    -   **Importance**: Orchestrates the entire application, including dashboard, content library, and notes.
+    -   **Changes Made**: Heavily modified for periodic notes UI (states, checkbox, dropdowns, sorting logic, badges), content editing (title editing moved to preview modal, virtual keyboard fixes, context preservation, combined save), and upload flow (editable title/context pre-upload). It also handles business profile loading and display.
 -   ****: Main stylesheet.
-    -   **Importance**: Global styles and component styling.
-    -   **Changes Made**: Added mobile/touch CSS for virtual keyboard, animations. Specific CSS rules for notes form fields (, , ) for font size and touch-action. No specific new changes were shown here for Pixabay or notes in the trajectory.
--   ****: Frontend environment variables.
-    -   **Importance**: Stores .
-    -   **Changes Made**: Corrected  from local Emergent to Render, then back to local Emergent repeatedly to address login/data issues.
--   ****: Authentication component.
-    -   **Importance**: Handles user login and registration.
-    -   **Changes Made**: Added  to the  request to resolve CORS policy errors during authentication.
+    -   **Importance**: Global and component-specific styling.
+    -   **Changes Made**: Added styles for mobile/touch, specific note form fields, checkbox visibility, and title input border for better UX.
 -   ****: Main FastAPI backend server.
-    -   **Importance**: Core API routes and Pydantic models.
-    -   **Changes Made**:  model updated with , , .  model added.  and  endpoints implemented/modified (to accept JSON body, use correct collection).  endpoint added for updating content titles.
+    -   **Importance**: Defines API routes and Pydantic models.
+    -   **Changes Made**: Updated  model for periodic notes, added Pixabay endpoints,  for title updates,  modified to fetch from ,  endpoint added.
 -   ****: Handles MongoDB interactions.
-    -   **Importance**: Database operations.
-    -   **Changes Made**:  function modified to accept , ,  parameters.
--   ****: Backend environment variables.
-    -   **Importance**: Stores , .
-    -   **Changes Made**:  added.  updated multiple times to switch between local and user's external MongoDB Atlas.
--   ****: Python dependencies.
-    -   **Importance**: Lists all backend libraries.
-    -   **Changes Made**:  confirmed to be present.
--   ****: Handles thumbnail generation.
-    -   **Importance**: Image processing, resizing, and EXIF handling.
-    -   **Changes Made**: Added  function for EXIF rotation.  and  updated to use EXIF.  (moved to  locally later) was created for precise image resizing (1024px on smallest side, 72 DPI, 85% JPEG quality).  was updated to handle UUID strings.
--   ****: Handles file uploads and serving media.
-    -   **Importance**: Manages GridFS storage, image resizing, and content delivery.
-    -   **Changes Made**:  function added to allow token-based authentication for  endpoint.  function moved inline to prevent circular imports.  logic updated to resize *each* image, apply EXIF, generate correct  and  fields (using UUIDs) before saving to GridFS. Corrected  that broke backend.  called with  (UUID) instead of  (ObjectId).
+    -   **Importance**: Centralized database operations.
+    -   **Changes Made**:  and  functions modified to accept periodic note fields. Added  function for automatic cleanup.
+-   ****: Manages background scheduled tasks.
+    -   **Importance**: Executes periodic operations.
+    -   **Changes Made**: Integrated  function into the main scheduling loop to run monthly.
+-   ****: Handles thumbnail generation and image processing.
+    -   **Importance**: Responsible for image resizing, EXIF handling, and WEBP conversion.
+    -   **Changes Made**: Fixed Pillow 11.3.0  import incompatibility. Updated  for robust EXIF processing.
+-   ****: Manages file uploads and serving media.
+    -   **Importance**: Handles GridFS storage, image resizing, and media delivery.
+    -   **Changes Made**: Fixed Pillow  import. Batch upload logic adjusted to ensure correct thumbnail generation, but old images were found to be lost due to inconsistent data.
 -   ****: Manages thumbnail specific routes.
     -   **Importance**: Provides endpoints for accessing thumbnails.
-    -   **Changes Made**: Added  function to allow token-based authentication for . Updated  endpoint to search for media documents using  (for UUIDs) first, then . Added aggressive cache headers to thumbnail responses.
--   ****: Temporary script for data migration.
-    -   **Importance**: Used to transfer user data (business profiles, media) from old user IDs to new user IDs after authentication issues led to new account creation.
-    -   **Changes Made**: Iteratively refined to correctly identify  and handle   fields, migrating , , and  collections. This script was created and subsequently removed.
-
+    -   **Changes Made**:  was called with string UUIDs, but initially expected ObjectIDs, leading to thumbnail generation issues. Also had issues with synchronous/asynchronous collection access.
+-   ****: Temporary migration script.
+    -   **Importance**: Created to address field name incompatibilities, though it found no issues.
+-   ****: Temporary script.
+    -   **Importance**: Created to attempt to repair missing thumbnails, but failed due to loss of original image data.
 </code_architecture>
 
 <pending_tasks>
-- Complete the frontend interface for the new periodic notes system, including the note valable tous les mois checkbox and month/year dropdowns.
-- Implement the sorting logic for notes (always valid first, then month by month).
-- Implement the automatic deletion of monthly notes.
-- Integrate the frontend editing for the photo title.
+- Complete the backend implementation for the new operational title field (named ).
+- Integrate the operational title into the frontend UI, making it editable during upload preview and in the content preview modal.
+- Ensure the operational title is used for content generation.
+- Implement conditional display: if operational title exists, display it on thumbnails; otherwise, fallback to the technical title (filename).
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was deep into enhancing the content notes module based on new user requirements. The user requested a new system for periodic notes, including:
-1.  **Fixing a note editing bug**: The edit button (crayon) required two clicks to populate the fields, and the page should scroll to the editing area upon clicking it.
-2.  **Implementing a monthly note system**:
-    *   A checkbox note valable tous les mois (note valid every month).
-    *   Month and year dropdowns (attribuer cette note à) which are grayed out if the monthly note checkbox is active.
-    *   Notes should be sorted: always valid first, then chronologically by month (closest first).
-    *   Notes for a specific month should be deleted on the first day of the following month.
+Immediately before this summary request, the AI engineer was addressing a series of persistent bugs reported by the user related to image title editing and display. Specifically:
+1.  **Save Button Bug**: The Sauvegarder (save) button in the image preview modal would revert the photo's title to its original upload state, despite recent attempts to fix the save logic.
+2.  **Title Input Styling**: The editable title field in the preview modal lost its border on focus, creating uncertainty about its editability.
+3.  **Date Display N/A**: The Ajouté le (added on) date for images was showing N/A.
 
-The AI engineer has already initiated the implementation of this new feature by:
--   **Correcting the note editing bug in **: The  function was modified to address the race condition, ensuring  and  updates correctly populate the note fields on the first click and scroll to the top.
--   **Modifying the backend model ( in )**: Added new fields: , , .
--   **Updating the note creation/update function in **: Modified  (and implicitly ) to accept and store these new periodic note fields.
+The AI engineer attempted to fix these:
+-   **Title Save Logic**: Debugged  in  to compare the current title with the original title and removed automatic content reloading after save to prevent unintended overwrites.
+-   **Title Input CSS**: Modified the CSS in  to ensure the title input field retains a visible purple border () on focus.
+-   **Date Display**: Updated  to check multiple date fields (, , ) for media items, displaying Date inconnue if none are found.
 
-The current activity is at the very beginning of the frontend implementation for the new periodic notes system, specifically at the point of adding the new input fields (checkbox, month, year dropdowns) to the note form in .
+Despite these efforts, the user reported that the title still reverted, prompting a new architectural decision. The current work is the direct response to this feedback, where the user has requested to introduce a new operational title field, distinct from the technical title (filename). The AI engineer has just started implementing this by planning to add the  field to the backend.
 </current_work>
 
 <optional_next_step>
-Implement the new monthly note UI fields (checkbox, month/year dropdowns) in .
+Add the  field to the  Pydantic model in .
 </optional_next_step>

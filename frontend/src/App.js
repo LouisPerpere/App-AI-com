@@ -1742,6 +1742,9 @@ function MainApp() {
       
       console.log('📤 Upload response:', response.data);
       
+      // IMPORTANT: Récupérer les valeurs AVANT de nettoyer les refs
+      console.log('🔄 Processing upload files BEFORE clearing refs...');
+      
       // Update titles and contexts for uploaded files using refs
       if (response.data.created && response.data.created.length > 0) {
         console.log(`🔄 Processing ${response.data.created.length} uploaded files for metadata update`);
@@ -1816,6 +1819,8 @@ function MainApp() {
       }
       
       toast.success(`${response.data.count || selectedFiles.length} fichiers uploadés avec succès !`);
+      
+      // MAINTENANT on peut nettoyer les refs et states
       setSelectedFiles([]);
       setFileCustomData({}); // Clean up custom data
       uploadTitleRefs.current = {}; // Clean up title refs

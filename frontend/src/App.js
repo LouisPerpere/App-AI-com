@@ -1704,6 +1704,25 @@ function MainApp() {
     if (selectedFiles.length === 0) return;
 
     console.log(`🚀 Starting batch upload of ${selectedFiles.length} files`);
+    
+    // CAPTURER LES VALEURS IMMÉDIATEMENT avant tout re-render
+    const capturedValues = [];
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const titleInputs = document.querySelectorAll('input[placeholder="Facultatif"]');
+      const contextInputs = document.querySelectorAll('textarea[placeholder="Facultatif"]');
+      
+      const titleValue = titleInputs[i]?.value?.trim() || '';
+      const contextValue = contextInputs[i]?.value?.trim() || '';
+      
+      capturedValues[i] = {
+        title: titleValue,
+        context: contextValue
+      };
+      
+      // Alert de debug immédiat
+      alert(`CAPTURED [${i}]: title="${titleValue}", context="${contextValue}"`);
+    }
+    
     setIsUploading(true);
     const formData = new FormData();
     
@@ -1725,14 +1744,14 @@ function MainApp() {
       // IMPORTANT: Récupérer les valeurs AVANT de nettoyer les refs
       console.log('🔄 Processing upload files BEFORE clearing refs...');
       
-      // Update titles and contexts for uploaded files using refs
+      // Update titles and contexts for uploaded files using CAPTURED VALUES
       if (response.data.created && response.data.created.length > 0) {
         console.log(`🔄 Processing ${response.data.created.length} uploaded files for metadata update`);
         
         for (let i = 0; i < response.data.created.length; i++) {
           const createdItem = response.data.created[i];
-          const customTitle = getUploadTitleValue(i).trim();
-          const customContext = getUploadContextValue(i).trim();
+          const customTitle = capturedValues[i]?.title || '';
+          const customContext = capturedValues[i]?.context || '';
           
           console.log(`📝 File ${i + 1}/${response.data.created.length} - ${createdItem.filename}:`, {
             title: customTitle,

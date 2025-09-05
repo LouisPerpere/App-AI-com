@@ -2488,10 +2488,7 @@ function MainApp() {
                                     </label>
                                     <input
                                       ref={(el) => {
-                                        if (!uploadTitleRefs.current[index]) {
-                                          uploadTitleRefs.current[index] = { current: null };
-                                        }
-                                        uploadTitleRefs.current[index].current = el;
+                                        uploadTitleRefs.current[index] = el;
                                       }}
                                       type="text"
                                       placeholder="Facultatif"

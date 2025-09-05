@@ -1662,23 +1662,25 @@ function MainApp() {
   }, []);
 
   const getUploadContextValue = useCallback((fileIndex) => {
-    const element = uploadContextRefs.current[fileIndex];
-    if (!element) {
-      console.log(`❌ No context element found for index ${fileIndex}`);
-      alert(`❌ No context element for index ${fileIndex}`);
+    // Méthode DOM directe pour les textarea
+    const allContextTextareas = document.querySelectorAll('textarea[placeholder="Facultatif"]');
+    console.log(`🔍 Found ${allContextTextareas.length} context textareas`);
+    
+    if (allContextTextareas[fileIndex]) {
+      const value = allContextTextareas[fileIndex].value || '';
+      console.log(`🔍 Upload context [${fileIndex}] via DOM:`, value);
+      
+      if (value && value !== '') {
+        alert(`Debug: Upload context [${fileIndex}] = "${value}"`);
+      } else {
+        alert(`Debug: Upload context [${fileIndex}] = EMPTY! (DOM method)`);
+      }
+      
+      return value;
+    } else {
+      alert(`❌ No context textarea found at index ${fileIndex}`);
       return '';
     }
-    const value = element.value || '';
-    console.log(`🔍 Upload context [${fileIndex}]:`, value);
-    
-    // Show debug alert on mobile for critical values
-    if (value && value !== '') {
-      alert(`Debug: Upload context [${fileIndex}] = "${value}"`);
-    } else {
-      alert(`Debug: Upload context [${fileIndex}] = EMPTY!`);
-    }
-    
-    return value;
   }, []);
 
   // Handle file custom data (titles and contexts) during upload preview - ANCIEN CODE SUPPRIMÉ

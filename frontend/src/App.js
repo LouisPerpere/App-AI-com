@@ -1051,10 +1051,10 @@ function MainApp() {
 
             if (titleResponse.status === 200) {
               console.log('✅ Titre sauvegardé avec succès');
-              // Mettre à jour le contenu local avec le nouveau titre
+              // Mettre à jour le contenu local avec le nouveau titre OPÉRATIONNEL
               const updatedContent = { 
                 ...previewContent, 
-                filename: currentTitleFromInput,
+                title: currentTitleFromInput,  // CORRECTION: mettre à jour le titre opérationnel
                 context: contextValue.trim()
               };
               setPreviewContent(updatedContent);
@@ -1063,7 +1063,7 @@ function MainApp() {
               setPendingContent(prevContent => 
                 prevContent.map(content => 
                   content.id === previewContent.id 
-                    ? { ...content, filename: currentTitleFromInput }
+                    ? { ...content, title: currentTitleFromInput }  // CORRECTION: titre opérationnel
                     : content
                 )
               );

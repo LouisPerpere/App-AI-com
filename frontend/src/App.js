@@ -2782,13 +2782,21 @@ function MainApp() {
                               {isEditingPreviewTitle ? (
                                 <div className="flex items-center space-x-2">
                                   <input
+                                    ref={previewTitleInputRef}
                                     type="text"
-                                    value={previewTempTitle}
-                                    onChange={(e) => setPreviewTempTitle(e.target.value)}
                                     onKeyDown={handlePreviewTitleKeyPress}
                                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     disabled={isSavingPreviewTitle}
                                     placeholder="Nom du fichier..."
+                                    style={{
+                                      fontSize: '16px',
+                                      lineHeight: '1.5',
+                                      WebkitAppearance: 'none',
+                                      borderRadius: '8px',
+                                      boxShadow: 'none',
+                                      WebkitBoxShadow: 'none',
+                                      touchAction: 'manipulation'
+                                    }}
                                   />
                                   <Button
                                     onClick={handlePreviewTitleSave}

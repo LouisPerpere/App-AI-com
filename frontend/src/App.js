@@ -1030,13 +1030,12 @@ function MainApp() {
       let titleSaved = false;
       if (previewTitleInputRef.current) {
         const currentTitleFromInput = previewTitleInputRef.current.value.trim();
-        const originalTitle = previewContent.title?.trim() || previewContent.filename || '';
+        const originalTitle = previewContent.title?.trim() || '';  // SEULEMENT le titre opérationnel
         
         console.log('🔍 Debug titre:', {
           currentTitleFromInput,
           originalTitle,
-          areEqual: currentTitleFromInput === originalTitle,
-          willSave: currentTitleFromInput !== originalTitle && currentTitleFromInput.length > 0
+          willSave: currentTitleFromInput.length > 0
         });
         
         if (currentTitleFromInput.length > 0) {

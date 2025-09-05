@@ -2434,7 +2434,12 @@ function MainApp() {
                                       Titre (facultatif)
                                     </label>
                                     <input
-                                      ref={getUploadTitleRef(index)}
+                                      ref={(el) => {
+                                        if (!uploadTitleRefs.current[index]) {
+                                          uploadTitleRefs.current[index] = { current: null };
+                                        }
+                                        uploadTitleRefs.current[index].current = el;
+                                      }}
                                       type="text"
                                       placeholder="Facultatif"
                                       defaultValue=""

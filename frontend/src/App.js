@@ -1640,33 +1640,28 @@ function MainApp() {
   
   // Fonctions pour gérer les refs d'upload (éviter clavier virtuel)
   const getUploadTitleValue = useCallback((fileIndex) => {
-    console.log(`🔍 Debug refs structure [${fileIndex}]:`, {
-      refsObject: uploadTitleRefs.current,
-      specificRef: uploadTitleRefs.current[fileIndex],
-      isElement: uploadTitleRefs.current[fileIndex] instanceof HTMLElement
-    });
-    
+    // Méthode 1: Essai avec refs
     const element = uploadTitleRefs.current[fileIndex];
-    if (!element) {
-      alert(`❌ No title element for index ${fileIndex}`);
-      return '';
+    if (element && element instanceof HTMLElement && element.value) {
+      const refValue = element.value.trim();
+      if (refValue) {
+        alert(`Debug: Upload title [${fileIndex}] = "${refValue}" (via refs)`);
+        return refValue;
+      }
     }
     
-    if (!(element instanceof HTMLElement)) {
-      alert(`❌ Element is not HTML element for index ${fileIndex}`);
-      return '';
+    // Méthode 2: Fallback DOM si refs échouent
+    const inputs = document.querySelectorAll('input[placeholder="Facultatif"]');
+    if (inputs[fileIndex] && inputs[fileIndex].value) {
+      const domValue = inputs[fileIndex].value.trim();
+      if (domValue) {
+        alert(`Debug: Upload title [${fileIndex}] = "${domValue}" (via DOM fallback)`);
+        return domValue;
+      }
     }
     
-    const value = element.value || '';
-    console.log(`🔍 Upload title [${fileIndex}] via REFS:`, value);
-    
-    if (value && value !== '') {
-      alert(`Debug: Upload title [${fileIndex}] = "${value}"`);
-    } else {
-      alert(`Debug: Upload title [${fileIndex}] = EMPTY! Element value: "${element.value}"`);
-    }
-    
-    return value;
+    alert(`Debug: Upload title [${fileIndex}] = EMPTY! (both methods failed)`);
+    return '';
   }, []);
 
   const getUploadContextValue = useCallback((fileIndex) => {

@@ -981,13 +981,6 @@ function MainApp() {
 
   // Ouvrir l'aperçu d'un contenu
   const handleContentClick = useCallback((content) => {
-    // Debug alert for mobile testing
-    if (content.title) {
-      alert(`Debug Modal: Title = "${content.title}"`);
-    } else {
-      alert(`Debug Modal: No title (will show placeholder)`);
-    }
-    
     console.log('📱 Modal opening for content:', {
       id: content.id,
       filename: content.filename,
@@ -1002,6 +995,13 @@ function MainApp() {
     if (isSelectionMode) {
       handleToggleSelection(content.id);
     } else {
+      // Debug alert SEULEMENT quand on clique pour ouvrir la modal
+      if (content.title) {
+        alert(`Debug Modal: Title = "${content.title}"`);
+      } else {
+        alert(`Debug Modal: No title (will show placeholder)`);
+      }
+      
       setPreviewContent(content);
       // Charger le contexte et le titre existants directement dans les champs après un court délai
       setTimeout(() => {

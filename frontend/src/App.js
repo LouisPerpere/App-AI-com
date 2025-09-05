@@ -1007,6 +1007,9 @@ function MainApp() {
       return;
     }
 
+    // Préserver la valeur actuelle du contexte avant le re-render
+    const currentContextValue = contextTextareaRef.current?.value || '';
+
     setIsSavingPreviewTitle(true);
     try {
       const response = await axios.put(
@@ -1037,6 +1040,14 @@ function MainApp() {
         toast.success('Titre modifié avec succès');
       }
       setIsEditingPreviewTitle(false);
+      
+      // Restaurer la valeur du contexte après le re-render
+      setTimeout(() => {
+        if (contextTextareaRef.current) {
+          contextTextareaRef.current.value = currentContextValue;
+        }
+      }, 100);
+      
     } catch (error) {
       console.error('Erreur lors de la mise à jour du titre:', error);
       toast.error('Erreur lors de la modification du titre');
@@ -1044,6 +1055,13 @@ function MainApp() {
       if (previewTitleInputRef.current) {
         previewTitleInputRef.current.value = previewContent.filename || '';
       }
+      
+      // Restaurer aussi le contexte
+      setTimeout(() => {
+        if (contextTextareaRef.current) {
+          contextTextareaRef.current.value = currentContextValue;
+        }
+      }, 100);
     } finally {
       setIsSavingPreviewTitle(false);
     }

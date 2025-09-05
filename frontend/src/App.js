@@ -954,6 +954,17 @@ function MainApp() {
 
   // Ouvrir l'aperçu d'un contenu
   const handleContentClick = useCallback((content) => {
+    console.log('📱 Modal opening for content:', {
+      id: content.id,
+      filename: content.filename,
+      title: content.title,
+      context: content.context,
+      titleType: typeof content.title,
+      contextType: typeof content.context,
+      titleEmpty: !content.title || content.title.trim() === '',
+      full_content: content
+    });
+    
     if (isSelectionMode) {
       handleToggleSelection(content.id);
     } else {
@@ -964,7 +975,9 @@ function MainApp() {
           contextTextareaRef.current.value = content.context || '';
         }
         if (previewTitleInputRef.current) {
-          previewTitleInputRef.current.value = content.title?.trim() || '';  // SEULEMENT le titre opérationnel, pas le filename
+          const titleValue = content.title?.trim() || '';
+          previewTitleInputRef.current.value = titleValue;
+          console.log('🔍 Title input populated with:', titleValue);
         }
       }, 100);
     }

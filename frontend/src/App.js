@@ -976,11 +976,24 @@ function MainApp() {
   const handlePreviewTitleEdit = useCallback(() => {
     if (!previewContent) return;
     setIsEditingPreviewTitle(true);
-    setPreviewTempTitle(previewContent.filename || '');
+    // Pré-remplir le champ avec le titre actuel
+    setTimeout(() => {
+      if (previewTitleInputRef.current) {
+        previewTitleInputRef.current.value = previewContent.filename || '';
+        previewTitleInputRef.current.focus();
+      }
+    }, 100);
   }, [previewContent]);
 
   const handlePreviewTitleSave = useCallback(async () => {
-    if (!previewContent || isSavingPreviewTitle || previewTempTitle.trim() === previewContent.filename) {
+    if (!previewContent || isSavingPreviewTitle) {
+      setIsEditingPreviewTitle(false);
+      return;
+    }
+
+    const newTitle = previewTitleInputRef.current?.value?.trim() || '';
+    
+    if (newTitle === previewContent.filename) {
       setIsEditingPreviewTitle(false);
       return;
     }
@@ -989,7 +1002,7 @@ function MainApp() {
     try {
       const response = await axios.put(
         `${API}/content/${previewContent.id}/title`,
-        { title: previewTempTitle.trim() },
+        { title: newTitle },
         {
           headers: { 
             Authorization: `Bearer ${localStorage.getItem('access_token')}`,
@@ -1000,14 +1013,14 @@ function MainApp() {
 
       if (response.status === 200) {
         // Update the preview content with new title
-        const updatedContent = { ...previewContent, filename: previewTempTitle.trim() };
+        const updatedContent = { ...previewContent, filename: newTitle };
         setPreviewContent(updatedContent);
         
         // Update the title in pendingContent state as well
         setPendingContent(prevContent => 
           prevContent.map(content => 
             content.id === previewContent.id 
-              ? { ...content, filename: previewTempTitle.trim() }
+              ? { ...content, filename: newTitle }
               : content
           )
         );
@@ -1018,15 +1031,21 @@ function MainApp() {
     } catch (error) {
       console.error('Erreur lors de la mise à jour du titre:', error);
       toast.error('Erreur lors de la modification du titre');
-      setPreviewTempTitle(previewContent.filename || ''); // Restaurer l'ancien titre
+      // Restaurer l'ancien titre
+      if (previewTitleInputRef.current) {
+        previewTitleInputRef.current.value = previewContent.filename || '';
+      }
     } finally {
       setIsSavingPreviewTitle(false);
     }
-  }, [previewContent, previewTempTitle, isSavingPreviewTitle]);
+  }, [previewContent, isSavingPreviewTitle]);
 
   const handlePreviewTitleCancel = useCallback(() => {
     setIsEditingPreviewTitle(false);
-    setPreviewTempTitle(previewContent?.filename || '');
+    // Restaurer l'ancien titre
+    if (previewTitleInputRef.current && previewContent) {
+      previewTitleInputRef.current.value = previewContent.filename || '';
+    }
   }, [previewContent]);
 
   const handlePreviewTitleKeyPress = useCallback((e) => {

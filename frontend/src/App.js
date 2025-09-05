@@ -1025,7 +1025,7 @@ function MainApp() {
       let titleSaved = false;
       if (previewTitleInputRef.current) {
         const currentTitleFromInput = previewTitleInputRef.current.value.trim();
-        const originalTitle = previewContent.filename || '';
+        const originalTitle = previewContent.title?.trim() || previewContent.filename || '';
         
         console.log('🔍 Debug titre:', {
           currentTitleFromInput,

@@ -1788,7 +1788,8 @@ function MainApp() {
       toast.success(`${response.data.count || selectedFiles.length} fichiers uploadés avec succès !`);
       setSelectedFiles([]);
       setFileCustomData({}); // Clean up custom data
-      setUploadData({}); // Clean up upload data
+      uploadTitleRefs.current = {}; // Clean up title refs
+      uploadContextRefs.current = {}; // Clean up context refs
       
       // Force content refresh after all metadata updates complete
       console.log('🔄 Forcing content refresh after upload...');

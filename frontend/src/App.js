@@ -1634,8 +1634,9 @@ function MainApp() {
   };
 
   // Handle file custom data (titles and contexts) during upload preview - REFS SIMPLES
-  // États pour les données d'upload - NOUVELLE APPROCHE AVEC STATE
-  const [uploadData, setUploadData] = useState({});
+  // Refs pour les champs d'upload (éviter bug clavier virtuel)
+  const uploadTitleRefs = useRef({}); // Map des refs par index de fichier
+  const uploadContextRefs = useRef({}); // Map des refs par index de fichier
   
   // Fonctions pour gérer les données d'upload avec state
   const updateUploadData = useCallback((fileIndex, field, value) => {

@@ -969,9 +969,7 @@ function MainApp() {
       contextTextareaRef.current.value = '';
     }
   }, []);
-  // Handle content title updates in preview modal
-  const [isEditingPreviewTitle, setIsEditingPreviewTitle] = useState(false);
-  const [isSavingPreviewTitle, setIsSavingPreviewTitle] = useState(false);
+
 
   const handlePreviewTitleEdit = useCallback(() => {
     if (!previewContent) return;

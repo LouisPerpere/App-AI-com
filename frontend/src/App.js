@@ -411,6 +411,19 @@ function MainApp() {
       });
       
       const data = response.data;
+      console.log('📥 Content loaded from API:', {
+        total: data.total,
+        itemCount: data.content?.length || 0,
+        firstItem: data.content?.[0] ? {
+          id: data.content[0].id,
+          filename: data.content[0].filename,
+          title: data.content[0].title,
+          context: data.content[0].context,
+          titleType: typeof data.content[0].title,
+          contextType: typeof data.content[0].context
+        } : 'No items'
+      });
+      
       setPendingContent(data.content || []);
       
     } catch (error) {

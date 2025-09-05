@@ -1018,11 +1018,8 @@ function MainApp() {
       let titleSaved = false;
       const displayedTitle = previewContent.filename || '';
       
-      // Vérifier s'il y a un titre modifié soit dans le champ d'édition, soit affiché
+      // Vérifier s'il y a un titre modifié
       let currentTitle = displayedTitle;
-      if (isEditingPreviewTitle && previewTitleInputRef.current) {
-        currentTitle = previewTitleInputRef.current.value.trim();
-      }
       
       // Récupérer le titre original depuis les données du contenu
       const originalTitle = previewContent.original_filename || previewContent.filename || '';
@@ -1048,10 +1045,6 @@ function MainApp() {
               context: contextValue.trim()
             };
             setPreviewContent(updatedContent);
-            
-            // Réinitialiser l'état d'édition du titre
-            setIsEditingPreviewTitle(false);
-            setIsSavingPreviewTitle(false);
             
             titleSaved = true;
           }

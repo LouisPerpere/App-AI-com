@@ -1027,8 +1027,16 @@ function MainApp() {
         const currentTitleFromInput = previewTitleInputRef.current.value.trim();
         const originalTitle = previewContent.filename || '';
         
+        console.log('🔍 Debug titre:', {
+          currentTitleFromInput,
+          originalTitle,
+          areEqual: currentTitleFromInput === originalTitle,
+          willSave: currentTitleFromInput !== originalTitle && currentTitleFromInput.length > 0
+        });
+        
         if (currentTitleFromInput !== originalTitle && currentTitleFromInput.length > 0) {
           try {
+            console.log('💾 Sauvegarde du titre:', currentTitleFromInput);
             const titleResponse = await axios.put(
               `${API}/content/${previewContent.id}/title`,
               { title: currentTitleFromInput },
@@ -1041,6 +1049,7 @@ function MainApp() {
             );
 
             if (titleResponse.status === 200) {
+              console.log('✅ Titre sauvegardé avec succès');
               // Mettre à jour le contenu local avec le nouveau titre
               const updatedContent = { 
                 ...previewContent, 
@@ -1061,9 +1070,11 @@ function MainApp() {
               titleSaved = true;
             }
           } catch (titleError) {
-            console.error('Erreur lors de la sauvegarde du titre:', titleError);
+            console.error('❌ Erreur lors de la sauvegarde du titre:', titleError);
             // On continue même si le titre n'a pas pu être sauvegardé
           }
+        } else {
+          console.log('ℹ️ Pas de sauvegarde titre:', currentTitleFromInput === originalTitle ? 'Identique' : 'Vide');
         }
       } else {
         // Mettre à jour seulement le contexte

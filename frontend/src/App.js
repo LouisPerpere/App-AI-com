@@ -1652,19 +1652,22 @@ function MainApp() {
     const ref = uploadTitleRefs.current[fileIndex];
     if (!ref) {
       console.log(`  - ❌ No ref found for index ${fileIndex}`);
+      addDebugLog(`❌ No title ref found for index ${fileIndex}`);
       return '';
     }
     
     console.log('  - ref.current:', ref.current);
     if (!ref.current) {
       console.log(`  - ❌ No current element for index ${fileIndex}`);
+      addDebugLog(`❌ No title element for index ${fileIndex}`);
       return '';
     }
     
     const value = ref.current.value || '';
     console.log(`  - ✅ Value found: "${value}"`);
+    addDebugLog(`✅ Title ref [${fileIndex}]: "${value}"`);
     return value;
-  }, []);
+  }, [addDebugLog]);
 
   const getUploadContextValue = useCallback((fileIndex) => {
     console.log(`🔍 Getting upload context for index ${fileIndex}:`);

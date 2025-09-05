@@ -2730,6 +2730,64 @@ function MainApp() {
                               </div>
                             )}
                             
+                            {/* Titre éditable sous l'image */}
+                            <div className="space-y-2">
+                              <label className="block text-sm font-medium text-gray-700">
+                                Titre de l'image
+                              </label>
+                              {isEditingPreviewTitle ? (
+                                <div className="flex items-center space-x-2">
+                                  <input
+                                    type="text"
+                                    value={previewTempTitle}
+                                    onChange={(e) => setPreviewTempTitle(e.target.value)}
+                                    onKeyDown={handlePreviewTitleKeyPress}
+                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    disabled={isSavingPreviewTitle}
+                                    placeholder="Nom du fichier..."
+                                  />
+                                  <Button
+                                    onClick={handlePreviewTitleSave}
+                                    disabled={isSavingPreviewTitle}
+                                    size="sm"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white px-3"
+                                  >
+                                    {isSavingPreviewTitle ? (
+                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                    ) : (
+                                      <Check className="w-4 h-4" />
+                                    )}
+                                  </Button>
+                                  <Button
+                                    onClick={handlePreviewTitleCancel}
+                                    disabled={isSavingPreviewTitle}
+                                    variant="outline"
+                                    size="sm"
+                                    className="px-3"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              ) : (
+                                <div className="flex items-center space-x-2">
+                                  <p className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-900">
+                                    {previewContent.filename || 'Sans titre'}
+                                  </p>
+                                  {previewContent.file_type?.startsWith('image/') && (
+                                    <Button
+                                      onClick={handlePreviewTitleEdit}
+                                      variant="outline"
+                                      size="sm"
+                                      className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-3"
+                                      title="Modifier le titre"
+                                    >
+                                      <Edit className="w-4 h-4" />
+                                    </Button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                            
                             {/* Informations du fichier */}
                             <div className="text-sm text-gray-600 space-y-1">
                               <p><strong>Type:</strong> {previewContent.file_type}</p>

@@ -1055,6 +1055,11 @@ function MainApp() {
 
       toast.success('Contenu mis à jour avec succès !');
       
+      // Fermer automatiquement la modal après sauvegarde
+      setTimeout(() => {
+        handleClosePreview();
+      }, 1500);
+      
     } catch (error) {
       console.error('❌ Erreur lors de la sauvegarde:', error);
       const errorMessage = error.response?.data?.detail || 'Erreur lors de la sauvegarde';

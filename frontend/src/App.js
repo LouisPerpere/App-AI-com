@@ -1601,12 +1601,16 @@ function MainApp() {
   // Handle file custom data (titles and contexts) during upload preview - REFS SIMPLES
   const getUploadTitleValue = useCallback((fileIndex) => {
     const ref = uploadTitleRefs.current[fileIndex];
-    return ref?.current?.value || '';
+    const value = ref?.current?.value || '';
+    console.log(`🔍 Upload title [${fileIndex}]:`, value);
+    return value;
   }, []);
 
   const getUploadContextValue = useCallback((fileIndex) => {
     const ref = uploadContextRefs.current[fileIndex];
-    return ref?.current?.value || '';
+    const value = ref?.current?.value || '';
+    console.log(`🔍 Upload context [${fileIndex}]:`, value);
+    return value;
   }, []);
 
   // Handle file custom data (titles and contexts) during upload preview - ANCIEN CODE SUPPRIMÉ

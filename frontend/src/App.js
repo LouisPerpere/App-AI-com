@@ -2488,12 +2488,10 @@ function MainApp() {
                                       Titre (facultatif)
                                     </label>
                                     <input
-                                      ref={(el) => {
-                                        uploadTitleRefs.current[index] = el;
-                                      }}
                                       type="text"
                                       placeholder="Facultatif"
-                                      defaultValue=""
+                                      value={uploadData[index]?.title || ''}
+                                      onChange={(e) => updateUploadData(index, 'title', e.target.value)}
                                       className="w-full px-3 py-2 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-sm"
                                       style={{
                                         fontSize: '16px',

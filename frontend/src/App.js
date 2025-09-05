@@ -1708,12 +1708,12 @@ function MainApp() {
       
       console.log('📤 Upload response:', response.data);
       
-      // Update titles and contexts for uploaded files
+      // Update titles and contexts for uploaded files using refs
       if (response.data.created && response.data.created.length > 0) {
         for (let i = 0; i < response.data.created.length; i++) {
           const createdItem = response.data.created[i];
-          const customTitle = getFileCustomData(i, 'title', '').trim();
-          const customContext = getFileCustomData(i, 'context', '').trim();
+          const customTitle = getUploadTitleValue(i).trim();
+          const customContext = getUploadContextValue(i).trim();
           
           try {
             // Update title if provided (allow saving even if same as filename)

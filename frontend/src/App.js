@@ -126,10 +126,7 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
       }`}>
         {content.file_type?.startsWith('image/') ? (
           <img 
-            src={content.source === 'pixabay' 
-              ? (content.thumb_url || content.url)
-              : `${content.thumb_url || content.url}${content.thumb_url?.includes('?') ? '&' : '?'}token=${localStorage.getItem('access_token')}`
-            }
+            src={thumbnailUrl || '/api/placeholder.png'}
             alt={content.filename}
             className="w-full h-full object-cover"
             loading="lazy"

@@ -1640,27 +1640,42 @@ function MainApp() {
   
   // Fonctions pour gérer les refs d'upload (éviter clavier virtuel)
   const getUploadTitleValue = useCallback((fileIndex) => {
-    // Méthode 1: Essai avec refs
-    const element = uploadTitleRefs.current[fileIndex];
-    if (element && element instanceof HTMLElement && element.value) {
-      const refValue = element.value.trim();
-      if (refValue) {
-        alert(`Debug: Upload title [${fileIndex}] = "${refValue}" (via refs)`);
-        return refValue;
+    // Debug ultra-détaillé pour comprendre le problème
+    alert(`🔍 DEBUG ULTRA: Starting title retrieval for index ${fileIndex}`);
+    
+    // Méthode 1: Debug des refs
+    const refsObject = uploadTitleRefs.current;
+    const element = refsObject[fileIndex];
+    alert(`Refs debug: refsObject has ${Object.keys(refsObject).length} keys, element exists: ${!!element}`);
+    
+    if (element && element instanceof HTMLElement) {
+      const refValue = element.value;
+      alert(`Refs method: element.value = "${refValue}" (type: ${typeof refValue})`);
+      if (refValue && refValue.trim()) {
+        return refValue.trim();
       }
     }
     
-    // Méthode 2: Fallback DOM si refs échouent
-    const inputs = document.querySelectorAll('input[placeholder="Facultatif"]');
-    if (inputs[fileIndex] && inputs[fileIndex].value) {
-      const domValue = inputs[fileIndex].value.trim();
-      if (domValue) {
-        alert(`Debug: Upload title [${fileIndex}] = "${domValue}" (via DOM fallback)`);
-        return domValue;
+    // Méthode 2: Debug DOM complet
+    const allInputs = document.querySelectorAll('input');
+    const facultatifInputs = document.querySelectorAll('input[placeholder="Facultatif"]');
+    alert(`DOM debug: Total inputs: ${allInputs.length}, Facultatif inputs: ${facultatifInputs.length}`);
+    
+    // Vérifier toutes les valeurs des inputs Facultatif
+    for (let i = 0; i < facultatifInputs.length; i++) {
+      const input = facultatifInputs[i];
+      alert(`Input ${i}: value="${input.value}", type="${input.type}", placeholder="${input.placeholder}"`);
+    }
+    
+    if (facultatifInputs[fileIndex]) {
+      const domValue = facultatifInputs[fileIndex].value;
+      alert(`DOM method for index ${fileIndex}: value = "${domValue}"`);
+      if (domValue && domValue.trim()) {
+        return domValue.trim();
       }
     }
     
-    alert(`Debug: Upload title [${fileIndex}] = EMPTY! (both methods failed)`);
+    alert(`Both methods failed - returning empty string`);
     return '';
   }, []);
 

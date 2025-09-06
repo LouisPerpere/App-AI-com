@@ -326,6 +326,37 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
 function MainApp() {
   const location = useLocation();
   
+  // 🚨 DEBUG SYSTÈME GLOBAL - PHASE 2: TRACKING PARENT RE-RENDERS
+  const mainAppRenderCount = useRef(0);
+  const lastClickTime = useRef(0);
+  
+  useEffect(() => {
+    mainAppRenderCount.current += 1;
+    console.log(`🏠 MainApp RENDER #${mainAppRenderCount.current}`);
+    
+    // Alert pour chaque 5ème render de MainApp
+    if (mainAppRenderCount.current % 5 === 0) {
+      alert(`🏠 MainApp RENDER #${mainAppRenderCount.current} - INVESTIGATING CAUSE`);
+    }
+  });
+  
+  // Tracker les clicks globaux pour corréler avec les re-renders
+  useEffect(() => {
+    const handleGlobalClick = () => {
+      const now = Date.now();
+      lastClickTime.current = now;
+      console.log(`🖱️ GLOBAL CLICK detected at ${now}`);
+      
+      // Alert après un délai pour voir si les re-renders suivent
+      setTimeout(() => {
+        alert(`🖱️ CLICK -> MainApp render #${mainAppRenderCount.current}`);
+      }, 100);
+    };
+    
+    document.addEventListener('click', handleGlobalClick);
+    return () => document.removeEventListener('click', handleGlobalClick);
+  }, []);
+  
   // State management
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);

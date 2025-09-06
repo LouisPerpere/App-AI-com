@@ -362,14 +362,43 @@ function MainApp() {
   // 🚨 DEBUG SYSTÈME GLOBAL - PHASE 2: TRACKING PARENT RE-RENDERS
   const mainAppRenderCount = useRef(0);
   const lastClickTime = useRef(0);
+  const previousStates = useRef({});
   
   useEffect(() => {
     mainAppRenderCount.current += 1;
     console.log(`🏠 MainApp RENDER #${mainAppRenderCount.current}`);
     
-    // Alert pour chaque 5ème render de MainApp
-    if (mainAppRenderCount.current % 5 === 0) {
-      alert(`🏠 MainApp RENDER #${mainAppRenderCount.current} - INVESTIGATING CAUSE`);
+    // Tracker les changements de state qui causent les re-renders
+    const currentStates = {
+      isAuthenticated,
+      activeTab,
+      isSelectionMode,
+      selectedContentIds: selectedContentIds.size,
+      previewContent: !!previewContent,
+      pendingContentLength: pendingContent.length,
+      hasMoreContent,
+      isLoadingMore,
+      activeLibraryTab
+    };
+    
+    // Comparer avec les états précédents
+    const changedStates = [];
+    Object.keys(currentStates).forEach(key => {
+      if (previousStates.current[key] !== currentStates[key]) {
+        changedStates.push(`${key}: ${previousStates.current[key]} → ${currentStates[key]}`);
+      }
+    });
+    
+    if (changedStates.length > 0 && mainAppRenderCount.current > 1) {
+      console.log(`🔄 States changed:`, changedStates);
+      alert(`🔄 MAINAPP RE-RENDER #${mainAppRenderCount.current}: ${changedStates.slice(0,2).join(', ')}`);
+    }
+    
+    previousStates.current = currentStates;
+    
+    // Alert pour chaque 3ème render de MainApp
+    if (mainAppRenderCount.current % 3 === 0) {
+      alert(`🏠 MainApp RENDER #${mainAppRenderCount.current} - CAUSE ANALYSIS NEEDED`);
     }
   });
   

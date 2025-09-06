@@ -1789,75 +1789,37 @@ function MainApp() {
       
       // Update titles and contexts for uploaded files using CAPTURED VALUES
       if (response.data.created && response.data.created.length > 0) {
-        console.log(`🔄 Processing ${response.data.created.length} uploaded files for metadata update`);
-        
         for (let i = 0; i < response.data.created.length; i++) {
           const createdItem = response.data.created[i];
           const customTitle = capturedValues[i]?.title || '';
           const customContext = capturedValues[i]?.context || '';
           
-          console.log(`📝 File ${i + 1}/${response.data.created.length} - ${createdItem.filename}:`, {
-            title: customTitle,
-            context: customContext,
-            itemId: createdItem.id,
-            willUpdateTitle: Boolean(customTitle),
-            willUpdateContext: Boolean(customContext)
-          });
-          
-          // Debug alert for mobile - show the ID being used
-          alert(`Debug: Using ID "${createdItem.id}" for ${createdItem.filename}`);
-          
           try {
             // Update title if provided
             if (customTitle) {
-              const titleURL = `${API}/content/${createdItem.id}/title`; // CORRECTION FINALE: avec /api
-              alert(`Debug: Title API URL = ${titleURL}`);
-              
-              const titleResponse = await axios.put(titleURL, {
+              await axios.put(`${API}/content/${createdItem.id}/title`, {
                 title: customTitle
               }, {
                 headers: {
                   Authorization: `Bearer ${localStorage.getItem('access_token')}`
                 }
               });
-              console.log(`✅ Title updated for ${createdItem.filename}: "${customTitle}"`);
-              
-              // Debug alert for mobile
-              if (titleResponse.status === 200) {
-                alert(`✅ Title saved successfully: "${customTitle}"`);
-              } else {
-                alert(`❌ Title save failed: ${titleResponse.status}`);
-              }
-            } else {
-              alert(`⏭️ No title to save for ${createdItem.filename}`);
             }
             
             // Update context if provided
             if (customContext) {
-              const contextURL = `${API}/content/${createdItem.id}/context`; // CORRECTION FINALE: avec /api
-              const contextResponse = await axios.put(contextURL, {
+              await axios.put(`${API}/content/${createdItem.id}/context`, {
                 context: customContext
               }, {
                 headers: {
                   Authorization: `Bearer ${localStorage.getItem('access_token')}`
                 }
               });
-              console.log(`✅ Context updated for ${createdItem.filename}: "${customContext}"`);
-              
-              // Debug alert for mobile
-              if (contextResponse.status === 200) {
-                alert(`✅ Context saved successfully: "${customContext}"`);
-              }
-            } else {
-              console.log(`⏭️ Skipping context update for ${createdItem.filename} (empty)`);
             }
           } catch (updateError) {
-            console.warn(`⚠️ Failed to update metadata for ${createdItem.filename}:`, updateError);
-            alert(`❌ API Error: ${updateError.message} (URL might be wrong)`);
+            console.warn(`Failed to update metadata for ${createdItem.filename}:`, updateError);
           }
         }
-      } else {
-        console.log('❌ No created items found in upload response');
       }
       
       toast.success(`${response.data.count || selectedFiles.length} fichiers uploadés avec succès !`);

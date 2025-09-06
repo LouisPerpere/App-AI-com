@@ -2632,6 +2632,19 @@ function MainApp() {
                       
                       {pendingContent.length > 0 ? (
                         <>
+                          {/* Compteur d'images */}
+                          <div className="flex justify-between items-center mb-4">
+                            <div className="text-sm text-gray-600">
+                              <span className="font-semibold text-purple-600">{pendingContent.length}</span>
+                              {hasMoreContent && (
+                                <span className="text-gray-500">+ images chargées</span>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-400">
+                              Scroll pour charger plus
+                            </div>
+                          </div>
+                          
                           <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-5 gap-3 mb-6">
                             {pendingContent.map((content) => (
                               <ContentThumbnail

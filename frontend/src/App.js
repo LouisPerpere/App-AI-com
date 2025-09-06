@@ -1170,20 +1170,21 @@ function MainApp() {
     }
   }, [stableHandleToggleSelection]); // UNE SEULE dépendance stable
 
-  // Fermer l'aperçu + DEBUG
+  // VRAIMENT STABLE: Fermeture aperçu - ZÉRO dépendance
   const handleClosePreview = useCallback(() => {
-    console.log(`❌ Closing preview - MainApp render #${mainAppRenderCount.current}`);
-    alert(`❌ PREVIEW CLOSE - checking for thumbnail re-renders`);
+    console.log(`❌ TRULY STABLE close preview`);
     
     setPreviewContent(null);
-    // Vider les champs
-    if (contextTextareaRef.current) {
-      contextTextareaRef.current.value = '';
-    }
-    if (previewTitleInputRef.current) {
-      previewTitleInputRef.current.value = '';
-    }
-  }, []); // DEBUG: callback stable
+    // Vider les champs après un délai pour éviter re-render cascade
+    setTimeout(() => {
+      if (contextTextareaRef.current) {
+        contextTextareaRef.current.value = '';
+      }
+      if (previewTitleInputRef.current) {
+        previewTitleInputRef.current.value = '';
+      }
+    }, 50);
+  }, []); // ZÉRO dépendances = vraiment stable
 
 
 

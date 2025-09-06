@@ -171,17 +171,36 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
   }, [content.thumb_url, content.source, stableToken]);
 
   const handleClick = useCallback(() => {
-    console.log(`🖱️ Click on thumbnail ${content.id}`);
+    const shortId = content.id.slice(-8);
+    console.log(`🖱️ Click on thumbnail ${shortId}`);
+    
+    // Debug: tracker les clicks et les re-créations de callbacks
+    if (renderCountRef.current > 1) {
+      alert(`🖱️ CALLBACK RECREATED ${shortId} - render #${renderCountRef.current}`);
+    }
+    
     onContentClick(content);
   }, [content.id, onContentClick]); // Dépendance sur l'ID seulement
 
   const handleToggle = useCallback((e) => {
     e.stopPropagation();
-    console.log(`☑️ Toggle selection ${content.id}`);
+    const shortId = content.id.slice(-8);
+    console.log(`☑️ Toggle selection ${shortId}`);
+    
+    // Debug: tracker les re-créations de callbacks toggle
+    if (renderCountRef.current > 1) {
+      alert(`☑️ TOGGLE CALLBACK RECREATED ${shortId} - render #${renderCountRef.current}`);
+    }
+    
     onToggleSelection(content.id);
   }, [content.id, onToggleSelection]);
 
-  console.log(`🎨 Rendering thumbnail ${content.id}:`, { isSelected, isSelectionMode, thumbnailUrl });
+  console.log(`🎨 Rendering thumbnail ${content.id.slice(-8)}:`, { 
+    isSelected, 
+    isSelectionMode, 
+    renderCount: renderCountRef.current,
+    thumbnailUrl: thumbnailUrl ? 'exists' : 'null'
+  });
 
   return (
     <div 

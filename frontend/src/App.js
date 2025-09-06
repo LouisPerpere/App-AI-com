@@ -78,19 +78,50 @@ const FREE_TRIAL_PLAN = {
 
 // ContentThumbnail component ultra-optimisé pour éviter re-renders
 const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection }) => {
-  // Debug mount/unmount avec alertes mobiles (limitées)
+  // 🚨 DEBUG SYSTÈME COMPLET POUR iPhone - PHASE 1: TRACKING RE-RENDERS
+  const renderCountRef = useRef(0);
+  const lastPropsRef = useRef({});
+  
   useEffect(() => {
-    console.log(`🟢 MOUNT thumbnail ${content.id}`);
-    // Alert seulement pour les 3 premiers mounts pour éviter spam
-    if (parseInt(content.id.slice(-1), 16) % 8 === 0) {
-      alert(`🟢 MOUNT thumbnail ${content.id.slice(-8)}`);
+    renderCountRef.current += 1;
+    const shortId = content.id.slice(-8);
+    
+    console.log(`🎨 RENDER #${renderCountRef.current} thumbnail ${shortId}`);
+    
+    // Alert iPhone pour chaque 4ème render (balance entre info et spam)
+    if (renderCountRef.current % 4 === 0) {
+      alert(`🎨 RENDER #${renderCountRef.current} ${shortId}`);
     }
+    
+    // Analyser les changements de props
+    const currentProps = { isSelectionMode, isSelected, content: content.id };
+    const lastProps = lastPropsRef.current;
+    
+    let changedProps = [];
+    if (lastProps.isSelectionMode !== currentProps.isSelectionMode) changedProps.push('selectionMode');
+    if (lastProps.isSelected !== currentProps.isSelected) changedProps.push('selected');
+    if (lastProps.content !== currentProps.content) changedProps.push('content');
+    
+    if (changedProps.length > 0 && renderCountRef.current > 1) {
+      console.log(`🔄 Props changed for ${shortId}:`, changedProps);
+      alert(`🔄 Props changed ${shortId}: ${changedProps.join(', ')}`);
+    }
+    
+    lastPropsRef.current = currentProps;
+  });
+  
+  // Debug mount/unmount avec alertes mobiles RENFORCÉES
+  useEffect(() => {
+    const shortId = content.id.slice(-8);
+    console.log(`🟢 MOUNT thumbnail ${shortId}`);
+    
+    // Alert pour TOUS les mounts maintenant (on a besoin de voir l'ampleur)
+    alert(`🟢 MOUNT ${shortId}`);
+    
     return () => {
-      console.log(`🔴 UNMOUNT thumbnail ${content.id}`);
-      // Alert pour tous les unmounts (c'est le problème principal)
-      if (parseInt(content.id.slice(-1), 16) % 8 === 0) {
-        alert(`🔴 UNMOUNT thumbnail ${content.id.slice(-8)}`);
-      }
+      console.log(`🔴 UNMOUNT thumbnail ${shortId}`);
+      // Alert pour TOUS les unmounts (problème critique)
+      alert(`🔴 UNMOUNT ${shortId} - CRITICAL!`);
     };
   }, [content.id]);
   

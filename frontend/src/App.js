@@ -573,6 +573,23 @@ function MainApp() {
   const [contentPage, setContentPage] = useState(0);
   const [totalContentCount, setTotalContentCount] = useState(0);
 
+  // 🚨 DEBUG: Tracker les changements de pendingContent
+  const pendingContentRef = useRef(pendingContent);
+  
+  useEffect(() => {
+    if (pendingContentRef.current !== pendingContent) {
+      console.log(`🔄 PENDING CONTENT ARRAY CHANGED!`);
+      console.log(`Previous length: ${pendingContentRef.current.length}, New length: ${pendingContent.length}`);
+      
+      // Alert si le tableau change complètement (nouvelle référence)
+      if (pendingContentRef.current.length > 0 && pendingContent.length > 0) {
+        alert(`🔄 CONTENT ARRAY CHANGED! ${pendingContentRef.current.length} → ${pendingContent.length}`);
+      }
+      
+      pendingContentRef.current = pendingContent;
+    }
+  }, [pendingContent]);
+
   const loadPendingContent = async (append = false) => {
     try {
       const page = append ? contentPage + 1 : 0;

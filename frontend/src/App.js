@@ -176,8 +176,8 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
     const shortId = content.id.slice(-8);
     console.log(`🖱️ Click on thumbnail ${shortId}`);
     
-    // Debug: tracker les clicks et les re-créations de callbacks
-    if (renderCountRef.current > 1) {
+    // Debug: tracker seulement les re-créations anormales
+    if (renderCountRef.current > 2) {
       alert(`🖱️ CALLBACK RECREATED ${shortId} - render #${renderCountRef.current}`);
     }
     
@@ -189,8 +189,8 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
     const shortId = content.id.slice(-8);
     console.log(`☑️ Toggle selection ${shortId}`);
     
-    // Debug: tracker les re-créations de callbacks toggle
-    if (renderCountRef.current > 1) {
+    // Debug: tracker seulement les re-créations anormales
+    if (renderCountRef.current > 2) {
       alert(`☑️ TOGGLE CALLBACK RECREATED ${shortId} - render #${renderCountRef.current}`);
     }
     

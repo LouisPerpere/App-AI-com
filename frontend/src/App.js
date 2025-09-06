@@ -3002,14 +3002,8 @@ function MainApp() {
                             - First item thumb_url: {pendingContent[0]?.thumb_url || 'N/A'}
                           </div>
                           
-                          {/* GRILLE ISOLÉE - Protégée des re-renders parent */}
-                          <ThumbnailGrid
-                            pendingContent={pendingContent}
-                            isSelectionMode={isSelectionMode}
-                            selectedContentIds={selectedContentIds}
-                            onContentClick={stableHandleContentClick}
-                            onToggleSelection={stableHandleToggleSelection}
-                          />
+                          {/* GRILLE COMPLÈTEMENT INDÉPENDANTE - JAMAIS de re-render */}
+                          <IndependentThumbnailGrid />
                           
                           {/* Bouton Charger plus - Scroll infini */}
                           {hasMoreContent && (

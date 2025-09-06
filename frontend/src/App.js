@@ -662,24 +662,22 @@ function MainApp() {
   const [contentPage, setContentPage] = useState(0);
   const [totalContentCount, setTotalContentCount] = useState(0);
 
-  // Exposer les callbacks du parent via window pour le composant indépendant
-  useEffect(() => {
-    window.parentHandleContentClick = stableHandleContentClick;
-    window.parentHandleToggleSelection = stableHandleToggleSelection;
-    
-    return () => {
-      delete window.parentHandleContentClick;
-      delete window.parentHandleToggleSelection;
-    };
-  }, [stableHandleContentClick, stableHandleToggleSelection]);
+  // 🚨 DEBUG: Tracker les changements de pendingContent
+  const pendingContentRef = useRef(pendingContent);
   
-  // Synchroniser les données avec le composant indépendant
   useEffect(() => {
-    if (window.updateThumbnailGrid) {
-      console.log(`📡 MainApp sending data to IndependentGrid`);
-      window.updateThumbnailGrid(pendingContent, isSelectionMode, selectedContentIds);
+    if (pendingContentRef.current !== pendingContent) {
+      console.log(`🔄 PENDING CONTENT ARRAY CHANGED!`);
+      console.log(`Previous length: ${pendingContentRef.current.length}, New length: ${pendingContent.length}`);
+      
+      // Alert si le tableau change complètement (nouvelle référence)
+      if (pendingContentRef.current.length > 0 && pendingContent.length > 0) {
+        alert(`🔄 CONTENT ARRAY CHANGED! ${pendingContentRef.current.length} → ${pendingContent.length}`);
+      }
+      
+      pendingContentRef.current = pendingContent;
     }
-  }, [pendingContent, isSelectionMode, selectedContentIds]);
+  }, [pendingContent]);
   const pendingContentRef = useRef(pendingContent);
   
   useEffect(() => {

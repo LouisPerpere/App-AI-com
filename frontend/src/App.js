@@ -76,11 +76,11 @@ const FREE_TRIAL_PLAN = {
   color: 'green'
 };
 
-// ContentThumbnail component optimisé avec memo pour éviter re-renders
+// ContentThumbnail component ultra-optimisé pour éviter re-renders
 const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection }) => {
   const handleClick = useCallback(() => {
     onContentClick(content);
-  }, [content, onContentClick]);
+  }, [content.id, onContentClick]); // Dépendance sur l'ID seulement
 
   const handleToggle = useCallback((e) => {
     e.stopPropagation();

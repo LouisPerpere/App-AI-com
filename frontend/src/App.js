@@ -1761,9 +1761,6 @@ function MainApp() {
         title: titleValue,
         context: contextValue
       };
-      
-      // Alert de debug immédiat
-      alert(`CAPTURED [${i}]: title="${titleValue}", context="${contextValue}"`);
     }
     
     setIsUploading(true);

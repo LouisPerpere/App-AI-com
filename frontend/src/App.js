@@ -1129,8 +1129,15 @@ function MainApp() {
     }
   };
 
-  // Ouvrir l'aperçu d'un contenu
+  // Ouvrir l'aperçu d'un contenu + DEBUG
   const stableHandleContentClick = useCallback((content) => {
+    console.log(`🖱️ STABLE content click for ${content.id.slice(-8)}`);
+    
+    // Debug: si ce callback est re-créé, alerter
+    if (mainAppRenderCount.current > 5) {
+      alert(`🖱️ STABLE CONTENT CLICK RECREATED - MainApp render #${mainAppRenderCount.current}`);
+    }
+    
     if (isSelectionMode) {
       stableHandleToggleSelection(content.id);
     } else {
@@ -1146,7 +1153,7 @@ function MainApp() {
         }
       }, 100);
     }
-  }, [isSelectionMode, stableHandleToggleSelection]);
+  }, [isSelectionMode, stableHandleToggleSelection]); // DEBUG: PROBLÈME POTENTIEL ICI!
 
   // Fermer l'aperçu
   const handleClosePreview = useCallback(() => {

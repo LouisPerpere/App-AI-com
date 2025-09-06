@@ -2860,6 +2860,14 @@ function MainApp() {
                             )}
                           </div>
                           
+                          {/* DEBUG: Analyse de la grille parent et des clés */}
+                          <div className="mb-4 p-2 bg-red-100 border-l-4 border-red-500 text-sm">
+                            <strong>🚨 PARENT DEBUG:</strong><br/>
+                            - PendingContent array ref: {pendingContent.toString().slice(0, 20)}...<br/>
+                            - MainApp render: #{mainAppRenderCount.current}<br/>
+                            - Grid parent re-render tracker: {Date.now()}
+                          </div>
+                          
                           {/* DEBUG: Information sur le contenu */}
                           <div className="mb-4 p-2 bg-yellow-100 border-l-4 border-yellow-500 text-sm">
                             <strong>🔍 DEBUG INFO:</strong><br/>
@@ -2872,16 +2880,21 @@ function MainApp() {
                           </div>
                           
                           <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-5 gap-3 mb-6">
-                            {pendingContent.map((content) => (
-                              <ContentThumbnail
-                                key={content.id}
-                                content={content}
-                                isSelectionMode={isSelectionMode}
-                                isSelected={selectedContentIds.has(content.id)}
-                                onContentClick={stableHandleContentClick}
-                                onToggleSelection={stableHandleToggleSelection}
-                              />
-                            ))}
+                            {pendingContent.map((content, index) => {
+                              // DEBUG: Alert si la clé change
+                              console.log(`🔑 Rendering item ${index}: key=${content.id.slice(-4)}`);
+                              
+                              return (
+                                <ContentThumbnail
+                                  key={content.id}
+                                  content={content}
+                                  isSelectionMode={isSelectionMode}
+                                  isSelected={selectedContentIds.has(content.id)}
+                                  onContentClick={stableHandleContentClick}
+                                  onToggleSelection={stableHandleToggleSelection}
+                                />
+                              );
+                            })}
                           </div>
                           
                           {/* Bouton Charger plus - Scroll infini */}

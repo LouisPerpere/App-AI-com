@@ -448,14 +448,14 @@ function MainApp() {
     }
   };
   
-  // Fonction pour charger plus de contenu
-  const loadMoreContent = useCallback(async () => {
+  // Fonction pour charger plus de contenu - STABLE
+  const stableLoadMoreContent = useCallback(async () => {
     if (!hasMoreContent || isLoadingMore) return;
     
     setIsLoadingMore(true);
     await loadPendingContent(true);
     setIsLoadingMore(false);
-  }, [hasMoreContent, isLoadingMore, contentPage, pendingContent.length]);
+  }, [hasMoreContent, isLoadingMore]); // Dépendances minimales
 
   // Fonction de tri des notes selon les spécifications périodiques
   const sortNotes = useCallback((notes) => {

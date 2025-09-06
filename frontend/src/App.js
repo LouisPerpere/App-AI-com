@@ -1048,14 +1048,13 @@ function MainApp() {
 
   // Fonctions pour la bibliothèque de contenus
   
-  // Basculer le mode sélection + DEBUG
+  // VRAIMENT STABLE: Toggle selection mode avec ref
   const toggleSelectionMode = useCallback(() => {
-    console.log(`🔄 Toggle selection mode - MainApp render #${mainAppRenderCount.current}`);
-    alert(`🔄 SELECTION MODE TOGGLE - watch for thumbnail re-renders`);
+    console.log(`🔄 TRULY STABLE toggle selection mode`);
     
-    setIsSelectionMode(!isSelectionMode);
+    setIsSelectionMode(prev => !prev);
     setSelectedContentIds(new Set()); // Reset selections
-  }, [isSelectionMode]); // DEBUG: dépendance qui peut causer re-render
+  }, []); // ZÉRO dépendances = vraiment stable
 
   // VRAIMENT STABLE: Callbacks avec useRef pour éviter toute dépendance
   const selectedContentIdsRef = useRef(selectedContentIds);

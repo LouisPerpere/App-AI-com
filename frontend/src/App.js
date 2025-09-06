@@ -2972,23 +2972,14 @@ function MainApp() {
                             - First item thumb_url: {pendingContent[0]?.thumb_url || 'N/A'}
                           </div>
                           
-                          <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-5 gap-3 mb-6">
-                            {pendingContent.map((content, index) => {
-                              // DEBUG: Alert si la clé change
-                              console.log(`🔑 Rendering item ${index}: key=${content.id.slice(-4)}`);
-                              
-                              return (
-                                <ContentThumbnail
-                                  key={content.id}
-                                  content={content}
-                                  isSelectionMode={isSelectionMode}
-                                  isSelected={selectedContentIds.has(content.id)}
-                                  onContentClick={stableHandleContentClick}
-                                  onToggleSelection={stableHandleToggleSelection}
-                                />
-                              );
-                            })}
-                          </div>
+                          {/* GRILLE ISOLÉE - Protégée des re-renders parent */}
+                          <ThumbnailGrid
+                            pendingContent={pendingContent}
+                            isSelectionMode={isSelectionMode}
+                            selectedContentIds={selectedContentIds}
+                            onContentClick={stableHandleContentClick}
+                            onToggleSelection={stableHandleToggleSelection}
+                          />
                           
                           {/* Bouton Charger plus - Scroll infini */}
                           {hasMoreContent && (

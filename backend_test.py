@@ -10,7 +10,7 @@ Test Requirements:
 4. Data Persistence Verification
 
 Credentials: lperpere@yahoo.fr / L@Reunion974!
-Backend URL: https://claire-marcus-pwa.preview.emergentagent.com/api
+Backend URL: https://media-title-fix.preview.emergentagent.com/api
 """
 
 import requests
@@ -21,7 +21,7 @@ import io
 from PIL import Image
 
 # Configuration
-BASE_URL = "https://claire-marcus-pwa.preview.emergentagent.com/api"
+BASE_URL = "https://media-title-fix.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 

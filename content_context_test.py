@@ -12,7 +12,7 @@ Test Flow:
 6. DELETE /api/content/{content_id} - Test content deletion
 
 Credentials: lperpere@yahoo.fr / L@Reunion974!
-Backend URL: https://claire-marcus-pwa.preview.emergentagent.com/api
+Backend URL: https://media-title-fix.preview.emergentagent.com/api
 """
 
 import requests
@@ -21,7 +21,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://claire-marcus-pwa.preview.emergentagent.com/api"
+BASE_URL = "https://media-title-fix.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

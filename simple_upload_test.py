@@ -9,7 +9,7 @@ import tempfile
 import os
 
 def test_batch_upload():
-    base_url = "https://claire-marcus-pwa.preview.emergentagent.com"
+    base_url = "https://media-title-fix.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     # Login first

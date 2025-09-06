@@ -1,84 +1,66 @@
 <analysis>
-The trajectory details the AI engineer's work on the Claire et Marcus PWA. It began with enhancing the periodic notes system, which involved fixing a note editing bug, implementing monthly note functionality with month/year dropdowns, and adding backend models and database functions. This was followed by implementing robust frontend sorting logic for notes (monthly first, then chronological) and an automated backend cleanup process for expired notes.
-
-Subsequent work focused on critical bug fixes and feature refinements. This included resolving a persistent Laurent Perpere vs My Own Watch data display issue by correcting database relationships and backend API endpoints. Significant effort was dedicated to fixing image display problems, specifically addressing Pillow library incompatibility, inconsistent data structures for old uploaded images (leading to their loss), and issues with thumbnail generation. The engineer then iterated on the image title editing functionality, moving it from thumbnails to the preview modal, and resolving virtual keyboard and context preservation bugs during title editing. The process culminated in implementing comprehensive title and context editing during the upload process and further refining title saving logic. The trajectory concludes with the user requesting a new operational title field, separate from the technical title, which the engineer has just begun to implement on the backend.
+The AI engineer's work primarily focused on implementing and stabilizing an operational title field across the Claire et Marcus PWA. This involved backend model updates (, ), API modifications, and extensive frontend integration in  for display, editing, and upload flows. A significant portion of the trajectory details a protracted debugging effort to ensure the operational title persisted correctly, addressing issues with UI rendering (thumbnails, preview modal), virtual keyboard compatibility (transitioning from controlled inputs to uncontrolled refs, then to state-managed inputs, and finally a hybrid ref/DOM approach), and crucially, backend API communication (404 errors due to incorrect URL prefixes and a critical UUID-to-ObjectId mismatch during content creation). The problem of slow-loading and re-rendering thumbnails was also tackled with  and URL stabilization. The work concluded with the user reporting persistent thumbnail re-rendering, prompting a return to debugging with visual alerts for iPhone.
 </analysis>
 
 <product_requirements>
-The Claire et Marcus PWA is an AI-powered SaaS for small businesses, automating social media content and profile management. Core features include reliable content CRUD via MongoDB, a 5-column content library grid with pop-up previews, 320px WEBP thumbnails, AI-powered website analysis (GPT-4o), a notes module, persistent business profiles, and robust authentication. Initial work involved UI/UX restoration, virtual keyboard fixes, and adding brand tone/posting frequency options. Recent explicit requests and the problems they solve include:
-- **Periodic Notes System**: Enable monthly notes with month/year assignment, chronological sorting (always valid first), and automatic deletion of specific notes on the 5th of the following month.
-- **Pixabay Integration**: Search and add royalty-free images to the library, with visual feedback.
-- **Image Management**: Correct thumbnail/preview loading, EXIF orientation, resize uploads to 1024px/72dpi, optimize loading/caching, enable title editing for photos.
-- **Business Profile Display**: Ensure My Own Watch business data is correctly displayed instead of user-specific data.
-- **Frontend UI/UX**: Fix notes exceeding iPhone screen, invisible checkbox, virtual keyboard issues on input fields, preserve context during title editing.
-- **Content Editing**: Edit photo titles from the preview page (not thumbnails), save title and context simultaneously, and edit title/context during the upload process.
-- **New Operational Title**: Introduce an optional operational title field for content generation and display, separate from the technical title (filename), which is editable during upload and on display.
+The Claire et Marcus PWA is an AI-powered SaaS for small businesses, automating social media content and profile management. It features reliable content CRUD, a 5-column content library with pop-up previews, 320px WEBP thumbnails, AI-powered website analysis, a notes module, persistent business profiles, and robust authentication. Initial development involved UI/UX restoration, virtual keyboard fixes, and adding brand tone/posting frequency. Recent additions and fixes include:
+-   **Periodic Notes System**: Implemented monthly notes with specific sorting and automated deletion.
+-   **Pixabay Integration**: Enabled searching and adding royalty-free images.
+-   **Image Management**: Fixed thumbnail/preview loading, EXIF orientation, and image resizing.
+-   **Business Profile Display**: Corrected data display for My Own Watch profile.
+-   **Frontend UI/UX**: Addressed notes exceeding screen, invisible checkboxes, virtual keyboard bugs, and context preservation.
+-   **Content Editing**: Enabled title/context editing from preview modal and during upload.
+-   **New Operational Title**: Introduced an optional  field, distinct from the technical filename, editable during upload and on display. If it exists, it should be displayed; otherwise, the filename should be used. This title should also be included in search/filtering.
 </product_requirements>
 
 <key_technical_concepts>
-- **Full-stack Development**: React.js (frontend), FastAPI (backend), MongoDB/GridFS (database).
-- **Authentication**: JWT, ,  for API calls, token handling.
-- **AI Integration**: GPT-4o for website analysis and content generation.
-- **UI/UX**: Responsive design, virtual keyboard compatibility (uncontrolled inputs with ), Tailwind CSS.
-- **API Interaction**: RESTful,  prefix, CORS.
-- **Scheduled Tasks**: Python  for periodic operations (e.g., note deletion).
-- **Image Processing**: Pillow for EXIF rotation, resizing, WEBP conversion, GridFS storage.
-- **Data Persistence**: MongoDB (UUIDs for document IDs).
+-   **Full-stack**: React.js, FastAPI, MongoDB/GridFS.
+-   **Authentication**: JWT, , .
+-   **UI/UX**: Responsive design,  for uncontrolled inputs,  for controlled inputs,  for performance.
+-   **API Interaction**: RESTful,  prefix, UUIDs and ObjectIds.
+-   **Image Processing**: Pillow for resizing, EXIF.
+-   **Data Persistence**: MongoDB with UUIDs and ObjectIds.
 </key_technical_concepts>
 
 <code_architecture>
 
--   ****: The main React component, rendering UI and handling logic.
-    -   **Importance**: Orchestrates the entire application, including dashboard, content library, and notes.
-    -   **Changes Made**: Heavily modified for periodic notes UI (states, checkbox, dropdowns, sorting logic, badges), content editing (title editing moved to preview modal, virtual keyboard fixes, context preservation, combined save), and upload flow (editable title/context pre-upload). It also handles business profile loading and display.
+-   ****: Defines API routes and Pydantic models.
+    -   **Importance**: Central FastAPI application.
+    -   **Changes Made**: Added  to  model. Modified  prefixing () to ensure all  prefixed routes are handled correctly, then reverted to  after login issues. Contains  and  endpoints.
+-   ****: Handles file uploads to GridFS.
+    -   **Importance**: Manages image storage and initial metadata.
+    -   **Changes Made**: Corrected the returned uid=0(root) gid=0(root) groups=0(root) in the batch upload response from a generated UUID () to the actual MongoDB  () to resolve 404 errors when updating title/context.
+-   ****: Main React component, orchestrates UI and logic.
+    -   **Importance**: The core frontend application.
+    -   **Changes Made**:
+        -   **Operational Title Display**: Updated to display  or  for thumbnails and in the preview modal.
+        -   **Title/Context Editing**: Refactored input fields for title and context during upload and in the preview modal to use uncontrolled inputs (via , then , then a hybrid approach) to mitigate virtual keyboard bugs and ensure persistence.
+        -   **Save Logic**: Modified  to correctly save  and  via API calls, comparing against the  field.
+        -   **Upload Logic**:  was updated to perform  requests to the  and  endpoints after initial file upload.
+        -   **Performance**: Attempted to optimize thumbnail rendering with  and custom comparison functions, and removed  from image URLs to stabilize caching.
+        -   **Pagination**: Implemented infinite scroll logic with  and  state to display more than 24 images and show the count.
+        -   **Debugging**: Numerous temporary debug alerts and  statements were added and subsequently removed to diagnose persistence, UI, and API issues.
 -   ****: Main stylesheet.
     -   **Importance**: Global and component-specific styling.
-    -   **Changes Made**: Added styles for mobile/touch, specific note form fields, checkbox visibility, and title input border for better UX.
--   ****: Main FastAPI backend server.
-    -   **Importance**: Defines API routes and Pydantic models.
-    -   **Changes Made**: Updated  model for periodic notes, added Pixabay endpoints,  for title updates,  modified to fetch from ,  endpoint added.
--   ****: Handles MongoDB interactions.
-    -   **Importance**: Centralized database operations.
-    -   **Changes Made**:  and  functions modified to accept periodic note fields. Added  function for automatic cleanup.
--   ****: Manages background scheduled tasks.
-    -   **Importance**: Executes periodic operations.
-    -   **Changes Made**: Integrated  function into the main scheduling loop to run monthly.
--   ****: Handles thumbnail generation and image processing.
-    -   **Importance**: Responsible for image resizing, EXIF handling, and WEBP conversion.
-    -   **Changes Made**: Fixed Pillow 11.3.0  import incompatibility. Updated  for robust EXIF processing.
--   ****: Manages file uploads and serving media.
-    -   **Importance**: Handles GridFS storage, image resizing, and media delivery.
-    -   **Changes Made**: Fixed Pillow  import. Batch upload logic adjusted to ensure correct thumbnail generation, but old images were found to be lost due to inconsistent data.
--   ****: Manages thumbnail specific routes.
-    -   **Importance**: Provides endpoints for accessing thumbnails.
-    -   **Changes Made**:  was called with string UUIDs, but initially expected ObjectIDs, leading to thumbnail generation issues. Also had issues with synchronous/asynchronous collection access.
--   ****: Temporary migration script.
-    -   **Importance**: Created to address field name incompatibilities, though it found no issues.
--   ****: Temporary script.
-    -   **Importance**: Created to attempt to repair missing thumbnails, but failed due to loss of original image data.
+    -   **Changes Made**: Added  for title input fields to provide better visual feedback on focus.
 </code_architecture>
 
 <pending_tasks>
-- Complete the backend implementation for the new operational title field (named ).
-- Integrate the operational title into the frontend UI, making it editable during upload preview and in the content preview modal.
-- Ensure the operational title is used for content generation.
-- Implement conditional display: if operational title exists, display it on thumbnails; otherwise, fallback to the technical title (filename).
+-   Continue debugging the persistent thumbnail re-rendering issue (vignettes turning white).
+-   Investigate why  and URL stabilization efforts have not fully resolved the thumbnail re-rendering.
+-   Implement the visual debug system (pop-up alerts) on iPhone as requested by the user.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was addressing a series of persistent bugs reported by the user related to image title editing and display. Specifically:
-1.  **Save Button Bug**: The Sauvegarder (save) button in the image preview modal would revert the photo's title to its original upload state, despite recent attempts to fix the save logic.
-2.  **Title Input Styling**: The editable title field in the preview modal lost its border on focus, creating uncertainty about its editability.
-3.  **Date Display N/A**: The Ajouté le (added on) date for images was showing N/A.
+Immediately before this summary request, the AI engineer was addressing a critical and persistent issue: thumbnails in the content library were re-rendering (turning white) with every user action on the page, leading to a poor user experience. Previous attempts to fix this included:
+1.  Removing  from thumbnail URLs to prevent cache invalidation.
+2.  Implementing  with a custom comparison function for the  component to reduce unnecessary re-renders.
+3.  Stabilizing callbacks (, ) passed to memoized components.
+4.  Optimizing the Charger plus (load more) button to prevent re-renders.
 
-The AI engineer attempted to fix these:
--   **Title Save Logic**: Debugged  in  to compare the current title with the original title and removed automatic content reloading after save to prevent unintended overwrites.
--   **Title Input CSS**: Modified the CSS in  to ensure the title input field retains a visible purple border () on focus.
--   **Date Display**: Updated  to check multiple date fields (, , ) for media items, displaying Date inconnue if none are found.
-
-Despite these efforts, the user reported that the title still reverted, prompting a new architectural decision. The current work is the direct response to this feedback, where the user has requested to introduce a new operational title field, distinct from the technical title (filename). The AI engineer has just started implementing this by planning to add the  field to the backend.
+Despite these efforts, the user reported that the issue persisted. The AI engineer's current action is to implement a visual debugging system, similar to previous pop-up alerts, to diagnose the thumbnail re-rendering problem on an iPhone, as direct console logs are inaccessible to the user on mobile. This involves adding  hooks and alert functions to trace component mount/unmount behavior and token stability.
 </current_work>
 
 <optional_next_step>
-Add the  field to the  Pydantic model in .
+Create a visual debugging system (pop-up alerts) for the frontend to diagnose why thumbnails are still re-rendering on iPhone.
 </optional_next_step>

@@ -45,7 +45,7 @@ Au lieu de:
 ### 5. TEST FINAL
 Une fois corrigé:
 ```
-curl https://claire-marcus-pwa.preview.emergentagent.com/api/diag
+curl https://media-title-fix.preview.emergentagent.com/api/diag
 ```
 
 Devrait retourner: `"database_connected": true`

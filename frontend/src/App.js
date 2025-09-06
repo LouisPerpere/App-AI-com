@@ -106,23 +106,50 @@ const ThumbnailGrid = React.memo(({
     </div>
   );
 }, (prevProps, nextProps) => {
-  // Comparaison ULTRA-STRICTE pour ThumbnailGrid
-  const same = (
-    prevProps.pendingContent === nextProps.pendingContent && // Référence exacte
-    prevProps.isSelectionMode === nextProps.isSelectionMode &&
-    prevProps.selectedContentIds === nextProps.selectedContentIds && // Référence exacte
-    prevProps.onContentClick === nextProps.onContentClick && // Référence exacte
-    prevProps.onToggleSelection === nextProps.onToggleSelection // Référence exacte
-  );
+  // DEBUG ULTRA-DÉTAILLÉ : Analyser CHAQUE prop individuellement 
+  console.log(`🔍 ThumbnailGrid props comparison:`);
   
-  if (!same) {
-    console.log(`🔄 ThumbnailGrid will re-render - props changed`);
-    alert(`🔄 THUMBNAIL GRID RE-RENDER - INVESTIGATING`);
+  const checks = {
+    pendingContent_ref: prevProps.pendingContent === nextProps.pendingContent,
+    pendingContent_length: prevProps.pendingContent.length === nextProps.pendingContent.length,
+    isSelectionMode: prevProps.isSelectionMode === nextProps.isSelectionMode,
+    selectedContentIds_ref: prevProps.selectedContentIds === nextProps.selectedContentIds,
+    selectedContentIds_size: prevProps.selectedContentIds.size === nextProps.selectedContentIds.size,
+    onContentClick_ref: prevProps.onContentClick === nextProps.onContentClick,
+    onToggleSelection_ref: prevProps.onToggleSelection === nextProps.onToggleSelection
+  };
+  
+  // Identifier EXACTEMENT quelle prop change
+  const changedProps = Object.entries(checks)
+    .filter(([key, same]) => !same)
+    .map(([key]) => key);
+  
+  const allSame = Object.values(checks).every(Boolean);
+  
+  if (!allSame) {
+    console.log(`❌ ThumbnailGrid props changed:`, changedProps);
+    
+    // Alert spécifique pour chaque type de changement
+    if (changedProps.includes('pendingContent_ref')) {
+      alert(`🔄 GRID CHANGE: pendingContent array reference changed!`);
+    }
+    if (changedProps.includes('selectedContentIds_ref')) {
+      alert(`🔄 GRID CHANGE: selectedContentIds Set reference changed!`);
+    }
+    if (changedProps.includes('onContentClick_ref')) {
+      alert(`🔄 GRID CHANGE: onContentClick callback reference changed!`);
+    }
+    if (changedProps.includes('onToggleSelection_ref')) {
+      alert(`🔄 GRID CHANGE: onToggleSelection callback reference changed!`);
+    }
+    
+    // Alert générale avec tous les changements
+    alert(`🔄 THUMBNAIL GRID RE-RENDER: ${changedProps.join(', ')}`);
   } else {
-    console.log(`✅ ThumbnailGrid props identical - NO re-render`);
+    console.log(`✅ All ThumbnailGrid props identical - should NOT re-render`);
   }
   
-  return same;
+  return allSame;
 });
 const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection }) => {
   // 🚨 DEBUG RÉDUIT - Alertes seulement pour les anomalies critiques

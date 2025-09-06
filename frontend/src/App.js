@@ -1145,20 +1145,19 @@ function MainApp() {
     }
   };
 
-  // Ouvrir l'aperçu d'un contenu + DEBUG
+  // VRAIMENT STABLE: Content click avec useRef - ZÉRO dépendance  
   const stableHandleContentClick = useCallback((content) => {
-    console.log(`🖱️ STABLE content click for ${content.id.slice(-8)}`);
+    console.log(`🖱️ TRULY STABLE content click for ${content.id.slice(-8)}`);
     
-    // Debug: si ce callback est re-créé, alerter
-    if (mainAppRenderCount.current > 5) {
-      alert(`🖱️ STABLE CONTENT CLICK RECREATED - MainApp render #${mainAppRenderCount.current}`);
-    }
-    
-    if (isSelectionMode) {
+    // Utiliser les refs pour accéder aux valeurs actuelles SANS créer de dépendances
+    if (isSelectionModeRef.current) {
       stableHandleToggleSelection(content.id);
     } else {
+      // Mode aperçu - pas de re-render cascade
+      console.log(`📷 Opening preview for ${content.id.slice(-8)}`);
       setPreviewContent(content);
-      // Utiliser setTimeout pour s'assurer que les refs sont prêts
+      
+      // Utiliser setTimeout pour éviter que les refs soient évaluées pendant le re-render
       setTimeout(() => {
         if (contextTextareaRef.current) {
           contextTextareaRef.current.value = content.context || '';
@@ -1169,7 +1168,7 @@ function MainApp() {
         }
       }, 100);
     }
-  }, [isSelectionMode, stableHandleToggleSelection]); // DEBUG: PROBLÈME POTENTIEL ICI!
+  }, [stableHandleToggleSelection]); // UNE SEULE dépendance stable
 
   // Fermer l'aperçu + DEBUG
   const handleClosePreview = useCallback(() => {

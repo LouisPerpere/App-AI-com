@@ -423,30 +423,6 @@ function MainApp() {
       });
       
       const data = response.data;
-      console.log('📥 Content loaded from API:', {
-        total: data.total,
-        itemCount: data.content?.length || 0,
-        page,
-        append,
-        firstItem: data.content?.[0] ? {
-          id: data.content[0].id,
-          filename: data.content[0].filename,
-          title: data.content[0].title,
-          context: data.content[0].context,
-          titleType: typeof data.content[0].title,
-          contextType: typeof data.content[0].context
-        } : 'No items'
-      });
-      
-      // Debug alert for mobile - show first item with title
-      if (!append) {
-        const itemWithTitle = data.content?.find(item => item.title);
-        if (itemWithTitle) {
-          alert(`📥 Found item with title: "${itemWithTitle.title}"`);
-        } else {
-          alert(`📥 No items with titles found in API response`);
-        }
-      }
       
       if (append) {
         // Ajouter à la liste existante

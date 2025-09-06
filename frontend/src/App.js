@@ -911,18 +911,18 @@ function MainApp() {
     setSelectedContentIds(new Set()); // Reset selections
   }, [isSelectionMode]);
 
-  // Gérer la sélection d'un contenu
-  const handleToggleSelection = useCallback((contentId) => {
+  // Callbacks stables pour éviter re-renders des vignettes
+  const stableHandleToggleSelection = useCallback((contentId) => {
     setSelectedContentIds(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(contentId)) {
-        newSet.delete(contentId);
+      const newSelection = new Set(prev);
+      if (newSelection.has(contentId)) {
+        newSelection.delete(contentId);
       } else {
-        newSet.add(contentId);
+        newSelection.add(contentId);
       }
-      return newSet;
+      return newSelection;
     });
-  }, []);
+  }, []); // Pas de dépendances - function stable
 
   // Sélectionner tout / Désélectionner tout
   const handleSelectAll = useCallback(() => {
@@ -992,9 +992,9 @@ function MainApp() {
   };
 
   // Ouvrir l'aperçu d'un contenu
-  const handleContentClick = useCallback((content) => {
+  const stableHandleContentClick = useCallback((content) => {
     if (isSelectionMode) {
-      handleToggleSelection(content.id);
+      stableHandleToggleSelection(content.id);
     } else {
       setPreviewContent(content);
       // Utiliser setTimeout pour s'assurer que les refs sont prêts
@@ -1008,7 +1008,7 @@ function MainApp() {
         }
       }, 100);
     }
-  }, [isSelectionMode, handleToggleSelection]);
+  }, [isSelectionMode, stableHandleToggleSelection]);
 
   // Fermer l'aperçu
   const handleClosePreview = useCallback(() => {

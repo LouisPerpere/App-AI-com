@@ -1997,6 +1997,30 @@ function MainApp() {
           <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-br from-emerald-400/10 to-teal-400/10 rounded-full blur-2xl animate-pulse" style={{animationDelay: '4s'}}></div>
         </div>
+
+      {/* Debug Panel pour iPhone - PHASE 3 */}
+      <div className="fixed top-4 right-4 z-50 bg-red-500 text-white p-2 rounded-lg text-xs opacity-75 hover:opacity-100 transition-opacity">
+        <div>MainApp: #{mainAppRenderCount.current}</div>
+        <div>Content: {pendingContent.length}</div>
+        <div>Selection: {isSelectionMode ? 'ON' : 'OFF'}</div>
+        <button 
+          onClick={() => {
+            alert(`🔍 DEBUG INFO:
+MainApp renders: ${mainAppRenderCount.current}
+Content count: ${pendingContent.length}
+Selection mode: ${isSelectionMode}
+Selected items: ${selectedContentIds.size}
+Active tab: ${activeTab}
+Library tab: ${activeLibraryTab}
+Preview open: ${previewContent ? 'YES' : 'NO'}
+Last click: ${lastClickTime.current}`);
+          }}
+          className="bg-white text-red-500 px-2 py-1 rounded mt-1 text-xs"
+        >
+          📊 Stats
+        </button>
+      </div>
+
       {/* Header moderne avec glassmorphism */}
       <div className="relative z-10 backdrop-blur-xl bg-white/80 border-0 border-b border-white/20 shadow-lg shadow-purple-500/10">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2">

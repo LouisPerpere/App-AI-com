@@ -1165,8 +1165,11 @@ function MainApp() {
     }
   }, [isSelectionMode, stableHandleToggleSelection]); // DEBUG: PROBLÈME POTENTIEL ICI!
 
-  // Fermer l'aperçu
+  // Fermer l'aperçu + DEBUG
   const handleClosePreview = useCallback(() => {
+    console.log(`❌ Closing preview - MainApp render #${mainAppRenderCount.current}`);
+    alert(`❌ PREVIEW CLOSE - checking for thumbnail re-renders`);
+    
     setPreviewContent(null);
     // Vider les champs
     if (contextTextareaRef.current) {
@@ -1175,7 +1178,7 @@ function MainApp() {
     if (previewTitleInputRef.current) {
       previewTitleInputRef.current.value = '';
     }
-  }, []);
+  }, []); // DEBUG: callback stable
 
 
 

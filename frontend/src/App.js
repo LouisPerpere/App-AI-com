@@ -76,81 +76,67 @@ const FREE_TRIAL_PLAN = {
   color: 'green'
 };
 
-// Composant ISOLÉ pour la grille de vignettes - IMMUNISÉ contre les re-renders parent
-const ThumbnailGrid = React.memo(({ 
-  pendingContent, 
-  isSelectionMode, 
-  selectedContentIds, 
-  onContentClick, 
-  onToggleSelection 
-}) => {
-  console.log(`🏗️ ThumbnailGrid render - ${pendingContent.length} items`);
+// Composant COMPLÈTEMENT INDÉPENDANT - Aucune dépendance aux states du parent
+const IndependentThumbnailGrid = React.memo(() => {
+  console.log(`🏗️ IndependentThumbnailGrid render - SHOULD NEVER RE-RENDER`);
+  
+  // States locaux - complètement indépendants du parent
+  const [localContent, setLocalContent] = useState([]);
+  const [localSelectionMode, setLocalSelectionMode] = useState(false);
+  const [localSelectedIds, setLocalSelectedIds] = useState(new Set());
+  
+  // Refs pour recevoir les données du parent
+  const contentRef = useRef([]);
+  const selectionModeRef = useRef(false);
+  const selectedIdsRef = useRef(new Set());
+  
+  // Synchroniser UNIQUEMENT quand nécessaire
+  useEffect(() => {
+    // Cette fonction sera appelée par le parent quand les données changent
+    window.updateThumbnailGrid = (content, selectionMode, selectedIds) => {
+      console.log(`📡 IndependentGrid receiving update`);
+      setLocalContent(content);
+      setLocalSelectionMode(selectionMode);
+      setLocalSelectedIds(selectedIds);
+    };
+    
+    return () => {
+      delete window.updateThumbnailGrid;
+    };
+  }, []);
+  
+  // Callbacks stables pour les vignettes
+  const handleContentClick = useCallback((content) => {
+    console.log(`🖱️ Independent grid content click: ${content.id.slice(-8)}`);
+    // Appeler la fonction du parent via window
+    if (window.parentHandleContentClick) {
+      window.parentHandleContentClick(content);
+    }
+  }, []);
+  
+  const handleToggleSelection = useCallback((contentId) => {
+    console.log(`☑️ Independent grid toggle: ${contentId.slice(-8)}`);
+    // Appeler la fonction du parent via window
+    if (window.parentHandleToggleSelection) {
+      window.parentHandleToggleSelection(contentId);
+    }
+  }, []);
   
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-      {pendingContent.map((content, index) => {
-        // DEBUG: Logging minimal
-        console.log(`🔑 Grid rendering item ${index}: key=${content.id.slice(-4)}`);
-        
-        return (
-          <ContentThumbnail
-            key={content.id}
-            content={content}
-            isSelectionMode={isSelectionMode}
-            isSelected={selectedContentIds.has(content.id)}
-            onContentClick={onContentClick}
-            onToggleSelection={onToggleSelection}
-          />
-        );
-      })}
+      {localContent.map((content) => (
+        <ContentThumbnail
+          key={content.id}
+          content={content}
+          isSelectionMode={localSelectionMode}
+          isSelected={localSelectedIds.has(content.id)}
+          onContentClick={handleContentClick}
+          onToggleSelection={handleToggleSelection}
+        />
+      ))}
     </div>
   );
-}, (prevProps, nextProps) => {
-  // DEBUG ULTRA-DÉTAILLÉ : Analyser CHAQUE prop individuellement 
-  console.log(`🔍 ThumbnailGrid props comparison:`);
-  
-  const checks = {
-    pendingContent_ref: prevProps.pendingContent === nextProps.pendingContent,
-    pendingContent_length: prevProps.pendingContent.length === nextProps.pendingContent.length,
-    isSelectionMode: prevProps.isSelectionMode === nextProps.isSelectionMode,
-    selectedContentIds_ref: prevProps.selectedContentIds === nextProps.selectedContentIds,
-    selectedContentIds_size: prevProps.selectedContentIds.size === nextProps.selectedContentIds.size,
-    onContentClick_ref: prevProps.onContentClick === nextProps.onContentClick,
-    onToggleSelection_ref: prevProps.onToggleSelection === nextProps.onToggleSelection
-  };
-  
-  // Identifier EXACTEMENT quelle prop change
-  const changedProps = Object.entries(checks)
-    .filter(([key, same]) => !same)
-    .map(([key]) => key);
-  
-  const allSame = Object.values(checks).every(Boolean);
-  
-  if (!allSame) {
-    console.log(`❌ ThumbnailGrid props changed:`, changedProps);
-    
-    // Alert spécifique pour chaque type de changement
-    if (changedProps.includes('pendingContent_ref')) {
-      alert(`🔄 GRID CHANGE: pendingContent array reference changed!`);
-    }
-    if (changedProps.includes('selectedContentIds_ref')) {
-      alert(`🔄 GRID CHANGE: selectedContentIds Set reference changed!`);
-    }
-    if (changedProps.includes('onContentClick_ref')) {
-      alert(`🔄 GRID CHANGE: onContentClick callback reference changed!`);
-    }
-    if (changedProps.includes('onToggleSelection_ref')) {
-      alert(`🔄 GRID CHANGE: onToggleSelection callback reference changed!`);
-    }
-    
-    // Alert générale avec tous les changements
-    alert(`🔄 THUMBNAIL GRID RE-RENDER: ${changedProps.join(', ')}`);
-  } else {
-    console.log(`✅ All ThumbnailGrid props identical - should NOT re-render`);
-  }
-  
-  return allSame;
-});
+}, () => true); // TOUJOURS identique - ne JAMAIS re-render
 const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection }) => {
   // 🚨 DEBUG RÉDUIT - Alertes seulement pour les anomalies critiques
   const renderCountRef = useRef(0);

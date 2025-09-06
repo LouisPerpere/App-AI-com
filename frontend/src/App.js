@@ -988,29 +988,11 @@ function MainApp() {
 
   // Ouvrir l'aperçu d'un contenu
   const handleContentClick = useCallback((content) => {
-    console.log('📱 Modal opening for content:', {
-      id: content.id,
-      filename: content.filename,
-      title: content.title,
-      context: content.context,
-      titleType: typeof content.title,
-      contextType: typeof content.context,
-      titleEmpty: !content.title || content.title.trim() === '',
-      full_content: content
-    });
-    
     if (isSelectionMode) {
       handleToggleSelection(content.id);
     } else {
-      // Debug alert SEULEMENT quand on clique pour ouvrir la modal
-      if (content.title) {
-        alert(`Debug Modal: Title = "${content.title}"`);
-      } else {
-        alert(`Debug Modal: No title (will show placeholder)`);
-      }
-      
       setPreviewContent(content);
-      // Charger le contexte et le titre existants directement dans les champs après un court délai
+      // Utiliser setTimeout pour s'assurer que les refs sont prêts
       setTimeout(() => {
         if (contextTextareaRef.current) {
           contextTextareaRef.current.value = content.context || '';
@@ -1018,7 +1000,6 @@ function MainApp() {
         if (previewTitleInputRef.current) {
           const titleValue = content.title?.trim() || '';
           previewTitleInputRef.current.value = titleValue;
-          console.log('🔍 Title input populated with:', titleValue);
         }
       }, 100);
     }

@@ -125,20 +125,35 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
     };
   }, [content.id]);
   
-  // Token stable - récupéré une seule fois
-  const stableToken = useMemo(() => localStorage.getItem('access_token'), []);
+  // Token stable - récupéré une seule fois AVEC DEBUG
+  const stableToken = useMemo(() => {
+    const token = localStorage.getItem('access_token');
+    const shortId = content.id.slice(-8);
+    
+    console.log(`🔑 Token access for ${shortId}:`, token ? 'exists' : 'missing');
+    
+    // Debug: si le token est re-calculé, c'est un problème
+    if (renderCountRef.current > 1) {
+      alert(`🔑 TOKEN RECALC ${shortId} - render #${renderCountRef.current}`);
+    }
+    
+    return token;
+  }, []); // Pas de dépendances = calculé une seule fois
   
-  // Optimisation URL des vignettes avec token STABLE
+  // Optimisation URL des vignettes avec token STABLE + DEBUG
   const thumbnailUrl = useMemo(() => {
-    console.log(`🔍 Generating thumbnail URL for ${content.id}:`, {
+    const shortId = content.id.slice(-8);
+    
+    console.log(`🔍 URL calc for ${shortId}:`, {
       thumb_url: content.thumb_url,
       source: content.source,
-      stableToken: stableToken ? 'exists' : 'missing'
+      stableToken: stableToken ? 'exists' : 'missing',
+      renderCount: renderCountRef.current
     });
     
-    // Alert pour regénération d'URL (ne devrait pas arriver souvent)
-    if (parseInt(content.id.slice(-1), 16) % 8 === 0) {
-      alert(`🔍 URL regen for ${content.id.slice(-8)}`);
+    // Alert si l'URL est re-calculée (ne devrait arriver qu'une fois)
+    if (renderCountRef.current > 1) {
+      alert(`🔍 URL RECALC ${shortId} - render #${renderCountRef.current}!`);
     }
     
     if (content.source === 'pixabay') {

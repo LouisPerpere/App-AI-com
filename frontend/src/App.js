@@ -87,17 +87,6 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
     onToggleSelection(content.id);
   }, [content.id, onToggleSelection]);
 
-  // Debug pour voir les URLs des vignettes et TITRE OPÉRATIONNEL
-  console.log('🖼️ Content thumbnail:', {
-    id: content.id,
-    filename: content.filename,
-    file_type: content.file_type,
-    thumb_url: content.thumb_url,
-    url: content.url,
-    title: content.title, // DEBUG: vérifier le titre opérationnel
-    full_content: content
-  });
-
   // Optimisation URL des vignettes avec cache
   const thumbnailUrl = useMemo(() => {
     if (content.source === 'pixabay') {

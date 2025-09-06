@@ -78,29 +78,43 @@ const FREE_TRIAL_PLAN = {
 
 // ContentThumbnail component ultra-optimisé pour éviter re-renders
 const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection }) => {
-  const handleClick = useCallback(() => {
-    onContentClick(content);
-  }, [content.id, onContentClick]); // Dépendance sur l'ID seulement
-
-  const handleToggle = useCallback((e) => {
-    e.stopPropagation();
-    onToggleSelection(content.id);
-  }, [content.id, onToggleSelection]);
-
-  // Optimisation URL des vignettes avec cache STABLE
+  // Token stable - récupéré une seule fois
+  const stableToken = useMemo(() => localStorage.getItem('access_token'), []);
+  
+  // Optimisation URL des vignettes avec token STABLE
   const thumbnailUrl = useMemo(() => {
+    console.log(`🔍 Generating thumbnail URL for ${content.id}:`, {
+      thumb_url: content.thumb_url,
+      source: content.source,
+      stableToken: stableToken ? 'exists' : 'missing'
+    });
+    
     if (content.source === 'pixabay') {
       return content.thumb_url;
     }
     
     if (content.thumb_url) {
-      const token = localStorage.getItem('access_token');
-      // Cache STABLE basé uniquement sur l'ID du contenu (ne change jamais)
-      return `${content.thumb_url}?token=${token}`;
+      // URL STABLE avec token fixe
+      const url = `${content.thumb_url}?token=${stableToken}`;
+      console.log(`📸 Final URL for ${content.id}:`, url);
+      return url;
     }
     
     return null;
-  }, [content.thumb_url, content.source]);
+  }, [content.thumb_url, content.source, stableToken]);
+
+  const handleClick = useCallback(() => {
+    console.log(`🖱️ Click on thumbnail ${content.id}`);
+    onContentClick(content);
+  }, [content.id, onContentClick]); // Dépendance sur l'ID seulement
+
+  const handleToggle = useCallback((e) => {
+    e.stopPropagation();
+    console.log(`☑️ Toggle selection ${content.id}`);
+    onToggleSelection(content.id);
+  }, [content.id, onToggleSelection]);
+
+  console.log(`🎨 Rendering thumbnail ${content.id}:`, { isSelected, isSelectionMode, thumbnailUrl });
 
   return (
     <div 

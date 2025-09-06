@@ -3002,8 +3002,19 @@ function MainApp() {
                             - First item thumb_url: {pendingContent[0]?.thumb_url || 'N/A'}
                           </div>
                           
-                          {/* GRILLE COMPLÈTEMENT INDÉPENDANTE - JAMAIS de re-render */}
-                          <IndependentThumbnailGrid />
+                          {/* SOLUTION SIMPLE - Grille normale sans sur-optimisation */}
+                          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                            {pendingContent.map((content) => (
+                              <ContentThumbnail
+                                key={content.id}
+                                content={content}
+                                isSelectionMode={isSelectionMode}
+                                isSelected={selectedContentIds.has(content.id)}
+                                onContentClick={stableHandleContentClick}
+                                onToggleSelection={stableHandleToggleSelection}
+                              />
+                            ))}
+                          </div>
                           
                           {/* Bouton Charger plus - Scroll infini */}
                           {hasMoreContent && (

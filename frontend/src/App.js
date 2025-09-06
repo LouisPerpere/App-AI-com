@@ -1042,8 +1042,15 @@ function MainApp() {
     setSelectedContentIds(new Set()); // Reset selections
   }, [isSelectionMode]);
 
-  // Callbacks stables pour éviter re-renders des vignettes
+  // Callbacks stables pour éviter re-renders des vignettes + DEBUG
   const stableHandleToggleSelection = useCallback((contentId) => {
+    console.log(`☑️ STABLE toggle for ${contentId.slice(-8)}`);
+    
+    // Debug: si ce callback est re-créé, alerter
+    if (mainAppRenderCount.current > 5) {
+      alert(`☑️ STABLE CALLBACK RECREATED - MainApp render #${mainAppRenderCount.current}`);
+    }
+    
     setSelectedContentIds(prev => {
       const newSelection = new Set(prev);
       if (newSelection.has(contentId)) {
@@ -1053,7 +1060,7 @@ function MainApp() {
       }
       return newSelection;
     });
-  }, []); // Pas de dépendances - function stable
+  }, []); // Pas de dépendances - function stable + DEBUG
 
   // Sélectionner tout / Désélectionner tout
   const handleSelectAll = useCallback(() => {

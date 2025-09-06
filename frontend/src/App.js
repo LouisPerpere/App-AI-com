@@ -1055,14 +1055,17 @@ function MainApp() {
     setSelectedContentIds(new Set()); // Reset selections
   }, [isSelectionMode]); // DEBUG: dépendance qui peut causer re-render
 
-  // Callbacks stables pour éviter re-renders des vignettes + DEBUG
+  // VRAIMENT STABLE: Callbacks avec useRef pour éviter toute dépendance
+  const selectedContentIdsRef = useRef(selectedContentIds);
+  const isSelectionModeRef = useRef(isSelectionMode);
+  
+  // Maintenir les refs à jour
+  selectedContentIdsRef.current = selectedContentIds;
+  isSelectionModeRef.current = isSelectionMode;
+  
+  // Callback 100% stable - AUCUNE dépendance
   const stableHandleToggleSelection = useCallback((contentId) => {
-    console.log(`☑️ STABLE toggle for ${contentId.slice(-8)}`);
-    
-    // Debug: si ce callback est re-créé, alerter
-    if (mainAppRenderCount.current > 5) {
-      alert(`☑️ STABLE CALLBACK RECREATED - MainApp render #${mainAppRenderCount.current}`);
-    }
+    console.log(`☑️ TRULY STABLE toggle for ${contentId.slice(-8)}`);
     
     setSelectedContentIds(prev => {
       const newSelection = new Set(prev);
@@ -1073,7 +1076,7 @@ function MainApp() {
       }
       return newSelection;
     });
-  }, []); // Pas de dépendances - function stable + DEBUG
+  }, []); // ZÉRO dépendances = vraiment stable
 
   // Sélectionner tout / Désélectionner tout
   const handleSelectAll = useCallback(() => {

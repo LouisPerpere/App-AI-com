@@ -2678,7 +2678,7 @@ function MainApp() {
                           {hasMoreContent && (
                             <div className="flex justify-center mt-6">
                               <Button
-                                onClick={loadMoreContent}
+                                onClick={stableLoadMoreContent}
                                 disabled={isLoadingMore}
                                 variant="outline"
                                 className="px-6 py-3 border-purple-300 text-purple-600 hover:bg-purple-50"

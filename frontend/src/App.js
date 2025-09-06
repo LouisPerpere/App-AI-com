@@ -78,11 +78,19 @@ const FREE_TRIAL_PLAN = {
 
 // ContentThumbnail component ultra-optimisé pour éviter re-renders
 const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection }) => {
-  // Debug mount/unmount
+  // Debug mount/unmount avec alertes mobiles (limitées)
   useEffect(() => {
     console.log(`🟢 MOUNT thumbnail ${content.id}`);
+    // Alert seulement pour les 3 premiers mounts pour éviter spam
+    if (parseInt(content.id.slice(-1), 16) % 8 === 0) {
+      alert(`🟢 MOUNT thumbnail ${content.id.slice(-8)}`);
+    }
     return () => {
       console.log(`🔴 UNMOUNT thumbnail ${content.id}`);
+      // Alert pour tous les unmounts (c'est le problème principal)
+      if (parseInt(content.id.slice(-1), 16) % 8 === 0) {
+        alert(`🔴 UNMOUNT thumbnail ${content.id.slice(-8)}`);
+      }
     };
   }, [content.id]);
   
@@ -96,6 +104,11 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
       source: content.source,
       stableToken: stableToken ? 'exists' : 'missing'
     });
+    
+    // Alert pour regénération d'URL (ne devrait pas arriver souvent)
+    if (parseInt(content.id.slice(-1), 16) % 8 === 0) {
+      alert(`🔍 URL regen for ${content.id.slice(-8)}`);
+    }
     
     if (content.source === 'pixabay') {
       return content.thumb_url;

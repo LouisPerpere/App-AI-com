@@ -415,6 +415,9 @@ function MainApp() {
       
       const data = response.data;
       
+      // Mettre à jour le total
+      setTotalContentCount(data.total || 0);
+      
       if (append) {
         // Ajouter à la liste existante
         setPendingContent(prev => [...prev, ...(data.content || [])]);

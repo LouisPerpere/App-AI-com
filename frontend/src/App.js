@@ -1828,12 +1828,12 @@ function MainApp() {
       uploadContextRefs.current = {}; // Clean up context refs
       
       // Force content refresh after all metadata updates complete
-      console.log('🔄 Forcing content refresh after upload...');
       await loadPendingContent();
-      console.log('✅ Content refresh completed after upload');
       
-      // Show debug alert for mobile testing
-      alert(`Upload completed! ${response.data.created?.length || 0} files processed. Check library.`);
+      // Fermer automatiquement la modal après sauvegarde
+      setTimeout(() => {
+        handleClosePreview();
+      }, 1500);
     } catch (error) {
       console.error('❌ Upload error:', error);
       const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';

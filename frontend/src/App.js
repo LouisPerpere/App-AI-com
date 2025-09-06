@@ -2636,17 +2636,18 @@ function MainApp() {
                       
                       {pendingContent.length > 0 ? (
                         <>
-                          {/* Compteur d'images */}
-                          <div className="flex justify-between items-center mb-4">
-                            <div className="text-sm text-gray-600">
-                              <span className="font-semibold text-purple-600">{pendingContent.length}</span>
-                              {hasMoreContent && (
-                                <span className="text-gray-500">+ images chargées</span>
-                              )}
+                          {/* Compteur d'images - Format : visibles/total */}
+                          <div className="flex justify-between items-center mb-4 px-2">
+                            <div className="text-sm font-medium text-gray-700">
+                              <span className="text-purple-600 font-bold">{pendingContent.length}</span>
+                              <span className="text-gray-500">/{totalContentCount}</span>
+                              <span className="ml-2 text-gray-600">photos</span>
                             </div>
-                            <div className="text-xs text-gray-400">
-                              Scroll pour charger plus
-                            </div>
+                            {hasMoreContent && (
+                              <div className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
+                                Scroll pour plus
+                              </div>
+                            )}
                           </div>
                           
                           <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-5 gap-3 mb-6">

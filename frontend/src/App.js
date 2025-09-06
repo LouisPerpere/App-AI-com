@@ -579,24 +579,26 @@ function MainApp() {
     }
   };
   
-  // Fonction pour charger plus de contenu - STABLE + DEBUG
+  // VRAIMENT STABLE: Load more avec refs - Dépendances minimales
+  const hasMoreContentRef = useRef(hasMoreContent);
+  const isLoadingMoreRef = useRef(isLoadingMore);
+  
+  // Maintenir les refs à jour
+  hasMoreContentRef.current = hasMoreContent;
+  isLoadingMoreRef.current = isLoadingMore;
+  
   const stableLoadMoreContent = useCallback(async () => {
-    console.log(`📖 STABLE load more called - MainApp render #${mainAppRenderCount.current}`);
+    console.log(`📖 TRULY STABLE load more called`);
     
-    // Debug: si cette fonction est re-créée
-    if (mainAppRenderCount.current > 5) {
-      alert(`📖 LOAD MORE CALLBACK RECREATED - MainApp render #${mainAppRenderCount.current}`);
-    }
-    
-    if (!hasMoreContent || isLoadingMore) {
-      console.log(`📖 Load more blocked: hasMore=${hasMoreContent}, isLoading=${isLoadingMore}`);
+    if (!hasMoreContentRef.current || isLoadingMoreRef.current) {
+      console.log(`📖 Load more blocked: hasMore=${hasMoreContentRef.current}, isLoading=${isLoadingMoreRef.current}`);
       return;
     }
     
     setIsLoadingMore(true);
     await loadPendingContent(true);
     setIsLoadingMore(false);
-  }, [hasMoreContent, isLoadingMore]); // Dépendances minimales + DEBUG
+  }, []); // ZÉRO dépendances = vraiment stable
 
   // Fonction de tri des notes selon les spécifications périodiques
   const sortNotes = useCallback((notes) => {

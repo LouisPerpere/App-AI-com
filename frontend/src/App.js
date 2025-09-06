@@ -76,7 +76,54 @@ const FREE_TRIAL_PLAN = {
   color: 'green'
 };
 
-// ContentThumbnail component ultra-optimisé pour éviter re-renders
+// Composant ISOLÉ pour la grille de vignettes - IMMUNISÉ contre les re-renders parent
+const ThumbnailGrid = React.memo(({ 
+  pendingContent, 
+  isSelectionMode, 
+  selectedContentIds, 
+  onContentClick, 
+  onToggleSelection 
+}) => {
+  console.log(`🏗️ ThumbnailGrid render - ${pendingContent.length} items`);
+  
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      {pendingContent.map((content, index) => {
+        // DEBUG: Logging minimal
+        console.log(`🔑 Grid rendering item ${index}: key=${content.id.slice(-4)}`);
+        
+        return (
+          <ContentThumbnail
+            key={content.id}
+            content={content}
+            isSelectionMode={isSelectionMode}
+            isSelected={selectedContentIds.has(content.id)}
+            onContentClick={onContentClick}
+            onToggleSelection={onToggleSelection}
+          />
+        );
+      })}
+    </div>
+  );
+}, (prevProps, nextProps) => {
+  // Comparaison ULTRA-STRICTE pour ThumbnailGrid
+  const same = (
+    prevProps.pendingContent === nextProps.pendingContent && // Référence exacte
+    prevProps.isSelectionMode === nextProps.isSelectionMode &&
+    prevProps.selectedContentIds === nextProps.selectedContentIds && // Référence exacte
+    prevProps.onContentClick === nextProps.onContentClick && // Référence exacte
+    prevProps.onToggleSelection === nextProps.onToggleSelection // Référence exacte
+  );
+  
+  if (!same) {
+    console.log(`🔄 ThumbnailGrid will re-render - props changed`);
+    alert(`🔄 THUMBNAIL GRID RE-RENDER - INVESTIGATING`);
+  } else {
+    console.log(`✅ ThumbnailGrid props identical - NO re-render`);
+  }
+  
+  return same;
+});
 const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection }) => {
   // 🚨 DEBUG RÉDUIT - Alertes seulement pour les anomalies critiques
   const renderCountRef = useRef(0);

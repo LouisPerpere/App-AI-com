@@ -78,6 +78,14 @@ const FREE_TRIAL_PLAN = {
 
 // ContentThumbnail component ultra-optimisé pour éviter re-renders
 const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection }) => {
+  // Debug mount/unmount
+  useEffect(() => {
+    console.log(`🟢 MOUNT thumbnail ${content.id}`);
+    return () => {
+      console.log(`🔴 UNMOUNT thumbnail ${content.id}`);
+    };
+  }, [content.id]);
+  
   // Token stable - récupéré une seule fois
   const stableToken = useMemo(() => localStorage.getItem('access_token'), []);
   

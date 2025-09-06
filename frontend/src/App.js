@@ -396,6 +396,7 @@ function MainApp() {
   const [hasMoreContent, setHasMoreContent] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [contentPage, setContentPage] = useState(0);
+  const [totalContentCount, setTotalContentCount] = useState(0);
 
   const loadPendingContent = async (append = false) => {
     try {

@@ -2668,8 +2668,8 @@ function MainApp() {
                                 content={content}
                                 isSelectionMode={isSelectionMode}
                                 isSelected={selectedContentIds.has(content.id)}
-                                onContentClick={handleContentClick}
-                                onToggleSelection={handleToggleSelection}
+                                onContentClick={stableHandleContentClick}
+                                onToggleSelection={stableHandleToggleSelection}
                               />
                             ))}
                           </div>

@@ -1046,11 +1046,14 @@ function MainApp() {
 
   // Fonctions pour la bibliothèque de contenus
   
-  // Basculer le mode sélection
+  // Basculer le mode sélection + DEBUG
   const toggleSelectionMode = useCallback(() => {
+    console.log(`🔄 Toggle selection mode - MainApp render #${mainAppRenderCount.current}`);
+    alert(`🔄 SELECTION MODE TOGGLE - watch for thumbnail re-renders`);
+    
     setIsSelectionMode(!isSelectionMode);
     setSelectedContentIds(new Set()); // Reset selections
-  }, [isSelectionMode]);
+  }, [isSelectionMode]); // DEBUG: dépendance qui peut causer re-render
 
   // Callbacks stables pour éviter re-renders des vignettes + DEBUG
   const stableHandleToggleSelection = useCallback((contentId) => {

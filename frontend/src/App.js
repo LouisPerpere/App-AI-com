@@ -210,6 +210,17 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
       )}
     </div>
   );
+}, (prevProps, nextProps) => {
+  // Comparaison personnalisée pour éviter re-renders inutiles
+  return (
+    prevProps.content.id === nextProps.content.id &&
+    prevProps.content.title === nextProps.content.title &&
+    prevProps.content.thumb_url === nextProps.content.thumb_url &&
+    prevProps.isSelectionMode === nextProps.isSelectionMode &&
+    prevProps.isSelected === nextProps.isSelected &&
+    prevProps.onContentClick === nextProps.onContentClick &&
+    prevProps.onToggleSelection === nextProps.onToggleSelection
+  );
 });
 
 function MainApp() {

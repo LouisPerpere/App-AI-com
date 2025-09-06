@@ -87,7 +87,7 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
     onToggleSelection(content.id);
   }, [content.id, onToggleSelection]);
 
-  // Optimisation URL des vignettes avec cache
+  // Optimisation URL des vignettes avec cache intelligent
   const thumbnailUrl = useMemo(() => {
     if (content.source === 'pixabay') {
       return content.thumb_url;
@@ -95,11 +95,12 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
     
     if (content.thumb_url) {
       const token = localStorage.getItem('access_token');
-      return `${content.thumb_url}?token=${token}&cache=${Date.now()}`;
+      // Cache key basé sur l'ID du contenu pour éviter rechargements
+      return `${content.thumb_url}?token=${token}&v=${content.id}`;
     }
     
     return null;
-  }, [content.thumb_url, content.source]);
+  }, [content.thumb_url, content.source, content.id]);
 
   return (
     <div 

@@ -76,67 +76,7 @@ const FREE_TRIAL_PLAN = {
   color: 'green'
 };
 
-// Composant COMPLÈTEMENT INDÉPENDANT - Aucune dépendance aux states du parent
-const IndependentThumbnailGrid = React.memo(() => {
-  console.log(`🏗️ IndependentThumbnailGrid render - SHOULD NEVER RE-RENDER`);
-  
-  // States locaux - complètement indépendants du parent
-  const [localContent, setLocalContent] = useState([]);
-  const [localSelectionMode, setLocalSelectionMode] = useState(false);
-  const [localSelectedIds, setLocalSelectedIds] = useState(new Set());
-  
-  // Refs pour recevoir les données du parent
-  const contentRef = useRef([]);
-  const selectionModeRef = useRef(false);
-  const selectedIdsRef = useRef(new Set());
-  
-  // Synchroniser UNIQUEMENT quand nécessaire
-  useEffect(() => {
-    // Cette fonction sera appelée par le parent quand les données changent
-    window.updateThumbnailGrid = (content, selectionMode, selectedIds) => {
-      console.log(`📡 IndependentGrid receiving update`);
-      setLocalContent(content);
-      setLocalSelectionMode(selectionMode);
-      setLocalSelectedIds(selectedIds);
-    };
-    
-    return () => {
-      delete window.updateThumbnailGrid;
-    };
-  }, []);
-  
-  // Callbacks stables pour les vignettes
-  const handleContentClick = useCallback((content) => {
-    console.log(`🖱️ Independent grid content click: ${content.id.slice(-8)}`);
-    // Appeler la fonction du parent via window
-    if (window.parentHandleContentClick) {
-      window.parentHandleContentClick(content);
-    }
-  }, []);
-  
-  const handleToggleSelection = useCallback((contentId) => {
-    console.log(`☑️ Independent grid toggle: ${contentId.slice(-8)}`);
-    // Appeler la fonction du parent via window
-    if (window.parentHandleToggleSelection) {
-      window.parentHandleToggleSelection(contentId);
-    }
-  }, []);
-  
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-      {localContent.map((content) => (
-        <ContentThumbnail
-          key={content.id}
-          content={content}
-          isSelectionMode={localSelectionMode}
-          isSelected={localSelectedIds.has(content.id)}
-          onContentClick={handleContentClick}
-          onToggleSelection={handleToggleSelection}
-        />
-      ))}
-    </div>
-  );
-}, () => true); // TOUJOURS identique - ne JAMAIS re-render
+// ContentThumbnail component ultra-optimisé pour éviter re-renders
 const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection }) => {
   // 🚨 DEBUG RÉDUIT - Alertes seulement pour les anomalies critiques
   const renderCountRef = useRef(0);

@@ -579,14 +579,24 @@ function MainApp() {
     }
   };
   
-  // Fonction pour charger plus de contenu - STABLE
+  // Fonction pour charger plus de contenu - STABLE + DEBUG
   const stableLoadMoreContent = useCallback(async () => {
-    if (!hasMoreContent || isLoadingMore) return;
+    console.log(`📖 STABLE load more called - MainApp render #${mainAppRenderCount.current}`);
+    
+    // Debug: si cette fonction est re-créée
+    if (mainAppRenderCount.current > 5) {
+      alert(`📖 LOAD MORE CALLBACK RECREATED - MainApp render #${mainAppRenderCount.current}`);
+    }
+    
+    if (!hasMoreContent || isLoadingMore) {
+      console.log(`📖 Load more blocked: hasMore=${hasMoreContent}, isLoading=${isLoadingMore}`);
+      return;
+    }
     
     setIsLoadingMore(true);
     await loadPendingContent(true);
     setIsLoadingMore(false);
-  }, [hasMoreContent, isLoadingMore]); // Dépendances minimales
+  }, [hasMoreContent, isLoadingMore]); // Dépendances minimales + DEBUG
 
   // Fonction de tri des notes selon les spécifications périodiques
   const sortNotes = useCallback((notes) => {

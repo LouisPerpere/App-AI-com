@@ -78,7 +78,7 @@ const FREE_TRIAL_PLAN = {
 
 // ContentThumbnail component ultra-optimisé pour éviter re-renders
 const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection }) => {
-  // 🚨 DEBUG SYSTÈME COMPLET POUR iPhone - PHASE 1: TRACKING RE-RENDERS
+  // 🚨 DEBUG RÉDUIT - Alertes seulement pour les anomalies critiques
   const renderCountRef = useRef(0);
   const lastPropsRef = useRef({});
   
@@ -88,9 +88,9 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
     
     console.log(`🎨 RENDER #${renderCountRef.current} thumbnail ${shortId}`);
     
-    // Alert iPhone pour chaque 4ème render (balance entre info et spam)
-    if (renderCountRef.current % 4 === 0) {
-      alert(`🎨 RENDER #${renderCountRef.current} ${shortId}`);
+    // Alert seulement si trop de renders (anomalie)
+    if (renderCountRef.current > 3) {
+      alert(`🚨 EXCESSIVE RENDERS ${shortId}: #${renderCountRef.current}`);
     }
     
     // Analyser les changements de props
@@ -104,23 +104,25 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
     
     if (changedProps.length > 0 && renderCountRef.current > 1) {
       console.log(`🔄 Props changed for ${shortId}:`, changedProps);
-      alert(`🔄 Props changed ${shortId}: ${changedProps.join(', ')}`);
+      // Pas d'alert pour les changements normaux de props
     }
     
     lastPropsRef.current = currentProps;
   });
   
-  // Debug mount/unmount avec alertes mobiles RENFORCÉES
+  // Debug mount/unmount - ALERTES RÉDUITES
   useEffect(() => {
     const shortId = content.id.slice(-8);
     console.log(`🟢 MOUNT thumbnail ${shortId}`);
     
-    // Alert pour TOUS les mounts maintenant (on a besoin de voir l'ampleur)
-    alert(`🟢 MOUNT ${shortId}`);
+    // Alert seulement 1 mount sur 5 pour réduire spam
+    if (parseInt(shortId, 16) % 5 === 0) {
+      alert(`🟢 MOUNT ${shortId}`);
+    }
     
     return () => {
       console.log(`🔴 UNMOUNT thumbnail ${shortId}`);
-      // Alert pour TOUS les unmounts (problème critique)
+      // Alert pour tous les unmounts car c'est le problème critique
       alert(`🔴 UNMOUNT ${shortId} - CRITICAL!`);
     };
   }, [content.id]);

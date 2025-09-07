@@ -76,41 +76,8 @@ const FREE_TRIAL_PLAN = {
   color: 'green'
 };
 
-// ContentThumbnail component ultra-optimisé pour éviter re-renders
+// ContentThumbnail component optimisé
 const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection }) => {
-  // 🚨 DEBUG RÉDUIT - Alertes seulement pour les anomalies critiques
-  const renderCountRef = useRef(0);
-  const lastPropsRef = useRef({});
-  
-  useEffect(() => {
-    renderCountRef.current += 1;
-    const shortId = content.id.slice(-8);
-    
-    console.log(`🎨 RENDER #${renderCountRef.current} thumbnail ${shortId}`);
-    
-    // Alert seulement si trop de renders (anomalie)
-    if (renderCountRef.current > 3) {
-      alert(`🚨 EXCESSIVE RENDERS ${shortId}: #${renderCountRef.current}`);
-    }
-    
-    // Analyser les changements de props
-    const currentProps = { isSelectionMode, isSelected, content: content.id };
-    const lastProps = lastPropsRef.current;
-    
-    let changedProps = [];
-    if (lastProps.isSelectionMode !== currentProps.isSelectionMode) changedProps.push('selectionMode');
-    if (lastProps.isSelected !== currentProps.isSelected) changedProps.push('selected');
-    if (lastProps.content !== currentProps.content) changedProps.push('content');
-    
-    if (changedProps.length > 0 && renderCountRef.current > 1) {
-      console.log(`🔄 Props changed for ${shortId}:`, changedProps);
-      // Pas d'alert pour les changements normaux de props
-    }
-    
-    lastPropsRef.current = currentProps;
-  });
-  
-  // Debug mount/unmount - Alertes réduites pour iPhone
   
   // Token stable - récupéré une seule fois AVEC DEBUG
   const stableToken = useMemo(() => {

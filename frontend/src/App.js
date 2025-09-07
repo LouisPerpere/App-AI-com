@@ -421,15 +421,9 @@ function MainApp() {
     return () => document.removeEventListener('click', handleGlobalClick);
   }, []);
   
-  // État de loading pour masquer les re-renders
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [showSkeletons, setShowSkeletons] = useState(false);
-
   // State management
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
-  const [activeStep, setActiveStep] = useState('onboarding');
-  const [businessProfile, setBusinessProfile] = useState(null);
   const [activeTab, setActiveTab] = useState('entreprise');
   const [pendingContent, setPendingContent] = useState([]);
   const [notes, setNotes] = useState([]);

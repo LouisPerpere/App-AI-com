@@ -2929,48 +2929,17 @@ function MainApp() {
                             - First item thumb_url: {pendingContent[0]?.thumb_url || 'N/A'}
                           </div>
                           
-                          {/* GRILLE SIMPLE - Structure CSS correcte avec fallback Tailwind */}
-                          <div className="library-grid grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                          {/* RETOUR AU COMPOSANT CONTENTTHUMBNAIL - TEST RAPIDE */}
+                          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             {pendingContent.map((content) => (
-                              <div 
-                                key={content.id} 
-                                className="thumbnail-container cursor-pointer"
-                                onClick={() => stableHandleContentClick(content)}
-                              >
-                                <div className="thumbnail-inner">
-                                  <img
-                                    src={content.thumb_url || content.url}
-                                    alt={content.title || content.filename || 'Contenu'}
-                                    loading="lazy"
-                                    onError={(e) => {
-                                      console.log(`❌ Thumbnail error for ${content.id.slice(-8)}, trying fallback`);
-                                      if (content.url && e.currentTarget.src !== content.url) {
-                                        e.currentTarget.src = content.url;
-                                      }
-                                    }}
-                                  />
-                                  {/* Checkbox pour sélection */}
-                                  {isSelectionMode && (
-                                    <div className="absolute top-2 left-2 z-10">
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          stableHandleToggleSelection(content.id);
-                                        }}
-                                        className={`
-                                          w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200
-                                          ${selectedContentIds.has(content.id)
-                                            ? 'bg-purple-500 border-purple-500 text-white' 
-                                            : 'bg-white border-gray-300 hover:border-purple-400'
-                                          }
-                                        `}
-                                      >
-                                        {selectedContentIds.has(content.id) && <Check className="w-4 h-4" />}
-                                      </button>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
+                              <ContentThumbnail
+                                key={content.id}
+                                content={content}
+                                isSelectionMode={isSelectionMode}
+                                isSelected={selectedContentIds.has(content.id)}
+                                onContentClick={stableHandleContentClick}
+                                onToggleSelection={stableHandleToggleSelection}
+                              />
                             ))}
                           </div>
                           

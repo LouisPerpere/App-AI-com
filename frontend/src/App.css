@@ -7,47 +7,6 @@
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
-/* 🚀 OPTIMISATIONS PERFORMANCE iOS - FIX CORRECT */
-.thumbnail-container {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1 / 1;         /* fixe la hauteur, iOS-friendly */
-  overflow: hidden;
-  border-radius: 12px;
-  background: #f6f7f9;
-  -webkit-backface-visibility: hidden;
-  outline: 1px solid red; /* DEBUG TEMPORAIRE */
-}
-
-/* Isolement SANS size sur un inner */
-.thumbnail-inner {
-  contain: layout paint;
-  will-change: transform;
-}
-
-/* Image plein cadre */
-.thumbnail-container img {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%; 
-  height: 100%;
-  object-fit: cover;
-  outline: 1px solid blue; /* DEBUG TEMPORAIRE */
-}
-
-/* Grille avec dimensions stables */
-.library-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 12px;
-}
-
-.library-scroll {
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
 /* Animation respiration pour "Vous respirez" */
 @keyframes breathe {
   0%, 100% { 

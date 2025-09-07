@@ -1153,13 +1153,15 @@ function MainApp() {
     setIsTransitioning(false);
   }, []);
 
-  // VRAIMENT STABLE: Toggle selection mode avec ref
+  // VRAIMENT STABLE: Toggle selection mode avec transition fluide
   const toggleSelectionMode = useCallback(() => {
     console.log(`🔄 TRULY STABLE toggle selection mode`);
     
-    setIsSelectionMode(prev => !prev);
-    setSelectedContentIds(new Set()); // Reset selections
-  }, []); // ZÉRO dépendances = vraiment stable
+    handleSmoothTransition(async () => {
+      setIsSelectionMode(prev => !prev);
+      setSelectedContentIds(new Set()); // Reset selections
+    });
+  }, [handleSmoothTransition]);
 
   // VRAIMENT STABLE: Callbacks avec useRef pour éviter toute dépendance
   const selectedContentIdsRef = useRef(selectedContentIds);

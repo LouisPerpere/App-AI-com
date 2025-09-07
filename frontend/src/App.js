@@ -220,7 +220,7 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
           <img 
             src={thumbnailUrl || '/api/placeholder.png'}
             alt={content.filename}
-            className="w-full h-full object-cover"
+            className="thumbnail-image w-full h-full object-cover"
             loading="lazy"
             crossOrigin="anonymous"
             onError={(e) => {

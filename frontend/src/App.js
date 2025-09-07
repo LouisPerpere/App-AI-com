@@ -79,20 +79,11 @@ const FREE_TRIAL_PLAN = {
 // ContentThumbnail component optimisé
 const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection }) => {
   
-  // Token stable - récupéré une seule fois AVEC DEBUG
+  // Token stable - récupéré une seule fois
   const stableToken = useMemo(() => {
     const token = localStorage.getItem('access_token');
-    const shortId = content.id.slice(-8);
-    
-    console.log(`🔑 Token access for ${shortId}:`, token ? 'exists' : 'missing');
-    
-    // Debug: si le token est re-calculé, c'est un problème
-    if (renderCountRef.current > 1) {
-      alert(`🔑 TOKEN RECALC ${shortId} - render #${renderCountRef.current}`);
-    }
-    
     return token;
-  }, []); // Pas de dépendances = calculé une seule fois
+  }, []);
   
   // Optimisation URL des vignettes avec token STABLE + DEBUG
   const thumbnailUrl = useMemo(() => {

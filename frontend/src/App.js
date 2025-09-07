@@ -3888,29 +3888,6 @@ function MainApp() {
 
   return (
     <div className="App">
-      {/* Debug Panel pour iPhone - PHASE 3 */}
-      <div className="fixed top-4 right-4 z-50 bg-red-500 text-white p-2 rounded-lg text-xs opacity-75 hover:opacity-100 transition-opacity">
-        <div>MainApp: #{mainAppRenderCount.current}</div>
-        <div>Content: {pendingContent.length}</div>
-        <div>Selection: {isSelectionMode ? 'ON' : 'OFF'}</div>
-        <button 
-          onClick={() => {
-            alert(`🔍 DEBUG INFO:
-MainApp renders: ${mainAppRenderCount.current}
-Content count: ${pendingContent.length}
-Selection mode: ${isSelectionMode}
-Selected items: ${selectedContentIds.size}
-Active tab: ${activeTab}
-Library tab: ${activeLibraryTab}
-Preview open: ${previewContent ? 'YES' : 'NO'}
-Last click: ${lastClickTime.current}`);
-          }}
-          className="bg-white text-red-500 px-2 py-1 rounded mt-1 text-xs"
-        >
-          📊 Stats
-        </button>
-      </div>
-      
       <Dashboard />
     </div>
   );

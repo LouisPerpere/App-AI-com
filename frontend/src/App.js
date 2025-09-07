@@ -76,15 +76,6 @@ const FREE_TRIAL_PLAN = {
   color: 'green'
 };
 
-// Skeleton Thumbnail Component - Masque les re-renders
-const SkeletonThumbnail = () => (
-  <div className="skeleton-thumbnail aspect-square w-full rounded-xl">
-    <div className="w-full h-full flex items-center justify-center">
-      <div className="loading-spinner"></div>
-    </div>
-  </div>
-);
-
 // ContentThumbnail component ultra-optimisé pour éviter re-renders
 const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection }) => {
   // 🚨 DEBUG RÉDUIT - Alertes seulement pour les anomalies critiques

@@ -2936,16 +2936,13 @@ function MainApp() {
                           )}
                         </div>
                         
-                        {/* GRILLE TOUJOURS PRÉSENTE */}
+                        {/* GRILLE DE TEST ULTRA-SIMPLE */}
                         <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                          {pendingContent.map((content) => (
-                            <ContentThumbnail
+                          {pendingContent.slice(0, 8).map((content, index) => (
+                            <SimpleTestThumbnail
                               key={content.id}
                               content={content}
-                              isSelectionMode={isSelectionMode}
-                              isSelected={selectedContentIds.has(content.id)}
-                              onContentClick={stableHandleContentClick}
-                              onToggleSelection={stableHandleToggleSelection}
+                              index={index}
                             />
                           ))}
                         </div>

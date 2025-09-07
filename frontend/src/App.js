@@ -602,9 +602,7 @@ function MainApp() {
   const [contentPage, setContentPage] = useState(0);
   const [totalContentCount, setTotalContentCount] = useState(0);
 
-  // 🚀 OPTIMISATION PERFORMANCE iOS - useDeferredValue pour éviter les flashs
-  const deferredContent = useDeferredValue(pendingContent);
-  const stableContentItems = useMemo(() => deferredContent, [deferredContent]);
+
 
   // 🚨 DEBUG: Tracker les changements de pendingContent
   const pendingContentRef = useRef(pendingContent);

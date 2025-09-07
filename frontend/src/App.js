@@ -85,30 +85,14 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
     return token;
   }, []);
   
-  // Optimisation URL des vignettes avec token STABLE + DEBUG
+  // Optimisation URL des vignettes avec token stable
   const thumbnailUrl = useMemo(() => {
-    const shortId = content.id.slice(-8);
-    
-    console.log(`🔍 URL calc for ${shortId}:`, {
-      thumb_url: content.thumb_url,
-      source: content.source,
-      stableToken: stableToken ? 'exists' : 'missing',
-      renderCount: renderCountRef.current
-    });
-    
-    // Alert si l'URL est re-calculée (ne devrait arriver qu'une fois)
-    if (renderCountRef.current > 1) {
-      alert(`🔍 URL RECALC ${shortId} - render #${renderCountRef.current}!`);
-    }
-    
     if (content.source === 'pixabay') {
       return content.thumb_url;
     }
     
     if (content.thumb_url) {
-      // URL STABLE avec token fixe
       const url = `${content.thumb_url}?token=${stableToken}`;
-      console.log(`📸 Final URL for ${content.id}:`, url);
       return url;
     }
     

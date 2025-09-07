@@ -408,10 +408,18 @@ function MainApp() {
   const mainAppRenderCount = useRef(0);
   const lastClickTime = useRef(0);
   const previousStates = useRef({});
+  const lastActiveTab = useRef(activeTab);
   
   useEffect(() => {
     mainAppRenderCount.current += 1;
     console.log(`🏠 MainApp RENDER #${mainAppRenderCount.current}`);
+    
+    // DEBUG CRÍTICO: Tracker les changements d'activeTab
+    if (lastActiveTab.current !== activeTab) {
+      console.log(`🔄 ACTIVE TAB CHANGED: ${lastActiveTab.current} → ${activeTab}`);
+      alert(`🔄 ACTIVE TAB CHANGED: ${lastActiveTab.current} → ${activeTab}`);
+      lastActiveTab.current = activeTab;
+    }
     
     // Tracker les changements de state qui causent les re-renders
     const currentStates = {

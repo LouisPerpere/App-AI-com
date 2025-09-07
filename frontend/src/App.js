@@ -2932,7 +2932,11 @@ function MainApp() {
                           {/* GRILLE SIMPLE - Structure CSS correcte */}
                           <div className="library-grid">
                             {pendingContent.map((content) => (
-                              <div key={content.id} className="thumbnail-container">
+                              <div 
+                                key={content.id} 
+                                className="thumbnail-container cursor-pointer"
+                                onClick={() => stableHandleContentClick(content)}
+                              >
                                 <div className="thumbnail-inner">
                                   <img
                                     src={content.thumb_url || content.url}

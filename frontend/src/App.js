@@ -2892,56 +2892,77 @@ function MainApp() {
                         </div>
                       </div>
                       
-                      {pendingContent.length > 0 ? (
-                        <>
-                          {/* Compteur d'images - Format : visibles/total */}
-                          <div className="flex justify-between items-center mb-4 px-2">
-                            <div className="text-sm font-medium text-gray-700">
-                              <span className="text-purple-600 font-bold">{pendingContent.length}</span>
-                              <span className="text-gray-500">/{totalContentCount}</span>
-                              <span className="ml-2 text-gray-600">photos</span>
-                            </div>
-                            {hasMoreContent && (
-                              <div className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
-                                Scroll pour plus
-                              </div>
-                            )}
+                      {/* TOUJOURS AFFICHER - Pas de branche conditionnelle */}
+                      <div>
+                        {/* Compteur d'images - Format : visibles/total */}
+                        <div className="flex justify-between items-center mb-4 px-2">
+                          <div className="text-sm font-medium text-gray-700">
+                            <span className="text-purple-600 font-bold">{pendingContent.length}</span>
+                            <span className="text-gray-500">/{totalContentCount}</span>
+                            <span className="ml-2 text-gray-600">photos</span>
                           </div>
-                          
-                          {/* GRILLE AVEC PLUS DE COLONNES */}
-                          <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                            {pendingContent.map((content) => (
-                              <ContentThumbnail
-                                key={content.id}
-                                content={content}
-                                isSelectionMode={isSelectionMode}
-                                isSelected={selectedContentIds.has(content.id)}
-                                onContentClick={stableHandleContentClick}
-                                onToggleSelection={stableHandleToggleSelection}
-                              />
-                            ))}
-                          </div>
-                          
-                          {/* Bouton Charger plus - Scroll infini */}
                           {hasMoreContent && (
-                            <div className="flex justify-center mt-6">
-                              <Button
-                                onClick={stableLoadMoreContent}
-                                disabled={isLoadingMore}
-                                variant="outline"
-                                className="px-6 py-3 border-purple-300 text-purple-600 hover:bg-purple-50"
-                              >
-                                {isLoadingMore ? (
-                                  <>
-                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-purple-600 border-t-transparent mr-2"></div>
-                                    Chargement...
-                                  </>
-                                ) : (
-                                  'Charger plus d\'images'
-                                )}
-                              </Button>
+                            <div className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
+                              Scroll pour plus
                             </div>
                           )}
+                        </div>
+                        
+                        {/* GRILLE TOUJOURS PRÉSENTE */}
+                        <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                          {pendingContent.map((content) => (
+                            <ContentThumbnail
+                              key={content.id}
+                              content={content}
+                              isSelectionMode={isSelectionMode}
+                              isSelected={selectedContentIds.has(content.id)}
+                              onContentClick={stableHandleContentClick}
+                              onToggleSelection={stableHandleToggleSelection}
+                            />
+                          ))}
+                        </div>
+                        
+                        {/* Message si pas de contenu */}
+                        {pendingContent.length === 0 && (
+                          <div className="text-center py-12 card-glass rounded-3xl border-2 border-dashed border-purple-300">
+                            <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
+                              <ImageIcon className="w-12 h-12 text-white" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-gray-700 mb-4">Votre bibliothèque de contenus 📚</h3>
+                            <p className="text-xl text-gray-500 mb-6">Uploadez vos premiers contenus pour voir votre succès exploser ! 🚀</p>
+                            <Button
+                              onClick={loadPendingContent}
+                              variant="outline"
+                              className="text-purple-600 border-purple-300 hover:bg-purple-50"
+                            >
+                              <ChevronRight className="w-4 h-4 mr-2 rotate-90" />
+                              Charger le contenu existant
+                            </Button>
+                          </div>
+                        )}
+                        
+                        {/* Bouton Charger plus - Seulement si contenu existe */}
+                        {pendingContent.length > 0 && hasMoreContent && (
+                          <div className="flex justify-center mt-6">
+                            <Button
+                              onClick={stableLoadMoreContent}
+                              disabled={isLoadingMore}
+                              variant="outline"
+                              className="px-6 py-3 border-purple-300 text-purple-600 hover:bg-purple-50"
+                            >
+                              {isLoadingMore ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-purple-600 border-t-transparent mr-2"></div>
+                                  Chargement...
+                                </>
+                              ) : (
+                                'Charger plus d\'images'
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                        
+                        {pendingContent.length > 0 && (
                           <div className="text-center">
                             <Button
                               onClick={loadPendingContent}
@@ -2952,24 +2973,8 @@ function MainApp() {
                               Recharger le contenu
                             </Button>
                           </div>
-                        </>
-                      ) : (
-                        <div className="text-center py-12 card-glass rounded-3xl border-2 border-dashed border-purple-300">
-                          <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
-                            <ImageIcon className="w-12 h-12 text-white" />
-                          </div>
-                          <h3 className="text-2xl font-bold text-gray-700 mb-4">Votre bibliothèque de contenus 📚</h3>
-                          <p className="text-xl text-gray-500 mb-6">Uploadez vos premiers contenus pour voir votre succès exploser ! 🚀</p>
-                          <Button
-                            onClick={loadPendingContent}
-                            variant="outline"
-                            className="text-purple-600 border-purple-300 hover:bg-purple-50"
-                          >
-                            <ChevronRight className="w-4 h-4 mr-2 rotate-90" />
-                            Charger le contenu existant
-                          </Button>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}

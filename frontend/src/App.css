@@ -16,6 +16,7 @@
   border-radius: 12px;
   background: #f6f7f9;
   -webkit-backface-visibility: hidden;
+  outline: 1px solid red; /* DEBUG TEMPORAIRE */
 }
 
 /* Isolement SANS size sur un inner */
@@ -32,6 +33,7 @@
   width: 100%; 
   height: 100%;
   object-fit: cover;
+  outline: 1px solid blue; /* DEBUG TEMPORAIRE */
 }
 
 /* Grille avec dimensions stables */

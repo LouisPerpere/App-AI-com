@@ -3378,7 +3378,7 @@ function MainApp() {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
+          </DebugTabsContent>
 
           <TabsContent value="notes" className="space-y-8">
             <Card className="card-gradient">

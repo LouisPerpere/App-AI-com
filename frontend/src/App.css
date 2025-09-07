@@ -7,6 +7,25 @@
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
+/* 🚀 OPTIMISATIONS PERFORMANCE iOS - Éviter re-layouts & flashs */
+.thumbnail-container {
+  contain: layout paint size; /* ISOLE chaque vignette */
+  will-change: transform;     /* hint GPU, iOS aime bien */
+  -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
+}
+
+.library-scroll {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
+}
+
+.thumbnail-image {
+  backface-visibility: hidden; /* Évite les flashs sur iOS */
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0); /* Force GPU acceleration */
+  -webkit-transform: translateZ(0);
+}
+
 /* Animation respiration pour "Vous respirez" */
 @keyframes breathe {
   0%, 100% { 

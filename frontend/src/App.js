@@ -3989,6 +3989,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/test-minimal" element={<TestMinimal />} />
         <Route path="/auth/facebook/callback" element={<FacebookCallback />} />
         <Route path="/*" element={<MainApp />} />
       </Routes>

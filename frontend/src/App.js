@@ -100,16 +100,8 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
   }, [content.thumb_url, content.source, stableToken]);
 
   const handleClick = useCallback(() => {
-    const shortId = content.id.slice(-8);
-    console.log(`🖱️ Click on thumbnail ${shortId}`);
-    
-    // Debug: tracker seulement les re-créations anormales
-    if (renderCountRef.current > 2) {
-      alert(`🖱️ CALLBACK RECREATED ${shortId} - render #${renderCountRef.current}`);
-    }
-    
     onContentClick(content);
-  }, [content.id, onContentClick]); // Dépendance sur l'ID seulement
+  }, [content.id, onContentClick]);
 
   const handleToggle = useCallback((e) => {
     e.stopPropagation();

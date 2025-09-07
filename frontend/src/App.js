@@ -2909,9 +2909,9 @@ function MainApp() {
                           {/* DEBUG: Analyse de la grille parent et des clés */}
                           <div className="mb-4 p-2 bg-red-100 border-l-4 border-red-500 text-sm">
                             <strong>🚨 PARENT DEBUG:</strong><br/>
-                            - PendingContent array ref: {pendingContent.toString().slice(0, 20)}...<br/>
+                            - PendingContent array length: {pendingContent.length}<br/>
                             - MainApp render: #{mainAppRenderCount.current}<br/>
-                            - Grid parent re-render tracker: {Date.now()}
+                            - Grid parent stable (no dynamic values)
                           </div>
                           
                           {/* DEBUG: Information sur le contenu */}

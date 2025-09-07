@@ -2902,17 +2902,18 @@ function MainApp() {
                           )}
                         </div>
                         
-                        {/* GRILLE RESTAURÉE - 4-5-6 colonnes */}
+                        {/* GRILLE AVEC TRANSITIONS CSS FLUIDES */}
                         <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
                           {pendingContent.map((content) => (
-                            <ContentThumbnail
-                              key={content.id}
-                              content={content}
-                              isSelectionMode={isSelectionMode}
-                              isSelected={selectedContentIds.has(content.id)}
-                              onContentClick={stableHandleContentClick}
-                              onToggleSelection={stableHandleToggleSelection}
-                            />
+                            <div key={content.id} className="thumbnail-smooth fade-in">
+                              <ContentThumbnail
+                                content={content}
+                                isSelectionMode={isSelectionMode}
+                                isSelected={selectedContentIds.has(content.id)}
+                                onContentClick={stableHandleContentClick}
+                                onToggleSelection={stableHandleToggleSelection}
+                              />
+                            </div>
                           ))}
                         </div>
                         

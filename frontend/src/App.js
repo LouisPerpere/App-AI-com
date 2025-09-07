@@ -344,75 +344,7 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
 function MainApp() {
   const location = useLocation();
   
-  // 🚨 DEBUG SYSTÈME GLOBAL - PHASE 2: TRACKING PARENT RE-RENDERS
-  const mainAppRenderCount = useRef(0);
-  const lastClickTime = useRef(0);
-  const previousStates = useRef({});
-  const lastActiveTab = useRef(activeTab);
-  
-  useEffect(() => {
-    mainAppRenderCount.current += 1;
-    console.log(`🏠 MainApp RENDER #${mainAppRenderCount.current}`);
-    
-    // DEBUG CRÍTICO: Tracker les changements d'activeTab
-    if (lastActiveTab.current !== activeTab) {
-      console.log(`🔄 ACTIVE TAB CHANGED: ${lastActiveTab.current} → ${activeTab}`);
-      alert(`🔄 ACTIVE TAB CHANGED: ${lastActiveTab.current} → ${activeTab}`);
-      lastActiveTab.current = activeTab;
-    }
-    
-    // Tracker les changements de state qui causent les re-renders
-    const currentStates = {
-      isAuthenticated,
-      activeTab,
-      isSelectionMode,
-      selectedContentIds: selectedContentIds.size,
-      previewContent: !!previewContent,
-      pendingContentLength: pendingContent.length,
-      hasMoreContent,
-      isLoadingMore,
-      activeLibraryTab
-    };
-    
-    // Comparer avec les états précédents
-    const changedStates = [];
-    Object.keys(currentStates).forEach(key => {
-      if (previousStates.current[key] !== currentStates[key]) {
-        changedStates.push(`${key}: ${previousStates.current[key]} → ${currentStates[key]}`);
-      }
-    });
-    
-    if (changedStates.length > 0 && mainAppRenderCount.current > 1) {
-      console.log(`🔄 States changed:`, changedStates);
-      alert(`🔄 MAINAPP RE-RENDER #${mainAppRenderCount.current}: ${changedStates.slice(0,2).join(', ')}`);
-    }
-    
-    previousStates.current = currentStates;
-    
-    // Alert pour chaque 3ème render de MainApp
-    if (mainAppRenderCount.current % 3 === 0) {
-      alert(`🏠 MainApp RENDER #${mainAppRenderCount.current} - CAUSE ANALYSIS NEEDED`);
-    }
-  });
-  
-  // Tracker les clicks globaux pour corréler avec les re-renders
-  useEffect(() => {
-    const handleGlobalClick = () => {
-      const now = Date.now();
-      lastClickTime.current = now;
-      console.log(`🖱️ GLOBAL CLICK detected at ${now}`);
-      
-      // Alert après un délai pour voir si les re-renders suivent
-      setTimeout(() => {
-        alert(`🖱️ CLICK -> MainApp render #${mainAppRenderCount.current}`);
-      }, 100);
-    };
-    
-    document.addEventListener('click', handleGlobalClick);
-    return () => document.removeEventListener('click', handleGlobalClick);
-  }, []);
-  
-  // State management
+  // État pour l'authentification
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [activeStep, setActiveStep] = useState('onboarding');

@@ -76,51 +76,6 @@ const FREE_TRIAL_PLAN = {
   color: 'green'
 };
 
-// DEBUG COMPONENT pour TabsContent
-const DebugTabsContent = ({ children, value, className }) => {
-  useEffect(() => {
-    console.log(`🟢 TABS CONTENT MOUNT: ${value}`);
-    alert(`🟢 TABS CONTENT MOUNT: ${value}`);
-    return () => {
-      console.log(`🔴 TABS CONTENT UNMOUNT: ${value}`);
-      alert(`🔴 TABS CONTENT UNMOUNT: ${value} - CRITICAL!`);
-    };
-  }, [value]);
-  
-  return (
-    <TabsContent value={value} className={className}>
-      {children}
-    </TabsContent>
-  );
-};
-
-// TEST COMPONENT ULTRA-SIMPLE - Diagnostic du problème
-const SimpleTestThumbnail = ({ content, index }) => {
-  useEffect(() => {
-    console.log(`🟢 SIMPLE MOUNT ${index}`);
-    alert(`🟢 SIMPLE MOUNT ${index}`);
-    return () => {
-      console.log(`🔴 SIMPLE UNMOUNT ${index}`);
-      alert(`🔴 SIMPLE UNMOUNT ${index} - CRITICAL!`);
-    };
-  }, [index]);
-  
-  return (
-    <div style={{ 
-      width: '100px', 
-      height: '100px', 
-      backgroundColor: '#f0f0f0', 
-      border: '1px solid #ccc',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: '12px'
-    }}>
-      #{index}
-    </div>
-  );
-};
-
 // ContentThumbnail component ultra-optimisé pour éviter re-renders
 const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection }) => {
   // 🚨 DEBUG RÉDUIT - Alertes seulement pour les anomalies critiques

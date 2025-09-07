@@ -421,6 +421,10 @@ function MainApp() {
     return () => document.removeEventListener('click', handleGlobalClick);
   }, []);
   
+  // État de loading pour masquer les re-renders
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showSkeletons, setShowSkeletons] = useState(false);
+
   // State management
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);

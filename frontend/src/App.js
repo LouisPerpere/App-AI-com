@@ -2666,9 +2666,9 @@ function MainApp() {
                 </div>
 
                 {/* CONTENU UNIFIÉ - Plus de branche conditionnelle destructrice */}
-                <div>
+                <div key="stable-library-container">
                   {/* Ma bibliothèque content - Toujours présent mais masqué si inactif */}
-                  <div style={{ display: activeLibraryTab === 'my-library' ? 'block' : 'none' }}>
+                  <div key="my-library-section" style={{ display: activeLibraryTab === 'my-library' ? 'block' : 'none' }}>
                     {/* Upload Section */}
                     <div className="mb-8">
                       <input

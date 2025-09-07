@@ -2908,26 +2908,7 @@ function MainApp() {
                             )}
                           </div>
                           
-                          {/* DEBUG: Analyse de la grille parent et des clés */}
-                          <div className="mb-4 p-2 bg-red-100 border-l-4 border-red-500 text-sm">
-                            <strong>🚨 PARENT DEBUG:</strong><br/>
-                            - PendingContent array length: {pendingContent.length}<br/>
-                            - MainApp render: #{mainAppRenderCount.current}<br/>
-                            - Grid parent stable (no dynamic values)
-                          </div>
-                          
-                          {/* DEBUG: Information sur le contenu */}
-                          <div className="mb-4 p-2 bg-yellow-100 border-l-4 border-yellow-500 text-sm">
-                            <strong>🔍 DEBUG INFO:</strong><br/>
-                            - Total content items: {pendingContent.length}<br/>
-                            - Has more content: {hasMoreContent.toString()}<br/>
-                            - Is loading more: {isLoadingMore.toString()}<br/>
-                            - Content page: {contentPage}<br/>
-                            - First 3 items IDs: {pendingContent.slice(0, 3).map(c => c.id.slice(-4)).join(', ')}<br/>
-                            - First item thumb_url: {pendingContent[0]?.thumb_url || 'N/A'}
-                          </div>
-                          
-                          {/* RETOUR AU COMPOSANT CONTENTTHUMBNAIL - TEST RAPIDE */}
+                          {/* GRILLE BASIQUE SANS DEBUG */}
                           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             {pendingContent.map((content) => (
                               <ContentThumbnail

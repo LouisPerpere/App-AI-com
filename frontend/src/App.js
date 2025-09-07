@@ -206,7 +206,7 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
 
   return (
     <div 
-      className={`relative group transform hover:scale-105 transition-all duration-200 ${
+      className={`thumbnail-container relative group transform hover:scale-105 transition-all duration-200 ${
         isSelectionMode ? 'cursor-pointer' : 'cursor-pointer'
       }`}
       onClick={handleClick}

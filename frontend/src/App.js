@@ -108,13 +108,6 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
     onToggleSelection(content.id);
   }, [content.id, onToggleSelection]);
 
-  console.log(`🎨 Rendering thumbnail ${content.id.slice(-8)}:`, { 
-    isSelected, 
-    isSelectionMode, 
-    renderCount: renderCountRef.current,
-    thumbnailUrl: thumbnailUrl ? 'exists' : 'null'
-  });
-
   return (
     <div 
       className={`thumbnail-container relative group transform hover:scale-105 transition-all duration-200 ${

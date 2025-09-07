@@ -105,14 +105,6 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
 
   const handleToggle = useCallback((e) => {
     e.stopPropagation();
-    const shortId = content.id.slice(-8);
-    console.log(`☑️ Toggle selection ${shortId}`);
-    
-    // Debug: tracker seulement les re-créations anormales
-    if (renderCountRef.current > 2) {
-      alert(`☑️ TOGGLE CALLBACK RECREATED ${shortId} - render #${renderCountRef.current}`);
-    }
-    
     onToggleSelection(content.id);
   }, [content.id, onToggleSelection]);
 

@@ -2929,8 +2929,8 @@ function MainApp() {
                             - First item thumb_url: {pendingContent[0]?.thumb_url || 'N/A'}
                           </div>
                           
-                          {/* GRILLE SIMPLE - Structure CSS correcte */}
-                          <div className="library-grid">
+                          {/* GRILLE SIMPLE - Structure CSS correcte avec fallback Tailwind */}
+                          <div className="library-grid grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             {pendingContent.map((content) => (
                               <div 
                                 key={content.id} 

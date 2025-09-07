@@ -2933,39 +2933,19 @@ function MainApp() {
                           )}
                         </div>
                         
-                        {/* GRILLE AVEC SKELETON LOADING INTELLIGENT */}
-                        <div className="relative">
-                          {/* Overlay de loading pendant les transitions */}
-                          {isTransitioning && (
-                            <div className="absolute inset-0 loading-overlay z-10 rounded-xl flex items-center justify-center">
-                              <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-lg shadow-lg">
-                                <div className="loading-spinner"></div>
-                                <span className="text-sm text-gray-600">Mise à jour...</span>
-                              </div>
+                        {/* GRILLE SIMPLE AVEC SKELETON LOADING */}
+                        <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                          {pendingContent.map((content, index) => (
+                            <div key={content.id} className="thumbnail-transition thumbnail-fade-in">
+                              <ContentThumbnail
+                                content={content}
+                                isSelectionMode={isSelectionMode}
+                                isSelected={selectedContentIds.has(content.id)}
+                                onContentClick={stableHandleContentClick}
+                                onToggleSelection={stableHandleToggleSelection}
+                              />
                             </div>
-                          )}
-                          
-                          <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                            {showSkeletons ? (
-                              // Afficher des skeletons pendant les transitions
-                              Array.from({ length: Math.min(pendingContent.length, 24) }, (_, index) => (
-                                <SkeletonThumbnail key={`skeleton-${index}`} />
-                              ))
-                            ) : (
-                              // Afficher les vraies vignettes avec animation
-                              pendingContent.map((content, index) => (
-                                <div key={content.id} className="thumbnail-transition thumbnail-fade-in">
-                                  <ContentThumbnail
-                                    content={content}
-                                    isSelectionMode={isSelectionMode}
-                                    isSelected={selectedContentIds.has(content.id)}
-                                    onContentClick={stableHandleContentClick}
-                                    onToggleSelection={stableHandleToggleSelection}
-                                  />
-                                </div>
-                              ))
-                            )}
-                          </div>
+                          ))}
                         </div>
                         
                         {/* Message si pas de contenu */}

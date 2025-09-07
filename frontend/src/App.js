@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo, useDeferredValue } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import axios from 'axios';
 import AuthPage from './Auth';
 import TestAuth from './TestAuth';
+import TestMinimal from './TestMinimal';
 import PaymentPage from './PaymentPage';
 import AdminDashboard from './AdminDashboard';
 import FacebookCallback from './FacebookCallback';

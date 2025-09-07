@@ -3193,7 +3193,7 @@ function MainApp() {
                       </div>
                     )}
                   </div>
-                )}
+                </div>
                 
                 {/* Modal d'aperçu du contenu */}
                 {previewContent && (

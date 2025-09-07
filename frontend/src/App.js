@@ -1135,6 +1135,24 @@ function MainApp() {
 
   // Fonctions pour la bibliothèque de contenus
   
+  // Fonction pour gérer les transitions fluides - masquer re-renders
+  const handleSmoothTransition = useCallback(async (action) => {
+    setIsTransitioning(true);
+    setShowSkeletons(true);
+    
+    // Petit délai pour afficher les skeletons
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Exécuter l'action qui cause les re-renders
+    await action();
+    
+    // Attendre que les re-renders se stabilisent
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    setShowSkeletons(false);
+    setIsTransitioning(false);
+  }, []);
+
   // VRAIMENT STABLE: Toggle selection mode avec ref
   const toggleSelectionMode = useCallback(() => {
     console.log(`🔄 TRULY STABLE toggle selection mode`);

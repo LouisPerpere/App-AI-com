@@ -424,6 +424,8 @@ function MainApp() {
   // State management
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [activeStep, setActiveStep] = useState('onboarding');
+  const [businessProfile, setBusinessProfile] = useState(null);
   const [activeTab, setActiveTab] = useState('entreprise');
   const [pendingContent, setPendingContent] = useState([]);
   const [notes, setNotes] = useState([]);

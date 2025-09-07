@@ -110,22 +110,7 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
     lastPropsRef.current = currentProps;
   });
   
-  // Debug mount/unmount - ALERTES RÉDUITES
-  useEffect(() => {
-    const shortId = content.id.slice(-8);
-    console.log(`🟢 MOUNT thumbnail ${shortId}`);
-    
-    // Alert seulement 1 mount sur 5 pour réduire spam
-    if (parseInt(shortId, 16) % 5 === 0) {
-      alert(`🟢 MOUNT ${shortId}`);
-    }
-    
-    return () => {
-      console.log(`🔴 UNMOUNT thumbnail ${shortId}`);
-      // Alert pour tous les unmounts car c'est le problème critique
-      alert(`🔴 UNMOUNT ${shortId} - CRITICAL!`);
-    };
-  }, [content.id]);
+  // Debug mount/unmount - Alertes réduites pour iPhone
   
   // Token stable - récupéré une seule fois AVEC DEBUG
   const stableToken = useMemo(() => {

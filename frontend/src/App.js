@@ -2929,9 +2929,9 @@ function MainApp() {
                             - First item thumb_url: {pendingContent[0]?.thumb_url || 'N/A'}
                           </div>
                           
-                          {/* SOLUTION SIMPLE - Grille normale sans sur-optimisation */}
-                          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                            {pendingContent.map((content) => (
+                          {/* SOLUTION OPTIMISÉE - Grille avec useDeferredValue */}
+                          <div className="library-scroll grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                            {stableContentItems.map((content) => (
                               <ContentThumbnail
                                 key={content.id}
                                 content={content}

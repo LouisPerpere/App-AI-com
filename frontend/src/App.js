@@ -2978,11 +2978,9 @@ function MainApp() {
                       </div>
                     </div>
                   </div>
-                )}
 
-                {/* Pixabay search content */}
-                {activeLibraryTab === 'pixabay-search' && (
-                  <div>
+                  {/* Pixabay search content - Toujours présent mais masqué si inactif */}
+                  <div style={{ display: activeLibraryTab === 'pixabay-search' ? 'block' : 'none' }}>
                     {/* Search Section */}
                     <div className="mb-8">
                       <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-6 border-2 border-blue-200">

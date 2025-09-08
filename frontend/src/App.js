@@ -312,11 +312,8 @@ function MainApp() {
   const [collapsedMonths, setCollapsedMonths] = useState(new Set()); // Track collapsed months
   const [selectedMonth, setSelectedMonth] = useState(null); // For new uploads
   const [uploadMode, setUploadMode] = useState('single'); // 'single' or 'carousel'
-  const [carouselFiles, setCarouselFiles] = useState([]); // For carousel uploads
   const [isUploadingToMonth, setIsUploadingToMonth] = useState(false);
-  const [globalUploadMonth, setGlobalUploadMonth] = useState(null); // For main upload section
-  const [carouselTitle, setCarouselTitle] = useState(''); // Common title for carousel
-  const [carouselContext, setCarouselContext] = useState(''); // Common context for carousel
+  const [isCarouselMode, setIsCarouselMode] = useState(false); // Track if we're in carousel mode
   
   // Pixabay save choice modal states
   const [showPixabaySaveModal, setShowPixabaySaveModal] = useState(false);

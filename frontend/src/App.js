@@ -2846,22 +2846,33 @@ function MainApp() {
                         id="monthly-upload"
                       />
                       
-                      {/* Hidden input for carousel - properly hidden */}
+                      {/* Hidden input for carousel - with enhanced debugging */}
                       <input
                         type="file"
                         multiple
                         accept="image/*"
                         onChange={(e) => {
-                          console.log('🎠 Carousel input onChange triggered');
+                          console.log('🎠 Carousel input onChange triggered!');
+                          console.log('🎠 Event:', e);
+                          console.log('🎠 Target:', e.target);
+                          console.log('🎠 Files object:', e.target.files);
+                          
                           const files = Array.from(e.target.files || []);
+                          console.log(`🎠 Files array:`, files);
                           console.log(`🎠 Selected ${files.length} files for carousel`);
+                          
+                          // Always show a toast to confirm the event fired
+                          toast.info(`🎠 Événement onChange détecté: ${files.length} fichiers`);
                           
                           // Check if month is selected first
                           if (!globalUploadMonth) {
+                            console.log('🎠 No month selected');
                             toast.error('Veuillez d\'abord sélectionner un mois de destination');
                             e.target.value = ''; // Clear the selection
                             return;
                           }
+                          
+                          console.log('🎠 Month selected:', globalUploadMonth);
                           
                           if (files.length === 0) {
                             console.log('🎠 No files selected');
@@ -2870,15 +2881,21 @@ function MainApp() {
                           }
                           
                           if (files.length > 10) {
+                            console.log('🎠 Too many files');
                             toast.error('Maximum 10 images pour un carrousel');
                             e.target.value = '';
                             return;
                           }
                           
-                          console.log('🎠 Setting carousel files');
+                          console.log('🎠 About to set carousel files state...');
                           setCarouselFiles(files);
+                          console.log('🎠 Carousel files state set!');
+                          
                           toast.success(`✨ ${files.length} image${files.length > 1 ? 's' : ''} sélectionnée${files.length > 1 ? 's' : ''} pour le carrousel !`);
                         }}
+                        onFocus={() => console.log('🎠 Carousel input focused')}
+                        onBlur={() => console.log('🎠 Carousel input blurred')}
+                        onClick={() => console.log('🎠 Carousel input clicked')}
                         style={{ 
                           position: 'absolute', 
                           left: '-9999px', 

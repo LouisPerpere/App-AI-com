@@ -2971,7 +2971,7 @@ function MainApp() {
                           </label>
                           
                           <label
-                            htmlFor="carousel-upload-hidden"
+                            htmlFor="carousel-upload"
                             className="w-44 h-14 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center font-medium text-base"
                             style={{ minWidth: '176px', minHeight: '56px' }}
                           >

@@ -250,10 +250,10 @@ test_plan:
   test_priority: "high_first"
 
 backend:
-  - task: "Monthly Library Refactoring and Pixabay Enhancements"
+  - task: "Carousel Upload Backend Implementation"
     implemented: true
     working: true
-    file: "/app/backend/server.py, /app/backend/routes_uploads.py, /app/backend/routes_thumbs.py"
+    file: "/app/backend/routes_uploads.py, /app/backend/server.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: false

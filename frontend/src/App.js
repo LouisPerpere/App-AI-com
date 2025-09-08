@@ -494,23 +494,12 @@ function MainApp() {
     }
   };
   
-  // VRAIMENT STABLE: Load more avec refs - Dépendances minimales
-  const hasMoreContentRef = useRef(hasMoreContent);
-  const isLoadingMoreRef = useRef(isLoadingMore);
-  
-  // Maintenir les refs à jour
-  hasMoreContentRef.current = hasMoreContent;
-  isLoadingMoreRef.current = isLoadingMore;
-  
-  const stableLoadMoreContent = useCallback(async () => {
-    if (!hasMoreContentRef.current || isLoadingMoreRef.current) {
-      return;
-    }
-    
-    setIsLoadingMore(true);
-    await loadPendingContent(true);
-    setIsLoadingMore(false);
-  }, []); // ZÉRO dépendances = vraiment stable
+  // Load content for specific months (optimized loading)
+  const loadContentForMonths = useCallback(async (monthKeys) => {
+    // This will be implemented to load only specific months
+    console.log(`📥 Loading content for months: ${monthKeys.join(', ')}`);
+    await loadPendingContent();
+  }, [loadPendingContent]);
 
   // Fonction de tri des notes selon les spécifications périodiques
   const sortNotes = useCallback((notes) => {

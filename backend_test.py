@@ -48,24 +48,6 @@ class BackendTester:
         except Exception as e:
             print(f"❌ Authentication error: {e}")
             return False
-                
-                # Set authorization header for future requests
-                self.session.headers.update({
-                    "Authorization": f"Bearer {self.token}"
-                })
-                
-                print(f"✅ Authentication successful")
-                print(f"   User ID: {self.user_id}")
-                print(f"   Token: {self.token[:20]}..." if self.token else "No token")
-                return True
-            else:
-                print(f"❌ Authentication failed: {response.status_code}")
-                print(f"   Response: {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Authentication error: {str(e)}")
-            return False
     
     def get_existing_content(self):
         """Step 2: Get existing content to find Pixabay images"""

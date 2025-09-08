@@ -1068,19 +1068,11 @@ function MainApp() {
     }
   };
 
-  // VRAIMENT STABLE: Content click avec useRef - ZÉRO dépendance  
-  const stableHandleContentClick = useCallback((content) => {
-    console.log(`🖱️ TRULY STABLE content click for ${content.id.slice(-8)}`);
-    
-    // Utiliser les refs pour accéder aux valeurs actuelles SANS créer de dépendances
-    if (isSelectionModeRef.current) {
-      stableHandleToggleSelection(content.id);
+  const handleContentClick = useCallback((content) => {
+    if (isSelectionMode) {
+      handleToggleSelection(content.id);
     } else {
-      // Mode aperçu - pas de re-render cascade
-      console.log(`📷 Opening preview for ${content.id.slice(-8)}`);
       setPreviewContent(content);
-      
-      // Utiliser setTimeout pour éviter que les refs soient évaluées pendant le re-render
       setTimeout(() => {
         if (contextTextareaRef.current) {
           contextTextareaRef.current.value = content.context || '';
@@ -1091,7 +1083,7 @@ function MainApp() {
         }
       }, 100);
     }
-  }, [stableHandleToggleSelection]); // UNE SEULE dépendance stable
+  }, [isSelectionMode, handleToggleSelection]);
 
   // VRAIMENT STABLE: Fermeture aperçu - ZÉRO dépendance
   const handleClosePreview = useCallback(() => {

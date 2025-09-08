@@ -4188,25 +4188,25 @@ function MainApp() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="notes" className="space-y-8">
+          <TabsContent value="notes" className="space-y-4">
             <Card className="card-gradient">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-3 text-2xl">
-                  <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center">
-                    <Edit className="w-6 h-6 text-white" />
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center space-x-3 text-xl">
+                  <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center">
+                    <Edit className="w-5 h-5 text-white" />
                   </div>
                   <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                     Notes et informations ✨
                   </span>
                 </CardTitle>
-                <CardDescription className="text-lg text-gray-600">
+                <CardDescription className="text-base text-gray-600">
                   Ajoutez des informations importantes pour créer des posts qui cartonnent ! 🎯
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 {/* Add New Note Section */}
-                <div className="mb-8">
-                  <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-6 border-2 border-indigo-200">
+                <div className="mb-6">
+                  <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-4 border-2 border-indigo-200">
                     <div className="flex items-center mb-4">
                       <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center mr-3">
                         <Edit className="w-5 h-5 text-white" />

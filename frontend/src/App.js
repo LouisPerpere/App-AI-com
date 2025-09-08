@@ -3305,11 +3305,7 @@ function MainApp() {
                               <span className="ml-2 text-gray-600">contenus</span>
                             </div>
                           </div>
-                          {hasMoreContent && (
-                            <div className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
-                              Scroll pour plus
-                            </div>
-                          )}
+
                         </div>
 
                         {monthlyLibraryView ? (

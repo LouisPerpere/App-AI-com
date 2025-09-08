@@ -1986,6 +1986,13 @@ function MainApp() {
       console.log(`📎 Adding file ${index + 1}: ${file.name} (${file.size} bytes)`);
       formData.append('files', file);
     });
+    
+    // Add monthly attribution if selected
+    if (globalUploadMonth) {
+      formData.append('attributed_month', globalUploadMonth);
+      formData.append('upload_type', 'batch');
+      console.log(`📅 Files will be attributed to: ${globalUploadMonth}`);
+    }
 
     try {
       const response = await axios.post(`${API}/content/batch-upload`, formData, {

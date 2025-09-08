@@ -361,6 +361,44 @@ function MainApp() {
   };
 
   const [collapsedMonths, setCollapsedMonths] = useState(() => getInitialCollapsedMonths()); // Track collapsed months
+
+  // Update collapsed states when notes change (to handle important notes)
+  useEffect(() => {
+    if (!Array.isArray(notes) || notes.length === 0) return;
+
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth(); // 0-based
+    const monthNames = [
+      'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+      'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+    ];
+
+    // Find sections with important notes (high priority)
+    const sectionsWithImportantNotes = new Set();
+    notes.forEach(note => {
+      if (note.priority === 'high') {
+        if (note.is_monthly_note) {
+          sectionsWithImportantNotes.add('always_valid');
+        } else if (note.note_month && note.note_year) {
+          const noteMonthKey = `${monthNames[note.note_month - 1]}_${note.note_year}`;
+          sectionsWithImportantNotes.add(noteMonthKey);
+        }
+      }
+    });
+
+    // Open sections with important notes
+    if (sectionsWithImportantNotes.size > 0) {
+      setCollapsedMonths(prev => {
+        const newCollapsed = new Set(prev);
+        sectionsWithImportantNotes.forEach(key => {
+          newCollapsed.delete(key);
+        });
+        return newCollapsed;
+      });
+    }
+  }, [notes]);
+
   const [selectedMonth, setSelectedMonth] = useState(null); // For new uploads
   const [uploadMode, setUploadMode] = useState('single'); // 'single' or 'carousel'
   const [isUploadingToMonth, setIsUploadingToMonth] = useState(false);

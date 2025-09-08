@@ -3148,9 +3148,9 @@ function MainApp() {
                   Uploadez et gérez vos contenus pour créer des posts extraordinaires 🎨
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4">
                 {/* Sub-tabs for Library */}
-                <div className="mb-6">
+                <div className="mb-4">
                   <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg">
                     <Button
                       onClick={() => setActiveLibraryTab('my-library')}

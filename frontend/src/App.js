@@ -2882,73 +2882,35 @@ function MainApp() {
                         <h3 className="text-xl font-semibold text-gray-900 mb-2">Uploadez vos contenus 📁</h3>
                         <p className="text-gray-600 mb-4">Choisissez votre type d'upload</p>
                         
-                        {/* Two integrated upload buttons - Same size */}
+                        {/* Two integrated upload buttons - Exactly same size */}
                         <div className="flex gap-4 justify-center max-w-lg mx-auto">
                           <label
                             htmlFor="file-upload"
-                            className="w-40 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-3 px-6 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center font-medium"
+                            className="flex-1 min-w-0 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-4 px-6 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center font-medium text-base"
                           >
                             <Upload className="w-5 h-5 mr-2" />
                             Upload
                           </label>
                           
-                          <button
-                            type="button"
-                            className="w-40 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white py-3 px-6 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center font-medium"
+                          <label
+                            htmlFor="carousel-upload-hidden"
+                            className="flex-1 min-w-0 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white py-4 px-6 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center font-medium text-base"
                             onClick={(e) => {
-                              console.log('🎠 Carousel button clicked');
-                              e.preventDefault();
+                              console.log('🎠 Carousel label clicked');
                               
                               if (!globalUploadMonth) {
+                                e.preventDefault();
                                 toast.error('Veuillez d\'abord sélectionner un mois de destination');
-                                return;
+                                return false;
                               }
                               
-                              // Try a more direct approach using a hidden input that we trigger
-                              const hiddenInput = document.getElementById('carousel-upload-hidden');
-                              if (hiddenInput) {
-                                console.log('🎠 Found hidden input, triggering...');
-                                hiddenInput.value = ''; // Clear previous selection
-                                hiddenInput.click();
-                              } else {
-                                console.log('🎠 Hidden input not found, creating dynamic input');
-                                // Fallback to dynamic input
-                                const input = document.createElement('input');
-                                input.type = 'file';
-                                input.multiple = true;
-                                input.accept = 'image/*';
-                                input.style.display = 'none';
-                                
-                                input.addEventListener('change', (event) => {
-                                  console.log('🎠 Dynamic input onChange triggered');
-                                  const files = Array.from(event.target.files || []);
-                                  console.log(`🎠 Selected ${files.length} files`);
-                                  
-                                  if (files.length === 0) {
-                                    console.log('🎠 No files selected');
-                                    return;
-                                  }
-                                  
-                                  if (files.length > 10) {
-                                    toast.error('Maximum 10 images pour un carrousel');
-                                    return;
-                                  }
-                                  
-                                  setCarouselFiles(files);
-                                  toast.success(`${files.length} image${files.length > 1 ? 's' : ''} sélectionnée${files.length > 1 ? 's' : ''} pour le carrousel ! 🎠`);
-                                  
-                                  // Clean up
-                                  document.body.removeChild(input);
-                                });
-                                
-                                document.body.appendChild(input);
-                                input.click();
-                              }
+                              console.log('🎠 Month selected, proceeding with carrousel');
+                              // Let the label proceed to trigger the hidden input
                             }}
                           >
                             <ImageIcon className="w-5 h-5 mr-2" />
                             Carrousel
-                          </button>
+                          </label>
                         </div>
                         
                         <p className="text-sm text-purple-600 font-medium mt-4">📱 Images • 🎬 Vidéos</p>

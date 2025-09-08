@@ -3465,14 +3465,7 @@ function MainApp() {
                             </div>
                             <h3 className="text-2xl font-bold text-gray-700 mb-4">Votre bibliothèque de contenus 📚</h3>
                             <p className="text-xl text-gray-500 mb-6">Uploadez vos premiers contenus pour voir votre succès exploser ! 🚀</p>
-                            <Button
-                              onClick={loadPendingContent}
-                              variant="outline"
-                              className="text-purple-600 border-purple-300 hover:bg-purple-50"
-                            >
-                              <ChevronRight className="w-4 h-4 mr-2 rotate-90" />
-                              Charger le contenu existant
-                            </Button>
+
                           </div>
                         )}
                         

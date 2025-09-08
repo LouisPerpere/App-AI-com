@@ -2897,18 +2897,6 @@ function MainApp() {
                             htmlFor="carousel-upload-hidden"
                             className="w-44 h-14 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center font-medium text-base"
                             style={{ minWidth: '176px', minHeight: '56px' }}
-                            onClick={(e) => {
-                              console.log('🎠 Carousel label clicked');
-                              
-                              if (!globalUploadMonth) {
-                                e.preventDefault();
-                                toast.error('Veuillez d\'abord sélectionner un mois de destination');
-                                return false;
-                              }
-                              
-                              console.log('🎠 Month selected, proceeding with carousel');
-                              // Let the label proceed to trigger the hidden input
-                            }}
                           >
                             <ImageIcon className="w-5 h-5 mr-2" />
                             Carrousel

@@ -1990,21 +1990,39 @@ function MainApp() {
     // Group files by month for efficient batch uploads
     const filesByMonth = {};
     
-    selectedFiles.forEach((file, index) => {
-      const monthData = uploadMonthSelectors.current[index]?.value || getDefaultMonth();
-      console.log(`📎 File ${index + 1}: ${file.name} → ${monthData}`);
+    if (isCarouselMode) {
+      // CAROUSEL MODE: All files get the same metadata from the first (shared) inputs
+      const sharedMonth = uploadMonthSelectors.current[0]?.value || getDefaultMonth();
+      const sharedTitle = uploadTitleRefs.current[0]?.value || '';
+      const sharedContext = uploadContextRefs.current[0]?.value || '';
       
-      if (!filesByMonth[monthData]) {
-        filesByMonth[monthData] = [];
-      }
+      console.log(`🎠 Carousel mode: All ${selectedFiles.length} files → ${sharedMonth} with shared metadata`);
       
-      filesByMonth[monthData].push({
+      filesByMonth[sharedMonth] = selectedFiles.map((file, index) => ({
         file,
         index,
-        title: uploadTitleRefs.current[index]?.value || '',
-        context: uploadContextRefs.current[index]?.value || ''
+        title: sharedTitle,
+        context: sharedContext
+      }));
+      
+    } else {
+      // NORMAL MODE: Each file has its own metadata
+      selectedFiles.forEach((file, index) => {
+        const monthData = uploadMonthSelectors.current[index]?.value || getDefaultMonth();
+        console.log(`📎 File ${index + 1}: ${file.name} → ${monthData}`);
+        
+        if (!filesByMonth[monthData]) {
+          filesByMonth[monthData] = [];
+        }
+        
+        filesByMonth[monthData].push({
+          file,
+          index,
+          title: uploadTitleRefs.current[index]?.value || '',
+          context: uploadContextRefs.current[index]?.value || ''
+        });
       });
-    });
+    }
     
     console.log('📁 Files grouped by month:', Object.keys(filesByMonth).map(month => `${month}: ${filesByMonth[month].length} files`));
 

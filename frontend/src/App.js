@@ -486,9 +486,8 @@ function MainApp() {
         setContentPage(0);
       }
       
-      // Vérifier s'il y a plus de contenu
-      const loadedCount = (append ? pendingContent.length : 0) + (data.content?.length || 0);
-      setHasMoreContent(loadedCount < (data.total || 0));
+      // Update total count for display
+      setTotalContentCount(data.total || 0);
       
     } catch (error) {
       console.error('Error loading pending content:', error);

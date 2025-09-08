@@ -345,7 +345,10 @@ async def upload_content_batch(
                 "deleted": False,
                 "id": doc_id,
                 "url": f"/api/content/{doc_id}/file",
-                "thumb_url": f"/api/content/{doc_id}/thumb"
+                "thumb_url": f"/api/content/{doc_id}/thumb",
+                "attributed_month": attributed_month,
+                "upload_type": upload_type,
+                "source": "upload"  # Mark as regular upload vs pixabay
             }
             res = db.media.insert_one(media_doc)
             media_id = res.inserted_id

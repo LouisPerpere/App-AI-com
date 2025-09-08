@@ -637,35 +637,75 @@ function MainApp() {
     const archives = getArchiveMonths();
     const allMonths = { ...currentAndFuture, ...archives };
     
-    // Categorize content by month
+    // Categorize and group content by month
+    const carouselGroups = {}; // Track carousel groups
+    
     pendingContent.forEach(item => {
       // Check if content has explicit month attribution
       const attributedMonth = item.attributed_month;
+      let targetMonth = null;
+      
       if (attributedMonth && allMonths[attributedMonth]) {
-        allMonths[attributedMonth].content.push(item);
-        return;
+        targetMonth = attributedMonth;
+      } else {
+        // For existing content without attribution, distribute into archive months
+        const createdDate = new Date(item.created_at || item.uploaded_at);
+        const itemMonth = createdDate.getMonth();
+        const itemYear = createdDate.getFullYear();
+        
+        // Try to match with existing months or default to first archive month
+        const monthNames = [
+          'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+          'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+        ];
+        
+        const itemMonthKey = `${monthNames[itemMonth]}_${itemYear}`;
+        if (allMonths[itemMonthKey]) {
+          targetMonth = itemMonthKey;
+        } else {
+          // Default to first archive month (last month)
+          const firstArchiveKey = Object.keys(archives).sort((a, b) => archives[b].order - archives[a].order)[0];
+          targetMonth = firstArchiveKey;
+        }
       }
       
-      // For existing content without attribution, distribute into archive months
-      const createdDate = new Date(item.created_at || item.uploaded_at);
-      const itemMonth = createdDate.getMonth();
-      const itemYear = createdDate.getFullYear();
+      if (!targetMonth) return;
       
-      // Try to match with existing months or default to first archive month
-      const monthNames = [
-        'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
-        'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
-      ];
-      
-      const itemMonthKey = `${monthNames[itemMonth]}_${itemYear}`;
-      if (allMonths[itemMonthKey]) {
-        allMonths[itemMonthKey].content.push(item);
-      } else {
-        // Default to first archive month (last month)
-        const firstArchiveKey = Object.keys(archives).sort((a, b) => archives[b].order - archives[a].order)[0];
-        if (firstArchiveKey) {
-          allMonths[firstArchiveKey].content.push(item);
+      // Handle carousel grouping
+      if (item.upload_type === 'carousel' && item.carousel_id) {
+        const carouselKey = `${item.carousel_id}_${targetMonth}`;
+        
+        if (!carouselGroups[carouselKey]) {
+          carouselGroups[carouselKey] = {
+            id: item.carousel_id,
+            type: 'carousel',
+            count: 0,
+            images: [],
+            title: item.common_title || item.title || 'Carrousel',
+            context: item.context || '',
+            created_at: item.created_at,
+            upload_type: 'carousel',
+            attributed_month: targetMonth,
+            // Use first image for display
+            thumb_url: item.thumb_url,
+            source: item.source || 'upload'
+          };
         }
+        
+        carouselGroups[carouselKey].count++;
+        carouselGroups[carouselKey].images.push(item);
+        
+      } else {
+        // Regular content (non-carousel)
+        allMonths[targetMonth].content.push(item);
+      }
+    });
+    
+    // Add carousel groups as single items to their respective months
+    Object.values(carouselGroups).forEach(carouselGroup => {
+      const targetMonth = carouselGroup.attributed_month;
+      if (allMonths[targetMonth]) {
+        allMonths[targetMonth].content.push(carouselGroup);
       }
     });
     

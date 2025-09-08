@@ -2012,54 +2012,84 @@ function MainApp() {
     console.log('📁 Files grouped by month:', Object.keys(filesByMonth).map(month => `${month}: ${filesByMonth[month].length} files`));
 
     try {
-      const response = await axios.post(`${API}/content/batch-upload`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`
-        },
-      });
+      console.log(`📤 Starting batch upload of ${selectedFiles.length} files grouped by month`);
       
-      console.log('📤 Upload response:', response.data);
+      let totalUploaded = 0;
+      const allCreatedItems = [];
       
-      // IMPORTANT: Récupérer les valeurs AVANT de nettoyer les refs
-      console.log('🔄 Processing upload files BEFORE clearing refs...');
-      
-      // Update titles and contexts for uploaded files using CAPTURED VALUES
-      if (response.data.created && response.data.created.length > 0) {
-        for (let i = 0; i < response.data.created.length; i++) {
-          const createdItem = response.data.created[i];
-          const customTitle = capturedValues[i]?.title || '';
-          const customContext = capturedValues[i]?.context || '';
+      // Upload each month group separately
+      for (const [monthKey, filesData] of Object.entries(filesByMonth)) {
+        console.log(`📅 Uploading ${filesData.length} files to ${monthKey}`);
+        
+        const formData = new FormData();
+        
+        // Add files to FormData
+        filesData.forEach(({ file }) => {
+          formData.append('files', file);
+        });
+        
+        // Add month attribution
+        formData.append('attributed_month', monthKey);
+        formData.append('upload_type', filesData.length === 1 ? 'single' : 'batch');
+        
+        try {
+          const response = await axios.post(`${API}/content/batch-upload`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+            }
+          });
           
-          try {
-            // Update title if provided
-            if (customTitle) {
-              await axios.put(`${API}/content/${createdItem.id}/title`, {
-                title: customTitle
-              }, {
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem('access_token')}`
+          console.log(`✅ Upload response for ${monthKey}:`, response.data);
+          
+          // Update metadata for this batch
+          if (response.data.created && response.data.created.length > 0) {
+            for (let i = 0; i < response.data.created.length; i++) {
+              const createdItem = response.data.created[i];
+              const fileData = filesData[i];
+              
+              allCreatedItems.push({ ...createdItem, ...fileData });
+              
+              try {
+                // Update title if provided
+                if (fileData.title) {
+                  await axios.put(`${API}/content/${createdItem.id}/title`, {
+                    title: fileData.title
+                  }, {
+                    headers: {
+                      Authorization: `Bearer ${localStorage.getItem('access_token')}`
+                    }
+                  });
                 }
-              });
-            }
-            
-            // Update context if provided
-            if (customContext) {
-              await axios.put(`${API}/content/${createdItem.id}/context`, {
-                context: customContext
-              }, {
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem('access_token')}`
+                
+                // Update context if provided
+                if (fileData.context) {
+                  await axios.put(`${API}/content/${createdItem.id}/context`, {
+                    context: fileData.context
+                  }, {
+                    headers: {
+                      Authorization: `Bearer ${localStorage.getItem('access_token')}`
+                    }
+                  });
                 }
-              });
+              } catch (updateError) {
+                console.warn(`Failed to update metadata for ${createdItem.filename}:`, updateError);
+              }
             }
-          } catch (updateError) {
-            console.warn(`Failed to update metadata for ${createdItem.filename}:`, updateError);
           }
+          
+          totalUploaded += response.data.count || filesData.length;
+          
+        } catch (monthError) {
+          console.error(`❌ Error uploading to ${monthKey}:`, monthError);
+          toast.error(`Erreur pour ${monthKey}: ${monthError.response?.data?.detail || monthError.message}`);
         }
       }
       
-      toast.success(`${response.data.count || selectedFiles.length} fichiers uploadés avec succès !`);
+      if (totalUploaded > 0) {
+        const monthList = Object.keys(filesByMonth).map(key => key.replace('_', ' ')).join(', ');
+        toast.success(`${totalUploaded} fichiers uploadés avec succès dans : ${monthList} !`);
+      }
       
       // MAINTENANT on peut nettoyer les refs et states
       setSelectedFiles([]);

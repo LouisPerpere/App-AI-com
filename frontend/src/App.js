@@ -315,6 +315,10 @@ function MainApp() {
   const [carouselFiles, setCarouselFiles] = useState([]); // For carousel uploads
   const [isUploadingToMonth, setIsUploadingToMonth] = useState(false);
   
+  // Pixabay save choice modal states
+  const [showPixabaySaveModal, setShowPixabaySaveModal] = useState(false);
+  const [selectedPixabayImage, setSelectedPixabayImage] = useState(null);
+  
   // Refs for direct DOM manipulation to avoid re-renders
   const titleInputRef = useRef(null);
   const contentInputRef = useRef(null);

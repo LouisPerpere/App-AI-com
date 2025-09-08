@@ -4207,14 +4207,14 @@ function MainApp() {
                 {/* Add New Note Section */}
                 <div className="mb-6">
                   <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-4 border-2 border-indigo-200">
-                    <div className="flex items-center mb-4">
-                      <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center mr-3">
-                        <Edit className="w-5 h-5 text-white" />
+                    <div className="flex items-center mb-3">
+                      <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center mr-3">
+                        <Edit className="w-4 h-4 text-white" />
                       </div>
-                      <h3 className="text-xl font-semibold text-gray-900">Ajouter une nouvelle note</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">Ajouter une nouvelle note</h3>
                     </div>
                     
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {/* Titre de la note avec input HTML natif */}
                       <div className="space-y-2">
                         <label htmlFor="note_title_native" className="block text-sm font-medium text-gray-700">

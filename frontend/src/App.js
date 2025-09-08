@@ -82,8 +82,6 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
   const renderCount = useRef(0);
   renderCount.current += 1;
   
-
-  
   // Log seulement les re-renders excessifs (pas normal)
   if (renderCount.current > 2) {
     console.log(`⚠️ EXCESSIVE RENDER #${renderCount.current} for ${content.id.slice(-8)}`);

@@ -3100,37 +3100,6 @@ function MainApp() {
                                                       onToggleSelection={handleToggleSelection}
                                                     />
                                                   ))}
-                                                  
-                                                  {/* Upload buttons as thumbnails for current and future months */}
-                                                  {!monthInfo.isPast && (
-                                                    <>
-                                                      {/* Single photo upload button */}
-                                                      <div 
-                                                        className="aspect-square bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl border-2 border-dashed border-purple-300 hover:border-purple-400 cursor-pointer transition-all duration-200 hover:scale-105 flex flex-col items-center justify-center group"
-                                                        onClick={() => {
-                                                          setSelectedMonth(monthKey);
-                                                          setUploadMode('single');
-                                                          document.getElementById('monthly-upload')?.click();
-                                                        }}
-                                                      >
-                                                        <Upload className="w-6 h-6 text-purple-600 mb-1 group-hover:scale-110 transition-transform" />
-                                                        <span className="text-xs text-purple-700 font-medium">Photo</span>
-                                                      </div>
-                                                      
-                                                      {/* Carousel upload button */}
-                                                      <div 
-                                                        className="aspect-square bg-gradient-to-br from-pink-100 to-pink-200 rounded-xl border-2 border-dashed border-pink-300 hover:border-pink-400 cursor-pointer transition-all duration-200 hover:scale-105 flex flex-col items-center justify-center group"
-                                                        onClick={() => {
-                                                          setSelectedMonth(monthKey);
-                                                          setUploadMode('carousel');
-                                                          document.getElementById('carousel-upload')?.click();
-                                                        }}
-                                                      >
-                                                        <ImageIcon className="w-6 h-6 text-pink-600 mb-1 group-hover:scale-110 transition-transform" />
-                                                        <span className="text-xs text-pink-700 font-medium">Carousel</span>
-                                                      </div>
-                                                    </>
-                                                  )}
                                                 </div>
                                               ) : (
                                                 <div className="text-center py-8 text-gray-500">

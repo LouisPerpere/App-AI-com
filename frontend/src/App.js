@@ -316,7 +316,41 @@ function MainApp() {
   
   // Monthly library organization states
   const [monthlyLibraryView, setMonthlyLibraryView] = useState(true); // Switch between monthly and all view
-  const [collapsedMonths, setCollapsedMonths] = useState(new Set()); // Track collapsed months
+  // Initialize collapsed months - collapse all except current month by default
+  const getInitialCollapsedMonths = useCallback(() => {
+    const collapsed = new Set();
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth(); // 0-based
+    const monthNames = [
+      'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+      'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+    ];
+    const currentMonthKey = `${monthNames[currentMonth]}_${currentYear}`;
+    
+    // Generate all possible month keys for 6 months + archives and collapse them except current
+    for (let i = 0; i < 6; i++) {
+      const targetMonth = (currentMonth + i) % 12;
+      const targetYear = currentYear + Math.floor((currentMonth + i) / 12);
+      const monthKey = `${monthNames[targetMonth]}_${targetYear}`;
+      
+      if (monthKey !== currentMonthKey) {
+        collapsed.add(monthKey);
+      }
+    }
+    
+    // Collapse archive months
+    for (let i = 1; i <= 6; i++) {
+      const targetMonth = (currentMonth - i + 12) % 12;
+      const targetYear = currentMonth - i < 0 ? currentYear - 1 : currentYear;
+      const monthKey = `${monthNames[targetMonth]}_${targetYear}`;
+      collapsed.add(monthKey);
+    }
+    
+    return collapsed;
+  }, []);
+
+  const [collapsedMonths, setCollapsedMonths] = useState(() => getInitialCollapsedMonths()); // Track collapsed months
   const [selectedMonth, setSelectedMonth] = useState(null); // For new uploads
   const [uploadMode, setUploadMode] = useState('single'); // 'single' or 'carousel'
   const [isUploadingToMonth, setIsUploadingToMonth] = useState(false);

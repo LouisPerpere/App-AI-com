@@ -1022,8 +1022,6 @@ function MainApp() {
 
   // VRAIMENT STABLE: Fermeture aperçu - ZÉRO dépendance
   const handleClosePreview = useCallback(() => {
-    console.log(`❌ TRULY STABLE close preview`);
-    
     setPreviewContent(null);
     // Vider les champs après un délai pour éviter re-render cascade
     setTimeout(() => {
@@ -1034,7 +1032,7 @@ function MainApp() {
         previewTitleInputRef.current.value = '';
       }
     }, 50);
-  }, []); // ZÉRO dépendances = vraiment stable
+  }, []); // ZÉRO dépendances = vraiment stable // ZÉRO dépendances = vraiment stable
 
 
 

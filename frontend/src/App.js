@@ -918,8 +918,6 @@ function MainApp() {
   
   // VRAIMENT STABLE: Toggle selection mode normal (pas de transition pour l'instant)
   const toggleSelectionMode = useCallback(() => {
-    console.log(`🔄 TRULY STABLE toggle selection mode`);
-    
     setIsSelectionMode(prev => !prev);
     setSelectedContentIds(new Set()); // Reset selections
   }, []);

@@ -21,6 +21,7 @@ import jwt
 from typing import Optional
 from fastapi.responses import StreamingResponse, JSONResponse
 from io import BytesIO
+import requests
 
 router = APIRouter()
 

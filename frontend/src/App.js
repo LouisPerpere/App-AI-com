@@ -3090,36 +3090,7 @@ function MainApp() {
                           </div>
                         )}
                           
-                          {/* Month selector for upload - More prominent */}
-                          <div className="mb-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200">
-                            <div className="flex items-center mb-3">
-                              <Calendar className="w-5 h-5 text-blue-600 mr-2" />
-                              <label className="block text-lg font-semibold text-gray-800">
-                                Choisir le mois de destination
-                              </label>
-                            </div>
-                            <Select
-                              value={globalUploadMonth || ''}
-                              onValueChange={(value) => setGlobalUploadMonth(value)}
-                            >
-                              <SelectTrigger className={`w-full h-12 text-base ${!globalUploadMonth ? 'border-red-300 bg-red-50' : 'border-blue-300'}`}>
-                                <SelectValue placeholder="⚠️ Sélectionner un mois obligatoire..." />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {getUploadMonthOptions().map(({ key, label }) => (
-                                  <SelectItem key={key} value={key}>
-                                    {label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <p className={`text-sm mt-2 font-medium ${globalUploadMonth ? 'text-blue-600' : 'text-red-600'}`}>
-                              {globalUploadMonth 
-                                ? `✅ Vos fichiers seront organisés dans ${globalUploadMonth.replace('_', ' ')}`
-                                : '⚠️ Vous devez sélectionner un mois avant d\'uploader'
-                              }
-                            </p>
-                          </div>
+
                           
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {selectedFiles.map((file, index) => (

@@ -846,6 +846,8 @@ async def save_pixabay_image(
         pixabay_id = request.get("pixabay_id")
         image_url = request.get("image_url")
         tags = request.get("tags", "")
+        save_type = request.get("save_type", "general")  # "general" or "monthly"
+        attributed_month = request.get("attributed_month")  # e.g., "septembre_2025"
         
         # Generate unique filename
         unique_id = str(uuid.uuid4())[:8]

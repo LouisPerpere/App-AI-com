@@ -4283,7 +4283,7 @@ function MainApp() {
                       </div>
                       
                       {/* Priorité avec dropdown HTML natif */}
-                      <div className="space-y-2">
+                      <div className="space-y-1">
                         <label htmlFor="note_priority_native" className="block text-sm font-medium text-gray-700">
                           Priorité
                         </label>
@@ -4291,7 +4291,7 @@ function MainApp() {
                           ref={priorityInputRef}
                           id="note_priority_native"
                           onChange={handleNotePriorityChange}
-                          className="w-full p-4 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                          className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                           style={{
                             fontSize: '16px',
                             lineHeight: '1.5',

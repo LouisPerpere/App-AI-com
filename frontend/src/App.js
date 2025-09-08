@@ -2882,11 +2882,12 @@ function MainApp() {
                         <h3 className="text-xl font-semibold text-gray-900 mb-2">Uploadez vos contenus 📁</h3>
                         <p className="text-gray-600 mb-4">Choisissez votre type d'upload</p>
                         
-                        {/* Two integrated upload buttons - Exactly same size */}
-                        <div className="flex gap-4 justify-center max-w-lg mx-auto">
+                        {/* Two integrated upload buttons - Force exact same size */}
+                        <div className="flex gap-4 justify-center max-w-2xl mx-auto">
                           <label
                             htmlFor="file-upload"
-                            className="flex-1 min-w-0 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-4 px-6 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center font-medium text-base"
+                            className="w-44 h-14 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center font-medium text-base"
+                            style={{ minWidth: '176px', minHeight: '56px' }}
                           >
                             <Upload className="w-5 h-5 mr-2" />
                             Upload
@@ -2894,7 +2895,8 @@ function MainApp() {
                           
                           <label
                             htmlFor="carousel-upload-hidden"
-                            className="flex-1 min-w-0 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white py-4 px-6 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center font-medium text-base"
+                            className="w-44 h-14 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center font-medium text-base"
+                            style={{ minWidth: '176px', minHeight: '56px' }}
                             onClick={(e) => {
                               console.log('🎠 Carousel label clicked');
                               
@@ -2904,7 +2906,7 @@ function MainApp() {
                                 return false;
                               }
                               
-                              console.log('🎠 Month selected, proceeding with carrousel');
+                              console.log('🎠 Month selected, proceeding with carousel');
                               // Let the label proceed to trigger the hidden input
                             }}
                           >

@@ -1431,8 +1431,8 @@ function MainApp() {
     await searchPixabayImages();
   };
 
-  // Sauvegarder une image Pixabay dans la bibliothèque
-  const savePixabayImage = async (pixabayImage) => {
+  // Open choice modal for Pixabay image save
+  const savePixabayImage = (pixabayImage) => {
     console.log('🎯 Save Pixabay Image clicked:', pixabayImage.id);
     
     const token = localStorage.getItem('access_token');
@@ -1441,33 +1441,88 @@ function MainApp() {
       return;
     }
 
-    setIsSavingPixabayImage(pixabayImage.id);
+    setSelectedPixabayImage(pixabayImage);
+    setShowPixabaySaveModal(true);
+  };
+
+  // Save Pixabay image to general library
+  const savePixabayToLibrary = async () => {
+    if (!selectedPixabayImage) return;
+    
+    setIsSavingPixabayImage(selectedPixabayImage.id);
 
     try {
-      console.log('📤 Saving to API:', `${API}/pixabay/save-image`);
+      console.log('📤 Saving to general library:', `${API}/pixabay/save-image`);
       
       const response = await axios.post(`${API}/pixabay/save-image`, {
-        pixabay_id: pixabayImage.id,
-        image_url: pixabayImage.webformatURL,
-        tags: pixabayImage.tags
+        pixabay_id: selectedPixabayImage.id,
+        image_url: selectedPixabayImage.webformatURL,
+        tags: selectedPixabayImage.tags,
+        save_type: 'general' // Mark as general library save
       }, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
         timeout: 15000
       });
 
-      console.log('✅ Image saved successfully:', response.data);
-      toast.success('Image ajoutée à votre bibliothèque ! 📚');
+      console.log('✅ Image saved to general library:', response.data);
+      toast.success('Image ajoutée au stock Pixabay ! 📚');
       
-      // Marquer l'image comme sauvegardée avec succès
-      setSavedPixabayImages(prev => new Set([...prev, pixabayImage.id]));
+      // Mark image as saved
+      setSavedPixabayImages(prev => new Set([...prev, selectedPixabayImage.id]));
       
-      // Recharger le contenu pour voir la nouvelle image
+      // Reload content
       await loadPendingContent();
+      
+      // Close modal
+      setShowPixabaySaveModal(false);
+      setSelectedPixabayImage(null);
 
     } catch (error) {
       console.error('❌ Error saving Pixabay image:', error);
       const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
       toast.error(`Erreur lors de la sauvegarde: ${errorMessage}`);
+    } finally {
+      setIsSavingPixabayImage(null);
+    }
+  };
+
+  // Save Pixabay image to specific month
+  const savePixabayToMonth = async (monthKey) => {
+    if (!selectedPixabayImage) return;
+    
+    setIsSavingPixabayImage(selectedPixabayImage.id);
+
+    try {
+      console.log('📤 Saving to month:', monthKey, `${API}/pixabay/save-image`);
+      
+      const response = await axios.post(`${API}/pixabay/save-image`, {
+        pixabay_id: selectedPixabayImage.id,
+        image_url: selectedPixabayImage.webformatURL,
+        tags: selectedPixabayImage.tags,
+        save_type: 'monthly', // Mark as monthly save
+        attributed_month: monthKey // Assign to specific month
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
+        timeout: 15000
+      });
+
+      console.log('✅ Image saved to month:', response.data);
+      toast.success(`Image ajoutée à ${monthKey.replace('_', ' ')} ! 📅`);
+      
+      // Mark image as saved
+      setSavedPixabayImages(prev => new Set([...prev, selectedPixabayImage.id]));
+      
+      // Reload content
+      await loadPendingContent();
+      
+      // Close modal
+      setShowPixabaySaveModal(false);
+      setSelectedPixabayImage(null);
+
+    } catch (error) {
+      console.error('❌ Error saving Pixabay image to month:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`Erreur lors de la sauvegarde mensuelle: ${errorMessage}`);
     } finally {
       setIsSavingPixabayImage(null);
     }

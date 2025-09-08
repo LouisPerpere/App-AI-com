@@ -18,7 +18,7 @@ CREDENTIALS = {
     "password": "L@Reunion974!"
 }
 
-class PixabayThumbnailTester:
+class BackendTester:
     def __init__(self):
         self.session = requests.Session()
         self.token = None
@@ -26,21 +26,28 @@ class PixabayThumbnailTester:
         
     def authenticate(self):
         """Step 1: Authenticate with the backend"""
-        print("🔐 Step 1: Authenticating with backend...")
-        
-        login_data = {
-            "email": EMAIL,
-            "password": PASSWORD
-        }
-        
+        print("🔑 Step 1: Authentication")
         try:
-            response = self.session.post(f"{BASE_URL}/auth/login-robust", json=login_data)
-            print(f"Login response status: {response.status_code}")
+            response = self.session.post(
+                f"{BASE_URL}/auth/login-robust",
+                json=CREDENTIALS,
+                timeout=30
+            )
             
             if response.status_code == 200:
                 data = response.json()
                 self.token = data.get("access_token")
                 self.user_id = data.get("user_id")
+                self.session.headers.update({"Authorization": f"Bearer {self.token}"})
+                print(f"✅ Authentication successful - User ID: {self.user_id}")
+                return True
+            else:
+                print(f"❌ Authentication failed: {response.status_code} - {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Authentication error: {e}")
+            return False
                 
                 # Set authorization header for future requests
                 self.session.headers.update({

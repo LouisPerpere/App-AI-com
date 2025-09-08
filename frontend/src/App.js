@@ -2805,14 +2805,25 @@ function MainApp() {
                         </div>
                       </div>
                       
-                      {/* TOUJOURS AFFICHER - Pas de branche conditionnelle */}
+                      {/* MONTHLY ORGANIZATION VIEW */}
                       <div>
-                        {/* Compteur d'images - Format : visibles/total */}
-                        <div className="flex justify-between items-center mb-4 px-2">
-                          <div className="text-sm font-medium text-gray-700">
-                            <span className="text-purple-600 font-bold">{pendingContent.length}</span>
-                            <span className="text-gray-500">/{totalContentCount}</span>
-                            <span className="ml-2 text-gray-600">photos</span>
+                        {/* Toggle between monthly and all view */}
+                        <div className="flex justify-between items-center mb-6 px-2">
+                          <div className="flex items-center space-x-4">
+                            <Button
+                              onClick={() => setMonthlyLibraryView(!monthlyLibraryView)}
+                              variant="outline"
+                              size="sm"
+                              className="text-purple-600 border-purple-300"
+                            >
+                              <Calendar className="w-4 h-4 mr-2" />
+                              {monthlyLibraryView ? 'Vue liste' : 'Vue mensuelle'}
+                            </Button>
+                            <div className="text-sm font-medium text-gray-700">
+                              <span className="text-purple-600 font-bold">{pendingContent.length}</span>
+                              <span className="text-gray-500">/{totalContentCount}</span>
+                              <span className="ml-2 text-gray-600">contenus</span>
+                            </div>
                           </div>
                           {hasMoreContent && (
                             <div className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
@@ -2820,20 +2831,119 @@ function MainApp() {
                             </div>
                           )}
                         </div>
-                        
-                        {/* GRILLE BASIQUE QUI FONCTIONNE */}
-                        <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                          {pendingContent.map((content) => (
-                            <ContentThumbnail
-                              key={content.id}
-                              content={content}
-                              isSelectionMode={isSelectionMode}
-                              isSelected={selectedContentIds.has(content.id)}
-                              onContentClick={handleContentClick}
-                              onToggleSelection={handleToggleSelection}
-                            />
-                          ))}
-                        </div>
+
+                        {monthlyLibraryView ? (
+                          /* MONTHLY SECTIONS VIEW */
+                          <div className="space-y-6">
+                            {(() => {
+                              const monthlyData = getMonthlyContentData();
+                              return Object.entries(monthlyData).map(([monthKey, monthInfo]) => {
+                                const isCollapsed = collapsedMonths.has(monthKey);
+                                const hasContent = monthInfo.content.length > 0;
+                                
+                                return (
+                                  <div key={monthKey} className="border border-gray-200 rounded-2xl overflow-hidden">
+                                    {/* Month Header */}
+                                    <div 
+                                      className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-pink-50 cursor-pointer hover:from-purple-100 hover:to-pink-100 transition-colors"
+                                      onClick={() => toggleMonthCollapse(monthKey)}
+                                    >
+                                      <div className="flex items-center space-x-3">
+                                        <div className={`w-3 h-3 rounded-full transition-transform duration-200 ${isCollapsed ? 'rotate-0' : 'rotate-90'}`}>
+                                          <ChevronRight className="w-3 h-3 text-purple-600" />
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-gray-800">
+                                          {monthInfo.label}
+                                        </h3>
+                                        <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                                          {monthInfo.content.length} {monthInfo.content.length <= 1 ? 'contenu' : 'contenus'}
+                                        </Badge>
+                                      </div>
+                                      
+                                      {/* Upload buttons for future months */}
+                                      {!monthInfo.isPast && (
+                                        <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="text-xs text-purple-600 border-purple-300 hover:bg-purple-50"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setSelectedMonth(monthKey);
+                                              setUploadMode('single');
+                                              document.getElementById('monthly-upload')?.click();
+                                            }}
+                                          >
+                                            <Upload className="w-3 h-3 mr-1" />
+                                            Photo
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="text-xs text-purple-600 border-purple-300 hover:bg-purple-50"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setSelectedMonth(monthKey);
+                                              setUploadMode('carousel');
+                                              document.getElementById('carousel-upload')?.click();
+                                            }}
+                                          >
+                                            <ImageIcon className="w-3 h-3 mr-1" />
+                                            Carousel
+                                          </Button>
+                                        </div>
+                                      )}
+                                    </div>
+                                    
+                                    {/* Month Content */}
+                                    {!isCollapsed && (
+                                      <div className="p-4">
+                                        {hasContent ? (
+                                          <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                                            {monthInfo.content.map((content) => (
+                                              <ContentThumbnail
+                                                key={content.id}
+                                                content={content}
+                                                isSelectionMode={isSelectionMode}
+                                                isSelected={selectedContentIds.has(content.id)}
+                                                onContentClick={handleContentClick}
+                                                onToggleSelection={handleToggleSelection}
+                                              />
+                                            ))}
+                                          </div>
+                                        ) : (
+                                          <div className="text-center py-8 text-gray-500">
+                                            <Calendar className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                                            <p className="text-sm">Aucun contenu pour ce mois</p>
+                                            {!monthInfo.isPast && (
+                                              <p className="text-xs mt-1">Utilisez les boutons ci-dessus pour ajouter du contenu</p>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              });
+                            })()}
+                          </div>
+                        ) : (
+                          /* TRADITIONAL GRID VIEW */
+                          <div>
+                            <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                              {pendingContent.map((content) => (
+                                <ContentThumbnail
+                                  key={content.id}
+                                  content={content}
+                                  isSelectionMode={isSelectionMode}
+                                  isSelected={selectedContentIds.has(content.id)}
+                                  onContentClick={handleContentClick}
+                                  onToggleSelection={handleToggleSelection}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        )}
                         
                         {/* Message si pas de contenu */}
                         {pendingContent.length === 0 && (

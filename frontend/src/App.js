@@ -2837,18 +2837,25 @@ function MainApp() {
                           if (files.length === 0) {
                             console.log('📁 No files selected');
                             setSelectedFiles([]);
+                            setFileCustomData({});
                             return;
                           }
                           
-                          if (globalUploadMonth) {
-                            // Upload with month attribution - use 'batch' mode for multiple files
-                            console.log('📁 Using monthly upload with batch mode');
-                            handleMonthlyUpload(files, files.length === 1 ? 'single' : 'batch');
-                          } else {
-                            // Traditional upload flow
-                            console.log('📁 Using traditional upload flow');
-                            setSelectedFiles(files);
-                          }
+                          // Initialize default month for each file
+                          const defaultMonth = getDefaultMonth();
+                          const newFileCustomData = {};
+                          
+                          files.forEach((file, index) => {
+                            newFileCustomData[index] = {
+                              attributedMonth: defaultMonth,
+                              title: '',
+                              context: ''
+                            };
+                          });
+                          
+                          console.log('📁 Setting files with default months:', newFileCustomData);
+                          setSelectedFiles(files);
+                          setFileCustomData(newFileCustomData);
                         }}
                         className="hidden"
                         id="file-upload"

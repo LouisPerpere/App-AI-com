@@ -15,7 +15,7 @@ from datetime import datetime
 class DescriptionPersistenceAPITester:
     def __init__(self):
         # Use production backend URL from frontend/.env
-        self.base_url = "https://image-carousel-lib.preview.emergentagent.com"
+        self.base_url = "https://content-organizer-3.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.tests_run = 0

@@ -15,7 +15,7 @@ from database import get_database
 from bson import ObjectId
 
 # Configuration
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://image-carousel-lib.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://content-organizer-3.preview.emergentagent.com')
 API_BASE = f"{BACKEND_URL}/api"
 
 # Known credentials

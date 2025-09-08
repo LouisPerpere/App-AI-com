@@ -10,7 +10,7 @@ import io
 from PIL import Image
 
 # Configuration
-BACKEND_URL = "https://image-carousel-lib.preview.emergentagent.com/api"
+BACKEND_URL = "https://content-organizer-3.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 

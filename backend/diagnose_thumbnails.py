@@ -18,7 +18,7 @@ def diagnose_thumbnails():
     print("=" * 50)
     
     # Backend URL
-    backend_url = 'https://image-carousel-lib.preview.emergentagent.com'
+    backend_url = 'https://content-organizer-3.preview.emergentagent.com'
     
     # Login
     login_data = {'email': 'lperpere@yahoo.fr', 'password': 'L@Reunion974!'}

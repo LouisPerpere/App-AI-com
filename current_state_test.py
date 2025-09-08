@@ -10,7 +10,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://image-carousel-lib.preview.emergentagent.com/api"
+BACKEND_URL = "https://content-organizer-3.preview.emergentagent.com/api"
 TEST_USER_EMAIL = "lperpere@yahoo.fr"
 TEST_USER_PASSWORD = "L@Reunion974!"
 

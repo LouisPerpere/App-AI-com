@@ -9,7 +9,7 @@ import tempfile
 import os
 
 def test_batch_upload():
-    base_url = "https://image-carousel-lib.preview.emergentagent.com"
+    base_url = "https://content-organizer-3.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     # Login first

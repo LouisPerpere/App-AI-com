@@ -11,7 +11,7 @@ This script tests the new carousel upload functionality with:
 5. Thumbnail generation verification for carousel images
 
 Using credentials: lperpere@yahoo.fr / L@Reunion974!
-Backend URL: https://image-carousel-lib.preview.emergentagent.com/api
+Backend URL: https://content-organizer-3.preview.emergentagent.com/api
 """
 
 import requests
@@ -21,7 +21,7 @@ from PIL import Image
 import time
 
 # Configuration
-BACKEND_URL = "https://image-carousel-lib.preview.emergentagent.com/api"
+BACKEND_URL = "https://content-organizer-3.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 

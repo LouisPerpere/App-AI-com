@@ -18,7 +18,7 @@ import pymongo
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://image-carousel-lib.preview.emergentagent.com"
+BACKEND_URL = "https://content-organizer-3.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request
@@ -361,7 +361,7 @@ class ThumbnailDiagnosticTester:
                             "thumb_url": {
                                 "$replaceOne": {
                                     "input": "$thumb_url",
-                                    "find": "https://image-carousel-lib.preview.emergentagent.com",
+                                    "find": "https://content-organizer-3.preview.emergentagent.com",
                                     "replacement": "https://claire-marcus.com"
                                 }
                             }

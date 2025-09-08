@@ -93,20 +93,19 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
     return token;
   }, []);
   
-  // Optimisation URL des vignettes avec token stable + DEBUG CRITIQUE
+  // Optimisation URL des vignettes avec token stable - TOUTES IMAGES OPTIMISÉES
   const thumbnailUrl = useMemo(() => {
     let url;
     
-    if (content.source === 'pixabay') {
-      url = content.thumb_url;
-    } else if (content.thumb_url) {
+    // Maintenant toutes les images (y compris Pixabay) utilisent l'endpoint optimisé
+    if (content.thumb_url) {
       url = `${content.thumb_url}?token=${stableToken}`;
     } else {
       url = null;
     }
     
-    // DEBUG CRITIQUE: Log les URLs pour voir si elles changent
-    console.log(`🔍 URL for ${content.id.slice(-8)}: ${url}`);
+    // DEBUG: Log les URLs pour surveillance
+    console.log(`🔍 Optimized URL for ${content.id.slice(-8)} (${content.source || 'upload'}): ${url}`);
     
     return url;
   }, [content.thumb_url, content.source, stableToken, content.id]);

@@ -64,345 +64,392 @@ class CarouselTester:
             print(f"   ❌ Authentication error: {e}")
             return False
     
-    def test_pixabay_save_general(self):
-        """Step 2: Test Pixabay save with save_type='general'"""
-        print("\n🎯 Step 2: Test Pixabay save with save_type='general'")
-        try:
-            # First get some Pixabay images to save
-            search_response = self.session.get(
-                f"{BASE_URL}/pixabay/search",
-                params={"query": "business", "per_page": 3},
-                timeout=30
-            )
+    def create_test_images(self, count=3):
+        """Create test images for carousel upload"""
+        print(f"🖼️ Creating {count} test images for carousel upload")
+        
+        images = []
+        for i in range(count):
+            # Create a simple colored image
+            img = Image.new('RGB', (800, 600), color=(100 + i*50, 150 + i*30, 200 + i*20))
             
-            if search_response.status_code != 200:
-                print(f"❌ Pixabay search failed: {search_response.status_code}")
-                return False
-                
-            search_data = search_response.json()
-            if not search_data.get("hits"):
-                print("❌ No Pixabay images found")
-                return False
-                
-            # Take the first image
-            image = search_data["hits"][0]
+            # Add some text to make images unique
+            from PIL import ImageDraw, ImageFont
+            draw = ImageDraw.Draw(img)
+            try:
+                # Try to use a default font, fallback to basic if not available
+                font = ImageFont.load_default()
+            except:
+                font = None
             
-            # Save with save_type="general"
-            save_request = {
-                "pixabay_id": image["id"],
-                "image_url": image["webformatURL"],
-                "tags": image["tags"],
-                "save_type": "general"
-            }
-            
-            save_response = self.session.post(
-                f"{BASE_URL}/pixabay/save-image",
-                json=save_request,
-                timeout=60
-            )
-            
-            if save_response.status_code == 200:
-                save_data = save_response.json()
-                saved_image = save_data.get("image", {})
-                print(f"✅ Pixabay image saved with save_type='general'")
-                print(f"   - Image ID: {saved_image.get('id')}")
-                print(f"   - Save type: {saved_image.get('save_type')}")
-                print(f"   - Attributed month: {saved_image.get('attributed_month')}")
-                print(f"   - Context: {saved_image.get('context', '')[:50]}...")
-                return True
+            text = f"Carousel Image {i+1}"
+            if font:
+                draw.text((50, 50), text, fill=(255, 255, 255), font=font)
             else:
-                print(f"❌ Pixabay save failed: {save_response.status_code} - {save_response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Pixabay save general test error: {e}")
-            return False
+                draw.text((50, 50), text, fill=(255, 255, 255))
+            
+            # Convert to bytes
+            img_bytes = io.BytesIO()
+            img.save(img_bytes, format='JPEG', quality=85)
+            img_bytes.seek(0)
+            
+            images.append({
+                'filename': f'carousel_test_{i+1}.jpg',
+                'content': img_bytes.getvalue(),
+                'content_type': 'image/jpeg'
+            })
+            
+        print(f"   ✅ Created {len(images)} test images")
+        return images
     
-    def test_pixabay_save_monthly(self):
-        """Step 3: Test Pixabay save with save_type='monthly' and attributed_month"""
-        print("\n🎯 Step 3: Test Pixabay save with save_type='monthly' and attributed_month='septembre_2025'")
+    def test_carousel_batch_upload(self):
+        """Step 2: Test carousel batch upload with new parameters"""
+        print("📤 Step 2: Testing POST /api/content/batch-upload with carousel parameters")
+        
+        # Create test images
+        test_images = self.create_test_images(3)
+        
+        # Prepare carousel upload parameters
+        carousel_params = {
+            'attributed_month': 'octobre_2025',
+            'upload_type': 'carousel',
+            'common_title': 'Test Carrousel',
+            'common_context': 'Description carrousel'
+        }
+        
+        # Prepare files for upload
+        files = []
+        for img in test_images:
+            files.append(('files', (img['filename'], io.BytesIO(img['content']), img['content_type'])))
+        
         try:
-            # Get another Pixabay image
-            search_response = self.session.get(
-                f"{BASE_URL}/pixabay/search",
-                params={"query": "marketing", "per_page": 3},
-                timeout=30
+            response = self.session.post(
+                f"{BACKEND_URL}/content/batch-upload",
+                files=files,
+                data=carousel_params
             )
             
-            if search_response.status_code != 200:
-                print(f"❌ Pixabay search failed: {search_response.status_code}")
-                return False
-                
-            search_data = search_response.json()
-            if not search_data.get("hits"):
-                print("❌ No Pixabay images found")
-                return False
-                
-            # Take the first image
-            image = search_data["hits"][0]
-            
-            # Save with save_type="monthly" and attributed_month="septembre_2025"
-            save_request = {
-                "pixabay_id": image["id"],
-                "image_url": image["webformatURL"],
-                "tags": image["tags"],
-                "save_type": "monthly",
-                "attributed_month": "septembre_2025"
-            }
-            
-            save_response = self.session.post(
-                f"{BASE_URL}/pixabay/save-image",
-                json=save_request,
-                timeout=60
-            )
-            
-            if save_response.status_code == 200:
-                save_data = save_response.json()
-                saved_image = save_data.get("image", {})
-                print(f"✅ Pixabay image saved with save_type='monthly'")
-                print(f"   - Image ID: {saved_image.get('id')}")
-                print(f"   - Save type: {saved_image.get('save_type')}")
-                print(f"   - Attributed month: {saved_image.get('attributed_month')}")
-                print(f"   - Context: {saved_image.get('context', '')[:50]}...")
-                
-                # Verify the context contains the month
-                context = saved_image.get('context', '')
-                if 'septembre 2025' in context:
-                    print("✅ Context correctly includes attributed month")
-                else:
-                    print(f"⚠️ Context may not include month properly: {context}")
-                
-                return True
-            else:
-                print(f"❌ Pixabay save monthly failed: {save_response.status_code} - {save_response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Pixabay save monthly test error: {e}")
-            return False
-    
-    def test_content_pending_fields(self):
-        """Step 4: Test GET /api/content/pending returns images with new fields"""
-        print("\n🎯 Step 4: Test GET /api/content/pending includes new fields")
-        try:
-            response = self.session.get(
-                f"{BASE_URL}/content/pending",
-                params={"limit": 10},
-                timeout=30
-            )
+            print(f"   Status: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
-                content_items = data.get("content", [])
-                total_items = len(content_items)
+                print(f"   ✅ Carousel batch upload successful")
+                print(f"   Upload result: {data.get('ok', False)}")
+                print(f"   Files created: {data.get('count', 0)}")
+                print(f"   Created items: {len(data.get('created', []))}")
                 
-                print(f"✅ Content pending retrieved - Total items: {total_items}")
-                
-                # Check for items with save_type and attributed_month fields
-                items_with_save_type = 0
-                items_with_attributed_month = 0
-                pixabay_items = 0
-                
-                for item in content_items:
-                    # Check if this is a Pixabay item (should have save_type)
-                    if 'pixabay' in item.get('filename', '').lower() or item.get('source') == 'pixabay':
-                        pixabay_items += 1
-                        if 'save_type' in item:
-                            items_with_save_type += 1
-                        if 'attributed_month' in item:
-                            items_with_attributed_month += 1
-                
-                print(f"   - Pixabay items found: {pixabay_items}")
-                print(f"   - Items with save_type field: {items_with_save_type}")
-                print(f"   - Items with attributed_month field: {items_with_attributed_month}")
-                
-                # Show sample of recent items
-                if content_items:
-                    print("   - Sample of recent items:")
-                    for i, item in enumerate(content_items[:3]):
-                        print(f"     {i+1}. {item.get('filename', 'N/A')} - save_type: {item.get('save_type', 'N/A')}, attributed_month: {item.get('attributed_month', 'N/A')}")
+                # Store created IDs for later verification
+                self.carousel_ids = [item['id'] for item in data.get('created', [])]
+                print(f"   Carousel item IDs: {self.carousel_ids}")
                 
                 return True
             else:
-                print(f"❌ Content pending failed: {response.status_code} - {response.text}")
+                print(f"   ❌ Carousel upload failed: {response.text}")
                 return False
                 
         except Exception as e:
-            print(f"❌ Content pending test error: {e}")
+            print(f"   ❌ Carousel upload error: {e}")
             return False
     
-    def create_test_image(self, filename="test_image.png"):
-        """Create a simple test image for upload testing"""
-        # Create a simple 100x100 red image
-        img = Image.new('RGB', (100, 100), color='red')
-        img_bytes = io.BytesIO()
-        img.save(img_bytes, format='PNG')
-        img_bytes.seek(0)
-        return img_bytes
-    
-    def test_batch_upload_single_month(self):
-        """Step 5: Test batch upload with attributed_month='octobre_2025' and upload_type='single'"""
-        print("\n🎯 Step 5: Test batch upload with attributed_month='octobre_2025' and upload_type='single'")
-        try:
-            # Create test image
-            test_image = self.create_test_image("octobre_test_single.png")
-            
-            # Prepare files and data
-            files = {
-                'files': ('octobre_test_single.png', test_image, 'image/png')
-            }
-            
-            # Try to send attributed_month and upload_type as form data
-            data = {
-                'attributed_month': 'octobre_2025',
-                'upload_type': 'single'
-            }
-            
-            response = self.session.post(
-                f"{BASE_URL}/content/batch-upload",
-                files=files,
-                data=data,
-                timeout=60
-            )
-            
-            print(f"   - Response status: {response.status_code}")
-            print(f"   - Response: {response.text[:200]}...")
-            
-            if response.status_code == 200:
-                upload_data = response.json()
-                print(f"✅ Batch upload successful")
-                print(f"   - Files created: {upload_data.get('count', 0)}")
-                
-                # Check if the parameters were accepted (even if not processed)
-                created_items = upload_data.get('created', [])
-                if created_items:
-                    print(f"   - First item ID: {created_items[0].get('id')}")
-                
-                return True
-            elif response.status_code == 422:
-                print(f"⚠️ Batch upload returned validation error - parameters may not be implemented yet")
-                print(f"   - This suggests attributed_month and upload_type parameters are not yet supported")
-                return False
-            else:
-                print(f"❌ Batch upload failed: {response.status_code} - {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Batch upload single month test error: {e}")
-            return False
-    
-    def test_batch_upload_carousel_month(self):
-        """Step 6: Test batch upload with attributed_month='novembre_2025' and upload_type='carousel'"""
-        print("\n🎯 Step 6: Test batch upload with attributed_month='novembre_2025' and upload_type='carousel'")
-        try:
-            # Create multiple test images for carousel
-            test_images = []
-            for i in range(2):
-                img = Image.new('RGB', (100, 100), color=['blue', 'green'][i])
-                img_bytes = io.BytesIO()
-                img.save(img_bytes, format='PNG')
-                img_bytes.seek(0)
-                test_images.append(('files', (f'novembre_carousel_{i+1}.png', img_bytes, 'image/png')))
-            
-            # Try to send attributed_month and upload_type as form data
-            data = {
-                'attributed_month': 'novembre_2025',
-                'upload_type': 'carousel'
-            }
-            
-            response = self.session.post(
-                f"{BASE_URL}/content/batch-upload",
-                files=test_images,
-                data=data,
-                timeout=60
-            )
-            
-            print(f"   - Response status: {response.status_code}")
-            print(f"   - Response: {response.text[:200]}...")
-            
-            if response.status_code == 200:
-                upload_data = response.json()
-                print(f"✅ Batch upload carousel successful")
-                print(f"   - Files created: {upload_data.get('count', 0)}")
-                
-                created_items = upload_data.get('created', [])
-                if created_items:
-                    print(f"   - Items created: {len(created_items)}")
-                    for i, item in enumerate(created_items):
-                        print(f"     {i+1}. ID: {item.get('id')}, Filename: {item.get('filename')}")
-                
-                return True
-            elif response.status_code == 422:
-                print(f"⚠️ Batch upload carousel returned validation error - parameters may not be implemented yet")
-                print(f"   - This suggests attributed_month and upload_type parameters are not yet supported")
-                return False
-            else:
-                print(f"❌ Batch upload carousel failed: {response.status_code} - {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Batch upload carousel month test error: {e}")
-            return False
-    
-    def run_all_tests(self):
-        """Run all tests in sequence"""
-        print("🚀 Starting Monthly Refactoring and Pixabay Enhancement Backend Tests")
-        print("=" * 80)
+    def test_content_pending_carousel_fields(self):
+        """Step 3: Test GET /api/content/pending returns carousel images with new fields"""
+        print("📋 Step 3: Testing GET /api/content/pending for carousel fields")
         
-        results = {}
+        try:
+            response = self.session.get(f"{BACKEND_URL}/content/pending")
+            print(f"   Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                content_items = data.get('content', [])
+                total_items = data.get('total', 0)
+                
+                print(f"   ✅ Content retrieval successful")
+                print(f"   Total items: {total_items}")
+                print(f"   Items loaded: {len(content_items)}")
+                
+                # Find carousel items
+                carousel_items = []
+                for item in content_items:
+                    if item.get('upload_type') == 'carousel':
+                        carousel_items.append(item)
+                
+                print(f"   Carousel items found: {len(carousel_items)}")
+                
+                if carousel_items:
+                    print("   🔍 Analyzing carousel items:")
+                    
+                    # Check if all carousel items have the same fields
+                    first_item = carousel_items[0]
+                    common_title = first_item.get('title')
+                    common_context = first_item.get('context')
+                    attributed_month = first_item.get('attributed_month')
+                    carousel_id = first_item.get('carousel_id')
+                    
+                    print(f"   Expected common_title: 'Test Carrousel'")
+                    print(f"   Found common_title: '{common_title}'")
+                    print(f"   Expected common_context: 'Description carrousel'")
+                    print(f"   Found common_context: '{common_context}'")
+                    print(f"   Expected attributed_month: 'octobre_2025'")
+                    print(f"   Found attributed_month: '{attributed_month}'")
+                    print(f"   Carousel ID: {carousel_id}")
+                    
+                    # Verify all carousel items have consistent fields
+                    all_consistent = True
+                    for i, item in enumerate(carousel_items):
+                        item_title = item.get('title')
+                        item_context = item.get('context')
+                        item_month = item.get('attributed_month')
+                        item_carousel_id = item.get('carousel_id')
+                        item_upload_type = item.get('upload_type')
+                        
+                        print(f"   Item {i+1}: title='{item_title}', context='{item_context}', month='{item_month}', upload_type='{item_upload_type}'")
+                        
+                        # Check consistency
+                        if (item_title != common_title or 
+                            item_context != common_context or 
+                            item_month != attributed_month or
+                            item_upload_type != 'carousel'):
+                            all_consistent = False
+                            print(f"   ❌ Item {i+1} has inconsistent fields!")
+                    
+                    if all_consistent:
+                        print(f"   ✅ All carousel items have consistent fields")
+                        
+                        # Verify expected values
+                        title_correct = common_title == 'Test Carrousel'
+                        context_correct = 'Description carrousel' in (common_context or '')
+                        month_correct = attributed_month == 'octobre_2025'
+                        
+                        print(f"   Title correct: {title_correct}")
+                        print(f"   Context correct: {context_correct}")
+                        print(f"   Month correct: {month_correct}")
+                        
+                        if title_correct and context_correct and month_correct:
+                            print(f"   ✅ All carousel field values are correct")
+                            return True
+                        else:
+                            print(f"   ❌ Some carousel field values are incorrect")
+                            return False
+                    else:
+                        print(f"   ❌ Carousel items have inconsistent fields")
+                        return False
+                else:
+                    print(f"   ❌ No carousel items found in content")
+                    return False
+                    
+            else:
+                print(f"   ❌ Content retrieval failed: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"   ❌ Content retrieval error: {e}")
+            return False
+    
+    def test_carousel_thumbnails(self):
+        """Step 4: Test thumbnail generation for carousel images"""
+        print("🖼️ Step 4: Testing thumbnail generation for carousel images")
+        
+        if not hasattr(self, 'carousel_ids') or not self.carousel_ids:
+            print("   ❌ No carousel IDs available for thumbnail testing")
+            return False
+        
+        thumbnail_results = []
+        
+        for i, item_id in enumerate(self.carousel_ids):
+            print(f"   Testing thumbnail for carousel item {i+1}: {item_id}")
+            
+            try:
+                # Test thumbnail endpoint
+                thumb_url = f"{BACKEND_URL}/content/{item_id}/thumb"
+                response = self.session.get(thumb_url)
+                
+                print(f"   Thumbnail status: {response.status_code}")
+                
+                if response.status_code == 200:
+                    content_type = response.headers.get('content-type', '')
+                    content_length = len(response.content)
+                    
+                    print(f"   ✅ Thumbnail generated successfully")
+                    print(f"   Content-Type: {content_type}")
+                    print(f"   Content-Length: {content_length} bytes")
+                    
+                    # Verify it's an image
+                    if 'image' in content_type and content_length > 0:
+                        thumbnail_results.append(True)
+                        print(f"   ✅ Valid thumbnail image")
+                    else:
+                        thumbnail_results.append(False)
+                        print(f"   ❌ Invalid thumbnail content")
+                else:
+                    thumbnail_results.append(False)
+                    print(f"   ❌ Thumbnail generation failed: {response.text}")
+                    
+            except Exception as e:
+                thumbnail_results.append(False)
+                print(f"   ❌ Thumbnail test error: {e}")
+        
+        success_count = sum(thumbnail_results)
+        total_count = len(thumbnail_results)
+        
+        print(f"   Thumbnail generation results: {success_count}/{total_count} successful")
+        
+        if success_count == total_count:
+            print(f"   ✅ All carousel thumbnails generated successfully")
+            return True
+        else:
+            print(f"   ❌ Some carousel thumbnails failed to generate")
+            return False
+    
+    def test_carousel_grouping(self):
+        """Step 5: Test carousel grouping with carousel_id"""
+        print("🔗 Step 5: Testing carousel grouping with carousel_id")
+        
+        try:
+            response = self.session.get(f"{BACKEND_URL}/content/pending")
+            
+            if response.status_code == 200:
+                data = response.json()
+                content_items = data.get('content', [])
+                
+                # Find carousel items
+                carousel_items = [item for item in content_items if item.get('upload_type') == 'carousel']
+                
+                if carousel_items:
+                    # Check if all carousel items have the same carousel_id
+                    carousel_ids = [item.get('carousel_id') for item in carousel_items]
+                    unique_carousel_ids = set(filter(None, carousel_ids))
+                    
+                    print(f"   Carousel items found: {len(carousel_items)}")
+                    print(f"   Unique carousel IDs: {len(unique_carousel_ids)}")
+                    print(f"   Carousel IDs: {list(unique_carousel_ids)}")
+                    
+                    if len(unique_carousel_ids) == 1:
+                        print(f"   ✅ All carousel items have the same carousel_id")
+                        print(f"   Carousel ID: {list(unique_carousel_ids)[0]}")
+                        return True
+                    else:
+                        print(f"   ❌ Carousel items have different carousel_ids or missing IDs")
+                        return False
+                else:
+                    print(f"   ❌ No carousel items found for grouping test")
+                    return False
+            else:
+                print(f"   ❌ Failed to retrieve content for grouping test")
+                return False
+                
+        except Exception as e:
+            print(f"   ❌ Carousel grouping test error: {e}")
+            return False
+    
+    def cleanup_test_data(self):
+        """Step 6: Clean up test carousel data"""
+        print("🧹 Step 6: Cleaning up test carousel data")
+        
+        if not hasattr(self, 'carousel_ids') or not self.carousel_ids:
+            print("   No carousel IDs to clean up")
+            return True
+        
+        cleanup_results = []
+        
+        for i, item_id in enumerate(self.carousel_ids):
+            try:
+                response = self.session.delete(f"{BACKEND_URL}/content/{item_id}")
+                
+                if response.status_code == 200:
+                    cleanup_results.append(True)
+                    print(f"   ✅ Deleted carousel item {i+1}: {item_id}")
+                else:
+                    cleanup_results.append(False)
+                    print(f"   ❌ Failed to delete carousel item {i+1}: {response.text}")
+                    
+            except Exception as e:
+                cleanup_results.append(False)
+                print(f"   ❌ Cleanup error for item {i+1}: {e}")
+        
+        success_count = sum(cleanup_results)
+        total_count = len(cleanup_results)
+        
+        print(f"   Cleanup results: {success_count}/{total_count} items deleted")
+        
+        return success_count == total_count
+    
+    def run_comprehensive_test(self):
+        """Run all carousel functionality tests"""
+        print("🎠 COMPREHENSIVE CAROUSEL FUNCTIONALITY TESTING")
+        print("=" * 60)
+        print(f"Backend URL: {BACKEND_URL}")
+        print(f"Test credentials: {EMAIL}")
+        print("=" * 60)
+        
+        test_results = []
         
         # Step 1: Authentication
-        results['authentication'] = self.authenticate()
-        if not results['authentication']:
-            print("\n❌ Authentication failed - cannot proceed with other tests")
-            return results
+        test_results.append(self.authenticate())
         
-        # Step 2-4: Pixabay tests
-        results['pixabay_save_general'] = self.test_pixabay_save_general()
-        results['pixabay_save_monthly'] = self.test_pixabay_save_monthly()
-        results['content_pending_fields'] = self.test_content_pending_fields()
-        
-        # Step 5-6: Upload tests
-        results['batch_upload_single'] = self.test_batch_upload_single_month()
-        results['batch_upload_carousel'] = self.test_batch_upload_carousel_month()
+        if test_results[-1]:
+            # Step 2: Carousel batch upload
+            test_results.append(self.test_carousel_batch_upload())
+            
+            if test_results[-1]:
+                # Step 3: Content pending with carousel fields
+                test_results.append(self.test_content_pending_carousel_fields())
+                
+                # Step 4: Thumbnail generation
+                test_results.append(self.test_carousel_thumbnails())
+                
+                # Step 5: Carousel grouping
+                test_results.append(self.test_carousel_grouping())
+                
+                # Step 6: Cleanup
+                test_results.append(self.cleanup_test_data())
         
         # Summary
-        print("\n" + "=" * 80)
-        print("📊 TEST SUMMARY")
-        print("=" * 80)
+        print("\n" + "=" * 60)
+        print("🎯 CAROUSEL TESTING SUMMARY")
+        print("=" * 60)
         
-        passed = sum(1 for result in results.values() if result)
-        total = len(results)
-        success_rate = (passed / total) * 100 if total > 0 else 0
+        test_names = [
+            "Authentication",
+            "Carousel Batch Upload",
+            "Content Pending Fields",
+            "Thumbnail Generation", 
+            "Carousel Grouping",
+            "Cleanup"
+        ]
         
-        for test_name, result in results.items():
+        passed_tests = 0
+        for i, (name, result) in enumerate(zip(test_names[:len(test_results)], test_results)):
             status = "✅ PASS" if result else "❌ FAIL"
-            print(f"{status} - {test_name.replace('_', ' ').title()}")
+            print(f"{i+1}. {name}: {status}")
+            if result:
+                passed_tests += 1
         
-        print(f"\n🎯 Overall Success Rate: {success_rate:.1f}% ({passed}/{total} tests passed)")
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100 if total_tests > 0 else 0
+        
+        print(f"\nOverall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
         
         if success_rate >= 80:
-            print("🎉 EXCELLENT - Monthly refactoring features are working well!")
-        elif success_rate >= 60:
-            print("⚠️ GOOD - Most features working, some issues to address")
+            print("🎉 CAROUSEL FUNCTIONALITY TESTING COMPLETED SUCCESSFULLY")
+            print("✅ The carousel upload system is working correctly")
         else:
-            print("🚨 NEEDS ATTENTION - Multiple issues found")
+            print("🚨 CAROUSEL FUNCTIONALITY TESTING FAILED")
+            print("❌ Critical issues found in carousel implementation")
         
-        return results
+        return success_rate >= 80
 
 def main():
-    """Main function"""
-    tester = BackendTester()
-    results = tester.run_all_tests()
+    """Main test execution"""
+    tester = CarouselTester()
+    success = tester.run_comprehensive_test()
     
-    # Exit with appropriate code
-    passed = sum(1 for result in results.values() if result)
-    total = len(results)
-    
-    if passed == total:
-        sys.exit(0)  # All tests passed
+    if success:
+        print("\n🎯 CONCLUSION: Carousel functionality is FULLY OPERATIONAL")
+        exit(0)
     else:
-        sys.exit(1)  # Some tests failed
+        print("\n🚨 CONCLUSION: Carousel functionality has CRITICAL ISSUES")
+        exit(1)
 
 if __name__ == "__main__":
     main()

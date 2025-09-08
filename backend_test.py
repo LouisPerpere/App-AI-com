@@ -1,22 +1,29 @@
 #!/usr/bin/env python3
 """
-Backend Testing Script for Monthly Refactoring and Pixabay Enhancements
-Testing the new monthly attribution features for Pixabay and uploads
+Comprehensive Backend Testing for Carousel Functionality
+Test complet de la nouvelle fonctionnalité carrousel corrigée
+
+This script tests the new carousel upload functionality with:
+1. POST /api/content/batch-upload with common_title and common_context parameters
+2. Carousel upload with upload_type="carousel", attributed_month="octobre_2025"
+3. Verification of carousel images having same title, context, attributed_month, carousel_id
+4. GET /api/content/pending returns carousel images with all new fields
+5. Thumbnail generation verification for carousel images
+
+Using credentials: lperpere@yahoo.fr / L@Reunion974!
+Backend URL: https://image-carousel-lib.preview.emergentagent.com/api
 """
 
 import requests
 import json
-import sys
 import io
 from PIL import Image
 import time
 
 # Configuration
-BASE_URL = "https://image-carousel-lib.preview.emergentagent.com/api"
-CREDENTIALS = {
-    "email": "lperpere@yahoo.fr",
-    "password": "L@Reunion974!"
-}
+BACKEND_URL = "https://image-carousel-lib.preview.emergentagent.com/api"
+EMAIL = "lperpere@yahoo.fr"
+PASSWORD = "L@Reunion974!"
 
 class BackendTester:
     def __init__(self):

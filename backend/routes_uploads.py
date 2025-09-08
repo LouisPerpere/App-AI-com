@@ -371,7 +371,7 @@ async def upload_content_batch(
                 "title": title,  # Add title field
                 "context": context,  # Add context field
                 "common_title": common_title if upload_type == "carousel" else None,  # For carousel grouping
-                "carousel_id": str(uuid.uuid4()) if upload_type == "carousel" and common_title else None  # Group carousel items
+                "carousel_id": batch_carousel_id  # Group carousel items with same ID
             }
             res = db.media.insert_one(media_doc)
             media_id = res.inserted_id

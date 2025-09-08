@@ -588,82 +588,118 @@ function MainApp() {
 
   // Monthly content organization utilities
   const getMonthlyContentData = useCallback(() => {
-    if (!Array.isArray(pendingContent)) return {};
+    if (!Array.isArray(pendingContent)) return { currentAndFuture: {}, archives: {} };
     
-    // Define months for upcoming 3 months and past content
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth(); // 0-based
+    const currentMonth = currentDate.getMonth(); // 0-based (September = 8)
     
-    // Define the months we want to show
-    const months = {
-      // Past months for existing content
-      'juillet_2025': { 
-        label: 'Juillet 2025', 
-        month: 6, // July is 6 (0-based)
-        year: 2025,
-        isPast: true,
-        content: []
-      },
-      'aout_2025': { 
-        label: 'Août 2025', 
-        month: 7, // August is 7 (0-based)
-        year: 2025,
-        isPast: true,
-        content: []
-      },
-      // Upcoming months
-      'septembre_2025': { 
-        label: 'Septembre 2025', 
-        month: 8, // September is 8 (0-based)
-        year: 2025,
-        isPast: false,
-        content: []
-      },
-      'octobre_2025': { 
-        label: 'Octobre 2025', 
-        month: 9, // October is 9 (0-based)
-        year: 2025,
-        isPast: false,
-        content: []
-      },
-      'novembre_2025': { 
-        label: 'Novembre 2025', 
-        month: 10, // November is 10 (0-based)
-        year: 2025,
-        isPast: false,
-        content: []
+    // Generate current month and next 2 months dynamically
+    const getCurrentAndFutureMonths = () => {
+      const months = {};
+      const monthNames = [
+        'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+        'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+      ];
+      
+      for (let i = 0; i < 3; i++) {
+        const targetMonth = (currentMonth + i) % 12;
+        const targetYear = currentYear + Math.floor((currentMonth + i) / 12);
+        const monthKey = `${monthNames[targetMonth]}_${targetYear}`;
+        
+        months[monthKey] = {
+          label: `${monthNames[targetMonth].charAt(0).toUpperCase() + monthNames[targetMonth].slice(1)} ${targetYear}`,
+          month: targetMonth,
+          year: targetYear,
+          isCurrent: i === 0,
+          isFuture: i > 0,
+          content: [],
+          order: i
+        };
       }
+      return months;
     };
+    
+    // Generate archive months (past months)
+    const getArchiveMonths = () => {
+      const months = {};
+      const monthNames = [
+        'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+        'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+      ];
+      
+      // Generate last 6 months before current month
+      for (let i = 1; i <= 6; i++) {
+        const targetMonth = (currentMonth - i + 12) % 12;
+        const targetYear = currentYear - Math.floor((i - currentMonth - 1) / 12);
+        const monthKey = `${monthNames[targetMonth]}_${targetYear}`;
+        
+        months[monthKey] = {
+          label: `${monthNames[targetMonth].charAt(0).toUpperCase() + monthNames[targetMonth].slice(1)} ${targetYear}`,
+          month: targetMonth,
+          year: targetYear,
+          isPast: true,
+          content: [],
+          order: -i // Negative for reverse chronological order
+        };
+      }
+      return months;
+    };
+    
+    const currentAndFuture = getCurrentAndFutureMonths();
+    const archives = getArchiveMonths();
+    const allMonths = { ...currentAndFuture, ...archives };
     
     // Categorize content by month
     pendingContent.forEach(item => {
-      // Check if content has explicit month attribution (future feature)
+      // Check if content has explicit month attribution
       const attributedMonth = item.attributed_month;
-      if (attributedMonth && months[attributedMonth]) {
-        months[attributedMonth].content.push(item);
+      if (attributedMonth && allMonths[attributedMonth]) {
+        allMonths[attributedMonth].content.push(item);
         return;
       }
       
-      // For now, distribute existing content into July and August 2025
-      // This is temporary until user manually re-attributes content
+      // For existing content without attribution, distribute into archive months
       const createdDate = new Date(item.created_at || item.uploaded_at);
       const itemMonth = createdDate.getMonth();
       const itemYear = createdDate.getFullYear();
       
-      // Simple distribution logic for existing content
-      if (itemMonth <= 6) { // Jan-July
-        months['juillet_2025'].content.push(item);
-      } else if (itemMonth === 7) { // August
-        months['aout_2025'].content.push(item);
+      // Try to match with existing months or default to first archive month
+      const monthNames = [
+        'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+        'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+      ];
+      
+      const itemMonthKey = `${monthNames[itemMonth]}_${itemYear}`;
+      if (allMonths[itemMonthKey]) {
+        allMonths[itemMonthKey].content.push(item);
       } else {
-        // Default to July for now
-        months['juillet_2025'].content.push(item);
+        // Default to first archive month (last month)
+        const firstArchiveKey = Object.keys(archives).sort((a, b) => archives[b].order - archives[a].order)[0];
+        if (firstArchiveKey) {
+          allMonths[firstArchiveKey].content.push(item);
+        }
       }
     });
     
-    return months;
+    // Update content in respective objects
+    Object.keys(currentAndFuture).forEach(key => {
+      currentAndFuture[key].content = allMonths[key].content;
+    });
+    Object.keys(archives).forEach(key => {
+      archives[key].content = allMonths[key].content;
+    });
+    
+    return { currentAndFuture, archives };
   }, [pendingContent]);
+
+  // Get available months for upload selector (current + 2 future months)
+  const getUploadMonthOptions = useCallback(() => {
+    const { currentAndFuture } = getMonthlyContentData();
+    return Object.entries(currentAndFuture)
+      .sort(([, a], [, b]) => a.order - b.order)
+      .map(([key, info]) => ({ key, label: info.label }));
+  }, [getMonthlyContentData]);
 
   // Toggle month collapse state
   const toggleMonthCollapse = useCallback((monthKey) => {

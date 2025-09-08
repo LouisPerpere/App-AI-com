@@ -3968,7 +3968,7 @@ function MainApp() {
                           Résultats de recherche ({pixabayResults.length})
                         </h4>
                         
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                           {pixabayResults.map((image) => (
                             <div key={image.id} className="group relative">
                               <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200 group-hover:border-blue-300 transition-all duration-300">

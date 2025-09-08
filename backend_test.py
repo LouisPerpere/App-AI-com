@@ -25,7 +25,7 @@ BACKEND_URL = "https://image-carousel-lib.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 
-class BackendTester:
+class CarouselTester:
     def __init__(self):
         self.session = requests.Session()
         self.token = None
@@ -33,27 +33,35 @@ class BackendTester:
         
     def authenticate(self):
         """Step 1: Authenticate with the backend"""
-        print("🔑 Step 1: Authentication")
+        print("🔑 Step 1: Authentication with POST /api/auth/login-robust")
+        
+        login_data = {
+            "email": EMAIL,
+            "password": PASSWORD
+        }
+        
         try:
-            response = self.session.post(
-                f"{BASE_URL}/auth/login-robust",
-                json=CREDENTIALS,
-                timeout=30
-            )
+            response = self.session.post(f"{BACKEND_URL}/auth/login-robust", json=login_data)
+            print(f"   Status: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
                 self.token = data.get("access_token")
                 self.user_id = data.get("user_id")
+                
+                # Set authorization header for all future requests
                 self.session.headers.update({"Authorization": f"Bearer {self.token}"})
-                print(f"✅ Authentication successful - User ID: {self.user_id}")
+                
+                print(f"   ✅ Authentication successful")
+                print(f"   User ID: {self.user_id}")
+                print(f"   Token: {self.token[:20]}..." if self.token else "   Token: None")
                 return True
             else:
-                print(f"❌ Authentication failed: {response.status_code} - {response.text}")
+                print(f"   ❌ Authentication failed: {response.text}")
                 return False
                 
         except Exception as e:
-            print(f"❌ Authentication error: {e}")
+            print(f"   ❌ Authentication error: {e}")
             return False
     
     def test_pixabay_save_general(self):

@@ -2086,22 +2086,19 @@ function MainApp() {
     try {
       const formData = new FormData();
       
+      // Add all files to FormData
+      files.forEach((file, index) => {
+        formData.append('files', file);
+      });
+      
+      // Set metadata based on mode
+      formData.append('attributed_month', targetMonth);
+      
       if (mode === 'carousel') {
-        // For carousel uploads, add all files with shared metadata
-        files.forEach((file, index) => {
-          formData.append('files', file);
-        });
-        
-        formData.append('attributed_month', targetMonth);
         formData.append('upload_type', 'carousel');
-        
+      } else if (mode === 'batch') {
+        formData.append('upload_type', 'batch');
       } else {
-        // Single file upload - can be multiple files for "upload" button
-        files.forEach((file, index) => {
-          formData.append('files', file);
-        });
-        
-        formData.append('attributed_month', targetMonth);
         formData.append('upload_type', 'single');
       }
       

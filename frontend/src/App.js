@@ -632,7 +632,8 @@ function MainApp() {
       // Generate last 6 months before current month
       for (let i = 1; i <= 6; i++) {
         const targetMonth = (currentMonth - i + 12) % 12;
-        const targetYear = currentYear - Math.floor((i - currentMonth - 1) / 12);
+        // Correct year calculation for past months
+        const targetYear = currentMonth - i < 0 ? currentYear - 1 : currentYear;
         const monthKey = `${monthNames[targetMonth]}_${targetYear}`;
         
         months[monthKey] = {

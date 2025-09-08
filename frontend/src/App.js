@@ -691,6 +691,12 @@ function MainApp() {
       .map(([key, info]) => ({ key, label: info.label }));
   }, [getMonthlyContentData]);
 
+  // Get default month (closest/current month)
+  const getDefaultMonth = useCallback(() => {
+    const options = getUploadMonthOptions();
+    return options.length > 0 ? options[0].key : null;
+  }, [getUploadMonthOptions]);
+
   // Toggle month collapse state with conditional loading
   const toggleMonthCollapse = useCallback(async (monthKey) => {
     const wasCollapsed = collapsedMonths.has(monthKey);

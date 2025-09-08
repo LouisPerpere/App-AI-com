@@ -727,13 +727,21 @@ function MainApp() {
     return { currentAndFuture, archives };
   }, [pendingContent]);
 
-  // Get available months for upload selector (current + 2 future months)
+  // Get available months for upload selector (current + 5 future months)
   const getUploadMonthOptions = useCallback(() => {
     const { currentAndFuture } = getMonthlyContentData();
     return Object.entries(currentAndFuture)
       .sort(([, a], [, b]) => a.order - b.order)
       .map(([key, info]) => ({ key, label: info.label }));
   }, [getMonthlyContentData]);
+
+  // Get available months for notes selector (same as uploads)
+  const getNotesMonthOptions = useCallback(() => {
+    const { currentAndFuture } = getMonthlyNotesData();
+    return Object.entries(currentAndFuture)
+      .sort(([, a], [, b]) => a.order - b.order)
+      .map(([key, info]) => ({ key, label: info.label }));
+  }, [getMonthlyNotesData]);
 
   // Get default month (closest/current month)
   const getDefaultMonth = useCallback(() => {

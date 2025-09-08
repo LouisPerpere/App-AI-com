@@ -112,19 +112,23 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
     return token;
   }, []);
   
-  // Optimisation URL des vignettes avec token stable
+  // Optimisation URL des vignettes avec token stable + DEBUG CRITIQUE
   const thumbnailUrl = useMemo(() => {
+    let url;
+    
     if (content.source === 'pixabay') {
-      return content.thumb_url;
+      url = content.thumb_url;
+    } else if (content.thumb_url) {
+      url = `${content.thumb_url}?token=${stableToken}`;
+    } else {
+      url = null;
     }
     
-    if (content.thumb_url) {
-      const url = `${content.thumb_url}?token=${stableToken}`;
-      return url;
-    }
+    // DEBUG CRITIQUE: Log les URLs pour voir si elles changent
+    console.log(`🔍 URL for ${content.id.slice(-8)}: ${url}`);
     
-    return null;
-  }, [content.thumb_url, content.source, stableToken]);
+    return url;
+  }, [content.thumb_url, content.source, stableToken, content.id]);
 
   const handleClick = useCallback(() => {
     onContentClick(content);

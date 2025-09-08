@@ -1,53 +1,108 @@
 #!/usr/bin/env python3
 """
-Test spécifique pour l'endpoint POST /api/content/batch-upload
-Basé sur la review request française pour tester le nouvel endpoint d'upload
+Comprehensive Backend Testing for Batch Upload Functionality
+Test des corrections du problème d'upload multiple
+
+This script tests the batch upload functionality with different upload types:
+1. POST /api/content/batch-upload with multiple files and upload_type="batch"
+2. POST /api/content/batch-upload with single file and upload_type="single" 
+3. POST /api/content/batch-upload with multiple files and upload_type="carousel"
+4. Test uploads with attributed_month parameter
+5. Verify no conflicts between different upload modes
+
+Using credentials: lperpere@yahoo.fr / L@Reunion974!
+Backend URL: https://image-carousel-lib.preview.emergentagent.com/api
 """
 
 import requests
 import json
-import os
-import tempfile
-from datetime import datetime
-from pathlib import Path
 import io
+from PIL import Image
+import time
+import uuid
+
+# Configuration
+BACKEND_URL = "https://image-carousel-lib.preview.emergentagent.com/api"
+EMAIL = "lperpere@yahoo.fr"
+PASSWORD = "L@Reunion974!"
 
 class BatchUploadTester:
     def __init__(self):
-        # Use the production backend URL from frontend/.env
-        self.base_url = "https://image-carousel-lib.preview.emergentagent.com"
-        self.api_url = f"{self.base_url}/api"
-        self.access_token = None
+        self.session = requests.Session()
+        self.token = None
         self.user_id = None
-        self.tests_run = 0
-        self.tests_passed = 0
+        self.uploaded_ids = []
         
-        print(f"🚀 BATCH UPLOAD ENDPOINT TESTING")
-        print(f"📍 Backend URL: {self.base_url}")
-        print(f"📍 API URL: {self.api_url}")
-        print("=" * 80)
-
-    def run_test(self, name, method, endpoint, expected_status, data=None, files=None, headers=None):
-        """Run a single API test"""
-        url = f"{self.api_url}/{endpoint}"
-        test_headers = {}
+    def authenticate(self):
+        """Step 1: Authenticate with the backend"""
+        print("🔑 Step 1: Authentication with POST /api/auth/login-robust")
         
-        # Add authentication header if we have a token
-        if self.access_token:
-            test_headers['Authorization'] = f'Bearer {self.access_token}'
+        login_data = {
+            "email": EMAIL,
+            "password": PASSWORD
+        }
         
-        # Add custom headers
-        if headers:
-            test_headers.update(headers)
+        try:
+            response = self.session.post(f"{BACKEND_URL}/auth/login-robust", json=login_data)
+            print(f"   Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.token = data.get("access_token")
+                self.user_id = data.get("user_id")
+                
+                # Set authorization header for all future requests
+                self.session.headers.update({"Authorization": f"Bearer {self.token}"})
+                
+                print(f"   ✅ Authentication successful")
+                print(f"   User ID: {self.user_id}")
+                print(f"   Token: {self.token[:20]}..." if self.token else "   Token: None")
+                return True
+            else:
+                print(f"   ❌ Authentication failed: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"   ❌ Authentication error: {e}")
+            return False
+    
+    def create_test_images(self, count=3, prefix="test"):
+        """Create test images for upload"""
+        print(f"🖼️ Creating {count} test images with prefix '{prefix}'")
         
-        # Don't set Content-Type for multipart/form-data requests (let requests handle it)
-        if not files and method in ['POST', 'PUT'] and data:
-            test_headers['Content-Type'] = 'application/json'
-
-        self.tests_run += 1
-        print(f"\n🔍 Testing {name}...")
-        print(f"   URL: {url}")
-        print(f"   Method: {method}")
+        images = []
+        for i in range(count):
+            # Create a simple colored image with unique colors
+            color = (50 + i*40, 100 + i*30, 150 + i*25)
+            img = Image.new('RGB', (640, 480), color=color)
+            
+            # Add some text to make images unique
+            from PIL import ImageDraw, ImageFont
+            draw = ImageDraw.Draw(img)
+            try:
+                font = ImageFont.load_default()
+            except:
+                font = None
+            
+            text = f"{prefix.title()} Image {i+1}"
+            if font:
+                draw.text((50, 50), text, fill=(255, 255, 255), font=font)
+            else:
+                draw.text((50, 50), text, fill=(255, 255, 255))
+            
+            # Convert to bytes
+            img_bytes = io.BytesIO()
+            img.save(img_bytes, format='JPEG', quality=85)
+            img_bytes.seek(0)
+            
+            images.append({
+                'filename': f'{prefix}_upload_{i+1}_{str(uuid.uuid4())[:8]}.jpg',
+                'content': img_bytes.getvalue(),
+                'content_type': 'image/jpeg'
+            })
+            
+        print(f"   ✅ Created {len(images)} test images")
+        return images
         print(f"   Expected Status: {expected_status}")
         
         try:

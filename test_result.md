@@ -229,11 +229,10 @@ frontend:
 
 test_plan:
   current_focus:
-    - "Pixabay Integration Frontend Implementation"
-    - "Notes API Endpoints Implementation"
-    - "Notes Page Frontend Implementation"
-    - "Content Context Endpoints Implementation"
-    - "Pixabay Integration Backend Endpoints"
+    - "Pixabay Thumbnail Performance Investigation"
+    - "Library Page Monthly Refactoring"
+    - "Monthly Upload Mechanisms Implementation"
+    - "Pixabay Integration Enhancement"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

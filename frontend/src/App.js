@@ -3127,8 +3127,128 @@ function MainApp() {
                           
 
                           
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {selectedFiles.map((file, index) => (
+                          <div className={isCarouselMode ? "max-w-md mx-auto" : "grid grid-cols-1 md:grid-cols-2 gap-6"}>
+                            {isCarouselMode ? (
+                              /* CAROUSEL MODE - Show only first image with stack effect */
+                              <div className="relative">
+                                <h4 className="text-lg font-semibold text-gray-900 mb-4 text-center flex items-center justify-center">
+                                  <ImageIcon className="w-5 h-5 mr-2 text-pink-600" />
+                                  Carrousel de {selectedFiles.length} image{selectedFiles.length > 1 ? 's' : ''}
+                                </h4>
+                                
+                                {/* Stack preview */}
+                                <div className="relative mb-6">
+                                  <div className="relative w-full max-w-xs mx-auto">
+                                    {/* Generic stack effect - 3 layers */}
+                                    <div className="absolute w-full aspect-square bg-gray-200 rounded-xl transform translate-x-2 translate-y-2 opacity-60"></div>
+                                    <div className="absolute w-full aspect-square bg-gray-300 rounded-xl transform translate-x-1 translate-y-1 opacity-80"></div>
+                                    
+                                    {/* First image visible */}
+                                    <div className="relative w-full aspect-square bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200">
+                                      {selectedFiles[0]?.type.startsWith('image/') ? (
+                                        <img 
+                                          src={URL.createObjectURL(selectedFiles[0])} 
+                                          alt="Première image du carrousel"
+                                          className="w-full h-full object-cover"
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-pink-100 to-purple-100">
+                                          <FileText className="w-8 h-8 text-pink-600" />
+                                        </div>
+                                      )}
+                                      
+                                      <div className="absolute top-2 right-2 bg-pink-600 text-white text-xs px-2 py-1 rounded-full font-medium">
+                                        {selectedFiles.length} photo{selectedFiles.length > 1 ? 's' : ''}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                {/* Shared metadata for all carousel images */}
+                                <div className="space-y-4">
+                                  {/* Shared title */}
+                                  <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                      Titre du carrousel
+                                    </label>
+                                    <input
+                                      ref={(el) => {
+                                        uploadTitleRefs.current[0] = el;
+                                      }}
+                                      type="text"
+                                      placeholder="Titre commun pour toutes les images"
+                                      defaultValue=""
+                                      className="w-full px-3 py-2 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-colors text-sm"
+                                      style={{
+                                        fontSize: '16px',
+                                        lineHeight: '1.5',
+                                        WebkitAppearance: 'none',
+                                        borderRadius: '8px',
+                                        touchAction: 'manipulation'
+                                      }}
+                                    />
+                                  </div>
+                                  
+                                  {/* Shared month selector */}
+                                  <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                      <Calendar className="w-4 h-4 inline mr-1" />
+                                      Mois de destination
+                                    </label>
+                                    <select
+                                      ref={(el) => {
+                                        uploadMonthSelectors.current[0] = el;
+                                      }}
+                                      defaultValue={fileCustomData[0]?.attributedMonth || getDefaultMonth()}
+                                      className="w-full px-3 py-2 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-colors text-sm bg-white"
+                                      style={{
+                                        fontSize: '16px',
+                                        lineHeight: '1.5',
+                                        WebkitAppearance: 'none',
+                                        borderRadius: '8px',
+                                        touchAction: 'manipulation',
+                                        backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                                        backgroundRepeat: 'no-repeat',
+                                        backgroundPosition: 'right 0.7rem center',
+                                        backgroundSize: '1.5em',
+                                        paddingRight: '2.5rem'
+                                      }}
+                                    >
+                                      {getUploadMonthOptions().map(({ key, label }) => (
+                                        <option key={key} value={key}>
+                                          {label}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                  
+                                  {/* Shared context */}
+                                  <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                      Contexte du carrousel
+                                    </label>
+                                    <textarea
+                                      ref={(el) => {
+                                        uploadContextRefs.current[0] = el;
+                                      }}
+                                      placeholder="Description commune pour toutes les images"
+                                      defaultValue=""
+                                      rows={3}
+                                      className="w-full px-3 py-2 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-colors text-sm resize-none"
+                                      style={{
+                                        fontSize: '16px',
+                                        lineHeight: '1.5',
+                                        WebkitAppearance: 'none',
+                                        borderRadius: '8px',
+                                        touchAction: 'manipulation'
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              /* NORMAL UPLOAD MODE - Show all files individually */
+                              selectedFiles.map((file, index) => (
                               <div key={index} className="relative group bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
                                 <div className="flex flex-col space-y-3">
                                   {/* Image preview */}

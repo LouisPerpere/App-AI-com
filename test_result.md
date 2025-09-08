@@ -238,10 +238,10 @@ test_plan:
   test_priority: "high_first"
 
 backend:
-  - task: "Pixabay Thumbnail Performance Fix"
+  - task: "Monthly Library Refactoring and Pixabay Enhancements"
     implemented: true
     working: true
-    file: "/app/backend/routes_thumbs.py, /app/backend/server.py"
+    file: "/app/backend/server.py, /app/backend/routes_uploads.py, /app/backend/routes_thumbs.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: false

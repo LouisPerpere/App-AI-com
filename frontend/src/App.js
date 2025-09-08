@@ -459,10 +459,7 @@ function MainApp() {
   isLoadingMoreRef.current = isLoadingMore;
   
   const stableLoadMoreContent = useCallback(async () => {
-    console.log(`📖 TRULY STABLE load more called`);
-    
     if (!hasMoreContentRef.current || isLoadingMoreRef.current) {
-      console.log(`📖 Load more blocked: hasMore=${hasMoreContentRef.current}, isLoading=${isLoadingMoreRef.current}`);
       return;
     }
     

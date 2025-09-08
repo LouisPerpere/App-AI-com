@@ -2068,11 +2068,17 @@ function MainApp() {
     }
   };
 
-  // Handle monthly-specific uploads
+  // Handle monthly-specific uploads (now using globalUploadMonth)
   const handleMonthlyUpload = async (files, mode) => {
-    if (!files.length || !selectedMonth) return;
+    if (!files.length) return;
     
-    console.log(`🗓️ Monthly upload: ${files.length} files to ${selectedMonth} (${mode})`);
+    const targetMonth = globalUploadMonth;
+    if (!targetMonth) {
+      toast.error('Veuillez sélectionner un mois de destination');
+      return;
+    }
+    
+    console.log(`🗓️ Monthly upload: ${files.length} files to ${targetMonth} (${mode})`);
     
     setIsUploadingToMonth(true);
     
@@ -2085,15 +2091,16 @@ function MainApp() {
           formData.append('files', file);
         });
         
-        // TODO: Add carousel-specific metadata (shared title/context)
-        // For now, we'll use basic metadata
-        formData.append('attributed_month', selectedMonth);
+        formData.append('attributed_month', targetMonth);
         formData.append('upload_type', 'carousel');
         
       } else {
-        // Single file upload
-        formData.append('files', files[0]);
-        formData.append('attributed_month', selectedMonth);
+        // Single file upload - can be multiple files for "upload" button
+        files.forEach((file, index) => {
+          formData.append('files', file);
+        });
+        
+        formData.append('attributed_month', targetMonth);
         formData.append('upload_type', 'single');
       }
       
@@ -2105,7 +2112,8 @@ function MainApp() {
       });
       
       if (response.data.success) {
-        toast.success(`${files.length} fichier${files.length > 1 ? 's' : ''} ajouté${files.length > 1 ? 's' : ''} à ${selectedMonth.replace('_', ' ')} ! 📅`);
+        const monthLabel = targetMonth.replace('_', ' ');
+        toast.success(`${files.length} fichier${files.length > 1 ? 's' : ''} ajouté${files.length > 1 ? 's' : ''} à ${monthLabel} ! 📅`);
         
         // Refresh content
         await loadPendingContent();
@@ -2117,12 +2125,11 @@ function MainApp() {
       toast.error(`Erreur lors de l'upload mensuel: ${errorMessage}`);
     } finally {
       setIsUploadingToMonth(false);
-      setSelectedMonth(null);
       
       // Clear file inputs
-      const monthlyInput = document.getElementById('monthly-upload');
+      const uploadInput = document.getElementById('file-upload');
       const carouselInput = document.getElementById('carousel-upload');
-      if (monthlyInput) monthlyInput.value = '';
+      if (uploadInput) uploadInput.value = '';
       if (carouselInput) carouselInput.value = '';
     }
   };

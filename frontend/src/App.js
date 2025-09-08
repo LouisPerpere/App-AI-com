@@ -2758,7 +2758,14 @@ function MainApp() {
                         type="file"
                         multiple
                         accept="image/*,video/*"
-                        onChange={(e) => setSelectedFiles(Array.from(e.target.files))}
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files);
+                          if (globalUploadMonth) {
+                            handleMonthlyUpload(files, 'single');
+                          } else {
+                            setSelectedFiles(files);
+                          }
+                        }}
                         className="hidden"
                         id="file-upload"
                       />

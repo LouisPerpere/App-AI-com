@@ -2872,7 +2872,7 @@ function MainApp() {
                           console.log(`🎠 Selected ${files.length} files for carousel`);
                           
                           // Always show a toast to confirm the event fired
-                          toast.info(`🎠 Événement onChange détecté: ${files.length} fichiers`);
+                          toast.success(`🎠 Événement onChange détecté: ${files.length} fichiers`);
                           
                           // Check if month is selected first
                           if (!globalUploadMonth) {

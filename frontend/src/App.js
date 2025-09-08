@@ -76,54 +76,114 @@ const FREE_TRIAL_PLAN = {
   color: 'green'
 };
 
-// ContentThumbnail component optimisé - DIAGNOSTIC PRÉCIS
+// ContentThumbnail component avec support carrousel
 const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection }) => {
-  // DEBUG CHIRURGICAL - Compteur de renders seulement + URLs
-  const renderCount = useRef(0);
-  renderCount.current += 1;
-  
-  // Log seulement les re-renders excessifs (pas normal)
-  if (renderCount.current > 2) {
-    console.log(`⚠️ EXCESSIVE RENDER #${renderCount.current} for ${content.id.slice(-8)}`);
-  }
-  
   // Token stable - récupéré une seule fois
   const stableToken = useMemo(() => {
     const token = localStorage.getItem('access_token');
     return token;
   }, []);
   
-  // Optimisation URL des vignettes avec token stable - TOUTES IMAGES OPTIMISÉES
+  // Check if this is a carousel item
+  const isCarousel = content.type === 'carousel';
+  
+  // Optimisation URL des vignettes avec token stable
   const thumbnailUrl = useMemo(() => {
     let url;
     
-    // Maintenant toutes les images (y compris Pixabay) utilisent l'endpoint optimisé
     if (content.thumb_url) {
       url = `${content.thumb_url}?token=${stableToken}`;
     } else {
       url = null;
     }
     
-    // DEBUG: Log les URLs pour surveillance
-    console.log(`🔍 Optimized URL for ${content.id.slice(-8)} (${content.source || 'upload'}): ${url}`);
-    
     return url;
-  }, [content.thumb_url, content.source, stableToken, content.id]);
+  }, [content.thumb_url, stableToken]);
 
   const handleClick = useCallback(() => {
     onContentClick(content);
-  }, [content.id, onContentClick]);
+  }, [content, onContentClick]);
 
   const handleToggle = useCallback((e) => {
     e.stopPropagation();
     onToggleSelection(content.id);
   }, [content.id, onToggleSelection]);
 
+  if (isCarousel) {
+    // CAROUSEL DISPLAY WITH ENHANCED STACK EFFECT
+    return (
+      <div 
+        className={`thumbnail-container relative group transform hover:scale-105 transition-all duration-200 cursor-pointer`}
+        onClick={handleClick}
+      >
+        <div className="relative aspect-square">
+          {/* Stack layers - Enhanced and more visible */}
+          <div className="absolute inset-0 bg-gray-600 rounded-xl transform translate-x-3 translate-y-3 opacity-40 shadow-lg"></div>
+          <div className="absolute inset-0 bg-gray-500 rounded-xl transform translate-x-2 translate-y-2 opacity-60 shadow-lg"></div>
+          <div className="absolute inset-0 bg-gray-400 rounded-xl transform translate-x-1 translate-y-1 opacity-80 shadow-lg"></div>
+          
+          {/* Front image */}
+          <div className={`relative aspect-square bg-gray-100 rounded-xl overflow-hidden border-2 transition-colors shadow-xl ${
+            isSelectionMode && isSelected
+              ? 'border-pink-500 ring-2 ring-pink-200'
+              : 'border-pink-200 hover:border-pink-400'
+          }`}>
+            <img 
+              src={thumbnailUrl || '/api/placeholder.png'}
+              alt={content.title || 'Carrousel'}
+              className="thumbnail-image w-full h-full object-cover"
+              loading="lazy"
+              crossOrigin="anonymous"
+              onError={(e) => {
+                const fallbackUrl = '/api/placeholder.png';
+                if (e.currentTarget.src !== fallbackUrl) {
+                  e.currentTarget.src = fallbackUrl;
+                }
+              }}
+            />
+            
+            {/* Carousel indicator badge */}
+            <div className="absolute top-2 right-2 bg-pink-600 text-white text-xs px-2 py-1 rounded-full font-bold shadow-lg">
+              {content.count || 1}
+            </div>
+            
+            {/* Carousel icon */}
+            <div className="absolute top-2 left-2 bg-black/50 text-white p-1 rounded-full">
+              <ImageIcon className="w-3 h-3" />
+            </div>
+          </div>
+        </div>
+        
+        {/* Title overlay */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 rounded-b-xl">
+          <p className="text-xs font-medium text-white truncate">
+            🎠 {content.title || 'Carrousel'}
+          </p>
+        </div>
+        
+        {/* Selection mode overlay */}
+        {isSelectionMode && (
+          <div className="absolute inset-0 bg-black/30 rounded-xl">
+            <button
+              onClick={handleToggle}
+              className={`absolute top-2 right-2 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors z-10 ${
+                isSelected 
+                  ? 'bg-pink-600 border-pink-600' 
+                  : 'bg-white/80 border-white hover:bg-white'
+              }`}
+            >
+              {isSelected && <Check className="w-3 h-3 text-white" />}
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // REGULAR CONTENT DISPLAY
   return (
     <div 
-      className={`thumbnail-container relative group transform hover:scale-105 transition-all duration-200 ${
-        isSelectionMode ? 'cursor-pointer' : 'cursor-pointer'
-      }`}
+      className={`thumbnail-container relative group transform hover:scale-105 transition-all duration-200 cursor-pointer`}
       onClick={handleClick}
     >
       <div className={`aspect-square bg-gray-100 rounded-xl overflow-hidden border-2 transition-colors shadow-md hover:shadow-lg ${
@@ -139,107 +199,54 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
             loading="lazy"
             crossOrigin="anonymous"
             onError={(e) => {
-              // Fallback: try the original URL with token for all sources
-              if (content.source === 'pixabay') {
-                // For Pixabay, fallback to original external URL
-                const fallbackUrl = content.url || '/api/placeholder.png';
-                if (e.currentTarget.src !== fallbackUrl) {
-                  e.currentTarget.src = fallbackUrl;
-                }
-              } else {
-                // For uploads, try with token
-                const fallbackUrl = content.url ? `${content.url}?token=${localStorage.getItem('access_token')}` : '/api/placeholder.png';
-                if (e.currentTarget.src !== fallbackUrl) {
-                  e.currentTarget.src = fallbackUrl;
-                }
+              const fallbackUrl = content.url || '/api/placeholder.png';
+              if (e.currentTarget.src !== fallbackUrl) {
+                e.currentTarget.src = fallbackUrl;
               }
             }}
           />
         ) : content.file_type?.startsWith('video/') ? (
-          <div className="relative w-full h-full">
-            {content.thumb_url ? (
-              <img 
-                src={`${content.thumb_url}?token=${localStorage.getItem('access_token')}`}
-                alt={content.filename}
-                className="w-full h-full object-cover"
-                loading="lazy"
-                onError={(e) => {
-                  // Fallback to video icon if thumbnail fails
-                  e.currentTarget.style.display = 'none';
-                  e.currentTarget.parentElement.querySelector('.video-icon').style.display = 'flex';
-                }}
-              />
-            ) : (
-              <div className="video-icon w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-100">
-                <div className="text-center">
-                  <FileText className="w-8 h-8 text-blue-600 mx-auto mb-1" />
-                  <span className="text-xs text-blue-800">VIDEO</span>
-                </div>
-              </div>
-            )}
+          <div className="w-full h-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
+            <Play className="w-8 h-8 text-blue-600" />
           </div>
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
-            <FileText className="w-6 h-6 text-purple-600" />
-          </div>
-        )}
-        
-        {/* Error placeholder (hidden by default) */}
-        <div className="error-placeholder w-full h-full items-center justify-center bg-gradient-to-br from-red-100 to-pink-100" style={{ display: 'none' }}>
-          <div className="text-center">
-            <X className="w-8 h-8 text-red-600 mx-auto mb-1" />
-            <span className="text-xs text-red-800">ERREUR</span>
-          </div>
-        </div>
-        
-        {/* Selection checkbox */}
-        {isSelectionMode && (
-          <div className="absolute top-2 left-2">
-            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-              isSelected
-                ? 'bg-purple-500 border-purple-500'
-                : 'bg-white border-gray-300'
-            }`}>
-              {isSelected && (
-                <Check className="w-3 h-3 text-white" />
-              )}
-            </div>
+          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+            <FileText className="w-12 h-12 text-gray-400" />
           </div>
         )}
       </div>
       
-      {/* Operational title or technical filename display */}
-      <p className="text-xs text-gray-600 mt-1 truncate text-center">
-        {content.title?.trim() || content.filename || 'Sans titre'}
-      </p>
+      {/* Title overlay */}
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 rounded-b-xl">
+        <p className="text-xs font-medium text-white truncate">
+          {content.title || content.filename}
+        </p>
+      </div>
       
-      {Boolean(content.description?.trim()) && !isSelectionMode && (
-        <Badge className="absolute top-1 right-1 bg-green-100 text-green-800 text-xs px-1 py-0">
-          💬
-        </Badge>
+      {/* Selection mode overlay */}
+      {isSelectionMode && (
+        <div className="absolute inset-0 bg-black/30 rounded-xl">
+          <button
+            onClick={handleToggle}
+            className={`absolute top-2 right-2 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
+              isSelected 
+                ? 'bg-purple-600 border-purple-600' 
+                : 'bg-white/80 border-white hover:bg-white'
+            }`}
+          >
+            {isSelected && <Check className="w-3 h-3 text-white" />}
+          </button>
+        </div>
+      )}
+      
+      {/* Source indicators */}
+      {content.source === 'pixabay' && (
+        <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium">
+          Pixabay
+        </div>
       )}
     </div>
   );
-}, (prevProps, nextProps) => {
-  // DEBUG CHIRURGICAL - Vérifier si React.memo fonctionne
-  const contentId = prevProps.content.id.slice(-8);
-  
-  const propsChanged = !(
-    prevProps.content.id === nextProps.content.id &&
-    prevProps.content.title === nextProps.content.title &&
-    prevProps.content.thumb_url === nextProps.content.thumb_url &&
-    prevProps.isSelectionMode === nextProps.isSelectionMode &&
-    prevProps.isSelected === nextProps.isSelected &&
-    prevProps.onContentClick === nextProps.onContentClick &&
-    prevProps.onToggleSelection === nextProps.onToggleSelection
-  );
-  
-  // Log seulement si les props ont vraiment changé
-  if (propsChanged) {
-    console.log(`🔄 Props changed for ${contentId} - will re-render`);
-  }
-  
-  return !propsChanged; // true = skip re-render, false = re-render
 });
 
 function MainApp() {

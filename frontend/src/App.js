@@ -2846,18 +2846,19 @@ function MainApp() {
                         id="monthly-upload"
                       />
                       
-                      {/* Hidden input for carousel - new approach */}
+                      {/* Hidden input for carousel - simplified */}
                       <input
                         type="file"
                         multiple
                         accept="image/*"
                         onChange={(e) => {
-                          console.log('🎠 Hidden carousel input onChange triggered');
+                          console.log('🎠 Carousel input onChange triggered');
                           const files = Array.from(e.target.files || []);
-                          console.log(`🎠 Hidden input selected ${files.length} files`);
+                          console.log(`🎠 Selected ${files.length} files for carousel`);
                           
                           if (files.length === 0) {
                             console.log('🎠 No files selected');
+                            setCarouselFiles([]);
                             return;
                           }
                           
@@ -2867,13 +2868,12 @@ function MainApp() {
                             return;
                           }
                           
-                          console.log('🎠 Setting carousel files from hidden input');
+                          console.log('🎠 Setting carousel files');
                           setCarouselFiles(files);
-                          toast.success(`${files.length} image${files.length > 1 ? 's' : ''} sélectionnée${files.length > 1 ? 's' : ''} pour le carrousel ! 🎠`);
+                          toast.success(`✨ ${files.length} image${files.length > 1 ? 's' : ''} sélectionnée${files.length > 1 ? 's' : ''} pour le carrousel !`);
                         }}
                         className="hidden"
                         id="carousel-upload-hidden"
-                        style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}
                       />
                       <div className="block border-2 border-dashed border-purple-300 rounded-3xl p-8 text-center bg-gradient-to-br from-purple-50 to-pink-50">
                         <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">

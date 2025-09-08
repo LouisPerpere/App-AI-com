@@ -316,7 +316,7 @@ function MainApp() {
   
   // Monthly library organization states
   const [monthlyLibraryView, setMonthlyLibraryView] = useState(true); // Switch between monthly and all view
-  // Initialize collapsed months - collapse all except current month by default
+  // Initialize collapsed months - collapse all except current month and sections with important notes
   const getInitialCollapsedMonths = useCallback(() => {
     const collapsed = new Set();
     const currentDate = new Date();
@@ -328,27 +328,51 @@ function MainApp() {
     ];
     const currentMonthKey = `${monthNames[currentMonth]}_${currentYear}`;
     
-    // Generate all possible month keys for 6 months + archives and collapse them except current
+    // Check which sections have important notes (high priority)
+    const sectionsWithImportantNotes = new Set();
+    if (Array.isArray(notes)) {
+      notes.forEach(note => {
+        if (note.priority === 'high') {
+          if (note.is_monthly_note) {
+            sectionsWithImportantNotes.add('always_valid');
+          } else if (note.note_month && note.note_year) {
+            const noteMonthKey = `${monthNames[note.note_month - 1]}_${note.note_year}`;
+            sectionsWithImportantNotes.add(noteMonthKey);
+          }
+        }
+      });
+    }
+    
+    // Generate all possible month keys for 6 months + archives
     for (let i = 0; i < 6; i++) {
       const targetMonth = (currentMonth + i) % 12;
       const targetYear = currentYear + Math.floor((currentMonth + i) / 12);
       const monthKey = `${monthNames[targetMonth]}_${targetYear}`;
       
-      if (monthKey !== currentMonthKey) {
+      // Don't collapse if it's current month or has important notes
+      if (monthKey !== currentMonthKey && !sectionsWithImportantNotes.has(monthKey)) {
         collapsed.add(monthKey);
       }
     }
     
-    // Collapse archive months
+    // Collapse archive months (unless they have important notes)
     for (let i = 1; i <= 6; i++) {
       const targetMonth = (currentMonth - i + 12) % 12;
       const targetYear = currentMonth - i < 0 ? currentYear - 1 : currentYear;
       const monthKey = `${monthNames[targetMonth]}_${targetYear}`;
-      collapsed.add(monthKey);
+      
+      if (!sectionsWithImportantNotes.has(monthKey)) {
+        collapsed.add(monthKey);
+      }
+    }
+    
+    // Don't collapse always_valid section if it has important notes
+    if (!sectionsWithImportantNotes.has('always_valid')) {
+      // Note: always_valid is handled separately in the rendering logic
     }
     
     return collapsed;
-  }, []);
+  }, [notes]);
 
   const [collapsedMonths, setCollapsedMonths] = useState(() => getInitialCollapsedMonths()); // Track collapsed months
   const [selectedMonth, setSelectedMonth] = useState(null); // For new uploads

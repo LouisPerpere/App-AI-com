@@ -4343,7 +4343,7 @@ function MainApp() {
                         </div>
                         
                         {/* Dropdown mois unifié (même logique que uploads) */}
-                        <div className="space-y-2">
+                        <div className="space-y-1">
                           <label htmlFor="note_target_month_key" className="block text-sm font-medium text-gray-700">
                             Attribuer cette note à
                           </label>

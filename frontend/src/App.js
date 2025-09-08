@@ -4313,7 +4313,7 @@ function MainApp() {
                       </div>
                       
                       {/* Nouveaux champs pour les notes périodiques */}
-                      <div className="space-y-4 border-t border-gray-200 pt-4">
+                      <div className="space-y-3 border-t border-gray-200 pt-3">
                         <h4 className="text-sm font-medium text-gray-700 flex items-center">
                           <Calendar className="w-4 h-4 mr-2" />
                           Planification de la note

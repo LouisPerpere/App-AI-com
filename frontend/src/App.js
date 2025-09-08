@@ -2846,7 +2846,7 @@ function MainApp() {
                         id="monthly-upload"
                       />
                       
-                      {/* Hidden input for carousel - native behavior like Upload */}
+                      {/* Hidden input for carousel - properly hidden */}
                       <input
                         type="file"
                         multiple
@@ -2879,7 +2879,15 @@ function MainApp() {
                           setCarouselFiles(files);
                           toast.success(`✨ ${files.length} image${files.length > 1 ? 's' : ''} sélectionnée${files.length > 1 ? 's' : ''} pour le carrousel !`);
                         }}
-                        className="hidden"
+                        style={{ 
+                          position: 'absolute', 
+                          left: '-9999px', 
+                          top: '-9999px', 
+                          opacity: 0, 
+                          visibility: 'hidden',
+                          width: '1px',
+                          height: '1px'
+                        }}
                         id="carousel-upload-hidden"
                       />
                       <div className="block border-2 border-dashed border-purple-300 rounded-3xl p-8 text-center bg-gradient-to-br from-purple-50 to-pink-50">

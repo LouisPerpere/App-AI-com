@@ -434,6 +434,9 @@ async def get_pending_content_mongo(offset: int = 0, limit: int = 24, user_id: s
                 "description": d.get("description", ""),
                 "context": d.get("context", ""),  # Include context field
                 "title": d.get("title", ""),  # Include operational title field
+                "source": d.get("source", ""),  # Include source field (e.g., "pixabay")
+                "save_type": d.get("save_type", ""),  # Include save_type field
+                "attributed_month": d.get("attributed_month", ""),  # Include attributed_month field
                 "created_at": d.get("created_at").isoformat() if d.get("created_at") else None,
                 "uploaded_at": d.get("uploaded_at") if d.get("uploaded_at") else None
             })

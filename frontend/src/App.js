@@ -76,8 +76,18 @@ const FREE_TRIAL_PLAN = {
   color: 'green'
 };
 
-// ContentThumbnail component optimisé
+// ContentThumbnail component optimisé - DIAGNOSTIC PRÉCIS
 const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection }) => {
+  // DEBUG CHIRURGICAL - Compteur de renders seulement
+  const renderCount = useRef(0);
+  renderCount.current += 1;
+  
+  // Log seulement les re-renders excessifs (pas normal)
+  if (renderCount.current > 2) {
+    console.log(`⚠️ EXCESSIVE RENDER #${renderCount.current} for ${content.id.slice(-8)}`);
+  }
+  
+  // Pas d'useEffect mount/unmount pour l'instant - on teste juste React.memo
   
   // Token stable - récupéré une seule fois
   const stableToken = useMemo(() => {

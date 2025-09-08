@@ -2124,6 +2124,7 @@ function MainApp() {
       uploadTitleRefs.current = {}; // Clean up title refs
       uploadContextRefs.current = {}; // Clean up context refs
       uploadMonthSelectors.current = {}; // Clean up month selectors
+      setIsCarouselMode(false); // Exit carousel mode
       
       // Force content refresh after all metadata updates complete
       await loadPendingContent();

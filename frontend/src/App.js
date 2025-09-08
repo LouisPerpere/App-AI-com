@@ -2136,6 +2136,72 @@ function MainApp() {
     }
   };
 
+  // Handle carousel upload with common title and context
+  const handleCarouselUpload = async () => {
+    if (!carouselFiles.length) return;
+    
+    const targetMonth = globalUploadMonth;
+    if (!targetMonth) {
+      toast.error('Veuillez sélectionner un mois de destination');
+      return;
+    }
+
+    if (!carouselTitle.trim()) {
+      toast.error('Veuillez saisir un titre pour le carrousel');
+      return;
+    }
+
+    console.log(`🎠 Carousel upload: ${carouselFiles.length} files to ${targetMonth}`);
+    
+    setIsUploadingToMonth(true);
+    
+    try {
+      const formData = new FormData();
+      
+      // Add all carousel files
+      carouselFiles.forEach((file, index) => {
+        formData.append('files', file);
+      });
+      
+      // Add common metadata for carousel
+      formData.append('attributed_month', targetMonth);
+      formData.append('upload_type', 'carousel');
+      formData.append('common_title', carouselTitle.trim());
+      formData.append('common_context', carouselContext.trim());
+      
+      const response = await axios.post(`${API}/content/batch-upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        }
+      });
+      
+      if (response.data.success) {
+        const monthLabel = targetMonth.replace('_', ' ');
+        toast.success(`Carrousel de ${carouselFiles.length} images ajouté à ${monthLabel} ! 🎠`);
+        
+        // Clear carousel data
+        setCarouselFiles([]);
+        setCarouselTitle('');
+        setCarouselContext('');
+        
+        // Refresh content
+        await loadPendingContent();
+      }
+      
+    } catch (error) {
+      console.error('❌ Carousel upload error:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`Erreur lors de l'upload carrousel: ${errorMessage}`);
+    } finally {
+      setIsUploadingToMonth(false);
+      
+      // Clear carousel input
+      const carouselInput = document.getElementById('carousel-upload');
+      if (carouselInput) carouselInput.value = '';
+    }
+  };
+
   // Show auth page if not authenticated
   if (!isAuthenticated) {
     return <AuthPage onAuthSuccess={handleAuthSuccess} />;

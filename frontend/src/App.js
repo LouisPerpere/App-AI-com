@@ -586,7 +586,7 @@ function MainApp() {
     const currentYear = currentDate.getFullYear();
     const currentMonth = currentDate.getMonth(); // 0-based (September = 8)
     
-    // Generate current month and next 2 months dynamically
+    // Generate current month and next 5 months dynamically (6 months total)
     const getCurrentAndFutureMonths = () => {
       const months = {};
       const monthNames = [
@@ -594,7 +594,7 @@ function MainApp() {
         'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
       ];
       
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 6; i++) {
         const targetMonth = (currentMonth + i) % 12;
         const targetYear = currentYear + Math.floor((currentMonth + i) / 12);
         const monthKey = `${monthNames[targetMonth]}_${targetYear}`;

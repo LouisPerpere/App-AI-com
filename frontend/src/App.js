@@ -3670,28 +3670,7 @@ function MainApp() {
                           ))}
                         </div>
                         
-                        {/* Load More Button */}
-                        {pixabayResults.length > 0 && pixabayResults.length < pixabayTotalHits && (
-                          <div className="text-center mt-8">
-                            <Button
-                              onClick={() => searchPixabayImages(true)}
-                              disabled={isLoadingMorePixabay}
-                              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
-                            >
-                              {isLoadingMorePixabay ? (
-                                <>
-                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                  Chargement...
-                                </>
-                              ) : (
-                                <>
-                                  <Search className="w-4 h-4 mr-2" />
-                                  Charger plus d'images ({pixabayResults.length}/{pixabayTotalHits})
-                                </>
-                              )}
-                            </Button>
-                          </div>
-                        )}
+
                       </div>
                     )}
 

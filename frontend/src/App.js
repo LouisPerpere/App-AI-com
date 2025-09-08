@@ -453,10 +453,7 @@ function MainApp() {
     }
   };
 
-  // États pour le scroll infini
-  const [hasMoreContent, setHasMoreContent] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [contentPage, setContentPage] = useState(0);
+  // Total content count for display
   const [totalContentCount, setTotalContentCount] = useState(0);
 
   const loadPendingContent = async (append = false) => {

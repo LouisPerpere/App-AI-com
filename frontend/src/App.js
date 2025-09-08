@@ -217,47 +217,16 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
     </div>
   );
 }, (prevProps, nextProps) => {
-  // 🚨 DEBUG COMPARAISON REACT.MEMO DÉTAILLÉE
-  const shortId = prevProps.content.id.slice(-8);
-  
-  console.log(`🔍 MEMO COMPARISON for ${shortId}:`);
-  
-  // Vérifier chaque prop individuellement
-  const checks = {
-    contentId: prevProps.content.id === nextProps.content.id,
-    contentTitle: prevProps.content.title === nextProps.content.title,
-    contentThumbUrl: prevProps.content.thumb_url === nextProps.content.thumb_url,
-    isSelectionMode: prevProps.isSelectionMode === nextProps.isSelectionMode,
-    isSelected: prevProps.isSelected === nextProps.isSelected,
-    onContentClick: prevProps.onContentClick === nextProps.onContentClick,
-    onToggleSelection: prevProps.onToggleSelection === nextProps.onToggleSelection
-  };
-  
-  const allSame = Object.values(checks).every(Boolean);
-  
-  // Alert si quelque chose a changé
-  if (!allSame) {
-    const changedProps = Object.entries(checks)
-      .filter(([key, same]) => !same)
-      .map(([key]) => key);
-    
-    alert(`🔍 MEMO FAIL ${shortId}: ${changedProps.join(', ')}`);
-    console.log(`❌ Props changed for ${shortId}:`, checks);
-    
-    // Détails sur les callbacks
-    if (!checks.onContentClick) {
-      console.log(`🖱️ onContentClick changed for ${shortId}`);
-      alert(`🖱️ CALLBACK CHANGED ${shortId}: onContentClick`);
-    }
-    if (!checks.onToggleSelection) {
-      console.log(`☑️ onToggleSelection changed for ${shortId}`);
-      alert(`☑️ CALLBACK CHANGED ${shortId}: onToggleSelection`);
-    }
-  } else {
-    console.log(`✅ All props same for ${shortId} - should NOT re-render`);
-  }
-  
-  return allSame;
+  // Comparaison personnalisée pour éviter re-renders inutiles
+  return (
+    prevProps.content.id === nextProps.content.id &&
+    prevProps.content.title === nextProps.content.title &&
+    prevProps.content.thumb_url === nextProps.content.thumb_url &&
+    prevProps.isSelectionMode === nextProps.isSelectionMode &&
+    prevProps.isSelected === nextProps.isSelected &&
+    prevProps.onContentClick === nextProps.onContentClick &&
+    prevProps.onToggleSelection === nextProps.onToggleSelection
+  );
 });
 
 function MainApp() {

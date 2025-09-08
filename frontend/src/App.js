@@ -316,6 +316,7 @@ function MainApp() {
   
   // Content pagination states
   const [contentPage, setContentPage] = useState(0);
+  const [totalContentCount, setTotalContentCount] = useState(0);
   
   // Carousel upload states
   const [carouselFiles, setCarouselFiles] = useState([]);

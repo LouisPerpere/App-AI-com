@@ -989,10 +989,7 @@ function MainApp() {
   selectedContentIdsRef.current = selectedContentIds;
   isSelectionModeRef.current = isSelectionMode;
   
-  // Callback 100% stable - AUCUNE dépendance
-  const stableHandleToggleSelection = useCallback((contentId) => {
-    console.log(`☑️ TRULY STABLE toggle for ${contentId.slice(-8)}`);
-    
+  const handleToggleSelection = useCallback((contentId) => {
     setSelectedContentIds(prev => {
       const newSelection = new Set(prev);
       if (newSelection.has(contentId)) {
@@ -1002,7 +999,7 @@ function MainApp() {
       }
       return newSelection;
     });
-  }, []); // ZÉRO dépendances = vraiment stable
+  }, []);
 
   // Sélectionner tout / Désélectionner tout
   const handleSelectAll = useCallback(() => {

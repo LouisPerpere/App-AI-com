@@ -1151,15 +1151,14 @@ function MainApp() {
     if (isPermanentCheckboxRef.current) {
       isPermanentCheckboxRef.current.checked = isMonthlyNote;
     }
-    if (targetMonthRef.current) {
-      targetMonthRef.current.value = noteMonth ? noteMonth.toString() : '';
-      targetMonthRef.current.disabled = isMonthlyNote;
+    
+    // Use the unified month selector
+    if (targetMonthKeyRef.current) {
+      const monthKey = buildMonthKey(noteMonth, noteYear);
+      targetMonthKeyRef.current.value = monthKey;
+      targetMonthKeyRef.current.disabled = isMonthlyNote;
     }
-    if (targetYearRef.current) {
-      targetYearRef.current.value = noteYear ? noteYear.toString() : '';
-      targetYearRef.current.disabled = isMonthlyNote;
-    }
-  }, []);
+  }, [buildMonthKey]);
 
   // Sauvegarder une note
   const handleSaveNote = async () => {

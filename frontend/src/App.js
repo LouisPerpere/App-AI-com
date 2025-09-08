@@ -2049,6 +2049,7 @@ function MainApp() {
       setFileCustomData({}); // Clean up custom data
       uploadTitleRefs.current = {}; // Clean up title refs
       uploadContextRefs.current = {}; // Clean up context refs
+      setGlobalUploadMonth(null); // Clear month selection
       
       // Force content refresh after all metadata updates complete
       await loadPendingContent();

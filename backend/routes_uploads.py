@@ -240,6 +240,10 @@ async def upload_content_batch(
         fs = GridFS(db)
 
         created = []
+        
+        # Generate a single carousel_id for all files in this batch if it's a carousel upload
+        batch_carousel_id = str(uuid.uuid4()) if upload_type == "carousel" and common_title else None
+        
         for file in files:
             data = await file.read()
             if not data:

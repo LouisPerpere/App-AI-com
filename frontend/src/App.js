@@ -2896,7 +2896,7 @@ function MainApp() {
                         id="file-upload"
                       />
                       
-                      {/* Hidden inputs for monthly uploads */}
+                      {/* Hidden inputs for uploads */}
                       <input
                         type="file"
                         accept="image/*,video/*"
@@ -2905,66 +2905,52 @@ function MainApp() {
                         id="monthly-upload"
                       />
                       
-                      {/* Hidden input for carousel - with enhanced debugging */}
+                      {/* Duplicate of upload input for carousel - same logic but carousel mode */}
                       <input
                         type="file"
                         multiple
                         accept="image/*"
                         onChange={(e) => {
-                          console.log('🎠 Carousel input onChange triggered!');
-                          console.log('🎠 Event:', e);
-                          console.log('🎠 Target:', e.target);
-                          console.log('🎠 Files object:', e.target.files);
-                          
-                          const files = Array.from(e.target.files || []);
-                          console.log(`🎠 Files array:`, files);
+                          console.log('🎠 Carousel input onChange triggered');
+                          const files = Array.from(e.target.files);
                           console.log(`🎠 Selected ${files.length} files for carousel`);
-                          
-                          // Always show a toast to confirm the event fired
-                          toast.success(`🎠 Événement onChange détecté: ${files.length} fichiers`);
-                          
-                          // Check if month is selected first
-                          if (!globalUploadMonth) {
-                            console.log('🎠 No month selected');
-                            toast.error('Veuillez d\'abord sélectionner un mois de destination');
-                            e.target.value = ''; // Clear the selection
-                            return;
-                          }
-                          
-                          console.log('🎠 Month selected:', globalUploadMonth);
                           
                           if (files.length === 0) {
                             console.log('🎠 No files selected');
-                            setCarouselFiles([]);
+                            setSelectedFiles([]);
+                            setFileCustomData({});
+                            setIsCarouselMode(false);
                             return;
                           }
                           
                           if (files.length > 10) {
-                            console.log('🎠 Too many files');
                             toast.error('Maximum 10 images pour un carrousel');
                             e.target.value = '';
                             return;
                           }
                           
-                          console.log('🎠 About to set carousel files state...');
-                          setCarouselFiles(files);
-                          console.log('🎠 Carousel files state set!');
+                          // Initialize carousel mode with shared data for all files
+                          const defaultMonth = getDefaultMonth();
+                          const newFileCustomData = {};
                           
-                          toast.success(`✨ ${files.length} image${files.length > 1 ? 's' : ''} sélectionnée${files.length > 1 ? 's' : ''} pour le carrousel !`);
+                          // All files get the same data structure, but we'll only show UI for the first one
+                          files.forEach((file, index) => {
+                            newFileCustomData[index] = {
+                              attributedMonth: defaultMonth,
+                              title: '', // Will be shared across all files
+                              context: '' // Will be shared across all files
+                            };
+                          });
+                          
+                          console.log('🎠 Setting carousel files with shared metadata');
+                          setSelectedFiles(files);
+                          setFileCustomData(newFileCustomData);
+                          setIsCarouselMode(true); // Enable carousel mode
+                          
+                          toast.success(`✨ Carrousel de ${files.length} images créé !`);
                         }}
-                        onFocus={() => console.log('🎠 Carousel input focused')}
-                        onBlur={() => console.log('🎠 Carousel input blurred')}
-                        onClick={() => console.log('🎠 Carousel input clicked')}
-                        style={{ 
-                          position: 'absolute', 
-                          left: '-9999px', 
-                          top: '-9999px', 
-                          opacity: 0, 
-                          visibility: 'hidden',
-                          width: '1px',
-                          height: '1px'
-                        }}
-                        id="carousel-upload-hidden"
+                        className="hidden"
+                        id="carousel-upload"
                       />
                       <div className="block border-2 border-dashed border-purple-300 rounded-3xl p-8 text-center bg-gradient-to-br from-purple-50 to-pink-50">
                         <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">

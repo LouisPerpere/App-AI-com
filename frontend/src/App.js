@@ -941,7 +941,9 @@ function MainApp() {
     setSelectedContentIds(new Set()); // Reset selections
   }, []);
 
-  // Callbacks pour les vignettes
+  // Callbacks pour les vignettes - DEBUG CHIRURGICAL
+  const handleToggleSelectionRef = useRef();
+  const handleContentClickRef = useRef();
   
   const handleToggleSelection = useCallback((contentId) => {
     setSelectedContentIds(prev => {
@@ -1038,6 +1040,17 @@ function MainApp() {
       }, 100);
     }
   }, [isSelectionMode, handleToggleSelection]);
+  
+  // DEBUG: Tracker si les callbacks changent de référence
+  if (handleToggleSelectionRef.current !== handleToggleSelection) {
+    console.log('🔄 handleToggleSelection callback reference changed!');
+    handleToggleSelectionRef.current = handleToggleSelection;
+  }
+  
+  if (handleContentClickRef.current !== handleContentClick) {
+    console.log('🔄 handleContentClick callback reference changed!');
+    handleContentClickRef.current = handleContentClick;
+  }
 
   // VRAIMENT STABLE: Fermeture aperçu - ZÉRO dépendance
   const handleClosePreview = useCallback(() => {

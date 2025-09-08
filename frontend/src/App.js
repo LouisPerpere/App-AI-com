@@ -223,8 +223,10 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
     </div>
   );
 }, (prevProps, nextProps) => {
-  // Comparaison personnalisée pour éviter re-renders inutiles
-  return (
+  // DEBUG CHIRURGICAL - Vérifier si React.memo fonctionne
+  const contentId = prevProps.content.id.slice(-8);
+  
+  const propsChanged = !(
     prevProps.content.id === nextProps.content.id &&
     prevProps.content.title === nextProps.content.title &&
     prevProps.content.thumb_url === nextProps.content.thumb_url &&
@@ -233,6 +235,13 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
     prevProps.onContentClick === nextProps.onContentClick &&
     prevProps.onToggleSelection === nextProps.onToggleSelection
   );
+  
+  // Log seulement si les props ont vraiment changé
+  if (propsChanged) {
+    console.log(`🔄 Props changed for ${contentId} - will re-render`);
+  }
+  
+  return !propsChanged; // true = skip re-render, false = re-render
 });
 
 function MainApp() {

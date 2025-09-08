@@ -879,6 +879,12 @@ async def save_pixabay_image(
         # Generate document ID first
         doc_id = str(uuid.uuid4())
         
+        # Prepare context message based on save type
+        if save_type == "monthly" and attributed_month:
+            context_msg = f"Image Pixabay pour {attributed_month.replace('_', ' ')} - {tags}"
+        else:
+            context_msg = f"Image from Pixabay - {tags}"
+        
         media_doc = {
             "id": doc_id,
             "owner_id": user_id,  # Use owner_id to match content/pending query
@@ -894,10 +900,12 @@ async def save_pixabay_image(
             "source": "pixabay",
             "pixabay_id": pixabay_id,
             "tags": tags,
-            "context": f"Image from Pixabay - {tags}",
+            "context": context_msg,
             "url": image_url,  # Use original Pixabay URL for full image
             "thumb_url": f"/api/content/{doc_id}/thumb",  # Use optimized thumbnail endpoint
-            "is_external": True  # Flag to indicate external image
+            "is_external": True,  # Flag to indicate external image
+            "save_type": save_type,  # Track how this was saved
+            "attributed_month": attributed_month if save_type == "monthly" else None  # Month attribution
         }
         
         media_collection.insert_one(media_doc)

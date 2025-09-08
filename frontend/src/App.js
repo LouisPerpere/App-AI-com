@@ -3427,20 +3427,34 @@ function MainApp() {
                                                   </div>
                                                 </div>
                                                 
-                                                {!isCollapsed && hasContent && (
+                                                {!isCollapsed && (
                                                   <div className="p-3">
-                                                    <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                                                      {monthInfo.content.map((content) => (
-                                                        <ContentThumbnail
-                                                          key={content.id}
-                                                          content={content}
-                                                          isSelectionMode={isSelectionMode}
-                                                          isSelected={selectedContentIds.has(content.id)}
-                                                          onContentClick={handleContentClick}
-                                                          onToggleSelection={handleToggleSelection}
-                                                        />
-                                                      ))}
-                                                    </div>
+                                                    {hasContent && monthInfo.shouldLoadThumbnails ? (
+                                                      <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                                                        {monthInfo.content.map((content) => (
+                                                          <ContentThumbnail
+                                                            key={content.id}
+                                                            content={content}
+                                                            isSelectionMode={isSelectionMode}
+                                                            isSelected={selectedContentIds.has(content.id)}
+                                                            onContentClick={handleContentClick}
+                                                            onToggleSelection={handleToggleSelection}
+                                                          />
+                                                        ))}
+                                                      </div>
+                                                    ) : hasContent && !monthInfo.shouldLoadThumbnails ? (
+                                                      <div className="text-center py-8 text-gray-500">
+                                                        <div className="animate-pulse">
+                                                          <div className="w-8 h-8 bg-gray-300 rounded-full mx-auto mb-2"></div>
+                                                          <p className="text-sm">Chargement des vignettes...</p>
+                                                        </div>
+                                                      </div>
+                                                    ) : (
+                                                      <div className="text-center py-8 text-gray-500">
+                                                        <Calendar className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                                                        <p className="text-sm">Aucun contenu pour ce mois</p>
+                                                      </div>
+                                                    )}
                                                   </div>
                                                 )}
                                               </div>

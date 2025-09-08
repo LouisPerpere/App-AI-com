@@ -3389,7 +3389,7 @@ function MainApp() {
                                   </div>
                                 </div>
                               </div>
-                            ))}
+                            )))}
                           </div>
                         </div>
                       )}

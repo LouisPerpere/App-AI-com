@@ -82,24 +82,7 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
   const renderCount = useRef(0);
   renderCount.current += 1;
   
-  // Log les URLs pour voir si elles changent
-  const thumbnailUrl = useMemo(() => {
-    const token = localStorage.getItem('access_token');
-    let url;
-    
-    if (content.source === 'pixabay') {
-      url = content.thumb_url || content.url;
-    } else if (content.thumb_url) {
-      url = `${content.thumb_url}?token=${token}`;
-    } else if (content.url) {
-      url = `${content.url}?token=${token}`;
-    }
-    
-    // DEBUG CRITIQUE: Log les URLs pour voir si elles changent
-    console.log(`🔍 Thumbnail URL for ${content.id.slice(-8)}: ${url}`);
-    
-    return url;
-  }, [content.thumb_url, content.url, content.source, content.id]);
+
   
   // Log seulement les re-renders excessifs (pas normal)
   if (renderCount.current > 2) {

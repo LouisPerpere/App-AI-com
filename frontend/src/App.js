@@ -582,6 +582,98 @@ function MainApp() {
     });
   }, []);
 
+  // Monthly content organization utilities
+  const getMonthlyContentData = useCallback(() => {
+    if (!Array.isArray(pendingContent)) return {};
+    
+    // Define months for upcoming 3 months and past content
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth(); // 0-based
+    
+    // Define the months we want to show
+    const months = {
+      // Past months for existing content
+      'juillet_2025': { 
+        label: 'Juillet 2025', 
+        month: 6, // July is 6 (0-based)
+        year: 2025,
+        isPast: true,
+        content: []
+      },
+      'aout_2025': { 
+        label: 'Août 2025', 
+        month: 7, // August is 7 (0-based)
+        year: 2025,
+        isPast: true,
+        content: []
+      },
+      // Upcoming months
+      'septembre_2025': { 
+        label: 'Septembre 2025', 
+        month: 8, // September is 8 (0-based)
+        year: 2025,
+        isPast: false,
+        content: []
+      },
+      'octobre_2025': { 
+        label: 'Octobre 2025', 
+        month: 9, // October is 9 (0-based)
+        year: 2025,
+        isPast: false,
+        content: []
+      },
+      'novembre_2025': { 
+        label: 'Novembre 2025', 
+        month: 10, // November is 10 (0-based)
+        year: 2025,
+        isPast: false,
+        content: []
+      }
+    };
+    
+    // Categorize content by month
+    pendingContent.forEach(item => {
+      // Check if content has explicit month attribution (future feature)
+      const attributedMonth = item.attributed_month;
+      if (attributedMonth && months[attributedMonth]) {
+        months[attributedMonth].content.push(item);
+        return;
+      }
+      
+      // For now, distribute existing content into July and August 2025
+      // This is temporary until user manually re-attributes content
+      const createdDate = new Date(item.created_at || item.uploaded_at);
+      const itemMonth = createdDate.getMonth();
+      const itemYear = createdDate.getFullYear();
+      
+      // Simple distribution logic for existing content
+      if (itemMonth <= 6) { // Jan-July
+        months['juillet_2025'].content.push(item);
+      } else if (itemMonth === 7) { // August
+        months['aout_2025'].content.push(item);
+      } else {
+        // Default to July for now
+        months['juillet_2025'].content.push(item);
+      }
+    });
+    
+    return months;
+  }, [pendingContent]);
+
+  // Toggle month collapse state
+  const toggleMonthCollapse = useCallback((monthKey) => {
+    setCollapsedMonths(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(monthKey)) {
+        newSet.delete(monthKey);
+      } else {
+        newSet.add(monthKey);
+      }
+      return newSet;
+    });
+  }, []);
+
   const loadNotes = async () => {
     try {
       const response = await axios.get(`${API}/notes`, {

@@ -4305,19 +4305,24 @@ function MainApp() {
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-gray-700">Attribuer à un mois spécifique :</p>
                   {(() => {
-                    const monthlyData = getMonthlyContentData();
-                    return Object.entries(monthlyData)
-                      .filter(([, monthInfo]) => !monthInfo.isPast)
+                    const { currentAndFuture } = getMonthlyContentData();
+                    return Object.entries(currentAndFuture)
+                      .sort(([, a], [, b]) => a.order - b.order)
                       .map(([monthKey, monthInfo]) => (
                         <Button
                           key={monthKey}
                           onClick={() => savePixabayToMonth(monthKey)}
                           disabled={isSavingPixabayImage === selectedPixabayImage.id}
                           variant="outline"
-                          className="w-full text-purple-600 border-purple-300 hover:bg-purple-50"
+                          className={`w-full border-purple-300 hover:bg-purple-50 ${
+                            monthInfo.isCurrent 
+                              ? 'text-green-600 border-green-300 hover:bg-green-50'
+                              : 'text-purple-600'
+                          }`}
                         >
                           <Calendar className="w-4 h-4 mr-2" />
                           {monthInfo.label}
+                          {monthInfo.isCurrent && <span className="ml-1 text-xs">(actuel)</span>}
                         </Button>
                       ));
                   })()}

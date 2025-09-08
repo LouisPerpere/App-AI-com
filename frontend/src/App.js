@@ -2801,6 +2801,31 @@ function MainApp() {
                             </Button>
                           </div>
                           
+                          {/* Month selector for upload */}
+                          <div className="mb-6 p-4 bg-purple-50 rounded-xl border border-purple-200">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Choisir le mois de destination
+                            </label>
+                            <Select
+                              value={globalUploadMonth || ''}
+                              onValueChange={(value) => setGlobalUploadMonth(value)}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Sélectionner un mois..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {getUploadMonthOptions().map(({ key, label }) => (
+                                  <SelectItem key={key} value={key}>
+                                    {label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <p className="text-xs text-purple-600 mt-1">
+                              Vos fichiers seront organisés dans le mois sélectionné
+                            </p>
+                          </div>
+                          
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {selectedFiles.map((file, index) => (
                               <div key={index} className="relative group bg-white border border-gray-200 rounded-xl p-4 shadow-sm">

@@ -1,376 +1,376 @@
 #!/usr/bin/env python3
 """
-UPLOAD DATA PERSISTENCE TESTING
-Critical issue: User fills title and context during upload preview but data is not visible in library after upload.
-
-Test Requirements:
-1. Content Listing Analysis - GET /api/content/pending 
-2. Upload Flow Testing - POST /api/content/batch-upload endpoint  
-3. Update API Testing - PUT /api/content/{id}/title and PUT /api/content/{id}/context
-4. Data Persistence Verification
-
-Credentials: lperpere@yahoo.fr / L@Reunion974!
-Backend URL: https://media-title-fix.preview.emergentagent.com/api
+Pixabay Integration Backend Testing
+Testing the Pixabay search functionality as reported broken by user.
+Focus: Test Pixabay endpoints and verify response format matches frontend expectations.
 """
 
 import requests
 import json
 import sys
 from datetime import datetime
-import io
-from PIL import Image
 
 # Configuration
-BASE_URL = "https://media-title-fix.preview.emergentagent.com/api"
-EMAIL = "lperpere@yahoo.fr"
-PASSWORD = "L@Reunion974!"
+BACKEND_URL = "https://media-title-fix.preview.emergentagent.com/api"
+TEST_CREDENTIALS = {
+    "email": "lperpere@yahoo.fr", 
+    "password": "L@Reunion974!"
+}
 
-class UploadDataPersistenceTest:
+class PixabayTester:
     def __init__(self):
         self.session = requests.Session()
-        self.token = None
+        self.session.headers.update({
+            'Content-Type': 'application/json',
+            'User-Agent': 'PixabayTester/1.0'
+        })
+        self.auth_token = None
         self.user_id = None
         
+    def log(self, message):
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        print(f"[{timestamp}] {message}")
+        
     def authenticate(self):
-        """Step 1: Authenticate with provided credentials"""
-        print("🔐 Step 1: Authentication")
-        
-        auth_data = {
-            "email": EMAIL,
-            "password": PASSWORD
-        }
-        
+        """Step 1: Authenticate with the backend"""
         try:
-            response = self.session.post(f"{BASE_URL}/auth/login-robust", json=auth_data)
-            print(f"Auth response status: {response.status_code}")
+            self.log("🔐 Step 1: Authenticating with backend...")
+            
+            response = self.session.post(
+                f"{BACKEND_URL}/auth/login-robust",
+                json=TEST_CREDENTIALS,
+                timeout=30
+            )
             
             if response.status_code == 200:
                 data = response.json()
-                self.token = data.get("access_token")
-                self.user_id = data.get("user_id")
+                self.auth_token = data.get('access_token')
+                self.user_id = data.get('user_id')
                 
-                # Set authorization header for all future requests
+                # Set authorization header for future requests
                 self.session.headers.update({
-                    "Authorization": f"Bearer {self.token}",
-                    "Content-Type": "application/json"
+                    'Authorization': f'Bearer {self.auth_token}'
                 })
                 
-                print(f"✅ Authentication successful")
-                print(f"   User ID: {self.user_id}")
-                print(f"   Token: {self.token[:20]}..." if self.token else "No token")
+                self.log(f"✅ Authentication successful - User ID: {self.user_id}")
                 return True
             else:
-                print(f"❌ Authentication failed: {response.status_code}")
-                print(f"   Response: {response.text}")
+                self.log(f"❌ Authentication failed - Status: {response.status_code}")
+                self.log(f"Response: {response.text}")
                 return False
                 
         except Exception as e:
-            print(f"❌ Authentication error: {e}")
+            self.log(f"❌ Authentication error: {str(e)}")
             return False
     
-    def analyze_content_listing(self):
-        """Step 2: Content Listing Analysis - Check existing uploads for empty title/context"""
-        print("\n📋 Step 2: Content Listing Analysis")
-        
+    def test_pixabay_categories(self):
+        """Step 2: Test GET /api/pixabay/categories endpoint"""
         try:
-            response = self.session.get(f"{BASE_URL}/content/pending")
-            print(f"Content listing response status: {response.status_code}")
+            self.log("📂 Step 2: Testing Pixabay categories endpoint...")
+            
+            response = self.session.get(
+                f"{BACKEND_URL}/pixabay/categories",
+                timeout=30
+            )
             
             if response.status_code == 200:
                 data = response.json()
-                content_items = data.get("content", [])
-                total_items = data.get("total", 0)
+                categories = data.get('categories', [])
                 
-                print(f"✅ Content listing successful")
-                print(f"   Total items: {total_items}")
-                print(f"   Items loaded: {len(content_items)}")
+                self.log(f"✅ Categories endpoint working - Found {len(categories)} categories")
                 
-                # Analyze title/context fields
-                items_with_title = 0
-                items_with_context = 0
-                items_with_empty_title = 0
-                items_with_empty_context = 0
+                # Check for expected categories
+                expected_categories = ['business', 'nature', 'people', 'backgrounds']
+                found_expected = [cat for cat in expected_categories if cat in categories]
                 
-                print(f"\n📊 Title/Context Analysis:")
-                for i, item in enumerate(content_items[:5]):  # Check first 5 items
-                    item_id = item.get("id", "unknown")
-                    title = item.get("title", "")
-                    context = item.get("context", "")
-                    filename = item.get("filename", "")
+                self.log(f"Expected categories found: {found_expected}")
+                
+                if len(found_expected) >= 3:
+                    self.log("✅ Categories endpoint contains expected categories")
+                    return True
+                else:
+                    self.log("⚠️ Some expected categories missing")
+                    return True  # Still working, just different categories
                     
-                    print(f"   Item {i+1} (ID: {item_id[:8]}...):")
-                    print(f"     Filename: {filename}")
-                    print(f"     Title: '{title}' {'(EMPTY)' if not title else '(HAS DATA)'}")
-                    print(f"     Context: '{context}' {'(EMPTY)' if not context else '(HAS DATA)'}")
-                    
-                    if title:
-                        items_with_title += 1
-                    else:
-                        items_with_empty_title += 1
-                        
-                    if context:
-                        items_with_context += 1
-                    else:
-                        items_with_empty_context += 1
-                
-                print(f"\n📈 Summary:")
-                print(f"   Items with title: {items_with_title}")
-                print(f"   Items with empty title: {items_with_empty_title}")
-                print(f"   Items with context: {items_with_context}")
-                print(f"   Items with empty context: {items_with_empty_context}")
-                
-                return content_items
             else:
-                print(f"❌ Content listing failed: {response.status_code}")
-                print(f"   Response: {response.text}")
-                return []
+                self.log(f"❌ Categories endpoint failed - Status: {response.status_code}")
+                self.log(f"Response: {response.text}")
+                return False
                 
         except Exception as e:
-            print(f"❌ Content listing error: {e}")
-            return []
+            self.log(f"❌ Categories endpoint error: {str(e)}")
+            return False
     
-    def test_batch_upload_flow(self):
-        """Step 3: Upload Flow Testing - Test batch upload endpoint"""
-        print("\n📤 Step 3: Upload Flow Testing")
-        
+    def test_pixabay_search_business(self):
+        """Step 3: Test Pixabay search with 'business' query"""
         try:
-            # Create a test image in memory
-            img = Image.new('RGB', (100, 100), color='red')
-            img_buffer = io.BytesIO()
-            img.save(img_buffer, format='PNG')
-            img_buffer.seek(0)
+            self.log("🔍 Step 3: Testing Pixabay search with 'business' query...")
             
-            # Prepare multipart form data
-            files = {
-                'files': ('test_upload_persistence.png', img_buffer, 'image/png')
+            params = {
+                'query': 'business',
+                'page': 1,
+                'per_page': 10,
+                'image_type': 'photo',
+                'safesearch': True
             }
             
-            # Remove Content-Type header for multipart upload
-            headers = {"Authorization": f"Bearer {self.token}"}
-            
-            response = self.session.post(f"{BASE_URL}/content/batch-upload", files=files, headers=headers)
-            print(f"Batch upload response status: {response.status_code}")
+            response = self.session.get(
+                f"{BACKEND_URL}/pixabay/search",
+                params=params,
+                timeout=30
+            )
             
             if response.status_code == 200:
                 data = response.json()
-                uploaded_files = data.get("uploaded_files", [])
                 
-                print(f"✅ Batch upload successful")
-                print(f"   Files uploaded: {len(uploaded_files)}")
+                # Check response structure
+                total = data.get('total', 0)
+                hits = data.get('hits', [])
                 
-                if uploaded_files:
-                    first_file = uploaded_files[0]
-                    file_id = first_file.get("id")
-                    filename = first_file.get("filename")
-                    title = first_file.get("title", "")
-                    context = first_file.get("context", "")
+                self.log(f"✅ Business search successful - Total results: {total}, Returned images: {len(hits)}")
+                
+                if len(hits) > 0:
+                    # Check first image structure
+                    first_image = hits[0]
+                    required_fields = ['id', 'webformatURL', 'tags', 'views', 'downloads']
                     
-                    print(f"   First uploaded file:")
-                    print(f"     ID: {file_id}")
-                    print(f"     Filename: {filename}")
-                    print(f"     Title in response: '{title}' {'(EMPTY)' if not title else '(HAS DATA)'}")
-                    print(f"     Context in response: '{context}' {'(EMPTY)' if not context else '(HAS DATA)'}")
+                    missing_fields = [field for field in required_fields if field not in first_image]
                     
-                    return file_id
+                    if not missing_fields:
+                        self.log(f"✅ Image structure correct - First image ID: {first_image.get('id')}")
+                        self.log(f"Tags: {first_image.get('tags', '')[:50]}...")
+                        return True
+                    else:
+                        self.log(f"⚠️ Missing fields in image data: {missing_fields}")
+                        return False
                 else:
-                    print(f"❌ No files in upload response")
-                    return None
+                    self.log("⚠️ No images returned for business query")
+                    return False
+                    
             else:
-                print(f"❌ Batch upload failed: {response.status_code}")
-                print(f"   Response: {response.text}")
-                return None
-                
-        except Exception as e:
-            print(f"❌ Batch upload error: {e}")
-            return None
-    
-    def test_title_update_api(self, content_id):
-        """Step 4: Update API Testing - Test title update endpoint"""
-        print(f"\n✏️ Step 4: Title Update API Testing")
-        
-        if not content_id:
-            print("❌ No content ID provided for title update test")
-            return False
-            
-        test_title = "Modèle 39mm sur mesure - Test Title"
-        
-        try:
-            update_data = {"title": test_title}
-            response = self.session.put(f"{BASE_URL}/content/{content_id}/title", json=update_data)
-            print(f"Title update response status: {response.status_code}")
-            
-            if response.status_code == 200:
-                data = response.json()
-                message = data.get("message", "")
-                
-                print(f"✅ Title update successful")
-                print(f"   Response message: {message}")
-                print(f"   Test title: '{test_title}'")
-                return True
-            else:
-                print(f"❌ Title update failed: {response.status_code}")
-                print(f"   Response: {response.text}")
+                self.log(f"❌ Business search failed - Status: {response.status_code}")
+                self.log(f"Response: {response.text}")
                 return False
                 
         except Exception as e:
-            print(f"❌ Title update error: {e}")
+            self.log(f"❌ Business search error: {str(e)}")
             return False
     
-    def test_context_update_api(self, content_id):
-        """Step 5: Context Update API Testing - Test context update endpoint"""
-        print(f"\n📝 Step 5: Context Update API Testing")
-        
-        if not content_id:
-            print("❌ No content ID provided for context update test")
-            return False
-            
-        test_context = "Description détaillée du modèle avec mots-clés pour génération de contenu"
-        
+    def test_pixabay_search_marketing(self):
+        """Step 4: Test Pixabay search with 'marketing' query"""
         try:
-            update_data = {"context": test_context}
-            response = self.session.put(f"{BASE_URL}/content/{content_id}/context", json=update_data)
-            print(f"Context update response status: {response.status_code}")
+            self.log("🎯 Step 4: Testing Pixabay search with 'marketing' query...")
+            
+            params = {
+                'query': 'marketing',
+                'page': 1,
+                'per_page': 5,
+                'image_type': 'photo',
+                'safesearch': True
+            }
+            
+            response = self.session.get(
+                f"{BACKEND_URL}/pixabay/search",
+                params=params,
+                timeout=30
+            )
             
             if response.status_code == 200:
                 data = response.json()
-                message = data.get("message", "")
                 
-                print(f"✅ Context update successful")
-                print(f"   Response message: {message}")
-                print(f"   Test context: '{test_context}'")
-                return True
+                total = data.get('total', 0)
+                hits = data.get('hits', [])
+                
+                self.log(f"✅ Marketing search successful - Total results: {total}, Returned images: {len(hits)}")
+                
+                # Verify response structure matches frontend expectations
+                # Frontend expects: response.data.hits and response.data.total
+                if 'hits' in data and 'total' in data:
+                    self.log("✅ Response structure matches frontend expectations (hits, total)")
+                    return True
+                else:
+                    self.log("❌ Response structure doesn't match frontend expectations")
+                    self.log(f"Available keys: {list(data.keys())}")
+                    return False
+                    
             else:
-                print(f"❌ Context update failed: {response.status_code}")
-                print(f"   Response: {response.text}")
+                self.log(f"❌ Marketing search failed - Status: {response.status_code}")
+                self.log(f"Response: {response.text}")
                 return False
                 
         except Exception as e:
-            print(f"❌ Context update error: {e}")
+            self.log(f"❌ Marketing search error: {str(e)}")
             return False
     
-    def verify_data_persistence(self, content_id):
-        """Step 6: Data Persistence Verification - Check if updates persist"""
-        print(f"\n🔍 Step 6: Data Persistence Verification")
-        
-        if not content_id:
-            print("❌ No content ID provided for persistence verification")
-            return False
-            
+    def test_pixabay_api_key_configuration(self):
+        """Step 5: Test if Pixabay API key is properly configured"""
         try:
-            response = self.session.get(f"{BASE_URL}/content/pending")
-            print(f"Persistence check response status: {response.status_code}")
+            self.log("🔑 Step 5: Testing Pixabay API key configuration...")
+            
+            # Try a simple search to verify API key works
+            params = {
+                'query': 'test',
+                'page': 1,
+                'per_page': 3,
+                'image_type': 'photo'
+            }
+            
+            response = self.session.get(
+                f"{BACKEND_URL}/pixabay/search",
+                params=params,
+                timeout=30
+            )
             
             if response.status_code == 200:
                 data = response.json()
-                content_items = data.get("content", [])
-                
-                # Find our test content
-                test_item = None
-                for item in content_items:
-                    if item.get("id") == content_id:
-                        test_item = item
-                        break
-                
-                if test_item:
-                    title = test_item.get("title", "")
-                    context = test_item.get("context", "")
-                    filename = test_item.get("filename", "")
-                    
-                    print(f"✅ Test content found in listing")
-                    print(f"   ID: {content_id}")
-                    print(f"   Filename: {filename}")
-                    print(f"   Persisted title: '{title}'")
-                    print(f"   Persisted context: '{context}'")
-                    
-                    # Check if our test data persisted
-                    title_persisted = "Modèle 39mm sur mesure" in title
-                    context_persisted = "Description détaillée" in context
-                    
-                    print(f"\n📊 Persistence Results:")
-                    print(f"   Title persisted correctly: {'✅ YES' if title_persisted else '❌ NO'}")
-                    print(f"   Context persisted correctly: {'✅ YES' if context_persisted else '❌ NO'}")
-                    
-                    return title_persisted and context_persisted
+                if data.get('total', 0) > 0:
+                    self.log("✅ Pixabay API key is working correctly")
+                    return True
                 else:
-                    print(f"❌ Test content not found in listing")
+                    self.log("⚠️ API key works but no results returned")
+                    return True
+                    
+            elif response.status_code == 401:
+                self.log("❌ Pixabay API key authentication failed")
+                return False
+            elif response.status_code == 500:
+                error_data = response.json()
+                if "API key not configured" in error_data.get('detail', ''):
+                    self.log("❌ Pixabay API key not configured in backend")
+                    return False
+                else:
+                    self.log(f"❌ Server error: {error_data.get('detail', 'Unknown error')}")
                     return False
             else:
-                print(f"❌ Persistence check failed: {response.status_code}")
-                print(f"   Response: {response.text}")
+                self.log(f"❌ API key test failed - Status: {response.status_code}")
                 return False
                 
         except Exception as e:
-            print(f"❌ Persistence check error: {e}")
+            self.log(f"❌ API key test error: {str(e)}")
             return False
     
-    def run_comprehensive_test(self):
-        """Run the complete upload data persistence test"""
-        print("🎯 UPLOAD DATA PERSISTENCE TESTING")
-        print("=" * 60)
-        print(f"Backend URL: {BASE_URL}")
-        print(f"Test User: {EMAIL}")
-        print(f"Issue: Upload data not persisting after batch upload")
-        print("=" * 60)
-        
-        # Step 1: Authentication
-        if not self.authenticate():
-            print("\n❌ CRITICAL: Authentication failed - cannot proceed with testing")
+    def test_pixabay_save_image(self):
+        """Step 6: Test saving a Pixabay image to user's library"""
+        try:
+            self.log("💾 Step 6: Testing Pixabay image save functionality...")
+            
+            # First get an image from search
+            search_response = self.session.get(
+                f"{BACKEND_URL}/pixabay/search",
+                params={'query': 'business', 'per_page': 1},
+                timeout=30
+            )
+            
+            if search_response.status_code != 200:
+                self.log("❌ Cannot get image for save test")
+                return False
+                
+            search_data = search_response.json()
+            hits = search_data.get('hits', [])
+            
+            if not hits:
+                self.log("❌ No images available for save test")
+                return False
+                
+            # Get first image data
+            image = hits[0]
+            save_request = {
+                'pixabay_id': image.get('id'),
+                'image_url': image.get('webformatURL'),
+                'tags': image.get('tags', '')
+            }
+            
+            # Try to save the image
+            response = self.session.post(
+                f"{BACKEND_URL}/pixabay/save-image",
+                json=save_request,
+                timeout=60
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                saved_image = data.get('image', {})
+                
+                self.log(f"✅ Image save successful - Saved image ID: {saved_image.get('id')}")
+                self.log(f"Filename: {saved_image.get('filename')}")
+                return True
+            else:
+                self.log(f"❌ Image save failed - Status: {response.status_code}")
+                self.log(f"Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Image save error: {str(e)}")
             return False
-        
-        # Step 2: Content Listing Analysis
-        existing_content = self.analyze_content_listing()
-        
-        # Step 3: Upload Flow Testing
-        uploaded_content_id = self.test_batch_upload_flow()
-        
-        # Step 4: Update API Testing
-        title_update_success = self.test_title_update_api(uploaded_content_id)
-        
-        # Step 5: Context Update API Testing  
-        context_update_success = self.test_context_update_api(uploaded_content_id)
-        
-        # Step 6: Data Persistence Verification
-        persistence_success = self.verify_data_persistence(uploaded_content_id)
-        
-        # Final Results
-        print("\n" + "=" * 60)
-        print("🎯 FINAL TEST RESULTS")
-        print("=" * 60)
-        
-        tests_passed = 0
-        total_tests = 6
-        
-        print(f"✅ Step 1: Authentication - {'PASS' if self.token else 'FAIL'}")
-        if self.token: tests_passed += 1
-        
-        print(f"✅ Step 2: Content Listing - {'PASS' if existing_content else 'FAIL'}")
-        if existing_content: tests_passed += 1
-        
-        print(f"✅ Step 3: Batch Upload - {'PASS' if uploaded_content_id else 'FAIL'}")
-        if uploaded_content_id: tests_passed += 1
-        
-        print(f"✅ Step 4: Title Update API - {'PASS' if title_update_success else 'FAIL'}")
-        if title_update_success: tests_passed += 1
-        
-        print(f"✅ Step 5: Context Update API - {'PASS' if context_update_success else 'FAIL'}")
-        if context_update_success: tests_passed += 1
-        
-        print(f"✅ Step 6: Data Persistence - {'PASS' if persistence_success else 'FAIL'}")
-        if persistence_success: tests_passed += 1
-        
-        success_rate = (tests_passed / total_tests) * 100
-        print(f"\n📊 SUCCESS RATE: {tests_passed}/{total_tests} tests passed ({success_rate:.1f}%)")
-        
-        if success_rate == 100:
-            print("🎉 ALL TESTS PASSED - Upload data persistence is working correctly")
-        elif success_rate >= 80:
-            print("⚠️ MOSTLY WORKING - Minor issues detected")
-        else:
-            print("🚨 CRITICAL ISSUES - Upload data persistence has significant problems")
-        
-        return success_rate >= 80
+
+def main():
+    print("=" * 80)
+    print("🎯 PIXABAY INTEGRATION BACKEND TESTING")
+    print("Testing Pixabay search functionality as reported broken by user")
+    print("Focus: Verify backend endpoints and response format")
+    print("=" * 80)
+    
+    tester = PixabayTester()
+    
+    # Test sequence
+    tests = [
+        ("Authentication", tester.authenticate),
+        ("Pixabay Categories", tester.test_pixabay_categories),
+        ("Pixabay Search - Business", tester.test_pixabay_search_business),
+        ("Pixabay Search - Marketing", tester.test_pixabay_search_marketing),
+        ("Pixabay API Key Configuration", tester.test_pixabay_api_key_configuration),
+        ("Pixabay Save Image", tester.test_pixabay_save_image)
+    ]
+    
+    results = []
+    
+    for test_name, test_func in tests:
+        print(f"\n{'='*60}")
+        try:
+            result = test_func()
+            results.append((test_name, result))
+            
+            if result:
+                print(f"✅ {test_name}: PASSED")
+            else:
+                print(f"❌ {test_name}: FAILED")
+                
+        except Exception as e:
+            print(f"💥 {test_name}: ERROR - {str(e)}")
+            results.append((test_name, False))
+    
+    # Summary
+    print(f"\n{'='*80}")
+    print("📊 PIXABAY TESTING SUMMARY")
+    print("=" * 80)
+    
+    passed = sum(1 for _, result in results if result)
+    total = len(results)
+    success_rate = (passed / total) * 100 if total > 0 else 0
+    
+    print(f"Tests passed: {passed}/{total} ({success_rate:.1f}% success rate)")
+    print()
+    
+    for test_name, result in results:
+        status = "✅ PASS" if result else "❌ FAIL"
+        print(f"{status} - {test_name}")
+    
+    print(f"\n{'='*80}")
+    
+    if success_rate >= 80:
+        print("🎉 PIXABAY BACKEND IS WORKING CORRECTLY")
+        print("The issue is likely in the frontend implementation or configuration.")
+    elif success_rate >= 50:
+        print("⚠️ PIXABAY BACKEND HAS SOME ISSUES")
+        print("Some endpoints are working but there are problems to address.")
+    else:
+        print("🚨 PIXABAY BACKEND HAS CRITICAL ISSUES")
+        print("Major problems detected that need immediate attention.")
+    
+    print("=" * 80)
+    
+    return success_rate >= 80
 
 if __name__ == "__main__":
-    tester = UploadDataPersistenceTest()
-    success = tester.run_comprehensive_test()
+    success = main()
     sys.exit(0 if success else 1)

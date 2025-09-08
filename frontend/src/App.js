@@ -523,9 +523,6 @@ function MainApp() {
     }
   };
 
-  // Total content count for display
-  const [totalContentCount, setTotalContentCount] = useState(0);
-
   const loadPendingContent = async (append = false) => {
     try {
       const page = append ? contentPage + 1 : 0;

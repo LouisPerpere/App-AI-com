@@ -241,7 +241,7 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
       
       {/* Source indicators */}
       {content.source === 'pixabay' && (
-        <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium">
+        <div className="absolute bottom-8 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium shadow-lg">
           Pixabay
         </div>
       )}

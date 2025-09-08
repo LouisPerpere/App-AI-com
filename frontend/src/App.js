@@ -4119,6 +4119,101 @@ function MainApp() {
             </Card>
           </TabsContent>
         </Tabs>
+        
+        {/* Modal de choix pour sauvegarder Pixabay */}
+        {showPixabaySaveModal && selectedPixabayImage && (
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl max-w-md w-full p-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Où souhaitez-vous sauvegarder cette image ?
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Choisissez comment organiser cette image Pixabay
+                </p>
+              </div>
+              
+              {/* Preview de l'image */}
+              <div className="mb-4">
+                <img 
+                  src={selectedPixabayImage.webformatURL} 
+                  alt="Pixabay preview"
+                  className="w-full h-32 object-cover rounded-lg"
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  Tags: {selectedPixabayImage.tags}
+                </p>
+              </div>
+              
+              {/* Choix de sauvegarde */}
+              <div className="space-y-3 mb-6">
+                <Button
+                  onClick={savePixabayToLibrary}
+                  disabled={isSavingPixabayImage === selectedPixabayImage.id}
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                >
+                  <ImageIcon className="w-4 h-4 mr-2" />
+                  Ajouter au stock d'images Pixabay
+                </Button>
+                
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">ou</span>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-700">Attribuer à un mois spécifique :</p>
+                  {(() => {
+                    const monthlyData = getMonthlyContentData();
+                    return Object.entries(monthlyData)
+                      .filter(([, monthInfo]) => !monthInfo.isPast)
+                      .map(([monthKey, monthInfo]) => (
+                        <Button
+                          key={monthKey}
+                          onClick={() => savePixabayToMonth(monthKey)}
+                          disabled={isSavingPixabayImage === selectedPixabayImage.id}
+                          variant="outline"
+                          className="w-full text-purple-600 border-purple-300 hover:bg-purple-50"
+                        >
+                          <Calendar className="w-4 h-4 mr-2" />
+                          {monthInfo.label}
+                        </Button>
+                      ));
+                  })()}
+                </div>
+              </div>
+              
+              {/* Boutons d'action */}
+              <div className="flex space-x-3">
+                <Button
+                  onClick={() => {
+                    setShowPixabaySaveModal(false);
+                    setSelectedPixabayImage(null);
+                  }}
+                  variant="outline"
+                  className="flex-1"
+                  disabled={isSavingPixabayImage === selectedPixabayImage.id}
+                >
+                  Annuler
+                </Button>
+              </div>
+              
+              {/* Loading indicator */}
+              {isSavingPixabayImage === selectedPixabayImage.id && (
+                <div className="mt-4 text-center">
+                  <div className="inline-flex items-center text-sm text-gray-600">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600 mr-2"></div>
+                    Sauvegarde en cours...
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

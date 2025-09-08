@@ -307,6 +307,14 @@ function MainApp() {
   const [pixabayCurrentQuery, setPixabayCurrentQuery] = useState('');
   const [isLoadingMorePixabay, setIsLoadingMorePixabay] = useState(false);
   
+  // Monthly library organization states
+  const [monthlyLibraryView, setMonthlyLibraryView] = useState(true); // Switch between monthly and all view
+  const [collapsedMonths, setCollapsedMonths] = useState(new Set()); // Track collapsed months
+  const [selectedMonth, setSelectedMonth] = useState(null); // For new uploads
+  const [uploadMode, setUploadMode] = useState('single'); // 'single' or 'carousel'
+  const [carouselFiles, setCarouselFiles] = useState([]); // For carousel uploads
+  const [isUploadingToMonth, setIsUploadingToMonth] = useState(false);
+  
   // Refs for direct DOM manipulation to avoid re-renders
   const titleInputRef = useRef(null);
   const contentInputRef = useRef(null);

@@ -259,6 +259,22 @@ function MainApp() {
   const [notes, setNotes] = useState([]);
   const [showPaymentPage, setShowPaymentPage] = useState(false);
   
+  // Préchargement des vignettes à la connexion
+  useEffect(() => {
+    if (isAuthenticated) {
+      console.log('🚀 Préchargement des vignettes en arrière-plan...');
+      
+      // Préchargement silencieux après connexion
+      setTimeout(() => {
+        loadPendingContent().then(() => {
+          console.log('✅ Vignettes préchargées avec succès');
+        }).catch(err => {
+          console.log('⚠️ Erreur préchargement:', err);
+        });
+      }, 1000); // 1 seconde après connexion
+    }
+  }, [isAuthenticated]);
+
   // Form states
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [fileCustomData, setFileCustomData] = useState({}); // Store custom titles and contexts for selected files

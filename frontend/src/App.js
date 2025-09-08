@@ -3749,7 +3749,7 @@ function MainApp() {
                                           
                                           {/* Month Content */}
                                           {!isCollapsed && (
-                                            <div className="p-4">
+                                            <div className="p-2">
                                               {hasContent || !monthInfo.isPast ? (
                                                 <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                                                   {/* Existing content */}

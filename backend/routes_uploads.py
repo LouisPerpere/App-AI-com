@@ -340,6 +340,14 @@ async def upload_content_batch(
             # Generate unique ID first for URLs
             doc_id = str(uuid.uuid4())
             
+            # Determine title and context based on upload type
+            if upload_type == "carousel" and common_title:
+                title = common_title
+                context = common_context or f"Image du carrousel '{common_title}'"
+            else:
+                title = file.filename
+                context = ""
+                
             media_doc = {
                 "owner_id": user_id,
                 "filename": file.filename,
@@ -347,7 +355,7 @@ async def upload_content_batch(
                 "storage": "gridfs",
                 "gridfs_id": grid_id,
                 "size": len(data),
-                "description": "",
+                "description": context,
                 "created_at": datetime.utcnow(),
                 "deleted": False,
                 "id": doc_id,
@@ -355,7 +363,11 @@ async def upload_content_batch(
                 "thumb_url": f"/api/content/{doc_id}/thumb",
                 "attributed_month": attributed_month,
                 "upload_type": upload_type,
-                "source": "upload"  # Mark as regular upload vs pixabay
+                "source": "upload",  # Mark as regular upload vs pixabay
+                "title": title,  # Add title field
+                "context": context,  # Add context field
+                "common_title": common_title if upload_type == "carousel" else None,  # For carousel grouping
+                "carousel_id": str(uuid.uuid4()) if upload_type == "carousel" and common_title else None  # Group carousel items
             }
             res = db.media.insert_one(media_doc)
             media_id = res.inserted_id

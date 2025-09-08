@@ -981,13 +981,7 @@ function MainApp() {
     setSelectedContentIds(new Set()); // Reset selections
   }, []);
 
-  // VRAIMENT STABLE: Callbacks avec useRef pour éviter toute dépendance
-  const selectedContentIdsRef = useRef(selectedContentIds);
-  const isSelectionModeRef = useRef(isSelectionMode);
-  
-  // Maintenir les refs à jour
-  selectedContentIdsRef.current = selectedContentIds;
-  isSelectionModeRef.current = isSelectionMode;
+  // Callbacks pour les vignettes
   
   const handleToggleSelection = useCallback((contentId) => {
     setSelectedContentIds(prev => {

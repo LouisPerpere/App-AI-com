@@ -2909,16 +2909,38 @@ function MainApp() {
                           <label
                             htmlFor="carousel-upload"
                             className="flex-1 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white py-3 px-6 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center font-medium"
-                            onClick={() => {
+                            onClick={(e) => {
                               console.log('🎠 Carousel label clicked');
-                              // Force trigger the file input for better mobile compatibility
-                              const input = document.getElementById('carousel-upload');
-                              if (input) {
-                                console.log('🎠 Found carousel input, triggering click');
-                                input.click();
-                              } else {
-                                console.log('❌ Carousel input not found');
-                              }
+                              e.preventDefault();
+                              
+                              // Create a new file input dynamically for better iOS compatibility
+                              const input = document.createElement('input');
+                              input.type = 'file';
+                              input.multiple = true;
+                              input.accept = 'image/*';
+                              
+                              input.onchange = (event) => {
+                                console.log('🎠 Dynamic input onChange triggered');
+                                const files = Array.from(event.target.files || []);
+                                console.log(`🎠 Selected ${files.length} files:`, files.map(f => ({ name: f.name, size: f.size, type: f.type })));
+                                
+                                if (files.length === 0) {
+                                  console.log('🎠 No files selected');
+                                  return;
+                                }
+                                
+                                if (files.length > 10) {
+                                  toast.error('Maximum 10 images pour un carrousel');
+                                  return;
+                                }
+                                
+                                console.log('🎠 Setting carousel files state:', files.length);
+                                setCarouselFiles(files);
+                                toast.success(`${files.length} image${files.length > 1 ? 's' : ''} sélectionnée${files.length > 1 ? 's' : ''} pour le carrousel ! 🎠`);
+                              };
+                              
+                              // Trigger the file picker
+                              input.click();
                             }}
                           >
                             <ImageIcon className="w-5 h-5 mr-2" />

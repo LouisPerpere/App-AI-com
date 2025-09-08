@@ -1989,19 +1989,27 @@ function MainApp() {
     }
     
     setIsUploading(true);
-    const formData = new FormData();
+    
+    // Group files by month for efficient batch uploads
+    const filesByMonth = {};
     
     selectedFiles.forEach((file, index) => {
-      console.log(`📎 Adding file ${index + 1}: ${file.name} (${file.size} bytes)`);
-      formData.append('files', file);
+      const monthData = uploadMonthSelectors.current[index]?.value || getDefaultMonth();
+      console.log(`📎 File ${index + 1}: ${file.name} → ${monthData}`);
+      
+      if (!filesByMonth[monthData]) {
+        filesByMonth[monthData] = [];
+      }
+      
+      filesByMonth[monthData].push({
+        file,
+        index,
+        title: uploadTitleRefs.current[index]?.value || '',
+        context: uploadContextRefs.current[index]?.value || ''
+      });
     });
     
-    // Add monthly attribution if selected
-    if (globalUploadMonth) {
-      formData.append('attributed_month', globalUploadMonth);
-      formData.append('upload_type', 'batch');
-      console.log(`📅 Files will be attributed to: ${globalUploadMonth}`);
-    }
+    console.log('📁 Files grouped by month:', Object.keys(filesByMonth).map(month => `${month}: ${filesByMonth[month].length} files`));
 
     try {
       const response = await axios.post(`${API}/content/batch-upload`, formData, {

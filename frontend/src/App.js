@@ -690,8 +690,10 @@ function MainApp() {
       .map(([key, info]) => ({ key, label: info.label }));
   }, [getMonthlyContentData]);
 
-  // Toggle month collapse state
-  const toggleMonthCollapse = useCallback((monthKey) => {
+  // Toggle month collapse state with conditional loading
+  const toggleMonthCollapse = useCallback(async (monthKey) => {
+    const wasCollapsed = collapsedMonths.has(monthKey);
+    
     setCollapsedMonths(prev => {
       const newSet = new Set(prev);
       if (newSet.has(monthKey)) {
@@ -701,7 +703,18 @@ function MainApp() {
       }
       return newSet;
     });
-  }, []);
+    
+    // If expanding an archive month for the first time, load its content
+    if (wasCollapsed) {
+      const { archives } = getMonthlyContentData();
+      if (archives[monthKey] && archives[monthKey].isPast) {
+        console.log(`📥 Loading content for archive month: ${monthKey}`);
+        // Here we would load content specifically for this month
+        // For now, we'll refresh all content as the backend doesn't support month-specific loading yet
+        await loadPendingContent();
+      }
+    }
+  }, [collapsedMonths, getMonthlyContentData, loadPendingContent]);
 
   const loadNotes = async () => {
     try {

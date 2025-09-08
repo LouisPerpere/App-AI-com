@@ -2043,9 +2043,21 @@ function MainApp() {
           formData.append('files', file);
         });
         
-        // Add month attribution
+        // Add month attribution and upload type
         formData.append('attributed_month', monthKey);
-        formData.append('upload_type', filesData.length === 1 ? 'single' : 'batch');
+        
+        if (isCarouselMode) {
+          formData.append('upload_type', 'carousel');
+          // Add shared metadata for carousel
+          if (filesData[0]?.title) {
+            formData.append('common_title', filesData[0].title);
+          }
+          if (filesData[0]?.context) {
+            formData.append('common_context', filesData[0].context);
+          }
+        } else {
+          formData.append('upload_type', filesData.length === 1 ? 'single' : 'batch');
+        }
         
         try {
           const response = await axios.post(`${API}/content/batch-upload`, formData, {

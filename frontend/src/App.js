@@ -2781,8 +2781,15 @@ function MainApp() {
                       <input
                         type="file"
                         multiple
-                        accept="image/*,video/*"
-                        onChange={(e) => handleMonthlyUpload(Array.from(e.target.files), 'carousel')}
+                        accept="image/*"
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files);
+                          if (files.length > 10) {
+                            toast.error('Maximum 10 images pour un carrousel');
+                            return;
+                          }
+                          setCarouselFiles(files);
+                        }}
                         className="hidden"
                         id="carousel-upload"
                       />

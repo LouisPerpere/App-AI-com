@@ -367,8 +367,7 @@ function MainApp() {
   const contextTextareaRef = useRef(null); // Ref pour éviter bug clavier virtuel
   const pixabaySearchRef = useRef(null); // Ref pour recherche Pixabay
   const isPermanentCheckboxRef = useRef(null); // Note permanente
-  const targetMonthRef = useRef(null); // Mois cible
-  const targetYearRef = useRef(null); // Année cible
+  const targetMonthKeyRef = useRef(null); // Mois cible unifié (clé comme "octobre_2025")
   const previewTitleInputRef = useRef(null); // Pour le titre dans l'aperçu
   
   // Website analysis states

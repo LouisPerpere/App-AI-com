@@ -2845,48 +2845,35 @@ function MainApp() {
                         className="hidden"
                         id="monthly-upload"
                       />
+                      
+                      {/* Hidden input for carousel - new approach */}
                       <input
                         type="file"
                         multiple
                         accept="image/*"
                         onChange={(e) => {
-                          console.log('🎠 Carousel input onChange triggered');
-                          console.log('🎠 Event target:', e.target);
-                          console.log('🎠 Files from event:', e.target.files);
-                          
+                          console.log('🎠 Hidden carousel input onChange triggered');
                           const files = Array.from(e.target.files || []);
-                          console.log(`🎠 Selected ${files.length} files:`, files.map(f => ({ name: f.name, size: f.size, type: f.type })));
+                          console.log(`🎠 Hidden input selected ${files.length} files`);
                           
                           if (files.length === 0) {
-                            console.log('🎠 No files selected, clearing carousel');
-                            setCarouselFiles([]);
+                            console.log('🎠 No files selected');
                             return;
                           }
                           
                           if (files.length > 10) {
                             toast.error('Maximum 10 images pour un carrousel');
-                            e.target.value = ''; // Clear the input
+                            e.target.value = '';
                             return;
                           }
                           
-                          console.log('🎠 Setting carousel files state:', files.length);
+                          console.log('🎠 Setting carousel files from hidden input');
                           setCarouselFiles(files);
                           toast.success(`${files.length} image${files.length > 1 ? 's' : ''} sélectionnée${files.length > 1 ? 's' : ''} pour le carrousel ! 🎠`);
                         }}
-                        onFocus={() => console.log('🎠 Carousel input focused')}
-                        onBlur={() => console.log('🎠 Carousel input blurred')}
-                        onClick={() => console.log('🎠 Carousel input clicked')}
                         className="hidden"
-                        id="carousel-upload"
-                        ref={(input) => {
-                          if (input) {
-                            console.log('🎠 Carousel input ref set');
-                            // Add additional event listeners for debugging
-                            input.addEventListener('change', (e) => {
-                              console.log('🎠 Native change event:', e.target.files?.length);
-                            });
-                          }
-                        }}
+                        id="carousel-upload-hidden"
+                        style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}
                       />
                       <div className="block border-2 border-dashed border-purple-300 rounded-3xl p-8 text-center bg-gradient-to-br from-purple-50 to-pink-50">
                         <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">

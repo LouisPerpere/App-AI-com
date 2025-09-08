@@ -314,6 +314,7 @@ function MainApp() {
   const [uploadMode, setUploadMode] = useState('single'); // 'single' or 'carousel'
   const [carouselFiles, setCarouselFiles] = useState([]); // For carousel uploads
   const [isUploadingToMonth, setIsUploadingToMonth] = useState(false);
+  const [globalUploadMonth, setGlobalUploadMonth] = useState(null); // For main upload section
   
   // Pixabay save choice modal states
   const [showPixabaySaveModal, setShowPixabaySaveModal] = useState(false);

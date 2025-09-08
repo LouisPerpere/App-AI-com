@@ -143,9 +143,6 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
                 }
               }
             }}
-            onLoad={() => {
-              console.log('✅ Image loaded successfully:', content.thumb_url || content.url);
-            }}
           />
         ) : content.file_type?.startsWith('video/') ? (
           <div className="relative w-full h-full">

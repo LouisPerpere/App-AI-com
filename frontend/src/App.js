@@ -2826,10 +2826,23 @@ function MainApp() {
                         multiple
                         accept="image/*,video/*"
                         onChange={(e) => {
+                          console.log('📁 Upload input onChange triggered');
                           const files = Array.from(e.target.files);
+                          console.log(`📁 Selected ${files.length} files for upload`);
+                          
+                          if (files.length === 0) {
+                            console.log('📁 No files selected');
+                            setSelectedFiles([]);
+                            return;
+                          }
+                          
                           if (globalUploadMonth) {
-                            handleMonthlyUpload(files, 'single');
+                            // Upload with month attribution - use 'batch' mode for multiple files
+                            console.log('📁 Using monthly upload with batch mode');
+                            handleMonthlyUpload(files, files.length === 1 ? 'single' : 'batch');
                           } else {
+                            // Traditional upload flow
+                            console.log('📁 Using traditional upload flow');
                             setSelectedFiles(files);
                           }
                         }}

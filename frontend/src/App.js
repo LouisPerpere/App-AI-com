@@ -4216,7 +4216,7 @@ function MainApp() {
                     
                     <div className="space-y-3">
                       {/* Titre de la note avec input HTML natif */}
-                      <div className="space-y-2">
+                      <div className="space-y-1">
                         <label htmlFor="note_title_native" className="block text-sm font-medium text-gray-700">
                           Titre de la note
                         </label>
@@ -4226,7 +4226,7 @@ function MainApp() {
                           type="text"
                           onChange={handleNoteTitleChange}
                           placeholder="Ex: Nouvelle promotion, Événement spécial..."
-                          className="w-full p-4 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                          className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                           style={{
                             fontSize: '16px',
                             lineHeight: '1.5',

@@ -3499,18 +3499,7 @@ function MainApp() {
                         
 
                         
-                        {pendingContent.length > 0 && (
-                          <div className="text-center">
-                            <Button
-                              onClick={loadPendingContent}
-                              variant="outline"
-                              className="text-purple-600 border-purple-300 hover:bg-purple-50"
-                            >
-                              <ChevronRight className="w-4 h-4 mr-2 rotate-90" />
-                              Recharger le contenu
-                            </Button>
-                          </div>
-                        )}
+
                       </div>
                     </div>
                   </div>

@@ -233,6 +233,18 @@ test_plan:
   test_priority: "high_first"
 
 backend:
+  - task: "Thumbnail Performance Issue Investigation"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py, /app/backend/routes_thumbs.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "🚨 CRITICAL THUMBNAIL PERFORMANCE ISSUE IDENTIFIED - ROOT CAUSE FOUND: Comprehensive testing reveals the iPhone 30-second thumbnail loading issue is caused by a cache header conflict in server.py middleware. The global no-cache middleware (lines 106-114) overrides proper cache headers set by routes_thumbs.py (lines 228-232), preventing browser caching and forcing regeneration on every request. Concurrent requests are 11.44x slower than sequential (4062ms vs 355ms average), creating the bottleneck when iPhone loads multiple thumbnails simultaneously. Database analysis shows get_db_thumbnail() function working correctly with thumbnails properly cached in MongoDB. Sequential performance is acceptable (355ms average), but concurrent performance triggers server-side bottlenecks. SOLUTION REQUIRED: Modify server.py middleware to exclude thumbnail endpoints (/api/content/*/thumb) from no-cache headers to restore proper browser caching behavior."
+
   - task: "Pixabay Integration Backend API"
     implemented: true
     working: true

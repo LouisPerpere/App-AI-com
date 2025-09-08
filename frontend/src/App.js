@@ -813,13 +813,28 @@ function MainApp() {
       .map(([key, info]) => ({ key, label: info.label }));
   }, [getMonthlyContentData]);
 
-  // Get available months for notes selector (same as uploads)
+  // Get available months for notes selector (same logic as uploads but independent)
   const getNotesMonthOptions = useCallback(() => {
-    const { currentAndFuture } = getMonthlyNotesData();
-    return Object.entries(currentAndFuture)
-      .sort(([, a], [, b]) => a.order - b.order)
-      .map(([key, info]) => ({ key, label: info.label }));
-  }, [getMonthlyNotesData]);
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth(); // 0-based
+    const monthNames = [
+      'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+      'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+    ];
+    
+    const options = [];
+    for (let i = 0; i < 6; i++) {
+      const targetMonth = (currentMonth + i) % 12;
+      const targetYear = currentYear + Math.floor((currentMonth + i) / 12);
+      const monthKey = `${monthNames[targetMonth]}_${targetYear}`;
+      const label = `${monthNames[targetMonth].charAt(0).toUpperCase() + monthNames[targetMonth].slice(1)} ${targetYear}`;
+      
+      options.push({ key: monthKey, label });
+    }
+    
+    return options;
+  }, []);
 
   // Get default month (closest/current month)
   const getDefaultMonth = useCallback(() => {

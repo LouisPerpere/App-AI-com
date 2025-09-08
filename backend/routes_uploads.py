@@ -52,6 +52,8 @@ def _decode_user_from_token(token: str) -> Optional[str]:
 @router.post("/content/upload")
 async def upload_content(
     file: UploadFile = File(...),
+    attributed_month: Optional[str] = None,
+    upload_type: Optional[str] = None,
     bg: BackgroundTasks = None,
     user_id: str = Depends(get_current_user_id_robust)
 ):

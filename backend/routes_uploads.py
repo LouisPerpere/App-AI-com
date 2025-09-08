@@ -220,6 +220,8 @@ async def upload_content(
 @router.post("/content/batch-upload")
 async def upload_content_batch(
     files: List[UploadFile] = File(...),
+    attributed_month: Optional[str] = None,
+    upload_type: Optional[str] = None,
     bg: BackgroundTasks = None,
     user_id: str = Depends(get_current_user_id_robust)
 ):

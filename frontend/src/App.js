@@ -3008,95 +3008,162 @@ function MainApp() {
                           /* MONTHLY SECTIONS VIEW */
                           <div className="space-y-6">
                             {(() => {
-                              const monthlyData = getMonthlyContentData();
-                              return Object.entries(monthlyData).map(([monthKey, monthInfo]) => {
-                                const isCollapsed = collapsedMonths.has(monthKey);
-                                const hasContent = monthInfo.content.length > 0;
-                                
-                                return (
-                                  <div key={monthKey} className="border border-gray-200 rounded-2xl overflow-hidden">
-                                    {/* Month Header */}
-                                    <div 
-                                      className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-pink-50 cursor-pointer hover:from-purple-100 hover:to-pink-100 transition-colors"
-                                      onClick={() => toggleMonthCollapse(monthKey)}
-                                    >
-                                      <div className="flex items-center space-x-3">
-                                        <div className={`w-3 h-3 rounded-full transition-transform duration-200 ${isCollapsed ? 'rotate-0' : 'rotate-90'}`}>
-                                          <ChevronRight className="w-3 h-3 text-purple-600" />
-                                        </div>
-                                        <h3 className="text-lg font-semibold text-gray-800">
-                                          {monthInfo.label}
-                                        </h3>
-                                        <Badge variant="secondary" className="bg-purple-100 text-purple-700">
-                                          {monthInfo.content.length} {monthInfo.content.length <= 1 ? 'contenu' : 'contenus'}
-                                        </Badge>
-                                      </div>
+                              const { currentAndFuture, archives } = getMonthlyContentData();
+                              
+                              return (
+                                <>
+                                  {/* Current and Future Months */}
+                                  {Object.entries(currentAndFuture)
+                                    .sort(([, a], [, b]) => a.order - b.order)
+                                    .map(([monthKey, monthInfo]) => {
+                                      const isCollapsed = collapsedMonths.has(monthKey);
+                                      const hasContent = monthInfo.content.length > 0;
                                       
-                                      {/* Upload buttons for future months */}
-                                      {!monthInfo.isPast && (
-                                        <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
-                                          <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="text-xs text-purple-600 border-purple-300 hover:bg-purple-50"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setSelectedMonth(monthKey);
-                                              setUploadMode('single');
-                                              document.getElementById('monthly-upload')?.click();
-                                            }}
+                                      return (
+                                        <div key={monthKey} className="border border-gray-200 rounded-2xl overflow-hidden">
+                                          {/* Month Header */}
+                                          <div 
+                                            className={`flex items-center justify-between p-4 cursor-pointer transition-colors ${
+                                              monthInfo.isCurrent 
+                                                ? 'bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100' 
+                                                : 'bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100'
+                                            }`}
+                                            onClick={() => toggleMonthCollapse(monthKey)}
                                           >
-                                            <Upload className="w-3 h-3 mr-1" />
-                                            Photo
-                                          </Button>
-                                          <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="text-xs text-purple-600 border-purple-300 hover:bg-purple-50"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setSelectedMonth(monthKey);
-                                              setUploadMode('carousel');
-                                              document.getElementById('carousel-upload')?.click();
-                                            }}
-                                          >
-                                            <ImageIcon className="w-3 h-3 mr-1" />
-                                            Carousel
-                                          </Button>
+                                            <div className="flex items-center space-x-3">
+                                              <div className={`w-3 h-3 rounded-full transition-transform duration-200 ${isCollapsed ? 'rotate-0' : 'rotate-90'}`}>
+                                                <ChevronRight className="w-3 h-3 text-purple-600" />
+                                              </div>
+                                              <h3 className="text-lg font-semibold text-gray-800">
+                                                {monthInfo.label}
+                                                {monthInfo.isCurrent && (
+                                                  <span className="ml-2 text-sm text-green-600 font-normal">(actuel)</span>
+                                                )}
+                                              </h3>
+                                              <Badge variant="secondary" className={
+                                                monthInfo.isCurrent 
+                                                  ? "bg-green-100 text-green-700"
+                                                  : "bg-purple-100 text-purple-700"
+                                              }>
+                                                {monthInfo.content.length} {monthInfo.content.length <= 1 ? 'contenu' : 'contenus'}
+                                              </Badge>
+                                            </div>
+                                          </div>
+                                          
+                                          {/* Month Content */}
+                                          {!isCollapsed && (
+                                            <div className="p-4">
+                                              {hasContent || !monthInfo.isPast ? (
+                                                <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                                                  {/* Existing content */}
+                                                  {monthInfo.content.map((content) => (
+                                                    <ContentThumbnail
+                                                      key={content.id}
+                                                      content={content}
+                                                      isSelectionMode={isSelectionMode}
+                                                      isSelected={selectedContentIds.has(content.id)}
+                                                      onContentClick={handleContentClick}
+                                                      onToggleSelection={handleToggleSelection}
+                                                    />
+                                                  ))}
+                                                  
+                                                  {/* Upload buttons as thumbnails for current and future months */}
+                                                  {!monthInfo.isPast && (
+                                                    <>
+                                                      {/* Single photo upload button */}
+                                                      <div 
+                                                        className="aspect-square bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl border-2 border-dashed border-purple-300 hover:border-purple-400 cursor-pointer transition-all duration-200 hover:scale-105 flex flex-col items-center justify-center group"
+                                                        onClick={() => {
+                                                          setSelectedMonth(monthKey);
+                                                          setUploadMode('single');
+                                                          document.getElementById('monthly-upload')?.click();
+                                                        }}
+                                                      >
+                                                        <Upload className="w-6 h-6 text-purple-600 mb-1 group-hover:scale-110 transition-transform" />
+                                                        <span className="text-xs text-purple-700 font-medium">Photo</span>
+                                                      </div>
+                                                      
+                                                      {/* Carousel upload button */}
+                                                      <div 
+                                                        className="aspect-square bg-gradient-to-br from-pink-100 to-pink-200 rounded-xl border-2 border-dashed border-pink-300 hover:border-pink-400 cursor-pointer transition-all duration-200 hover:scale-105 flex flex-col items-center justify-center group"
+                                                        onClick={() => {
+                                                          setSelectedMonth(monthKey);
+                                                          setUploadMode('carousel');
+                                                          document.getElementById('carousel-upload')?.click();
+                                                        }}
+                                                      >
+                                                        <ImageIcon className="w-6 h-6 text-pink-600 mb-1 group-hover:scale-110 transition-transform" />
+                                                        <span className="text-xs text-pink-700 font-medium">Carousel</span>
+                                                      </div>
+                                                    </>
+                                                  )}
+                                                </div>
+                                              ) : (
+                                                <div className="text-center py-8 text-gray-500">
+                                                  <Calendar className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                                                  <p className="text-sm">Aucun contenu pour ce mois</p>
+                                                </div>
+                                              )}
+                                            </div>
+                                          )}
                                         </div>
-                                      )}
-                                    </div>
-                                    
-                                    {/* Month Content */}
-                                    {!isCollapsed && (
-                                      <div className="p-4">
-                                        {hasContent ? (
-                                          <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                                            {monthInfo.content.map((content) => (
-                                              <ContentThumbnail
-                                                key={content.id}
-                                                content={content}
-                                                isSelectionMode={isSelectionMode}
-                                                isSelected={selectedContentIds.has(content.id)}
-                                                onContentClick={handleContentClick}
-                                                onToggleSelection={handleToggleSelection}
-                                              />
-                                            ))}
-                                          </div>
-                                        ) : (
-                                          <div className="text-center py-8 text-gray-500">
-                                            <Calendar className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                                            <p className="text-sm">Aucun contenu pour ce mois</p>
-                                            {!monthInfo.isPast && (
-                                              <p className="text-xs mt-1">Utilisez les boutons ci-dessus pour ajouter du contenu</p>
-                                            )}
-                                          </div>
-                                        )}
+                                      );
+                                    })}
+                                  
+                                  {/* Archives Section */}
+                                  {Object.keys(archives).length > 0 && (
+                                    <div className="border-t-2 border-gray-300 pt-6 mt-8">
+                                      <h4 className="text-sm font-medium text-gray-500 mb-4 text-center">archives</h4>
+                                      <div className="space-y-4">
+                                        {Object.entries(archives)
+                                          .sort(([, a], [, b]) => b.order - a.order) // Most recent archive first
+                                          .map(([monthKey, monthInfo]) => {
+                                            const isCollapsed = collapsedMonths.has(monthKey);
+                                            const hasContent = monthInfo.content.length > 0;
+                                            
+                                            return (
+                                              <div key={monthKey} className="border border-gray-200 rounded-xl overflow-hidden">
+                                                <div 
+                                                  className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-50 to-gray-100 cursor-pointer hover:from-gray-100 hover:to-gray-150 transition-colors"
+                                                  onClick={() => toggleMonthCollapse(monthKey)}
+                                                >
+                                                  <div className="flex items-center space-x-3">
+                                                    <div className={`w-3 h-3 rounded-full transition-transform duration-200 ${isCollapsed ? 'rotate-0' : 'rotate-90'}`}>
+                                                      <ChevronRight className="w-3 h-3 text-gray-600" />
+                                                    </div>
+                                                    <h3 className="text-md font-medium text-gray-700">
+                                                      {monthInfo.label}
+                                                    </h3>
+                                                    <Badge variant="secondary" className="bg-gray-200 text-gray-600">
+                                                      {monthInfo.content.length}
+                                                    </Badge>
+                                                  </div>
+                                                </div>
+                                                
+                                                {!isCollapsed && hasContent && (
+                                                  <div className="p-3">
+                                                    <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                                                      {monthInfo.content.map((content) => (
+                                                        <ContentThumbnail
+                                                          key={content.id}
+                                                          content={content}
+                                                          isSelectionMode={isSelectionMode}
+                                                          isSelected={selectedContentIds.has(content.id)}
+                                                          onContentClick={handleContentClick}
+                                                          onToggleSelection={handleToggleSelection}
+                                                        />
+                                                      ))}
+                                                    </div>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            );
+                                          })}
                                       </div>
-                                    )}
-                                  </div>
-                                );
-                              });
+                                    </div>
+                                  )}
+                                </>
+                              );
                             })()}
                           </div>
                         ) : (

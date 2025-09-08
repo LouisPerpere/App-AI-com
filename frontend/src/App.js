@@ -2895,56 +2895,73 @@ function MainApp() {
                         <h3 className="text-xl font-semibold text-gray-900 mb-2">Uploadez vos contenus 📁</h3>
                         <p className="text-gray-600 mb-4">Choisissez votre type d'upload</p>
                         
-                        {/* Two integrated upload buttons */}
-                        <div className="flex gap-4 justify-center max-w-md mx-auto">
+                        {/* Two integrated upload buttons - Same size */}
+                        <div className="flex gap-4 justify-center max-w-lg mx-auto">
                           <label
                             htmlFor="file-upload"
-                            className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-3 px-6 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center font-medium"
+                            className="w-40 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-3 px-6 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center font-medium"
                           >
                             <Upload className="w-5 h-5 mr-2" />
                             Upload
                           </label>
                           
-                          <label
-                            htmlFor="carousel-upload"
-                            className="flex-1 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white py-3 px-6 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center font-medium"
+                          <button
+                            type="button"
+                            className="w-40 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white py-3 px-6 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center font-medium"
                             onClick={(e) => {
-                              console.log('🎠 Carousel label clicked');
+                              console.log('🎠 Carousel button clicked');
                               e.preventDefault();
                               
-                              // Create a new file input dynamically for better iOS compatibility
-                              const input = document.createElement('input');
-                              input.type = 'file';
-                              input.multiple = true;
-                              input.accept = 'image/*';
+                              if (!globalUploadMonth) {
+                                toast.error('Veuillez d\'abord sélectionner un mois de destination');
+                                return;
+                              }
                               
-                              input.onchange = (event) => {
-                                console.log('🎠 Dynamic input onChange triggered');
-                                const files = Array.from(event.target.files || []);
-                                console.log(`🎠 Selected ${files.length} files:`, files.map(f => ({ name: f.name, size: f.size, type: f.type })));
+                              // Try a more direct approach using a hidden input that we trigger
+                              const hiddenInput = document.getElementById('carousel-upload-hidden');
+                              if (hiddenInput) {
+                                console.log('🎠 Found hidden input, triggering...');
+                                hiddenInput.value = ''; // Clear previous selection
+                                hiddenInput.click();
+                              } else {
+                                console.log('🎠 Hidden input not found, creating dynamic input');
+                                // Fallback to dynamic input
+                                const input = document.createElement('input');
+                                input.type = 'file';
+                                input.multiple = true;
+                                input.accept = 'image/*';
+                                input.style.display = 'none';
                                 
-                                if (files.length === 0) {
-                                  console.log('🎠 No files selected');
-                                  return;
-                                }
+                                input.addEventListener('change', (event) => {
+                                  console.log('🎠 Dynamic input onChange triggered');
+                                  const files = Array.from(event.target.files || []);
+                                  console.log(`🎠 Selected ${files.length} files`);
+                                  
+                                  if (files.length === 0) {
+                                    console.log('🎠 No files selected');
+                                    return;
+                                  }
+                                  
+                                  if (files.length > 10) {
+                                    toast.error('Maximum 10 images pour un carrousel');
+                                    return;
+                                  }
+                                  
+                                  setCarouselFiles(files);
+                                  toast.success(`${files.length} image${files.length > 1 ? 's' : ''} sélectionnée${files.length > 1 ? 's' : ''} pour le carrousel ! 🎠`);
+                                  
+                                  // Clean up
+                                  document.body.removeChild(input);
+                                });
                                 
-                                if (files.length > 10) {
-                                  toast.error('Maximum 10 images pour un carrousel');
-                                  return;
-                                }
-                                
-                                console.log('🎠 Setting carousel files state:', files.length);
-                                setCarouselFiles(files);
-                                toast.success(`${files.length} image${files.length > 1 ? 's' : ''} sélectionnée${files.length > 1 ? 's' : ''} pour le carrousel ! 🎠`);
-                              };
-                              
-                              // Trigger the file picker
-                              input.click();
+                                document.body.appendChild(input);
+                                input.click();
+                              }
                             }}
                           >
                             <ImageIcon className="w-5 h-5 mr-2" />
                             Carrousel
-                          </label>
+                          </button>
                         </div>
                         
                         <p className="text-sm text-purple-600 font-medium mt-4">📱 Images • 🎬 Vidéos</p>

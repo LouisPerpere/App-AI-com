@@ -629,7 +629,8 @@ function MainApp() {
           year: targetYear,
           isPast: true,
           content: [],
-          order: -i // Negative for reverse chronological order
+          order: -i, // Negative for reverse chronological order
+          shouldLoadThumbnails: i <= 2 || !collapsedMonths.has(monthKey) // Load thumbnails for first 2 months or when expanded
         };
       }
       return months;

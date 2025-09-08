@@ -741,6 +741,119 @@ function MainApp() {
     return options.length > 0 ? options[0].key : null;
   }, [getUploadMonthOptions]);
 
+  // Monthly notes organization utilities - same logic as content
+  const getMonthlyNotesData = useCallback(() => {
+    if (!Array.isArray(notes)) return { alwaysValid: [], currentAndFuture: {}, archives: {} };
+    
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth(); // 0-based (September = 8)
+    
+    // Generate current month and next 2 months dynamically (same as content)
+    const getCurrentAndFutureMonths = () => {
+      const months = {};
+      const monthNames = [
+        'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+        'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+      ];
+      
+      for (let i = 0; i < 3; i++) {
+        const targetMonth = (currentMonth + i) % 12;
+        const targetYear = currentYear + Math.floor((currentMonth + i) / 12);
+        const monthKey = `${monthNames[targetMonth]}_${targetYear}`;
+        
+        months[monthKey] = {
+          label: `${monthNames[targetMonth].charAt(0).toUpperCase() + monthNames[targetMonth].slice(1)} ${targetYear}`,
+          month: targetMonth,
+          year: targetYear,
+          isCurrent: i === 0,
+          isFuture: i > 0,
+          notes: [],
+          order: i
+        };
+      }
+      return months;
+    };
+    
+    // Generate archive months (past months) - same as content
+    const getArchiveMonths = () => {
+      const months = {};
+      const monthNames = [
+        'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+        'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+      ];
+      
+      // Generate last 6 months before current month
+      for (let i = 1; i <= 6; i++) {
+        const targetMonth = (currentMonth - i + 12) % 12;
+        // Correct year calculation for past months
+        const targetYear = currentMonth - i < 0 ? currentYear - 1 : currentYear;
+        const monthKey = `${monthNames[targetMonth]}_${targetYear}`;
+        
+        months[monthKey] = {
+          label: `${monthNames[targetMonth].charAt(0).toUpperCase() + monthNames[targetMonth].slice(1)} ${targetYear}`,
+          month: targetMonth,
+          year: targetYear,
+          isPast: true,
+          notes: [],
+          order: -i // Negative for reverse chronological order
+        };
+      }
+      return months;
+    };
+    
+    const currentAndFuture = getCurrentAndFutureMonths();
+    const archives = getArchiveMonths();
+    const allMonths = { ...currentAndFuture, ...archives };
+    
+    // Always valid notes (monthly notes)
+    const alwaysValid = [];
+    
+    // Categorize notes by month
+    notes.forEach(note => {
+      // Always valid notes (monthly notes)
+      if (note.is_monthly_note) {
+        alwaysValid.push(note);
+        return;
+      }
+      
+      // Notes with specific month/year
+      if (note.note_month && note.note_year) {
+        const monthNames = [
+          'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+          'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+        ];
+        
+        const noteMonthKey = `${monthNames[note.note_month - 1]}_${note.note_year}`;
+        if (allMonths[noteMonthKey]) {
+          allMonths[noteMonthKey].notes.push(note);
+        } else {
+          // If month doesn't exist in our range, add to first archive month
+          const firstArchiveKey = Object.keys(archives).sort((a, b) => archives[b].order - archives[a].order)[0];
+          if (firstArchiveKey) {
+            allMonths[firstArchiveKey].notes.push(note);
+          }
+        }
+      } else {
+        // Notes without specific date go to current month
+        const currentMonthKey = Object.keys(currentAndFuture).find(key => currentAndFuture[key].isCurrent);
+        if (currentMonthKey) {
+          allMonths[currentMonthKey].notes.push(note);
+        }
+      }
+    });
+    
+    // Update notes in respective objects
+    Object.keys(currentAndFuture).forEach(key => {
+      currentAndFuture[key].notes = allMonths[key].notes;
+    });
+    Object.keys(archives).forEach(key => {
+      archives[key].notes = allMonths[key].notes;
+    });
+    
+    return { alwaysValid, currentAndFuture, archives };
+  }, [notes]);
+
   // Toggle month collapse state with conditional loading
   const toggleMonthCollapse = useCallback(async (monthKey) => {
     const wasCollapsed = collapsedMonths.has(monthKey);

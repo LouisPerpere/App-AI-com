@@ -2772,17 +2772,34 @@ function MainApp() {
                         className="hidden"
                         id="carousel-upload"
                       />
-                      <label
-                        htmlFor="file-upload"
-                        className="block border-2 border-dashed border-purple-300 rounded-3xl p-8 text-center hover:border-purple-500 hover:bg-gradient-to-br hover:from-purple-100 hover:to-pink-100 transition-all duration-300 bg-gradient-to-br from-purple-50 to-pink-50 cursor-pointer transform hover:scale-[1.02]"
-                      >
+                      <div className="block border-2 border-dashed border-purple-300 rounded-3xl p-8 text-center bg-gradient-to-br from-purple-50 to-pink-50">
                         <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                           <Upload className="w-8 h-8 text-white" />
                         </div>
                         <h3 className="text-xl font-semibold text-gray-900 mb-2">Uploadez vos contenus 📁</h3>
-                        <p className="text-gray-600 mb-4">Glissez-déposez vos fichiers ou cliquez partout ici pour sélectionner</p>
-                        <p className="text-sm text-purple-600 font-medium">📱 Images • 🎬 Vidéos</p>
-                      </label>
+                        <p className="text-gray-600 mb-4">Choisissez votre type d'upload</p>
+                        
+                        {/* Two integrated upload buttons */}
+                        <div className="flex gap-4 justify-center max-w-md mx-auto">
+                          <label
+                            htmlFor="file-upload"
+                            className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-3 px-6 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center font-medium"
+                          >
+                            <Upload className="w-5 h-5 mr-2" />
+                            Upload
+                          </label>
+                          
+                          <label
+                            htmlFor="carousel-upload"
+                            className="flex-1 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white py-3 px-6 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center font-medium"
+                          >
+                            <ImageIcon className="w-5 h-5 mr-2" />
+                            Carrousel
+                          </label>
+                        </div>
+                        
+                        <p className="text-sm text-purple-600 font-medium mt-4">📱 Images • 🎬 Vidéos</p>
+                      </div>
 
                       {/* Selected Files Preview */}
                       {selectedFiles.length > 0 && (

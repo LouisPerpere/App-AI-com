@@ -227,6 +227,8 @@ async def upload_content_batch(
     files: List[UploadFile] = File(...),
     attributed_month: Optional[str] = Form(None),
     upload_type: Optional[str] = Form(None),
+    common_title: Optional[str] = Form(None),
+    common_context: Optional[str] = Form(None),
     bg: BackgroundTasks = None,
     user_id: str = Depends(get_current_user_id_robust)
 ):

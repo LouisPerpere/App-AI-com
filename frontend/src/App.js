@@ -128,7 +128,6 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
             loading="lazy"
             crossOrigin="anonymous"
             onError={(e) => {
-              console.log('❌ Image failed to load:', content.thumb_url || content.url);
               // Fallback based on source
               if (content.source === 'pixabay') {
                 // For Pixabay, try the original URL without token

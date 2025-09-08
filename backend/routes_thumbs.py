@@ -123,6 +123,14 @@ def is_video(ft: str) -> bool:
 # Helpers to fetch original media bytes (GridFS or disk)
 
 def _fetch_original_bytes(media_doc) -> Optional[bytes]:
+    # Check if this is an external image (like Pixabay)
+    source = media_doc.get("source")
+    if source == "pixabay" or media_doc.get("is_external"):
+        # For external images, download from the original URL
+        image_url = media_doc.get("url") or media_doc.get("thumb_url")
+        if image_url:
+            return _download_external_image(image_url)
+    
     storage = media_doc.get("storage")
     filename = media_doc.get("filename")
     if storage == "gridfs":
@@ -156,6 +164,19 @@ def _fetch_original_bytes(media_doc) -> Optional[bytes]:
             except Exception:
                 return None
     return None
+
+def _download_external_image(url: str) -> Optional[bytes]:
+    """Download an external image and return its bytes"""
+    try:
+        import requests
+        response = requests.get(url, timeout=10, headers={
+            'User-Agent': 'Claire-Marcus-Bot/1.0'
+        })
+        if response.status_code == 200:
+            return response.content
+        return None
+    except Exception:
+        return None
 
 def _decode_user_from_token(token: str) -> Optional[str]:
     try:

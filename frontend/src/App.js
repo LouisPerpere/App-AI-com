@@ -2846,7 +2846,7 @@ function MainApp() {
                         id="monthly-upload"
                       />
                       
-                      {/* Hidden input for carousel - simplified */}
+                      {/* Hidden input for carousel - native behavior like Upload */}
                       <input
                         type="file"
                         multiple
@@ -2855,6 +2855,13 @@ function MainApp() {
                           console.log('🎠 Carousel input onChange triggered');
                           const files = Array.from(e.target.files || []);
                           console.log(`🎠 Selected ${files.length} files for carousel`);
+                          
+                          // Check if month is selected first
+                          if (!globalUploadMonth) {
+                            toast.error('Veuillez d\'abord sélectionner un mois de destination');
+                            e.target.value = ''; // Clear the selection
+                            return;
+                          }
                           
                           if (files.length === 0) {
                             console.log('🎠 No files selected');

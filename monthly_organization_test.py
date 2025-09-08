@@ -552,9 +552,12 @@ class MonthlyOrganizationTester:
                 if response.status_code == 200:
                     cleanup_results.append(True)
                     print(f"   ✅ Contenu supprimé: {content_id}")
+                elif response.status_code == 404:
+                    cleanup_results.append(True)  # Already deleted, consider success
+                    print(f"   ✅ Contenu déjà supprimé: {content_id}")
                 else:
                     cleanup_results.append(False)
-                    print(f"   ❌ Échec suppression contenu: {content_id}")
+                    print(f"   ⚠️ Échec suppression contenu: {content_id} (Status: {response.status_code})")
             except Exception as e:
                 cleanup_results.append(False)
                 print(f"   ❌ Erreur suppression contenu {content_id}: {e}")

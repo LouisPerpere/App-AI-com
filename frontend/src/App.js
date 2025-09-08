@@ -3133,9 +3133,9 @@ function MainApp() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="bibliotheque" className="space-y-8">
+          <TabsContent value="bibliotheque" className="space-y-4">
             <Card className="card-gradient">
-              <CardHeader>
+              <CardHeader className="pb-4">
                 <CardTitle className="flex items-center space-x-3 text-2xl">
                   <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
                     <ImageIcon className="w-6 h-6 text-white" />

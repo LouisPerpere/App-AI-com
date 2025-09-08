@@ -2824,7 +2824,12 @@ function MainApp() {
                             }}
                           />
                           <Button
-                            onClick={searchPixabayImages}
+                            onClick={() => {
+                              console.log('🔍 Pixabay GO button clicked!');
+                              console.log('Search ref:', pixabaySearchRef.current);
+                              console.log('Search value:', pixabaySearchRef.current?.value);
+                              searchPixabayImages();
+                            }}
                             disabled={isSearchingPixabay}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-6 whitespace-nowrap"
                           >

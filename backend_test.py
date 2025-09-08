@@ -1,21 +1,28 @@
 #!/usr/bin/env python3
 """
-Pixabay Integration Backend Testing
-Testing the Pixabay search functionality as reported broken by user.
-Focus: Test Pixabay endpoints and verify response format matches frontend expectations.
+Pixabay Thumbnail Performance Testing
+Test de la correction des miniatures Pixabay lentes
+
+This test verifies:
+1. Backend can generate thumbnails for existing Pixabay images
+2. New Pixabay images use the /api/content/{id}/thumb endpoint
+3. The /api/content/{id}/thumb endpoint works correctly for Pixabay images
+4. Pixabay thumbnails benefit from optimized cache headers (Cache-Control: public, max-age=604800, immutable)
+5. Download from external Pixabay URLs works in _fetch_original_bytes
+
+Using credentials: lperpere@yahoo.fr / L@Reunion974!
+Backend URL: https://image-carousel-lib.preview.emergentagent.com/api
 """
 
 import requests
 import json
-import sys
+import time
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://image-carousel-lib.preview.emergentagent.com/api"
-TEST_CREDENTIALS = {
-    "email": "lperpere@yahoo.fr", 
-    "password": "L@Reunion974!"
-}
+BASE_URL = "https://image-carousel-lib.preview.emergentagent.com/api"
+EMAIL = "lperpere@yahoo.fr"
+PASSWORD = "L@Reunion974!"
 
 class PixabayTester:
     def __init__(self):

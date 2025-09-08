@@ -2974,8 +2974,7 @@ function MainApp() {
                             </Button>
                           </div>
 
-                        {/* Carousel Files Preview - Debug carouselFiles state */}
-                        {console.log('🎠 Current carouselFiles state:', carouselFiles, 'Length:', carouselFiles.length)}
+                        {/* Carousel Files Preview */}
                         {carouselFiles.length > 0 && (
                           <div className="mt-6">
                             <div className="flex items-center justify-between mb-4">

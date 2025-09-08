@@ -1,66 +1,61 @@
 <analysis>
-The AI engineer's work primarily focused on implementing and stabilizing an operational title field across the Claire et Marcus PWA. This involved backend model updates (, ), API modifications, and extensive frontend integration in  for display, editing, and upload flows. A significant portion of the trajectory details a protracted debugging effort to ensure the operational title persisted correctly, addressing issues with UI rendering (thumbnails, preview modal), virtual keyboard compatibility (transitioning from controlled inputs to uncontrolled refs, then to state-managed inputs, and finally a hybrid ref/DOM approach), and crucially, backend API communication (404 errors due to incorrect URL prefixes and a critical UUID-to-ObjectId mismatch during content creation). The problem of slow-loading and re-rendering thumbnails was also tackled with  and URL stabilization. The work concluded with the user reporting persistent thumbnail re-rendering, prompting a return to debugging with visual alerts for iPhone.
+The AI engineer's work primarily focused on diagnosing and resolving a critical thumbnail re-rendering issue on iPhone, which initially manifested as white flashes and 30-second reloads. This involved extensive frontend debugging with temporary visual alerts in  and . Several React-based optimizations (callback stabilization, , component isolation, , ) were attempted, often breaking the application due to over-complexity or incompatibility. A significant discovery was the application running on **React 19.0.0**, causing runtime crashes; downgrading to **React 18.2.0** stabilized the frontend. The true root cause for the 30-second thumbnail reload was identified as a global  middleware in  that overridden specific cache headers in . This backend fix, combined with thumbnail preloading in , resolved the performance for standard uploads. However, Pixabay images still exhibit slow reloading, and the user has now requested a major refactoring of the 'My Library' page to support monthly sections and new upload functionalities.
 </analysis>
 
 <product_requirements>
-The Claire et Marcus PWA is an AI-powered SaaS for small businesses, automating social media content and profile management. It features reliable content CRUD, a 5-column content library with pop-up previews, 320px WEBP thumbnails, AI-powered website analysis, a notes module, persistent business profiles, and robust authentication. Initial development involved UI/UX restoration, virtual keyboard fixes, and adding brand tone/posting frequency. Recent additions and fixes include:
--   **Periodic Notes System**: Implemented monthly notes with specific sorting and automated deletion.
--   **Pixabay Integration**: Enabled searching and adding royalty-free images.
--   **Image Management**: Fixed thumbnail/preview loading, EXIF orientation, and image resizing.
--   **Business Profile Display**: Corrected data display for My Own Watch profile.
--   **Frontend UI/UX**: Addressed notes exceeding screen, invisible checkboxes, virtual keyboard bugs, and context preservation.
--   **Content Editing**: Enabled title/context editing from preview modal and during upload.
--   **New Operational Title**: Introduced an optional  field, distinct from the technical filename, editable during upload and on display. If it exists, it should be displayed; otherwise, the filename should be used. This title should also be included in search/filtering.
+The Claire et Marcus PWA is an AI-powered SaaS for small businesses, designed to automate social media content and profile management. It provides robust content CRUD, a 5-column content library with pop-up previews, 320px WEBP thumbnails, AI-powered website analysis, a notes module, persistent business profiles, and comprehensive authentication. Recent feature additions included a periodic notes system, Pixabay integration for royalty-free images, various image management fixes (loading, EXIF, resizing), and the introduction of an operational title field for content, distinct from the filename, editable during upload and preview, and used for display and search. The user now requires a significant refactor of the Ma bibliothèque page to organize content month-by-month for the upcoming three months. Under each month, there should be a button for single-photo uploads (with title/context) and a carousel upload button for batch uploads (up to 10 photos) sharing a common title/context, displayed as a stack with only the first image visible. For Pixabay uploads, users should be prompted to either add to Pixabay image stock or attribute to a specific month. A persistent issue is that Pixabay image thumbnails still exhibit slow reloading.
 </product_requirements>
 
 <key_technical_concepts>
--   **Full-stack**: React.js, FastAPI, MongoDB/GridFS.
+-   **Full-stack**: React.js (downgraded from 19 to 18.2.0), FastAPI, MongoDB/GridFS.
 -   **Authentication**: JWT, , .
--   **UI/UX**: Responsive design,  for uncontrolled inputs,  for controlled inputs,  for performance.
--   **API Interaction**: RESTful,  prefix, UUIDs and ObjectIds.
--   **Image Processing**: Pillow for resizing, EXIF.
--   **Data Persistence**: MongoDB with UUIDs and ObjectIds.
+-   **UI/UX**: Responsive design, , , , CSS Grid.
+-   **API Interaction**: RESTful,  prefix, UUIDs, ObjectIds, custom middleware.
+-   **Image Processing**: Backend thumbnail generation, frontend caching.
 </key_technical_concepts>
 
 <code_architecture>
 
 -   ****: Defines API routes and Pydantic models.
-    -   **Importance**: Central FastAPI application.
-    -   **Changes Made**: Added  to  model. Modified  prefixing () to ensure all  prefixed routes are handled correctly, then reverted to  after login issues. Contains  and  endpoints.
+    -   **Importance**: Central FastAPI application and global middleware management.
+    -   **Changes Made**: Removed a global middleware (lines 106-114) that incorrectly set  for all  routes, which was interfering with proper cache headers for thumbnails.
 -   ****: Handles file uploads to GridFS.
     -   **Importance**: Manages image storage and initial metadata.
     -   **Changes Made**: Corrected the returned uid=0(root) gid=0(root) groups=0(root) in the batch upload response from a generated UUID () to the actual MongoDB  () to resolve 404 errors when updating title/context.
+-   ****: Manages thumbnail retrieval and generation.
+    -   **Importance**: Responsible for serving optimized image thumbnails and setting appropriate cache headers.
+    -   **Changes Made**: No direct code changes, but its  headers (e.g., ) are now correctly applied after the fix in . It also contains logic to generate thumbnails from original images if not found.
 -   ****: Main React component, orchestrates UI and logic.
     -   **Importance**: The core frontend application.
     -   **Changes Made**:
-        -   **Operational Title Display**: Updated to display  or  for thumbnails and in the preview modal.
-        -   **Title/Context Editing**: Refactored input fields for title and context during upload and in the preview modal to use uncontrolled inputs (via , then , then a hybrid approach) to mitigate virtual keyboard bugs and ensure persistence.
-        -   **Save Logic**: Modified  to correctly save  and  via API calls, comparing against the  field.
-        -   **Upload Logic**:  was updated to perform  requests to the  and  endpoints after initial file upload.
-        -   **Performance**: Attempted to optimize thumbnail rendering with  and custom comparison functions, and removed  from image URLs to stabilize caching.
-        -   **Pagination**: Implemented infinite scroll logic with  and  state to display more than 24 images and show the count.
-        -   **Debugging**: Numerous temporary debug alerts and  statements were added and subsequently removed to diagnose persistence, UI, and API issues.
+        -   **Debugging**: Temporarily modified with extensive s, s, and a debug panel, all of which have been removed to restore a clean state.
+        -   **Structure**: Eliminated several conditional rendering blocks (e.g.,  and ) by using  to prevent full component re-mounts on state changes and tab switches.
+        -   **Performance**: Added a  hook to preload thumbnails one second after login. Removed a duplicate  declaration.
+        -   **Display**: Updated grid column count to display 4-6 vignettes per line.
+        -   **Pixabay**: Temporary debug added to Pixabay search button.
 -   ****: Main stylesheet.
     -   **Importance**: Global and component-specific styling.
-    -   **Changes Made**: Added  for title input fields to provide better visual feedback on focus.
+    -   **Changes Made**: Modified CSS for  to increase the number of columns (4-6). Removed temporary CSS optimizations for  that caused display issues.
+-   ****: React component for displaying individual content thumbnails.
+    -   **Importance**: Renders an individual thumbnail with its title/filename.
+    -   **Changes Made**: Modified during debugging to include mount/unmount alerts and render counts (these changes were later removed).
+-   ****: Frontend dependency manifest.
+    -   **Importance**: Manages all frontend library versions.
+    -   **Changes Made**: Downgraded  and  from  to  using  to resolve runtime incompatibilities and application crashes.
 </code_architecture>
 
 <pending_tasks>
--   Continue debugging the persistent thumbnail re-rendering issue (vignettes turning white).
--   Investigate why  and URL stabilization efforts have not fully resolved the thumbnail re-rendering.
--   Implement the visual debug system (pop-up alerts) on iPhone as requested by the user.
+-   Investigate and resolve the persistent slow reloading of Pixabay thumbnails on every click/navigation.
+-   Refactor the Ma bibliothèque page to introduce monthly sections (e.g., September 2025, October 2025, November 2025).
+-   Implement a single-photo upload button within each monthly section, with existing title/context logic.
+-   Implement a carousel upload button for batch uploads (up to 10 photos) with a common title/context, displayed as a stacked thumbnail.
+-   Modify Pixabay add functionality to offer two choices: add to Pixabay image stock or attribute to a specific month.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was addressing a critical and persistent issue: thumbnails in the content library were re-rendering (turning white) with every user action on the page, leading to a poor user experience. Previous attempts to fix this included:
-1.  Removing  from thumbnail URLs to prevent cache invalidation.
-2.  Implementing  with a custom comparison function for the  component to reduce unnecessary re-renders.
-3.  Stabilizing callbacks (, ) passed to memoized components.
-4.  Optimizing the Charger plus (load more) button to prevent re-renders.
-
-Despite these efforts, the user reported that the issue persisted. The AI engineer's current action is to implement a visual debugging system, similar to previous pop-up alerts, to diagnose the thumbnail re-rendering problem on an iPhone, as direct console logs are inaccessible to the user on mobile. This involves adding  hooks and alert functions to trace component mount/unmount behavior and token stability.
+The AI engineer successfully resolved a major performance issue where locally uploaded thumbnails took 30 seconds to reload. This was identified as a backend caching conflict where a global  middleware in  overridden specific cache headers set in . Fixing this middleware, along with downgrading the frontend from React 19 to 18.2.0, restored application stability and improved thumbnail loading for user-uploaded content significantly (instantaneous after the first load). A preloading mechanism was added to  to fetch thumbnails one second after login. The application is currently stable and functional, displaying 4-6 vignettes per row. However, the user explicitly reported that **Pixabay thumbnails still exhibit slow reloading** (). Simultaneously, a new, substantial feature request has been made to completely refactor the Ma bibliothèque page, introducing monthly content sections, new dedicated upload mechanisms for single photos and image carousels, and enhanced Pixabay image attribution logic. The current state is that the core performance problem for local images is fixed, but the Pixabay thumbnail issue remains, and a major new feature is pending.
 </current_work>
 
 <optional_next_step>
-Create a visual debugging system (pop-up alerts) for the frontend to diagnose why thumbnails are still re-rendering on iPhone.
+Investigate and fix why Pixabay thumbnails continue to reload slowly on every click, as requested by the user.
 </optional_next_step>

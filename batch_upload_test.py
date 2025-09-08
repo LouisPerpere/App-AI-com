@@ -15,7 +15,7 @@ import io
 class BatchUploadTester:
     def __init__(self):
         # Use the production backend URL from frontend/.env
-        self.base_url = "https://media-title-fix.preview.emergentagent.com"
+        self.base_url = "https://image-carousel-lib.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.user_id = None

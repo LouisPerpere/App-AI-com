@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://media-title-fix.preview.emergentagent.com/api"
+BASE_URL = "https://image-carousel-lib.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

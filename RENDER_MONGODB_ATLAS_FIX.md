@@ -35,7 +35,7 @@ DB_NAME=claire_marcus
 
 Une fois redéployé, tester:
 ```bash
-curl https://media-title-fix.preview.emergentagent.com/api/diag
+curl https://image-carousel-lib.preview.emergentagent.com/api/diag
 ```
 
 **Résultat attendu**: `"database_connected": true`
@@ -46,7 +46,7 @@ Si le frontend Netlify ne pointe pas vers le bon backend:
 
 **Netlify Dashboard** → **Site Settings** → **Environment Variables**
 ```
-REACT_APP_BACKEND_URL=https://media-title-fix.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://image-carousel-lib.preview.emergentagent.com
 ```
 
 ### 6. TEST FINAL

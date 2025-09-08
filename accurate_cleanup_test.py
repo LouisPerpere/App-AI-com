@@ -22,7 +22,7 @@ TESTING STRATEGY:
 4. Test edge cases and monthly note preservation
 
 AUTHENTICATION: lperpere@yahoo.fr / L@Reunion974!
-BACKEND URL: https://media-title-fix.preview.emergentagent.com/api
+BACKEND URL: https://image-carousel-lib.preview.emergentagent.com/api
 """
 
 import requests
@@ -33,7 +33,7 @@ from dateutil.relativedelta import relativedelta
 
 class AccurateCleanupTester:
     def __init__(self):
-        self.base_url = "https://media-title-fix.preview.emergentagent.com/api"
+        self.base_url = "https://image-carousel-lib.preview.emergentagent.com/api"
         self.session = requests.Session()
         self.access_token = None
         self.user_id = None

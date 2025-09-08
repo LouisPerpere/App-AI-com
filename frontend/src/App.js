@@ -2851,12 +2851,24 @@ function MainApp() {
                         multiple
                         accept="image/*"
                         onChange={(e) => {
+                          console.log('🎠 Carousel input onChange triggered');
                           const files = Array.from(e.target.files);
+                          console.log(`🎠 Selected ${files.length} files:`, files.map(f => f.name));
+                          
+                          if (files.length === 0) {
+                            console.log('🎠 No files selected, clearing carousel');
+                            setCarouselFiles([]);
+                            return;
+                          }
+                          
                           if (files.length > 10) {
                             toast.error('Maximum 10 images pour un carrousel');
                             return;
                           }
+                          
+                          console.log('🎠 Setting carousel files:', files.length);
                           setCarouselFiles(files);
+                          toast.success(`${files.length} image${files.length > 1 ? 's' : ''} sélectionnée${files.length > 1 ? 's' : ''} pour le carrousel ! 🎠`);
                         }}
                         className="hidden"
                         id="carousel-upload"

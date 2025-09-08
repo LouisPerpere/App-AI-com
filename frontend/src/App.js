@@ -2591,6 +2591,23 @@ function MainApp() {
                         className="hidden"
                         id="file-upload"
                       />
+                      
+                      {/* Hidden inputs for monthly uploads */}
+                      <input
+                        type="file"
+                        accept="image/*,video/*"
+                        onChange={(e) => handleMonthlyUpload(Array.from(e.target.files), 'single')}
+                        className="hidden"
+                        id="monthly-upload"
+                      />
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*,video/*"
+                        onChange={(e) => handleMonthlyUpload(Array.from(e.target.files), 'carousel')}
+                        className="hidden"
+                        id="carousel-upload"
+                      />
                       <label
                         htmlFor="file-upload"
                         className="block border-2 border-dashed border-purple-300 rounded-3xl p-8 text-center hover:border-purple-500 hover:bg-gradient-to-br hover:from-purple-100 hover:to-pink-100 transition-all duration-300 bg-gradient-to-br from-purple-50 to-pink-50 cursor-pointer transform hover:scale-[1.02]"

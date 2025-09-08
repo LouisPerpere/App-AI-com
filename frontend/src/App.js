@@ -4384,98 +4384,330 @@ function MainApp() {
                 </div>
 
                 {/* Display saved notes */}
-                {notes.length > 0 ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between mb-4">
+{notes.length > 0 ? (
+                  <div className="space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <h3 className="text-xl font-semibold text-gray-900">📝 Mes notes ({notes.length})</h3>
                       <div className="text-sm text-gray-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-                        <span className="font-semibold">Tri :</span> 🔁 Mensuelles → 📅 Chronologique
+                        <span className="font-semibold">Organisation :</span> 📅 Par mois
                       </div>
                     </div>
-                    <div className="grid gap-4">
-                      {notes.map((note, index) => (
-                        <div key={note.note_id || index} className="card-glass p-4 sm:p-6 rounded-2xl border border-indigo-200">
-                          {/* Mobile-friendly header */}
-                          <div className="space-y-3 sm:space-y-0 sm:flex sm:items-start sm:justify-between mb-3">
-                            {/* Titre et badges - Stack verticalement sur mobile */}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center space-x-2 mb-2">
-                                <div className={`w-3 h-3 rounded-full flex-shrink-0 ${
-                                  note.priority === 'high' ? 'bg-red-500' :
-                                  note.priority === 'normal' ? 'bg-yellow-500' : 'bg-green-500'
-                                }`}></div>
-                                <h4 className="font-semibold text-gray-900 truncate text-sm sm:text-base">
-                                  {note.description || note.title || 'Note sans titre'}
-                                </h4>
-                              </div>
-                              
-                              {/* Badges - Wrap sur plusieurs lignes si nécessaire */}
-                              <div className="flex flex-wrap gap-1 sm:gap-2">
-                                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                  {note.priority === 'high' ? 'élevée' : 
-                                   note.priority === 'low' ? 'faible' : 'normale'}
-                                </span>
-                                {/* Badge pour les notes périodiques */}
-                                {note.is_monthly_note ? (
-                                  <span className="text-xs text-green-700 bg-green-100 px-2 py-1 rounded-full font-medium">
-                                    🔁 Mensuelle
-                                  </span>
-                                ) : (note.note_month && note.note_year) ? (
-                                  <span className="text-xs text-blue-700 bg-blue-100 px-2 py-1 rounded-full font-medium">
-                                    📅 {['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'][note.note_month - 1]} {note.note_year}
-                                  </span>
-                                ) : null}
-                              </div>
-                            </div>
-                            
-                            {/* Actions - Ajustées pour mobile */}
-                            <div className="flex items-center justify-between sm:justify-end space-x-2 sm:ml-4">
-                              <div className="text-xs text-gray-500">
-                                {note.created_at ? new Date(note.created_at).toLocaleDateString('fr-FR', {
-                                  day: 'numeric',
-                                  month: 'short',
-                                  year: '2-digit'  // Année à 2 chiffres pour gagner de l'espace
-                                }) : ''}
-                              </div>
-                              
-                              {/* Boutons d'action */}
-                              <div className="flex items-center space-x-1">
-                                {/* Bouton éditer */}
-                                <Button
-                                  onClick={() => handleEditNote(note)}
-                                  variant="ghost"
-                                  size="sm"
-                                  className="p-2 h-8 w-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-                                  title="Modifier cette note"
+                    
+                    {/* MONTHLY NOTES ORGANIZATION - Same logic as content */}
+                    <div className="space-y-6">
+                      {(() => {
+                        const { alwaysValid, currentAndFuture, archives } = getMonthlyNotesData();
+                        
+                        return (
+                          <>
+                            {/* Always Valid Notes (Monthly Notes) - First section */}
+                            {alwaysValid.length > 0 && (
+                              <div className="border border-green-200 rounded-2xl overflow-hidden">
+                                <div 
+                                  className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 cursor-pointer hover:from-green-100 hover:to-emerald-100 transition-colors"
+                                  onClick={() => toggleMonthCollapse('always_valid')}
                                 >
-                                  <Edit className="w-4 h-4" />
-                                </Button>
+                                  <div className="flex items-center space-x-3">
+                                    <div className={`w-3 h-3 rounded-full transition-transform duration-200 ${collapsedMonths.has('always_valid') ? 'rotate-0' : 'rotate-90'}`}>
+                                      <ChevronRight className="w-3 h-3 text-green-600" />
+                                    </div>
+                                    <h3 className="text-lg font-semibold text-gray-800">
+                                      🔁 Notes toujours valides
+                                    </h3>
+                                    <Badge variant="secondary" className="bg-green-100 text-green-700">
+                                      {alwaysValid.length} note{alwaysValid.length > 1 ? 's' : ''}
+                                    </Badge>
+                                  </div>
+                                </div>
                                 
-                                {/* Bouton supprimer */}
-                                <Button
-                                  onClick={() => handleDeleteNote(note.note_id)}
-                                  disabled={isDeletingNote === note.note_id}
-                                  variant="ghost"
-                                  size="sm"
-                                  className="p-2 h-8 w-8 text-red-600 hover:text-red-800 hover:bg-red-50"
-                                  title="Supprimer cette note"
-                                >
-                                  {isDeletingNote === note.note_id ? (
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
-                                  ) : (
-                                    <Trash className="w-4 h-4" />
-                                  )}
-                                </Button>
+                                {!collapsedMonths.has('always_valid') && (
+                                  <div className="p-4">
+                                    <div className="grid gap-4">
+                                      {alwaysValid.map((note, index) => (
+                                        <div key={note.note_id || `always_${index}`} className="card-glass p-4 sm:p-6 rounded-2xl border border-green-200">
+                                          {/* Note content - same as before */}
+                                          <div className="space-y-3 sm:space-y-0 sm:flex sm:items-start sm:justify-between mb-3">
+                                            <div className="flex-1 min-w-0">
+                                              <div className="flex items-center space-x-2 mb-2">
+                                                <div className={`w-3 h-3 rounded-full flex-shrink-0 ${
+                                                  note.priority === 'high' ? 'bg-red-500' :
+                                                  note.priority === 'normal' ? 'bg-yellow-500' : 'bg-green-500'
+                                                }`}></div>
+                                                <h4 className="font-semibold text-gray-900 truncate text-sm sm:text-base">
+                                                  {note.description || note.title || 'Note sans titre'}
+                                                </h4>
+                                              </div>
+                                              
+                                              <div className="flex flex-wrap gap-1 sm:gap-2">
+                                                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                                  {note.priority === 'high' ? 'élevée' : 
+                                                   note.priority === 'low' ? 'faible' : 'normale'}
+                                                </span>
+                                                <span className="text-xs text-green-700 bg-green-100 px-2 py-1 rounded-full font-medium">
+                                                  🔁 Mensuelle
+                                                </span>
+                                              </div>
+                                            </div>
+                                            
+                                            <div className="flex items-center justify-between sm:justify-end space-x-2 sm:ml-4">
+                                              <div className="text-xs text-gray-500">
+                                                {note.created_at ? new Date(note.created_at).toLocaleDateString('fr-FR', {
+                                                  day: 'numeric',
+                                                  month: 'short',
+                                                  year: '2-digit'
+                                                }) : ''}
+                                              </div>
+                                              
+                                              <div className="flex items-center space-x-1">
+                                                <Button
+                                                  onClick={() => handleEditNote(note)}
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="p-2 h-8 w-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                                                  title="Modifier cette note"
+                                                >
+                                                  <Edit className="h-4 w-4" />
+                                                </Button>
+                                                
+                                                <Button
+                                                  onClick={() => handleDeleteNote(note.note_id)}
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="p-2 h-8 w-8 text-red-600 hover:text-red-800 hover:bg-red-50"
+                                                  title="Supprimer cette note"
+                                                >
+                                                  <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          
+                                          {note.content && (
+                                            <p className="text-gray-700 text-sm sm:text-base break-words">
+                                              {note.content}
+                                            </p>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
-                            </div>
-                          </div>
-                          
-                          {/* Contenu de la note */}
-                          <p className="text-gray-700 leading-relaxed text-sm sm:text-base break-words">
-                            {note.content}
-                          </p>
-                        </div>
-                      ))}
+                            )}
+                            
+                            {/* Current and Future Months */}
+                            {Object.entries(currentAndFuture)
+                              .sort(([, a], [, b]) => a.order - b.order)
+                              .map(([monthKey, monthInfo]) => {
+                                const isCollapsed = collapsedMonths.has(monthKey);
+                                const hasNotes = monthInfo.notes.length > 0;
+                                
+                                return (
+                                  <div key={monthKey} className="border border-blue-200 rounded-2xl overflow-hidden">
+                                    <div 
+                                      className={`flex items-center justify-between p-4 cursor-pointer transition-colors ${
+                                        monthInfo.isCurrent 
+                                          ? 'bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100' 
+                                          : 'bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100'
+                                      }`}
+                                      onClick={() => toggleMonthCollapse(monthKey)}
+                                    >
+                                      <div className="flex items-center space-x-3">
+                                        <div className={`w-3 h-3 rounded-full transition-transform duration-200 ${isCollapsed ? 'rotate-0' : 'rotate-90'}`}>
+                                          <ChevronRight className="w-3 h-3 text-blue-600" />
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-gray-800">
+                                          📅 {monthInfo.label}
+                                          {monthInfo.isCurrent && (
+                                            <span className="ml-2 text-sm text-blue-600 font-normal">(actuel)</span>
+                                          )}
+                                        </h3>
+                                        <Badge variant="secondary" className={
+                                          monthInfo.isCurrent 
+                                            ? "bg-blue-100 text-blue-700"
+                                            : "bg-purple-100 text-purple-700"
+                                        }>
+                                          {monthInfo.notes.length} note{monthInfo.notes.length > 1 ? 's' : ''}
+                                        </Badge>
+                                      </div>
+                                    </div>
+                                    
+                                    {!isCollapsed && hasNotes && (
+                                      <div className="p-4">
+                                        <div className="grid gap-4">
+                                          {monthInfo.notes.map((note, index) => (
+                                            <div key={note.note_id || `${monthKey}_${index}`} className="card-glass p-4 sm:p-6 rounded-2xl border border-indigo-200">
+                                              {/* Same note content structure */}
+                                              <div className="space-y-3 sm:space-y-0 sm:flex sm:items-start sm:justify-between mb-3">
+                                                <div className="flex-1 min-w-0">
+                                                  <div className="flex items-center space-x-2 mb-2">
+                                                    <div className={`w-3 h-3 rounded-full flex-shrink-0 ${
+                                                      note.priority === 'high' ? 'bg-red-500' :
+                                                      note.priority === 'normal' ? 'bg-yellow-500' : 'bg-green-500'
+                                                    }`}></div>
+                                                    <h4 className="font-semibold text-gray-900 truncate text-sm sm:text-base">
+                                                      {note.description || note.title || 'Note sans titre'}
+                                                    </h4>
+                                                  </div>
+                                                  
+                                                  <div className="flex flex-wrap gap-1 sm:gap-2">
+                                                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                                      {note.priority === 'high' ? 'élevée' : 
+                                                       note.priority === 'low' ? 'faible' : 'normale'}
+                                                    </span>
+                                                    {(note.note_month && note.note_year) && (
+                                                      <span className="text-xs text-blue-700 bg-blue-100 px-2 py-1 rounded-full font-medium">
+                                                        📅 {['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'][note.note_month - 1]} {note.note_year}
+                                                      </span>
+                                                    )}
+                                                  </div>
+                                                </div>
+                                                
+                                                <div className="flex items-center justify-between sm:justify-end space-x-2 sm:ml-4">
+                                                  <div className="text-xs text-gray-500">
+                                                    {note.created_at ? new Date(note.created_at).toLocaleDateString('fr-FR', {
+                                                      day: 'numeric',
+                                                      month: 'short',
+                                                      year: '2-digit'
+                                                    }) : ''}
+                                                  </div>
+                                                  
+                                                  <div className="flex items-center space-x-1">
+                                                    <Button
+                                                      onClick={() => handleEditNote(note)}
+                                                      variant="ghost"
+                                                      size="sm"
+                                                      className="p-2 h-8 w-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                                                      title="Modifier cette note"
+                                                    >
+                                                      <Edit className="h-4 w-4" />
+                                                    </Button>
+                                                    
+                                                    <Button
+                                                      onClick={() => handleDeleteNote(note.note_id)}
+                                                      variant="ghost"
+                                                      size="sm"
+                                                      className="p-2 h-8 w-8 text-red-600 hover:text-red-800 hover:bg-red-50"
+                                                      title="Supprimer cette note"
+                                                    >
+                                                      <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                              
+                                              {note.content && (
+                                                <p className="text-gray-700 text-sm sm:text-base break-words">
+                                                  {note.content}
+                                                </p>
+                                              )}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                    
+                                    {!isCollapsed && !hasNotes && (
+                                      <div className="p-4 text-center py-8 text-gray-500">
+                                        <Edit className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                                        <p className="text-sm">Aucune note pour ce mois</p>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                              
+                            {/* Archives Section */}
+                            {Object.keys(archives).length > 0 && (
+                              <div className="border-t-2 border-gray-300 pt-6 mt-8">
+                                <h4 className="text-sm font-medium text-gray-500 mb-4 text-center">archives</h4>
+                                <div className="space-y-4">
+                                  {Object.entries(archives)
+                                    .sort(([, a], [, b]) => b.order - a.order) // Most recent archive first
+                                    .map(([monthKey, monthInfo]) => {
+                                      const isCollapsed = collapsedMonths.has(monthKey);
+                                      const hasNotes = monthInfo.notes.length > 0;
+                                      
+                                      return (
+                                        <div key={monthKey} className="border border-gray-200 rounded-xl overflow-hidden">
+                                          <div 
+                                            className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-50 to-gray-100 cursor-pointer hover:from-gray-100 hover:to-gray-150 transition-colors"
+                                            onClick={() => toggleMonthCollapse(monthKey)}
+                                          >
+                                            <div className="flex items-center space-x-3">
+                                              <div className={`w-3 h-3 rounded-full transition-transform duration-200 ${isCollapsed ? 'rotate-0' : 'rotate-90'}`}>
+                                                <ChevronRight className="w-3 h-3 text-gray-600" />
+                                              </div>
+                                              <h3 className="text-md font-medium text-gray-700">
+                                                📅 {monthInfo.label}
+                                              </h3>
+                                              <Badge variant="secondary" className="bg-gray-200 text-gray-600">
+                                                {monthInfo.notes.length}
+                                              </Badge>
+                                            </div>
+                                          </div>
+                                          
+                                          {!isCollapsed && hasNotes && (
+                                            <div className="p-3">
+                                              <div className="grid gap-3">
+                                                {monthInfo.notes.map((note, index) => (
+                                                  <div key={note.note_id || `archive_${monthKey}_${index}`} className="card-glass p-3 sm:p-4 rounded-xl border border-gray-200">
+                                                    {/* Simplified archive note display */}
+                                                    <div className="flex items-start justify-between mb-2">
+                                                      <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center space-x-2 mb-1">
+                                                          <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                                                            note.priority === 'high' ? 'bg-red-500' :
+                                                            note.priority === 'normal' ? 'bg-yellow-500' : 'bg-green-500'
+                                                          }`}></div>
+                                                          <h4 className="font-medium text-gray-800 truncate text-sm">
+                                                            {note.description || note.title || 'Note sans titre'}
+                                                          </h4>
+                                                        </div>
+                                                      </div>
+                                                      
+                                                      <div className="flex items-center space-x-1 ml-2">
+                                                        <Button
+                                                          onClick={() => handleEditNote(note)}
+                                                          variant="ghost"
+                                                          size="sm"
+                                                          className="p-1 h-6 w-6 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                                                          title="Modifier cette note"
+                                                        >
+                                                          <Edit className="h-3 w-3" />
+                                                        </Button>
+                                                        
+                                                        <Button
+                                                          onClick={() => handleDeleteNote(note.note_id)}
+                                                          variant="ghost"
+                                                          size="sm"
+                                                          className="p-1 h-6 w-6 text-red-600 hover:text-red-800 hover:bg-red-50"
+                                                          title="Supprimer cette note"
+                                                        >
+                                                          <Trash2 className="h-3 w-3" />
+                                                        </Button>
+                                                      </div>
+                                                    </div>
+                                                    
+                                                    {note.content && (
+                                                      <p className="text-gray-600 text-xs break-words">
+                                                        {note.content}
+                                                      </p>
+                                                    )}
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
                 ) : (

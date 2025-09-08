@@ -314,6 +314,14 @@ function MainApp() {
   const [pixabayCurrentQuery, setPixabayCurrentQuery] = useState('');
   const [isLoadingMorePixabay, setIsLoadingMorePixabay] = useState(false);
   
+  // Content pagination states
+  const [contentPage, setContentPage] = useState(0);
+  
+  // Carousel upload states
+  const [carouselFiles, setCarouselFiles] = useState([]);
+  const [carouselTitle, setCarouselTitle] = useState('');
+  const [carouselContext, setCarouselContext] = useState('');
+  
   // Monthly library organization states
   const [monthlyLibraryView, setMonthlyLibraryView] = useState(true); // Switch between monthly and all view
   // Initialize collapsed months - collapse all except current month and sections with important notes

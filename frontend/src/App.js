@@ -2893,6 +2893,17 @@ function MainApp() {
                           <label
                             htmlFor="carousel-upload"
                             className="flex-1 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white py-3 px-6 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center font-medium"
+                            onClick={() => {
+                              console.log('🎠 Carousel label clicked');
+                              // Force trigger the file input for better mobile compatibility
+                              const input = document.getElementById('carousel-upload');
+                              if (input) {
+                                console.log('🎠 Found carousel input, triggering click');
+                                input.click();
+                              } else {
+                                console.log('❌ Carousel input not found');
+                              }
+                            }}
                           >
                             <ImageIcon className="w-5 h-5 mr-2" />
                             Carrousel

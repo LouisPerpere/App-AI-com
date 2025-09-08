@@ -1095,16 +1095,51 @@ function MainApp() {
   }, []);
 
   // Get current form values from DOM
+  // Convert month key to month/year for backend
+  const parseMonthKey = useCallback((monthKey) => {
+    if (!monthKey) return { month: null, year: null };
+    
+    const monthNames = [
+      'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+      'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+    ];
+    
+    const [monthName, year] = monthKey.split('_');
+    const monthIndex = monthNames.indexOf(monthName);
+    
+    return {
+      month: monthIndex >= 0 ? monthIndex + 1 : null, // Backend expects 1-based months
+      year: year ? parseInt(year) : null
+    };
+  }, []);
+
+  // Convert month/year to month key for UI
+  const buildMonthKey = useCallback((month, year) => {
+    if (!month || !year) return '';
+    
+    const monthNames = [
+      'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+      'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+    ];
+    
+    const monthName = monthNames[month - 1]; // month is 1-based from backend
+    return `${monthName}_${year}`;
+  }, []);
+
   const getCurrentFormValues = useCallback(() => {
+    const isMonthlyNote = isPermanentCheckboxRef.current?.checked || false;
+    const monthKey = targetMonthKeyRef.current?.value || '';
+    const { month, year } = parseMonthKey(monthKey);
+    
     return {
       title: titleInputRef.current?.value || '',
       content: contentInputRef.current?.value || '',
       priority: priorityInputRef.current?.value || 'normal',
-      is_monthly_note: isPermanentCheckboxRef.current?.checked || false,
-      note_month: targetMonthRef.current?.value ? parseInt(targetMonthRef.current.value) : null,
-      note_year: targetYearRef.current?.value ? parseInt(targetYearRef.current.value) : null
+      is_monthly_note: isMonthlyNote,
+      note_month: isMonthlyNote ? null : month,
+      note_year: isMonthlyNote ? null : year
     };
-  }, []);
+  }, [parseMonthKey]);
 
   // Set form values in DOM
   const setFormValues = useCallback((title = '', content = '', priority = 'normal', isMonthlyNote = false, noteMonth = null, noteYear = null) => {

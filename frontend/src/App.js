@@ -139,9 +139,9 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
             loading="lazy"
             crossOrigin="anonymous"
             onError={(e) => {
-              // Fallback based on source
+              // Fallback: try the original URL with token for all sources
               if (content.source === 'pixabay') {
-                // For Pixabay, try the original URL without token
+                // For Pixabay, fallback to original external URL
                 const fallbackUrl = content.url || '/api/placeholder.png';
                 if (e.currentTarget.src !== fallbackUrl) {
                   e.currentTarget.src = fallbackUrl;

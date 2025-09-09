@@ -594,11 +594,15 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
                                      strategy: Dict, num_posts: int, available_content: Dict = None) -> List[PostContent]:
         """Generate entire posts calendar with a single AI request"""
         try:
+            # Get website analysis context
+            website_context = self._format_website_analysis_context(available_content.get("website_analysis", {}))
+            
             # Build the global prompt for generating all posts at once
             prompt = f"""Tu dois créer un calendrier complet de {num_posts} posts Instagram pour ce business.
 
-CONTEXTE BUSINESS:
 {business_context}
+
+{website_context}
 
 NOTES IMPORTANTES:
 {notes_context}
@@ -607,8 +611,23 @@ NOTES IMPORTANTES:
 
 {content_inventory}
 
-STRATÉGIE DE CONTENU DEMANDÉE:
-{self._format_strategy_for_prompt(strategy)}
+STRATÉGIE DE CONTENU À DÉFINIR:
+Analyse ce business et détermine la meilleure répartition de types de posts selon :
+- Les tendances du secteur d'activité
+- Les préférences de l'audience cible
+- Le type d'entreprise et ses objectifs
+- L'analyse du site web et des contenus disponibles
+
+Types de posts possibles :
+- MISE EN AVANT de produits/services (product)
+- CONTENU INFORMATIF et éducatif (educational) 
+- BACKSTAGE et coulisses (backstage)
+- CONTENU DE VALEUR et conseils (value)
+- PROMOTION et vente (sales)
+- TÉMOIGNAGES et social proof (testimonials)
+- TENDANCES et actualités du secteur (trends)
+
+Choisis et répartis intelligemment ces types selon ce qui fonctionnera le mieux pour cette entreprise et son audience.
 
 RÈGLES STRICTES DE RÉDACTION:
 - BANNIR absolument le style IA artificiel et grandiose

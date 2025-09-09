@@ -803,15 +803,18 @@ async def generate_posts_manual(
         raise HTTPException(status_code=500, detail=f"Failed to generate posts: {str(e)}")
 
 @api_router.get("/posts/generated")
-async def get_generated_posts(user_id: str = Depends(get_current_user_id)):
+async def get_generated_posts(user_id: str = Depends(get_current_user_id_robust)):
     """Get generated posts for the current user with enhanced format"""
     try:
         dbm = get_database()
         db = dbm.db
         
-        posts = await db.generated_posts.find(
+        # Use synchronous MongoDB operations (not async)
+        posts_cursor = db.generated_posts.find(
             {"owner_id": user_id}
-        ).sort([("scheduled_date", 1)]).to_list(100)
+        ).sort([("scheduled_date", 1)]).limit(100)
+        
+        posts = list(posts_cursor)
         
         # Format posts for frontend display (similar to content/notes)
         formatted_posts = []

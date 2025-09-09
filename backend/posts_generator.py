@@ -329,7 +329,8 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             recent_posts_context=recent_posts_context,
             content_inventory=content_inventory,
             strategy=strategy,
-            num_posts=num_posts
+            num_posts=num_posts,
+            available_content=available_content
         )
         
         return generated_posts

@@ -764,31 +764,42 @@ async def delete_content(content_id: str, user_id: str = Depends(get_current_use
 # ----------------------------
 
 @api_router.post("/posts/generate")
-async def generate_posts_manual(user_id: str = Depends(get_current_user_id_robust)):
-    """Generate posts manually for the current month"""
+async def generate_posts_manual(
+    target_month: str = "octobre_2025",
+    num_posts: int = 20,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Generate posts manually for the current user with advanced AI system"""
     try:
-        # Import the scheduler here to avoid circular imports
-        from scheduler import ContentScheduler
+        print(f"🚀 Starting advanced post generation for user {user_id}")
+        print(f"   📅 Target month: {target_month}")
+        print(f"   📊 Number of posts: {num_posts}")
         
-        scheduler = ContentScheduler()
+        # Use the new advanced posts generator
+        from posts_generator import PostsGenerator
+        generator = PostsGenerator()
         
-        # Generate posts for the current user/business
-        result = await scheduler.generate_posts_automatically(user_id)
+        result = await generator.generate_posts_for_month(
+            user_id=user_id,
+            target_month=target_month,
+            num_posts=num_posts
+        )
         
-        if result:
+        if result["success"]:
+            print(f"✅ Successfully generated {result['posts_count']} posts")
             return {
-                "message": "Posts générés avec succès",
-                "posts_generated": result.get("posts_generated", 0),
-                "business_id": user_id
+                "message": f"Successfully generated {result['posts_count']} posts for {target_month}",
+                "success": True,
+                "posts_count": result["posts_count"],
+                "strategy": result["strategy"],
+                "sources_used": result["sources_used"]
             }
         else:
-            return {
-                "message": "Génération terminée",
-                "posts_generated": 0,
-                "business_id": user_id
-            }
+            print(f"❌ Post generation failed: {result['error']}")
+            raise HTTPException(status_code=500, detail=result["error"])
             
     except Exception as e:
+        print(f"❌ Post generation error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to generate posts: {str(e)}")
 
 @api_router.get("/posts/generated")

@@ -153,12 +153,12 @@ Tu réponds TOUJOURS au format JSON exact demandé."""
         source_data = {}
         
         # Business profile
-        business_profile = await self.db.business_profiles.find_one({"owner_id": user_id})
+        business_profile = self.db.business_profiles.find_one({"owner_id": user_id})
         source_data["business_profile"] = business_profile
         logger.info(f"   📋 Business profile: {'✅' if business_profile else '❌'}")
         
         # Website analysis
-        website_analysis = await self.db.website_analyses.find_one(
+        website_analysis = self.db.website_analyses.find_one(
             {"user_id": user_id}, 
             sort=[("created_at", -1)]
         )
@@ -166,22 +166,22 @@ Tu réponds TOUJOURS au format JSON exact demandé."""
         logger.info(f"   🌐 Website analysis: {'✅' if website_analysis else '❌'}")
         
         # Always valid notes
-        always_valid_notes = await self.db.content_notes.find({
+        always_valid_notes = list(self.db.content_notes.find({
             "owner_id": user_id,
             "is_monthly_note": True,
             "deleted": {"$ne": True}
-        }).to_list(100)
+        }).limit(100))
         source_data["always_valid_notes"] = always_valid_notes
         logger.info(f"   📝 Always valid notes: {len(always_valid_notes)}")
         
         # Month-specific notes  
-        month_notes = await self.db.content_notes.find({
+        month_notes = list(self.db.content_notes.find({
             "owner_id": user_id,
             "is_monthly_note": False,
             "note_month": self._parse_month_number(target_month),
             "note_year": self._parse_year(target_month),
             "deleted": {"$ne": True}
-        }).to_list(100)
+        }).limit(100))
         source_data["month_notes"] = month_notes
         logger.info(f"   📅 Month notes: {len(month_notes)}")
         

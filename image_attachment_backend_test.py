@@ -494,7 +494,7 @@ def test_upload_and_attach_carousel(token, user_id, test_posts):
             return False
         
         upload_data = upload_response.json()
-        uploaded_files = upload_data.get("uploaded_files", [])
+        uploaded_files = upload_data.get("created", [])  # Changed from "uploaded_files" to "created"
         
         if len(uploaded_files) < 2:
             print_error(f"Expected multiple files, got {len(uploaded_files)}")

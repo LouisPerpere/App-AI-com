@@ -915,7 +915,7 @@ async def generate_posts_manual(
         
         # Get business profile to determine posting frequency
         dbm = get_database()
-        business_profile = dbm.db.business_profiles.find_one({"user_id": user_id})
+        business_profile = dbm.db.business_profiles.find_one({"owner_id": user_id})
         
         if not business_profile:
             raise HTTPException(status_code=404, detail="Business profile not found. Please complete your business profile first.")

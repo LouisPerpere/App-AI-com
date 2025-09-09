@@ -3417,11 +3417,11 @@ function MainApp() {
     }
   };
 
-  // Handle monthly-specific uploads (now using globalUploadMonth)
+  // Handle monthly-specific uploads (now using selectedMonth)
   const handleMonthlyUpload = async (files, mode) => {
     if (!files.length) return;
     
-    const targetMonth = globalUploadMonth;
+    const targetMonth = selectedMonth || getDefaultMonth();
     if (!targetMonth) {
       toast.error('Veuillez sélectionner un mois de destination');
       return;

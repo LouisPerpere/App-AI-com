@@ -229,6 +229,27 @@ class GeneratedPost(BaseModel):
     generation_metadata: Optional[Dict[str, Any]] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+async def analyze_content_with_ai(content_path: str, description: str, business_profile: BusinessProfile, notes: List[ContentNote] = []):
+    """Analyze content with AI for post generation"""
+    try:
+        # Simple mock implementation for testing
+        # In production, this would use emergentintegrations LLM
+        return [
+            {
+                "platform": "facebook",
+                "post_text": f"Nouveau contenu pour {business_profile.business_name}: {description}",
+                "hashtags": ["#entreprise", "#contenu"]
+            },
+            {
+                "platform": "instagram", 
+                "post_text": f"Découvrez notre {description} chez {business_profile.business_name}",
+                "hashtags": ["#instagram", "#contenu"]
+            }
+        ]
+    except Exception as e:
+        print(f"Error in analyze_content_with_ai: {e}")
+        return []
+
 class LoginRequest(BaseModel):
     email: str
     password: str

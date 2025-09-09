@@ -14,6 +14,85 @@ import tempfile
 
 router = APIRouter()
 
+def compress_video_to_720p(input_data: bytes, max_duration_seconds: int = 300) -> bytes:
+    """Compress video to max 720p resolution with reasonable quality."""
+    try:
+        print(f"🎥 Starting video compression...")
+        
+        # Create temporary files
+        with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as temp_input:
+            temp_input.write(input_data)
+            temp_input_path = temp_input.name
+        
+        with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as temp_output:
+            temp_output_path = temp_output.name
+        
+        # FFmpeg command for compression to 720p max
+        # -vf scale=-2:720 maintains aspect ratio, max height 720p
+        # -c:v libx264 for good compression and compatibility
+        # -crf 23 for good quality/size balance (18-28 range, lower = better quality)
+        # -preset fast for reasonable encoding speed
+        # -movflags +faststart for web streaming
+        # -t limits duration to prevent huge files
+        ffmpeg_cmd = [
+            'ffmpeg', '-y',  # -y to overwrite output file
+            '-i', temp_input_path,  # Input file
+            '-vf', 'scale=-2:min(720\\,ih)',  # Scale to max 720p height, maintain aspect ratio
+            '-c:v', 'libx264',  # H.264 codec for compatibility
+            '-crf', '23',  # Quality setting (23 is good balance)
+            '-preset', 'fast',  # Encoding speed
+            '-c:a', 'aac',  # Audio codec
+            '-b:a', '128k',  # Audio bitrate
+            '-movflags', '+faststart',  # Web streaming optimization
+            '-t', str(max_duration_seconds),  # Limit duration to 5 minutes
+            temp_output_path
+        ]
+        
+        print(f"🎬 Running FFmpeg: {' '.join(ffmpeg_cmd)}")
+        
+        # Run FFmpeg
+        result = subprocess.run(
+            ffmpeg_cmd,
+            capture_output=True,
+            text=True,
+            timeout=600  # 10 minute timeout
+        )
+        
+        if result.returncode != 0:
+            print(f"❌ FFmpeg failed: {result.stderr}")
+            # Return original data if compression fails
+            os.unlink(temp_input_path)
+            os.unlink(temp_output_path)
+            return input_data
+        
+        # Read compressed video
+        with open(temp_output_path, 'rb') as f:
+            compressed_data = f.read()
+        
+        # Check if compression actually reduced size
+        original_size = len(input_data)
+        compressed_size = len(compressed_data)
+        compression_ratio = compressed_size / original_size
+        
+        print(f"✅ Video compressed: {original_size/1024/1024:.1f}MB → {compressed_size/1024/1024:.1f}MB ({compression_ratio:.1%})")
+        
+        # Cleanup
+        os.unlink(temp_input_path)
+        os.unlink(temp_output_path)
+        
+        # Use compressed version if it's smaller or similar size
+        return compressed_data if compression_ratio < 1.2 else input_data
+        
+    except Exception as e:
+        print(f"❌ Video compression failed: {str(e)}")
+        # Cleanup on error
+        try:
+            os.unlink(temp_input_path)
+            os.unlink(temp_output_path)
+        except:
+            pass
+        return input_data
+
 # JWT / Auth configuration (align with server.py)
 import os
 JWT_SECRET = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-this-in-production')

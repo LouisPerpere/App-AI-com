@@ -342,49 +342,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
                 strategy_parts.append(f"- {content_type}: {count} posts")
         return "\n".join(strategy_parts)
     
-    def _parse_global_response(self, response_text: str) -> List[PostContent]:
-        """Parse the global AI response into PostContent objects"""
-        try:
-            # Clean the response
-            clean_response = response_text.strip()
-            if clean_response.startswith('```json'):
-                clean_response = clean_response[7:]
-            if clean_response.endswith('```'):
-                clean_response = clean_response[:-3]
-            clean_response = clean_response.strip()
-            
-            response_data = json.loads(clean_response)
-            posts_data = response_data.get("posts", [])
-            
-            generated_posts = []
-            for post_data in posts_data:
-                # Create proper visual URL if visual_id is provided
-                visual_id = post_data.get("visual_id", "")
-                visual_url = f"/api/content/{visual_id}/file" if visual_id else ""
-                
-                post = PostContent(
-                    visual_url=visual_url,
-                    visual_id=visual_id,
-                    title=post_data.get("title", ""),
-                    text=post_data.get("text", ""),
-                    hashtags=post_data.get("hashtags", []),
-                    platform="instagram",
-                    content_type=post_data.get("content_type", "product"),
-                    scheduling_preference=post_data.get("scheduling_preference", "afternoon")
-                )
-                generated_posts.append(post)
-            
-            logger.info(f"   ✅ Successfully parsed {len(generated_posts)} posts from global response")
-            return generated_posts
-            
-        except json.JSONDecodeError as e:
-            logger.error(f"❌ Failed to parse global AI response: {e}")
-            logger.error(f"Response: {response_text[:500]}...")
-            return []
-        except Exception as e:
-            logger.error(f"❌ Error parsing global response: {str(e)}")
-            return []
-    
+
     def _build_business_context(self, business_profile: Dict, website_analysis: Dict) -> str:
         """Build business context for AI generation"""
         context_parts = []

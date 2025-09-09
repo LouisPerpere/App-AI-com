@@ -517,11 +517,11 @@ async def upload_content_batch(
                 _thumb_job_local()
 
             created.append({
-                "id": str(media_id),  # Use real MongoDB _id instead of UUID
+                "id": doc_id,  # Use UUID for consistency with content/pending
                 "filename": file.filename,
                 "file_type": file.content_type,
                 "size": len(final_data),  # Use final_data length
-                "thumb_url": f"/api/content/{media_id}/thumb"
+                "thumb_url": f"/api/content/{doc_id}/thumb"
             })
 
         return {"ok": True, "created": created, "count": len(created)}

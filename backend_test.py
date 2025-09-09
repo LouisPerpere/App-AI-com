@@ -191,6 +191,11 @@ class PostingFrequencyDiagnostic:
         else:
             print("\n❌ CONCLUSION: Problème de persistance détecté dans le backend")
             print("   La valeur ne se sauvegarde pas correctement en base")
+            print("\n🔍 ANALYSE TECHNIQUE:")
+            print("   - GET /api/business-profile lit depuis 'business_profiles' collection (owner_id)")
+            print("   - PUT /api/business-profile écrit dans 'users' collection (user_id)")
+            print("   - MISMATCH: Les données sont lues et écrites dans des collections différentes!")
+            print("   - SOLUTION: Corriger PUT pour écrire dans 'business_profiles' collection")
         
         return persistence_ok
 

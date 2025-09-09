@@ -4922,48 +4922,10 @@ function MainApp() {
                   </Button>
                 </div>
 
-                {/* Liste des posts générés */}
+                {/* Organisation mensuelle des posts générés */}
                 {generatedPosts.length > 0 ? (
                   <div className="space-y-6">
-                    <h4 className="text-xl font-semibold text-gray-900 mb-4">
-                      📊 Posts générés ({generatedPosts.length})
-                    </h4>
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                      {generatedPosts.map((post, index) => (
-                        <div key={post.id || index} className="card-glass p-6 rounded-2xl border border-emerald-200">
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
-                              <span className="text-sm font-medium text-emerald-700">
-                                {post.platform || 'Multi-plateformes'}
-                              </span>
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {post.scheduled_date ? new Date(post.scheduled_date).toLocaleDateString('fr-FR') : 'Programmé'}
-                            </div>
-                          </div>
-                          
-                          <div className="space-y-3">
-                            <p className="text-gray-800 text-sm leading-relaxed line-clamp-4">
-                              {post.content}
-                            </p>
-                            
-                            {post.hashtags && post.hashtags.length > 0 && (
-                              <div className="flex flex-wrap gap-1">
-                                {post.hashtags.slice(0, 3).map((hashtag, idx) => (
-                                  <span key={idx} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                                    #{hashtag}
-                                  </span>
-                                ))}
-                                {post.hashtags.length > 3 && (
-                                  <span className="text-xs text-gray-500">+{post.hashtags.length - 3}</span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                    {renderPostsByMonth()}
                   </div>
                 ) : (
                   <div className="text-center py-20 card-glass rounded-3xl">
@@ -4974,6 +4936,19 @@ function MainApp() {
                     <p className="text-xl text-gray-500 mb-6">Vos posts générés apparaîtront ici ! 🎪</p>
                     <p className="text-sm text-gray-400">Cliquez sur "Générer les posts du mois" pour commencer</p>
                   </div>
+                )}
+
+                {/* Modal d'aperçu de post */}
+                {selectedPost && (
+                  <PostPreviewModal
+                    post={selectedPost}
+                    onClose={() => setSelectedPost(null)}
+                    onModify={handleModifyPost}
+                    onValidate={handleValidatePost}
+                    isModifying={isModifyingPost}
+                    modificationRequest={modificationRequest}
+                    setModificationRequest={setModificationRequest}
+                  />
                 )}
 
                 {/* Modal de confirmation de génération */}

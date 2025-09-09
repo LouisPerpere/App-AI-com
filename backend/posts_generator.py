@@ -742,6 +742,16 @@ IMPORTANT: Varie intelligemment les content_type selon ce qui sera le plus effic
             response_data = json.loads(clean_response)
             posts_data = response_data.get("posts", [])
             
+            # CRITICAL VALIDATION: Ensure exact number of posts
+            if num_posts and len(posts_data) != num_posts:
+                logger.warning(f"⚠️ ChatGPT returned {len(posts_data)} posts but {num_posts} were requested!")
+                if len(posts_data) > num_posts:
+                    logger.info(f"🔧 Truncating to first {num_posts} posts")
+                    posts_data = posts_data[:num_posts]
+                elif len(posts_data) < num_posts:
+                    logger.error(f"❌ Not enough posts generated. Needed {num_posts}, got {len(posts_data)}")
+                    # Could implement retry logic here if needed
+            
             if not posts_data:
                 logger.error("❌ No posts found in global AI response")
                 return []

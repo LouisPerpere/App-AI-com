@@ -363,7 +363,7 @@ Tu réponds TOUJOURS au format JSON exact demandé."""
                     pass  # Skip invalid IDs
             
             if object_ids:
-                await self.db.media.update_many(
+                self.db.media.update_many(
                     {"_id": {"$in": object_ids}},
                     {"$set": {"used_in_posts": True}}
                 )

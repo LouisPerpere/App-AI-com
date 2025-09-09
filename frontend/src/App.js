@@ -1788,10 +1788,10 @@ function MainApp() {
     // Pré-remplir les champs avec les refs (après que la modal soit rendue)
     setTimeout(() => {
       if (pixabayTitleRef.current) {
-        pixabayTitleRef.current.value = pixabayImage.tags || '';
+        pixabayTitleRef.current.value = ''; // Titre vide par défaut
       }
       if (pixabayContextRef.current) {
-        pixabayContextRef.current.value = '';
+        pixabayContextRef.current.value = pixabayImage.tags || ''; // Tags en contexte par défaut
       }
     }, 100);
   };

@@ -6389,6 +6389,9 @@ function MainApp() {
                   selectedFiles={selectedFiles}
                   isUploading={isUploading}
                   handleBatchUpload={handleBatchUpload}
+                  // Nouvelles props pour posts
+                  postToAttachImage={postToAttachImage}
+                  uploadFilesForPost={uploadFilesForPost}
                 />
               </div>
             </div>

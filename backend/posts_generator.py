@@ -187,7 +187,7 @@ Tu réponds TOUJOURS au format JSON exact demandé."""
         
         return source_data
     
-    async def _collect_available_content(self, user_id: str, target_month: str) -> Dict[str, List[ContentSource]]:
+    def _collect_available_content(self, user_id: str, target_month: str) -> Dict[str, List[ContentSource]]:
         """Collect all available visual content in priority order"""
         logger.info("🖼️ Step 2/6: Collecting available content...")
         

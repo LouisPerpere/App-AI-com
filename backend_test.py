@@ -1,39 +1,34 @@
 #!/usr/bin/env python3
 """
-Test complet du système de génération de posts Instagram nouvellement implémenté
+Test de l'optimisation de suppression en lot pour contenus uploadés
+Test du nouvel endpoint DELETE /api/content/batch
 
-ENDPOINTS À TESTER:
-1. POST /api/posts/generate - endpoint principal de génération
-2. GET /api/posts/generated - récupération des posts générés
+OBJECTIF: Tester le nouveau endpoint `/api/content/batch` de suppression en lot optimisée.
 
-CONTEXT TECHNIQUE:
-- Nouveau système PostsGenerator implémenté avec ChatGPT 4o
-- Utilise emergentintegrations avec clé EMERGENT_LLM_KEY
-- Intégration complète : profil business, analyse site web, notes, contenus uploadés
-- Focus Instagram uniquement pour l'instant
+CONTEXTE TECHNIQUE:
+- Nouvel endpoint DELETE /api/content/batch
+- Remplace les suppressions individuelles par une seule requête batch
+- Utilise BatchDeleteRequest avec content_ids array
+- Gestion des ObjectId et UUID strings
+- Limite de 100 éléments par batch
 
-TEST SCENARIOS:
-1. Authentification utilisateur (credentials: lperpere@yahoo.fr / L@Reunion974!)
-2. Vérification profil business existant
-3. Test génération de posts avec paramètres par défaut (20 posts, octobre_2025)
-4. Vérification structure et contenu des posts générés
-5. Test récupération des posts via GET /api/posts/generated
-6. Validation métadonnées et format JSON
+TESTS À EFFECTUER:
+1. Authentification (lperpere@yahoo.fr / L@Reunion974!)
+2. Vérifier que des contenus uploadés existent (GET /api/content)
+3. Test suppression en lot avec 2-3 content_ids valides
+4. Validation réponse JSON (deleted_count, requested_count)
+5. Vérification que les contenus sont bien supprimés
+6. Test cas limite: IDs invalides, array vide
 
 Backend URL: https://content-scheduler-6.preview.emergentagent.com/api
 """
 
 import requests
 import json
-import time
+import sys
 from datetime import datetime
 
-# Configuration
-BACKEND_URL = "https://content-scheduler-6.preview.emergentagent.com/api"
-EMAIL = "lperpere@yahoo.fr"
-PASSWORD = "L@Reunion974!"
-
-class PostsGenerationTester:
+class BatchDeleteTester:
     def __init__(self):
         self.session = requests.Session()
         self.token = None

@@ -915,7 +915,7 @@ RÉPONSE ATTENDUE (JSON exact):
         response = openai_client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "Tu modifies des posts Instagram selon les demandes utilisateur. Tu réponds toujours en JSON exact."},
+                {"role": "system", "content": "Tu modifies des posts Instagram selon les demandes utilisateur. Tu écris comme un humain naturel, pas comme une IA. Tu réponds toujours en JSON exact."},
                 {"role": "user", "content": modification_prompt}
             ],
             temperature=0.7,

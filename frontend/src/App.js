@@ -5145,11 +5145,18 @@ function MainApp() {
                     Titre personnalisé
                   </label>
                   <input
+                    ref={pixabayTitleRef}
                     type="text"
-                    value={pixabayCustomTitle}
-                    onChange={(e) => setPixabayCustomTitle(e.target.value)}
                     placeholder="Titre pour cette image..."
                     className="w-full p-3 border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                    style={{
+                      fontSize: '16px',
+                      lineHeight: '1.5',
+                      WebkitAppearance: 'none',
+                      WebkitBorderRadius: '8px',
+                      borderRadius: '8px',
+                      touchAction: 'manipulation'
+                    }}
                   />
                 </div>
                 
@@ -5158,11 +5165,18 @@ function MainApp() {
                     Contexte d'utilisation
                   </label>
                   <textarea
-                    value={pixabayCustomContext}
-                    onChange={(e) => setPixabayCustomContext(e.target.value)}
+                    ref={pixabayContextRef}
                     placeholder="Décrivez comment vous voulez utiliser cette image..."
                     rows={3}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none resize-none"
+                    style={{
+                      fontSize: '16px',
+                      lineHeight: '1.5',
+                      WebkitAppearance: 'none',
+                      WebkitBorderRadius: '8px',
+                      borderRadius: '8px',
+                      touchAction: 'manipulation'
+                    }}
                   />
                 </div>
               </div>

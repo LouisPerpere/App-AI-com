@@ -899,6 +899,93 @@ async def move_content_to_month(
         print(f"❌ Error moving content: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to move content: {str(e)}")
 
+class AttachImageRequest(BaseModel):
+    image_source: str  # "library", "pixabay", "upload"
+    image_id: str = ""  # For library/pixabay selection
+    image_url: str = ""  # For pixabay
+    uploaded_files: List[str] = []  # For upload
+
+@api_router.put("/posts/{post_id}/attach-image")
+async def attach_image_to_post(
+    post_id: str,
+    request: AttachImageRequest,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Attach an image to a post that needs one"""
+    try:
+        print(f"🖼️ Attaching image to post {post_id} for user {user_id}")
+        print(f"   Source: {request.image_source}")
+        
+        dbm = get_database()
+        
+        # Get the post
+        current_post = dbm.db.generated_posts.find_one({
+            "id": post_id,
+            "owner_id": user_id
+        })
+        
+        if not current_post:
+            raise HTTPException(status_code=404, detail="Post not found")
+        
+        visual_url = ""
+        visual_id = ""
+        
+        if request.image_source == "library":
+            # Use existing image from library
+            if request.image_id:
+                visual_id = request.image_id
+                visual_url = f"/api/content/{visual_id}/file"
+                
+                # Mark image as used
+                dbm.db.media.update_one(
+                    {"_id": ObjectId(visual_id) if len(visual_id) == 24 else {"$or": [{"file_id": visual_id}, {"id": visual_id}]}},
+                    {"$set": {"used_in_posts": True}}
+                )
+                
+        elif request.image_source == "pixabay":
+            # Handle pixabay image (would need to save it first)
+            if request.image_url:
+                # This would involve saving the pixabay image - simplified for now
+                visual_url = request.image_url
+                visual_id = f"pixabay_{post_id}"
+                
+        elif request.image_source == "upload":
+            # Handle direct upload (would integrate with existing upload system)
+            # For now, just set placeholder
+            visual_url = f"/api/content/upload_{post_id}/file"
+            visual_id = f"upload_{post_id}"
+        
+        # Update the post
+        update_data = {
+            "visual_url": visual_url,
+            "visual_id": visual_id,
+            "status": "with_image",
+            "updated_at": datetime.utcnow().isoformat()
+        }
+        
+        result = dbm.db.generated_posts.update_one(
+            {"id": post_id, "owner_id": user_id},
+            {"$set": update_data}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Post not found")
+        
+        print(f"✅ Image attached successfully to post {post_id}")
+        
+        return {
+            "message": "Image attachée avec succès",
+            "post_id": post_id,
+            "visual_url": visual_url,
+            "visual_id": visual_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error attaching image: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to attach image: {str(e)}")
+
 # ----------------------------
 # POSTS GENERATION: /api/posts
 # ----------------------------

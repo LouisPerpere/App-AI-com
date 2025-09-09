@@ -477,7 +477,7 @@ async def get_pending_content_mongo(offset: int = 0, limit: int = 24, user_id: s
         items = []
         for d in cursor:
             items.append({
-                "id": str(d.get("_id")),
+                "id": d.get("id") or str(d.get("_id")),  # Use UUID if available, fallback to ObjectId
                 "filename": d.get("filename", ""),
                 "file_type": d.get("file_type", ""),
                 "url": d.get("url", ""),

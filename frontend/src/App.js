@@ -2128,6 +2128,7 @@ function MainApp() {
                   key={post.id || index}
                   post={post}
                   onClick={() => setSelectedPost(post)}
+                  onAddImage={handleAddImageToPost}
                 />
               ))}
             </div>

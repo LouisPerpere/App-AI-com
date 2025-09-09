@@ -454,7 +454,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
     
     async def _generate_posts_calendar(self, business_context: str, notes_context: str, 
                                      recent_posts_context: str, content_inventory: str,
-                                     strategy: Dict, num_posts: int) -> List[PostContent]:
+                                     strategy: Dict, num_posts: int, available_content: Dict = None) -> List[PostContent]:
         """Generate entire posts calendar with a single AI request"""
         try:
             # Build the global prompt for generating all posts at once

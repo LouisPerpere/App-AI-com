@@ -40,7 +40,7 @@ class PostsGenerationTester:
         self.user_id = None
         
     def authenticate(self):
-        """Step 1: Authenticate with the backend"""
+        """Step 1: Authentification utilisateur"""
         print("🔑 Step 1: Authentication with POST /api/auth/login-robust")
         
         login_data = {
@@ -70,6 +70,111 @@ class PostsGenerationTester:
                 
         except Exception as e:
             print(f"   ❌ Authentication error: {e}")
+            return False
+    
+    def check_backend_health(self):
+        """Step 2: Vérification santé du backend"""
+        print("🏥 Step 2: Backend health check")
+        
+        try:
+            response = self.session.get(f"{BACKEND_URL}/health")
+            print(f"   Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                print(f"   ✅ Backend is healthy")
+                print(f"   Service: {data.get('service', 'Unknown')}")
+                print(f"   Status: {data.get('status', 'Unknown')}")
+                return True
+            else:
+                print(f"   ❌ Backend health check failed: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"   ❌ Backend health check error: {e}")
+            return False
+    
+    def verify_business_profile(self):
+        """Step 3: Vérification profil business existant"""
+        print("🏢 Step 3: Verify business profile exists")
+        
+        try:
+            response = self.session.get(f"{BACKEND_URL}/business-profile")
+            print(f"   Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                business_name = data.get('business_name')
+                business_type = data.get('business_type')
+                brand_tone = data.get('brand_tone')
+                target_audience = data.get('target_audience')
+                
+                print(f"   ✅ Business profile retrieved successfully")
+                print(f"   Business Name: {business_name}")
+                print(f"   Business Type: {business_type}")
+                print(f"   Brand Tone: {brand_tone}")
+                print(f"   Target Audience: {target_audience}")
+                
+                # Store for later use
+                self.business_profile = data
+                
+                # Check if essential fields are present
+                has_essential_fields = bool(business_name and business_type)
+                if has_essential_fields:
+                    print(f"   ✅ Business profile has essential fields")
+                    return True
+                else:
+                    print(f"   ⚠️ Business profile missing essential fields")
+                    return True  # Still continue testing
+                    
+            else:
+                print(f"   ❌ Business profile retrieval failed: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"   ❌ Business profile error: {e}")
+            return False
+    
+    def verify_notes_integration(self):
+        """Step 4: Vérification intégration des notes"""
+        print("📝 Step 4: Verify notes integration")
+        
+        try:
+            response = self.session.get(f"{BACKEND_URL}/notes")
+            print(f"   Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                notes = data.get('notes', [])
+                
+                print(f"   ✅ Notes retrieved successfully")
+                print(f"   Total notes: {len(notes)}")
+                
+                # Analyze note types
+                monthly_notes = [n for n in notes if n.get('is_monthly_note')]
+                specific_notes = [n for n in notes if not n.get('is_monthly_note')]
+                high_priority_notes = [n for n in notes if n.get('priority') == 'high']
+                
+                print(f"   Monthly recurring notes: {len(monthly_notes)}")
+                print(f"   Specific month notes: {len(specific_notes)}")
+                print(f"   High priority notes: {len(high_priority_notes)}")
+                
+                # Store for later analysis
+                self.notes_data = {
+                    'total': len(notes),
+                    'monthly': len(monthly_notes),
+                    'specific': len(specific_notes),
+                    'high_priority': len(high_priority_notes)
+                }
+                
+                return True
+                
+            else:
+                print(f"   ❌ Notes retrieval failed: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"   ❌ Notes integration error: {e}")
             return False
     
     def create_test_images(self, count=3):

@@ -200,6 +200,35 @@ class ContentNote(BaseModel):
     note_month: Optional[int] = Field(None, description="Specific month (1-12)")  
     note_year: Optional[int] = Field(None, description="Specific year")
 
+class ContentUpload(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    business_id: str
+    file_path: str
+    file_type: str  # image, video, note
+    description: Optional[str] = None
+    title: Optional[str] = None
+    content_text: Optional[str] = None
+    uploaded_at: datetime = Field(default_factory=datetime.utcnow)
+    status: str = "pending_description"
+
+class GeneratedPost(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    business_id: str
+    content_id: Optional[str] = None
+    platform: str  # facebook, instagram, linkedin
+    post_text: str
+    hashtags: List[str]
+    scheduled_date: datetime
+    scheduled_time: str = "09:00"
+    status: str = "pending"
+    auto_generated: bool = False
+    visual_url: Optional[str] = None
+    generation_batch: Optional[str] = None
+    generation_metadata: Optional[Dict[str, Any]] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
 class LoginRequest(BaseModel):
     email: str
     password: str

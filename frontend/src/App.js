@@ -6513,39 +6513,39 @@ function MainApp() {
           </div>
         )}
         
-        {/* Modal d'ajout d'image aux posts */}
+        {/* Modal d'attachement d'image */}
         {showImageAttachModal && postToAttachImage && (
           <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-              {/* Header */}
+            <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+              {/* Header avec texte du post */}
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-amber-500 rounded-xl flex items-center justify-center">
                     <ImageIcon className="w-5 h-5 text-white" />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-gray-800">Ajouter une image au post</h3>
-                    <p className="text-sm text-gray-600">
-                      "{postToAttachImage.title?.substring(0, 50)}..."
-                    </p>
+                    <p className="text-sm text-gray-600">"{postToAttachImage.title || 'Post généré'}"</p>
                   </div>
                 </div>
                 <button
-                  onClick={() => {
-                    setShowImageAttachModal(false);
-                    setPostToAttachImage(null);
-                  }}
+                  onClick={() => setShowImageAttachModal(false)}
                   className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
                 >
                   <X className="w-4 h-4 text-gray-600" />
                 </button>
               </div>
 
+              {/* Zone de texte du post - collapsible */}
+              <div className="border-b border-gray-100">
+                <PostTextPreview postText={postToAttachImage.text} />
+              </div>
+
               {/* Tabs */}
               <div className="flex border-b border-gray-200">
                 <button
                   onClick={() => setAttachImageTab('library')}
-                  className={`px-6 py-3 font-medium transition-colors ${
+                  className={`flex-1 px-6 py-3 font-medium text-sm transition-colors ${
                     attachImageTab === 'library'
                       ? 'border-b-2 border-orange-500 text-orange-600'
                       : 'text-gray-600 hover:text-gray-800'
@@ -6555,17 +6555,17 @@ function MainApp() {
                 </button>
                 <button
                   onClick={() => setAttachImageTab('pixabay')}
-                  className={`px-6 py-3 font-medium transition-colors ${
+                  className={`flex-1 px-6 py-3 font-medium text-sm transition-colors ${
                     attachImageTab === 'pixabay'
                       ? 'border-b-2 border-orange-500 text-orange-600'
                       : 'text-gray-600 hover:text-gray-800'
                   }`}
                 >
-                  🌐 Pixabay
+                  🔍 Pixabay
                 </button>
                 <button
                   onClick={() => setAttachImageTab('upload')}
-                  className={`px-6 py-3 font-medium transition-colors ${
+                  className={`flex-1 px-6 py-3 font-medium text-sm transition-colors ${
                     attachImageTab === 'upload'
                       ? 'border-b-2 border-orange-500 text-orange-600'
                       : 'text-gray-600 hover:text-gray-800'
@@ -6593,6 +6593,10 @@ function MainApp() {
                   // Nouvelles props pour posts
                   postToAttachImage={postToAttachImage}
                   uploadFilesForPost={uploadFilesForPost}
+                  // Props pour organisation mensuelle
+                  getMonthlyContentData={getMonthlyContentData}
+                  collapsedMonths={collapsedMonths}
+                  toggleMonthCollapse={toggleMonthCollapse}
                 />
               </div>
             </div>

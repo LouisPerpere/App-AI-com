@@ -106,7 +106,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "FONCTIONNALITÉ SAUVEGARDE PROFIL BUSINESS : L'utilisateur signale que les boutons 'save' des champs de profil business dans l'onglet 'Entreprise' ne fonctionnent pas et que les changements ne sont pas persistants. Il demande aussi l'ajout d'un champ 'ton de marque' avec dropdown. L'application fonctionne par ailleurs correctement (dashboard restauré, clavier virtuel fixé). Objectif: Implémenter les fonctions handleSaveBusinessInfo et handleSaveMarketingInfo pour la persistance des données business profile, et s'assurer que le champ 'ton de marque' est bien intégré."
+user_problem_statement: "SYSTÈME DE GÉNÉRATION DE POSTS INSTAGRAM : Implémentation du système complet de génération automatique de posts Instagram basé sur l'analyse du profil business, contenu uploadé, notes utilisateur et analyse de site web. Le système doit créer un calendrier de publication équilibré selon le type de business, avec des posts optimisés par ChatGPT 4o. Focus Instagram uniquement pour l'instant."
 
 
 # Added by main agent for Phase A testing

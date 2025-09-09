@@ -592,16 +592,21 @@ const ImageAttachmentContent = ({
   const handleUploadForPost = async () => {
     if (isAttaching || selectedFiles.length === 0) return;
     
-    // Déclencher l'upload normal puis utiliser les nouveaux IDs
-    await handleBatchUpload();
+    // Récupérer les métadonnées du post pour les appliquer aux images
+    const postTitle = postToAttachImage?.title || 'Post généré';
+    const postText = postToAttachImage?.text || '';
     
-    // Une fois uploadé, on pourrait récupérer les nouveaux IDs
-    // Pour l'instant, placeholder
-    const imageData = {
-      uploaded_files: selectedFiles.map(f => f.name)
-    };
+    // Préparer l'upload avec les métadonnées du post
+    const uploadData = await uploadFilesForPost(selectedFiles, postTitle, postText);
     
-    onAttachImage('upload', imageData);
+    // Utiliser les IDs des fichiers uploadés
+    if (uploadData && uploadData.length > 0) {
+      const imageData = {
+        uploaded_file_ids: uploadData.map(item => item.id)
+      };
+      
+      onAttachImage('upload', imageData);
+    }
   };
 
   if (activeTab === 'library') {

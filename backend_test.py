@@ -177,43 +177,67 @@ class PostsGenerationTester:
             print(f"   ❌ Notes integration error: {e}")
             return False
     
-    def create_test_images(self, count=3):
-        """Create test images for carousel upload"""
-        print(f"🖼️ Creating {count} test images for carousel upload")
+    def test_posts_generation(self):
+        """Step 5: Test génération de posts avec paramètres par défaut"""
+        print("🚀 Step 5: Test POST /api/posts/generate with default parameters")
+        print("   Target month: octobre_2025")
+        print("   Number of posts: 20")
         
-        images = []
-        for i in range(count):
-            # Create a simple colored image
-            img = Image.new('RGB', (800, 600), color=(100 + i*50, 150 + i*30, 200 + i*20))
+        generation_params = {
+            "target_month": "octobre_2025",
+            "num_posts": 20
+        }
+        
+        try:
+            # Start generation
+            start_time = time.time()
+            response = self.session.post(f"{BACKEND_URL}/posts/generate", params=generation_params)
+            end_time = time.time()
             
-            # Add some text to make images unique
-            from PIL import ImageDraw, ImageFont
-            draw = ImageDraw.Draw(img)
-            try:
-                # Try to use a default font, fallback to basic if not available
-                font = ImageFont.load_default()
-            except:
-                font = None
+            print(f"   Status: {response.status_code}")
+            print(f"   Generation time: {end_time - start_time:.2f} seconds")
             
-            text = f"Carousel Image {i+1}"
-            if font:
-                draw.text((50, 50), text, fill=(255, 255, 255), font=font)
+            if response.status_code == 200:
+                data = response.json()
+                
+                print(f"   ✅ Post generation successful")
+                print(f"   Success: {data.get('success', False)}")
+                print(f"   Posts generated: {data.get('posts_count', 0)}")
+                print(f"   Message: {data.get('message', 'No message')}")
+                
+                # Analyze generation result
+                strategy = data.get('strategy', {})
+                sources_used = data.get('sources_used', {})
+                
+                if strategy:
+                    print(f"   📊 Content strategy:")
+                    for content_type, count in strategy.items():
+                        print(f"      {content_type}: {count} posts")
+                
+                if sources_used:
+                    print(f"   📋 Sources used:")
+                    for source, value in sources_used.items():
+                        print(f"      {source}: {value}")
+                
+                # Store generation results
+                self.generation_result = data
+                
+                # Check if posts were actually generated
+                posts_count = data.get('posts_count', 0)
+                if posts_count > 0:
+                    print(f"   ✅ {posts_count} posts generated successfully")
+                    return True
+                else:
+                    print(f"   ❌ No posts were generated")
+                    return False
+                    
             else:
-                draw.text((50, 50), text, fill=(255, 255, 255))
-            
-            # Convert to bytes
-            img_bytes = io.BytesIO()
-            img.save(img_bytes, format='JPEG', quality=85)
-            img_bytes.seek(0)
-            
-            images.append({
-                'filename': f'carousel_test_{i+1}.jpg',
-                'content': img_bytes.getvalue(),
-                'content_type': 'image/jpeg'
-            })
-            
-        print(f"   ✅ Created {len(images)} test images")
-        return images
+                print(f"   ❌ Post generation failed: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"   ❌ Post generation error: {e}")
+            return False
     
     def test_carousel_batch_upload(self):
         """Step 2: Test carousel batch upload with new parameters"""

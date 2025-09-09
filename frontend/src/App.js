@@ -4145,8 +4145,36 @@ function MainApp() {
                                   : `${previewContent.url}?token=${localStorage.getItem('access_token')}`
                                 }
                                 controls
+                                preload="metadata"
                                 className="w-full h-auto max-h-96 rounded-lg border"
+                                onError={(e) => {
+                                  console.error('Video loading error:', e);
+                                  // Fallback: show video icon instead
+                                  e.target.style.display = 'none';
+                                  const fallback = e.target.nextElementSibling;
+                                  if (fallback) fallback.style.display = 'flex';
+                                }}
                               />
+                              <div 
+                                className="w-full h-48 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg border items-center justify-center hidden"
+                                style={{ display: 'none' }}
+                              >
+                                <div className="text-center">
+                                  <Play className="w-12 h-12 text-blue-600 mx-auto mb-2" />
+                                  <p className="text-sm text-blue-800">Vidéo non supportée par le navigateur</p>
+                                  <a 
+                                    href={previewContent.source === 'pixabay' 
+                                      ? previewContent.url
+                                      : `${previewContent.url}?token=${localStorage.getItem('access_token')}`
+                                    }
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:text-blue-800 underline text-sm mt-2 inline-block"
+                                  >
+                                    Ouvrir dans un nouvel onglet
+                                  </a>
+                                </div>
+                              </div>
                             ) : (
                               <div className="w-full h-48 bg-gray-100 rounded-lg border flex items-center justify-center">
                                 <FileText className="w-12 h-12 text-gray-400" />

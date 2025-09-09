@@ -343,10 +343,10 @@ backend:
   - task: "Post Generation System Implementation"
     implemented: true
     working: false
-    file: "/app/backend/server.py, /app/backend/scheduler.py"
+    file: "/app/backend/server.py, /app/backend/posts_generator.py"
     stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: false
         agent: "testing"

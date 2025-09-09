@@ -405,7 +405,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             for content_id in used_content:
                 try:
                     # Try UUID format first (GridFS file_id)
-                    result = await self.db.media.update_one(
+                    result = self.db.media.update_one(
                         {"$or": [
                             {"file_id": content_id},
                             {"id": content_id},

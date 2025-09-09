@@ -379,7 +379,7 @@ def test_upload_and_attach_single(token, user_id, test_posts):
             return False
         
         upload_data = upload_response.json()
-        uploaded_files = upload_data.get("uploaded_files", [])
+        uploaded_files = upload_data.get("created", [])  # Changed from "uploaded_files" to "created"
         
         if not uploaded_files:
             print_error("No files were uploaded")

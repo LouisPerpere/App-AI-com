@@ -2062,8 +2062,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Batch Delete Optimization Testing"
-    - "Virtual Keyboard Fix in Settings Tab"
+    - "Content Movement Functionality Testing"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

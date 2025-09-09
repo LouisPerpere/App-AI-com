@@ -1,26 +1,9 @@
 #!/usr/bin/env python3
 """
-Test de l'optimisation de suppression en lot pour contenus uploadés
-Test du nouvel endpoint DELETE /api/content/batch
+Backend Test Suite for Content Movement Functionality
+Test de la nouvelle fonctionnalité de déplacement de contenu vers un autre mois
 
-OBJECTIF: Tester le nouveau endpoint `/api/content/batch` de suppression en lot optimisée.
-
-CONTEXTE TECHNIQUE:
-- Nouvel endpoint DELETE /api/content/batch
-- Remplace les suppressions individuelles par une seule requête batch
-- Utilise BatchDeleteRequest avec content_ids array
-- Gestion des ObjectId et UUID strings
-- Limite de 100 éléments par batch
-
-TESTS À EFFECTUER:
-1. Authentification (lperpere@yahoo.fr / L@Reunion974!)
-2. Vérifier que des contenus uploadés existent (GET /api/content)
-3. Test suppression en lot avec 2-3 content_ids valides
-4. Validation réponse JSON (deleted_count, requested_count)
-5. Vérification que les contenus sont bien supprimés
-6. Test cas limite: IDs invalides, array vide
-
-Backend URL: https://content-scheduler-6.preview.emergentagent.com/api
+OBJECTIF: Valider le nouvel endpoint PUT /api/content/{content_id}/move
 """
 
 import requests
@@ -28,7 +11,12 @@ import json
 import sys
 from datetime import datetime
 
-class BatchDeleteTester:
+# Configuration
+BACKEND_URL = "https://content-scheduler-6.preview.emergentagent.com/api"
+TEST_EMAIL = "lperpere@yahoo.fr"
+TEST_PASSWORD = "L@Reunion974!"
+
+class ContentMoveTest:
     def __init__(self):
         self.base_url = "https://content-scheduler-6.preview.emergentagent.com/api"
         self.session = requests.Session()

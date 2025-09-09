@@ -2170,6 +2170,42 @@ function MainApp() {
     setAttachImageTab('library'); // Commencer par la bibliothèque
   };
 
+  const attachImageToPost = async (imageSource, imageData) => {
+    if (!postToAttachImage) return;
+
+    setIsAttachingImage(true);
+    const token = localStorage.getItem('access_token');
+
+    try {
+      const requestBody = {
+        image_source: imageSource,
+        ...imageData
+      };
+
+      const response = await axios.put(
+        `${API}/posts/${postToAttachImage.id}/attach-image`,
+        requestBody,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      toast.success(`🖼️ ${response.data.message}`);
+      
+      // Recharger les posts
+      await loadGeneratedPosts();
+      
+      // Fermer la modal
+      setShowImageAttachModal(false);
+      setPostToAttachImage(null);
+      
+    } catch (error) {
+      console.error('Error attaching image:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`Erreur lors de l'ajout d'image: ${errorMessage}`);
+    } finally {
+      setIsAttachingImage(false);
+    }
+  };
+
   const moveContentToMonth = async (targetMonth) => {
     if (!contentToMove || !targetMonth) return;
 

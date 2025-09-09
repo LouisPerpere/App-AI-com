@@ -973,9 +973,12 @@ async def attach_image_to_post(
                     visual_id = request.uploaded_file_ids[0]
                     visual_url = f"/api/content/{visual_id}/file"
                     
-                    # Mark image as used
+                    # Mark image as used using parse_any_id
+                    update_query = parse_any_id(visual_id)
+                    update_query["owner_id"] = user_id
+                    
                     dbm.db.media.update_one(
-                        {"$or": [{"id": visual_id}, {"file_id": visual_id}]},
+                        update_query,
                         {"$set": {"used_in_posts": True}}
                     )
                     print(f"✅ Single uploaded image {visual_id} attached and marked as used")
@@ -988,8 +991,11 @@ async def attach_image_to_post(
                     
                     # Mark all images as used and link them to the carousel
                     for file_id in request.uploaded_file_ids:
+                        update_query = parse_any_id(file_id)
+                        update_query["owner_id"] = user_id
+                        
                         dbm.db.media.update_one(
-                            {"$or": [{"id": file_id}, {"file_id": file_id}]},
+                            update_query,
                             {
                                 "$set": {
                                     "used_in_posts": True,

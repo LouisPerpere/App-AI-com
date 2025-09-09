@@ -146,7 +146,7 @@ Tu réponds TOUJOURS au format JSON exact demandé."""
                 "posts": []
             }
     
-    async def _gather_source_data(self, user_id: str, target_month: str) -> Dict[str, Any]:
+    def _gather_source_data(self, user_id: str, target_month: str) -> Dict[str, Any]:
         """Gather all source data for post generation"""
         logger.info("📊 Step 1/6: Gathering source data...")
         

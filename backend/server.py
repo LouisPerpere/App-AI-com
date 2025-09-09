@@ -883,7 +883,7 @@ async def modify_post_with_ai(
         current_hashtags = current_post.get("hashtags", [])
         current_title = current_post.get("title", "")
         
-        modification_prompt = f"""Tu es un expert en marketing digital. Modifie ce post Instagram selon la demande utilisateur.
+        modification_prompt = f"""Modifie ce post Instagram selon la demande utilisateur.
 
 POST ACTUEL:
 Titre: {current_title}

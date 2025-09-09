@@ -1,7 +1,18 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for Post Generation System
-Testing the corrected post generation system with variety constraints
+Test du système de génération de posts avec calcul basé sur posting_frequency du profil business
+OBJECTIF: Valider que le nombre de posts générés correspond au rythme défini dans le profil business
+
+Tests à effectuer:
+1. Authentification (lperpere@yahoo.fr / L@Reunion974!)
+2. Vérifier le profil business existant et son posting_frequency
+3. POST /api/posts/generate (sans paramètres)
+4. Valider que le nombre de posts correspond au calcul:
+   - Si weekly (1/semaine) → 4 posts/mois
+   - Si bi_weekly (2/semaine) → 8 posts/mois
+   - Si 3x_week (3/semaine) → 12 posts/mois
+   - Si daily (7/semaine) → 28 posts/mois
+5. Vérification que tous les posts sont uniques et variés
 """
 
 import requests
@@ -10,7 +21,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://content-scheduler-6.preview.emergentagent.com/api"
+BASE_URL = "https://content-scheduler-6.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

@@ -428,7 +428,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         """Generate a single post with AI"""
         try:
             # Build prompt for AI
-            prompt = f"""Génère un post Instagram {content_type} parfait.
+            prompt = f"""Crée un post Instagram {content_type} naturel et authentique.
 
 CONTEXTE BUSINESS:
 {business_context}

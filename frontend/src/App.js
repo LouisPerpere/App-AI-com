@@ -4188,7 +4188,7 @@ function MainApp() {
                                 <video 
                                   src={previewContent.source === 'pixabay' 
                                     ? previewContent.url
-                                    : `${previewContent.url}?token=${localStorage.getItem('access_token')}`
+                                    : `${process.env.REACT_APP_BACKEND_URL}${previewContent.url}?token=${localStorage.getItem('access_token')}`
                                   }
                                   controls
                                   preload="metadata"

@@ -3554,11 +3554,12 @@ function MainApp() {
                                         paddingRight: '2.5rem'
                                       }}
                                       onChange={(e) => {
-                                        // Update the file custom data when month changes
+                                        // Update the file custom data when month changes (preserve title and context)
                                         setFileCustomData(prev => ({
                                           ...prev,
                                           [index]: {
-                                            ...prev[index],
+                                            title: prev[index]?.title || '',
+                                            context: prev[index]?.context || '',
                                             attributedMonth: e.target.value
                                           }
                                         }));

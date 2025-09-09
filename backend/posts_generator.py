@@ -596,7 +596,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         """Generate entire posts calendar with a single AI request"""
         try:
             # Get website analysis context from source_data
-            website_analysis = available_content.get("website_analysis") if hasattr(available_content, 'get') else {}
+            website_analysis = source_data.get("website_analysis", {}) if source_data else {}
             website_context = self._format_website_analysis_context(website_analysis)
             
             # Build the global prompt for generating all posts at once

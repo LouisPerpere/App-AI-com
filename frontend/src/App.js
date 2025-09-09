@@ -584,6 +584,38 @@ const PostTextPreview = ({ postText }) => {
   );
 };
 
+// Composant pour afficher le texte du post de manière collapsible
+const PostTextPreview = ({ postText }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  if (!postText) return null;
+  
+  const isLong = postText.length > 200;
+  const displayText = isExpanded || !isLong ? postText : postText.substring(0, 200) + '...';
+  
+  return (
+    <div className="p-4">
+      <div className="flex items-center justify-between mb-2">
+        <h4 className="text-sm font-medium text-gray-700">Texte du post :</h4>
+        {isLong && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="text-xs text-orange-600 hover:text-orange-700 font-medium flex items-center space-x-1"
+          >
+            <span>{isExpanded ? 'Réduire' : 'Voir plus'}</span>
+            <ChevronDown className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+          </button>
+        )}
+      </div>
+      <div className="bg-gray-50 rounded-lg p-3 max-h-32 overflow-y-auto">
+        <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
+          {displayText}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 // Composant réutilisant les modules existants pour l'ajout d'images aux posts
 const ImageAttachmentContent = ({ 
   activeTab, 

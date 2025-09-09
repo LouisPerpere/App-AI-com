@@ -15,11 +15,12 @@ def test_openai_key():
     print("🔑 Testing OpenAI API Key...")
     
     api_key = os.getenv('OPENAI_API_KEY')
-    print(f"   API Key: {api_key[:20]}...{api_key[-10:] if api_key else 'NOT FOUND'}")
     
     if not api_key:
         print("   ❌ No OpenAI API key found in environment")
         return False
+        
+    print(f"   API Key: {api_key[:20]}...{api_key[-10:]}")
     
     try:
         client = OpenAI(api_key=api_key)

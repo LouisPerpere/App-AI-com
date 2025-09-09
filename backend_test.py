@@ -556,14 +556,14 @@ class PostsGenerationTester:
 
 def main():
     """Main test execution"""
-    tester = CarouselTester()
+    tester = PostsGenerationTester()
     success = tester.run_comprehensive_test()
     
     if success:
-        print("\n🎯 CONCLUSION: Carousel functionality is FULLY OPERATIONAL")
+        print("\n🎯 CONCLUSION: Système de génération de posts OPÉRATIONNEL")
         exit(0)
     else:
-        print("\n🚨 CONCLUSION: Carousel functionality has CRITICAL ISSUES")
+        print("\n🚨 CONCLUSION: Système de génération de posts a des PROBLÈMES CRITIQUES")
         exit(1)
 
 if __name__ == "__main__":

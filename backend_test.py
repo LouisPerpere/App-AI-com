@@ -74,26 +74,38 @@ class PostGenerationTester:
             self.log(f"❌ Erreur authentification: {str(e)}")
             return False
     
-    def test_backend_health(self):
-        """Test backend health and connectivity"""
-        print("\n🏥 Step 2: Testing Backend Health")
+    def test_business_profile(self):
+        """Test 2: Vérifier le profil business et son posting_frequency"""
+        self.log("🏢 ÉTAPE 2: Vérification du profil business")
         
         try:
-            response = self.session.get(f"{BACKEND_URL}/health", timeout=10)
+            response = self.session.get(f"{self.base_url}/business-profile", timeout=30)
             
             if response.status_code == 200:
-                data = response.json()
-                print(f"✅ Backend health check successful")
-                print(f"   Status: {data.get('status')}")
-                print(f"   Service: {data.get('service')}")
-                return True
+                profile = response.json()
+                
+                business_name = profile.get("business_name")
+                business_type = profile.get("business_type")
+                posting_frequency = profile.get("posting_frequency")
+                
+                self.log(f"✅ Profil business récupéré avec succès")
+                self.log(f"   Business Name: {business_name}")
+                self.log(f"   Business Type: {business_type}")
+                self.log(f"   Posting Frequency: {posting_frequency}")
+                
+                if not posting_frequency:
+                    self.log("⚠️ Attention: posting_frequency non défini dans le profil")
+                    return False, None
+                
+                return True, posting_frequency
             else:
-                print(f"❌ Health check failed: {response.status_code}")
-                return False
+                self.log(f"❌ Échec récupération profil: {response.status_code}")
+                self.log(f"   Response: {response.text}")
+                return False, None
                 
         except Exception as e:
-            print(f"❌ Health check error: {str(e)}")
-            return False
+            self.log(f"❌ Erreur récupération profil: {str(e)}")
+            return False, None
     
     def test_post_generation_default(self):
         """Test POST /api/posts/generate with default parameters (should generate 4 posts)"""

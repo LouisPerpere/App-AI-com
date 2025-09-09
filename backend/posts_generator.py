@@ -537,7 +537,7 @@ RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
                 strategy_parts.append(f"- {count} posts de type '{content_type}'")
         return "\n".join(strategy_parts)
     
-    def _parse_global_response(self, response_text: str, strategy: Dict) -> List[PostContent]:
+    def _parse_global_response(self, response_text: str, strategy: Dict, available_content: Dict = None) -> List[PostContent]:
         """Parse the global AI response into PostContent objects"""
         try:
             if not response_text or not response_text.strip():
@@ -559,17 +559,37 @@ RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
                 logger.error("❌ No posts found in global AI response")
                 return []
             
+            # Collect all available content IDs for validation
+            all_content_ids = []
+            if available_content:
+                for content_list in available_content.values():
+                    all_content_ids.extend([content.id for content in content_list])
+            
             generated_posts = []
+            content_index = 0  # For fallback mapping
+            
             for i, post_data in enumerate(posts_data):
-                # Extract the real visual_id from ChatGPT response
+                # Extract the visual_id from ChatGPT response
                 visual_id = post_data.get("visual_id", "")
                 
-                # Only create visual_url if we have a valid visual_id
-                if visual_id and visual_id != "":
+                # CRITICAL FIX: Validate if ChatGPT used a real ID
+                if visual_id and visual_id in all_content_ids:
+                    # ChatGPT used a real ID - perfect!
                     visual_url = f"/api/content/{visual_id}/file"
+                    logger.info(f"✅ Post {i+1}: ChatGPT used real ID {visual_id}")
                 else:
-                    visual_url = ""
-                    logger.warning(f"⚠️ Post {i+1} has no visual_id - no image will be displayed")
+                    # ChatGPT didn't use real IDs - apply fallback mapping
+                    if available_content and content_index < len(all_content_ids):
+                        real_id = all_content_ids[content_index]
+                        visual_id = real_id
+                        visual_url = f"/api/content/{real_id}/file"
+                        content_index += 1
+                        logger.warning(f"⚠️ Post {i+1}: ChatGPT used invalid ID '{post_data.get('visual_id', '')}', mapped to real ID {real_id}")
+                    else:
+                        # No content available - no image
+                        visual_id = ""
+                        visual_url = ""
+                        logger.warning(f"⚠️ Post {i+1}: No content available for mapping")
                 
                 post = PostContent(
                     visual_url=visual_url,

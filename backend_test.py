@@ -107,53 +107,67 @@ class PostGenerationTester:
             self.log(f"❌ Erreur récupération profil: {str(e)}")
             return False, None
     
-    def test_post_generation_default(self):
-        """Test POST /api/posts/generate with default parameters (should generate 4 posts)"""
-        print("\n🚀 Step 3: Testing Post Generation with Default Parameters")
+    def calculate_expected_posts(self, posting_frequency):
+        """Calculer le nombre de posts attendu selon la fréquence"""
+        frequency_mapping = {
+            "daily": 7,        # 7 posts par semaine
+            "3x_week": 3,      # 3 posts par semaine
+            "weekly": 1,       # 1 post par semaine
+            "bi_weekly": 2     # 2 posts par semaine
+        }
+        
+        posts_per_week = frequency_mapping.get(posting_frequency, 1)
+        expected_posts = posts_per_week * 4  # 4 semaines par mois
+        
+        self.log(f"📊 CALCUL ATTENDU:")
+        self.log(f"   Fréquence: {posting_frequency}")
+        self.log(f"   Posts par semaine: {posts_per_week}")
+        self.log(f"   Posts par mois (4 semaines): {expected_posts}")
+        
+        return expected_posts
+    
+    def test_post_generation(self):
+        """Test 3: Génération de posts sans paramètres"""
+        self.log("🚀 ÉTAPE 3: Test de génération de posts")
         
         try:
-            # Test with no parameters - should default to 4 posts for octobre_2025
-            print("   Calling POST /api/posts/generate with no parameters...")
+            # Appel sans paramètres comme spécifié dans la review request
+            self.log("   Appel POST /api/posts/generate sans paramètres...")
             start_time = time.time()
             
             response = self.session.post(
-                f"{BACKEND_URL}/posts/generate",
-                timeout=120  # Allow up to 2 minutes for generation
+                f"{self.base_url}/posts/generate",
+                timeout=120  # Timeout étendu pour la génération
             )
             
             end_time = time.time()
             duration = end_time - start_time
             
-            print(f"   Response time: {duration:.1f} seconds")
-            print(f"   Status code: {response.status_code}")
+            self.log(f"   Durée de génération: {duration:.1f} secondes")
             
             if response.status_code == 200:
                 data = response.json()
+                
+                success = data.get("success", False)
                 posts_count = data.get("posts_count", 0)
+                strategy = data.get("strategy", {})
+                sources_used = data.get("sources_used", {})
                 
-                print(f"✅ Post generation successful")
-                print(f"   Posts generated: {posts_count}")
-                print(f"   Success: {data.get('success')}")
-                print(f"   Message: {data.get('message')}")
-                print(f"   Strategy: {data.get('strategy', {})}")
-                print(f"   Sources used: {data.get('sources_used', {})}")
+                self.log(f"✅ Génération terminée avec succès")
+                self.log(f"   Success: {success}")
+                self.log(f"   Posts générés: {posts_count}")
+                self.log(f"   Stratégie: {strategy}")
+                self.log(f"   Sources utilisées: {sources_used}")
                 
-                # Verify exactly 4 posts were generated (not 40)
-                if posts_count == 4:
-                    print(f"✅ Correct number of posts generated: {posts_count} (expected 4)")
-                    return True, posts_count
-                else:
-                    print(f"❌ Incorrect number of posts: {posts_count} (expected 4)")
-                    return False, posts_count
-                    
+                return True, posts_count, data
             else:
-                print(f"❌ Post generation failed: {response.status_code}")
-                print(f"   Response: {response.text}")
-                return False, 0
+                self.log(f"❌ Échec génération: {response.status_code}")
+                self.log(f"   Response: {response.text}")
+                return False, 0, None
                 
         except Exception as e:
-            print(f"❌ Post generation error: {str(e)}")
-            return False, 0
+            self.log(f"❌ Erreur génération: {str(e)}")
+            return False, 0, None
     
     def test_generated_posts_retrieval(self):
         """Test GET /api/posts/generated to verify posts were saved"""

@@ -542,8 +542,11 @@ RÉPONSE ATTENDUE (JSON exact):
                     
                 response_data = json.loads(clean_response)
                 
+                # Construct proper visual URL for frontend display
+                proper_visual_url = f"/api/content/{visual_content.id}/file" if visual_content.id else ""
+                
                 return PostContent(
-                    visual_url=visual_content.visual_url,
+                    visual_url=proper_visual_url,
                     visual_id=visual_content.id,
                     title=response_data.get("title", visual_content.title),
                     text=response_data.get("text", ""),

@@ -170,46 +170,28 @@ class PostGenerationTester:
             return False, 0, None
     
     def test_generated_posts_retrieval(self):
-        """Test GET /api/posts/generated to verify posts were saved"""
-        print("\n📋 Step 4: Testing Generated Posts Retrieval")
+        """Test 4: Récupération des posts générés pour validation"""
+        self.log("📋 ÉTAPE 4: Récupération des posts générés")
         
         try:
-            response = self.session.get(
-                f"{BACKEND_URL}/posts/generated",
-                timeout=30
-            )
+            response = self.session.get(f"{self.base_url}/posts/generated", timeout=30)
             
             if response.status_code == 200:
                 data = response.json()
                 posts = data.get("posts", [])
                 count = data.get("count", 0)
                 
-                print(f"✅ Posts retrieval successful")
-                print(f"   Total posts found: {count}")
-                print(f"   Posts in response: {len(posts)}")
-                
-                if posts:
-                    print(f"\n📝 Post Analysis:")
-                    for i, post in enumerate(posts[:4], 1):  # Show first 4 posts
-                        print(f"   Post {i}:")
-                        print(f"     ID: {post.get('id', 'N/A')}")
-                        print(f"     Title: {post.get('title', 'N/A')[:50]}...")
-                        print(f"     Text: {post.get('text', 'N/A')[:80]}...")
-                        print(f"     Hashtags: {len(post.get('hashtags', []))} hashtags")
-                        print(f"     Visual URL: {post.get('visual_url', 'N/A')}")
-                        print(f"     Content Type: {post.get('content_type', 'N/A')}")
-                        print(f"     Platform: {post.get('platform', 'N/A')}")
-                        print(f"     Scheduled Date: {post.get('scheduled_date', 'N/A')}")
-                        print()
+                self.log(f"✅ Posts récupérés avec succès")
+                self.log(f"   Nombre total de posts: {count}")
                 
                 return True, posts
             else:
-                print(f"❌ Posts retrieval failed: {response.status_code}")
-                print(f"   Response: {response.text}")
+                self.log(f"❌ Échec récupération posts: {response.status_code}")
+                self.log(f"   Response: {response.text}")
                 return False, []
                 
         except Exception as e:
-            print(f"❌ Posts retrieval error: {str(e)}")
+            self.log(f"❌ Erreur récupération posts: {str(e)}")
             return False, []
     
     def analyze_post_variety(self, posts):

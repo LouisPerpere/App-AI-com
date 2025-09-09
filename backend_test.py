@@ -1,5 +1,214 @@
 #!/usr/bin/env python3
 """
+DIAGNOSTIC DIRECT - Valeur réelle posting_frequency en base
+Test spécifique pour identifier le problème de persistance posting_frequency
+"""
+
+import requests
+import json
+import sys
+from datetime import datetime
+
+# Configuration
+BACKEND_URL = "https://social-gpt-5.preview.emergentagent.com/api"
+TEST_EMAIL = "lperpere@yahoo.fr"
+TEST_PASSWORD = "L@Reunion974!"
+
+class PostingFrequencyDiagnostic:
+    def __init__(self):
+        self.session = requests.Session()
+        self.token = None
+        self.user_id = None
+        
+    def authenticate(self):
+        """Authentification avec les credentials fournis"""
+        print("🔐 ÉTAPE 1: Authentification...")
+        
+        auth_data = {
+            "email": TEST_EMAIL,
+            "password": TEST_PASSWORD
+        }
+        
+        try:
+            response = self.session.post(
+                f"{BACKEND_URL}/auth/login-robust",
+                json=auth_data,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.token = data.get("access_token")
+                self.user_id = data.get("user_id")
+                
+                # Configure headers for subsequent requests
+                self.session.headers.update({
+                    "Authorization": f"Bearer {self.token}",
+                    "Content-Type": "application/json"
+                })
+                
+                print(f"✅ Authentification réussie")
+                print(f"   User ID: {self.user_id}")
+                print(f"   Token: {self.token[:20]}..." if self.token else "No token")
+                return True
+            else:
+                print(f"❌ Échec authentification: {response.status_code}")
+                print(f"   Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Erreur authentification: {str(e)}")
+            return False
+    
+    def get_current_posting_frequency(self):
+        """Test 1: Récupérer la valeur actuelle de posting_frequency"""
+        print("\n📊 TEST 1: Vérification valeur actuelle posting_frequency...")
+        
+        try:
+            response = self.session.get(f"{BACKEND_URL}/business-profile", timeout=30)
+            
+            if response.status_code == 200:
+                profile_data = response.json()
+                posting_frequency = profile_data.get("posting_frequency")
+                
+                print(f"✅ GET /api/business-profile réussi")
+                print(f"   posting_frequency actuelle: '{posting_frequency}'")
+                print(f"   Type: {type(posting_frequency)}")
+                
+                # Afficher tous les champs du profil pour diagnostic complet
+                print(f"   business_name: {profile_data.get('business_name')}")
+                print(f"   business_type: {profile_data.get('business_type')}")
+                print(f"   brand_tone: {profile_data.get('brand_tone')}")
+                
+                return posting_frequency
+            else:
+                print(f"❌ Échec GET business-profile: {response.status_code}")
+                print(f"   Response: {response.text}")
+                return None
+                
+        except Exception as e:
+            print(f"❌ Erreur GET business-profile: {str(e)}")
+            return None
+    
+    def update_posting_frequency_to_weekly(self):
+        """Test 2: Mise à jour temporaire vers 'weekly'"""
+        print("\n🔄 TEST 2: Mise à jour posting_frequency vers 'weekly'...")
+        
+        update_data = {
+            "posting_frequency": "weekly"
+        }
+        
+        try:
+            response = self.session.put(
+                f"{BACKEND_URL}/business-profile",
+                json=update_data,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                print(f"✅ PUT /api/business-profile réussi")
+                print(f"   Response: {result}")
+                return True
+            else:
+                print(f"❌ Échec PUT business-profile: {response.status_code}")
+                print(f"   Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Erreur PUT business-profile: {str(e)}")
+            return False
+    
+    def verify_posting_frequency_persistence(self):
+        """Test 3: Vérification de la persistance"""
+        print("\n🔍 TEST 3: Vérification persistance posting_frequency...")
+        
+        try:
+            response = self.session.get(f"{BACKEND_URL}/business-profile", timeout=30)
+            
+            if response.status_code == 200:
+                profile_data = response.json()
+                posting_frequency = profile_data.get("posting_frequency")
+                
+                print(f"✅ GET /api/business-profile (vérification) réussi")
+                print(f"   posting_frequency après mise à jour: '{posting_frequency}'")
+                print(f"   Type: {type(posting_frequency)}")
+                
+                if posting_frequency == "weekly":
+                    print("✅ PERSISTANCE CONFIRMÉE: La valeur 'weekly' est bien sauvegardée")
+                    return True
+                else:
+                    print(f"❌ PROBLÈME PERSISTANCE: Attendu 'weekly', trouvé '{posting_frequency}'")
+                    return False
+            else:
+                print(f"❌ Échec GET business-profile (vérification): {response.status_code}")
+                print(f"   Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Erreur GET business-profile (vérification): {str(e)}")
+            return False
+    
+    def run_diagnostic(self):
+        """Exécuter le diagnostic complet"""
+        print("=" * 80)
+        print("🔍 DIAGNOSTIC DIRECT - Valeur réelle posting_frequency en base")
+        print("=" * 80)
+        print(f"Backend URL: {BACKEND_URL}")
+        print(f"Credentials: {TEST_EMAIL} / {TEST_PASSWORD}")
+        print(f"Timestamp: {datetime.now().isoformat()}")
+        
+        # Étape 1: Authentification
+        if not self.authenticate():
+            print("\n❌ DIAGNOSTIC ÉCHOUÉ: Impossible de s'authentifier")
+            return False
+        
+        # Étape 2: Récupérer valeur actuelle
+        current_value = self.get_current_posting_frequency()
+        if current_value is None:
+            print("\n❌ DIAGNOSTIC ÉCHOUÉ: Impossible de récupérer le profil business")
+            return False
+        
+        # Étape 3: Mise à jour vers 'weekly'
+        if not self.update_posting_frequency_to_weekly():
+            print("\n❌ DIAGNOSTIC ÉCHOUÉ: Impossible de mettre à jour posting_frequency")
+            return False
+        
+        # Étape 4: Vérification persistance
+        persistence_ok = self.verify_posting_frequency_persistence()
+        
+        # Résumé du diagnostic
+        print("\n" + "=" * 80)
+        print("📋 RÉSUMÉ DU DIAGNOSTIC")
+        print("=" * 80)
+        print(f"Valeur initiale: '{current_value}'")
+        print(f"Valeur après mise à jour: Vérifiée dans TEST 3")
+        print(f"Persistance: {'✅ OK' if persistence_ok else '❌ PROBLÈME'}")
+        
+        if persistence_ok:
+            print("\n✅ CONCLUSION: Le backend sauvegarde correctement posting_frequency")
+            print("   Le problème pourrait venir du frontend ou de la synchronisation")
+        else:
+            print("\n❌ CONCLUSION: Problème de persistance détecté dans le backend")
+            print("   La valeur ne se sauvegarde pas correctement en base")
+        
+        return persistence_ok
+
+def main():
+    """Point d'entrée principal"""
+    diagnostic = PostingFrequencyDiagnostic()
+    success = diagnostic.run_diagnostic()
+    
+    if success:
+        print("\n🎉 DIAGNOSTIC TERMINÉ AVEC SUCCÈS")
+        sys.exit(0)
+    else:
+        print("\n💥 DIAGNOSTIC ÉCHOUÉ")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+"""
 BACKEND TEST FINAL - VRAIES PHOTOS DE MONTRES LAURENT PERPERE
 Test de génération de posts avec les 7 vraies photos de montres identifiées.
 

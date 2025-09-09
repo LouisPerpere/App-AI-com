@@ -253,16 +253,26 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
                     source=item.get("source", "upload")  # Keep source info (pixabay vs upload)
                 ))
         else:
-            # Process month-specific content normally
+            # Process month-specific content normally with GridFS file_id correction
             for item in month_content:
                 title = item.get("title") or item.get("original_filename", "").replace('.jpg', '').replace('.jpeg', '').replace('.png', '')
                 context = item.get("context") or item.get("description", "")
                 
+                # CRITICAL FIX: Use the actual file_id for images, not MongoDB _id
+                actual_file_id = None
+                visual_url = item.get("url", "")
+                if visual_url:
+                    # Extract file_id from URL like "/api/content/74bc5825-fec4-4696-8235-1bcb9bf20001/file"
+                    import re
+                    match = re.search(r'/api/content/([^/]+)/file', visual_url)
+                    if match:
+                        actual_file_id = match.group(1)
+                
                 content["month_content"].append(ContentSource(
-                    id=str(item.get("_id", "")),
+                    id=actual_file_id if actual_file_id else str(item.get("_id", "")),
                     title=title if title else "Photo",
                     context=context if context else "Contenu visuel pour votre entreprise",
-                    visual_url=item.get("url", ""),
+                    visual_url=visual_url,
                     file_type=item.get("file_type", "image/jpeg"),
                     attributed_month=target_month,
                     source="upload"

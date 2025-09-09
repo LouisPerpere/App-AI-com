@@ -724,7 +724,7 @@ IMPORTANT: Varie intelligemment les content_type selon ce qui sera le plus effic
                 strategy_parts.append(f"- {count} posts de type '{content_type}'")
         return "\n".join(strategy_parts)
     
-    def _parse_global_response(self, response_text: str, strategy: Dict, available_content: Dict = None) -> List[PostContent]:
+    def _parse_global_response(self, response_text: str, strategy: Dict, available_content: Dict = None, num_posts: int = None) -> List[PostContent]:
         """Parse the global AI response into PostContent objects"""
         try:
             if not response_text or not response_text.strip():

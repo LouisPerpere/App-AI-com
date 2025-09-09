@@ -827,6 +827,78 @@ async def delete_content(content_id: str, user_id: str = Depends(get_current_use
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete content: {str(e)}")
 
+class MoveContentRequest(BaseModel):
+    target_month: str  # Format: "octobre_2025"
+
+@api_router.put("/content/{content_id}/move")
+async def move_content_to_month(
+    content_id: str, 
+    request: MoveContentRequest, 
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Move content to another month"""
+    try:
+        if not request.target_month:
+            raise HTTPException(status_code=400, detail="Target month is required")
+        
+        # Validate month format (should be like "octobre_2025")
+        if "_" not in request.target_month:
+            raise HTTPException(status_code=400, detail="Invalid month format. Expected format: 'mois_année'")
+        
+        print(f"📅 Moving content {content_id} to month {request.target_month} for user {user_id}")
+        
+        dbm = get_database()
+        
+        # Build query to find the content
+        query = parse_any_id(content_id)
+        query["owner_id"] = user_id
+        
+        # Check if content exists
+        existing_content = dbm.db.media.find_one(query)
+        if not existing_content:
+            raise HTTPException(status_code=404, detail="Content not found")
+        
+        current_month = existing_content.get("attributed_month", "Non attribué")
+        
+        # Update the attributed_month field
+        result = dbm.db.media.update_one(
+            query,
+            {
+                "$set": {
+                    "attributed_month": request.target_month,
+                    "modified_at": datetime.utcnow().isoformat()
+                }
+            }
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Content not found")
+        
+        if result.modified_count == 0:
+            # Content was found but not modified (probably same month)
+            if current_month == request.target_month:
+                return {
+                    "message": f"Contenu déjà dans {request.target_month}",
+                    "from_month": current_month,
+                    "to_month": request.target_month,
+                    "content_id": content_id
+                }
+        
+        print(f"✅ Successfully moved content from {current_month} to {request.target_month}")
+        
+        return {
+            "message": f"Contenu déplacé vers {request.target_month}",
+            "from_month": current_month,
+            "to_month": request.target_month,
+            "content_id": content_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error moving content: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to move content: {str(e)}")
+
 # ----------------------------
 # POSTS GENERATION: /api/posts
 # ----------------------------

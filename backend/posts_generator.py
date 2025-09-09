@@ -384,6 +384,49 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         
         return generated_posts
     
+    async def _mark_used_content(self, generated_posts: List[PostContent]):
+        """Mark used content with timestamps"""
+        logger.info("🏷️ Step 4.5/6: Marking used content...")
+        
+        # Collect all used content IDs from generated posts
+        used_content = []
+        for post in generated_posts:
+            if post.visual_id:
+                used_content.append(post.visual_id)
+        
+        logger.info(f"   📊 Found {len(used_content)} content items to mark as used")
+        
+        # Mark used content with timestamps
+        if used_content:
+            from bson import ObjectId
+            from datetime import datetime
+            
+            # Handle both ObjectId and UUID formats
+            for content_id in used_content:
+                try:
+                    # Try UUID format first (GridFS file_id)
+                    result = await self.db.media.update_one(
+                        {"$or": [
+                            {"file_id": content_id},
+                            {"id": content_id},
+                            {"_id": ObjectId(content_id) if len(content_id) == 24 else None}
+                        ]},
+                        {"$set": {
+                            "used_in_posts": True,
+                            "last_used": datetime.utcnow().isoformat(),
+                            "usage_count": {"$inc": 1}
+                        }}
+                    )
+                    
+                    if result.matched_count > 0:
+                        logger.info(f"   ✅ Marked content {content_id} as used")
+                    else:
+                        logger.warning(f"   ⚠️ Content {content_id} not found for marking as used")
+                        
+                except Exception as e:
+                    logger.error(f"   ❌ Error marking content {content_id} as used: {str(e)}")
+                    pass
+    
     def _build_business_context(self, business_profile: Dict, website_analysis: Dict) -> str:
         """Build business context for AI generation"""
         context_parts = []

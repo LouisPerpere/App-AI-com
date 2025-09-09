@@ -453,20 +453,28 @@ Règles:
 - Émojis naturels
 """
             
-            # Send to AI
-            user_message = UserMessage(text=prompt)
-            response = await self.llm_chat.send_message(user_message)
+            # Send to OpenAI
+            response = self.openai_client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": self.system_message},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+                max_tokens=1000
+            )
             
-            logger.info(f"   🤖 AI Response length: {len(response) if response else 0}")
-            logger.info(f"   🤖 AI Response preview: {response[:100] if response else 'Empty response'}")
+            response_text = response.choices[0].message.content
+            logger.info(f"   🤖 AI Response length: {len(response_text) if response_text else 0}")
+            logger.info(f"   🤖 AI Response preview: {response_text[:100] if response_text else 'Empty response'}")
             
             # Parse response
             try:
-                if not response or not response.strip():
+                if not response_text or not response_text.strip():
                     logger.error("   ❌ Empty response from AI")
                     return None
                     
-                response_data = json.loads(response)
+                response_data = json.loads(response_text)
                 
                 return PostContent(
                     visual_url=visual_content.visual_url,

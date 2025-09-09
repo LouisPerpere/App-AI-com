@@ -57,8 +57,8 @@ class PostsGenerator:
     def _init_llm(self):
         """Initialize LLM chat for post generation"""
         try:
-            # Use personal OpenAI key or fallback to universal key
-            api_key = os.getenv('OPENAI_API_KEY') or os.getenv('EMERGENT_LLM_KEY')
+            # Use Emergent LLM key as specified in the review request
+            api_key = os.getenv('EMERGENT_LLM_KEY') or os.getenv('OPENAI_API_KEY')
             if not api_key:
                 raise ValueError("No LLM API key found")
             

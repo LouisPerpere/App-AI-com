@@ -51,7 +51,7 @@ class PostsGenerator:
     
     def __init__(self):
         self.db = get_database().db
-        self.llm_chat = None
+        self.openai_client = None
         self._init_llm()
     
     def _init_llm(self):

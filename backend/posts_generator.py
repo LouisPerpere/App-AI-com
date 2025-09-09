@@ -55,17 +55,15 @@ class PostsGenerator:
         self._init_llm()
     
     def _init_llm(self):
-        """Initialize LLM chat for post generation"""
+        """Initialize OpenAI client for post generation"""
         try:
             # Use personal OpenAI key as requested by user
-            api_key = os.getenv('OPENAI_API_KEY') or os.getenv('EMERGENT_LLM_KEY')
+            api_key = os.getenv('OPENAI_API_KEY')
             if not api_key:
-                raise ValueError("No LLM API key found")
+                raise ValueError("No OpenAI API key found")
             
-            self.llm_chat = LlmChat(
-                api_key=api_key,
-                session_id="posts_generation",
-                system_message="""Tu es Claire, un expert en marketing digital et création de contenu pour les réseaux sociaux.
+            self.openai_client = OpenAI(api_key=api_key)
+            self.system_message = """Tu es Claire, un expert en marketing digital et création de contenu pour les réseaux sociaux.
                 
 Tu génères des posts Instagram engageants et authentiques pour les entreprises.
 Tu respectes toujours ces principes :
@@ -76,13 +74,12 @@ Tu respectes toujours ces principes :
 - Adaptation parfaite à la cible définie par l'utilisateur
 
 Tu réponds TOUJOURS au format JSON exact demandé."""
-            ).with_model("openai", "gpt-4o")
             
-            logger.info("✅ LLM Chat initialized successfully")
+            logger.info("✅ OpenAI client initialized successfully")
             
         except Exception as e:
-            logger.error(f"❌ Failed to initialize LLM: {str(e)}")
-            self.llm_chat = None
+            logger.error(f"❌ Failed to initialize OpenAI client: {str(e)}")
+            self.openai_client = None
     
     async def generate_posts_for_month(self, user_id: str, target_month: str, num_posts: int = 20) -> Dict[str, Any]:
         """

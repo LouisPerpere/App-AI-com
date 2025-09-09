@@ -7,7 +7,7 @@ import requests
 import json
 
 def debug_website_analysis():
-    base_url = "https://content-scheduler-6.preview.emergentagent.com"
+    base_url = "https://social-gpt-5.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     # Login first

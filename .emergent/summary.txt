@@ -1,96 +1,70 @@
 <analysis>
-The AI engineer's work primarily focused on refining the Claire et Marcus PWA, tackling several critical bugs and implementing complex new features. Key challenges included a recurring backend URL misconfiguration causing login failures, persistent virtual keyboard issues on mobile inputs, and a video playback . Each issue required deep debugging across frontend and backend, leading to fixes like absolute URL construction,  for uncontrolled components, and HTTP Range header support for video streaming. Major feature additions involved overhauling content and notes organization into collapsible monthly sections, enhancing Pixabay integration, introducing carousel uploads, and implementing robust video compression. The trajectory concludes with the initial setup for the highly complex post generation system, laying the groundwork for AI-driven content creation.
+The AI engineer's work primarily focused on building and refining the Claire et Marcus PWA's core social media post generation feature. This involved extensive backend development for AI integration, content management, and API endpoints, alongside a significant overhaul of the frontend UI for displaying, modifying, and attaching visuals to posts. Key challenges included debugging persistent API key issues (Emergent vs. OpenAI), ensuring content was correctly linked by ID for display, optimizing AI prompts for natural language and content variety, and addressing UI/UX flow for post management and image attachments. The trajectory highlights a methodical approach, with iterative testing, error diagnosis, and feature expansion from a basic generation system to a robust content calendar with image linking and management capabilities.
 </analysis>
 
 <product_requirements>
-The Claire et Marcus PWA aims to automate social media content for small businesses. Initial features included content CRUD, a 5-column library, 320px WEBP thumbnails, AI website analysis, notes, profiles, and authentication. User requirements during this trajectory focused on:
-1.  **Monthly Organization**: Content and notes displayed in collapsible, chronological monthly sections (current, future, archives), extended to cover 6 months. Current month and important notes are open by default.
-2.  **Flexible Uploads**: Unified Uploader vos contenus button with Upload (multi-month, per-photo attribution) and Carrousel (batch, shared metadata, stacked vignette).
-3.  **Enhanced Pixabay Integration**: When adding Pixabay images, users can attribute to a specific month and modify title/context. Hashtags default to context, not title.
-4.  **Performance Fixes**: Resolve slow Pixabay thumbnail reloading (already done, confirmed earlier).
-5.  **UI/UX**: Consistent button sizing, reduced margins/paddings for notes and library pages, enlarged thumbnails, repositioned Pixabay badge.
-6.  **Video Playback & Compression**: Videos must play correctly (bug fix) and be compressed to a maximum of 720p during upload.
-7.  **Post Generation (Core Feature)**: Create a calendar of publications based on business profile, website analysis, uploads (current, unused older, Pixabay), and notes (valid, current month). Content must balance types and prioritize target audiences. Posts require a visual, text, day, and time for each social network (initially Instagram).
+The Claire et Marcus PWA automates social media for small businesses. Initial features included content CRUD, library, thumbnails, AI website analysis, notes, and authentication. User requirements during this trajectory focused on:
+1.  **Monthly Organization**: Content and notes in collapsible, 6-month chronological sections.
+2.  **Flexible Uploads**: Unified upload button with multi-month and carousel options.
+3.  **Enhanced Pixabay**: Custom title/context, tags from context, month attribution.
+4.  **UI/UX**: Consistent buttons, reduced margins, enlarged thumbnails, repositioned Pixabay badge.
+5.  **Video Playback & Compression**: Correct video playback and 720p compression on upload.
+6.  **Post Generation (Core)**: Create an Instagram publication calendar based on business profile, website analysis, uploads, and notes. Posts need visual, text, day/time. Must balance content types, prioritize target audiences, avoid AI-generated language and excessive emojis, and adapt the number of posts to the . Users need to modify generated posts and attach visuals to posts missing them, including direct uploads or selecting from library/Pixabay. Images used should be marked.
 </product_requirements>
 
 <key_technical_concepts>
 -   **Full-stack**: React.js (Frontend), FastAPI (Backend), MongoDB/GridFS (Database).
--   **State Management**: , , ,  for UI and data flow.
--   **API Integration**: RESTful  endpoints,  for external calls,  for frontend.
--   **Image/Video Processing**:  for images,  for video compression and streaming.
--   **UI Libraries**:  components, Tailwind CSS for styling.
--   **Authentication**: JWT-based.
--   **LLM Integration**:  for AI-powered post generation.
+-   **State Management**: , , .
+-   **API Integration**: RESTful endpoints,  (frontend),  (backend).
+-   **Image/Video Processing**:  for compression and streaming.
+-   **LLM Integration**: OpenAI GPT-4o (via  then direct API).
+-   **Data Handling**: MongoDB UUIDs for IDs.
 </key_technical_concepts>
 
 <code_architecture>
 
 
 -   ****:
-    -   **Importance**: Main FastAPI application, API routes.
-    -   **Changes Made**: Modified  to accept  and . Endpoint for  and  exist, and new code is being added to integrate .
--   ****: No changes mentioned in the trajectory, but important for thumbnail generation.
+    -   **Importance**: Main FastAPI application handling API routes.
+    -   **Changes Made**: Integrated  endpoints for generation () and retrieval (). Added  for post text modification. Added  for batch content deletion. Implemented  to change . Added  for linking visuals. Logic for determining  from business profile's  was incorporated.
 -   ****:
-    -   **Importance**: Handles file uploads.
-    -   **Changes Made**:
-        -   Implemented HTTP Range header support for  to enable video streaming (206 Partial Content, ).
-        -   Added video compression logic (max 720p with FFmpeg) to both single and batch upload functions, with a size-based trigger and a 5-minute duration limit.
--   ****:
-    -   **Importance**: Contains automatic content generation logic.
-    -   **Changes Made**: Identified to have import issues and an unimplemented  function, which needs to be rectified for post generation.
+    -   **Importance**: Handles file uploads and content retrieval.
+    -   **Changes Made**: Implemented HTTP Range header support for video streaming. Added video compression logic.
 -   ** (NEW)**:
-    -   **Importance**: New file created to house the core logic for AI-powered post generation.
-    -   **Changes Made**: File created, now being integrated.
+    -   **Importance**: Houses core AI post generation logic.
+    -   **Changes Made**: Initialized, then refactored to use a single global ChatGPT request per month (instead of per-post). Enhanced AI prompts with full business context, website analysis, and strict rules against AI-generated language/excessive emojis. Removed fixed content strategy, allowing ChatGPT to decide. Corrected visual ID handling (from  to , then from MongoDB  to GridFS /UUIDs). Added logic to mark images as . Implemented  model with  (/). Adjusted parsing to retain all generated posts, even those missing initial visuals.
 -   ****:
-    -   **Importance**: Central React component.
-    -   **Changes Made**: Extensive:
-        -   **Monthly Organization**: Extended month options to 6 months for notes and uploads, implemented default collapse states (current month and important notes open).
-        -   **Notes UI**: Unified month selector, reduced margins, enlarged text areas.
-        -   **Library UI**: Enlarged content thumbnails (changed grid from 4/5/6 cols to 3/4/5), reduced margins, repositioned Pixabay badge.
-        -   **Pixabay Modal**: Added custom title/context input fields, default Pixabay tags to context, use  for inputs to fix virtual keyboard bug, implemented data persistence.
-        -   **Uploads**: Fixed bug where changing attribution month cleared title/context fields.
-        -   **Video Playback**: Constructed absolute URLs for uploaded videos and fallback links using .
-        -   **Post Generation**: Contains UI for Posts tab, generation button, and modal.
--   ****:
-    -   **Importance**: Stylesheet.
-    -   **Changes Made**: Modifications for consistent button sizes, container widths, and carousel stack effect. (Minor adjustments to support  UI changes).
+    -   **Importance**: Central React component, managing UI and state.
+    -   **Changes Made**: Major overhaul of the Posts tab UI to monthly collapsible sections with  vignettes and  for detailed view. Implemented dynamic modification buttons and input. Duplicated Uploader X fichiers button. Fixed image display by constructing absolute URLs with authentication tokens. Added  for content movement, . Implemented visual cues for post status ( vs. ). Added image attachment modal () that reuses existing Pixabay and upload components.
 -   ****:
     -   **Importance**: Frontend environment variables.
-    -   **Changes Made**: Repeatedly corrected  to the correct preview URL () due to persistent resets.
+    -   **Changes Made**:  confirmed.  and  were managed here.
 </code_architecture>
 
 <pending_tasks>
--   **Implement full Post Generation logic**: This is the major, complex feature requested and currently being worked on.
--   **Correct  imports/unimplemented functions**: Address issues like the missing  function.
--   **Integrate LLM into Post Generation**: Utilize  for actual AI content generation.
+-   Fix the JavaScript error  within the  component.
+-   Complete the full functionality of the image attachment modal (Library, Pixabay, Upload tabs).
+-   Ensure direct uploads from the modal automatically link to the current month.
+-   Confirm/complete the display of green check badges on *all* used images in the main content library.
 </pending_tasks>
 
 <current_work>
-The AI engineer is currently initiating the development of the génération de posts (post generation) system, which is described as the core and most complex feature of the application.
+The AI engineer is currently in the final stages of implementing the **image attachment feature for generated posts**. This feature allows users to link visuals to posts that were generated without them (marked ⚠️ Image requise). The goal is to provide a comprehensive modal interface, similar to the existing content library and Pixabay integration, where users can:
+1.  Select an existing image from their library.
+2.  Search and select an image from Pixabay.
+3.  Directly upload a new image/video.
 
-Based on the detailed product requirements provided by the user, this system will:
-1.  **Create a publication calendar** based on user-defined number of posts.
-2.  **Gather content from multiple sources**:
-    *    page: Business profile, target audience.
-    *    page: Website analysis.
-    *    page: Titles and contexts of content (images/videos) from the current month.
-    *    page: Notes toujours valables and notes for the current month.
-3.  **Handle insufficient content**: Prioritize unused uploads from older months. If still insufficient, search for royalty-free Pixabay photos, using website analysis and business profile for tailored searches.
-4.  **Ensure content balance**: Respect an equilibrium of content types (e.g., product highlights, behind-the-scenes, educational) adapted to the user's business.
-5.  **Target audience**: Prioritize audience descriptions from the  page, or fallback to website analysis.
-6.  **Generated Post Structure**: Each post will consist of a visual, text, and a publication day/time for each social network. Initially, the focus is on Instagram.
-7.  **Display**: Posts will appear on the  page with a presentation similar to uploads and notes.
+The work so far includes:
+*   Backend endpoint () to link an image to a post.
+*   Modification of the  model to include a  field ( or ).
+*   Tracking of image usage () in the backend.
+*   Frontend  components visually differentiate posts with and without images (green/orange borders, Ajouter image icon).
+*   A new  state and  function to control the modal.
+*   The  component was created to house the modal's internal logic and reuse existing components.
 
-The AI engineer has identified existing frontend (Posts tab, generation button, modal with prerequisites checklist) and backend (,  endpoints in ,  in ) structures. Critical backend issues, such as missing  and import problems in , have been noted.
-
-The immediate actions taken are:
-1.  Verification of  library installation.
-2.  Creation of a new backend file: , which is intended to encapsulate the core logic for this feature.
-3.  Modification of  to integrate and define endpoints for using this new  system.
-
-The work is at the very beginning of implementing the complex AI generation logic.
+The immediate problem is a JavaScript error () occurring when the  modal is opened, indicating a scope or prop passing issue for the Pixabay search function within this new component.
 </current_work>
 
 <optional_next_step>
-Define the Pydantic models required for the Post Generation feature and implement the initial AI generation logic in .
+Fix the  error in the  component.
 </optional_next_step>

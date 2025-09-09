@@ -12,7 +12,7 @@ from urllib.parse import urlparse
 import re
 
 # Configuration
-BACKEND_URL = "https://content-scheduler-6.preview.emergentagent.com"
+BACKEND_URL = "https://social-gpt-5.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials

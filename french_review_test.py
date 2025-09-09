@@ -8,7 +8,7 @@ import json
 import time
 
 # Configuration selon la demande française
-BACKEND_URL = "https://content-scheduler-6.preview.emergentagent.com"
+BACKEND_URL = "https://social-gpt-5.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
@@ -453,7 +453,7 @@ from io import BytesIO
 from PIL import Image
 
 # Configuration
-BACKEND_URL = "https://content-scheduler-6.preview.emergentagent.com"
+BACKEND_URL = "https://social-gpt-5.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request

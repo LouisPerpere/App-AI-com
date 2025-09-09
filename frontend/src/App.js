@@ -307,7 +307,6 @@ function MainApp() {
   const [pixabayResults, setPixabayResults] = useState([]);
   const [pixabayCategories, setPixabayCategories] = useState([]);
   const [isSearchingPixabay, setIsSearchingPixabay] = useState(false);
-  const [isSavingPixabayImage, setIsSavingPixabayImage] = useState(null);
   const [savedPixabayImages, setSavedPixabayImages] = useState(new Set()); // Track successfully saved images
   const [pixabayCurrentPage, setPixabayCurrentPage] = useState(1);
   const [pixabayTotalHits, setPixabayTotalHits] = useState(0);

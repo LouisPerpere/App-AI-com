@@ -589,8 +589,13 @@ RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
             # Collect all available content IDs for validation
             all_content_ids = []
             if available_content:
-                for content_list in available_content.values():
+                logger.info(f"🔍 DEBUG: available_content keys: {list(available_content.keys())}")
+                for key, content_list in available_content.items():
+                    logger.info(f"🔍 DEBUG: {key} has {len(content_list)} items")
                     all_content_ids.extend([content.id for content in content_list])
+            
+            logger.info(f"🔍 DEBUG: Total content IDs available: {len(all_content_ids)}")
+            logger.info(f"🔍 DEBUG: Content IDs: {all_content_ids[:5]}...")  # Show first 5
             
             generated_posts = []
             content_index = 0  # For fallback mapping

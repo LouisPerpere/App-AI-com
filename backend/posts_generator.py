@@ -560,6 +560,11 @@ RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
                 logger.error("❌ No posts found in global AI response")
                 return []
             
+            # Debug: Log the first post structure
+            if posts_data:
+                logger.info(f"🔍 DEBUG: First post structure: {posts_data[0]}")
+                logger.info(f"🔍 DEBUG: Visual ID in first post: {posts_data[0].get('visual_id', 'NOT_FOUND')}")
+            
             # Collect all available content IDs for validation
             all_content_ids = []
             if available_content:

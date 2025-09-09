@@ -1781,6 +1781,9 @@ function MainApp() {
     }
 
     setSelectedPixabayImage(pixabayImage);
+    // Réinitialiser les champs personnalisés
+    setPixabayCustomTitle(pixabayImage.tags || '');
+    setPixabayCustomContext('');
     setShowPixabaySaveModal(true);
   };
 

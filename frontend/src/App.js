@@ -3484,7 +3484,7 @@ function MainApp() {
   const handleCarouselUpload = async () => {
     if (!carouselFiles.length) return;
     
-    const targetMonth = globalUploadMonth;
+    const targetMonth = selectedMonth || getDefaultMonth();
     if (!targetMonth) {
       toast.error('Veuillez sélectionner un mois de destination');
       return;

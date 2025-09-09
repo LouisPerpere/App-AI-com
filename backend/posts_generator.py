@@ -307,82 +307,31 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
     
     async def _generate_posts_with_strategy(self, source_data: Dict, available_content: Dict, 
                                           strategy: Dict, num_posts: int, user_id: str) -> List[PostContent]:
-        """Generate posts according to the determined strategy"""
+        """Generate posts according to the determined strategy with ONE global ChatGPT request"""
         logger.info("✨ Step 4/6: Generating posts with AI...")
+        logger.info(f"🚀 NEW APPROACH: Single global request for {num_posts} posts instead of individual requests")
         
         if not self.openai_client:
             raise Exception("OpenAI client not initialized")
         
-        generated_posts = []
-        used_content = []
+        # Get contexts for AI
+        business_context = self._format_business_context(source_data["business_profile"])
+        notes_context = self._format_notes_context(source_data["notes"])
+        recent_posts_context = await self._get_recent_posts_context(user_id)
         
-        # Prepare content pools
-        month_content = available_content["month_content"].copy()
-        older_content = available_content["older_content"].copy()
+        # Prepare content inventory for AI
+        content_inventory = self._prepare_content_inventory(available_content)
         
-        business_profile = source_data.get("business_profile", {})
-        website_analysis = source_data.get("website_analysis", {})
-        always_valid_notes = source_data.get("always_valid_notes", [])
-        month_notes = source_data.get("month_notes", [])
+        # Generate ALL posts with a single global request
+        generated_posts = await self._generate_posts_calendar(
+            business_context=business_context,
+            notes_context=notes_context,
+            recent_posts_context=recent_posts_context,
+            content_inventory=content_inventory,
+            strategy=strategy,
+            num_posts=num_posts
+        )
         
-        # Create context for AI
-        business_context = self._build_business_context(business_profile, website_analysis)
-        notes_context = self._build_notes_context(always_valid_notes, month_notes)
-        
-        for content_type, count in strategy.items():
-            logger.info(f"   🎨 Generating {count} {content_type} posts...")
-            
-            for i in range(count):
-                # Select content source
-                visual_content = None
-                
-                # Priority: month content first
-                if month_content:
-                    visual_content = month_content.pop(0)
-                    logger.info(f"   📅 Using month content: {visual_content.title}")
-                elif older_content:
-                    visual_content = older_content.pop(0)
-                    logger.info(f"   📂 Using older content: {visual_content.title}")
-                else:
-                    # Create fallback content for testing when no visual content is available
-                    logger.info(f"   📸 No visual content available, creating fallback content")
-                    visual_content = ContentSource(
-                        id=f"fallback_{content_type}_{i}",
-                        title=f"Contenu {content_type} pour {business_profile.get('business_name', 'votre entreprise')}",
-                        context=f"Contenu généré automatiquement pour illustrer un post {content_type}",
-                        visual_url="",
-                        file_type="image/jpeg",
-                        attributed_month="octobre_2025",
-                        source="generated"
-                    )
-                
-                if visual_content:
-                    # Generate post with AI
-                    post = await self._generate_single_post(
-                        visual_content, content_type, business_context, notes_context, user_id
-                    )
-                    
-                    if post:
-                        generated_posts.append(post)
-                        used_content.append(visual_content.id)
-        
-        # Mark used content
-        if used_content:
-            from bson import ObjectId
-            object_ids = []
-            for content_id in used_content:
-                try:
-                    object_ids.append(ObjectId(content_id))
-                except:
-                    pass  # Skip invalid IDs
-            
-            if object_ids:
-                self.db.media.update_many(
-                    {"_id": {"$in": object_ids}},
-                    {"$set": {"used_in_posts": True}}
-                )
-        
-        logger.info(f"   ✅ Generated {len(generated_posts)} posts")
         return generated_posts
     
     def _build_business_context(self, business_profile: Dict, website_analysis: Dict) -> str:

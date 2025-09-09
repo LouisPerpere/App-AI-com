@@ -1861,7 +1861,7 @@ function MainApp() {
       // Reload content
       await loadPendingContent();
       
-      // Close modal
+      // Close modal and reset fields
       setShowPixabaySaveModal(false);
       setSelectedPixabayImage(null);
 

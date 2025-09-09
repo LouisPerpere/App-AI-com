@@ -410,7 +410,10 @@ const PostPreviewModal = ({
           {post.visual_url && (
             <div className="aspect-video bg-gray-100 rounded-xl overflow-hidden">
               <img 
-                src={post.visual_url} 
+                src={post.visual_url.startsWith('http') 
+                  ? post.visual_url 
+                  : `${process.env.REACT_APP_BACKEND_URL}${post.visual_url}?token=${localStorage.getItem('access_token')}`
+                } 
                 alt={post.title || 'Post'}
                 className="w-full h-full object-cover"
               />

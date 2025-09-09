@@ -538,20 +538,21 @@ class PostsGenerationTester:
         # Final verdict
         if success_rate >= 75:
             print("\n🎉 POSTS GENERATION SYSTEM TESTING COMPLETED SUCCESSFULLY")
-            print("✅ Le système de génération de posts Instagram est opérationnel")
+            print("✅ Le système de génération avec clé OpenAI personnelle est opérationnel")
             
             if hasattr(self, 'generation_result') and self.generation_result.get('posts_count', 0) > 0:
-                print("✅ Posts générés avec succès et récupérables")
+                print("✅ Posts générés avec succès par ChatGPT 4o et sauvegardés en base")
+                print("🚀 SYSTÈME PRÊT POUR UTILISATION AVEC CLÉ OPENAI PERSONNELLE")
             else:
                 print("⚠️ Génération réussie mais vérifier le nombre de posts")
                 
         else:
             print("\n🚨 POSTS GENERATION SYSTEM TESTING FAILED")
-            print("❌ Problèmes critiques identifiés dans le système de génération")
+            print("❌ Problèmes critiques avec la clé OpenAI personnelle")
             
             # Identify main issues
             if not test_results[4]:  # Posts generation failed
-                print("❌ PROBLÈME PRINCIPAL: Génération de posts échoue")
+                print("❌ PROBLÈME PRINCIPAL: Génération de posts avec clé OpenAI échoue")
             if not test_results[5]:  # Posts retrieval failed
                 print("❌ PROBLÈME PRINCIPAL: Récupération de posts échoue")
         

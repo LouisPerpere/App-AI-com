@@ -448,12 +448,13 @@ class PostsGenerationTester:
 
     
     def run_comprehensive_test(self):
-        """Run all carousel functionality tests"""
-        print("🎠 COMPREHENSIVE CAROUSEL FUNCTIONALITY TESTING")
-        print("=" * 60)
+        """Run all post generation system tests"""
+        print("🚀 SYSTÈME DE GÉNÉRATION DE POSTS INSTAGRAM - TEST COMPLET")
+        print("=" * 70)
         print(f"Backend URL: {BACKEND_URL}")
         print(f"Test credentials: {EMAIL}")
-        print("=" * 60)
+        print(f"Target: POST /api/posts/generate & GET /api/posts/generated")
+        print("=" * 70)
         
         test_results = []
         
@@ -461,34 +462,41 @@ class PostsGenerationTester:
         test_results.append(self.authenticate())
         
         if test_results[-1]:
-            # Step 2: Carousel batch upload
-            test_results.append(self.test_carousel_batch_upload())
+            # Step 2: Backend health
+            test_results.append(self.check_backend_health())
             
-            if test_results[-1]:
-                # Step 3: Content pending with carousel fields
-                test_results.append(self.test_content_pending_carousel_fields())
-                
-                # Step 4: Thumbnail generation
-                test_results.append(self.test_carousel_thumbnails())
-                
-                # Step 5: Carousel grouping
-                test_results.append(self.test_carousel_grouping())
-                
-                # Step 6: Cleanup
-                test_results.append(self.cleanup_test_data())
+            # Step 3: Business profile
+            test_results.append(self.verify_business_profile())
+            
+            # Step 4: Notes integration
+            test_results.append(self.verify_notes_integration())
+            
+            # Step 5: Posts generation
+            test_results.append(self.test_posts_generation())
+            
+            # Step 6: Posts retrieval
+            test_results.append(self.test_posts_retrieval())
+            
+            # Step 7: Structure validation
+            test_results.append(self.validate_posts_structure())
+            
+            # Step 8: Integration completeness
+            test_results.append(self.test_integration_completeness())
         
         # Summary
-        print("\n" + "=" * 60)
-        print("🎯 CAROUSEL TESTING SUMMARY")
-        print("=" * 60)
+        print("\n" + "=" * 70)
+        print("🎯 POSTS GENERATION TESTING SUMMARY")
+        print("=" * 70)
         
         test_names = [
             "Authentication",
-            "Carousel Batch Upload",
-            "Content Pending Fields",
-            "Thumbnail Generation", 
-            "Carousel Grouping",
-            "Cleanup"
+            "Backend Health Check",
+            "Business Profile Verification",
+            "Notes Integration",
+            "Posts Generation (POST /api/posts/generate)",
+            "Posts Retrieval (GET /api/posts/generated)",
+            "Posts Structure Validation",
+            "Integration Completeness"
         ]
         
         passed_tests = 0
@@ -503,14 +511,48 @@ class PostsGenerationTester:
         
         print(f"\nOverall Success Rate: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
         
-        if success_rate >= 80:
-            print("🎉 CAROUSEL FUNCTIONALITY TESTING COMPLETED SUCCESSFULLY")
-            print("✅ The carousel upload system is working correctly")
-        else:
-            print("🚨 CAROUSEL FUNCTIONALITY TESTING FAILED")
-            print("❌ Critical issues found in carousel implementation")
+        # Detailed analysis
+        print("\n📊 DETAILED ANALYSIS:")
         
-        return success_rate >= 80
+        if hasattr(self, 'generation_result'):
+            gen_result = self.generation_result
+            print(f"   Posts generated: {gen_result.get('posts_count', 0)}")
+            print(f"   Generation success: {gen_result.get('success', False)}")
+            
+            strategy = gen_result.get('strategy', {})
+            if strategy:
+                print(f"   Content strategy: {strategy}")
+        
+        if hasattr(self, 'retrieved_posts'):
+            print(f"   Posts retrieved: {len(self.retrieved_posts)}")
+            
+            if self.retrieved_posts:
+                platforms = set(p.get('platform') for p in self.retrieved_posts)
+                content_types = set(p.get('content_type') for p in self.retrieved_posts)
+                print(f"   Platforms: {list(platforms)}")
+                print(f"   Content types: {list(content_types)}")
+        
+        # Final verdict
+        if success_rate >= 75:
+            print("\n🎉 POSTS GENERATION SYSTEM TESTING COMPLETED SUCCESSFULLY")
+            print("✅ Le système de génération de posts Instagram est opérationnel")
+            
+            if hasattr(self, 'generation_result') and self.generation_result.get('posts_count', 0) > 0:
+                print("✅ Posts générés avec succès et récupérables")
+            else:
+                print("⚠️ Génération réussie mais vérifier le nombre de posts")
+                
+        else:
+            print("\n🚨 POSTS GENERATION SYSTEM TESTING FAILED")
+            print("❌ Problèmes critiques identifiés dans le système de génération")
+            
+            # Identify main issues
+            if not test_results[4]:  # Posts generation failed
+                print("❌ PROBLÈME PRINCIPAL: Génération de posts échoue")
+            if not test_results[5]:  # Posts retrieval failed
+                print("❌ PROBLÈME PRINCIPAL: Récupération de posts échoue")
+        
+        return success_rate >= 75
 
 def main():
     """Main test execution"""

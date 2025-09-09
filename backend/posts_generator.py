@@ -635,9 +635,6 @@ RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
             logger.info(f"   ✅ Final result: {len(generated_posts)} posts with REAL photos only (no fallbacks)")
             return generated_posts
             
-            logger.info(f"✅ Successfully parsed {len(generated_posts)} posts from global response")
-            return generated_posts
-            
         except json.JSONDecodeError as e:
             logger.error(f"❌ Failed to parse global AI response: {e}")
             logger.error(f"❌ Response was: {response_text[:500]}...")

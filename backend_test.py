@@ -1,53 +1,82 @@
 #!/usr/bin/env python3
 """
-Test du système de génération de posts avec calcul basé sur posting_frequency du profil business
-OBJECTIF: Valider que le nombre de posts générés correspond au rythme défini dans le profil business
+Test du nouveau système de génération de posts avec UNE seule requête ChatGPT globale
+Comprehensive testing of the new single global ChatGPT request post generation system
 
-Tests à effectuer:
-1. Authentification (lperpere@yahoo.fr / L@Reunion974!)
-2. Vérifier le profil business existant et son posting_frequency
-3. POST /api/posts/generate (sans paramètres)
-4. Valider que le nombre de posts correspond au calcul:
-   - Si weekly (1/semaine) → 4 posts/mois
-   - Si bi_weekly (2/semaine) → 8 posts/mois
-   - Si 3x_week (3/semaine) → 12 posts/mois
-   - Si daily (7/semaine) → 28 posts/mois
-5. Vérification que tous les posts sont uniques et variés
+OBJECTIF: Valider que le système refactorisé utilise une seule requête ChatGPT pour générer 
+tout le calendrier au lieu d'une requête par post.
+
+Backend URL: https://content-scheduler-6.preview.emergentagent.com/api
+Credentials: lperpere@yahoo.fr / L@Reunion974!
 """
 
 import requests
 import json
 import time
+import sys
 from datetime import datetime
-
-# Configuration
-BASE_URL = "https://content-scheduler-6.preview.emergentagent.com/api"
-TEST_EMAIL = "lperpere@yahoo.fr"
-TEST_PASSWORD = "L@Reunion974!"
 
 class PostGenerationTester:
     def __init__(self):
-        self.base_url = BASE_URL
+        self.base_url = "https://content-scheduler-6.preview.emergentagent.com/api"
         self.session = requests.Session()
-        self.auth_token = None
+        self.session.headers.update({
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        })
         self.user_id = None
+        self.jwt_token = None
+        self.test_results = []
         
-    def log(self, message):
+    def log_test(self, step, status, message, details=None):
+        """Log test results with timestamp"""
         timestamp = datetime.now().strftime("%H:%M:%S")
-        print(f"[{timestamp}] {message}")
+        status_icon = "✅" if status == "PASS" else "❌" if status == "FAIL" else "⚠️"
         
-    def test_authentication(self):
-        """Test 1: Authentification avec les credentials fournis"""
-        self.log("🔐 ÉTAPE 1: Test d'authentification")
+        result = {
+            "timestamp": timestamp,
+            "step": step,
+            "status": status,
+            "message": message,
+            "details": details
+        }
+        self.test_results.append(result)
         
+        print(f"[{timestamp}] {status_icon} Step {step}: {message}")
+        if details:
+            print(f"    Details: {details}")
+    
+    def authenticate(self):
+        """Step 1: Authenticate with provided credentials"""
         try:
-            response = self.session.post(
-                f"{self.base_url}/auth/login-robust",
-                json={
-                    "email": TEST_EMAIL,
-                    "password": TEST_PASSWORD
-                },
-                timeout=30
+            login_data = {
+                "email": "lperpere@yahoo.fr",
+                "password": "L@Reunion974!"
+            }
+            
+            response = self.session.post(f"{self.base_url}/auth/login-robust", json=login_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.jwt_token = data.get("access_token")
+                self.user_id = data.get("user_id")
+                
+                # Set authorization header for future requests
+                self.session.headers.update({
+                    'Authorization': f'Bearer {self.jwt_token}'
+                })
+                
+                self.log_test(1, "PASS", "Authentication successful", 
+                            f"User ID: {self.user_id}, Token obtained")
+                return True
+            else:
+                self.log_test(1, "FAIL", "Authentication failed", 
+                            f"Status: {response.status_code}, Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test(1, "FAIL", "Authentication error", str(e))
+            return False
             )
             
             if response.status_code == 200:

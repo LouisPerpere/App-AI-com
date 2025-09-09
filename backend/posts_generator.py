@@ -546,7 +546,7 @@ CTA: "Apprenez plus", "Essayez", "Suivez le guide"
         logger.info(f"   📅 Scheduled {len(posts)} posts across {target_month}")
         return posts
     
-    async def _save_generated_posts(self, user_id: str, posts: List[PostContent]):
+    def _save_generated_posts(self, user_id: str, posts: List[PostContent]):
         """Save generated posts to database"""
         logger.info("💾 Step 6/6: Saving generated posts...")
         

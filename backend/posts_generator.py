@@ -354,6 +354,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             content_inventory=content_inventory,
             strategy=strategy,
             num_posts=num_posts,
+            source_data=source_data,
             available_content=available_content
         )
         

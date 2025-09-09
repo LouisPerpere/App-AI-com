@@ -566,6 +566,11 @@ function MainApp() {
   const [postsByMonth, setPostsByMonth] = useState({});
   const [collapsedPostMonths, setCollapsedPostMonths] = useState({});
   
+  // Content move states
+  const [showMoveModal, setShowMoveModal] = useState(false);
+  const [contentToMove, setContentToMove] = useState(null);
+  const [isMovingContent, setIsMovingContent] = useState(false);
+  
   // Pixabay integration states
   const [activeLibraryTab, setActiveLibraryTab] = useState('my-library'); // 'my-library' or 'pixabay-search'
   const [pixabayResults, setPixabayResults] = useState([]);

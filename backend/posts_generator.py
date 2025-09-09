@@ -359,7 +359,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
                 if visual_content:
                     # Generate post with AI
                     post = await self._generate_single_post(
-                        visual_content, content_type, business_context, notes_context
+                        visual_content, content_type, business_context, notes_context, user_id
                     )
                     
                     if post:

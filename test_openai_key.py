@@ -7,8 +7,8 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from backend directory
+load_dotenv('/app/backend/.env')
 
 def test_openai_key():
     """Test if OpenAI API key is working"""

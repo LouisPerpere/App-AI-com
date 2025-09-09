@@ -316,7 +316,8 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         
         # Get contexts for AI
         business_context = self._format_business_context(source_data["business_profile"])
-        notes_context = self._format_notes_context(source_data["notes"])
+        all_notes = source_data.get("always_valid_notes", []) + source_data.get("month_notes", [])
+        notes_context = self._format_notes_context(all_notes)
         recent_posts_context = await self._get_recent_posts_context(user_id)
         
         # Prepare content inventory for AI

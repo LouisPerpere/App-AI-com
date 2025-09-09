@@ -611,9 +611,10 @@ RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
                 
                 # CRITICAL: Only accept posts with REAL visual_id from available content
                 if visual_id and visual_id in all_content_ids:
-                    # Valid visual_id found
+                    # Valid visual_id found - construct full URL like other images in the app
                     visual_url = f"/api/content/{visual_id}/file"
                     logger.info(f"   ✅ Post {i+1}: Using REAL photo ID {visual_id}")
+                    logger.info(f"   📸 Constructed visual_url: {visual_url}")
                     
                     post = PostContent(
                         visual_url=visual_url,

@@ -315,7 +315,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             raise Exception("OpenAI client not initialized")
         
         # Get contexts for AI
-        business_context = self._format_business_context(source_data["business_profile"])
+        business_context = self._format_business_context(source_data.get("business_profile"))
         all_notes = source_data.get("always_valid_notes", []) + source_data.get("month_notes", [])
         notes_context = self._format_notes_context(all_notes)
         recent_posts_context = await self._get_recent_posts_context(user_id)

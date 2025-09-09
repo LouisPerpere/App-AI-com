@@ -199,46 +199,64 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             "pixabay_candidates": []
         }
         
-        # Month-specific content (highest priority)
+        # CRITICAL FIX: Get ALL available media, not just month-specific
+        logger.info(f"   🔍 Searching for media with owner_id: {user_id}")
+        
+        # First try month-specific content (if attributed_month exists)
         month_content = list(self.db.media.find({
             "owner_id": user_id,
             "attributed_month": target_month,
             "deleted": {"$ne": True}
-        }).limit(100))
+        }).limit(50))
         
-        for item in month_content:
-            content["month_content"].append(ContentSource(
-                id=str(item.get("_id", "")),
-                title=item.get("title", ""),
-                context=item.get("context", ""),
-                visual_url=item.get("url", ""),
-                file_type=item.get("file_type", ""),
-                attributed_month=target_month,
-                source="upload"
-            ))
+        logger.info(f"   📅 Month-specific content found: {len(month_content)}")
         
-        logger.info(f"   📅 Month content: {len(content['month_content'])}")
+        # If no month-specific content, get ALL available media for this user
+        if len(month_content) == 0:
+            logger.info("   📂 No month-specific content, getting all available media...")
+            all_media = list(self.db.media.find({
+                "owner_id": user_id,
+                "deleted": {"$ne": True}
+            }).sort([("created_at", -1)]).limit(50))  # Newest first
+            
+            logger.info(f"   📂 Total media found: {len(all_media)}")
+            
+            # Treat all media as "month content" for the calendar
+            for item in all_media:
+                # Use filename as title if no title, description as context if available
+                title = item.get("title") or item.get("original_filename", "").replace('.jpg', '').replace('.jpeg', '').replace('.png', '')
+                context = item.get("context") or item.get("description", "")
+                
+                content["month_content"].append(ContentSource(
+                    id=str(item.get("_id", "")),
+                    title=title if title else "Photo",
+                    context=context if context else "Contenu visuel pour votre entreprise",
+                    visual_url=item.get("url", ""),
+                    file_type=item.get("file_type", "image/jpeg"),
+                    attributed_month=target_month,  # Assign to current month
+                    source="upload"
+                ))
+        else:
+            # Process month-specific content normally
+            for item in month_content:
+                title = item.get("title") or item.get("original_filename", "").replace('.jpg', '').replace('.jpeg', '').replace('.png', '')
+                context = item.get("context") or item.get("description", "")
+                
+                content["month_content"].append(ContentSource(
+                    id=str(item.get("_id", "")),
+                    title=title if title else "Photo",
+                    context=context if context else "Contenu visuel pour votre entreprise",
+                    visual_url=item.get("url", ""),
+                    file_type=item.get("file_type", "image/jpeg"),
+                    attributed_month=target_month,
+                    source="upload"
+                ))
         
-        # Older content (fallback)
-        older_content = list(self.db.media.find({
-            "owner_id": user_id,
-            "attributed_month": {"$ne": target_month},
-            "used_in_posts": {"$ne": True},
-            "deleted": {"$ne": True}
-        }).sort([("created_at", 1)]).limit(100))  # Oldest first
+        logger.info(f"   ✅ FINAL month content available: {len(content['month_content'])}")
         
-        for item in older_content:
-            content["older_content"].append(ContentSource(
-                id=str(item.get("_id", "")),
-                title=item.get("title", ""),
-                context=item.get("context", ""),
-                visual_url=item.get("url", ""),
-                file_type=item.get("file_type", ""),
-                attributed_month=item.get("attributed_month"),
-                source="upload"
-            ))
-        
-        logger.info(f"   📂 Older content: {len(content['older_content'])}")
+        # Log first few items for debugging
+        for i, item in enumerate(content["month_content"][:3]):
+            logger.info(f"   📸 Content {i+1}: ID={item.id}, Title='{item.title}', Context='{item.context[:50]}...'")
         
         return content
     

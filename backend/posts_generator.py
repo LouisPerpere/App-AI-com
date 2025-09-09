@@ -710,7 +710,7 @@ IMPORTANT: Varie intelligemment les content_type selon ce qui sera le plus effic
             logger.info(f"{response_text}")
             
             # Parse the global response with content mapping
-            return self._parse_global_response(response_text, strategy, available_content)
+            return self._parse_global_response(response_text, strategy, available_content, num_posts)
             
         except Exception as e:
             logger.error(f"❌ Failed to generate posts calendar: {str(e)}")

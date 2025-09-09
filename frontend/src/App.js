@@ -407,8 +407,10 @@ function MainApp() {
   const [showPixabaySaveModal, setShowPixabaySaveModal] = useState(false);
   const [selectedPixabayImage, setSelectedPixabayImage] = useState(null);
   const [isSavingPixabayImage, setIsSavingPixabayImage] = useState(null);
-  const [pixabayCustomTitle, setPixabayCustomTitle] = useState('');
-  const [pixabayCustomContext, setPixabayCustomContext] = useState('');
+  
+  // Refs pour inputs non-contrôlés (évite bug clavier mobile)
+  const pixabayTitleRef = useRef(null);
+  const pixabayContextRef = useRef(null);
   
   // Refs for direct DOM manipulation to avoid re-renders
   const titleInputRef = useRef(null);

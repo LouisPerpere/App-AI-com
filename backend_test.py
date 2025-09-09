@@ -1,16 +1,25 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend Testing for Carousel Functionality
-Test complet de la nouvelle fonctionnalité carrousel corrigée
+Test complet du système de génération de posts Instagram nouvellement implémenté
 
-This script tests the new carousel upload functionality with:
-1. POST /api/content/batch-upload with common_title and common_context parameters
-2. Carousel upload with upload_type="carousel", attributed_month="octobre_2025"
-3. Verification of carousel images having same title, context, attributed_month, carousel_id
-4. GET /api/content/pending returns carousel images with all new fields
-5. Thumbnail generation verification for carousel images
+ENDPOINTS À TESTER:
+1. POST /api/posts/generate - endpoint principal de génération
+2. GET /api/posts/generated - récupération des posts générés
 
-Using credentials: lperpere@yahoo.fr / L@Reunion974!
+CONTEXT TECHNIQUE:
+- Nouveau système PostsGenerator implémenté avec ChatGPT 4o
+- Utilise emergentintegrations avec clé EMERGENT_LLM_KEY
+- Intégration complète : profil business, analyse site web, notes, contenus uploadés
+- Focus Instagram uniquement pour l'instant
+
+TEST SCENARIOS:
+1. Authentification utilisateur (credentials: lperpere@yahoo.fr / L@Reunion974!)
+2. Vérification profil business existant
+3. Test génération de posts avec paramètres par défaut (20 posts, octobre_2025)
+4. Vérification structure et contenu des posts générés
+5. Test récupération des posts via GET /api/posts/generated
+6. Validation métadonnées et format JSON
+
 Backend URL: https://content-scheduler-6.preview.emergentagent.com/api
 """
 

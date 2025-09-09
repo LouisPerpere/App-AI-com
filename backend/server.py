@@ -937,16 +937,16 @@ async def save_pixabay_image(
         # Generate document ID first
         doc_id = str(uuid.uuid4())
         
-        # Use custom context if provided, otherwise default context
+        # Use custom context if provided, otherwise use tags as default context
         if custom_context:
             context_msg = custom_context
         elif save_type == "monthly" and attributed_month:
             context_msg = f"Image Pixabay pour {attributed_month.replace('_', ' ')} - {tags}"
         else:
-            context_msg = f"Image from Pixabay - {tags}"
+            context_msg = tags  # Tags go to context by default
             
-        # Use custom title if provided, otherwise use tags
-        display_title = custom_title if custom_title else tags
+        # Use custom title if provided, otherwise use generic title
+        display_title = custom_title if custom_title else f"Image Pixabay {pixabay_id}"
         
         media_doc = {
             "id": doc_id,

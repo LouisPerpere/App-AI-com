@@ -354,10 +354,19 @@ Tu réponds TOUJOURS au format JSON exact demandé."""
         
         # Mark used content
         if used_content:
-            await self.db.media.update_many(
-                {"id": {"$in": used_content}},
-                {"$set": {"used_in_posts": True}}
-            )
+            from bson import ObjectId
+            object_ids = []
+            for content_id in used_content:
+                try:
+                    object_ids.append(ObjectId(content_id))
+                except:
+                    pass  # Skip invalid IDs
+            
+            if object_ids:
+                await self.db.media.update_many(
+                    {"_id": {"$in": object_ids}},
+                    {"$set": {"used_in_posts": True}}
+                )
         
         logger.info(f"   ✅ Generated {len(generated_posts)} posts")
         return generated_posts

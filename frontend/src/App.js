@@ -564,7 +564,9 @@ const ImageAttachmentContent = ({
   handleFileSelect,
   selectedFiles,
   isUploading,
-  handleBatchUpload
+  handleBatchUpload,
+  postToAttachImage,
+  uploadFilesForPost
 }) => {
   
   const handleLibraryImageSelect = (content) => {

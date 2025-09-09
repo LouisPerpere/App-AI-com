@@ -470,6 +470,9 @@ async def upload_content_batch(
             if upload_type == "carousel" and common_title:
                 title = common_title
                 context = common_context or f"Image du carrousel '{common_title}'"
+            elif common_title:  # Apply common_title for any upload type when provided
+                title = common_title
+                context = common_context or ""
             else:
                 title = file.filename
                 context = ""

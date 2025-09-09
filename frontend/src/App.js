@@ -3157,13 +3157,13 @@ function MainApp() {
     if (element) {
       currentValue = element.value || element.textContent || '';
     } else {
-      // Fallback: chercher dans le profil business
+      // Fallback: chercher dans le profil business - SANS valeurs par défaut qui écrasent
       const fieldMapping = {
         'business_name_edit': businessProfile?.business_name || '',
         'business_type_edit': businessProfile?.business_type || '',
         'business_description_edit': businessProfile?.business_description || '',
         'brand_tone_edit': businessProfile?.brand_tone || 'professionnel',
-        'posting_frequency_edit': businessProfile?.posting_frequency || 'weekly',
+        'posting_frequency_edit': businessProfile?.posting_frequency || '', // CORRIGÉ: pas de 'weekly' par défaut
         'business_email_edit': businessProfile?.email || '',
         'business_website_edit': businessProfile?.website_url || '',
         'target_audience_edit': businessProfile?.target_audience || '',

@@ -407,6 +407,9 @@ function MainApp() {
   // Pixabay save choice modal states
   const [showPixabaySaveModal, setShowPixabaySaveModal] = useState(false);
   const [selectedPixabayImage, setSelectedPixabayImage] = useState(null);
+  const [isSavingPixabayImage, setIsSavingPixabayImage] = useState(null);
+  const [pixabayCustomTitle, setPixabayCustomTitle] = useState('');
+  const [pixabayCustomContext, setPixabayCustomContext] = useState('');
   
   // Refs for direct DOM manipulation to avoid re-renders
   const titleInputRef = useRef(null);

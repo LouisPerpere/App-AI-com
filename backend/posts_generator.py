@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+from openai import OpenAI
 from database import get_database
 
 logger = logging.getLogger(__name__)

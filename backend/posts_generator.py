@@ -116,6 +116,9 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
                 source_data, available_content, content_strategy, num_posts, user_id
             )
             
+            # STEP 4.5: Mark used content with timestamps
+            await self._mark_used_content(generated_posts)
+            
             # STEP 5: Create posting schedule
             scheduled_posts = self._create_posting_schedule(generated_posts, target_month)
             

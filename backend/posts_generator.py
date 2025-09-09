@@ -113,7 +113,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             
             # STEP 4: Generate posts according to strategy
             generated_posts = await self._generate_posts_with_strategy(
-                source_data, available_content, content_strategy, num_posts
+                source_data, available_content, content_strategy, num_posts, user_id
             )
             
             # STEP 5: Create posting schedule

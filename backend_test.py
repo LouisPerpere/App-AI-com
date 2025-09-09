@@ -1,30 +1,50 @@
 #!/usr/bin/env python3
 """
-CRITICAL PHOTO-POST LINKING SYSTEM TEST
-Test FINAL du système de liaison photos-posts avec les vraies données utilisateur.
+BACKEND TEST FINAL - VRAIES PHOTOS DE MONTRES LAURENT PERPERE
+Test de génération de posts avec les 7 vraies photos de montres identifiées.
 
-OBJECTIF: Valider que le système utilise maintenant les VRAIES photos du bon utilisateur (Laurent Perpere / lperpere@yahoo.fr).
+OBJECTIF: Tester la génération de posts avec les 7 vraies photos de montres de Laurent Perpere.
 
-CONTEXTE TECHNIQUE:
-- User_ID corrigé: 6a670c66-c06c-4d75-9dd5-c747e8a0281a (Laurent Perpere)  
-- 2 photos Pixabay disponibles dans la base pour cet utilisateur
-- Système corrigé pour utiliser TOUTES les photos disponibles
-- IDs réels disponibles: 68b849f8df5b5e379b1faeb6, 68b84a25df5b5e379b1faeb7
+DONNÉES CONFIRMÉES:
+- User ID: bdf87a74-e3f3-44f3-bac2-649cde3ef93e ✅
+- 7 photos dans septembre_2025 ✅
+- IDs réels: 68bfea6a78835f304341584b, 68bfea6978835f3043415847, 68bfea6878835f3043415844, 68bfea6778835f3043415841, 68bfea6678835f304341583e, 68bfea6578835f304341583a, 68ba94e55e3a1fa9652636a5
+- Titres: "Montage en cours", "Fond transparent", "Modèle en petite serie", etc.
+
+TESTS À EFFECTUER:
+1. Authentification (lperpere@yahoo.fr / L@Reunion974!)
+2. POST /api/posts/generate avec target_month="septembre_2025" (pas octobre!)
+3. VALIDATION CRITIQUE des visual_id dans les posts:
+   - DOIVENT correspondre aux 7 IDs réels des photos de montres
+   - ZERO "global_fallback_X" 
+   - visual_url = /api/content/{REAL_WATCH_ID}/file
+4. Vérification que les posts utilisent les vrais titres des montres
 
 Backend URL: https://content-scheduler-6.preview.emergentagent.com/api
 """
 
 import requests
 import json
-import time
+import sys
 from datetime import datetime
 
 # Configuration
 BASE_URL = "https://content-scheduler-6.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
-EXPECTED_USER_ID = "bdf87a74-e3f3-44f3-bac2-649cde3ef93e"  # Actual Laurent Perpere user ID
-EXPECTED_PHOTO_IDS = ["68b849f8df5b5e379b1faeb6", "68b84a25df5b5e379b1faeb7"]
+
+# IDs réels des 7 photos de montres confirmées
+EXPECTED_WATCH_IDS = [
+    "68bfea6a78835f304341584b",
+    "68bfea6978835f3043415847", 
+    "68bfea6878835f3043415844",
+    "68bfea6778835f3043415841",
+    "68bfea6678835f304341583e",
+    "68bfea6578835f304341583a",
+    "68ba94e55e3a1fa9652636a5"
+]
+
+EXPECTED_USER_ID = "bdf87a74-e3f3-44f3-bac2-649cde3ef93e"
 
 class PhotoPostLinkingTester:
     def __init__(self):

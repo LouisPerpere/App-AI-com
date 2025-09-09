@@ -483,8 +483,18 @@ Règles:
                 if not response_text or not response_text.strip():
                     logger.error("   ❌ Empty response from AI")
                     return None
+                
+                # Clean response text - remove markdown code blocks if present
+                clean_response = response_text.strip()
+                if clean_response.startswith('```json'):
+                    clean_response = clean_response[7:]  # Remove ```json
+                if clean_response.endswith('```'):
+                    clean_response = clean_response[:-3]  # Remove ```
+                clean_response = clean_response.strip()
+                
+                print(f"🤖 DEBUG: Cleaned response: '{clean_response[:200]}...'")
                     
-                response_data = json.loads(response_text)
+                response_data = json.loads(clean_response)
                 
                 return PostContent(
                     visual_url=visual_content.visual_url,

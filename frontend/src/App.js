@@ -1853,12 +1853,15 @@ function MainApp() {
     try {
       console.log('📤 Saving to month:', monthKey, `${API}/pixabay/save-image`);
       
+      const customTitle = pixabayTitleRef.current?.value || selectedPixabayImage.tags;
+      const customContext = pixabayContextRef.current?.value || '';
+      
       const response = await axios.post(`${API}/pixabay/save-image`, {
         pixabay_id: selectedPixabayImage.id,
         image_url: selectedPixabayImage.webformatURL,
         tags: selectedPixabayImage.tags,
-        custom_title: pixabayCustomTitle || selectedPixabayImage.tags,
-        custom_context: pixabayCustomContext,
+        custom_title: customTitle,
+        custom_context: customContext,
         save_type: 'monthly', // Mark as monthly save
         attributed_month: monthKey // Assign to specific month
       }, {

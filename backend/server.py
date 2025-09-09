@@ -906,14 +906,35 @@ async def move_content_to_month(
 @api_router.post("/posts/generate")
 async def generate_posts_manual(
     target_month: str = "octobre_2025",
-    num_posts: int = 4,  # Default to 4 posts (1 per week for a month)
     user_id: str = Depends(get_current_user_id_robust)
 ):
     """Generate posts manually for the current user with advanced AI system"""
     try:
         print(f"🚀 Starting advanced post generation for user {user_id}")
         print(f"   📅 Target month: {target_month}")
-        print(f"   📊 Number of posts: {num_posts}")
+        
+        # Get business profile to determine posting frequency
+        dbm = get_database()
+        business_profile = dbm.db.business_profiles.find_one({"user_id": user_id})
+        
+        if not business_profile:
+            raise HTTPException(status_code=404, detail="Business profile not found. Please complete your business profile first.")
+        
+        # Calculate number of posts based on posting frequency (for 4 weeks in a month)
+        posting_frequency = business_profile.get("posting_frequency", "weekly")
+        frequency_to_weekly_posts = {
+            "daily": 7,        # 7 posts per week
+            "3x_week": 3,      # 3 posts per week
+            "weekly": 1,       # 1 post per week
+            "bi_weekly": 2     # 2 posts per week
+        }
+        
+        posts_per_week = frequency_to_weekly_posts.get(posting_frequency, 1)
+        num_posts = posts_per_week * 4  # 4 weeks in a month
+        
+        print(f"   📊 Posting frequency: {posting_frequency}")
+        print(f"   📊 Posts per week: {posts_per_week}")
+        print(f"   📊 Total posts for month: {num_posts}")
         
         # Use the new advanced posts generator
         from posts_generator import PostsGenerator

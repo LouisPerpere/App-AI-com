@@ -620,7 +620,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             website_context = self._format_website_analysis_context(website_analysis)
             
             # Build the global prompt for generating all posts at once
-            prompt = f"""Tu dois créer un calendrier complet de {num_posts} posts Instagram pour ce business.
+            prompt = f"""Tu dois créer EXACTEMENT {num_posts} posts Instagram pour ce business (PAS PLUS, PAS MOINS).
 
 {business_context}
 

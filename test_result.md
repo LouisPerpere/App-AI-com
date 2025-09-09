@@ -241,11 +241,9 @@ frontend:
 
 test_plan:
   current_focus:
-    - "Pixabay Thumbnail Performance Investigation"
-    - "Library Page Monthly Refactoring"
-    - "Monthly Upload Mechanisms Implementation"
-    - "Pixabay Integration Enhancement"
-  stuck_tasks: []
+    - "Post Generation System Implementation"
+  stuck_tasks:
+    - "Post Generation System Implementation"
   test_all: false
   test_priority: "high_first"
 

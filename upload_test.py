@@ -357,7 +357,7 @@ class BackendTester:
                     file_id = created_items[0].get("id")
                     
                     # Wait for thumbnail processing
-                    time.sleep(3)
+                    time.sleep(8)
                     
                     # Check if file exists in database
                     pending_response = self.session.get(f"{BACKEND_URL}/content/pending")

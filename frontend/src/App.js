@@ -1820,6 +1820,8 @@ function MainApp() {
       // Close modal and reset fields
       setShowPixabaySaveModal(false);
       setSelectedPixabayImage(null);
+      setPixabayCustomTitle('');
+      setPixabayCustomContext('');
 
     } catch (error) {
       console.error('❌ Error saving Pixabay image:', error);

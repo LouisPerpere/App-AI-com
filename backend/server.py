@@ -813,12 +813,9 @@ async def get_generated_posts(user_id: str = Depends(get_current_user_id_robust)
         dbm = get_database()
         db = dbm.db
         
-        # Use synchronous MongoDB operations (not async)
-        posts_cursor = db.generated_posts.find(
+        posts = list(db.generated_posts.find(
             {"owner_id": user_id}
-        ).sort([("scheduled_date", 1)]).limit(100)
-        
-        posts = list(posts_cursor)
+        ).sort([("scheduled_date", 1)]).limit(100))
         
         # Format posts for frontend display (similar to content/notes)
         formatted_posts = []
@@ -829,6 +826,7 @@ async def get_generated_posts(user_id: str = Depends(get_current_user_id_robust)
                 "text": post.get("text", ""),
                 "hashtags": post.get("hashtags", []),
                 "visual_url": post.get("visual_url", ""),
+                "visual_id": post.get("visual_id", ""),
                 "visual_type": post.get("visual_type", "image"),
                 "platform": post.get("platform", "instagram"),
                 "content_type": post.get("content_type", "product"),
@@ -844,6 +842,131 @@ async def get_generated_posts(user_id: str = Depends(get_current_user_id_robust)
     except Exception as e:
         print(f"❌ Failed to fetch posts: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch generated posts: {str(e)}")
+
+class PostModificationRequest(BaseModel):
+    modification_request: str
+
+@api_router.put("/posts/{post_id}/modify")
+async def modify_post_with_ai(
+    post_id: str, 
+    request: PostModificationRequest,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Modify a post using AI based on user request"""
+    try:
+        print(f"🔧 Modifying post {post_id} for user {user_id}")
+        print(f"   Modification request: {request.modification_request}")
+        
+        dbm = get_database()
+        db = dbm.db
+        
+        # Get current post
+        current_post = db.generated_posts.find_one({
+            "id": post_id,
+            "owner_id": user_id
+        })
+        
+        if not current_post:
+            raise HTTPException(status_code=404, detail="Post not found")
+        
+        # Use OpenAI to modify the post
+        from openai import OpenAI
+        
+        api_key = os.getenv('OPENAI_API_KEY')
+        if not api_key:
+            raise HTTPException(status_code=500, detail="OpenAI API key not configured")
+        
+        openai_client = OpenAI(api_key=api_key)
+        
+        # Create modification prompt
+        current_text = current_post.get("text", "")
+        current_hashtags = current_post.get("hashtags", [])
+        current_title = current_post.get("title", "")
+        
+        modification_prompt = f"""Tu es un expert en marketing digital. Modifie ce post Instagram selon la demande utilisateur.
+
+POST ACTUEL:
+Titre: {current_title}
+Texte: {current_text}
+Hashtags: {', '.join(['#' + tag for tag in current_hashtags])}
+
+DEMANDE DE MODIFICATION:
+{request.modification_request}
+
+INSTRUCTIONS:
+- Garde l'esprit Instagram et l'engagement
+- Adapte selon la demande mais reste cohérent
+- Garde un nombre similaire de hashtags (15-25)
+- Utilise des émojis pertinents
+
+RÉPONSE ATTENDUE (JSON exact):
+{{
+    "title": "Nouveau titre modifié",
+    "text": "Nouveau texte modifié avec émojis pertinents",
+    "hashtags": ["hashtag1", "hashtag2", "hashtag3"]
+}}
+"""
+        
+        # Send to OpenAI
+        response = openai_client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "Tu modifies des posts Instagram selon les demandes utilisateur. Tu réponds toujours en JSON exact."},
+                {"role": "user", "content": modification_prompt}
+            ],
+            temperature=0.7,
+            max_tokens=1000
+        )
+        
+        response_text = response.choices[0].message.content
+        
+        # Clean and parse response
+        clean_response = response_text.strip()
+        if clean_response.startswith('```json'):
+            clean_response = clean_response[7:]
+        if clean_response.endswith('```'):
+            clean_response = clean_response[:-3]
+        clean_response = clean_response.strip()
+        
+        try:
+            modified_data = json.loads(clean_response)
+        except json.JSONDecodeError as e:
+            print(f"❌ Failed to parse AI response: {e}")
+            raise HTTPException(status_code=500, detail="Failed to parse AI modification response")
+        
+        # Update post in database
+        update_data = {
+            "title": modified_data.get("title", current_title),
+            "text": modified_data.get("text", current_text),
+            "hashtags": modified_data.get("hashtags", current_hashtags),
+            "modified_at": datetime.utcnow().isoformat()
+        }
+        
+        result = db.generated_posts.update_one(
+            {"id": post_id, "owner_id": user_id},
+            {"$set": update_data}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Post not found")
+        
+        print(f"✅ Post {post_id} modified successfully")
+        
+        return {
+            "message": "Post modifié avec succès",
+            "modified_post": {
+                "id": post_id,
+                "title": update_data["title"],
+                "text": update_data["text"],
+                "hashtags": update_data["hashtags"]
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error modifying post: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to modify post: {str(e)}")
 
 # ----------------------------
 # PIXABAY INTEGRATION: /api/pixabay

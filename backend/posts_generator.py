@@ -400,6 +400,193 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             logger.error(f"❌ Error getting recent posts context: {str(e)}")
             return "Erreur lors de la récupération des posts récents."
 
+    def _format_business_context(self, business_profile: Dict) -> str:
+        """Format business profile for the global prompt"""
+        if not business_profile:
+            return "Aucun profil business disponible."
+        
+        context_parts = []
+        context_parts.append(f"ENTREPRISE: {business_profile.get('business_name', 'Non défini')}")
+        context_parts.append(f"TYPE: {business_profile.get('business_type', 'Non défini')}")
+        context_parts.append(f"DESCRIPTION: {business_profile.get('business_description', 'Non définie')}")
+        
+        target_audience = business_profile.get('target_audience', '')
+        if target_audience:
+            context_parts.append(f"CIBLE: {target_audience}")
+        
+        return "\n".join(context_parts)
+    
+    def _format_notes_context(self, notes: List) -> str:
+        """Format notes for the global prompt"""
+        if not notes:
+            return "Aucune note disponible."
+        
+        context_parts = []
+        for note in notes[:10]:  # Limit to avoid token overflow
+            context_parts.append(f"- {note.get('title', '')}: {note.get('content', '')}")
+        
+        return "\n".join(context_parts)
+    
+    def _prepare_content_inventory(self, available_content: Dict) -> str:
+        """Prepare content inventory description for AI"""
+        inventory_parts = []
+        
+        month_content = available_content.get("month_content", [])
+        older_content = available_content.get("older_content", [])
+        
+        inventory_parts.append(f"CONTENU DISPONIBLE:")
+        inventory_parts.append(f"- Contenu du mois: {len(month_content)} éléments")
+        inventory_parts.append(f"- Contenu plus ancien: {len(older_content)} éléments")
+        
+        # Add details about available content
+        if month_content:
+            inventory_parts.append("\nCONTENU DU MOIS:")
+            for i, content in enumerate(month_content[:5], 1):  # Show first 5
+                inventory_parts.append(f"{i}. {content.title} - {content.context}")
+        
+        if older_content:
+            inventory_parts.append("\nCONTENU PLUS ANCIEN:")
+            for i, content in enumerate(older_content[:5], 1):  # Show first 5
+                inventory_parts.append(f"{i}. {content.title} - {content.context}")
+        
+        return "\n".join(inventory_parts)
+    
+    async def _generate_posts_calendar(self, business_context: str, notes_context: str, 
+                                     recent_posts_context: str, content_inventory: str,
+                                     strategy: Dict, num_posts: int) -> List[PostContent]:
+        """Generate entire posts calendar with a single AI request"""
+        try:
+            # Build the global prompt for generating all posts at once
+            prompt = f"""Tu dois créer un calendrier complet de {num_posts} posts Instagram pour ce business.
+
+CONTEXTE BUSINESS:
+{business_context}
+
+NOTES IMPORTANTES:
+{notes_context}
+
+{recent_posts_context}
+
+{content_inventory}
+
+STRATÉGIE DE CONTENU DEMANDÉE:
+{self._format_strategy_for_prompt(strategy)}
+
+RÈGLES STRICTES DE RÉDACTION:
+- BANNIR absolument le style IA artificiel et grandiose
+- PAS de "Découvrez l'art de...", "Plongez dans...", "Laissez-vous séduire..."
+- INTERDICTION des ✨ et emojis "magiques" 
+- Maximum 2-3 emojis par post, seulement si vraiment utiles
+- Écrire comme un VRAI humain, pas comme ChatGPT
+- Ton naturel et authentique
+- Call-to-action simples et directs
+- 150-200 mots maximum par post
+- 15-25 hashtags pertinents par post
+
+CONTRAINTES DE VARIÉTÉ CRITIQUE:
+- Chaque post doit être UNIQUE et suffisamment différent des autres
+- Varier les angles d'approche, le vocabulaire, et la structure
+- NE JAMAIS répéter exactement le même contenu ou les mêmes formulations
+- Adapter le niveau de détail et le style selon le type de post
+- Comme le ferait un expert community manager professionnel
+
+RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
+{{
+    "posts": [
+        {{
+            "content_type": "product",
+            "text": "Texte naturel sans style IA, max 2-3 emojis",
+            "hashtags": ["hashtag1", "hashtag2", "hashtag3"],
+            "title": "Titre simple et direct",
+            "visual_content_used": "nom_du_contenu_utilisé_ou_fallback"
+        }},
+        // ... {num_posts-1} autres posts
+    ]
+}}
+"""
+            
+            logger.info(f"🤖 Sending GLOBAL request to OpenAI for {num_posts} posts")
+            logger.info(f"🤖 Prompt length: {len(prompt)} characters")
+            
+            response = self.openai_client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": self.system_message},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+                max_tokens=4000  # Increased for multiple posts
+            )
+            
+            response_text = response.choices[0].message.content
+            logger.info(f"🤖 Global AI Response length: {len(response_text) if response_text else 0}")
+            
+            # Parse the global response
+            return self._parse_global_response(response_text, strategy)
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to generate posts calendar: {str(e)}")
+            return []
+    
+    def _format_strategy_for_prompt(self, strategy: Dict) -> str:
+        """Format strategy for the AI prompt"""
+        strategy_parts = []
+        for content_type, count in strategy.items():
+            if count > 0:
+                strategy_parts.append(f"- {count} posts de type '{content_type}'")
+        return "\n".join(strategy_parts)
+    
+    def _parse_global_response(self, response_text: str, strategy: Dict) -> List[PostContent]:
+        """Parse the global AI response into PostContent objects"""
+        try:
+            if not response_text or not response_text.strip():
+                logger.error("❌ Empty global response from AI")
+                return []
+            
+            # Clean response text - remove markdown code blocks if present
+            clean_response = response_text.strip()
+            if clean_response.startswith('```json'):
+                clean_response = clean_response[7:]  # Remove ```json
+            if clean_response.endswith('```'):
+                clean_response = clean_response[:-3]  # Remove ```
+            clean_response = clean_response.strip()
+            
+            response_data = json.loads(clean_response)
+            posts_data = response_data.get("posts", [])
+            
+            if not posts_data:
+                logger.error("❌ No posts found in global AI response")
+                return []
+            
+            generated_posts = []
+            for i, post_data in enumerate(posts_data):
+                # Create a fallback visual content for each post
+                visual_content_id = f"global_fallback_{i}"
+                visual_url = f"/api/content/{visual_content_id}/file"
+                
+                post = PostContent(
+                    visual_url=visual_url,
+                    visual_id=visual_content_id,
+                    title=post_data.get("title", f"Post {i+1}"),
+                    text=post_data.get("text", ""),
+                    hashtags=post_data.get("hashtags", []),
+                    platform="instagram",
+                    content_type=post_data.get("content_type", "product"),
+                    visual_type="image"
+                )
+                
+                generated_posts.append(post)
+            
+            logger.info(f"✅ Successfully parsed {len(generated_posts)} posts from global response")
+            return generated_posts
+            
+        except json.JSONDecodeError as e:
+            logger.error(f"❌ Failed to parse global AI response: {e}")
+            logger.error(f"❌ Response was: {response_text[:500]}...")
+            return []
+        except Exception as e:
+            logger.error(f"❌ Error parsing global response: {str(e)}")
+            return []
     async def _generate_single_post(self, visual_content: ContentSource, content_type: str, 
                                    business_context: str, notes_context: str, user_id: str) -> Optional[PostContent]:
         """Generate a single post with AI"""

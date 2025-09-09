@@ -249,6 +249,247 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
   );
 });
 
+// Composant vignette de post
+const PostThumbnail = ({ post, onClick }) => {
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Non programmé';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  return (
+    <div 
+      onClick={onClick}
+      className="group cursor-pointer transform hover:scale-105 transition-all duration-200"
+    >
+      <div className="bg-white rounded-xl border border-emerald-200 hover:border-emerald-400 shadow-md hover:shadow-lg overflow-hidden">
+        {/* Image/Visual du post */}
+        <div className="aspect-square bg-gradient-to-br from-emerald-100 to-blue-100 flex items-center justify-center relative">
+          {post.visual_url ? (
+            <img 
+              src={post.visual_url} 
+              alt={post.title || 'Post'}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="text-center p-4">
+              <FileText className="w-12 h-12 text-emerald-500 mx-auto mb-2" />
+              <p className="text-sm text-emerald-700 font-medium">Post IA</p>
+            </div>
+          )}
+          
+          {/* Badge plateforme */}
+          <div className="absolute top-2 left-2">
+            <span className="bg-emerald-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+              {post.platform || 'Instagram'}
+            </span>
+          </div>
+          
+          {/* Badge date */}
+          <div className="absolute bottom-2 right-2">
+            <span className="bg-black/50 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
+              {formatDate(post.scheduled_date)}
+            </span>
+          </div>
+        </div>
+        
+        {/* Contenu */}
+        <div className="p-3">
+          <h4 className="font-semibold text-gray-800 text-sm mb-1 line-clamp-1">
+            {post.title || 'Post généré'}
+          </h4>
+          <p className="text-gray-600 text-xs line-clamp-2 mb-2">
+            {post.text || 'Aucun texte disponible'}
+          </p>
+          
+          {/* Hashtags */}
+          {post.hashtags && post.hashtags.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {post.hashtags.slice(0, 2).map((hashtag, idx) => (
+                <span key={idx} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                  #{hashtag}
+                </span>
+              ))}
+              {post.hashtags.length > 2 && (
+                <span className="text-xs text-gray-500">+{post.hashtags.length - 2}</span>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Modal d'aperçu de post
+const PostPreviewModal = ({ 
+  post, 
+  onClose, 
+  onModify, 
+  onValidate, 
+  isModifying, 
+  modificationRequest, 
+  setModificationRequest 
+}) => {
+  const [showModificationForm, setShowModificationForm] = useState(false);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Non programmé';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const handleModifySubmit = () => {
+    onModify(post, modificationRequest);
+    setShowModificationForm(false);
+  };
+
+  const handleCancel = () => {
+    setShowModificationForm(false);
+    setModificationRequest('');
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-xl flex items-center justify-center">
+              <Eye className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-800">Aperçu du post</h3>
+              <p className="text-sm text-gray-600">
+                {post.platform || 'Instagram'} • {formatDate(post.scheduled_date)}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
+          >
+            <X className="w-4 h-4 text-gray-600" />
+          </button>
+        </div>
+
+        {/* Contenu */}
+        <div className="p-6 space-y-4">
+          {/* Visual */}
+          {post.visual_url && (
+            <div className="aspect-video bg-gray-100 rounded-xl overflow-hidden">
+              <img 
+                src={post.visual_url} 
+                alt={post.title || 'Post'}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+
+          {/* Titre */}
+          {post.title && (
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Titre :</h4>
+              <p className="text-lg font-semibold text-gray-800">{post.title}</p>
+            </div>
+          )}
+
+          {/* Texte du post */}
+          <div>
+            <h4 className="text-sm font-medium text-gray-700 mb-2">Texte du post :</h4>
+            <div className="bg-gray-50 rounded-lg p-4">
+              <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
+                {post.text || 'Aucun texte disponible'}
+              </p>
+            </div>
+          </div>
+
+          {/* Hashtags */}
+          {post.hashtags && post.hashtags.length > 0 && (
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Hashtags ({post.hashtags.length}) :</h4>
+              <div className="flex flex-wrap gap-2">
+                {post.hashtags.map((hashtag, idx) => (
+                  <span key={idx} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                    #{hashtag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Formulaire de modification */}
+          {showModificationForm && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <h4 className="text-sm font-medium text-yellow-800 mb-2">
+                Demande de modification :
+              </h4>
+              <textarea
+                value={modificationRequest}
+                onChange={(e) => setModificationRequest(e.target.value)}
+                placeholder="Décrivez comment vous souhaitez modifier ce post..."
+                className="w-full p-3 border border-yellow-300 rounded-lg resize-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                rows="3"
+                disabled={isModifying}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200">
+          {!showModificationForm ? (
+            <>
+              <button
+                onClick={onValidate}
+                className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+              >
+                ✅ Valider
+              </button>
+              <button
+                onClick={() => setShowModificationForm(true)}
+                className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+              >
+                ✏️ Modifier
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={handleCancel}
+                className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+                disabled={isModifying}
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleModifySubmit}
+                disabled={isModifying || !modificationRequest.trim()}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-lg font-medium transition-colors flex items-center space-x-2"
+              >
+                {isModifying && <Loader2 className="w-4 h-4 animate-spin" />}
+                <span>Envoyer</span>
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 function MainApp() {
   const location = useLocation();
   

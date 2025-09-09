@@ -901,9 +901,10 @@ async def move_content_to_month(
 
 class AttachImageRequest(BaseModel):
     image_source: str  # "library", "pixabay", "upload"
-    image_id: str = ""  # For library/pixabay selection
+    image_id: str = ""  # For library selection (single image)
     image_url: str = ""  # For pixabay
-    uploaded_files: List[str] = []  # For upload
+    uploaded_files: List[str] = []  # For upload filenames (legacy)
+    uploaded_file_ids: List[str] = []  # For upload UUIDs (new)
 
 @api_router.put("/posts/{post_id}/attach-image")
 async def attach_image_to_post(
@@ -933,27 +934,73 @@ async def attach_image_to_post(
         if request.image_source == "library":
             # Use existing image from library
             if request.image_id:
-                visual_id = request.image_id
-                visual_url = f"/api/content/{visual_id}/file"
+                # Find the image using UUID
+                image_doc = dbm.db.media.find_one({
+                    "$or": [
+                        {"id": request.image_id},
+                        {"file_id": request.image_id}
+                    ],
+                    "owner_id": user_id
+                })
                 
-                # Mark image as used
-                dbm.db.media.update_one(
-                    {"_id": ObjectId(visual_id) if len(visual_id) == 24 else {"$or": [{"file_id": visual_id}, {"id": visual_id}]}},
-                    {"$set": {"used_in_posts": True}}
-                )
+                if image_doc:
+                    visual_id = image_doc.get("id") or image_doc.get("file_id")
+                    visual_url = f"/api/content/{visual_id}/file"
+                    
+                    # Mark image as used
+                    dbm.db.media.update_one(
+                        {"$or": [{"id": visual_id}, {"file_id": visual_id}]},
+                        {"$set": {"used_in_posts": True}}
+                    )
+                    print(f"✅ Library image {visual_id} marked as used")
+                else:
+                    raise HTTPException(status_code=404, detail="Image not found in library")
                 
         elif request.image_source == "pixabay":
-            # Handle pixabay image (would need to save it first)
+            # Handle pixabay image selection
             if request.image_url:
-                # This would involve saving the pixabay image - simplified for now
+                # Store pixabay reference
                 visual_url = request.image_url
-                visual_id = f"pixabay_{post_id}"
+                visual_id = request.image_id  # Should be like "pixabay_12345"
+                print(f"✅ Pixabay image selected: {visual_url}")
                 
         elif request.image_source == "upload":
-            # Handle direct upload (would integrate with existing upload system)
-            # For now, just set placeholder
-            visual_url = f"/api/content/upload_{post_id}/file"
-            visual_id = f"upload_{post_id}"
+            # Handle newly uploaded files
+            if request.uploaded_file_ids:
+                if len(request.uploaded_file_ids) == 1:
+                    # Single upload
+                    visual_id = request.uploaded_file_ids[0]
+                    visual_url = f"/api/content/{visual_id}/file"
+                    
+                    # Mark image as used
+                    dbm.db.media.update_one(
+                        {"$or": [{"id": visual_id}, {"file_id": visual_id}]},
+                        {"$set": {"used_in_posts": True}}
+                    )
+                    print(f"✅ Single uploaded image {visual_id} attached and marked as used")
+                    
+                elif len(request.uploaded_file_ids) > 1:
+                    # Multiple uploads - create a carousel reference
+                    carousel_id = str(uuid.uuid4())
+                    visual_id = carousel_id
+                    visual_url = f"/api/content/carousel/{carousel_id}"
+                    
+                    # Mark all images as used and link them to the carousel
+                    for file_id in request.uploaded_file_ids:
+                        dbm.db.media.update_one(
+                            {"$or": [{"id": file_id}, {"file_id": file_id}]},
+                            {
+                                "$set": {
+                                    "used_in_posts": True,
+                                    "carousel_post_id": post_id
+                                }
+                            }
+                        )
+                    
+                    print(f"✅ Carousel with {len(request.uploaded_file_ids)} images created for post")
+                    
+            else:
+                raise HTTPException(status_code=400, detail="No uploaded files provided")
         
         # Update the post
         update_data = {
@@ -977,7 +1024,8 @@ async def attach_image_to_post(
             "message": "Image attachée avec succès",
             "post_id": post_id,
             "visual_url": visual_url,
-            "visual_id": visual_id
+            "visual_id": visual_id,
+            "status": "with_image"
         }
         
     except HTTPException:

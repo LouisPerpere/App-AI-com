@@ -1843,6 +1843,8 @@ function MainApp() {
         pixabay_id: selectedPixabayImage.id,
         image_url: selectedPixabayImage.webformatURL,
         tags: selectedPixabayImage.tags,
+        custom_title: pixabayCustomTitle || selectedPixabayImage.tags,
+        custom_context: pixabayCustomContext,
         save_type: 'monthly', // Mark as monthly save
         attributed_month: monthKey // Assign to specific month
       }, {

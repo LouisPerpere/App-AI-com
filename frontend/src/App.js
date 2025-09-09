@@ -5109,8 +5109,37 @@ function MainApp() {
                   className="w-full h-32 object-cover rounded-lg"
                 />
                 <p className="text-xs text-gray-500 mt-2">
-                  Tags: {selectedPixabayImage.tags}
+                  Tags originaux: {selectedPixabayImage.tags}
                 </p>
+              </div>
+              
+              {/* Champs personnalisables */}
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Titre personnalisé
+                  </label>
+                  <input
+                    type="text"
+                    value={pixabayCustomTitle}
+                    onChange={(e) => setPixabayCustomTitle(e.target.value)}
+                    placeholder="Titre pour cette image..."
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Contexte d'utilisation
+                  </label>
+                  <textarea
+                    value={pixabayCustomContext}
+                    onChange={(e) => setPixabayCustomContext(e.target.value)}
+                    placeholder="Décrivez comment vous voulez utiliser cette image..."
+                    rows={3}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none resize-none"
+                  />
+                </div>
               </div>
               
               {/* Choix de sauvegarde */}

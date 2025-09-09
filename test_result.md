@@ -241,12 +241,27 @@ frontend:
 
 test_plan:
   current_focus:
-    - "Upload et métadonnées post-correction - COMPLETED"
+    - "Business Profile Posting Frequency Persistence Fix - COMPLETED"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 backend:
+  - task: "Business Profile Posting Frequency Persistence Fix"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "🚨 CRITICAL BUG IDENTIFIED - POSTING FREQUENCY PERSISTENCE FAILURE: Comprehensive diagnostic testing completed following the specific French review request with root cause identified using credentials lperpere@yahoo.fr / L@Reunion974! on backend https://social-gpt-5.preview.emergentagent.com/api. PERSISTENCE BUG CONFIRMED: ❌ Initial value: '3x_week', ❌ After PUT /api/business-profile with posting_frequency: 'weekly', value reverts to '3x_week', ❌ Backend returns success but changes are not persisted. ROOT CAUSE IDENTIFIED: Database collection mismatch - GET /api/business-profile reads from 'business_profiles' collection using 'owner_id' field, PUT /api/business-profile writes to 'users' collection using 'user_id' field. This mismatch causes data to be written to wrong collection, explaining why manual changes appear to save but code changes don't persist. TECHNICAL ANALYSIS: Authentication working perfectly (User ID: bdf87a74-e3f3-44f3-bac2-649cde3ef93e), GET endpoint functional and returns correct current values, PUT endpoint accepts data and returns success, but persistence fails due to collection mismatch. SOLUTION REQUIRED: Modify PUT /api/business-profile to write to 'business_profiles' collection with 'owner_id' field to match GET endpoint behavior."
+      - working: true
+        agent: "testing"
+        comment: "🎉 BUSINESS PROFILE POSTING FREQUENCY PERSISTENCE FIX COMPLETED SUCCESSFULLY - 100% SUCCESS RATE: Comprehensive diagnostic testing completed following the specific French review request with critical bug fixed using credentials lperpere@yahoo.fr / L@Reunion974! on backend https://social-gpt-5.preview.emergentagent.com/api. CRITICAL BUG FIX APPLIED: ✅ Modified PUT /api/business-profile to use 'business_profiles' collection instead of 'users' collection, ✅ Changed field mapping from 'user_id' to 'owner_id' to match GET endpoint, ✅ Both GET and PUT now use same database collection and field structure. PERSISTENCE TESTING SUCCESSFUL: ✅ Initial value: '3x_week' correctly retrieved, ✅ PUT /api/business-profile with posting_frequency: 'weekly' successful, ✅ GET verification confirms value persisted as 'weekly', ✅ Additional test: PUT with '3x_week' and verification successful, ✅ Bidirectional persistence confirmed working perfectly. TECHNICAL VERIFICATION: Authentication system working perfectly (User ID: bdf87a74-e3f3-44f3-bac2-649cde3ef93e), database operations now consistent between GET/PUT endpoints, all business profile fields (business_name: My Own Watch, business_type: artisan, brand_tone: Professionnel) working correctly. CONCLUSION: The posting frequency persistence issue has been FULLY RESOLVED. The backend now correctly saves and retrieves posting_frequency values. Users can now modify posting frequency via code and the changes will persist correctly in the database."
+
   - task: "Upload et métadonnées post-correction"
     implemented: true
     working: true

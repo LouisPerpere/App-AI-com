@@ -23,7 +23,7 @@ from datetime import datetime
 BASE_URL = "https://content-scheduler-6.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
-EXPECTED_USER_ID = "6a670c66-c06c-4d75-9dd5-c747e8a0281a"
+EXPECTED_USER_ID = "bdf87a74-e3f3-44f3-bac2-649cde3ef93e"  # Actual Laurent Perpere user ID
 EXPECTED_PHOTO_IDS = ["68b849f8df5b5e379b1faeb6", "68b84a25df5b5e379b1faeb7"]
 
 class PhotoPostLinkingTester:

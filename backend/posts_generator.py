@@ -444,19 +444,23 @@ CONTENU VISUEL:
 TYPE DE POST: {content_type}
 {self._get_content_type_guidelines(content_type)}
 
+RÈGLES STRICTES DE RÉDACTION:
+- BANNIR absolument le style IA artificiel et grandiose
+- PAS de "Découvrez l'art de...", "Plongez dans...", "Laissez-vous séduire..."
+- INTERDICTION des ✨ et emojis "magiques" 
+- Maximum 2-3 emojis par post, seulement si vraiment utiles
+- Écrire comme un VRAI humain, pas comme ChatGPT
+- Ton naturel et authentique
+- Call-to-action simples et directs
+- 150-200 mots maximum
+- 15-25 hashtags pertinents
+
 RÉPONSE ATTENDUE (JSON exact):
 {{
-    "text": "Texte du post engageant avec émojis pertinents",
+    "text": "Texte naturel sans style IA, max 2-3 emojis",
     "hashtags": ["hashtag1", "hashtag2", "hashtag3"],
-    "title": "Titre court accrocheur"
+    "title": "Titre simple et direct"
 }}
-
-Règles:
-- Texte 150-200 mots max
-- 15-25 hashtags stratégiques 
-- Ton adapté au business
-- Call-to-action pertinent
-- Émojis naturels
 """
             
             # Send to OpenAI

@@ -227,6 +227,60 @@ class PostingFrequencyDiagnostic:
             print("   - MISMATCH: Les données sont lues et écrites dans des collections différentes!")
             print("   - SOLUTION: Corriger PUT pour écrire dans 'business_profiles' collection")
         
+    def run_diagnostic(self):
+        """Exécuter le diagnostic complet"""
+        print("=" * 80)
+        print("🔍 DIAGNOSTIC DIRECT - Valeur réelle posting_frequency en base")
+        print("=" * 80)
+        print(f"Backend URL: {BACKEND_URL}")
+        print(f"Credentials: {TEST_EMAIL} / {TEST_PASSWORD}")
+        print(f"Timestamp: {datetime.now().isoformat()}")
+        
+        # Étape 1: Authentification
+        if not self.authenticate():
+            print("\n❌ DIAGNOSTIC ÉCHOUÉ: Impossible de s'authentifier")
+            return False
+        
+        # Étape 2: Récupérer valeur actuelle
+        current_value = self.get_current_posting_frequency()
+        if current_value is None:
+            print("\n❌ DIAGNOSTIC ÉCHOUÉ: Impossible de récupérer le profil business")
+            return False
+        
+        # Étape 3: Mise à jour vers 'weekly'
+        if not self.update_posting_frequency_to_weekly():
+            print("\n❌ DIAGNOSTIC ÉCHOUÉ: Impossible de mettre à jour posting_frequency")
+            return False
+        
+        # Étape 4: Vérification persistance
+        persistence_ok = self.verify_posting_frequency_persistence()
+        
+        # Étape 5: Test supplémentaire avec une autre valeur
+        if persistence_ok:
+            additional_test_ok = self.additional_persistence_test()
+            print(f"   Test supplémentaire: {'✅ OK' if additional_test_ok else '❌ ÉCHEC'}")
+        
+        # Résumé du diagnostic
+        print("\n" + "=" * 80)
+        print("📋 RÉSUMÉ DU DIAGNOSTIC")
+        print("=" * 80)
+        print(f"Valeur initiale: '{current_value}'")
+        print(f"Valeur après mise à jour: Vérifiée dans TEST 3")
+        print(f"Persistance: {'✅ OK' if persistence_ok else '❌ PROBLÈME'}")
+        
+        if persistence_ok:
+            print("\n✅ CONCLUSION: Le backend sauvegarde correctement posting_frequency")
+            print("   Le problème était un mismatch entre collections GET/PUT")
+            print("   🔧 CORRECTION APPLIQUÉE: PUT utilise maintenant business_profiles collection")
+        else:
+            print("\n❌ CONCLUSION: Problème de persistance détecté dans le backend")
+            print("   La valeur ne se sauvegarde pas correctement en base")
+            print("\n🔍 ANALYSE TECHNIQUE:")
+            print("   - GET /api/business-profile lit depuis 'business_profiles' collection (owner_id)")
+            print("   - PUT /api/business-profile écrit dans 'users' collection (user_id)")
+            print("   - MISMATCH: Les données sont lues et écrites dans des collections différentes!")
+            print("   - SOLUTION: Corriger PUT pour écrire dans 'business_profiles' collection")
+        
         return persistence_ok
 
 def main():

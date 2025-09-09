@@ -1685,10 +1685,144 @@ function MainApp() {
 
       if (response.data && response.data.posts) {
         setGeneratedPosts(response.data.posts);
+        
+        // Organiser les posts par mois
+        const postsByMonth = organizePosts(response.data.posts);
+        setPostsByMonth(postsByMonth);
       }
     } catch (error) {
       console.error('Error loading generated posts:', error);
     }
+  };
+
+  // Organiser les posts par mois
+  const organizePosts = (posts) => {
+    const grouped = {};
+    
+    posts.forEach(post => {
+      if (!post.scheduled_date) return;
+      
+      const date = new Date(post.scheduled_date);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const monthName = date.toLocaleDateString('fr-FR', { 
+        month: 'long', 
+        year: 'numeric' 
+      });
+      
+      if (!grouped[monthKey]) {
+        grouped[monthKey] = {
+          name: monthName,
+          posts: []
+        };
+      }
+      
+      grouped[monthKey].posts.push(post);
+    });
+    
+    // Trier les posts dans chaque mois par date
+    Object.keys(grouped).forEach(monthKey => {
+      grouped[monthKey].posts.sort((a, b) => 
+        new Date(a.scheduled_date) - new Date(b.scheduled_date)
+      );
+    });
+    
+    return grouped;
+  };
+
+  // Fonctions de gestion des posts
+  const handleValidatePost = (post) => {
+    // Pour l'instant, ferme juste l'aperçu
+    setSelectedPost(null);
+    toast.success('Post validé ! 👍');
+  };
+
+  const handleModifyPost = async (post, modificationRequest) => {
+    if (!modificationRequest.trim()) {
+      toast.error('Veuillez saisir une demande de modification');
+      return;
+    }
+
+    setIsModifyingPost(true);
+    const token = localStorage.getItem('access_token');
+
+    try {
+      const response = await axios.put(
+        `${API}/posts/${post.id}/modify`,
+        { modification_request: modificationRequest },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      toast.success('Post modifié avec succès ! 🎉');
+      
+      // Recharger les posts
+      await loadGeneratedPosts();
+      
+      // Fermer l'aperçu et réinitialiser
+      setSelectedPost(null);
+      setModificationRequest('');
+      
+    } catch (error) {
+      console.error('Error modifying post:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`Erreur lors de la modification: ${errorMessage}`);
+    } finally {
+      setIsModifyingPost(false);
+    }
+  };
+
+  // Render des posts par mois
+  const renderPostsByMonth = () => {
+    const sortedMonths = Object.keys(postsByMonth).sort().reverse(); // Mois les plus récents en premier
+    
+    return sortedMonths.map(monthKey => {
+      const monthData = postsByMonth[monthKey];
+      const isCollapsed = collapsedPostMonths[monthKey];
+      
+      return (
+        <div key={monthKey} className="space-y-4">
+          {/* En-tête du mois */}
+          <div 
+            className="flex items-center justify-between p-4 bg-gradient-to-r from-emerald-50 to-blue-50 rounded-xl border border-emerald-200 cursor-pointer hover:bg-gradient-to-r hover:from-emerald-100 hover:to-blue-100 transition-all"
+            onClick={() => setCollapsedPostMonths(prev => ({
+              ...prev,
+              [monthKey]: !prev[monthKey]
+            }))}
+          >
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-xl flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-800 capitalize">
+                  {monthData.name}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {monthData.posts.length} post{monthData.posts.length > 1 ? 's' : ''} programmé{monthData.posts.length > 1 ? 's' : ''}
+                </p>
+              </div>
+            </div>
+            <ChevronDown 
+              className={`w-6 h-6 text-gray-500 transition-transform duration-200 ${
+                isCollapsed ? 'rotate-180' : ''
+              }`} 
+            />
+          </div>
+
+          {/* Posts du mois */}
+          {!isCollapsed && (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {monthData.posts.map((post, index) => (
+                <PostThumbnail
+                  key={post.id || index}
+                  post={post}
+                  onClick={() => setSelectedPost(post)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    });
   };
 
   // Fonctions Pixabay

@@ -278,15 +278,21 @@ const PostThumbnail = ({ post, onClick }) => {
     });
   };
 
+  const needsImage = post.status === 'needs_image' || !post.visual_url;
+
   return (
     <div 
       onClick={onClick}
       className="group cursor-pointer transform hover:scale-105 transition-all duration-200"
     >
-      <div className="bg-white rounded-xl border border-emerald-200 hover:border-emerald-400 shadow-md hover:shadow-lg overflow-hidden">
+      <div className={`bg-white rounded-xl border shadow-md hover:shadow-lg overflow-hidden ${
+        needsImage 
+          ? 'border-orange-300 hover:border-orange-500' 
+          : 'border-emerald-200 hover:border-emerald-400'
+      }`}>
         {/* Image/Visual du post */}
         <div className="aspect-square bg-gradient-to-br from-emerald-100 to-blue-100 flex items-center justify-center relative">
-          {post.visual_url ? (
+          {post.visual_url && !needsImage ? (
             <img 
               src={post.visual_url.startsWith('http') 
                 ? post.visual_url 
@@ -297,8 +303,18 @@ const PostThumbnail = ({ post, onClick }) => {
             />
           ) : (
             <div className="text-center p-4">
-              <FileText className="w-12 h-12 text-emerald-500 mx-auto mb-2" />
-              <p className="text-sm text-emerald-700 font-medium">Post IA</p>
+              {needsImage ? (
+                <>
+                  <ImageIcon className="w-12 h-12 text-orange-500 mx-auto mb-2" />
+                  <p className="text-sm text-orange-700 font-medium">Ajouter image</p>
+                  <p className="text-xs text-orange-600">Cliquez pour choisir</p>
+                </>
+              ) : (
+                <>
+                  <FileText className="w-12 h-12 text-emerald-500 mx-auto mb-2" />
+                  <p className="text-sm text-emerald-700 font-medium">Post IA</p>
+                </>
+              )}
             </div>
           )}
           
@@ -308,6 +324,15 @@ const PostThumbnail = ({ post, onClick }) => {
               {post.platform || 'Instagram'}
             </span>
           </div>
+          
+          {/* Badge statut image */}
+          {needsImage && (
+            <div className="absolute top-2 right-2">
+              <span className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-medium animate-pulse">
+                ⚠️ Image requise
+              </span>
+            </div>
+          )}
           
           {/* Badge date */}
           <div className="absolute bottom-2 right-2">

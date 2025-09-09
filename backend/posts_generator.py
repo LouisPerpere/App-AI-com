@@ -498,7 +498,8 @@ RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
             "text": "Texte naturel sans style IA, max 2-3 emojis",
             "hashtags": ["hashtag1", "hashtag2", "hashtag3"],
             "title": "Titre simple et direct",
-            "visual_content_used": "nom_du_contenu_utilisé_ou_fallback"
+            "visual_id": "ID_exact_du_contenu_utilisé_de_la_liste_ci-dessus",
+            "scheduling_preference": "morning|afternoon|evening"
         }},
         // ... {num_posts-1} autres posts
     ]

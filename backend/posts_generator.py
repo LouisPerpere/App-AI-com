@@ -224,17 +224,23 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             # Treat all media as "month content" for the calendar
             for item in all_media:
                 # Use filename as title if no title, description as context if available
-                title = item.get("title") or item.get("original_filename", "").replace('.jpg', '').replace('.jpeg', '').replace('.png', '')
+                original_filename = item.get("original_filename", "")
+                # Clean filename for title (remove pixabay prefix and extensions)
+                title = item.get("title") or original_filename.replace('pixabay_', '').replace('.jpg', '').replace('.jpeg', '').replace('.png', '')
                 context = item.get("context") or item.get("description", "")
+                
+                # Truncate long context for better AI processing
+                if context and len(context) > 200:
+                    context = context[:200] + "..."
                 
                 content["month_content"].append(ContentSource(
                     id=str(item.get("_id", "")),
                     title=title if title else "Photo",
-                    context=context if context else "Contenu visuel pour votre entreprise",
+                    context=context if context else "Image pour votre business",
                     visual_url=item.get("url", ""),
                     file_type=item.get("file_type", "image/jpeg"),
                     attributed_month=target_month,  # Assign to current month
-                    source="upload"
+                    source=item.get("source", "upload")  # Keep source info (pixabay vs upload)
                 ))
         else:
             # Process month-specific content normally

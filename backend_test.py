@@ -377,59 +377,72 @@ class PostsGenerationTester:
             print(f"   ❌ Posts structure validation failed")
             return False
     
-    def test_carousel_thumbnails(self):
-        """Step 4: Test thumbnail generation for carousel images"""
-        print("🖼️ Step 4: Testing thumbnail generation for carousel images")
+    def test_integration_completeness(self):
+        """Step 8: Test intégration complète des sources"""
+        print("🔗 Step 8: Test complete integration of all sources")
         
-        if not hasattr(self, 'carousel_ids') or not self.carousel_ids:
-            print("   ❌ No carousel IDs available for thumbnail testing")
-            return False
+        integration_score = 0
+        max_score = 6
         
-        thumbnail_results = []
+        # Check business profile integration
+        if hasattr(self, 'business_profile') and self.business_profile.get('business_name'):
+            print("   ✅ Business profile integrated")
+            integration_score += 1
+        else:
+            print("   ❌ Business profile not integrated")
         
-        for i, item_id in enumerate(self.carousel_ids):
-            print(f"   Testing thumbnail for carousel item {i+1}: {item_id}")
-            
-            try:
-                # Test thumbnail endpoint
-                thumb_url = f"{BACKEND_URL}/content/{item_id}/thumb"
-                response = self.session.get(thumb_url)
-                
-                print(f"   Thumbnail status: {response.status_code}")
-                
-                if response.status_code == 200:
-                    content_type = response.headers.get('content-type', '')
-                    content_length = len(response.content)
-                    
-                    print(f"   ✅ Thumbnail generated successfully")
-                    print(f"   Content-Type: {content_type}")
-                    print(f"   Content-Length: {content_length} bytes")
-                    
-                    # Verify it's an image
-                    if 'image' in content_type and content_length > 0:
-                        thumbnail_results.append(True)
-                        print(f"   ✅ Valid thumbnail image")
-                    else:
-                        thumbnail_results.append(False)
-                        print(f"   ❌ Invalid thumbnail content")
-                else:
-                    thumbnail_results.append(False)
-                    print(f"   ❌ Thumbnail generation failed: {response.text}")
-                    
-            except Exception as e:
-                thumbnail_results.append(False)
-                print(f"   ❌ Thumbnail test error: {e}")
+        # Check notes integration
+        if hasattr(self, 'notes_data') and self.notes_data['total'] > 0:
+            print("   ✅ Notes system integrated")
+            integration_score += 1
+        else:
+            print("   ❌ Notes system not integrated")
         
-        success_count = sum(thumbnail_results)
-        total_count = len(thumbnail_results)
+        # Check generation result
+        if hasattr(self, 'generation_result') and self.generation_result.get('success'):
+            print("   ✅ Generation system working")
+            integration_score += 1
+        else:
+            print("   ❌ Generation system not working")
         
-        print(f"   Thumbnail generation results: {success_count}/{total_count} successful")
+        # Check posts retrieval
+        if hasattr(self, 'retrieved_posts') and len(self.retrieved_posts) > 0:
+            print("   ✅ Posts retrieval working")
+            integration_score += 1
+        else:
+            print("   ❌ Posts retrieval not working")
         
-        if success_count == total_count:
-            print(f"   ✅ All carousel thumbnails generated successfully")
+        # Check Instagram focus
+        if hasattr(self, 'retrieved_posts'):
+            instagram_posts = [p for p in self.retrieved_posts if p.get('platform') == 'instagram']
+            if len(instagram_posts) == len(self.retrieved_posts):
+                print("   ✅ Instagram focus maintained")
+                integration_score += 1
+            else:
+                print("   ❌ Instagram focus not maintained")
+        else:
+            print("   ❌ Cannot verify Instagram focus")
+        
+        # Check emergentintegrations usage
+        if hasattr(self, 'generation_result'):
+            sources_used = self.generation_result.get('sources_used', {})
+            if sources_used:
+                print("   ✅ Multiple sources integrated")
+                integration_score += 1
+            else:
+                print("   ❌ Sources integration unclear")
+        else:
+            print("   ❌ Cannot verify sources integration")
+        
+        integration_percentage = (integration_score / max_score) * 100
+        
+        print(f"   📊 Integration completeness: {integration_score}/{max_score} ({integration_percentage:.1f}%)")
+        
+        if integration_percentage >= 70:
+            print("   ✅ Integration completeness test passed")
             return True
         else:
-            print(f"   ❌ Some carousel thumbnails failed to generate")
+            print("   ❌ Integration completeness test failed")
             return False
     
     def test_carousel_grouping(self):

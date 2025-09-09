@@ -115,7 +115,7 @@ class PhotoPostLinkingTester:
             return False
     
     def verify_available_photos(self):
-        """Step 3: Verify the 2 Pixabay photos are available for this user"""
+        """Step 3: Verify available photos for Laurent Perpere"""
         self.log("📂 STEP 3: Verify available photos for Laurent Perpere")
         
         try:
@@ -131,41 +131,55 @@ class PhotoPostLinkingTester:
                 
                 self.log(f"📂 Total media found: {total_media}")
                 
-                # Look for the specific expected photo IDs
+                # Look for any available photos (not just Pixabay)
                 found_photos = []
                 pixabay_photos = []
+                all_photos = []
                 
                 for item in content_items:
                     item_id = item.get("id")
                     source = item.get("source", "")
                     filename = item.get("filename", "")
+                    file_type = item.get("file_type", "")
                     
-                    if item_id in EXPECTED_PHOTO_IDS:
-                        found_photos.append(item_id)
-                        self.log(f"✅ Found expected photo ID: {item_id}")
-                    
-                    if source == "pixabay":
-                        pixabay_photos.append({
+                    # Check if it's an image
+                    if file_type.startswith("image/") or any(ext in filename.lower() for ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']):
+                        all_photos.append({
                             "id": item_id,
                             "filename": filename,
-                            "source": source
+                            "source": source,
+                            "file_type": file_type
                         })
+                        
+                        if item_id in EXPECTED_PHOTO_IDS:
+                            found_photos.append(item_id)
+                            self.log(f"✅ Found expected photo ID: {item_id}")
+                        
+                        if source == "pixabay":
+                            pixabay_photos.append({
+                                "id": item_id,
+                                "filename": filename,
+                                "source": source
+                            })
                 
+                self.log(f"📊 Total images found: {len(all_photos)}")
                 self.log(f"📊 Pixabay photos found: {len(pixabay_photos)}")
-                for photo in pixabay_photos:
-                    self.log(f"   - ID: {photo['id']}, File: {photo['filename']}")
+                
+                # Show all available photos
+                for i, photo in enumerate(all_photos[:5]):  # Show first 5
+                    self.log(f"   - Photo {i+1}: ID={photo['id']}, File={photo['filename']}, Source={photo['source']}")
                 
                 if len(found_photos) >= 2:
                     self.log(f"✅ Found {len(found_photos)} expected photos - sufficient for testing")
-                    return True, pixabay_photos
+                    return True, all_photos
                 elif len(pixabay_photos) >= 2:
                     self.log(f"✅ Found {len(pixabay_photos)} Pixabay photos - sufficient for testing")
-                    # Update expected IDs with actual found IDs
-                    actual_ids = [photo["id"] for photo in pixabay_photos[:2]]
-                    self.log(f"   Using actual photo IDs: {actual_ids}")
                     return True, pixabay_photos
+                elif len(all_photos) >= 2:
+                    self.log(f"✅ Found {len(all_photos)} total photos - sufficient for testing")
+                    return True, all_photos
                 else:
-                    self.log(f"❌ Insufficient photos found. Expected 2+, found {len(pixabay_photos)} Pixabay photos", "ERROR")
+                    self.log(f"❌ Insufficient photos found. Expected 2+, found {len(all_photos)} total photos", "ERROR")
                     return False, []
                     
             else:

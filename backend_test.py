@@ -25,16 +25,15 @@ Backend URL: https://content-scheduler-6.preview.emergentagent.com/api
 
 import requests
 import json
-import io
-from PIL import Image
 import time
+from datetime import datetime
 
 # Configuration
 BACKEND_URL = "https://content-scheduler-6.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 
-class CarouselTester:
+class PostsGenerationTester:
     def __init__(self):
         self.session = requests.Session()
         self.token = None

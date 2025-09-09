@@ -523,7 +523,7 @@ RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
             response_text = response.choices[0].message.content
             logger.info(f"🤖 Global AI Response length: {len(response_text) if response_text else 0}")
             
-            # Parse the global response
+            # Parse the global response with content mapping
             return self._parse_global_response(response_text, strategy, available_content)
             
         except Exception as e:

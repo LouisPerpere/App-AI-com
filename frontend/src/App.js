@@ -246,6 +246,13 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
         </div>
       )}
       
+      {/* Used in posts indicator - green checkmark */}
+      {content.used_in_posts && (
+        <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1 shadow-lg" title="Utilisée dans un post">
+          <Check className="w-4 h-4" />
+        </div>
+      )}
+      
       {/* Move content button - appears on hover when not in selection mode */}
       {!isSelectionMode && onMoveContent && (
         <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">

@@ -206,7 +206,7 @@ Tu réponds TOUJOURS au format JSON exact demandé."""
         
         for item in month_content:
             content["month_content"].append(ContentSource(
-                id=item.get("id", ""),
+                id=str(item.get("_id", "")),
                 title=item.get("title", ""),
                 context=item.get("context", ""),
                 visual_url=item.get("url", ""),

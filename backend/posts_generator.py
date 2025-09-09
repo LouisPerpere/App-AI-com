@@ -166,7 +166,7 @@ Tu réponds TOUJOURS au format JSON exact demandé."""
         logger.info(f"   🌐 Website analysis: {'✅' if website_analysis else '❌'}")
         
         # Always valid notes
-        always_valid_notes = await self.db.notes.find({
+        always_valid_notes = await self.db.content_notes.find({
             "owner_id": user_id,
             "is_monthly_note": True,
             "deleted": {"$ne": True}

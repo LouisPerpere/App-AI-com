@@ -300,99 +300,81 @@ class PostsGenerationTester:
             print(f"   ❌ Posts retrieval error: {e}")
             return False
     
-    def test_content_pending_carousel_fields(self):
-        """Step 3: Test GET /api/content/pending returns carousel images with new fields"""
-        print("📋 Step 3: Testing GET /api/content/pending for carousel fields")
+    def validate_posts_structure(self):
+        """Step 7: Validation métadonnées et format JSON"""
+        print("🔍 Step 7: Validate posts structure and metadata")
         
-        try:
-            response = self.session.get(f"{BACKEND_URL}/content/pending")
-            print(f"   Status: {response.status_code}")
+        if not hasattr(self, 'retrieved_posts') or not self.retrieved_posts:
+            print("   ❌ No posts available for validation")
+            return False
+        
+        posts = self.retrieved_posts
+        validation_results = []
+        
+        print(f"   Validating {len(posts)} posts...")
+        
+        for i, post in enumerate(posts):
+            print(f"   📋 Post {i+1} validation:")
             
-            if response.status_code == 200:
-                data = response.json()
-                content_items = data.get('content', [])
-                total_items = data.get('total', 0)
+            # Required fields validation
+            required_fields = {
+                'id': str,
+                'title': str,
+                'text': str,
+                'hashtags': list,
+                'platform': str,
+                'scheduled_date': str
+            }
+            
+            post_valid = True
+            
+            for field, expected_type in required_fields.items():
+                value = post.get(field)
+                has_field = field in post
+                correct_type = isinstance(value, expected_type) if has_field else False
                 
-                print(f"   ✅ Content retrieval successful")
-                print(f"   Total items: {total_items}")
-                print(f"   Items loaded: {len(content_items)}")
-                
-                # Find carousel items
-                carousel_items = []
-                for item in content_items:
-                    if item.get('upload_type') == 'carousel':
-                        carousel_items.append(item)
-                
-                print(f"   Carousel items found: {len(carousel_items)}")
-                
-                if carousel_items:
-                    print("   🔍 Analyzing carousel items:")
-                    
-                    # Check if all carousel items have the same fields
-                    first_item = carousel_items[0]
-                    common_title = first_item.get('title')
-                    common_context = first_item.get('context')
-                    attributed_month = first_item.get('attributed_month')
-                    carousel_id = first_item.get('carousel_id')
-                    
-                    print(f"   Expected common_title: 'Test Carrousel'")
-                    print(f"   Found common_title: '{common_title}'")
-                    print(f"   Expected common_context: 'Description carrousel'")
-                    print(f"   Found common_context: '{common_context}'")
-                    print(f"   Expected attributed_month: 'octobre_2025'")
-                    print(f"   Found attributed_month: '{attributed_month}'")
-                    print(f"   Carousel ID: {carousel_id}")
-                    
-                    # Verify all carousel items have consistent fields
-                    all_consistent = True
-                    for i, item in enumerate(carousel_items):
-                        item_title = item.get('title')
-                        item_context = item.get('context')
-                        item_month = item.get('attributed_month')
-                        item_carousel_id = item.get('carousel_id')
-                        item_upload_type = item.get('upload_type')
-                        
-                        print(f"   Item {i+1}: title='{item_title}', context='{item_context}', month='{item_month}', upload_type='{item_upload_type}'")
-                        
-                        # Check consistency
-                        if (item_title != common_title or 
-                            item_context != common_context or 
-                            item_month != attributed_month or
-                            item_upload_type != 'carousel'):
-                            all_consistent = False
-                            print(f"   ❌ Item {i+1} has inconsistent fields!")
-                    
-                    if all_consistent:
-                        print(f"   ✅ All carousel items have consistent fields")
-                        
-                        # Verify expected values
-                        title_correct = common_title == 'Test Carrousel'
-                        context_correct = 'Description carrousel' in (common_context or '')
-                        month_correct = attributed_month == 'octobre_2025'
-                        
-                        print(f"   Title correct: {title_correct}")
-                        print(f"   Context correct: {context_correct}")
-                        print(f"   Month correct: {month_correct}")
-                        
-                        if title_correct and context_correct and month_correct:
-                            print(f"   ✅ All carousel field values are correct")
-                            return True
-                        else:
-                            print(f"   ❌ Some carousel field values are incorrect")
-                            return False
-                    else:
-                        print(f"   ❌ Carousel items have inconsistent fields")
-                        return False
+                if has_field and correct_type:
+                    print(f"      ✅ {field}: {expected_type.__name__}")
+                elif has_field and not correct_type:
+                    print(f"      ⚠️ {field}: wrong type (expected {expected_type.__name__})")
+                    post_valid = False
                 else:
-                    print(f"   ❌ No carousel items found in content")
-                    return False
-                    
-            else:
-                print(f"   ❌ Content retrieval failed: {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"   ❌ Content retrieval error: {e}")
+                    print(f"      ❌ {field}: missing")
+                    post_valid = False
+            
+            # Content quality validation
+            text = post.get('text', '')
+            hashtags = post.get('hashtags', [])
+            
+            text_valid = len(text) > 10  # Minimum text length
+            hashtags_valid = len(hashtags) > 0 and len(hashtags) <= 30  # Reasonable hashtag count
+            platform_valid = post.get('platform') == 'instagram'  # Instagram focus
+            
+            print(f"      Text quality: {'✅' if text_valid else '❌'} ({len(text)} chars)")
+            print(f"      Hashtags quality: {'✅' if hashtags_valid else '❌'} ({len(hashtags)} tags)")
+            print(f"      Platform correct: {'✅' if platform_valid else '❌'} ({post.get('platform')})")
+            
+            content_valid = text_valid and hashtags_valid and platform_valid
+            
+            overall_valid = post_valid and content_valid
+            validation_results.append(overall_valid)
+            
+            print(f"      Overall: {'✅ VALID' if overall_valid else '❌ INVALID'}")
+        
+        # Summary
+        valid_posts = sum(validation_results)
+        total_posts = len(validation_results)
+        success_rate = (valid_posts / total_posts) * 100 if total_posts > 0 else 0
+        
+        print(f"   📊 Validation summary:")
+        print(f"      Valid posts: {valid_posts}/{total_posts}")
+        print(f"      Success rate: {success_rate:.1f}%")
+        
+        if success_rate >= 80:
+            print(f"   ✅ Posts structure validation passed")
+            return True
+        else:
+            print(f"   ❌ Posts structure validation failed")
             return False
     
     def test_carousel_thumbnails(self):

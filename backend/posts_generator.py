@@ -334,14 +334,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         
         return generated_posts
     
-    def _format_strategy_for_prompt(self, strategy: Dict) -> str:
-        """Format content strategy for the AI prompt"""
-        strategy_parts = []
-        for content_type, count in strategy.items():
-            if count > 0:
-                strategy_parts.append(f"- {content_type}: {count} posts")
-        return "\n".join(strategy_parts)
-    
+
 
     def _build_business_context(self, business_profile: Dict, website_analysis: Dict) -> str:
         """Build business context for AI generation"""

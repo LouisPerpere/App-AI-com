@@ -906,7 +906,7 @@ async def move_content_to_month(
 @api_router.post("/posts/generate")
 async def generate_posts_manual(
     target_month: str = "octobre_2025",
-    num_posts: int = 20,
+    num_posts: int = 4,  # Default to 4 posts (1 per week for a month)
     user_id: str = Depends(get_current_user_id_robust)
 ):
     """Generate posts manually for the current user with advanced AI system"""

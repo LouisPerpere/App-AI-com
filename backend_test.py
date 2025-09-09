@@ -17,398 +17,426 @@ TEST_PASSWORD = "L@Reunion974!"
 class PostGenerationTester:
     def __init__(self):
         self.session = requests.Session()
-        self.token = None
+        self.auth_token = None
         self.user_id = None
-        self.test_content_id = None
-        
-    def log(self, message, level="INFO"):
-        """Log test messages with timestamp"""
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        print(f"[{timestamp}] {level}: {message}")
         
     def authenticate(self):
-        """Step 1: Authenticate with provided credentials"""
-        self.log("🔐 Step 1: Authentication test starting...")
+        """Test authentication with provided credentials"""
+        print("🔐 Step 1: Testing Authentication")
+        
+        auth_data = {
+            "email": TEST_EMAIL,
+            "password": TEST_PASSWORD
+        }
         
         try:
             response = self.session.post(
                 f"{BACKEND_URL}/auth/login-robust",
-                json={
-                    "email": TEST_EMAIL,
-                    "password": TEST_PASSWORD
-                },
+                json=auth_data,
                 timeout=30
             )
             
             if response.status_code == 200:
                 data = response.json()
-                self.token = data.get("access_token")
+                self.auth_token = data.get("access_token")
                 self.user_id = data.get("user_id")
                 
                 # Set authorization header for future requests
                 self.session.headers.update({
-                    "Authorization": f"Bearer {self.token}"
+                    "Authorization": f"Bearer {self.auth_token}"
                 })
                 
-                self.log(f"✅ Authentication successful - User ID: {self.user_id}")
+                print(f"✅ Authentication successful")
+                print(f"   User ID: {self.user_id}")
+                print(f"   Token: {self.auth_token[:20]}..." if self.auth_token else "No token")
                 return True
             else:
-                self.log(f"❌ Authentication failed - Status: {response.status_code}, Response: {response.text}", "ERROR")
+                print(f"❌ Authentication failed: {response.status_code}")
+                print(f"   Response: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log(f"❌ Authentication error: {str(e)}", "ERROR")
+            print(f"❌ Authentication error: {str(e)}")
             return False
     
-    def get_existing_content(self):
-        """Step 2: Get existing content to test movement"""
-        self.log("📋 Step 2: Retrieving existing content...")
+    def test_backend_health(self):
+        """Test backend health and connectivity"""
+        print("\n🏥 Step 2: Testing Backend Health")
+        
+        try:
+            response = self.session.get(f"{BACKEND_URL}/health", timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                print(f"✅ Backend health check successful")
+                print(f"   Status: {data.get('status')}")
+                print(f"   Service: {data.get('service')}")
+                return True
+            else:
+                print(f"❌ Health check failed: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Health check error: {str(e)}")
+            return False
+    
+    def test_post_generation_default(self):
+        """Test POST /api/posts/generate with default parameters (should generate 4 posts)"""
+        print("\n🚀 Step 3: Testing Post Generation with Default Parameters")
+        
+        try:
+            # Test with no parameters - should default to 4 posts for octobre_2025
+            print("   Calling POST /api/posts/generate with no parameters...")
+            start_time = time.time()
+            
+            response = self.session.post(
+                f"{BACKEND_URL}/posts/generate",
+                timeout=120  # Allow up to 2 minutes for generation
+            )
+            
+            end_time = time.time()
+            duration = end_time - start_time
+            
+            print(f"   Response time: {duration:.1f} seconds")
+            print(f"   Status code: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                posts_count = data.get("posts_count", 0)
+                
+                print(f"✅ Post generation successful")
+                print(f"   Posts generated: {posts_count}")
+                print(f"   Success: {data.get('success')}")
+                print(f"   Message: {data.get('message')}")
+                print(f"   Strategy: {data.get('strategy', {})}")
+                print(f"   Sources used: {data.get('sources_used', {})}")
+                
+                # Verify exactly 4 posts were generated (not 40)
+                if posts_count == 4:
+                    print(f"✅ Correct number of posts generated: {posts_count} (expected 4)")
+                    return True, posts_count
+                else:
+                    print(f"❌ Incorrect number of posts: {posts_count} (expected 4)")
+                    return False, posts_count
+                    
+            else:
+                print(f"❌ Post generation failed: {response.status_code}")
+                print(f"   Response: {response.text}")
+                return False, 0
+                
+        except Exception as e:
+            print(f"❌ Post generation error: {str(e)}")
+            return False, 0
+    
+    def test_generated_posts_retrieval(self):
+        """Test GET /api/posts/generated to verify posts were saved"""
+        print("\n📋 Step 4: Testing Generated Posts Retrieval")
         
         try:
             response = self.session.get(
-                f"{BACKEND_URL}/content/pending",
+                f"{BACKEND_URL}/posts/generated",
                 timeout=30
             )
             
             if response.status_code == 200:
                 data = response.json()
-                content_items = data.get("content", [])
-                total_items = data.get("total", 0)
+                posts = data.get("posts", [])
+                count = data.get("count", 0)
                 
-                self.log(f"✅ Content retrieval successful - Total items: {total_items}, Items loaded: {len(content_items)}")
+                print(f"✅ Posts retrieval successful")
+                print(f"   Total posts found: {count}")
+                print(f"   Posts in response: {len(posts)}")
                 
-                if content_items:
-                    # Use the first available content item for testing
-                    self.test_content_id = content_items[0]["id"]
-                    current_month = content_items[0].get("attributed_month", "Non attribué")
-                    filename = content_items[0].get("filename", "Unknown")
-                    
-                    self.log(f"✅ Test content selected - ID: {self.test_content_id}")
-                    self.log(f"   📁 Filename: {filename}")
-                    self.log(f"   📅 Current attributed_month: {current_month}")
-                    return True
-                else:
-                    self.log("⚠️ No content items found - cannot test movement functionality", "WARNING")
-                    return False
-                    
+                if posts:
+                    print(f"\n📝 Post Analysis:")
+                    for i, post in enumerate(posts[:4], 1):  # Show first 4 posts
+                        print(f"   Post {i}:")
+                        print(f"     ID: {post.get('id', 'N/A')}")
+                        print(f"     Title: {post.get('title', 'N/A')[:50]}...")
+                        print(f"     Text: {post.get('text', 'N/A')[:80]}...")
+                        print(f"     Hashtags: {len(post.get('hashtags', []))} hashtags")
+                        print(f"     Visual URL: {post.get('visual_url', 'N/A')}")
+                        print(f"     Content Type: {post.get('content_type', 'N/A')}")
+                        print(f"     Platform: {post.get('platform', 'N/A')}")
+                        print(f"     Scheduled Date: {post.get('scheduled_date', 'N/A')}")
+                        print()
+                
+                return True, posts
             else:
-                self.log(f"❌ Content retrieval failed - Status: {response.status_code}, Response: {response.text}", "ERROR")
+                print(f"❌ Posts retrieval failed: {response.status_code}")
+                print(f"   Response: {response.text}")
+                return False, []
+                
+        except Exception as e:
+            print(f"❌ Posts retrieval error: {str(e)}")
+            return False, []
+    
+    def analyze_post_variety(self, posts):
+        """Analyze if posts are varied and different"""
+        print("\n🎨 Step 5: Analyzing Post Variety and Uniqueness")
+        
+        if not posts:
+            print("❌ No posts to analyze")
+            return False
+        
+        try:
+            # Check for variety in content types
+            content_types = [post.get('content_type', 'unknown') for post in posts]
+            unique_content_types = set(content_types)
+            
+            print(f"   Content types found: {list(unique_content_types)}")
+            print(f"   Unique content types: {len(unique_content_types)}")
+            
+            # Check for variety in text content
+            texts = [post.get('text', '') for post in posts]
+            unique_texts = set(texts)
+            
+            print(f"   Unique text contents: {len(unique_texts)} out of {len(texts)}")
+            
+            # Check for variety in titles
+            titles = [post.get('title', '') for post in posts]
+            unique_titles = set(titles)
+            
+            print(f"   Unique titles: {len(unique_titles)} out of {len(titles)}")
+            
+            # Check hashtag variety
+            all_hashtags = []
+            for post in posts:
+                all_hashtags.extend(post.get('hashtags', []))
+            
+            unique_hashtags = set(all_hashtags)
+            print(f"   Total hashtags used: {len(all_hashtags)}")
+            print(f"   Unique hashtags: {len(unique_hashtags)}")
+            
+            # Variety assessment
+            variety_score = 0
+            
+            if len(unique_content_types) > 1:
+                variety_score += 1
+                print("✅ Content type variety: GOOD")
+            else:
+                print("⚠️ Content type variety: LIMITED")
+            
+            if len(unique_texts) == len(texts):
+                variety_score += 1
+                print("✅ Text content variety: EXCELLENT (all unique)")
+            elif len(unique_texts) > len(texts) * 0.8:
+                variety_score += 1
+                print("✅ Text content variety: GOOD")
+            else:
+                print("⚠️ Text content variety: LIMITED")
+            
+            if len(unique_titles) == len(titles):
+                variety_score += 1
+                print("✅ Title variety: EXCELLENT (all unique)")
+            elif len(unique_titles) > len(titles) * 0.8:
+                variety_score += 1
+                print("✅ Title variety: GOOD")
+            else:
+                print("⚠️ Title variety: LIMITED")
+            
+            if len(unique_hashtags) > 10:
+                variety_score += 1
+                print("✅ Hashtag variety: GOOD")
+            else:
+                print("⚠️ Hashtag variety: LIMITED")
+            
+            print(f"\n🎯 Overall Variety Score: {variety_score}/4")
+            
+            if variety_score >= 3:
+                print("✅ Posts show good variety and uniqueness")
+                return True
+            else:
+                print("⚠️ Posts may lack sufficient variety")
                 return False
                 
         except Exception as e:
-            self.log(f"❌ Content retrieval error: {str(e)}", "ERROR")
+            print(f"❌ Variety analysis error: {str(e)}")
             return False
     
-    def test_valid_move(self):
-        """Step 3: Test valid content movement to novembre_2025"""
-        self.log("🔄 Step 3: Testing valid content movement...")
+    def verify_visual_url_structure(self, posts):
+        """Verify visual_url structure follows /api/content/{id}/file format"""
+        print("\n🖼️ Step 6: Verifying Visual URL Structure")
         
-        target_month = "novembre_2025"
-        
-        try:
-            response = self.session.put(
-                f"{BACKEND_URL}/content/{self.test_content_id}/move",
-                json={
-                    "target_month": target_month
-                },
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                message = data.get("message", "")
-                from_month = data.get("from_month", "")
-                to_month = data.get("to_month", "")
-                content_id = data.get("content_id", "")
-                
-                self.log(f"✅ Content movement successful")
-                self.log(f"   📝 Message: {message}")
-                self.log(f"   📅 From month: {from_month}")
-                self.log(f"   📅 To month: {to_month}")
-                self.log(f"   🆔 Content ID: {content_id}")
-                
-                # Verify response structure
-                if all([message, to_month == target_month, content_id == self.test_content_id]):
-                    self.log("✅ Response structure validation passed")
-                    return True
-                else:
-                    self.log("❌ Response structure validation failed", "ERROR")
-                    return False
-                    
-            else:
-                self.log(f"❌ Content movement failed - Status: {response.status_code}, Response: {response.text}", "ERROR")
-                return False
-                
-        except Exception as e:
-            self.log(f"❌ Content movement error: {str(e)}", "ERROR")
+        if not posts:
+            print("❌ No posts to verify")
             return False
-    
-    def verify_month_persistence(self):
-        """Step 4: Verify that attributed_month has been updated correctly"""
-        self.log("🔍 Step 4: Verifying month persistence...")
         
         try:
-            response = self.session.get(
-                f"{BACKEND_URL}/content/pending",
-                timeout=30
-            )
+            correct_format_count = 0
+            total_with_visual = 0
             
-            if response.status_code == 200:
-                data = response.json()
-                content_items = data.get("content", [])
+            for i, post in enumerate(posts, 1):
+                visual_url = post.get('visual_url', '')
                 
-                # Find our test content item
-                test_item = None
-                for item in content_items:
-                    if item["id"] == self.test_content_id:
-                        test_item = item
-                        break
-                
-                if test_item:
-                    updated_month = test_item.get("attributed_month", "")
-                    filename = test_item.get("filename", "Unknown")
+                if visual_url:
+                    total_with_visual += 1
+                    print(f"   Post {i} visual_url: {visual_url}")
                     
-                    self.log(f"✅ Content found after update")
-                    self.log(f"   📁 Filename: {filename}")
-                    self.log(f"   📅 Updated attributed_month: {updated_month}")
-                    
-                    if updated_month == "novembre_2025":
-                        self.log("✅ Month persistence verification successful - attributed_month correctly updated")
-                        return True
+                    # Check if it follows the expected format /api/content/{id}/file
+                    if '/api/content/' in visual_url and '/file' in visual_url:
+                        correct_format_count += 1
+                        print(f"     ✅ Correct format")
                     else:
-                        self.log(f"❌ Month persistence failed - Expected: novembre_2025, Found: {updated_month}", "ERROR")
-                        return False
+                        print(f"     ❌ Incorrect format (expected /api/content/{{id}}/file)")
                 else:
-                    self.log(f"❌ Test content item not found after update", "ERROR")
-                    return False
-                    
+                    print(f"   Post {i}: No visual URL")
+            
+            print(f"\n📊 Visual URL Analysis:")
+            print(f"   Posts with visual URLs: {total_with_visual}/{len(posts)}")
+            print(f"   Correct format URLs: {correct_format_count}/{total_with_visual}")
+            
+            if total_with_visual > 0 and correct_format_count == total_with_visual:
+                print("✅ All visual URLs follow correct format")
+                return True
+            elif total_with_visual == 0:
+                print("⚠️ No visual URLs found (may be expected)")
+                return True  # Not necessarily an error
             else:
-                self.log(f"❌ Content verification failed - Status: {response.status_code}", "ERROR")
+                print("❌ Some visual URLs have incorrect format")
                 return False
                 
         except Exception as e:
-            self.log(f"❌ Month persistence verification error: {str(e)}", "ERROR")
-            return False
-    
-    def test_error_cases(self):
-        """Step 5: Test error cases - non-existent ID and invalid month format"""
-        self.log("⚠️ Step 5: Testing error cases...")
-        
-        # Test 1: Non-existent content ID
-        self.log("   🔍 Test 5a: Non-existent content ID...")
-        try:
-            response = self.session.put(
-                f"{BACKEND_URL}/content/nonexistent-id-12345/move",
-                json={
-                    "target_month": "novembre_2025"
-                },
-                timeout=30
-            )
-            
-            if response.status_code == 404:
-                self.log("✅ Non-existent ID test passed - Correctly returned 404")
-                error_case_1_passed = True
-            else:
-                self.log(f"❌ Non-existent ID test failed - Expected 404, got {response.status_code}", "ERROR")
-                error_case_1_passed = False
-                
-        except Exception as e:
-            self.log(f"❌ Non-existent ID test error: {str(e)}", "ERROR")
-            error_case_1_passed = False
-        
-        # Test 2: Invalid month format
-        self.log("   🔍 Test 5b: Invalid month format...")
-        try:
-            response = self.session.put(
-                f"{BACKEND_URL}/content/{self.test_content_id}/move",
-                json={
-                    "target_month": "invalid_format"
-                },
-                timeout=30
-            )
-            
-            if response.status_code == 400:
-                error_data = response.json()
-                error_message = error_data.get("error", "")
-                self.log(f"✅ Invalid format test passed - Status: 400, Message: {error_message}")
-                error_case_2_passed = True
-            else:
-                self.log(f"❌ Invalid format test failed - Expected 400, got {response.status_code}", "ERROR")
-                error_case_2_passed = False
-                
-        except Exception as e:
-            self.log(f"❌ Invalid format test error: {str(e)}", "ERROR")
-            error_case_2_passed = False
-        
-        # Test 3: Empty target_month
-        self.log("   🔍 Test 5c: Empty target_month...")
-        try:
-            response = self.session.put(
-                f"{BACKEND_URL}/content/{self.test_content_id}/move",
-                json={
-                    "target_month": ""
-                },
-                timeout=30
-            )
-            
-            if response.status_code == 400:
-                error_data = response.json()
-                error_message = error_data.get("error", "")
-                self.log(f"✅ Empty target_month test passed - Status: 400, Message: {error_message}")
-                error_case_3_passed = True
-            else:
-                self.log(f"❌ Empty target_month test failed - Expected 400, got {response.status_code}", "ERROR")
-                error_case_3_passed = False
-                
-        except Exception as e:
-            self.log(f"❌ Empty target_month test error: {str(e)}", "ERROR")
-            error_case_3_passed = False
-        
-        return error_case_1_passed and error_case_2_passed and error_case_3_passed
-    
-    def test_french_messages(self):
-        """Step 6: Validate French return messages"""
-        self.log("🇫🇷 Step 6: Validating French messages...")
-        
-        # Test with a different month to see the French message
-        target_month = "décembre_2025"
-        
-        try:
-            response = self.session.put(
-                f"{BACKEND_URL}/content/{self.test_content_id}/move",
-                json={
-                    "target_month": target_month
-                },
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                message = data.get("message", "")
-                
-                # Check if message is in French
-                french_keywords = ["déplacé", "vers", "Contenu"]
-                has_french = any(keyword in message for keyword in french_keywords)
-                
-                if has_french:
-                    self.log(f"✅ French message validation passed - Message: {message}")
-                    return True
-                else:
-                    self.log(f"❌ French message validation failed - Message not in French: {message}", "ERROR")
-                    return False
-                    
-            else:
-                self.log(f"❌ French message test failed - Status: {response.status_code}", "ERROR")
-                return False
-                
-        except Exception as e:
-            self.log(f"❌ French message test error: {str(e)}", "ERROR")
+            print(f"❌ Visual URL verification error: {str(e)}")
             return False
     
     def run_comprehensive_test(self):
-        """Run all content movement tests"""
-        self.log("🚀 STARTING COMPREHENSIVE CONTENT MOVEMENT TESTING")
-        self.log("=" * 80)
+        """Run all tests in sequence"""
+        print("🧪 COMPREHENSIVE POST GENERATION SYSTEM TEST")
+        print("=" * 60)
+        print(f"Backend URL: {BACKEND_URL}")
+        print(f"Test Credentials: {TEST_EMAIL}")
+        print(f"Test Time: {datetime.now().isoformat()}")
+        print("=" * 60)
         
-        test_results = []
+        results = {
+            "authentication": False,
+            "backend_health": False,
+            "post_generation": False,
+            "posts_retrieval": False,
+            "post_variety": False,
+            "visual_url_structure": False,
+            "posts_count": 0,
+            "posts_data": []
+        }
         
         # Step 1: Authentication
-        if self.authenticate():
-            test_results.append(("Authentication", True))
-        else:
-            test_results.append(("Authentication", False))
-            self.log("❌ Authentication failed - Cannot proceed with other tests", "ERROR")
-            return self.generate_summary(test_results)
+        if not self.authenticate():
+            print("\n❌ CRITICAL: Authentication failed - cannot proceed with tests")
+            return results
+        results["authentication"] = True
         
-        # Step 2: Get existing content
-        if self.get_existing_content():
-            test_results.append(("Content Retrieval", True))
+        # Step 2: Backend Health
+        if not self.test_backend_health():
+            print("\n⚠️ Backend health check failed - proceeding with caution")
         else:
-            test_results.append(("Content Retrieval", False))
-            self.log("❌ Content retrieval failed - Cannot proceed with movement tests", "ERROR")
-            return self.generate_summary(test_results)
+            results["backend_health"] = True
         
-        # Step 3: Test valid movement
-        if self.test_valid_move():
-            test_results.append(("Valid Movement", True))
-        else:
-            test_results.append(("Valid Movement", False))
+        # Step 3: Post Generation
+        generation_success, posts_count = self.test_post_generation_default()
+        results["post_generation"] = generation_success
+        results["posts_count"] = posts_count
         
-        # Step 4: Verify persistence
-        if self.verify_month_persistence():
-            test_results.append(("Month Persistence", True))
-        else:
-            test_results.append(("Month Persistence", False))
+        if not generation_success:
+            print("\n❌ CRITICAL: Post generation failed - cannot test retrieval")
+            return results
         
-        # Step 5: Test error cases
-        if self.test_error_cases():
-            test_results.append(("Error Cases", True))
-        else:
-            test_results.append(("Error Cases", False))
+        # Step 4: Posts Retrieval
+        retrieval_success, posts_data = self.test_generated_posts_retrieval()
+        results["posts_retrieval"] = retrieval_success
+        results["posts_data"] = posts_data
         
-        # Step 6: Test French messages
-        if self.test_french_messages():
-            test_results.append(("French Messages", True))
-        else:
-            test_results.append(("French Messages", False))
+        if not retrieval_success:
+            print("\n❌ Posts retrieval failed - cannot analyze variety")
+            return results
         
-        return self.generate_summary(test_results)
+        # Step 5: Post Variety Analysis
+        variety_success = self.analyze_post_variety(posts_data)
+        results["post_variety"] = variety_success
+        
+        # Step 6: Visual URL Structure
+        visual_url_success = self.verify_visual_url_structure(posts_data)
+        results["visual_url_structure"] = visual_url_success
+        
+        return results
     
-    def generate_summary(self, test_results):
-        """Generate comprehensive test summary"""
-        self.log("=" * 80)
-        self.log("📊 CONTENT MOVEMENT TESTING SUMMARY")
-        self.log("=" * 80)
+    def print_final_summary(self, results):
+        """Print final test summary"""
+        print("\n" + "=" * 60)
+        print("🏁 FINAL TEST SUMMARY")
+        print("=" * 60)
         
-        passed_tests = sum(1 for _, result in test_results if result)
-        total_tests = len(test_results)
-        success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
+        total_tests = 6
+        passed_tests = sum([
+            results["authentication"],
+            results["backend_health"],
+            results["post_generation"],
+            results["posts_retrieval"],
+            results["post_variety"],
+            results["visual_url_structure"]
+        ])
         
-        self.log(f"🎯 Overall Success Rate: {success_rate:.1f}% ({passed_tests}/{total_tests} tests passed)")
-        self.log("")
+        success_rate = (passed_tests / total_tests) * 100
         
-        # Detailed results
-        for test_name, result in test_results:
-            status = "✅ PASS" if result else "❌ FAIL"
-            self.log(f"   {status}: {test_name}")
+        print(f"✅ Authentication: {'PASS' if results['authentication'] else 'FAIL'}")
+        print(f"✅ Backend Health: {'PASS' if results['backend_health'] else 'FAIL'}")
+        print(f"✅ Post Generation: {'PASS' if results['post_generation'] else 'FAIL'}")
+        print(f"✅ Posts Retrieval: {'PASS' if results['posts_retrieval'] else 'FAIL'}")
+        print(f"✅ Post Variety: {'PASS' if results['post_variety'] else 'FAIL'}")
+        print(f"✅ Visual URL Structure: {'PASS' if results['visual_url_structure'] else 'FAIL'}")
         
-        self.log("")
+        print(f"\n📊 Overall Success Rate: {success_rate:.1f}% ({passed_tests}/{total_tests})")
+        print(f"📝 Posts Generated: {results['posts_count']}")
+        print(f"📋 Posts Retrieved: {len(results['posts_data'])}")
         
-        # Technical findings
-        self.log("🔧 TECHNICAL FINDINGS:")
-        if self.token:
-            self.log(f"   • Authentication system working with user {TEST_EMAIL}")
-        if self.test_content_id:
-            self.log(f"   • Content movement tested with ID: {self.test_content_id}")
-        self.log(f"   • Backend URL: {BACKEND_URL}")
-        self.log(f"   • PUT /api/content/{{content_id}}/move endpoint tested")
+        # Key findings
+        print(f"\n🔍 KEY FINDINGS:")
         
-        self.log("")
-        
-        # Conclusion
-        if success_rate >= 83.3:  # 5/6 tests or better
-            self.log("🎉 CONCLUSION: Content movement functionality is FULLY OPERATIONAL")
-            self.log("   All critical scenarios tested successfully")
-        elif success_rate >= 66.7:  # 4/6 tests
-            self.log("⚠️ CONCLUSION: Content movement functionality is MOSTLY OPERATIONAL")
-            self.log("   Some minor issues identified but core functionality works")
+        if results["posts_count"] == 4:
+            print(f"✅ Correct default post count: {results['posts_count']} posts (expected 4)")
         else:
-            self.log("❌ CONCLUSION: Content movement functionality has CRITICAL ISSUES")
-            self.log("   Major problems identified that need immediate attention")
+            print(f"❌ Incorrect post count: {results['posts_count']} (expected 4)")
         
-        return success_rate >= 83.3
+        if results["post_variety"]:
+            print("✅ Posts show good variety and uniqueness")
+        else:
+            print("⚠️ Posts may lack sufficient variety")
+        
+        if results["visual_url_structure"]:
+            print("✅ Visual URLs follow correct format")
+        else:
+            print("⚠️ Visual URL format issues detected")
+        
+        # Overall assessment
+        if success_rate >= 83.3:  # 5/6 tests
+            print(f"\n🎉 OVERALL ASSESSMENT: EXCELLENT - Post generation system is working correctly")
+        elif success_rate >= 66.7:  # 4/6 tests
+            print(f"\n✅ OVERALL ASSESSMENT: GOOD - Post generation system is mostly functional")
+        elif success_rate >= 50.0:  # 3/6 tests
+            print(f"\n⚠️ OVERALL ASSESSMENT: FAIR - Post generation system has some issues")
+        else:
+            print(f"\n❌ OVERALL ASSESSMENT: POOR - Post generation system needs significant fixes")
 
 def main():
     """Main test execution"""
-    print("🧪 Content Movement Backend Test Suite")
-    print("Testing PUT /api/content/{content_id}/move endpoint")
-    print("=" * 80)
+    tester = PostGenerationTester()
     
-    tester = ContentMoveTest()
-    success = tester.run_comprehensive_test()
-    
-    # Exit with appropriate code
-    sys.exit(0 if success else 1)
+    try:
+        results = tester.run_comprehensive_test()
+        tester.print_final_summary(results)
+        
+        # Return appropriate exit code
+        if results["authentication"] and results["post_generation"] and results["posts_retrieval"]:
+            return 0  # Success
+        else:
+            return 1  # Failure
+            
+    except KeyboardInterrupt:
+        print("\n\n⚠️ Test interrupted by user")
+        return 2
+    except Exception as e:
+        print(f"\n\n❌ Unexpected error during testing: {str(e)}")
+        return 3
 
 if __name__ == "__main__":
-    main()
+    exit(main())

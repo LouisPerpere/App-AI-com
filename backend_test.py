@@ -239,53 +239,65 @@ class PostsGenerationTester:
             print(f"   ❌ Post generation error: {e}")
             return False
     
-    def test_carousel_batch_upload(self):
-        """Step 2: Test carousel batch upload with new parameters"""
-        print("📤 Step 2: Testing POST /api/content/batch-upload with carousel parameters")
-        
-        # Create test images
-        test_images = self.create_test_images(3)
-        
-        # Prepare carousel upload parameters
-        carousel_params = {
-            'attributed_month': 'octobre_2025',
-            'upload_type': 'carousel',
-            'common_title': 'Test Carrousel',
-            'common_context': 'Description carrousel'
-        }
-        
-        # Prepare files for upload
-        files = []
-        for img in test_images:
-            files.append(('files', (img['filename'], io.BytesIO(img['content']), img['content_type'])))
+    def test_posts_retrieval(self):
+        """Step 6: Test récupération des posts via GET /api/posts/generated"""
+        print("📋 Step 6: Test GET /api/posts/generated")
         
         try:
-            response = self.session.post(
-                f"{BACKEND_URL}/content/batch-upload",
-                files=files,
-                data=carousel_params
-            )
-            
+            response = self.session.get(f"{BACKEND_URL}/posts/generated")
             print(f"   Status: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
-                print(f"   ✅ Carousel batch upload successful")
-                print(f"   Upload result: {data.get('ok', False)}")
-                print(f"   Files created: {data.get('count', 0)}")
-                print(f"   Created items: {len(data.get('created', []))}")
+                posts = data.get('posts', [])
+                count = data.get('count', 0)
                 
-                # Store created IDs for later verification
-                self.carousel_ids = [item['id'] for item in data.get('created', [])]
-                print(f"   Carousel item IDs: {self.carousel_ids}")
+                print(f"   ✅ Posts retrieval successful")
+                print(f"   Posts count: {count}")
+                print(f"   Posts array length: {len(posts)}")
                 
-                return True
+                if posts:
+                    # Analyze first post structure
+                    first_post = posts[0]
+                    print(f"   📋 First post structure analysis:")
+                    
+                    required_fields = ['id', 'title', 'text', 'hashtags', 'platform', 'scheduled_date']
+                    optional_fields = ['visual_url', 'visual_type', 'content_type', 'status', 'created_at']
+                    
+                    for field in required_fields:
+                        value = first_post.get(field)
+                        has_field = field in first_post
+                        print(f"      {field}: {'✅' if has_field else '❌'} {value}")
+                    
+                    for field in optional_fields:
+                        value = first_post.get(field)
+                        has_field = field in first_post
+                        print(f"      {field}: {'✅' if has_field else '⚠️'} {value}")
+                    
+                    # Analyze content quality
+                    text_length = len(first_post.get('text', ''))
+                    hashtags_count = len(first_post.get('hashtags', []))
+                    
+                    print(f"   📊 Content quality analysis:")
+                    print(f"      Text length: {text_length} characters")
+                    print(f"      Hashtags count: {hashtags_count}")
+                    print(f"      Platform: {first_post.get('platform', 'Unknown')}")
+                    print(f"      Content type: {first_post.get('content_type', 'Unknown')}")
+                    
+                    # Store for validation
+                    self.retrieved_posts = posts
+                    
+                    return True
+                else:
+                    print(f"   ❌ No posts found in database")
+                    return False
+                    
             else:
-                print(f"   ❌ Carousel upload failed: {response.text}")
+                print(f"   ❌ Posts retrieval failed: {response.text}")
                 return False
                 
         except Exception as e:
-            print(f"   ❌ Carousel upload error: {e}")
+            print(f"   ❌ Posts retrieval error: {e}")
             return False
     
     def test_content_pending_carousel_fields(self):

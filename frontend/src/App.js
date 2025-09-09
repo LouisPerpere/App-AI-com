@@ -602,6 +602,12 @@ function MainApp() {
   const [contentToMove, setContentToMove] = useState(null);
   const [isMovingContent, setIsMovingContent] = useState(false);
   
+  // Post image attachment states
+  const [showImageAttachModal, setShowImageAttachModal] = useState(false);
+  const [postToAttachImage, setPostToAttachImage] = useState(null);
+  const [attachImageTab, setAttachImageTab] = useState('library'); // 'library', 'pixabay', 'upload'
+  const [isAttachingImage, setIsAttachingImage] = useState(false);
+  
   // Pixabay integration states
   const [activeLibraryTab, setActiveLibraryTab] = useState('my-library'); // 'my-library' or 'pixabay-search'
   const [pixabayResults, setPixabayResults] = useState([]);

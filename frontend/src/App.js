@@ -1800,6 +1800,8 @@ function MainApp() {
         pixabay_id: selectedPixabayImage.id,
         image_url: selectedPixabayImage.webformatURL,
         tags: selectedPixabayImage.tags,
+        custom_title: pixabayCustomTitle || selectedPixabayImage.tags,
+        custom_context: pixabayCustomContext,
         save_type: 'general' // Mark as general library save
       }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },

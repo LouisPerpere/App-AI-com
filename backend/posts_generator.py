@@ -174,11 +174,12 @@ Tu réponds TOUJOURS au format JSON exact demandé."""
         source_data["always_valid_notes"] = always_valid_notes
         logger.info(f"   📝 Always valid notes: {len(always_valid_notes)}")
         
-        # Month-specific notes
-        month_notes = await self.db.notes.find({
+        # Month-specific notes  
+        month_notes = await self.db.content_notes.find({
             "owner_id": user_id,
             "is_monthly_note": False,
-            "attributed_month": target_month,
+            "note_month": self._parse_month_number(target_month),
+            "note_year": self._parse_year(target_month),
             "deleted": {"$ne": True}
         }).to_list(100)
         source_data["month_notes"] = month_notes

@@ -233,11 +233,21 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
                 if context and len(context) > 200:
                     context = context[:200] + "..."
                 
+                # CRITICAL FIX: Use the actual file_id for images, not MongoDB _id
+                actual_file_id = None
+                visual_url = item.get("url", "")
+                if visual_url:
+                    # Extract file_id from URL like "/api/content/74bc5825-fec4-4696-8235-1bcb9bf20001/file"
+                    import re
+                    match = re.search(r'/api/content/([^/]+)/file', visual_url)
+                    if match:
+                        actual_file_id = match.group(1)
+                    
                 content["month_content"].append(ContentSource(
-                    id=str(item.get("_id", "")),
+                    id=actual_file_id if actual_file_id else str(item.get("_id", "")),
                     title=title if title else "Photo",
                     context=context if context else "Image pour votre business",
-                    visual_url=item.get("url", ""),
+                    visual_url=visual_url,
                     file_type=item.get("file_type", "image/jpeg"),
                     attributed_month=target_month,  # Assign to current month
                     source=item.get("source", "upload")  # Keep source info (pixabay vs upload)

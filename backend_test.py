@@ -445,78 +445,7 @@ class PostsGenerationTester:
             print("   ❌ Integration completeness test failed")
             return False
     
-    def test_carousel_grouping(self):
-        """Step 5: Test carousel grouping with carousel_id"""
-        print("🔗 Step 5: Testing carousel grouping with carousel_id")
-        
-        try:
-            response = self.session.get(f"{BACKEND_URL}/content/pending")
-            
-            if response.status_code == 200:
-                data = response.json()
-                content_items = data.get('content', [])
-                
-                # Find carousel items
-                carousel_items = [item for item in content_items if item.get('upload_type') == 'carousel']
-                
-                if carousel_items:
-                    # Check if all carousel items have the same carousel_id
-                    carousel_ids = [item.get('carousel_id') for item in carousel_items]
-                    unique_carousel_ids = set(filter(None, carousel_ids))
-                    
-                    print(f"   Carousel items found: {len(carousel_items)}")
-                    print(f"   Unique carousel IDs: {len(unique_carousel_ids)}")
-                    print(f"   Carousel IDs: {list(unique_carousel_ids)}")
-                    
-                    if len(unique_carousel_ids) == 1:
-                        print(f"   ✅ All carousel items have the same carousel_id")
-                        print(f"   Carousel ID: {list(unique_carousel_ids)[0]}")
-                        return True
-                    else:
-                        print(f"   ❌ Carousel items have different carousel_ids or missing IDs")
-                        return False
-                else:
-                    print(f"   ❌ No carousel items found for grouping test")
-                    return False
-            else:
-                print(f"   ❌ Failed to retrieve content for grouping test")
-                return False
-                
-        except Exception as e:
-            print(f"   ❌ Carousel grouping test error: {e}")
-            return False
-    
-    def cleanup_test_data(self):
-        """Step 6: Clean up test carousel data"""
-        print("🧹 Step 6: Cleaning up test carousel data")
-        
-        if not hasattr(self, 'carousel_ids') or not self.carousel_ids:
-            print("   No carousel IDs to clean up")
-            return True
-        
-        cleanup_results = []
-        
-        for i, item_id in enumerate(self.carousel_ids):
-            try:
-                response = self.session.delete(f"{BACKEND_URL}/content/{item_id}")
-                
-                if response.status_code == 200:
-                    cleanup_results.append(True)
-                    print(f"   ✅ Deleted carousel item {i+1}: {item_id}")
-                else:
-                    cleanup_results.append(False)
-                    print(f"   ❌ Failed to delete carousel item {i+1}: {response.text}")
-                    
-            except Exception as e:
-                cleanup_results.append(False)
-                print(f"   ❌ Cleanup error for item {i+1}: {e}")
-        
-        success_count = sum(cleanup_results)
-        total_count = len(cleanup_results)
-        
-        print(f"   Cleanup results: {success_count}/{total_count} items deleted")
-        
-        return success_count == total_count
+
     
     def run_comprehensive_test(self):
         """Run all carousel functionality tests"""

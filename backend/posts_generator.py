@@ -334,8 +334,6 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         
         return generated_posts
     
-
-
     def _build_business_context(self, business_profile: Dict, website_analysis: Dict) -> str:
         """Build business context for AI generation"""
         context_parts = []

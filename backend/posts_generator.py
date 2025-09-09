@@ -604,37 +604,17 @@ RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
             logger.info(f"🔍 DEBUG: Content IDs: {all_content_ids[:5]}...")  # Show first 5
             
             generated_posts = []
-            content_index = 0  # For fallback mapping
             
             for i, post_data in enumerate(posts_data):
-                # Remove any unwanted fields that might cause issues
-                if "scheduling_preference" in post_data:
-                    del post_data["scheduling_preference"]
-                
-                # Extract the visual_id from ChatGPT response
+                # Extract the real visual_id from ChatGPT response
                 visual_id = post_data.get("visual_id", "")
                 
-                # CRITICAL FIX: Validate if ChatGPT used a real ID
+                # CRITICAL: Only accept posts with REAL visual_id from available content
                 if visual_id and visual_id in all_content_ids:
-                    # ChatGPT used a real ID - perfect!
+                    # Valid visual_id found
                     visual_url = f"/api/content/{visual_id}/file"
-                    logger.info(f"✅ Post {i+1}: ChatGPT used real ID {visual_id}")
-                else:
-                    # ChatGPT didn't use real IDs - apply fallback mapping
-                    if available_content and content_index < len(all_content_ids):
-                        real_id = all_content_ids[content_index]
-                        visual_id = real_id
-                        visual_url = f"/api/content/{real_id}/file"
-                        content_index += 1
-                        logger.warning(f"⚠️ Post {i+1}: ChatGPT used invalid ID '{post_data.get('visual_id', '')}', mapped to real ID {real_id}")
-                    else:
-                        # No content available - no image
-                        visual_id = ""
-                        visual_url = ""
-                        logger.warning(f"⚠️ Post {i+1}: No content available for mapping")
-                
-                # Create PostContent with only valid parameters
-                try:
+                    logger.info(f"   ✅ Post {i+1}: Using REAL photo ID {visual_id}")
+                    
                     post = PostContent(
                         visual_url=visual_url,
                         visual_id=visual_id,
@@ -642,14 +622,19 @@ RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
                         text=post_data.get("text", ""),
                         hashtags=post_data.get("hashtags", []),
                         platform="instagram",
-                        content_type=post_data.get("content_type", "product")
+                        content_type=post_data.get("content_type", "product"),
+                        scheduling_preference=post_data.get("scheduling_preference", "afternoon")
                     )
-                except Exception as e:
-                    logger.error(f"❌ Error creating PostContent for post {i+1}: {str(e)}")
-                    logger.error(f"❌ Post data: {post_data}")
-                    continue
-                
-                generated_posts.append(post)
+                    
+                    generated_posts.append(post)
+                elif visual_id and visual_id != "":
+                    logger.warning(f"⚠️ Post {i+1}: visual_id '{visual_id}' not found in available content - SKIPPING POST")
+                else:
+                    logger.warning(f"⚠️ Post {i+1}: no visual_id provided by ChatGPT - SKIPPING POST")
+                    
+            # CRITICAL: Only return posts that use real photos
+            logger.info(f"   ✅ Final result: {len(generated_posts)} posts with REAL photos only (no fallbacks)")
+            return generated_posts
             
             logger.info(f"✅ Successfully parsed {len(generated_posts)} posts from global response")
             return generated_posts

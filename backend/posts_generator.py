@@ -14,7 +14,7 @@ import os
 from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv()
+load_dotenv('/app/backend/.env')
 
 from openai import OpenAI
 from database import get_database

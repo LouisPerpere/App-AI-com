@@ -523,7 +523,7 @@ RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
             logger.info(f"🤖 Global AI Response length: {len(response_text) if response_text else 0}")
             
             # Parse the global response
-            return self._parse_global_response(response_text, strategy)
+            return self._parse_global_response(response_text, strategy, available_content)
             
         except Exception as e:
             logger.error(f"❌ Failed to generate posts calendar: {str(e)}")

@@ -653,15 +653,18 @@ RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
 {{
     "posts": [
         {{
-            "content_type": "product",
+            "content_type": "product|educational|backstage|value|sales|testimonials|trends",
             "text": "Texte naturel sans style IA, max 2-3 emojis",
             "hashtags": ["hashtag1", "hashtag2", "hashtag3"],
             "title": "Titre simple et direct",
-            "visual_id": "ID_exact_du_contenu_utilisé_de_la_liste_ci-dessus"
+            "visual_id": "ID_exact_du_contenu_utilisé_de_la_liste_ci-dessus",
+            "scheduling_preference": "morning|afternoon|evening"
         }},
         // ... {num_posts-1} autres posts
     ]
 }}
+
+IMPORTANT: Varie intelligemment les content_type selon ce qui sera le plus efficace pour ce business et son audience cible.
 """
             
             logger.info(f"🤖 Sending GLOBAL request to OpenAI for {num_posts} posts")

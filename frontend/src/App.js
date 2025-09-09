@@ -321,6 +321,18 @@ function MainApp() {
   const [carouselFiles, setCarouselFiles] = useState([]);
   const [carouselTitle, setCarouselTitle] = useState('');
   const [carouselContext, setCarouselContext] = useState('');
+
+  // Update refs when fileCustomData changes (to preserve field values when month changes)
+  useEffect(() => {
+    selectedFiles.forEach((_, index) => {
+      if (uploadTitleRefs.current[index] && fileCustomData[index]?.title !== undefined) {
+        uploadTitleRefs.current[index].value = fileCustomData[index].title;
+      }
+      if (uploadContextRefs.current[index] && fileCustomData[index]?.context !== undefined) {
+        uploadContextRefs.current[index].value = fileCustomData[index].context;
+      }
+    });
+  }, [fileCustomData, selectedFiles]);
   
   // Monthly library organization states
   const [monthlyLibraryView, setMonthlyLibraryView] = useState(true); // Switch between monthly and all view

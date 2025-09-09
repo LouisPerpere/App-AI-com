@@ -1687,7 +1687,7 @@ function MainApp() {
     }
   }, [selectedContentIds.size, pendingContent]);
 
-  // Supprimer les contenus sélectionnés
+  // Supprimer les contenus sélectionnés (optimisé avec batch delete)
   const handleDeleteSelected = async () => {
     if (selectedContentIds.size === 0) {
       toast.error('Aucun contenu sélectionné');
@@ -1705,39 +1705,44 @@ function MainApp() {
     }
 
     setIsDeletingContent(true);
-    let successCount = 0;
-    let errorCount = 0;
 
     try {
-      // Supprimer chaque contenu sélectionné
-      for (const contentId of selectedContentIds) {
-        try {
-          await axios.delete(`${API}/content/${contentId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          successCount++;
-        } catch (error) {
-          console.error(`Error deleting content ${contentId}:`, error);
-          errorCount++;
+      console.log('🚀 Starting optimized batch delete for', selectedContentIds.size, 'items');
+      const startTime = Date.now();
+      
+      // Utiliser l'endpoint de suppression en lot optimisé
+      const response = await axios.delete(`${API}/content/batch`, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        data: {
+          content_ids: Array.from(selectedContentIds)
         }
+      });
+
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+      
+      console.log(`✅ Batch delete completed in ${duration}ms`);
+      
+      const { deleted_count, requested_count } = response.data;
+      
+      if (deleted_count === requested_count) {
+        toast.success(`${deleted_count} contenu(s) supprimé(s) avec succès ! 🗑️`);
+      } else {
+        toast.success(`${deleted_count} sur ${requested_count} contenu(s) supprimé(s)`);
       }
 
-      // Messages de retour
-      if (successCount > 0) {
-        toast.success(`${successCount} contenu(s) supprimé(s) avec succès ! 🗑️`);
-      }
-      if (errorCount > 0) {
-        toast.error(`Erreur lors de la suppression de ${errorCount} contenu(s)`);
-      }
-
-      // Reset et rechargement
+      // Refresh the content list and clear selection
       setSelectedContentIds(new Set());
       setIsSelectionMode(false);
       await loadPendingContent();
 
     } catch (error) {
-      console.error('Error in batch delete:', error);
-      toast.error('Erreur lors de la suppression en masse');
+      console.error('Error in optimized batch delete:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`Erreur lors de la suppression: ${errorMessage}`);
     } finally {
       setIsDeletingContent(false);
     }

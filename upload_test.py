@@ -97,7 +97,7 @@ class BackendTester:
                     file_id = created_items[0].get("id")
                     
                     # Verify file exists in database by checking content/pending
-                    time.sleep(2)  # Wait for processing
+                    time.sleep(5)  # Wait longer for processing
                     
                     pending_response = self.session.get(f"{BACKEND_URL}/content/pending")
                     if pending_response.status_code == 200:

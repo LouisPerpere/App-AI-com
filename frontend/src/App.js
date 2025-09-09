@@ -77,7 +77,7 @@ const FREE_TRIAL_PLAN = {
 };
 
 // ContentThumbnail component avec support carrousel
-const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection }) => {
+const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onContentClick, onToggleSelection, onMoveContent }) => {
   // Token stable - récupéré une seule fois
   const stableToken = useMemo(() => {
     const token = localStorage.getItem('access_token');

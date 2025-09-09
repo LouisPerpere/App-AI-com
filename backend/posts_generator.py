@@ -504,7 +504,7 @@ CTA: "Apprenez plus", "Essayez", "Suivez le guide"
         
         return guidelines.get(content_type, "")
     
-    async def _get_pixabay_content(self, business_context: str, content_type: str) -> Optional[ContentSource]:
+    def _get_pixabay_content(self, business_context: str, content_type: str) -> Optional[ContentSource]:
         """Get Pixabay content as fallback (simplified for now)"""
         # TODO: Implement intelligent Pixabay search based on business context
         logger.info(f"   📸 Would search Pixabay for {content_type} content")

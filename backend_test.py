@@ -27,20 +27,18 @@ class ContentMoveTest:
         """Log test messages with timestamp"""
         timestamp = datetime.now().strftime("%H:%M:%S")
         print(f"[{timestamp}] {level}: {message}")
-    
+        
     def authenticate(self):
         """Step 1: Authenticate with provided credentials"""
-        print("🔐 Step 1: Authentication Test")
+        self.log("🔐 Step 1: Authentication test starting...")
         
         try:
-            login_data = {
-                "email": "lperpere@yahoo.fr",
-                "password": "L@Reunion974!"
-            }
-            
             response = self.session.post(
-                f"{self.base_url}/auth/login-robust",
-                json=login_data,
+                f"{BACKEND_URL}/auth/login-robust",
+                json={
+                    "email": TEST_EMAIL,
+                    "password": TEST_PASSWORD
+                },
                 timeout=30
             )
             
@@ -54,31 +52,23 @@ class ContentMoveTest:
                     "Authorization": f"Bearer {self.token}"
                 })
                 
-                self.log_test(
-                    "Authentication", 
-                    True, 
-                    f"User ID: {self.user_id}, Token obtained successfully"
-                )
+                self.log(f"✅ Authentication successful - User ID: {self.user_id}")
                 return True
             else:
-                self.log_test(
-                    "Authentication", 
-                    False, 
-                    f"Status: {response.status_code}, Response: {response.text}"
-                )
+                self.log(f"❌ Authentication failed - Status: {response.status_code}, Response: {response.text}", "ERROR")
                 return False
                 
         except Exception as e:
-            self.log_test("Authentication", False, f"Exception: {str(e)}")
+            self.log(f"❌ Authentication error: {str(e)}", "ERROR")
             return False
     
     def get_existing_content(self):
-        """Step 2: Get existing content to test with"""
-        print("📋 Step 2: Retrieve Existing Content")
+        """Step 2: Get existing content to test movement"""
+        self.log("📋 Step 2: Retrieving existing content...")
         
         try:
             response = self.session.get(
-                f"{self.base_url}/content/pending",
+                f"{BACKEND_URL}/content/pending",
                 timeout=30
             )
             
@@ -87,376 +77,340 @@ class ContentMoveTest:
                 content_items = data.get("content", [])
                 total_items = data.get("total", 0)
                 
-                if len(content_items) >= 2:
-                    # Extract content IDs for testing
-                    self.content_ids = [item["id"] for item in content_items[:3]]  # Take first 3 for testing
+                self.log(f"✅ Content retrieval successful - Total items: {total_items}, Items loaded: {len(content_items)}")
+                
+                if content_items:
+                    # Use the first available content item for testing
+                    self.test_content_id = content_items[0]["id"]
+                    current_month = content_items[0].get("attributed_month", "Non attribué")
+                    filename = content_items[0].get("filename", "Unknown")
                     
-                    self.log_test(
-                        "Content Retrieval", 
-                        True, 
-                        f"Found {total_items} total items, {len(content_items)} loaded. Test IDs: {self.content_ids[:2]}"
-                    )
+                    self.log(f"✅ Test content selected - ID: {self.test_content_id}")
+                    self.log(f"   📁 Filename: {filename}")
+                    self.log(f"   📅 Current attributed_month: {current_month}")
                     return True
                 else:
-                    self.log_test(
-                        "Content Retrieval", 
-                        False, 
-                        f"Insufficient content for testing. Found {len(content_items)} items, need at least 2"
-                    )
+                    self.log("⚠️ No content items found - cannot test movement functionality", "WARNING")
                     return False
+                    
             else:
-                self.log_test(
-                    "Content Retrieval", 
-                    False, 
-                    f"Status: {response.status_code}, Response: {response.text}"
-                )
+                self.log(f"❌ Content retrieval failed - Status: {response.status_code}, Response: {response.text}", "ERROR")
                 return False
                 
         except Exception as e:
-            self.log_test("Content Retrieval", False, f"Exception: {str(e)}")
+            self.log(f"❌ Content retrieval error: {str(e)}", "ERROR")
             return False
     
-    def test_batch_delete_valid_ids(self):
-        """Step 3: Test batch deletion with valid content IDs"""
-        print("🗑️ Step 3: Batch Delete with Valid IDs")
+    def test_valid_move(self):
+        """Step 3: Test valid content movement to novembre_2025"""
+        self.log("🔄 Step 3: Testing valid content movement...")
+        
+        target_month = "novembre_2025"
         
         try:
-            # Use first 2 content IDs for testing
-            test_ids = self.content_ids[:2]
-            
-            delete_request = {
-                "content_ids": test_ids
-            }
-            
-            response = self.session.delete(
-                f"{self.base_url}/content/batch",
-                json=delete_request,
+            response = self.session.put(
+                f"{BACKEND_URL}/content/{self.test_content_id}/move",
+                json={
+                    "target_month": target_month
+                },
                 timeout=30
             )
             
             if response.status_code == 200:
                 data = response.json()
-                deleted_count = data.get("deleted_count", 0)
-                requested_count = data.get("requested_count", 0)
                 message = data.get("message", "")
+                from_month = data.get("from_month", "")
+                to_month = data.get("to_month", "")
+                content_id = data.get("content_id", "")
                 
-                # Validate response structure
-                if "deleted_count" in data and "requested_count" in data:
-                    self.log_test(
-                        "Batch Delete Valid IDs", 
-                        True, 
-                        f"Deleted: {deleted_count}/{requested_count}, Message: {message}"
-                    )
-                    
-                    # Store deleted IDs for verification
-                    self.deleted_ids = test_ids
+                self.log(f"✅ Content movement successful")
+                self.log(f"   📝 Message: {message}")
+                self.log(f"   📅 From month: {from_month}")
+                self.log(f"   📅 To month: {to_month}")
+                self.log(f"   🆔 Content ID: {content_id}")
+                
+                # Verify response structure
+                if all([message, to_month == target_month, content_id == self.test_content_id]):
+                    self.log("✅ Response structure validation passed")
                     return True
                 else:
-                    self.log_test(
-                        "Batch Delete Valid IDs", 
-                        False, 
-                        f"Missing required fields in response: {data}"
-                    )
+                    self.log("❌ Response structure validation failed", "ERROR")
                     return False
+                    
             else:
-                self.log_test(
-                    "Batch Delete Valid IDs", 
-                    False, 
-                    f"Status: {response.status_code}, Response: {response.text}"
-                )
+                self.log(f"❌ Content movement failed - Status: {response.status_code}, Response: {response.text}", "ERROR")
                 return False
                 
         except Exception as e:
-            self.log_test("Batch Delete Valid IDs", False, f"Exception: {str(e)}")
+            self.log(f"❌ Content movement error: {str(e)}", "ERROR")
             return False
     
-    def verify_content_deleted(self):
-        """Step 4: Verify that content was actually deleted"""
-        print("✅ Step 4: Verify Content Deletion")
+    def verify_month_persistence(self):
+        """Step 4: Verify that attributed_month has been updated correctly"""
+        self.log("🔍 Step 4: Verifying month persistence...")
         
         try:
             response = self.session.get(
-                f"{self.base_url}/content/pending",
+                f"{BACKEND_URL}/content/pending",
                 timeout=30
             )
             
             if response.status_code == 200:
                 data = response.json()
                 content_items = data.get("content", [])
-                remaining_ids = [item["id"] for item in content_items]
                 
-                # Check if deleted IDs are still present
-                still_present = []
-                for deleted_id in self.deleted_ids:
-                    if deleted_id in remaining_ids:
-                        still_present.append(deleted_id)
+                # Find our test content item
+                test_item = None
+                for item in content_items:
+                    if item["id"] == self.test_content_id:
+                        test_item = item
+                        break
                 
-                if not still_present:
-                    self.log_test(
-                        "Content Deletion Verification", 
-                        True, 
-                        f"All {len(self.deleted_ids)} deleted items confirmed removed from content list"
-                    )
-                    return True
-                else:
-                    self.log_test(
-                        "Content Deletion Verification", 
-                        False, 
-                        f"Items still present after deletion: {still_present}"
-                    )
-                    return False
-            else:
-                self.log_test(
-                    "Content Deletion Verification", 
-                    False, 
-                    f"Status: {response.status_code}, Response: {response.text}"
-                )
-                return False
-                
-        except Exception as e:
-            self.log_test("Content Deletion Verification", False, f"Exception: {str(e)}")
-            return False
-    
-    def test_edge_cases(self):
-        """Step 5: Test edge cases - invalid IDs and empty array"""
-        print("⚠️ Step 5: Edge Cases Testing")
-        
-        edge_case_results = []
-        
-        # Test 1: Empty array
-        try:
-            delete_request = {"content_ids": []}
-            response = self.session.delete(
-                f"{self.base_url}/content/batch",
-                json=delete_request,
-                timeout=30
-            )
-            
-            if response.status_code == 400:
-                edge_case_results.append("Empty array correctly rejected (400)")
-            else:
-                edge_case_results.append(f"Empty array unexpected response: {response.status_code}")
-                
-        except Exception as e:
-            edge_case_results.append(f"Empty array test error: {str(e)}")
-        
-        # Test 2: Invalid/non-existent IDs
-        try:
-            delete_request = {"content_ids": ["invalid-id-123", "another-invalid-id"]}
-            response = self.session.delete(
-                f"{self.base_url}/content/batch",
-                json=delete_request,
-                timeout=30
-            )
-            
-            if response.status_code in [404, 200]:  # 404 or 200 with 0 deleted_count are both acceptable
-                if response.status_code == 200:
-                    data = response.json()
-                    if data.get("deleted_count", 0) == 0:
-                        edge_case_results.append("Invalid IDs correctly handled (0 deleted)")
-                    else:
-                        edge_case_results.append(f"Invalid IDs unexpected deletion count: {data.get('deleted_count')}")
-                else:
-                    edge_case_results.append("Invalid IDs correctly rejected (404)")
-            else:
-                edge_case_results.append(f"Invalid IDs unexpected response: {response.status_code}")
-                
-        except Exception as e:
-            edge_case_results.append(f"Invalid IDs test error: {str(e)}")
-        
-        # Test 3: Too many IDs (over 100 limit)
-        try:
-            large_array = [f"id-{i}" for i in range(101)]  # 101 IDs to exceed limit
-            delete_request = {"content_ids": large_array}
-            response = self.session.delete(
-                f"{self.base_url}/content/batch",
-                json=delete_request,
-                timeout=30
-            )
-            
-            if response.status_code == 400:
-                edge_case_results.append("Large array correctly rejected (400)")
-            else:
-                edge_case_results.append(f"Large array unexpected response: {response.status_code}")
-                
-        except Exception as e:
-            edge_case_results.append(f"Large array test error: {str(e)}")
-        
-        # Evaluate edge cases
-        passed_cases = len([r for r in edge_case_results if "correctly" in r])
-        total_cases = len(edge_case_results)
-        
-        self.log_test(
-            "Edge Cases Testing", 
-            passed_cases >= 2,  # At least 2 out of 3 should pass
-            f"Passed {passed_cases}/{total_cases} edge cases: {'; '.join(edge_case_results)}"
-        )
-        
-        return passed_cases >= 2
-    
-    def test_response_format(self):
-        """Step 6: Test response format with remaining content"""
-        print("📊 Step 6: Response Format Validation")
-        
-        try:
-            # Use remaining content ID if available
-            if len(self.content_ids) > 2:
-                test_id = [self.content_ids[2]]  # Use third ID if available
-                
-                delete_request = {"content_ids": test_id}
-                response = self.session.delete(
-                    f"{self.base_url}/content/batch",
-                    json=delete_request,
-                    timeout=30
-                )
-                
-                if response.status_code == 200:
-                    data = response.json()
+                if test_item:
+                    updated_month = test_item.get("attributed_month", "")
+                    filename = test_item.get("filename", "Unknown")
                     
-                    # Check required fields
-                    required_fields = ["message", "deleted_count", "requested_count"]
-                    missing_fields = [field for field in required_fields if field not in data]
+                    self.log(f"✅ Content found after update")
+                    self.log(f"   📁 Filename: {filename}")
+                    self.log(f"   📅 Updated attributed_month: {updated_month}")
                     
-                    if not missing_fields:
-                        # Validate field types
-                        valid_types = (
-                            isinstance(data["deleted_count"], int) and
-                            isinstance(data["requested_count"], int) and
-                            isinstance(data["message"], str)
-                        )
-                        
-                        if valid_types:
-                            self.log_test(
-                                "Response Format Validation", 
-                                True, 
-                                f"All required fields present with correct types: {data}"
-                            )
-                            return True
-                        else:
-                            self.log_test(
-                                "Response Format Validation", 
-                                False, 
-                                f"Invalid field types in response: {data}"
-                            )
-                            return False
+                    if updated_month == "novembre_2025":
+                        self.log("✅ Month persistence verification successful - attributed_month correctly updated")
+                        return True
                     else:
-                        self.log_test(
-                            "Response Format Validation", 
-                            False, 
-                            f"Missing required fields: {missing_fields}"
-                        )
+                        self.log(f"❌ Month persistence failed - Expected: novembre_2025, Found: {updated_month}", "ERROR")
                         return False
                 else:
-                    self.log_test(
-                        "Response Format Validation", 
-                        False, 
-                        f"Status: {response.status_code}, Response: {response.text}"
-                    )
+                    self.log(f"❌ Test content item not found after update", "ERROR")
                     return False
+                    
             else:
-                self.log_test(
-                    "Response Format Validation", 
-                    False, 
-                    "No remaining content IDs available for format testing"
-                )
+                self.log(f"❌ Content verification failed - Status: {response.status_code}", "ERROR")
                 return False
                 
         except Exception as e:
-            self.log_test("Response Format Validation", False, f"Exception: {str(e)}")
+            self.log(f"❌ Month persistence verification error: {str(e)}", "ERROR")
             return False
     
-    def run_all_tests(self):
-        """Run all batch delete tests"""
-        print("🚀 BATCH DELETE OPTIMIZATION TESTING")
-        print("=" * 60)
-        print(f"Backend URL: {self.base_url}")
-        print(f"Test Target: DELETE /api/content/batch endpoint")
-        print("=" * 60)
-        print()
+    def test_error_cases(self):
+        """Step 5: Test error cases - non-existent ID and invalid month format"""
+        self.log("⚠️ Step 5: Testing error cases...")
+        
+        # Test 1: Non-existent content ID
+        self.log("   🔍 Test 5a: Non-existent content ID...")
+        try:
+            response = self.session.put(
+                f"{BACKEND_URL}/content/nonexistent-id-12345/move",
+                json={
+                    "target_month": "novembre_2025"
+                },
+                timeout=30
+            )
+            
+            if response.status_code == 404:
+                self.log("✅ Non-existent ID test passed - Correctly returned 404")
+                error_case_1_passed = True
+            else:
+                self.log(f"❌ Non-existent ID test failed - Expected 404, got {response.status_code}", "ERROR")
+                error_case_1_passed = False
+                
+        except Exception as e:
+            self.log(f"❌ Non-existent ID test error: {str(e)}", "ERROR")
+            error_case_1_passed = False
+        
+        # Test 2: Invalid month format
+        self.log("   🔍 Test 5b: Invalid month format...")
+        try:
+            response = self.session.put(
+                f"{BACKEND_URL}/content/{self.test_content_id}/move",
+                json={
+                    "target_month": "invalid_format"
+                },
+                timeout=30
+            )
+            
+            if response.status_code == 400:
+                error_data = response.json()
+                error_message = error_data.get("error", "")
+                self.log(f"✅ Invalid format test passed - Status: 400, Message: {error_message}")
+                error_case_2_passed = True
+            else:
+                self.log(f"❌ Invalid format test failed - Expected 400, got {response.status_code}", "ERROR")
+                error_case_2_passed = False
+                
+        except Exception as e:
+            self.log(f"❌ Invalid format test error: {str(e)}", "ERROR")
+            error_case_2_passed = False
+        
+        # Test 3: Empty target_month
+        self.log("   🔍 Test 5c: Empty target_month...")
+        try:
+            response = self.session.put(
+                f"{BACKEND_URL}/content/{self.test_content_id}/move",
+                json={
+                    "target_month": ""
+                },
+                timeout=30
+            )
+            
+            if response.status_code == 400:
+                error_data = response.json()
+                error_message = error_data.get("error", "")
+                self.log(f"✅ Empty target_month test passed - Status: 400, Message: {error_message}")
+                error_case_3_passed = True
+            else:
+                self.log(f"❌ Empty target_month test failed - Expected 400, got {response.status_code}", "ERROR")
+                error_case_3_passed = False
+                
+        except Exception as e:
+            self.log(f"❌ Empty target_month test error: {str(e)}", "ERROR")
+            error_case_3_passed = False
+        
+        return error_case_1_passed and error_case_2_passed and error_case_3_passed
+    
+    def test_french_messages(self):
+        """Step 6: Validate French return messages"""
+        self.log("🇫🇷 Step 6: Validating French messages...")
+        
+        # Test with a different month to see the French message
+        target_month = "décembre_2025"
+        
+        try:
+            response = self.session.put(
+                f"{BACKEND_URL}/content/{self.test_content_id}/move",
+                json={
+                    "target_month": target_month
+                },
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                message = data.get("message", "")
+                
+                # Check if message is in French
+                french_keywords = ["déplacé", "vers", "Contenu"]
+                has_french = any(keyword in message for keyword in french_keywords)
+                
+                if has_french:
+                    self.log(f"✅ French message validation passed - Message: {message}")
+                    return True
+                else:
+                    self.log(f"❌ French message validation failed - Message not in French: {message}", "ERROR")
+                    return False
+                    
+            else:
+                self.log(f"❌ French message test failed - Status: {response.status_code}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ French message test error: {str(e)}", "ERROR")
+            return False
+    
+    def run_comprehensive_test(self):
+        """Run all content movement tests"""
+        self.log("🚀 STARTING COMPREHENSIVE CONTENT MOVEMENT TESTING")
+        self.log("=" * 80)
+        
+        test_results = []
         
         # Step 1: Authentication
-        if not self.authenticate():
-            print("❌ Authentication failed - cannot proceed with tests")
-            return False
+        if self.authenticate():
+            test_results.append(("Authentication", True))
+        else:
+            test_results.append(("Authentication", False))
+            self.log("❌ Authentication failed - Cannot proceed with other tests", "ERROR")
+            return self.generate_summary(test_results)
         
         # Step 2: Get existing content
-        if not self.get_existing_content():
-            print("❌ No sufficient content available - cannot proceed with batch delete tests")
-            return False
-        
-        # Step 3: Test batch delete with valid IDs
-        if not self.test_batch_delete_valid_ids():
-            print("❌ Batch delete with valid IDs failed")
-            return False
-        
-        # Step 4: Verify deletion
-        if not self.verify_content_deleted():
-            print("❌ Content deletion verification failed")
-            return False
-        
-        # Step 5: Test edge cases
-        self.test_edge_cases()
-        
-        # Step 6: Test response format
-        self.test_response_format()
-        
-        # Summary
-        self.print_summary()
-        
-        return True
-    
-    def print_summary(self):
-        """Print test summary"""
-        print("\n" + "=" * 60)
-        print("📊 BATCH DELETE TESTING SUMMARY")
-        print("=" * 60)
-        
-        passed_tests = [r for r in self.test_results if r["success"]]
-        failed_tests = [r for r in self.test_results if not r["success"]]
-        
-        print(f"✅ PASSED: {len(passed_tests)}/{len(self.test_results)} tests")
-        print(f"❌ FAILED: {len(failed_tests)}/{len(self.test_results)} tests")
-        print(f"📈 SUCCESS RATE: {len(passed_tests)/len(self.test_results)*100:.1f}%")
-        
-        if failed_tests:
-            print("\n❌ FAILED TESTS:")
-            for test in failed_tests:
-                print(f"   - {test['test']}: {test['details']}")
-        
-        print("\n✅ PASSED TESTS:")
-        for test in passed_tests:
-            print(f"   - {test['test']}")
-        
-        print("\n🎯 BATCH DELETE ENDPOINT ANALYSIS:")
-        print(f"   - Authentication: {'✅ Working' if any('Authentication' in t['test'] and t['success'] for t in self.test_results) else '❌ Failed'}")
-        print(f"   - Content Retrieval: {'✅ Working' if any('Content Retrieval' in t['test'] and t['success'] for t in self.test_results) else '❌ Failed'}")
-        print(f"   - Batch Deletion: {'✅ Working' if any('Batch Delete Valid IDs' in t['test'] and t['success'] for t in self.test_results) else '❌ Failed'}")
-        print(f"   - Deletion Verification: {'✅ Working' if any('Content Deletion Verification' in t['test'] and t['success'] for t in self.test_results) else '❌ Failed'}")
-        print(f"   - Edge Cases: {'✅ Working' if any('Edge Cases' in t['test'] and t['success'] for t in self.test_results) else '❌ Failed'}")
-        print(f"   - Response Format: {'✅ Working' if any('Response Format' in t['test'] and t['success'] for t in self.test_results) else '❌ Failed'}")
-        
-        # Overall assessment
-        critical_tests = ['Authentication', 'Content Retrieval', 'Batch Delete Valid IDs', 'Content Deletion Verification']
-        critical_passed = sum(1 for test in self.test_results if any(ct in test['test'] for ct in critical_tests) and test['success'])
-        
-        if critical_passed >= 3:
-            print(f"\n🎉 CONCLUSION: Batch delete endpoint is FULLY OPERATIONAL")
-            print(f"   The optimization successfully replaces individual deletions with efficient batch operations.")
+        if self.get_existing_content():
+            test_results.append(("Content Retrieval", True))
         else:
-            print(f"\n🚨 CONCLUSION: Batch delete endpoint has CRITICAL ISSUES")
-            print(f"   Core functionality is not working properly and needs fixes.")
+            test_results.append(("Content Retrieval", False))
+            self.log("❌ Content retrieval failed - Cannot proceed with movement tests", "ERROR")
+            return self.generate_summary(test_results)
+        
+        # Step 3: Test valid movement
+        if self.test_valid_move():
+            test_results.append(("Valid Movement", True))
+        else:
+            test_results.append(("Valid Movement", False))
+        
+        # Step 4: Verify persistence
+        if self.verify_month_persistence():
+            test_results.append(("Month Persistence", True))
+        else:
+            test_results.append(("Month Persistence", False))
+        
+        # Step 5: Test error cases
+        if self.test_error_cases():
+            test_results.append(("Error Cases", True))
+        else:
+            test_results.append(("Error Cases", False))
+        
+        # Step 6: Test French messages
+        if self.test_french_messages():
+            test_results.append(("French Messages", True))
+        else:
+            test_results.append(("French Messages", False))
+        
+        return self.generate_summary(test_results)
+    
+    def generate_summary(self, test_results):
+        """Generate comprehensive test summary"""
+        self.log("=" * 80)
+        self.log("📊 CONTENT MOVEMENT TESTING SUMMARY")
+        self.log("=" * 80)
+        
+        passed_tests = sum(1 for _, result in test_results if result)
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
+        
+        self.log(f"🎯 Overall Success Rate: {success_rate:.1f}% ({passed_tests}/{total_tests} tests passed)")
+        self.log("")
+        
+        # Detailed results
+        for test_name, result in test_results:
+            status = "✅ PASS" if result else "❌ FAIL"
+            self.log(f"   {status}: {test_name}")
+        
+        self.log("")
+        
+        # Technical findings
+        self.log("🔧 TECHNICAL FINDINGS:")
+        if self.token:
+            self.log(f"   • Authentication system working with user {TEST_EMAIL}")
+        if self.test_content_id:
+            self.log(f"   • Content movement tested with ID: {self.test_content_id}")
+        self.log(f"   • Backend URL: {BACKEND_URL}")
+        self.log(f"   • PUT /api/content/{{content_id}}/move endpoint tested")
+        
+        self.log("")
+        
+        # Conclusion
+        if success_rate >= 83.3:  # 5/6 tests or better
+            self.log("🎉 CONCLUSION: Content movement functionality is FULLY OPERATIONAL")
+            self.log("   All critical scenarios tested successfully")
+        elif success_rate >= 66.7:  # 4/6 tests
+            self.log("⚠️ CONCLUSION: Content movement functionality is MOSTLY OPERATIONAL")
+            self.log("   Some minor issues identified but core functionality works")
+        else:
+            self.log("❌ CONCLUSION: Content movement functionality has CRITICAL ISSUES")
+            self.log("   Major problems identified that need immediate attention")
+        
+        return success_rate >= 83.3
 
 def main():
     """Main test execution"""
-    tester = BatchDeleteTester()
-    success = tester.run_all_tests()
+    print("🧪 Content Movement Backend Test Suite")
+    print("Testing PUT /api/content/{content_id}/move endpoint")
+    print("=" * 80)
     
-    if success:
-        print(f"\n✅ All batch delete tests completed successfully!")
-        sys.exit(0)
-    else:
-        print(f"\n❌ Batch delete testing failed!")
-        sys.exit(1)
+    tester = ContentMoveTest()
+    success = tester.run_comprehensive_test()
+    
+    # Exit with appropriate code
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
     main()

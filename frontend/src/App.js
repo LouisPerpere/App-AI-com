@@ -2425,6 +2425,88 @@ function MainApp() {
     setShowMoveModal(true);
   };
 
+  // Fonction spécialisée pour uploader des fichiers depuis les posts
+  const uploadFilesForPost = async (files, postTitle, postText) => {
+    if (!files || files.length === 0) return [];
+    
+    console.log(`🎯 Uploading ${files.length} files for post: "${postTitle}"`);
+    
+    try {
+      setIsUploading(true);
+      
+      const formData = new FormData();
+      
+      // Ajouter les fichiers
+      files.forEach(file => {
+        formData.append('files', file);
+      });
+      
+      // Déterminer le type d'upload et les métadonnées
+      const currentMonth = getDefaultMonth(); // Utiliser le mois courant
+      formData.append('attributed_month', currentMonth);
+      
+      if (files.length > 1) {
+        // Multiple fichiers = carrousel avec métadonnées partagées
+        formData.append('upload_type', 'carousel');
+        formData.append('common_title', postTitle);
+        formData.append('common_context', postText);
+        console.log(`🎠 Creating carousel with ${files.length} files for post`);
+      } else {
+        // Single fichier
+        formData.append('upload_type', 'post_single');
+      }
+      
+      const response = await axios.post(`${API}/content/batch-upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        }
+      });
+      
+      console.log(`✅ Post upload response:`, response.data);
+      
+      // Pour un seul fichier, mettre à jour les métadonnées individuellement
+      if (files.length === 1 && response.data.created && response.data.created.length > 0) {
+        const createdItem = response.data.created[0];
+        
+        try {
+          // Mettre à jour le titre
+          await axios.put(`${API}/content/${createdItem.id}/title`, {
+            title: postTitle
+          }, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('access_token')}`
+            }
+          });
+          
+          // Mettre à jour le contexte
+          await axios.put(`${API}/content/${createdItem.id}/context`, {
+            context: postText
+          }, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('access_token')}`
+            }
+          });
+        } catch (updateError) {
+          console.warn('Failed to update post file metadata:', updateError);
+        }
+      }
+      
+      // Recharger le contenu
+      await loadPendingContent();
+      
+      return response.data.created || [];
+      
+    } catch (error) {
+      console.error('❌ Post upload error:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`Erreur lors de l'upload: ${errorMessage}`);
+      return [];
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   // Fonctions d'ajout d'image aux posts
   const handleAddImageToPost = (post) => {
     setPostToAttachImage(post);

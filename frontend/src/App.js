@@ -3989,7 +3989,7 @@ function MainApp() {
                           <EditableField
                             fieldId="posting_frequency_edit"
                             label="Rythme de publications"
-                            defaultValue={businessProfile?.posting_frequency || 'weekly'}
+                            defaultValue={businessProfile?.posting_frequency || ''}
                             isSelect={true}
                             options={[
                               { value: 'daily', label: '📅 Quotidien (7 posts/semaine)' },

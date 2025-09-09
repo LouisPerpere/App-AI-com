@@ -571,7 +571,7 @@ CTA: "Apprenez plus", "Essayez", "Suivez le guide"
                 "published": False
             }
             
-            await self.db.generated_posts.insert_one(post_doc)
+            self.db.generated_posts.insert_one(post_doc)
         
         logger.info(f"   💾 Saved {len(posts)} posts to database")
     

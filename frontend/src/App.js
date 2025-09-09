@@ -4178,7 +4178,7 @@ function MainApp() {
                               <img 
                                 src={previewContent.source === 'pixabay' 
                                   ? previewContent.url
-                                  : `${previewContent.url}?token=${localStorage.getItem('access_token')}`
+                                  : `${process.env.REACT_APP_BACKEND_URL}${previewContent.url}?token=${localStorage.getItem('access_token')}`
                                 }
                                 alt={previewContent.filename}
                                 className="w-full h-auto max-h-96 object-contain rounded-lg border"

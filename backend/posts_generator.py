@@ -778,7 +778,7 @@ IMPORTANT: Varie intelligemment les content_type selon ce qui sera le plus effic
                 # Extract the real visual_id from ChatGPT response
                 visual_id = post_data.get("visual_id", "")
                 
-                # CRITICAL: Only accept posts with REAL visual_id from available content
+                # NEW APPROACH: Keep ALL posts, even those without visual_id
                 if visual_id and visual_id in all_content_ids:
                     # Valid visual_id found - construct full URL like other images in the app
                     visual_url = f"/api/content/{visual_id}/file"
@@ -792,14 +792,28 @@ IMPORTANT: Varie intelligemment les content_type selon ce qui sera le plus effic
                         text=post_data.get("text", ""),
                         hashtags=post_data.get("hashtags", []),
                         platform="instagram",
-                        content_type=post_data.get("content_type", "product")
+                        content_type=post_data.get("content_type", "product"),
+                        status="with_image"
                     )
                     
                     generated_posts.append(post)
-                elif visual_id and visual_id != "":
-                    logger.warning(f"⚠️ Post {i+1}: visual_id '{visual_id}' not found in available content - SKIPPING POST")
+                    
                 else:
-                    logger.warning(f"⚠️ Post {i+1}: no visual_id provided by ChatGPT - SKIPPING POST")
+                    # KEEP posts without visual_id - user can add image later
+                    logger.info(f"   📝 Post {i+1}: Text-only post (no visual assigned) - KEEPING for manual image assignment")
+                    
+                    post = PostContent(
+                        visual_url="",  # Empty - will be filled by user
+                        visual_id="",   # Empty - will be filled by user
+                        title=post_data.get("title", f"Post {i+1}"),
+                        text=post_data.get("text", ""),
+                        hashtags=post_data.get("hashtags", []),
+                        platform="instagram",
+                        content_type=post_data.get("content_type", "product"),
+                        status="needs_image"  # Mark as needing image
+                    )
+                    
+                    generated_posts.append(post)
                     
             # CRITICAL: Only return posts that use real photos
             logger.info(f"   ✅ Final result: {len(generated_posts)} posts with REAL photos only (no fallbacks)")

@@ -5199,6 +5199,8 @@ function MainApp() {
                   onClick={() => {
                     setShowPixabaySaveModal(false);
                     setSelectedPixabayImage(null);
+                    setPixabayCustomTitle('');
+                    setPixabayCustomContext('');
                   }}
                   variant="outline"
                   className="flex-1"

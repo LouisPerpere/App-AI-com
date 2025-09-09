@@ -18,25 +18,15 @@ TEST_PASSWORD = "L@Reunion974!"
 
 class ContentMoveTest:
     def __init__(self):
-        self.base_url = "https://content-scheduler-6.preview.emergentagent.com/api"
         self.session = requests.Session()
         self.token = None
         self.user_id = None
-        self.test_results = []
+        self.test_content_id = None
         
-    def log_test(self, test_name, success, details=""):
-        """Log test results"""
-        status = "✅ PASS" if success else "❌ FAIL"
-        self.test_results.append({
-            "test": test_name,
-            "success": success,
-            "details": details,
-            "timestamp": datetime.now().isoformat()
-        })
-        print(f"{status} - {test_name}")
-        if details:
-            print(f"   Details: {details}")
-        print()
+    def log(self, message, level="INFO"):
+        """Log test messages with timestamp"""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        print(f"[{timestamp}] {level}: {message}")
     
     def authenticate(self):
         """Step 1: Authenticate with provided credentials"""

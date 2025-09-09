@@ -105,7 +105,7 @@ def test_simple_upload(token, user_id):
         
         if response.status_code == 200:
             data = response.json()
-            uploaded_files = data.get("uploaded_files", [])
+            uploaded_files = data.get("created", [])  # Use "created" instead of "uploaded_files"
             
             if uploaded_files:
                 uploaded_file = uploaded_files[0]

@@ -386,7 +386,7 @@ const PostPreviewModal = ({
         </div>
 
         {/* Contenu */}
-        <div className="p-6 space-y-4">
+        <div className="p-6 space-y-4 flex-1 overflow-y-auto">
           {/* Visual */}
           {post.visual_url && (
             <div className="aspect-video bg-gray-100 rounded-xl overflow-hidden">

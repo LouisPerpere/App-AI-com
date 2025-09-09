@@ -245,6 +245,22 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
           Pixabay
         </div>
       )}
+      
+      {/* Move content button - appears on hover when not in selection mode */}
+      {!isSelectionMode && onMoveContent && (
+        <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onMoveContent(content);
+            }}
+            className="w-8 h-8 bg-orange-600 hover:bg-orange-700 text-white rounded-full flex items-center justify-center shadow-lg transition-colors"
+            title="Déplacer vers un autre mois"
+          >
+            <Calendar className="w-4 h-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 });

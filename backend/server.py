@@ -803,20 +803,39 @@ async def generate_posts_manual(
         raise HTTPException(status_code=500, detail=f"Failed to generate posts: {str(e)}")
 
 @api_router.get("/posts/generated")
-async def get_generated_posts(user_id: str = Depends(get_current_user_id_robust)):
-    """Get all generated posts for the user"""
+async def get_generated_posts(user_id: str = Depends(get_current_user_id)):
+    """Get generated posts for the current user with enhanced format"""
     try:
         dbm = get_database()
+        db = dbm.db
         
-        # Get generated posts from the database
-        posts = list(dbm.db.generated_posts.find(
-            {"user_id": user_id},
-            {"_id": 0}  # Exclude MongoDB _id field
-        ).sort("scheduled_date", -1))  # Sort by scheduled date, newest first
+        posts = await db.generated_posts.find(
+            {"owner_id": user_id}
+        ).sort([("scheduled_date", 1)]).to_list(100)
         
-        return {"posts": posts}
+        # Format posts for frontend display (similar to content/notes)
+        formatted_posts = []
+        for post in posts:
+            formatted_posts.append({
+                "id": post.get("id", ""),
+                "title": post.get("title", ""),
+                "text": post.get("text", ""),
+                "hashtags": post.get("hashtags", []),
+                "visual_url": post.get("visual_url", ""),
+                "visual_type": post.get("visual_type", "image"),
+                "platform": post.get("platform", "instagram"),
+                "content_type": post.get("content_type", "product"),
+                "scheduled_date": post.get("scheduled_date", ""),
+                "status": post.get("status", "draft"),
+                "published": post.get("published", False),
+                "created_at": post.get("created_at", "")
+            })
+        
+        print(f"📋 Retrieved {len(formatted_posts)} generated posts for user {user_id}")
+        return {"posts": formatted_posts, "count": len(formatted_posts)}
         
     except Exception as e:
+        print(f"❌ Failed to fetch posts: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch generated posts: {str(e)}")
 
 # ----------------------------

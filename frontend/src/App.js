@@ -302,6 +302,13 @@ function MainApp() {
   const [isGeneratingPosts, setIsGeneratingPosts] = useState(false);
   const [generatedPosts, setGeneratedPosts] = useState([]);
   
+  // Posts management states
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [isModifyingPost, setIsModifyingPost] = useState(false);
+  const [modificationRequest, setModificationRequest] = useState('');
+  const [postsByMonth, setPostsByMonth] = useState({});
+  const [collapsedPostMonths, setCollapsedPostMonths] = useState({});
+  
   // Pixabay integration states
   const [activeLibraryTab, setActiveLibraryTab] = useState('my-library'); // 'my-library' or 'pixabay-search'
   const [pixabayResults, setPixabayResults] = useState([]);

@@ -247,7 +247,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         """Determine optimal content mix based on business type"""
         logger.info("🎯 Step 3/6: Determining content strategy...")
         
-        business_profile = source_data.get("business_profile", {})
+        business_profile = source_data.get("business_profile") or {}
         business_type = business_profile.get("business_type", "service")
         
         # Content type distribution based on business type

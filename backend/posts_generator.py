@@ -3,10 +3,9 @@ Advanced Post Generation System for Claire et Marcus
 Generates intelligent social media posts based on user content, business profile, and website analysis.
 """
 
-import asyncio
 import logging
 from datetime import datetime, timedelta
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 import random
 import json
@@ -435,7 +434,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         month_content = available_content.get("month_content", [])
         older_content = available_content.get("older_content", [])
         
-        inventory_parts.append(f"CONTENU DISPONIBLE:")
+        inventory_parts.append("CONTENU DISPONIBLE:")
         inventory_parts.append(f"- Contenu du mois: {len(month_content)} éléments")
         inventory_parts.append(f"- Contenu plus ancien: {len(older_content)} éléments")
         
@@ -641,7 +640,7 @@ RÉPONSE ATTENDUE (JSON exact):
 """
             
             # Send to OpenAI
-            print(f"🤖 DEBUG: Sending request to OpenAI with model gpt-4o")
+            print("🤖 DEBUG: Sending request to OpenAI with model gpt-4o")
             print(f"🤖 DEBUG: Prompt length: {len(prompt)}")
             
             response = self.openai_client.chat.completions.create(

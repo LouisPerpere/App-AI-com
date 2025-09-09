@@ -596,15 +596,21 @@ RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
                         visual_url = ""
                         logger.warning(f"⚠️ Post {i+1}: No content available for mapping")
                 
-                post = PostContent(
-                    visual_url=visual_url,
-                    visual_id=visual_id,
-                    title=post_data.get("title", f"Post {i+1}"),
-                    text=post_data.get("text", ""),
-                    hashtags=post_data.get("hashtags", []),
-                    platform="instagram",
-                    content_type=post_data.get("content_type", "product")
-                )
+                # Create PostContent with only valid parameters
+                try:
+                    post = PostContent(
+                        visual_url=visual_url,
+                        visual_id=visual_id,
+                        title=post_data.get("title", f"Post {i+1}"),
+                        text=post_data.get("text", ""),
+                        hashtags=post_data.get("hashtags", []),
+                        platform="instagram",
+                        content_type=post_data.get("content_type", "product")
+                    )
+                except Exception as e:
+                    logger.error(f"❌ Error creating PostContent for post {i+1}: {str(e)}")
+                    logger.error(f"❌ Post data: {post_data}")
+                    continue
                 
                 generated_posts.append(post)
             

@@ -340,7 +340,7 @@ Tu réponds TOUJOURS au format JSON exact demandé."""
                     visual_content = older_content.pop(0)
                 else:
                     # TODO: Generate Pixabay search and download
-                    visual_content = await self._get_pixabay_content(business_context, content_type)
+                    visual_content = self._get_pixabay_content(business_context, content_type)
                 
                 if visual_content:
                     # Generate post with AI

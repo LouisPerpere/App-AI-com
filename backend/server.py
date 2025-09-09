@@ -17,6 +17,10 @@ import mimetypes
 import aiohttp
 import aiofiles
 
+# Load environment variables
+from dotenv import load_dotenv
+load_dotenv()
+
 # Enable HEIC/HEIF support for iPhone photos (optional)
 try:
     import pillow_heif

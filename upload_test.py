@@ -107,6 +107,12 @@ class BackendTester:
                         # Check if our uploaded file is in the list
                         uploaded_file = next((item for item in content_items if item.get("id") == file_id), None)
                         
+                        # Debug: Print first few items to see what's in the database
+                        print(f"    DEBUG: Looking for file_id: {file_id}")
+                        print(f"    DEBUG: Found {len(content_items)} total items")
+                        if content_items:
+                            print(f"    DEBUG: Recent items: {[item.get('id', 'no-id')[:8] + '...' for item in content_items[:3]]}")
+                        
                         if uploaded_file:
                             self.log_result("Basic Upload - File in Database", True, f"File ID: {file_id}, Filename: {uploaded_file.get('filename')}")
                             

@@ -458,6 +458,9 @@ Règles:
 """
             
             # Send to OpenAI
+            print(f"🤖 DEBUG: Sending request to OpenAI with model gpt-4o")
+            print(f"🤖 DEBUG: Prompt length: {len(prompt)}")
+            
             response = self.openai_client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
@@ -469,6 +472,9 @@ Règles:
             )
             
             response_text = response.choices[0].message.content
+            print(f"🤖 DEBUG: Raw response: '{response_text}'")
+            print(f"🤖 DEBUG: Response length: {len(response_text) if response_text else 0}")
+            
             logger.info(f"   🤖 AI Response length: {len(response_text) if response_text else 0}")
             logger.info(f"   🤖 AI Response preview: {response_text[:100] if response_text else 'Empty response'}")
             

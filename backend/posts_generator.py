@@ -455,6 +455,9 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
                                    business_context: str, notes_context: str, user_id: str) -> Optional[PostContent]:
         """Generate a single post with AI"""
         try:
+            # Get recent posts context to avoid duplication
+            recent_posts_context = await self._get_recent_posts_context(user_id)
+            
             # Build prompt for AI
             prompt = f"""Crée un post Instagram {content_type} naturel et authentique.
 
@@ -468,6 +471,8 @@ CONTENU VISUEL:
 - Titre: {visual_content.title}
 - Contexte: {visual_content.context}
 - Type: {visual_content.file_type}
+
+{recent_posts_context}
 
 TYPE DE POST: {content_type}
 {self._get_content_type_guidelines(content_type)}

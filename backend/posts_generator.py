@@ -438,16 +438,16 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         inventory_parts.append(f"- Contenu du mois: {len(month_content)} éléments")
         inventory_parts.append(f"- Contenu plus ancien: {len(older_content)} éléments")
         
-        # Add details about available content
+        # Add details about available content WITH IDs
         if month_content:
             inventory_parts.append("\nCONTENU DU MOIS:")
             for i, content in enumerate(month_content[:5], 1):  # Show first 5
-                inventory_parts.append(f"{i}. {content.title} - {content.context}")
+                inventory_parts.append(f"{i}. ID:{content.id} - {content.title} - {content.context}")
         
         if older_content:
             inventory_parts.append("\nCONTENU PLUS ANCIEN:")
             for i, content in enumerate(older_content[:5], 1):  # Show first 5
-                inventory_parts.append(f"{i}. {content.title} - {content.context}")
+                inventory_parts.append(f"{i}. ID:{content.id} - {content.title} - {content.context}")
         
         return "\n".join(inventory_parts)
     

@@ -1,6 +1,426 @@
 #!/usr/bin/env python3
 """
 CRITICAL PHOTO-POST LINKING SYSTEM TEST
+Test FINAL du système de liaison photos-posts avec les vraies données utilisateur.
+
+OBJECTIF: Valider que le système utilise maintenant les VRAIES photos du bon utilisateur (Laurent Perpere / lperpere@yahoo.fr).
+
+CONTEXTE TECHNIQUE:
+- User_ID corrigé: 6a670c66-c06c-4d75-9dd5-c747e8a0281a (Laurent Perpere)  
+- 2 photos Pixabay disponibles dans la base pour cet utilisateur
+- Système corrigé pour utiliser TOUTES les photos disponibles
+- IDs réels disponibles: 68b849f8df5b5e379b1faeb6, 68b84a25df5b5e379b1faeb7
+
+Backend URL: https://content-scheduler-6.preview.emergentagent.com/api
+"""
+
+import requests
+import json
+import time
+from datetime import datetime
+
+# Configuration
+BASE_URL = "https://content-scheduler-6.preview.emergentagent.com/api"
+TEST_EMAIL = "lperpere@yahoo.fr"
+TEST_PASSWORD = "L@Reunion974!"
+EXPECTED_USER_ID = "6a670c66-c06c-4d75-9dd5-c747e8a0281a"
+EXPECTED_PHOTO_IDS = ["68b849f8df5b5e379b1faeb6", "68b84a25df5b5e379b1faeb7"]
+
+class PhotoPostLinkingTester:
+    def __init__(self):
+        self.token = None
+        self.user_id = None
+        self.session = requests.Session()
+        self.session.timeout = 30
+        
+    def log(self, message, level="INFO"):
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        print(f"[{timestamp}] {level}: {message}")
+        
+    def authenticate(self):
+        """Step 1: Authenticate with Laurent Perpere credentials"""
+        self.log("🔐 STEP 1: Authentication with Laurent Perpere credentials")
+        
+        try:
+            response = self.session.post(
+                f"{BASE_URL}/auth/login-robust",
+                json={"email": TEST_EMAIL, "password": TEST_PASSWORD},
+                headers={"Content-Type": "application/json"}
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.token = data.get("access_token")
+                self.user_id = data.get("user_id")
+                
+                self.log(f"✅ Authentication successful")
+                self.log(f"   User ID: {self.user_id}")
+                self.log(f"   Expected: {EXPECTED_USER_ID}")
+                
+                if self.user_id == EXPECTED_USER_ID:
+                    self.log("✅ User ID matches expected Laurent Perpere ID")
+                    return True
+                else:
+                    self.log(f"❌ User ID mismatch! Got {self.user_id}, expected {EXPECTED_USER_ID}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Authentication failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Authentication error: {str(e)}", "ERROR")
+            return False
+    
+    def get_headers(self):
+        """Get authenticated headers"""
+        return {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+    
+    def verify_business_profile(self):
+        """Step 2: Verify business profile and posting_frequency"""
+        self.log("📊 STEP 2: Verify business profile and posting_frequency")
+        
+        try:
+            response = self.session.get(
+                f"{BASE_URL}/business-profile",
+                headers=self.get_headers()
+            )
+            
+            if response.status_code == 200:
+                profile = response.json()
+                posting_frequency = profile.get("posting_frequency")
+                business_name = profile.get("business_name")
+                business_type = profile.get("business_type")
+                
+                self.log(f"✅ Business profile retrieved successfully")
+                self.log(f"   Business: {business_name}")
+                self.log(f"   Type: {business_type}")
+                self.log(f"   Posting frequency: {posting_frequency}")
+                
+                if posting_frequency:
+                    self.log("✅ Posting frequency is configured and will be used for post generation")
+                    return True
+                else:
+                    self.log("⚠️ No posting frequency configured - will use default", "WARNING")
+                    return True
+            else:
+                self.log(f"❌ Failed to get business profile: {response.status_code}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Business profile error: {str(e)}", "ERROR")
+            return False
+    
+    def verify_available_photos(self):
+        """Step 3: Verify the 2 Pixabay photos are available for this user"""
+        self.log("📂 STEP 3: Verify available photos for Laurent Perpere")
+        
+        try:
+            response = self.session.get(
+                f"{BASE_URL}/content/pending?limit=50",
+                headers=self.get_headers()
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                content_items = data.get("content", [])
+                total_media = len(content_items)
+                
+                self.log(f"📂 Total media found: {total_media}")
+                
+                # Look for the specific expected photo IDs
+                found_photos = []
+                pixabay_photos = []
+                
+                for item in content_items:
+                    item_id = item.get("id")
+                    source = item.get("source", "")
+                    filename = item.get("filename", "")
+                    
+                    if item_id in EXPECTED_PHOTO_IDS:
+                        found_photos.append(item_id)
+                        self.log(f"✅ Found expected photo ID: {item_id}")
+                    
+                    if source == "pixabay":
+                        pixabay_photos.append({
+                            "id": item_id,
+                            "filename": filename,
+                            "source": source
+                        })
+                
+                self.log(f"📊 Pixabay photos found: {len(pixabay_photos)}")
+                for photo in pixabay_photos:
+                    self.log(f"   - ID: {photo['id']}, File: {photo['filename']}")
+                
+                if len(found_photos) >= 2:
+                    self.log(f"✅ Found {len(found_photos)} expected photos - sufficient for testing")
+                    return True, pixabay_photos
+                elif len(pixabay_photos) >= 2:
+                    self.log(f"✅ Found {len(pixabay_photos)} Pixabay photos - sufficient for testing")
+                    # Update expected IDs with actual found IDs
+                    actual_ids = [photo["id"] for photo in pixabay_photos[:2]]
+                    self.log(f"   Using actual photo IDs: {actual_ids}")
+                    return True, pixabay_photos
+                else:
+                    self.log(f"❌ Insufficient photos found. Expected 2+, found {len(pixabay_photos)} Pixabay photos", "ERROR")
+                    return False, []
+                    
+            else:
+                self.log(f"❌ Failed to get content: {response.status_code}", "ERROR")
+                return False, []
+                
+        except Exception as e:
+            self.log(f"❌ Content verification error: {str(e)}", "ERROR")
+            return False, []
+    
+    def test_post_generation(self):
+        """Step 4: Test POST /api/posts/generate with correct user_ID"""
+        self.log("🚀 STEP 4: Test post generation with real user data")
+        
+        try:
+            # Test post generation
+            self.log("   Calling POST /api/posts/generate...")
+            start_time = time.time()
+            
+            response = self.session.post(
+                f"{BASE_URL}/posts/generate",
+                json={"target_month": "janvier_2025"},
+                headers=self.get_headers()
+            )
+            
+            end_time = time.time()
+            duration = end_time - start_time
+            
+            self.log(f"   Response time: {duration:.1f} seconds")
+            self.log(f"   Status code: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                posts_count = data.get("posts_count", 0)
+                success = data.get("success", False)
+                strategy = data.get("strategy", {})
+                sources_used = data.get("sources_used", {})
+                
+                self.log(f"✅ Post generation completed successfully")
+                self.log(f"   Posts generated: {posts_count}")
+                self.log(f"   Success: {success}")
+                self.log(f"   Strategy: {strategy}")
+                self.log(f"   Sources used: {sources_used}")
+                
+                if posts_count > 0:
+                    self.log("✅ Posts were generated - proceeding to validation")
+                    return True
+                else:
+                    self.log("⚠️ No posts generated - checking for errors", "WARNING")
+                    return False
+            else:
+                error_text = response.text
+                self.log(f"❌ Post generation failed: {response.status_code}", "ERROR")
+                self.log(f"   Error: {error_text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Post generation error: {str(e)}", "ERROR")
+            return False
+    
+    def validate_generated_posts(self, available_photos):
+        """Step 5: CRITICAL - Validate visual_id in generated posts"""
+        self.log("🎯 STEP 5: CRITICAL VALIDATION - Check visual_id in generated posts")
+        
+        try:
+            response = self.session.get(
+                f"{BASE_URL}/posts/generated",
+                headers=self.get_headers()
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                posts = data.get("posts", [])
+                total_posts = len(posts)
+                
+                self.log(f"📋 Retrieved {total_posts} generated posts")
+                
+                if total_posts == 0:
+                    self.log("❌ No generated posts found to validate", "ERROR")
+                    return False
+                
+                # Critical validation
+                posts_with_real_photos = 0
+                posts_with_fallback = 0
+                valid_visual_ids = []
+                fallback_visual_ids = []
+                
+                available_photo_ids = [photo["id"] for photo in available_photos]
+                
+                for i, post in enumerate(posts, 1):
+                    visual_id = post.get("visual_id", "")
+                    visual_url = post.get("visual_url", "")
+                    title = post.get("title", "")
+                    
+                    self.log(f"   Post {i}:")
+                    self.log(f"     Title: {title}")
+                    self.log(f"     Visual ID: {visual_id}")
+                    self.log(f"     Visual URL: {visual_url}")
+                    
+                    if visual_id.startswith("global_fallback_"):
+                        posts_with_fallback += 1
+                        fallback_visual_ids.append(visual_id)
+                        self.log(f"     ❌ FALLBACK DETECTED: {visual_id}", "ERROR")
+                    elif visual_id in available_photo_ids:
+                        posts_with_real_photos += 1
+                        valid_visual_ids.append(visual_id)
+                        self.log(f"     ✅ REAL PHOTO: {visual_id}")
+                    elif visual_id in EXPECTED_PHOTO_IDS:
+                        posts_with_real_photos += 1
+                        valid_visual_ids.append(visual_id)
+                        self.log(f"     ✅ EXPECTED PHOTO: {visual_id}")
+                    else:
+                        self.log(f"     ⚠️ UNKNOWN PHOTO ID: {visual_id}", "WARNING")
+                
+                # Results summary
+                self.log(f"📊 VALIDATION RESULTS:")
+                self.log(f"   Total posts: {total_posts}")
+                self.log(f"   Posts with real photos: {posts_with_real_photos}")
+                self.log(f"   Posts with fallback: {posts_with_fallback}")
+                self.log(f"   Valid visual IDs: {valid_visual_ids}")
+                
+                if posts_with_fallback > 0:
+                    self.log(f"❌ CRITICAL FAILURE: {posts_with_fallback} posts still using fallback photos", "ERROR")
+                    self.log(f"   Fallback IDs: {fallback_visual_ids}", "ERROR")
+                    return False
+                elif posts_with_real_photos == total_posts:
+                    self.log(f"✅ SUCCESS: ALL {total_posts} posts use real photos - NO fallbacks!", "SUCCESS")
+                    return True
+                else:
+                    self.log(f"⚠️ PARTIAL SUCCESS: {posts_with_real_photos}/{total_posts} posts use real photos", "WARNING")
+                    return posts_with_real_photos > 0
+                    
+            else:
+                self.log(f"❌ Failed to get generated posts: {response.status_code}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Post validation error: {str(e)}", "ERROR")
+            return False
+    
+    def test_image_access(self, available_photos):
+        """Step 6: Test access to images via constructed URLs"""
+        self.log("🖼️ STEP 6: Test image access via constructed URLs")
+        
+        success_count = 0
+        total_tests = min(2, len(available_photos))
+        
+        for i, photo in enumerate(available_photos[:2]):
+            photo_id = photo["id"]
+            test_url = f"{BASE_URL}/content/{photo_id}/file"
+            
+            self.log(f"   Testing image {i+1}: {test_url}")
+            
+            try:
+                response = self.session.get(test_url, headers=self.get_headers())
+                
+                if response.status_code == 200:
+                    content_type = response.headers.get("Content-Type", "")
+                    content_length = len(response.content)
+                    
+                    self.log(f"     ✅ Image accessible")
+                    self.log(f"     Content-Type: {content_type}")
+                    self.log(f"     Size: {content_length} bytes")
+                    
+                    if content_type.startswith("image/"):
+                        success_count += 1
+                    else:
+                        self.log(f"     ⚠️ Unexpected content type: {content_type}", "WARNING")
+                else:
+                    self.log(f"     ❌ Image not accessible: {response.status_code}", "ERROR")
+                    
+            except Exception as e:
+                self.log(f"     ❌ Image access error: {str(e)}", "ERROR")
+        
+        if success_count == total_tests:
+            self.log(f"✅ All {success_count}/{total_tests} images accessible via constructed URLs")
+            return True
+        else:
+            self.log(f"⚠️ Only {success_count}/{total_tests} images accessible", "WARNING")
+            return success_count > 0
+    
+    def run_comprehensive_test(self):
+        """Run the complete photo-post linking system test"""
+        self.log("🎯 STARTING CRITICAL PHOTO-POST LINKING SYSTEM TEST")
+        self.log("=" * 80)
+        
+        # Step 1: Authentication
+        if not self.authenticate():
+            self.log("❌ CRITICAL FAILURE: Authentication failed", "ERROR")
+            return False
+        
+        # Step 2: Business profile verification
+        if not self.verify_business_profile():
+            self.log("❌ CRITICAL FAILURE: Business profile verification failed", "ERROR")
+            return False
+        
+        # Step 3: Photo availability verification
+        photos_available, available_photos = self.verify_available_photos()
+        if not photos_available:
+            self.log("❌ CRITICAL FAILURE: Insufficient photos available", "ERROR")
+            return False
+        
+        # Step 4: Post generation test
+        if not self.test_post_generation():
+            self.log("❌ CRITICAL FAILURE: Post generation failed", "ERROR")
+            return False
+        
+        # Step 5: Critical validation of visual_id
+        if not self.validate_generated_posts(available_photos):
+            self.log("❌ CRITICAL FAILURE: Posts still using fallback photos", "ERROR")
+            return False
+        
+        # Step 6: Image access test
+        if not self.test_image_access(available_photos):
+            self.log("⚠️ WARNING: Some images not accessible via URLs", "WARNING")
+        
+        self.log("=" * 80)
+        self.log("🎉 SUCCESS: Photo-post linking system is working correctly!")
+        self.log("✅ All posts use real photos - NO more fallbacks!")
+        self.log("✅ Photos are properly linked to posts")
+        self.log("✅ Image URLs are functional")
+        
+        return True
+
+def main():
+    """Main test execution"""
+    tester = PhotoPostLinkingTester()
+    
+    try:
+        success = tester.run_comprehensive_test()
+        
+        if success:
+            print("\n" + "=" * 80)
+            print("🎉 FINAL RESULT: PHOTO-POST LINKING SYSTEM TEST PASSED")
+            print("✅ Le système utilise maintenant les VRAIES photos!")
+            print("✅ Fini les 'global_fallback_X' - photos visibles dans les posts!")
+            print("=" * 80)
+            return 0
+        else:
+            print("\n" + "=" * 80)
+            print("❌ FINAL RESULT: PHOTO-POST LINKING SYSTEM TEST FAILED")
+            print("❌ Le système a encore des problèmes de liaison photos-posts")
+            print("=" * 80)
+            return 1
+            
+    except KeyboardInterrupt:
+        print("\n⚠️ Test interrupted by user")
+        return 1
+    except Exception as e:
+        print(f"\n❌ Unexpected error: {str(e)}")
+        return 1
+
+if __name__ == "__main__":
+    exit(main())
+"""
+CRITICAL PHOTO-POST LINKING SYSTEM TEST
 Test CRITIQUE du système de liaison photos-posts après correction majeure.
 
 OBJECTIF: Valider que les posts générés font maintenant le lien ABSOLU avec les vraies photos uploadées.

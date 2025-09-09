@@ -336,11 +336,22 @@ Tu réponds TOUJOURS au format JSON exact demandé."""
                 # Priority: month content first
                 if month_content:
                     visual_content = month_content.pop(0)
+                    logger.info(f"   📅 Using month content: {visual_content.title}")
                 elif older_content:
                     visual_content = older_content.pop(0)
+                    logger.info(f"   📂 Using older content: {visual_content.title}")
                 else:
-                    # TODO: Generate Pixabay search and download
-                    visual_content = self._get_pixabay_content(business_context, content_type)
+                    # Create fallback content for testing when no visual content is available
+                    logger.info(f"   📸 No visual content available, creating fallback content")
+                    visual_content = ContentSource(
+                        id=f"fallback_{content_type}_{i}",
+                        title=f"Contenu {content_type} pour {business_profile.get('business_name', 'votre entreprise')}",
+                        context=f"Contenu généré automatiquement pour illustrer un post {content_type}",
+                        visual_url="",
+                        file_type="image/jpeg",
+                        attributed_month="octobre_2025",
+                        source="generated"
+                    )
                 
                 if visual_content:
                     # Generate post with AI

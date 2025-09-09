@@ -1805,12 +1805,15 @@ function MainApp() {
     try {
       console.log('📤 Saving to general library:', `${API}/pixabay/save-image`);
       
+      const customTitle = pixabayTitleRef.current?.value || selectedPixabayImage.tags;
+      const customContext = pixabayContextRef.current?.value || '';
+      
       const response = await axios.post(`${API}/pixabay/save-image`, {
         pixabay_id: selectedPixabayImage.id,
         image_url: selectedPixabayImage.webformatURL,
         tags: selectedPixabayImage.tags,
-        custom_title: pixabayCustomTitle || selectedPixabayImage.tags,
-        custom_context: pixabayCustomContext,
+        custom_title: customTitle,
+        custom_context: customContext,
         save_type: 'general' // Mark as general library save
       }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },

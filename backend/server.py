@@ -92,6 +92,27 @@ except ImportError as e:
     print(f"⚠️ Uploads module not available: {e}")
     UPLOADS_AVAILABLE = False
 
+async def analyze_content_with_ai(content_path: str, description: str, business_profile: BusinessProfile, notes: List[ContentNote] = []):
+    """Analyze content with AI for post generation"""
+    try:
+        # Simple mock implementation for testing
+        # In production, this would use emergentintegrations LLM
+        return [
+            {
+                "platform": "facebook",
+                "post_text": f"Nouveau contenu pour {business_profile.business_name}: {description}",
+                "hashtags": ["#entreprise", "#contenu"]
+            },
+            {
+                "platform": "instagram", 
+                "post_text": f"Découvrez notre {description} chez {business_profile.business_name}",
+                "hashtags": ["#instagram", "#contenu"]
+            }
+        ]
+    except Exception as e:
+        print(f"Error in analyze_content_with_ai: {e}")
+        return []
+
 app = FastAPI(title="Claire et Marcus API", version="1.0.0")
 
 # Enable CORS for external frontends (Netlify, etc.)

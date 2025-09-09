@@ -16,6 +16,7 @@ import io
 import mimetypes
 import aiohttp
 import aiofiles
+from bson import ObjectId
 
 # Load environment variables
 from dotenv import load_dotenv

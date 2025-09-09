@@ -763,6 +763,70 @@ async def delete_content(content_id: str, user_id: str = Depends(get_current_use
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete content: {str(e)}")
 
+class BatchDeleteRequest(BaseModel):
+    content_ids: List[str]
+
+@api_router.delete("/content/batch")
+async def delete_content_batch(request: BatchDeleteRequest, user_id: str = Depends(get_current_user_id_robust)):
+    """Delete multiple content items in batch for performance"""
+    try:
+        if not request.content_ids:
+            raise HTTPException(status_code=400, detail="No content IDs provided")
+        
+        if len(request.content_ids) > 100:
+            raise HTTPException(status_code=400, detail="Too many items to delete at once (max 100)")
+        
+        print(f"🗑️ Batch deleting {len(request.content_ids)} content items for user {user_id}")
+        
+        dbm = get_database()
+        
+        # Convert content IDs to proper format for querying
+        from bson import ObjectId
+        object_ids = []
+        uuid_strings = []
+        
+        for content_id in request.content_ids:
+            try:
+                # Try ObjectId first
+                object_ids.append(ObjectId(content_id))
+            except:
+                # Fallback to string ID
+                uuid_strings.append(content_id)
+        
+        # Build the query to match either ObjectId or string ID, and ensure ownership
+        delete_filter = {
+            "owner_id": user_id,
+            "$or": []
+        }
+        
+        if object_ids:
+            delete_filter["$or"].append({"_id": {"$in": object_ids}})
+        if uuid_strings:
+            delete_filter["$or"].append({"id": {"$in": uuid_strings}})
+        
+        if not delete_filter["$or"]:
+            raise HTTPException(status_code=400, detail="No valid content IDs provided")
+        
+        # Perform batch deletion
+        result = dbm.db.media.delete_many(delete_filter)
+        
+        print(f"✅ Successfully deleted {result.deleted_count} out of {len(request.content_ids)} requested items")
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="No content found or already deleted")
+        
+        return {
+            "message": f"Suppression en lot réussie: {result.deleted_count} éléments supprimés",
+            "deleted_count": result.deleted_count,
+            "requested_count": len(request.content_ids)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error in batch delete: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete content batch: {str(e)}")
+
 # ----------------------------
 # POSTS GENERATION: /api/posts
 # ----------------------------

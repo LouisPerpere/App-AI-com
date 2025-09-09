@@ -905,8 +905,8 @@ RÈGLES STRICTES DE RÉDACTION:
 
 RÉPONSE ATTENDUE (JSON exact):
 {{
-    "title": "Nouveau titre modifié",
-    "text": "Nouveau texte modifié avec émojis pertinents",
+    "title": "Nouveau titre simple et direct",
+    "text": "Nouveau texte naturel sans style IA, max 2-3 emojis",
     "hashtags": ["hashtag1", "hashtag2", "hashtag3"]
 }}
 """

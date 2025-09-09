@@ -165,7 +165,7 @@ class BackendTester:
                     file_id = created_items[0].get("id")
                     
                     # Wait for processing
-                    time.sleep(2)
+                    time.sleep(5)
                     
                     # Verify metadata in database
                     pending_response = self.session.get(f"{BACKEND_URL}/content/pending")

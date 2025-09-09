@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for Content Movement Functionality
-Test de la nouvelle fonctionnalité de déplacement de contenu vers un autre mois
-
-OBJECTIF: Valider le nouvel endpoint PUT /api/content/{content_id}/move
+Backend Test Suite for Post Generation System
+Testing the corrected post generation system with variety constraints
 """
 
 import requests
 import json
-import sys
+import time
 from datetime import datetime
 
 # Configuration
@@ -16,7 +14,7 @@ BACKEND_URL = "https://content-scheduler-6.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 
-class ContentMoveTest:
+class PostGenerationTester:
     def __init__(self):
         self.session = requests.Session()
         self.token = None

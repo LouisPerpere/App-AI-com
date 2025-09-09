@@ -410,9 +410,9 @@ async def upload_content_batch(
 
 
 @router.get("/content/{file_id}/file")
-async def get_original_file(file_id: str, token: Optional[str] = None, authorization: Optional[str] = Header(None)):
-    """Stream original file from GridFS with auth."""
-    print(f"🔍 GET /content/{file_id}/file - token: {token is not None}, auth: {authorization is not None}")
+async def get_original_file(file_id: str, token: Optional[str] = None, authorization: Optional[str] = Header(None), range: Optional[str] = Header(None)):
+    """Stream original file from GridFS with auth and Range support for videos."""
+    print(f"🔍 GET /content/{file_id}/file - token: {token is not None}, auth: {authorization is not None}, range: {range}")
     
     # Allow auth via Authorization header or ?token=
     user_id = None
@@ -446,7 +446,50 @@ async def get_original_file(file_id: str, token: Optional[str] = None, authoriza
             gid = ObjectId(gid)
         f = fs.get(gid)
         content_type = f.content_type or media.get("file_type") or "application/octet-stream"
-        return StreamingResponse(f, media_type=content_type)
+        
+        # Read all file data into memory for range support
+        file_data = f.read()
+        file_size = len(file_data)
+        
+        # Handle Range requests for video streaming
+        if range and content_type.startswith('video/'):
+            try:
+                ranges = range.replace('bytes=', '').split('-')
+                start = int(ranges[0]) if ranges[0] else 0
+                end = int(ranges[1]) if ranges[1] else file_size - 1
+                
+                if start >= file_size or end >= file_size:
+                    raise HTTPException(416, "Range not satisfiable")
+                
+                chunk_data = file_data[start:end+1]
+                content_length = len(chunk_data)
+                
+                from fastapi import Response
+                headers = {
+                    'Content-Range': f'bytes {start}-{end}/{file_size}',
+                    'Accept-Ranges': 'bytes',
+                    'Content-Length': str(content_length),
+                    'Content-Type': content_type
+                }
+                
+                return Response(
+                    content=chunk_data,
+                    status_code=206,  # Partial Content
+                    headers=headers
+                )
+            except (ValueError, IndexError):
+                # Invalid range, fall back to full file
+                pass
+        
+        # Return full file with proper headers for video
+        headers = {}
+        if content_type.startswith('video/'):
+            headers['Accept-Ranges'] = 'bytes'
+            headers['Content-Length'] = str(file_size)
+        
+        from io import BytesIO
+        return StreamingResponse(BytesIO(file_data), media_type=content_type, headers=headers)
+        
     except HTTPException:
         raise
     except Exception as e:

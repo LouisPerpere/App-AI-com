@@ -288,7 +288,10 @@ const PostThumbnail = ({ post, onClick }) => {
         <div className="aspect-square bg-gradient-to-br from-emerald-100 to-blue-100 flex items-center justify-center relative">
           {post.visual_url ? (
             <img 
-              src={post.visual_url} 
+              src={post.visual_url.startsWith('http') 
+                ? post.visual_url 
+                : `${process.env.REACT_APP_BACKEND_URL}${post.visual_url}?token=${localStorage.getItem('access_token')}`
+              } 
               alt={post.title || 'Post'}
               className="w-full h-full object-cover"
             />

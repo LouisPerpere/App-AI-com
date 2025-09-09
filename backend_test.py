@@ -46,58 +46,58 @@ EXPECTED_WATCH_IDS = [
 
 EXPECTED_USER_ID = "bdf87a74-e3f3-44f3-bac2-649cde3ef93e"
 
-class PhotoPostLinkingTester:
-    def __init__(self):
-        self.token = None
-        self.user_id = None
-        self.session = requests.Session()
-        self.session.timeout = 30
-        
-    def log(self, message, level="INFO"):
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        print(f"[{timestamp}] {level}: {message}")
-        
-    def authenticate(self):
-        """Step 1: Authenticate with Laurent Perpere credentials"""
-        self.log("🔐 STEP 1: Authentication with Laurent Perpere credentials")
-        
-        try:
-            response = self.session.post(
-                f"{BASE_URL}/auth/login-robust",
-                json={"email": TEST_EMAIL, "password": TEST_PASSWORD},
-                headers={"Content-Type": "application/json"}
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                self.token = data.get("access_token")
-                self.user_id = data.get("user_id")
-                
-                self.log(f"✅ Authentication successful")
-                self.log(f"   User ID: {self.user_id}")
-                self.log(f"   Expected: {EXPECTED_USER_ID}")
-                
-                if self.user_id == EXPECTED_USER_ID:
-                    self.log("✅ User ID matches expected Laurent Perpere ID")
-                    return True
-                else:
-                    self.log(f"⚠️ User ID different from expected, but authentication successful", "WARNING")
-                    self.log(f"   Using actual user ID: {self.user_id}")
-                    return True  # Continue with actual user ID
-            else:
-                self.log(f"❌ Authentication failed: {response.status_code} - {response.text}", "ERROR")
-                return False
-                
-        except Exception as e:
-            self.log(f"❌ Authentication error: {str(e)}", "ERROR")
-            return False
+def print_test_header(test_name):
+    print(f"\n{'='*60}")
+    print(f"🧪 TEST: {test_name}")
+    print(f"{'='*60}")
+
+def print_success(message):
+    print(f"✅ {message}")
+
+def print_error(message):
+    print(f"❌ {message}")
+
+def print_info(message):
+    print(f"ℹ️  {message}")
+
+def authenticate():
+    """Step 1: Authenticate with Laurent Perpere credentials"""
+    print_test_header("AUTHENTIFICATION LAURENT PERPERE")
     
-    def get_headers(self):
-        """Get authenticated headers"""
-        return {
-            "Authorization": f"Bearer {self.token}",
-            "Content-Type": "application/json"
-        }
+    try:
+        response = requests.post(
+            f"{BASE_URL}/auth/login-robust",
+            json={
+                "email": TEST_EMAIL,
+                "password": TEST_PASSWORD
+            },
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            token = data.get("access_token")
+            user_id = data.get("user_id")
+            
+            print_success(f"Authentication successful")
+            print_info(f"User ID: {user_id}")
+            print_info(f"Email: {data.get('email')}")
+            
+            # Verify user ID matches expected
+            if user_id == EXPECTED_USER_ID:
+                print_success(f"User ID matches expected: {EXPECTED_USER_ID}")
+            else:
+                print_error(f"User ID mismatch! Expected: {EXPECTED_USER_ID}, Got: {user_id}")
+                
+            return token, user_id
+        else:
+            print_error(f"Authentication failed: {response.status_code}")
+            print_error(f"Response: {response.text}")
+            return None, None
+            
+    except Exception as e:
+        print_error(f"Authentication error: {str(e)}")
+        return None, None
     
     def verify_business_profile(self):
         """Step 2: Verify business profile and posting_frequency"""

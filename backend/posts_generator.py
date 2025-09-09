@@ -561,19 +561,25 @@ RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
             
             generated_posts = []
             for i, post_data in enumerate(posts_data):
-                # Create a fallback visual content for each post
-                visual_content_id = f"global_fallback_{i}"
-                visual_url = f"/api/content/{visual_content_id}/file"
+                # Extract the real visual_id from ChatGPT response
+                visual_id = post_data.get("visual_id", "")
+                
+                # Only create visual_url if we have a valid visual_id
+                if visual_id and visual_id != "":
+                    visual_url = f"/api/content/{visual_id}/file"
+                else:
+                    visual_url = ""
+                    logger.warning(f"⚠️ Post {i+1} has no visual_id - no image will be displayed")
                 
                 post = PostContent(
                     visual_url=visual_url,
-                    visual_id=visual_content_id,
+                    visual_id=visual_id,
                     title=post_data.get("title", f"Post {i+1}"),
                     text=post_data.get("text", ""),
                     hashtags=post_data.get("hashtags", []),
                     platform="instagram",
                     content_type=post_data.get("content_type", "product"),
-                    visual_type="image"
+                    scheduling_preference=post_data.get("scheduling_preference", "afternoon")
                 )
                 
                 generated_posts.append(post)

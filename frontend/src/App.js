@@ -266,7 +266,7 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
 });
 
 // Composant vignette de post
-const PostThumbnail = ({ post, onClick }) => {
+const PostThumbnail = ({ post, onClick, onAddImage }) => {
   const formatDate = (dateString) => {
     if (!dateString) return 'Non programmé';
     const date = new Date(dateString);

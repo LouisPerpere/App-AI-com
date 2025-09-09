@@ -10,7 +10,7 @@ import json
 import time
 
 # Configuration - Using the correct backend URL from frontend/.env
-BACKEND_URL = "https://content-organizer-3.preview.emergentagent.com"
+BACKEND_URL = "https://content-scheduler-6.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request

@@ -1,61 +1,96 @@
 <analysis>
-The AI engineer's work primarily focused on diagnosing and resolving a critical thumbnail re-rendering issue on iPhone, which initially manifested as white flashes and 30-second reloads. This involved extensive frontend debugging with temporary visual alerts in  and . Several React-based optimizations (callback stabilization, , component isolation, , ) were attempted, often breaking the application due to over-complexity or incompatibility. A significant discovery was the application running on **React 19.0.0**, causing runtime crashes; downgrading to **React 18.2.0** stabilized the frontend. The true root cause for the 30-second thumbnail reload was identified as a global  middleware in  that overridden specific cache headers in . This backend fix, combined with thumbnail preloading in , resolved the performance for standard uploads. However, Pixabay images still exhibit slow reloading, and the user has now requested a major refactoring of the 'My Library' page to support monthly sections and new upload functionalities.
+The AI engineer's work primarily focused on refining the Claire et Marcus PWA, tackling several critical bugs and implementing complex new features. Key challenges included a recurring backend URL misconfiguration causing login failures, persistent virtual keyboard issues on mobile inputs, and a video playback . Each issue required deep debugging across frontend and backend, leading to fixes like absolute URL construction,  for uncontrolled components, and HTTP Range header support for video streaming. Major feature additions involved overhauling content and notes organization into collapsible monthly sections, enhancing Pixabay integration, introducing carousel uploads, and implementing robust video compression. The trajectory concludes with the initial setup for the highly complex post generation system, laying the groundwork for AI-driven content creation.
 </analysis>
 
 <product_requirements>
-The Claire et Marcus PWA is an AI-powered SaaS for small businesses, designed to automate social media content and profile management. It provides robust content CRUD, a 5-column content library with pop-up previews, 320px WEBP thumbnails, AI-powered website analysis, a notes module, persistent business profiles, and comprehensive authentication. Recent feature additions included a periodic notes system, Pixabay integration for royalty-free images, various image management fixes (loading, EXIF, resizing), and the introduction of an operational title field for content, distinct from the filename, editable during upload and preview, and used for display and search. The user now requires a significant refactor of the Ma bibliothèque page to organize content month-by-month for the upcoming three months. Under each month, there should be a button for single-photo uploads (with title/context) and a carousel upload button for batch uploads (up to 10 photos) sharing a common title/context, displayed as a stack with only the first image visible. For Pixabay uploads, users should be prompted to either add to Pixabay image stock or attribute to a specific month. A persistent issue is that Pixabay image thumbnails still exhibit slow reloading.
+The Claire et Marcus PWA aims to automate social media content for small businesses. Initial features included content CRUD, a 5-column library, 320px WEBP thumbnails, AI website analysis, notes, profiles, and authentication. User requirements during this trajectory focused on:
+1.  **Monthly Organization**: Content and notes displayed in collapsible, chronological monthly sections (current, future, archives), extended to cover 6 months. Current month and important notes are open by default.
+2.  **Flexible Uploads**: Unified Uploader vos contenus button with Upload (multi-month, per-photo attribution) and Carrousel (batch, shared metadata, stacked vignette).
+3.  **Enhanced Pixabay Integration**: When adding Pixabay images, users can attribute to a specific month and modify title/context. Hashtags default to context, not title.
+4.  **Performance Fixes**: Resolve slow Pixabay thumbnail reloading (already done, confirmed earlier).
+5.  **UI/UX**: Consistent button sizing, reduced margins/paddings for notes and library pages, enlarged thumbnails, repositioned Pixabay badge.
+6.  **Video Playback & Compression**: Videos must play correctly (bug fix) and be compressed to a maximum of 720p during upload.
+7.  **Post Generation (Core Feature)**: Create a calendar of publications based on business profile, website analysis, uploads (current, unused older, Pixabay), and notes (valid, current month). Content must balance types and prioritize target audiences. Posts require a visual, text, day, and time for each social network (initially Instagram).
 </product_requirements>
 
 <key_technical_concepts>
--   **Full-stack**: React.js (downgraded from 19 to 18.2.0), FastAPI, MongoDB/GridFS.
--   **Authentication**: JWT, , .
--   **UI/UX**: Responsive design, , , , CSS Grid.
--   **API Interaction**: RESTful,  prefix, UUIDs, ObjectIds, custom middleware.
--   **Image Processing**: Backend thumbnail generation, frontend caching.
+-   **Full-stack**: React.js (Frontend), FastAPI (Backend), MongoDB/GridFS (Database).
+-   **State Management**: , , ,  for UI and data flow.
+-   **API Integration**: RESTful  endpoints,  for external calls,  for frontend.
+-   **Image/Video Processing**:  for images,  for video compression and streaming.
+-   **UI Libraries**:  components, Tailwind CSS for styling.
+-   **Authentication**: JWT-based.
+-   **LLM Integration**:  for AI-powered post generation.
 </key_technical_concepts>
 
 <code_architecture>
 
--   ****: Defines API routes and Pydantic models.
-    -   **Importance**: Central FastAPI application and global middleware management.
-    -   **Changes Made**: Removed a global middleware (lines 106-114) that incorrectly set  for all  routes, which was interfering with proper cache headers for thumbnails.
--   ****: Handles file uploads to GridFS.
-    -   **Importance**: Manages image storage and initial metadata.
-    -   **Changes Made**: Corrected the returned uid=0(root) gid=0(root) groups=0(root) in the batch upload response from a generated UUID () to the actual MongoDB  () to resolve 404 errors when updating title/context.
--   ****: Manages thumbnail retrieval and generation.
-    -   **Importance**: Responsible for serving optimized image thumbnails and setting appropriate cache headers.
-    -   **Changes Made**: No direct code changes, but its  headers (e.g., ) are now correctly applied after the fix in . It also contains logic to generate thumbnails from original images if not found.
--   ****: Main React component, orchestrates UI and logic.
-    -   **Importance**: The core frontend application.
+
+-   ****:
+    -   **Importance**: Main FastAPI application, API routes.
+    -   **Changes Made**: Modified  to accept  and . Endpoint for  and  exist, and new code is being added to integrate .
+-   ****: No changes mentioned in the trajectory, but important for thumbnail generation.
+-   ****:
+    -   **Importance**: Handles file uploads.
     -   **Changes Made**:
-        -   **Debugging**: Temporarily modified with extensive s, s, and a debug panel, all of which have been removed to restore a clean state.
-        -   **Structure**: Eliminated several conditional rendering blocks (e.g.,  and ) by using  to prevent full component re-mounts on state changes and tab switches.
-        -   **Performance**: Added a  hook to preload thumbnails one second after login. Removed a duplicate  declaration.
-        -   **Display**: Updated grid column count to display 4-6 vignettes per line.
-        -   **Pixabay**: Temporary debug added to Pixabay search button.
--   ****: Main stylesheet.
-    -   **Importance**: Global and component-specific styling.
-    -   **Changes Made**: Modified CSS for  to increase the number of columns (4-6). Removed temporary CSS optimizations for  that caused display issues.
--   ****: React component for displaying individual content thumbnails.
-    -   **Importance**: Renders an individual thumbnail with its title/filename.
-    -   **Changes Made**: Modified during debugging to include mount/unmount alerts and render counts (these changes were later removed).
--   ****: Frontend dependency manifest.
-    -   **Importance**: Manages all frontend library versions.
-    -   **Changes Made**: Downgraded  and  from  to  using  to resolve runtime incompatibilities and application crashes.
+        -   Implemented HTTP Range header support for  to enable video streaming (206 Partial Content, ).
+        -   Added video compression logic (max 720p with FFmpeg) to both single and batch upload functions, with a size-based trigger and a 5-minute duration limit.
+-   ****:
+    -   **Importance**: Contains automatic content generation logic.
+    -   **Changes Made**: Identified to have import issues and an unimplemented  function, which needs to be rectified for post generation.
+-   ** (NEW)**:
+    -   **Importance**: New file created to house the core logic for AI-powered post generation.
+    -   **Changes Made**: File created, now being integrated.
+-   ****:
+    -   **Importance**: Central React component.
+    -   **Changes Made**: Extensive:
+        -   **Monthly Organization**: Extended month options to 6 months for notes and uploads, implemented default collapse states (current month and important notes open).
+        -   **Notes UI**: Unified month selector, reduced margins, enlarged text areas.
+        -   **Library UI**: Enlarged content thumbnails (changed grid from 4/5/6 cols to 3/4/5), reduced margins, repositioned Pixabay badge.
+        -   **Pixabay Modal**: Added custom title/context input fields, default Pixabay tags to context, use  for inputs to fix virtual keyboard bug, implemented data persistence.
+        -   **Uploads**: Fixed bug where changing attribution month cleared title/context fields.
+        -   **Video Playback**: Constructed absolute URLs for uploaded videos and fallback links using .
+        -   **Post Generation**: Contains UI for Posts tab, generation button, and modal.
+-   ****:
+    -   **Importance**: Stylesheet.
+    -   **Changes Made**: Modifications for consistent button sizes, container widths, and carousel stack effect. (Minor adjustments to support  UI changes).
+-   ****:
+    -   **Importance**: Frontend environment variables.
+    -   **Changes Made**: Repeatedly corrected  to the correct preview URL () due to persistent resets.
 </code_architecture>
 
 <pending_tasks>
--   Investigate and resolve the persistent slow reloading of Pixabay thumbnails on every click/navigation.
--   Refactor the Ma bibliothèque page to introduce monthly sections (e.g., September 2025, October 2025, November 2025).
--   Implement a single-photo upload button within each monthly section, with existing title/context logic.
--   Implement a carousel upload button for batch uploads (up to 10 photos) with a common title/context, displayed as a stacked thumbnail.
--   Modify Pixabay add functionality to offer two choices: add to Pixabay image stock or attribute to a specific month.
+-   **Implement full Post Generation logic**: This is the major, complex feature requested and currently being worked on.
+-   **Correct  imports/unimplemented functions**: Address issues like the missing  function.
+-   **Integrate LLM into Post Generation**: Utilize  for actual AI content generation.
 </pending_tasks>
 
 <current_work>
-The AI engineer successfully resolved a major performance issue where locally uploaded thumbnails took 30 seconds to reload. This was identified as a backend caching conflict where a global  middleware in  overridden specific cache headers set in . Fixing this middleware, along with downgrading the frontend from React 19 to 18.2.0, restored application stability and improved thumbnail loading for user-uploaded content significantly (instantaneous after the first load). A preloading mechanism was added to  to fetch thumbnails one second after login. The application is currently stable and functional, displaying 4-6 vignettes per row. However, the user explicitly reported that **Pixabay thumbnails still exhibit slow reloading** (). Simultaneously, a new, substantial feature request has been made to completely refactor the Ma bibliothèque page, introducing monthly content sections, new dedicated upload mechanisms for single photos and image carousels, and enhanced Pixabay image attribution logic. The current state is that the core performance problem for local images is fixed, but the Pixabay thumbnail issue remains, and a major new feature is pending.
+The AI engineer is currently initiating the development of the génération de posts (post generation) system, which is described as the core and most complex feature of the application.
+
+Based on the detailed product requirements provided by the user, this system will:
+1.  **Create a publication calendar** based on user-defined number of posts.
+2.  **Gather content from multiple sources**:
+    *    page: Business profile, target audience.
+    *    page: Website analysis.
+    *    page: Titles and contexts of content (images/videos) from the current month.
+    *    page: Notes toujours valables and notes for the current month.
+3.  **Handle insufficient content**: Prioritize unused uploads from older months. If still insufficient, search for royalty-free Pixabay photos, using website analysis and business profile for tailored searches.
+4.  **Ensure content balance**: Respect an equilibrium of content types (e.g., product highlights, behind-the-scenes, educational) adapted to the user's business.
+5.  **Target audience**: Prioritize audience descriptions from the  page, or fallback to website analysis.
+6.  **Generated Post Structure**: Each post will consist of a visual, text, and a publication day/time for each social network. Initially, the focus is on Instagram.
+7.  **Display**: Posts will appear on the  page with a presentation similar to uploads and notes.
+
+The AI engineer has identified existing frontend (Posts tab, generation button, modal with prerequisites checklist) and backend (,  endpoints in ,  in ) structures. Critical backend issues, such as missing  and import problems in , have been noted.
+
+The immediate actions taken are:
+1.  Verification of  library installation.
+2.  Creation of a new backend file: , which is intended to encapsulate the core logic for this feature.
+3.  Modification of  to integrate and define endpoints for using this new  system.
+
+The work is at the very beginning of implementing the complex AI generation logic.
 </current_work>
 
 <optional_next_step>
-Investigate and fix why Pixabay thumbnails continue to reload slowly on every click, as requested by the user.
+Define the Pydantic models required for the Post Generation feature and implement the initial AI generation logic in .
 </optional_next_step>

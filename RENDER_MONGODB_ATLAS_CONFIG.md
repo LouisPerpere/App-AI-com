@@ -45,7 +45,7 @@ Au lieu de:
 ### 5. TEST FINAL
 Une fois corrigé:
 ```
-curl https://content-organizer-3.preview.emergentagent.com/api/diag
+curl https://content-scheduler-6.preview.emergentagent.com/api/diag
 ```
 
 Devrait retourner: `"database_connected": true`

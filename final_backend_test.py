@@ -8,7 +8,7 @@ import requests
 import json
 
 # Configuration
-BACKEND_URL = "https://content-organizer-3.preview.emergentagent.com"
+BACKEND_URL = "https://content-scheduler-6.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"

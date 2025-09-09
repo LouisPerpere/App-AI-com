@@ -11,7 +11,7 @@ from datetime import datetime
 
 class FrontendIntegrationTest:
     def __init__(self):
-        self.base_url = "https://content-organizer-3.preview.emergentagent.com"
+        self.base_url = "https://content-scheduler-6.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         

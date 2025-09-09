@@ -12,7 +12,7 @@ This script tests the post generation system as requested:
 6. Business profile + notes integration
 
 Using credentials: lperpere@yahoo.fr / L@Reunion974!
-Backend URL: https://bec782b4-d00d-460e-9344-ac719d1fb8b7.preview.emergentagent.com/api
+Backend URL: https://content-scheduler-6.preview.emergentagent.com/api
 """
 
 import requests
@@ -22,7 +22,7 @@ from datetime import datetime
 from typing import Dict, List, Any
 
 # Configuration
-BACKEND_URL = "https://bec782b4-d00d-460e-9344-ac719d1fb8b7.preview.emergentagent.com/api"
+BACKEND_URL = "https://content-scheduler-6.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 

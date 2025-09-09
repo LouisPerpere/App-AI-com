@@ -5722,6 +5722,103 @@ function MainApp() {
             </div>
           </div>
         )}
+        
+        {/* Modal de déplacement de contenu */}
+        {showMoveModal && contentToMove && (
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl max-w-md w-full p-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  📅 Déplacer vers un autre mois
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Vers quel mois souhaitez-vous déplacer ce contenu ?
+                </p>
+              </div>
+              
+              {/* Preview du contenu */}
+              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
+                    {contentToMove.thumb_url ? (
+                      <img 
+                        src={`${contentToMove.thumb_url}?token=${localStorage.getItem('access_token')}`}
+                        alt={contentToMove.title || 'Contenu'}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                        <FileText className="w-6 h-6 text-gray-400" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-900 truncate">
+                      {contentToMove.title || contentToMove.filename || 'Sans titre'}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Actuellement dans: {contentToMove.attributed_month || 'Aucun mois'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Sélection du mois */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Choisir le mois de destination :
+                </label>
+                <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto">
+                  {getAvailableMonths().map((month) => (
+                    <button
+                      key={month.key}
+                      onClick={() => moveContentToMonth(month.key)}
+                      disabled={isMovingContent || month.key === contentToMove.attributed_month}
+                      className={`p-3 text-left rounded-lg border transition-colors ${
+                        month.key === contentToMove.attributed_month
+                          ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                          : 'bg-white hover:bg-orange-50 border-gray-200 hover:border-orange-300 text-gray-900'
+                      }`}
+                    >
+                      <div className="font-medium capitalize">
+                        {month.label}
+                      </div>
+                      {month.key === contentToMove.attributed_month && (
+                        <div className="text-xs text-gray-500 mt-1">
+                          Mois actuel
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Actions */}
+              <div className="flex items-center justify-end space-x-3">
+                <button
+                  onClick={() => {
+                    setShowMoveModal(false);
+                    setContentToMove(null);
+                  }}
+                  disabled={isMovingContent}
+                  className="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium transition-colors"
+                >
+                  Annuler
+                </button>
+              </div>
+              
+              {/* Loading indicator */}
+              {isMovingContent && (
+                <div className="mt-4 flex items-center justify-center">
+                  <div className="flex items-center space-x-2 text-orange-600">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="text-sm">Déplacement en cours...</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

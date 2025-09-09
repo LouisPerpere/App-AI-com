@@ -59,6 +59,8 @@ class PostsGenerator:
         try:
             # Use personal OpenAI key as requested by user
             api_key = os.getenv('OPENAI_API_KEY')
+            print(f"🔍 DEBUG: API key loaded: {api_key[:20] if api_key else 'None'}...")
+            
             if not api_key:
                 raise ValueError("No OpenAI API key found")
             
@@ -75,9 +77,11 @@ Tu respectes toujours ces principes :
 
 Tu réponds TOUJOURS au format JSON exact demandé."""
             
+            print("✅ OpenAI client initialized successfully")
             logger.info("✅ OpenAI client initialized successfully")
             
         except Exception as e:
+            print(f"❌ Failed to initialize OpenAI client: {str(e)}")
             logger.error(f"❌ Failed to initialize OpenAI client: {str(e)}")
             self.openai_client = None
     

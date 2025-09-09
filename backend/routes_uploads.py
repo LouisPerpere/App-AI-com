@@ -440,6 +440,26 @@ async def upload_content_batch(
                 except Exception as e:
                     print(f"⚠️ Image processing error: {e}")
                     final_data = data
+                    
+            elif file.content_type and file.content_type.startswith('video/'):
+                # Compress video to 720p max (batch version)
+                try:
+                    print(f"🎥 Processing batch video file: {file.filename}")
+                    original_size_mb = len(data) / 1024 / 1024
+                    print(f"📊 Original video size: {original_size_mb:.1f}MB")
+                    
+                    # Only compress if video is large enough to benefit
+                    if original_size_mb > 5:  # Only compress videos larger than 5MB
+                        final_data = compress_video_to_720p(data)
+                        compressed_size_mb = len(final_data) / 1024 / 1024
+                        print(f"📊 Final video size: {compressed_size_mb:.1f}MB")
+                    else:
+                        print(f"📊 Video too small to compress, keeping original")
+                        final_data = data
+                        
+                except Exception as e:
+                    print(f"⚠️ Video compression failed, using original: {e}")
+                    final_data = data
             
             grid_id = fs.put(final_data, filename=file.filename, content_type=file.content_type, uploadDate=datetime.utcnow())
             

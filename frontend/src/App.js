@@ -4117,6 +4117,27 @@ function MainApp() {
                               </div>
                             )))}
                           </div>
+                          
+                          {/* Bouton d'upload dupliqué en bas */}
+                          <div className="mt-6 text-center">
+                            <Button
+                              onClick={handleBatchUpload}
+                              disabled={isUploading}
+                              className="btn-gradient-primary"
+                            >
+                              {isUploading ? (
+                                <>
+                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                  Upload en cours...
+                                </>
+                              ) : (
+                                <>
+                                  <Upload className="w-4 h-4 mr-2" />
+                                  Uploader {selectedFiles.length} fichier{selectedFiles.length > 1 ? 's' : ''}
+                                </>
+                              )}
+                            </Button>
+                          </div>
                         </div>
                       )}
                     </div>

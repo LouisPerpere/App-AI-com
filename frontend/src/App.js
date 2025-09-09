@@ -5197,6 +5197,7 @@ function MainApp() {
               <div className="flex space-x-3">
                 <Button
                   onClick={() => {
+                    // Close modal and reset fields
                     setShowPixabaySaveModal(false);
                     setSelectedPixabayImage(null);
                     setPixabayCustomTitle('');

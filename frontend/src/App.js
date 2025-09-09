@@ -2163,6 +2163,13 @@ function MainApp() {
     setShowMoveModal(true);
   };
 
+  // Fonctions d'ajout d'image aux posts
+  const handleAddImageToPost = (post) => {
+    setPostToAttachImage(post);
+    setShowImageAttachModal(true);
+    setAttachImageTab('library'); // Commencer par la bibliothèque
+  };
+
   const moveContentToMonth = async (targetMonth) => {
     if (!contentToMove || !targetMonth) return;
 

@@ -2112,6 +2112,67 @@ function MainApp() {
     }
   };
 
+  // Fonctions de déplacement de contenu
+  const handleMoveContent = (content) => {
+    setContentToMove(content);
+    setShowMoveModal(true);
+  };
+
+  const moveContentToMonth = async (targetMonth) => {
+    if (!contentToMove || !targetMonth) return;
+
+    setIsMovingContent(true);
+    const token = localStorage.getItem('access_token');
+
+    try {
+      const response = await axios.put(
+        `${API}/content/${contentToMove.id}/move`,
+        { target_month: targetMonth },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      toast.success(`📅 ${response.data.message}`);
+      
+      // Recharger le contenu
+      await loadPendingContent();
+      
+      // Fermer la modal
+      setShowMoveModal(false);
+      setContentToMove(null);
+      
+    } catch (error) {
+      console.error('Error moving content:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`Erreur lors du déplacement: ${errorMessage}`);
+    } finally {
+      setIsMovingContent(false);
+    }
+  };
+
+  // Générer la liste des mois disponibles
+  const getAvailableMonths = () => {
+    const months = [];
+    const now = new Date();
+    
+    // Derniers 6 mois
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthKey = `${date.toLocaleDateString('fr-FR', { month: 'long' }).toLowerCase()}_${date.getFullYear()}`;
+      const monthLabel = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      months.push({ key: monthKey, label: monthLabel });
+    }
+    
+    // Prochains 6 mois
+    for (let i = 1; i <= 6; i++) {
+      const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const monthKey = `${date.toLocaleDateString('fr-FR', { month: 'long' }).toLowerCase()}_${date.getFullYear()}`;
+      const monthLabel = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      months.push({ key: monthKey, label: monthLabel });
+    }
+    
+    return months;
+  };
+
   // Rechercher des images sur Pixabay
   const searchPixabayImages = async (loadMore = false) => {
     const query = loadMore ? pixabayCurrentQuery : pixabaySearchRef.current?.value?.trim();

@@ -935,6 +935,8 @@ async def generate_posts_manual(
         print(f"   📊 Posting frequency: {posting_frequency}")
         print(f"   📊 Posts per week: {posts_per_week}")
         print(f"   📊 Total posts for month: {num_posts}")
+        print(f"   🔍 Business profile owner_id: {business_profile.get('owner_id', 'Not found')}")
+        print(f"   🔍 Business profile name: {business_profile.get('business_name', 'Not found')}")
         
         # Use the new advanced posts generator
         from posts_generator import PostsGenerator

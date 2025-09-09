@@ -426,18 +426,65 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             return "Erreur lors de la récupération des posts récents."
 
     def _format_business_context(self, business_profile: Dict) -> str:
-        """Format business profile for the global prompt"""
+        """Format complete business profile for AI context - ALL DATA"""
         if not business_profile:
             return "Aucun profil business disponible."
         
-        context_parts = []
-        context_parts.append(f"ENTREPRISE: {business_profile.get('business_name', 'Non défini')}")
-        context_parts.append(f"TYPE: {business_profile.get('business_type', 'Non défini')}")
-        context_parts.append(f"DESCRIPTION: {business_profile.get('business_description', 'Non définie')}")
+        context_parts = ["=== PROFIL BUSINESS COMPLET ==="]
         
-        target_audience = business_profile.get('target_audience', '')
-        if target_audience:
-            context_parts.append(f"CIBLE: {target_audience}")
+        # Basic business info
+        context_parts.append(f"Nom de l'entreprise: {business_profile.get('business_name', 'Non défini')}")
+        context_parts.append(f"Type d'entreprise: {business_profile.get('business_type', 'Non défini')}")
+        context_parts.append(f"Secteur d'activité: {business_profile.get('industry', 'Non défini')}")
+        
+        # Detailed descriptions
+        if business_profile.get('business_description'):
+            context_parts.append(f"Description détaillée: {business_profile['business_description']}")
+        
+        if business_profile.get('value_proposition'):
+            context_parts.append(f"Proposition de valeur: {business_profile['value_proposition']}")
+        
+        # Target audience details
+        if business_profile.get('target_audience'):
+            context_parts.append(f"Public cible: {business_profile['target_audience']}")
+            
+        if business_profile.get('target_audience_details'):
+            context_parts.append(f"Détails audience: {business_profile['target_audience_details']}")
+        
+        # Marketing info
+        if business_profile.get('brand_voice'):
+            context_parts.append(f"Ton de marque: {business_profile['brand_voice']}")
+            
+        if business_profile.get('content_themes'):
+            context_parts.append(f"Thèmes de contenu: {business_profile['content_themes']}")
+        
+        # Business specifics
+        if business_profile.get('products_services'):
+            context_parts.append(f"Produits/Services: {business_profile['products_services']}")
+            
+        if business_profile.get('unique_selling_points'):
+            context_parts.append(f"Points de différenciation: {business_profile['unique_selling_points']}")
+        
+        # Goals and objectives
+        if business_profile.get('business_goals'):
+            context_parts.append(f"Objectifs business: {business_profile['business_goals']}")
+            
+        if business_profile.get('social_media_goals'):
+            context_parts.append(f"Objectifs réseaux sociaux: {business_profile['social_media_goals']}")
+        
+        # Posting preferences
+        if business_profile.get('posting_frequency'):
+            context_parts.append(f"Fréquence de publication: {business_profile['posting_frequency']}")
+            
+        if business_profile.get('preferred_post_types'):
+            context_parts.append(f"Types de posts préférés: {business_profile['preferred_post_types']}")
+        
+        # Additional context
+        if business_profile.get('competitors'):
+            context_parts.append(f"Concurrents: {business_profile['competitors']}")
+            
+        if business_profile.get('location'):
+            context_parts.append(f"Localisation: {business_profile['location']}")
         
         return "\n".join(context_parts)
     

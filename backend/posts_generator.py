@@ -499,6 +499,72 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         
         return "\n".join(context_parts)
     
+    def _format_website_analysis_context(self, website_analysis: Dict) -> str:
+        """Format complete website analysis for AI context - ALL DATA"""
+        if not website_analysis:
+            return "Aucune analyse de site web disponible."
+        
+        context_parts = ["=== ANALYSE COMPLÈTE DU SITE WEB ==="]
+        
+        # Basic site info
+        if website_analysis.get('url'):
+            context_parts.append(f"URL du site: {website_analysis['url']}")
+            
+        if website_analysis.get('title'):
+            context_parts.append(f"Titre du site: {website_analysis['title']}")
+            
+        if website_analysis.get('description'):
+            context_parts.append(f"Description: {website_analysis['description']}")
+        
+        # Content analysis
+        if website_analysis.get('main_content'):
+            context_parts.append(f"Contenu principal: {website_analysis['main_content']}")
+            
+        if website_analysis.get('key_topics'):
+            context_parts.append(f"Sujets clés: {website_analysis['key_topics']}")
+            
+        if website_analysis.get('keywords'):
+            context_parts.append(f"Mots-clés: {website_analysis['keywords']}")
+        
+        # Business insights
+        if website_analysis.get('business_model'):
+            context_parts.append(f"Modèle économique: {website_analysis['business_model']}")
+            
+        if website_analysis.get('target_market'):
+            context_parts.append(f"Marché cible: {website_analysis['target_market']}")
+            
+        if website_analysis.get('value_proposition'):
+            context_parts.append(f"Proposition de valeur (site): {website_analysis['value_proposition']}")
+        
+        # Products/Services
+        if website_analysis.get('products_services'):
+            context_parts.append(f"Produits/Services (site): {website_analysis['products_services']}")
+            
+        if website_analysis.get('unique_features'):
+            context_parts.append(f"Caractéristiques uniques: {website_analysis['unique_features']}")
+        
+        # Marketing insights
+        if website_analysis.get('content_strategy_suggestions'):
+            context_parts.append(f"Suggestions stratégie contenu: {website_analysis['content_strategy_suggestions']}")
+            
+        if website_analysis.get('social_media_angles'):
+            context_parts.append(f"Angles réseaux sociaux: {website_analysis['social_media_angles']}")
+            
+        if website_analysis.get('brand_personality'):
+            context_parts.append(f"Personnalité de marque: {website_analysis['brand_personality']}")
+        
+        # Additional insights
+        if website_analysis.get('competitive_advantages'):
+            context_parts.append(f"Avantages concurrentiels: {website_analysis['competitive_advantages']}")
+            
+        if website_analysis.get('customer_pain_points'):
+            context_parts.append(f"Points de douleur clients: {website_analysis['customer_pain_points']}")
+            
+        if website_analysis.get('content_opportunities'):
+            context_parts.append(f"Opportunités de contenu: {website_analysis['content_opportunities']}")
+        
+        return "\n".join(context_parts)
+    
     def _prepare_content_inventory(self, available_content: Dict) -> str:
         """Prepare content inventory description for AI"""
         inventory_parts = []

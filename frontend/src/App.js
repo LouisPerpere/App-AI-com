@@ -1832,8 +1832,8 @@ function MainApp() {
       // Close modal and reset fields
       setShowPixabaySaveModal(false);
       setSelectedPixabayImage(null);
-      setPixabayCustomTitle('');
-      setPixabayCustomContext('');
+      if (pixabayTitleRef.current) pixabayTitleRef.current.value = '';
+      if (pixabayContextRef.current) pixabayContextRef.current.value = '';
 
     } catch (error) {
       console.error('❌ Error saving Pixabay image:', error);

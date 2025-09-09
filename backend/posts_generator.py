@@ -100,13 +100,13 @@ Tu réponds TOUJOURS au format JSON exact demandé."""
             logger.info(f"🚀 Starting post generation for user {user_id}, month {target_month}, {num_posts} posts")
             
             # STEP 1: Gather all source data
-            source_data = await self._gather_source_data(user_id, target_month)
+            source_data = self._gather_source_data(user_id, target_month)
             
             # STEP 2: Collect available content
-            available_content = await self._collect_available_content(user_id, target_month)
+            available_content = self._collect_available_content(user_id, target_month)
             
             # STEP 3: Determine content mix strategy  
-            content_strategy = await self._determine_content_strategy(source_data, num_posts)
+            content_strategy = self._determine_content_strategy(source_data, num_posts)
             
             # STEP 4: Generate posts according to strategy
             generated_posts = await self._generate_posts_with_strategy(
@@ -114,10 +114,10 @@ Tu réponds TOUJOURS au format JSON exact demandé."""
             )
             
             # STEP 5: Create posting schedule
-            scheduled_posts = await self._create_posting_schedule(generated_posts, target_month)
+            scheduled_posts = self._create_posting_schedule(generated_posts, target_month)
             
             # STEP 6: Save to database
-            await self._save_generated_posts(user_id, scheduled_posts)
+            self._save_generated_posts(user_id, scheduled_posts)
             
             logger.info(f"✅ Generated {len(scheduled_posts)} posts successfully")
             

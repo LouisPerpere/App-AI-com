@@ -934,22 +934,23 @@ async def attach_image_to_post(
         if request.image_source == "library":
             # Use existing image from library
             if request.image_id:
-                # Find the image using UUID
-                image_doc = dbm.db.media.find_one({
-                    "$or": [
-                        {"id": request.image_id},
-                        {"file_id": request.image_id}
-                    ],
-                    "owner_id": user_id
-                })
+                # Find the image using parse_any_id to handle both ObjectId and UUID
+                query = parse_any_id(request.image_id)
+                query["owner_id"] = user_id
+                
+                image_doc = dbm.db.media.find_one(query)
                 
                 if image_doc:
-                    visual_id = image_doc.get("id") or image_doc.get("file_id")
+                    # Use the original image_id from the request for consistency
+                    visual_id = request.image_id
                     visual_url = f"/api/content/{visual_id}/file"
                     
-                    # Mark image as used
+                    # Mark image as used using the same query pattern
+                    update_query = parse_any_id(request.image_id)
+                    update_query["owner_id"] = user_id
+                    
                     dbm.db.media.update_one(
-                        {"$or": [{"id": visual_id}, {"file_id": visual_id}]},
+                        update_query,
                         {"$set": {"used_in_posts": True}}
                     )
                     print(f"✅ Library image {visual_id} marked as used")

@@ -963,7 +963,8 @@ async def save_pixabay_image(
             "source": "pixabay",
             "pixabay_id": pixabay_id,
             "tags": tags,
-            "context": context_msg,
+            "title": display_title,  # Use custom title or fallback to tags
+            "context": context_msg,  # Use custom context or generated one
             "url": image_url,  # Use original Pixabay URL for full image
             "thumb_url": f"/api/content/{doc_id}/thumb",  # Use optimized thumbnail endpoint
             "is_external": True,  # Flag to indicate external image

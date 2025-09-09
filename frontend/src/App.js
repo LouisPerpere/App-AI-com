@@ -1783,10 +1783,17 @@ function MainApp() {
     }
 
     setSelectedPixabayImage(pixabayImage);
-    // Réinitialiser les champs personnalisés
-    setPixabayCustomTitle(pixabayImage.tags || '');
-    setPixabayCustomContext('');
     setShowPixabaySaveModal(true);
+    
+    // Pré-remplir les champs avec les refs (après que la modal soit rendue)
+    setTimeout(() => {
+      if (pixabayTitleRef.current) {
+        pixabayTitleRef.current.value = pixabayImage.tags || '';
+      }
+      if (pixabayContextRef.current) {
+        pixabayContextRef.current.value = '';
+      }
+    }, 100);
   };
 
   // Save Pixabay image to general library

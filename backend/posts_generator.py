@@ -565,3 +565,17 @@ CTA: "Apprenez plus", "Essayez", "Suivez le guide"
             await self.db.generated_posts.insert_one(post_doc)
         
         logger.info(f"   💾 Saved {len(posts)} posts to database")
+    
+    def _parse_month_number(self, target_month: str) -> int:
+        """Parse month number from target_month string"""
+        month_name = target_month.split('_')[0]
+        month_map = {
+            'janvier': 1, 'février': 2, 'mars': 3, 'avril': 4,
+            'mai': 5, 'juin': 6, 'juillet': 7, 'août': 8,
+            'septembre': 9, 'octobre': 10, 'novembre': 11, 'décembre': 12
+        }
+        return month_map.get(month_name, 10)
+    
+    def _parse_year(self, target_month: str) -> int:
+        """Parse year from target_month string"""
+        return int(target_month.split('_')[1])

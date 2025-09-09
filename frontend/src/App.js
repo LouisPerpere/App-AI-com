@@ -3566,12 +3566,16 @@ function MainApp() {
                                         paddingRight: '2.5rem'
                                       }}
                                       onChange={(e) => {
-                                        // Update the file custom data when month changes (preserve title and context)
+                                        // Capture current values from inputs before changing month
+                                        const currentTitle = uploadTitleRefs.current[index]?.value || '';
+                                        const currentContext = uploadContextRefs.current[index]?.value || '';
+                                        
+                                        // Update the file custom data when month changes (preserve actual input values)
                                         setFileCustomData(prev => ({
                                           ...prev,
                                           [index]: {
-                                            title: prev[index]?.title || '',
-                                            context: prev[index]?.context || '',
+                                            title: currentTitle,
+                                            context: currentContext,
                                             attributedMonth: e.target.value
                                           }
                                         }));

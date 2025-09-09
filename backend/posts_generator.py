@@ -574,6 +574,10 @@ RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
             content_index = 0  # For fallback mapping
             
             for i, post_data in enumerate(posts_data):
+                # Remove any unwanted fields that might cause issues
+                if "scheduling_preference" in post_data:
+                    del post_data["scheduling_preference"]
+                
                 # Extract the visual_id from ChatGPT response
                 visual_id = post_data.get("visual_id", "")
                 

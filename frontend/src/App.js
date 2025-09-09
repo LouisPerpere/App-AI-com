@@ -545,6 +545,253 @@ const PostPreviewModal = ({
   );
 };
 
+// Composant réutilisant les modules existants pour l'ajout d'images aux posts
+const ImageAttachmentContent = ({ 
+  activeTab, 
+  onAttachImage, 
+  isAttaching, 
+  pendingContent, 
+  pixabayResults, 
+  isSearchingPixabay, 
+  searchPixabay,
+  handleFileSelect,
+  selectedFiles,
+  isUploading,
+  handleBatchUpload
+}) => {
+  
+  const handleLibraryImageSelect = (content) => {
+    if (isAttaching) return;
+    
+    // Utiliser l'ID du contenu de la bibliothèque
+    const imageData = {
+      image_id: content.id || content._id
+    };
+    
+    onAttachImage('library', imageData);
+  };
+
+  const handlePixabayImageSelect = (pixabayImage) => {
+    if (isAttaching) return;
+    
+    const imageData = {
+      image_url: pixabayImage.webformatURL,
+      image_id: `pixabay_${pixabayImage.id}`
+    };
+    
+    onAttachImage('pixabay', imageData);
+  };
+
+  const handleUploadForPost = async () => {
+    if (isAttaching || selectedFiles.length === 0) return;
+    
+    // Déclencher l'upload normal puis utiliser les nouveaux IDs
+    await handleBatchUpload();
+    
+    // Une fois uploadé, on pourrait récupérer les nouveaux IDs
+    // Pour l'instant, placeholder
+    const imageData = {
+      uploaded_files: selectedFiles.map(f => f.name)
+    };
+    
+    onAttachImage('upload', imageData);
+  };
+
+  if (activeTab === 'library') {
+    return (
+      <div>
+        <h4 className="text-lg font-semibold text-gray-800 mb-4">
+          Choisir dans ma bibliothèque
+        </h4>
+        
+        {pendingContent.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {pendingContent.map((content, index) => (
+              <div
+                key={content.id || index}
+                onClick={() => handleLibraryImageSelect(content)}
+                className="group cursor-pointer transform hover:scale-105 transition-all duration-200 relative"
+              >
+                <ContentThumbnail
+                  content={content}
+                  isSelectionMode={false}
+                  isSelected={false}
+                  onContentClick={() => {}}
+                  onToggleSelection={() => {}}
+                  onMoveContent={() => {}}
+                />
+                
+                {/* Badge indiquant si l'image est déjà utilisée */}
+                {content.used_in_posts && (
+                  <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1">
+                    <Check className="w-4 h-4" />
+                  </div>
+                )}
+                
+                {/* Overlay de sélection */}
+                <div className="absolute inset-0 bg-orange-500 bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-xl flex items-center justify-center">
+                  <div className="opacity-0 group-hover:opacity-100 bg-white bg-opacity-90 px-4 py-2 rounded-lg font-medium text-orange-600 transition-opacity">
+                    Sélectionner
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            <ImageIcon className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+            <p>Aucune image dans votre bibliothèque</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (activeTab === 'pixabay') {
+    return (
+      <div>
+        <h4 className="text-lg font-semibold text-gray-800 mb-4">
+          Rechercher sur Pixabay
+        </h4>
+        
+        {/* Barre de recherche réutilisée */}
+        <div className="mb-6">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Rechercher des images (ex: montres, horlogerie)..."
+              className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  searchPixabay(e.target.value);
+                }
+              }}
+            />
+            <button
+              onClick={() => {
+                const input = document.querySelector('input[placeholder*="Rechercher des images"]');
+                if (input) searchPixabay(input.value);
+              }}
+              disabled={isSearchingPixabay}
+              className="px-6 py-3 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white rounded-lg font-medium transition-colors"
+            >
+              {isSearchingPixabay ? 'Recherche...' : 'Rechercher'}
+            </button>
+          </div>
+        </div>
+
+        {/* Résultats Pixabay */}
+        {pixabayResults.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {pixabayResults.map((image, index) => (
+              <div
+                key={image.id}
+                onClick={() => handlePixabayImageSelect(image)}
+                className="group cursor-pointer transform hover:scale-105 transition-all duration-200 relative"
+              >
+                <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden">
+                  <img
+                    src={image.webformatURL}
+                    alt={image.tags}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+                
+                {/* Overlay de sélection */}
+                <div className="absolute inset-0 bg-orange-500 bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-xl flex items-center justify-center">
+                  <div className="opacity-0 group-hover:opacity-100 bg-white bg-opacity-90 px-4 py-2 rounded-lg font-medium text-orange-600 transition-opacity">
+                    Sélectionner
+                  </div>
+                </div>
+
+                {/* Badge Pixabay */}
+                <div className="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium">
+                  Pixabay
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            <Search className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+            <p>Recherchez des images pour votre post</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (activeTab === 'upload') {
+    return (
+      <div>
+        <h4 className="text-lg font-semibold text-gray-800 mb-4">
+          Upload de nouvelles images
+        </h4>
+        
+        {/* Zone de drop réutilisée */}
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center mb-6">
+          <input
+            type="file"
+            multiple
+            accept="image/*,video/*"
+            onChange={handleFileSelect}
+            className="hidden"
+            id="post-file-upload"
+          />
+          <label
+            htmlFor="post-file-upload"
+            className="cursor-pointer flex flex-col items-center"
+          >
+            <Upload className="w-12 h-12 text-gray-400 mb-4" />
+            <p className="text-lg text-gray-600 mb-2">
+              Cliquez pour sélectionner ou déposez vos fichiers ici
+            </p>
+            <p className="text-sm text-gray-500">
+              Images et vidéos acceptées (max 10 fichiers)
+            </p>
+          </label>
+        </div>
+
+        {/* Fichiers sélectionnés */}
+        {selectedFiles.length > 0 && (
+          <div className="mb-6">
+            <h5 className="font-medium text-gray-800 mb-3">
+              Fichiers sélectionnés ({selectedFiles.length})
+            </h5>
+            <div className="space-y-2">
+              {selectedFiles.map((file, index) => (
+                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <FileText className="w-5 h-5 text-gray-500" />
+                    <span className="text-sm text-gray-700">{file.name}</span>
+                    <span className="text-xs text-gray-500">
+                      ({(file.size / 1024 / 1024).toFixed(1)} MB)
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Bouton upload */}
+        {selectedFiles.length > 0 && (
+          <div className="text-center">
+            <button
+              onClick={handleUploadForPost}
+              disabled={isUploading || isAttaching}
+              className="px-6 py-3 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white rounded-lg font-medium transition-colors"
+            >
+              {isUploading ? 'Upload en cours...' : `Uploader et utiliser ${selectedFiles.length} fichier(s)`}
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+};
+
 function MainApp() {
   const location = useLocation();
   

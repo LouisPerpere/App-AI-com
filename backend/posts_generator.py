@@ -423,8 +423,36 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         
         return "\n".join(context_parts)
     
+    async def _get_recent_posts_context(self, user_id: str) -> str:
+        """Get context from recent posts to avoid duplication"""
+        try:
+            # Get recent posts from last 60 days
+            from datetime import datetime, timedelta
+            cutoff_date = datetime.utcnow() - timedelta(days=60)
+            
+            recent_posts = list(self.db.generated_posts.find({
+                "owner_id": user_id,
+                "created_at": {"$gte": cutoff_date.isoformat()}
+            }).sort([("created_at", -1)]).limit(20))
+            
+            if not recent_posts:
+                return "Aucun post récent à éviter."
+            
+            # Format recent posts for context
+            context_parts = ["POSTS RÉCENTS À ÉVITER (ne pas copier ou répéter):"]
+            for i, post in enumerate(recent_posts[:10], 1):  # Max 10 recent posts
+                title = post.get("title", "")[:50]
+                text = post.get("text", "")[:100]
+                context_parts.append(f"{i}. {title}: {text}...")
+            
+            return "\n".join(context_parts)
+            
+        except Exception as e:
+            logger.error(f"❌ Error getting recent posts context: {str(e)}")
+            return "Erreur lors de la récupération des posts récents."
+
     async def _generate_single_post(self, visual_content: ContentSource, content_type: str, 
-                                   business_context: str, notes_context: str) -> Optional[PostContent]:
+                                   business_context: str, notes_context: str, user_id: str) -> Optional[PostContent]:
         """Generate a single post with AI"""
         try:
             # Build prompt for AI

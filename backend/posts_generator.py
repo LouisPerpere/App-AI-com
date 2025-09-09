@@ -240,7 +240,7 @@ Tu réponds TOUJOURS au format JSON exact demandé."""
         
         return content
     
-    async def _determine_content_strategy(self, source_data: Dict, num_posts: int) -> Dict[str, Any]:
+    def _determine_content_strategy(self, source_data: Dict, num_posts: int) -> Dict[str, Any]:
         """Determine optimal content mix based on business type"""
         logger.info("🎯 Step 3/6: Determining content strategy...")
         

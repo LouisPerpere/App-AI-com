@@ -280,9 +280,17 @@ const PostThumbnail = ({ post, onClick, onAddImage }) => {
 
   const needsImage = post.status === 'needs_image' || !post.visual_url;
 
+  const handleClick = () => {
+    if (needsImage && onAddImage) {
+      onAddImage(post);
+    } else {
+      onClick(post);
+    }
+  };
+
   return (
     <div 
-      onClick={onClick}
+      onClick={handleClick}
       className="group cursor-pointer transform hover:scale-105 transition-all duration-200"
     >
       <div className={`bg-white rounded-xl border shadow-md hover:shadow-lg overflow-hidden ${

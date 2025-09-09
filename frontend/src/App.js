@@ -2596,6 +2596,45 @@ function MainApp() {
     await searchPixabayImages();
   };
 
+  // Fonction wrapper pour le composant ImageAttachmentContent
+  const searchPixabay = async (query) => {
+    if (!query || !query.trim()) {
+      toast.error('Veuillez saisir un terme de recherche');
+      return;
+    }
+    
+    // Mettre à jour le champ de recherche si disponible
+    if (pixabaySearchRef.current) {
+      pixabaySearchRef.current.value = query.trim();
+    }
+    
+    // Réinitialiser et effectuer la recherche
+    setPixabayCurrentQuery(query.trim());
+    setPixabayCurrentPage(1);
+    
+    try {
+      setIsSearchingPixabay(true);
+      
+      const response = await axios.get(`${API}/pixabay/search`, {
+        params: { 
+          query: query.trim(),
+          page: 1,
+          per_page: 20
+        },
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      });
+      
+      setPixabayResults(response.data.hits || []);
+      setPixabayTotalHits(response.data.total || 0);
+    } catch (error) {
+      console.error('Erreur recherche Pixabay:', error);
+      toast.error('Erreur lors de la recherche Pixabay');
+      setPixabayResults([]);
+    } finally {
+      setIsSearchingPixabay(false);
+    }
+  };
+
   // Open choice modal for Pixabay image save
   const savePixabayImage = (pixabayImage) => {
     console.log('🎯 Save Pixabay Image clicked:', pixabayImage.id);

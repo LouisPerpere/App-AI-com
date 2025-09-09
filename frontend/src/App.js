@@ -3583,7 +3583,7 @@ function MainApp() {
                                         uploadContextRefs.current[index] = el;
                                       }}
                                       placeholder="Facultatif"
-                                      defaultValue=""
+                                      defaultValue={fileCustomData[index]?.context || ""}
                                       rows={3}
                                       className="w-full px-3 py-2 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-sm resize-none"
                                       style={{

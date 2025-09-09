@@ -304,8 +304,8 @@ Tu réponds TOUJOURS au format JSON exact demandé."""
         """Generate posts according to the determined strategy"""
         logger.info("✨ Step 4/6: Generating posts with AI...")
         
-        if not self.llm_chat:
-            raise Exception("LLM not initialized")
+        if not self.openai_client:
+            raise Exception("OpenAI client not initialized")
         
         generated_posts = []
         used_content = []

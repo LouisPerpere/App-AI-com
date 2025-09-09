@@ -460,8 +460,15 @@ Règles:
             user_message = UserMessage(text=prompt)
             response = await self.llm_chat.send_message(user_message)
             
+            logger.info(f"   🤖 AI Response length: {len(response) if response else 0}")
+            logger.info(f"   🤖 AI Response preview: {response[:100] if response else 'Empty response'}")
+            
             # Parse response
             try:
+                if not response or not response.strip():
+                    logger.error("   ❌ Empty response from AI")
+                    return None
+                    
                 response_data = json.loads(response)
                 
                 return PostContent(

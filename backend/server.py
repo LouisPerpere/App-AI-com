@@ -1,6 +1,5 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Header, Depends, Response, File, UploadFile, BackgroundTasks
+from fastapi import FastAPI, APIRouter, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 import jwt
 from passlib.context import CryptContext
@@ -8,11 +7,8 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime, timezone, timedelta
 import os
 import uuid
-import asyncio
 import json
-import base64
 from PIL import Image
-import io
 import mimetypes
 import aiohttp
 import aiofiles
@@ -38,7 +34,7 @@ mimetypes.add_type('image/png', '.png')
 mimetypes.add_type('image/heic', '.heic')
 mimetypes.add_type('image/heif', '.heif')
 
-from database import get_database, DatabaseManager
+from database import get_database
 
 class UpdateDescriptionIn(BaseModel):
     description: str = Field("", max_length=2000)
@@ -112,7 +108,7 @@ app.add_middleware(
 async def add_no_cache_headers(request, call_next):
     response = await call_next(request)
     # Apply no-cache headers to API endpoints EXCEPT thumbnails
-    if request.url.path.startswith("/api") and not "/thumb" in request.url.path:
+    if request.url.path.startswith("/api") and "/thumb" not in request.url.path:
         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, proxy-revalidate"
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"
@@ -152,7 +148,7 @@ db = get_database()
 
 def get_current_user_id(authorization: str = Header(None)):
     if not authorization or not authorization.startswith("Bearer "):
-        print(f"⚠️ No Authorization header found in request, falling back to demo mode")
+        print("⚠️ No Authorization header found in request, falling back to demo mode")
         print(f"⚠️ Authorization header value: {authorization}")
         return "demo_user_id"
     token = authorization.replace("Bearer ", "")
@@ -163,10 +159,10 @@ def get_current_user_id(authorization: str = Header(None)):
             print(f"✅ Token validation successful for user: {user_data['email']}")
             return user_data["user_id"]
         else:
-            print(f"❌ Token validation failed - invalid or expired token")
+            print("❌ Token validation failed - invalid or expired token")
     else:
-        print(f"❌ Database not connected - falling back to demo mode")
-    print(f"⚠️ Falling back to demo_user_id due to token validation failure")
+        print("❌ Database not connected - falling back to demo mode")
+    print("⚠️ Falling back to demo_user_id due to token validation failure")
     return "demo_user_id"
 
 class BusinessProfile(BaseModel):

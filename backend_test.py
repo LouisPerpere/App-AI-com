@@ -194,272 +194,145 @@ class PostGenerationTester:
             self.log(f"❌ Erreur récupération posts: {str(e)}")
             return False, []
     
-    def analyze_post_variety(self, posts):
-        """Analyze if posts are varied and different"""
-        print("\n🎨 Step 5: Analyzing Post Variety and Uniqueness")
+    def validate_posts_uniqueness(self, posts):
+        """Test 5: Validation de l'unicité et variété des posts"""
+        self.log("🔍 ÉTAPE 5: Validation de l'unicité et variété des posts")
         
         if not posts:
-            print("❌ No posts to analyze")
+            self.log("❌ Aucun post à valider")
             return False
         
-        try:
-            # Check for variety in content types
-            content_types = [post.get('content_type', 'unknown') for post in posts]
-            unique_content_types = set(content_types)
-            
-            print(f"   Content types found: {list(unique_content_types)}")
-            print(f"   Unique content types: {len(unique_content_types)}")
-            
-            # Check for variety in text content
-            texts = [post.get('text', '') for post in posts]
-            unique_texts = set(texts)
-            
-            print(f"   Unique text contents: {len(unique_texts)} out of {len(texts)}")
-            
-            # Check for variety in titles
-            titles = [post.get('title', '') for post in posts]
-            unique_titles = set(titles)
-            
-            print(f"   Unique titles: {len(unique_titles)} out of {len(titles)}")
-            
-            # Check hashtag variety
-            all_hashtags = []
-            for post in posts:
-                all_hashtags.extend(post.get('hashtags', []))
-            
-            unique_hashtags = set(all_hashtags)
-            print(f"   Total hashtags used: {len(all_hashtags)}")
-            print(f"   Unique hashtags: {len(unique_hashtags)}")
-            
-            # Variety assessment
-            variety_score = 0
-            
-            if len(unique_content_types) > 1:
-                variety_score += 1
-                print("✅ Content type variety: GOOD")
-            else:
-                print("⚠️ Content type variety: LIMITED")
-            
-            if len(unique_texts) == len(texts):
-                variety_score += 1
-                print("✅ Text content variety: EXCELLENT (all unique)")
-            elif len(unique_texts) > len(texts) * 0.8:
-                variety_score += 1
-                print("✅ Text content variety: GOOD")
-            else:
-                print("⚠️ Text content variety: LIMITED")
-            
-            if len(unique_titles) == len(titles):
-                variety_score += 1
-                print("✅ Title variety: EXCELLENT (all unique)")
-            elif len(unique_titles) > len(titles) * 0.8:
-                variety_score += 1
-                print("✅ Title variety: GOOD")
-            else:
-                print("⚠️ Title variety: LIMITED")
-            
-            if len(unique_hashtags) > 10:
-                variety_score += 1
-                print("✅ Hashtag variety: GOOD")
-            else:
-                print("⚠️ Hashtag variety: LIMITED")
-            
-            print(f"\n🎯 Overall Variety Score: {variety_score}/4")
-            
-            if variety_score >= 3:
-                print("✅ Posts show good variety and uniqueness")
-                return True
-            else:
-                print("⚠️ Posts may lack sufficient variety")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Variety analysis error: {str(e)}")
-            return False
-    
-    def verify_visual_url_structure(self, posts):
-        """Verify visual_url structure follows /api/content/{id}/file format"""
-        print("\n🖼️ Step 6: Verifying Visual URL Structure")
+        # Vérifier l'unicité des textes
+        texts = [post.get("text", "") for post in posts]
+        unique_texts = set(texts)
         
-        if not posts:
-            print("❌ No posts to verify")
-            return False
+        # Vérifier l'unicité des titres
+        titles = [post.get("title", "") for post in posts]
+        unique_titles = set(titles)
         
-        try:
-            correct_format_count = 0
-            total_with_visual = 0
-            
-            for i, post in enumerate(posts, 1):
-                visual_url = post.get('visual_url', '')
-                
-                if visual_url:
-                    total_with_visual += 1
-                    print(f"   Post {i} visual_url: {visual_url}")
-                    
-                    # Check if it follows the expected format /api/content/{id}/file
-                    if '/api/content/' in visual_url and '/file' in visual_url:
-                        correct_format_count += 1
-                        print(f"     ✅ Correct format")
-                    else:
-                        print(f"     ❌ Incorrect format (expected /api/content/{{id}}/file)")
-                else:
-                    print(f"   Post {i}: No visual URL")
-            
-            print(f"\n📊 Visual URL Analysis:")
-            print(f"   Posts with visual URLs: {total_with_visual}/{len(posts)}")
-            print(f"   Correct format URLs: {correct_format_count}/{total_with_visual}")
-            
-            if total_with_visual > 0 and correct_format_count == total_with_visual:
-                print("✅ All visual URLs follow correct format")
-                return True
-            elif total_with_visual == 0:
-                print("⚠️ No visual URLs found (may be expected)")
-                return True  # Not necessarily an error
-            else:
-                print("❌ Some visual URLs have incorrect format")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Visual URL verification error: {str(e)}")
+        # Vérifier la variété des types de contenu
+        content_types = [post.get("content_type", "") for post in posts]
+        unique_content_types = set(content_types)
+        
+        # Vérifier la variété des hashtags
+        all_hashtags = []
+        for post in posts:
+            hashtags = post.get("hashtags", [])
+            all_hashtags.extend(hashtags)
+        unique_hashtags = set(all_hashtags)
+        
+        self.log(f"📊 ANALYSE DE VARIÉTÉ:")
+        self.log(f"   Posts total: {len(posts)}")
+        self.log(f"   Textes uniques: {len(unique_texts)}/{len(texts)}")
+        self.log(f"   Titres uniques: {len(unique_titles)}/{len(titles)}")
+        self.log(f"   Types de contenu: {unique_content_types}")
+        self.log(f"   Hashtags uniques: {len(unique_hashtags)}")
+        
+        # Validation
+        uniqueness_score = len(unique_texts) / len(texts) if texts else 0
+        variety_score = len(unique_content_types)
+        
+        if uniqueness_score >= 0.8 and variety_score >= 2:
+            self.log(f"✅ Posts suffisamment uniques et variés")
+            self.log(f"   Score d'unicité: {uniqueness_score:.2%}")
+            self.log(f"   Variété de contenu: {variety_score} types")
+            return True
+        else:
+            self.log(f"⚠️ Posts manquent d'unicité ou de variété")
+            self.log(f"   Score d'unicité: {uniqueness_score:.2%} (minimum 80%)")
+            self.log(f"   Variété de contenu: {variety_score} types (minimum 2)")
             return False
     
     def run_comprehensive_test(self):
-        """Run all tests in sequence"""
-        print("🧪 COMPREHENSIVE POST GENERATION SYSTEM TEST")
-        print("=" * 60)
-        print(f"Backend URL: {BACKEND_URL}")
-        print(f"Test Credentials: {TEST_EMAIL}")
-        print(f"Test Time: {datetime.now().isoformat()}")
-        print("=" * 60)
+        """Exécuter tous les tests de manière séquentielle"""
+        self.log("🎯 DÉBUT DU TEST COMPLET DU SYSTÈME DE GÉNÉRATION DE POSTS")
+        self.log("=" * 80)
         
-        results = {
-            "authentication": False,
-            "backend_health": False,
-            "post_generation": False,
-            "posts_retrieval": False,
-            "post_variety": False,
-            "visual_url_structure": False,
-            "posts_count": 0,
-            "posts_data": []
-        }
+        # Test 1: Authentification
+        if not self.test_authentication():
+            self.log("❌ ÉCHEC CRITIQUE: Authentification impossible")
+            return False
         
-        # Step 1: Authentication
-        if not self.authenticate():
-            print("\n❌ CRITICAL: Authentication failed - cannot proceed with tests")
-            return results
-        results["authentication"] = True
+        # Test 2: Profil business
+        profile_success, posting_frequency = self.test_business_profile()
+        if not profile_success:
+            self.log("❌ ÉCHEC CRITIQUE: Profil business inaccessible")
+            return False
         
-        # Step 2: Backend Health
-        if not self.test_backend_health():
-            print("\n⚠️ Backend health check failed - proceeding with caution")
-        else:
-            results["backend_health"] = True
+        # Calcul attendu
+        expected_posts = self.calculate_expected_posts(posting_frequency)
         
-        # Step 3: Post Generation
-        generation_success, posts_count = self.test_post_generation_default()
-        results["post_generation"] = generation_success
-        results["posts_count"] = posts_count
+        # Test 3: Génération de posts
+        gen_success, actual_posts_count, gen_data = self.test_post_generation()
+        if not gen_success:
+            self.log("❌ ÉCHEC CRITIQUE: Génération de posts impossible")
+            return False
         
-        if not generation_success:
-            print("\n❌ CRITICAL: Post generation failed - cannot test retrieval")
-            return results
-        
-        # Step 4: Posts Retrieval
-        retrieval_success, posts_data = self.test_generated_posts_retrieval()
-        results["posts_retrieval"] = retrieval_success
-        results["posts_data"] = posts_data
-        
+        # Test 4: Récupération des posts
+        retrieval_success, posts = self.test_generated_posts_retrieval()
         if not retrieval_success:
-            print("\n❌ Posts retrieval failed - cannot analyze variety")
-            return results
+            self.log("❌ ÉCHEC: Récupération des posts impossible")
+            return False
         
-        # Step 5: Post Variety Analysis
-        variety_success = self.analyze_post_variety(posts_data)
-        results["post_variety"] = variety_success
+        # Test 5: Validation de l'unicité
+        uniqueness_valid = self.validate_posts_uniqueness(posts)
         
-        # Step 6: Visual URL Structure
-        visual_url_success = self.verify_visual_url_structure(posts_data)
-        results["visual_url_structure"] = visual_url_success
+        # VALIDATION FINALE
+        self.log("=" * 80)
+        self.log("🎯 RÉSULTATS FINAUX:")
         
-        return results
-    
-    def print_final_summary(self, results):
-        """Print final test summary"""
-        print("\n" + "=" * 60)
-        print("🏁 FINAL TEST SUMMARY")
-        print("=" * 60)
+        # Vérification du nombre de posts
+        posts_count_match = actual_posts_count == expected_posts
         
-        total_tests = 6
-        passed_tests = sum([
-            results["authentication"],
-            results["backend_health"],
-            results["post_generation"],
-            results["posts_retrieval"],
-            results["post_variety"],
-            results["visual_url_structure"]
-        ])
+        self.log(f"📊 VALIDATION DU CALCUL:")
+        self.log(f"   Fréquence configurée: {posting_frequency}")
+        self.log(f"   Posts attendus: {expected_posts}")
+        self.log(f"   Posts générés: {actual_posts_count}")
+        self.log(f"   Calcul correct: {'✅' if posts_count_match else '❌'}")
         
-        success_rate = (passed_tests / total_tests) * 100
-        
-        print(f"✅ Authentication: {'PASS' if results['authentication'] else 'FAIL'}")
-        print(f"✅ Backend Health: {'PASS' if results['backend_health'] else 'FAIL'}")
-        print(f"✅ Post Generation: {'PASS' if results['post_generation'] else 'FAIL'}")
-        print(f"✅ Posts Retrieval: {'PASS' if results['posts_retrieval'] else 'FAIL'}")
-        print(f"✅ Post Variety: {'PASS' if results['post_variety'] else 'FAIL'}")
-        print(f"✅ Visual URL Structure: {'PASS' if results['visual_url_structure'] else 'FAIL'}")
-        
-        print(f"\n📊 Overall Success Rate: {success_rate:.1f}% ({passed_tests}/{total_tests})")
-        print(f"📝 Posts Generated: {results['posts_count']}")
-        print(f"📋 Posts Retrieved: {len(results['posts_data'])}")
-        
-        # Key findings
-        print(f"\n🔍 KEY FINDINGS:")
-        
-        if results["posts_count"] == 4:
-            print(f"✅ Correct default post count: {results['posts_count']} posts (expected 4)")
+        if posts_count_match:
+            self.log(f"✅ Le calcul basé sur posting_frequency fonctionne correctement")
         else:
-            print(f"❌ Incorrect post count: {results['posts_count']} (expected 4)")
+            self.log(f"❌ ERREUR: Le nombre de posts ne correspond pas au calcul attendu")
         
-        if results["post_variety"]:
-            print("✅ Posts show good variety and uniqueness")
-        else:
-            print("⚠️ Posts may lack sufficient variety")
+        # Résumé global
+        all_tests_passed = (
+            profile_success and 
+            gen_success and 
+            retrieval_success and 
+            posts_count_match and 
+            uniqueness_valid
+        )
         
-        if results["visual_url_structure"]:
-            print("✅ Visual URLs follow correct format")
+        self.log("=" * 80)
+        if all_tests_passed:
+            self.log("🎉 SUCCÈS COMPLET: Tous les tests sont passés avec succès")
+            self.log("   ✅ Authentification")
+            self.log("   ✅ Profil business accessible")
+            self.log("   ✅ Génération de posts fonctionnelle")
+            self.log("   ✅ Calcul posting_frequency correct")
+            self.log("   ✅ Posts uniques et variés")
         else:
-            print("⚠️ Visual URL format issues detected")
+            self.log("❌ ÉCHEC: Certains tests ont échoué")
+            self.log(f"   Authentification: {'✅' if True else '❌'}")
+            self.log(f"   Profil business: {'✅' if profile_success else '❌'}")
+            self.log(f"   Génération posts: {'✅' if gen_success else '❌'}")
+            self.log(f"   Calcul correct: {'✅' if posts_count_match else '❌'}")
+            self.log(f"   Unicité/variété: {'✅' if uniqueness_valid else '❌'}")
         
-        # Overall assessment
-        if success_rate >= 83.3:  # 5/6 tests
-            print(f"\n🎉 OVERALL ASSESSMENT: EXCELLENT - Post generation system is working correctly")
-        elif success_rate >= 66.7:  # 4/6 tests
-            print(f"\n✅ OVERALL ASSESSMENT: GOOD - Post generation system is mostly functional")
-        elif success_rate >= 50.0:  # 3/6 tests
-            print(f"\n⚠️ OVERALL ASSESSMENT: FAIR - Post generation system has some issues")
-        else:
-            print(f"\n❌ OVERALL ASSESSMENT: POOR - Post generation system needs significant fixes")
+        return all_tests_passed
 
 def main():
-    """Main test execution"""
+    """Point d'entrée principal"""
     tester = PostGenerationTester()
+    success = tester.run_comprehensive_test()
     
-    try:
-        results = tester.run_comprehensive_test()
-        tester.print_final_summary(results)
-        
-        # Return appropriate exit code
-        if results["authentication"] and results["post_generation"] and results["posts_retrieval"]:
-            return 0  # Success
-        else:
-            return 1  # Failure
-            
-    except KeyboardInterrupt:
-        print("\n\n⚠️ Test interrupted by user")
-        return 2
-    except Exception as e:
-        print(f"\n\n❌ Unexpected error during testing: {str(e)}")
-        return 3
+    if success:
+        print("\n🎉 TEST RÉUSSI: Le système de génération de posts fonctionne correctement")
+        exit(0)
+    else:
+        print("\n❌ TEST ÉCHOUÉ: Des problèmes ont été détectés")
+        exit(1)
 
 if __name__ == "__main__":
-    exit(main())
+    main()

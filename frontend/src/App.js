@@ -2425,6 +2425,25 @@ function MainApp() {
     setShowMoveModal(true);
   };
 
+  // Fonction pour sélectionner des fichiers (utilisée dans ImageAttachmentContent)
+  const handleFileSelect = (event) => {
+    const files = Array.from(event.target.files);
+    
+    if (files.length === 0) {
+      setSelectedFiles([]);
+      return;
+    }
+    
+    // Validation : max 10 fichiers pour les posts
+    if (files.length > 10) {
+      toast.error('Maximum 10 fichiers autorisés pour un post');
+      return;
+    }
+    
+    console.log(`📁 Selected ${files.length} files for post attachment`);
+    setSelectedFiles(files);
+  };
+
   // Fonction spécialisée pour uploader des fichiers depuis les posts
   const uploadFilesForPost = async (files, postTitle, postText) => {
     if (!files || files.length === 0) return [];

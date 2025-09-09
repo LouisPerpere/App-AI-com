@@ -893,11 +893,15 @@ Hashtags: {', '.join(['#' + tag for tag in current_hashtags])}
 DEMANDE DE MODIFICATION:
 {request.modification_request}
 
-INSTRUCTIONS:
-- Garde l'esprit Instagram et l'engagement
-- Adapte selon la demande mais reste cohérent
+RÈGLES STRICTES DE RÉDACTION:
+- BANNIR absolument le style IA artificiel et grandiose
+- PAS de "Découvrez l'art de...", "Plongez dans...", "Laissez-vous séduire..."
+- INTERDICTION des ✨ et emojis "magiques"
+- Maximum 2-3 emojis par modification, seulement si utiles
+- Écrire comme un VRAI humain, pas comme ChatGPT
+- Ton naturel et authentique
 - Garde un nombre similaire de hashtags (15-25)
-- Utilise des émojis pertinents
+- Adapte selon la demande mais reste cohérent
 
 RÉPONSE ATTENDUE (JSON exact):
 {{

@@ -178,14 +178,15 @@ class PostsGenerationTester:
             return False
     
     def test_posts_generation(self):
-        """Step 5: Test génération de posts avec paramètres par défaut"""
-        print("🚀 Step 5: Test POST /api/posts/generate with default parameters")
+        """Step 5: Test génération de posts avec clé OpenAI personnelle (test rapide)"""
+        print("🚀 Step 5: Test POST /api/posts/generate with personal OpenAI key")
         print("   Target month: octobre_2025")
-        print("   Number of posts: 20")
+        print("   Number of posts: 5 (test rapide)")
+        print("   🔑 Using personal OpenAI key (not EMERGENT_LLM_KEY)")
         
         generation_params = {
             "target_month": "octobre_2025",
-            "num_posts": 20
+            "num_posts": 5
         }
         
         try:

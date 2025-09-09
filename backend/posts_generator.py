@@ -594,8 +594,9 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
                                      strategy: Dict, num_posts: int, available_content: Dict = None) -> List[PostContent]:
         """Generate entire posts calendar with a single AI request"""
         try:
-            # Get website analysis context
-            website_context = self._format_website_analysis_context(available_content.get("website_analysis", {}))
+            # Get website analysis context from source_data
+            website_analysis = available_content.get("website_analysis") if hasattr(available_content, 'get') else {}
+            website_context = self._format_website_analysis_context(website_analysis)
             
             # Build the global prompt for generating all posts at once
             prompt = f"""Tu dois créer un calendrier complet de {num_posts} posts Instagram pour ce business.

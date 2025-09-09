@@ -241,9 +241,9 @@ frontend:
 
 test_plan:
   current_focus:
-    []
+    - "Post Generation System Implementation"
   stuck_tasks:
-    []
+    - "Post Generation System Implementation"
   test_all: false
   test_priority: "high_first"
 

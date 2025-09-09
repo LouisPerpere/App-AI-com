@@ -669,7 +669,7 @@ CONTRAINTES DE VARIÉTÉ CRITIQUE:
 - Adapter le niveau de détail et le style selon le type de post
 - Comme le ferait un expert community manager professionnel
 
-RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
+RÉPONSE ATTENDUE (JSON exact avec array de EXACTEMENT {num_posts} posts):
 {{
     "posts": [
         {{
@@ -680,9 +680,11 @@ RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
             "visual_id": "ID_exact_du_contenu_utilisé_de_la_liste_ci-dessus",
             "scheduling_preference": "morning|afternoon|evening"
         }},
-        // ... {num_posts-1} autres posts
+        // ... répéter pour EXACTEMENT {num_posts} posts au total
     ]
 }}
+
+CRITIQUE: Tu DOIS retourner EXACTEMENT {num_posts} posts. Ni plus, ni moins. Compte bien!
 
 IMPORTANT: Varie intelligemment les content_type selon ce qui sera le plus efficace pour ce business et son audience cible.
 """

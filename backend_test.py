@@ -149,7 +149,37 @@ class PostingFrequencyDiagnostic:
             print(f"❌ Erreur GET business-profile (vérification): {str(e)}")
             return False
     
-    def run_diagnostic(self):
+    def additional_persistence_test(self):
+        """Test supplémentaire: Vérifier avec une autre valeur"""
+        print("\n🔄 TEST SUPPLÉMENTAIRE: Mise à jour vers '3x_week'...")
+        
+        update_data = {
+            "posting_frequency": "3x_week"
+        }
+        
+        try:
+            response = self.session.put(
+                f"{BACKEND_URL}/business-profile",
+                json=update_data,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                print(f"✅ PUT vers '3x_week' réussi")
+                
+                # Vérifier immédiatement
+                response = self.session.get(f"{BACKEND_URL}/business-profile", timeout=30)
+                if response.status_code == 200:
+                    profile_data = response.json()
+                    posting_frequency = profile_data.get("posting_frequency")
+                    print(f"✅ Vérification: posting_frequency = '{posting_frequency}'")
+                    return posting_frequency == "3x_week"
+                    
+            return False
+                
+        except Exception as e:
+            print(f"❌ Erreur test supplémentaire: {str(e)}")
+            return False
         """Exécuter le diagnostic complet"""
         print("=" * 80)
         print("🔍 DIAGNOSTIC DIRECT - Valeur réelle posting_frequency en base")

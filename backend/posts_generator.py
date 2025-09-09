@@ -198,11 +198,11 @@ Tu réponds TOUJOURS au format JSON exact demandé."""
         }
         
         # Month-specific content (highest priority)
-        month_content = await self.db.media.find({
+        month_content = list(self.db.media.find({
             "owner_id": user_id,
             "attributed_month": target_month,
             "deleted": {"$ne": True}
-        }).to_list(100)
+        }).limit(100))
         
         for item in month_content:
             content["month_content"].append(ContentSource(
@@ -218,12 +218,12 @@ Tu réponds TOUJOURS au format JSON exact demandé."""
         logger.info(f"   📅 Month content: {len(content['month_content'])}")
         
         # Older content (fallback)
-        older_content = await self.db.media.find({
+        older_content = list(self.db.media.find({
             "owner_id": user_id,
             "attributed_month": {"$ne": target_month},
             "used_in_posts": {"$ne": True},
             "deleted": {"$ne": True}
-        }).sort([("created_at", 1)]).to_list(100)  # Oldest first
+        }).sort([("created_at", 1)]).limit(100))  # Oldest first
         
         for item in older_content:
             content["older_content"].append(ContentSource(

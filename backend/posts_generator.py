@@ -622,8 +622,7 @@ RÉPONSE ATTENDUE (JSON exact avec array de {num_posts} posts):
                         text=post_data.get("text", ""),
                         hashtags=post_data.get("hashtags", []),
                         platform="instagram",
-                        content_type=post_data.get("content_type", "product"),
-                        scheduling_preference=post_data.get("scheduling_preference", "afternoon")
+                        content_type=post_data.get("content_type", "product")
                     )
                     
                     generated_posts.append(post)

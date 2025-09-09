@@ -3530,6 +3530,16 @@ function MainApp() {
                                       type="text"
                                       placeholder="Facultatif"
                                       defaultValue={fileCustomData[index]?.title || ""}
+                                      onChange={(e) => {
+                                        // Update fileCustomData when user types
+                                        setFileCustomData(prev => ({
+                                          ...prev,
+                                          [index]: {
+                                            ...prev[index],
+                                            title: e.target.value
+                                          }
+                                        }));
+                                      }}
                                       className="w-full px-3 py-2 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-sm"
                                       style={{
                                         fontSize: '16px',

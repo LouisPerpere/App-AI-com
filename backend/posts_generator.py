@@ -32,6 +32,7 @@ class PostContent:
     scheduled_date: datetime = None
     content_type: str = "product"  # product, backstage, value, sales, info, educational
     visual_type: str = "image"  # image, video
+    status: str = "with_image"  # "with_image" or "needs_image"
 
 @dataclass
 class ContentSource:

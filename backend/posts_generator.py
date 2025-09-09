@@ -455,6 +455,13 @@ RÈGLES STRICTES DE RÉDACTION:
 - 150-200 mots maximum
 - 15-25 hashtags pertinents
 
+CONTRAINTES DE VARIÉTÉ CRITIQUE:
+- Chaque post doit être UNIQUE et suffisamment différent des autres
+- Varier les angles d'approche, le vocabulaire, et la structure
+- NE JAMAIS répéter exactement le même contenu ou les mêmes formulations
+- Adapter le niveau de détail et le style selon le type de post
+- Comme le ferait un expert community manager professionnel
+
 RÉPONSE ATTENDUE (JSON exact):
 {{
     "text": "Texte naturel sans style IA, max 2-3 emojis",

@@ -241,7 +241,7 @@ frontend:
 
 test_plan:
   current_focus:
-    - "Business Profile Posting Frequency Persistence Fix - COMPLETED"
+    - "Carousel Logic and Image Attachment System Testing - COMPLETED"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

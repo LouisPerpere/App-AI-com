@@ -6619,6 +6619,8 @@ function MainApp() {
                   getMonthlyContentData={getMonthlyContentData}
                   collapsedMonths={collapsedMonths}
                   toggleMonthCollapse={toggleMonthCollapse}
+                  // Nouvelle prop pour supprimer des fichiers
+                  onRemoveFile={handleRemoveSelectedFile}
                 />
               </div>
             </div>

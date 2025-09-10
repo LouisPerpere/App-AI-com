@@ -2495,8 +2495,8 @@ function MainApp() {
     toast.success('Post validé ! 👍');
   };
 
-  const handleModifyPost = async (post, modificationRequest) => {
-    if (!modificationRequest.trim()) {
+  const handleModifyPost = async (post, modificationRequestValue) => {
+    if (!modificationRequestValue.trim()) {
       toast.error('Veuillez saisir une demande de modification');
       return;
     }
@@ -2507,23 +2507,25 @@ function MainApp() {
     try {
       const response = await axios.put(
         `${API}/posts/${post.id}/modify`,
-        { modification_request: modificationRequest },
+        { modification_request: modificationRequestValue },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      toast.success('Post modifié avec succès ! 🎉');
-      
-      // Recharger les posts
-      await loadGeneratedPosts();
+      if (response.data.success) {
+        toast.success('Post modifié avec succès !');
+        // Recharger les posts
+        await loadGeneratedPosts();
+      }
       
       // Fermer l'aperçu et réinitialiser
       setSelectedPost(null);
-      setModificationRequest('');
+      if (modificationRequestRef.current) {
+        modificationRequestRef.current.value = '';
+      }
       
     } catch (error) {
       console.error('Error modifying post:', error);
-      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
-      toast.error(`Erreur lors de la modification: ${errorMessage}`);
+      toast.error('Erreur lors de la modification du post');
     } finally {
       setIsModifyingPost(false);
     }

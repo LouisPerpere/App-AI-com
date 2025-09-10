@@ -350,6 +350,35 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage }) => {
             </div>
           )}
           
+          {/* Boutons d'action pour posts avec images */}
+          {hasImage && (
+            <div className="absolute top-2 right-2 flex space-x-1">
+              {/* Bouton modifier image */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onModifyImage && onModifyImage(post);
+                }}
+                className="w-7 h-7 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+                title="Modifier l'image"
+              >
+                <Edit2 className="w-3 h-3" />
+              </button>
+              
+              {/* Bouton ajouter image (carrousel) */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAddImage && onAddImage(post);
+                }}
+                className="w-7 h-7 bg-purple-500 hover:bg-purple-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+                title="Ajouter une image (carrousel)"
+              >
+                <Plus className="w-3 h-3" />
+              </button>
+            </div>
+          )}
+          
           {/* Badge date */}
           <div className="absolute bottom-2 right-2">
             <span className="bg-black/50 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">

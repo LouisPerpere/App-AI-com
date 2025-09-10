@@ -907,6 +907,38 @@ class AttachImageRequest(BaseModel):
     uploaded_files: List[str] = []  # For upload filenames (legacy)
     uploaded_file_ids: List[str] = []  # For upload UUIDs (new)
 
+@api_router.get("/content/carousel/{carousel_id}")
+async def get_carousel_content(
+    carousel_id: str,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Get carousel content for display"""
+    try:
+        dbm = get_database()
+        
+        # Find carousel
+        carousel = dbm.db.carousels.find_one({
+            "id": carousel_id,
+            "owner_id": user_id
+        })
+        
+        if not carousel:
+            raise HTTPException(status_code=404, detail="Carousel not found")
+        
+        return {
+            "id": carousel["id"],
+            "type": "carousel",
+            "images": carousel.get("images", []),
+            "post_id": carousel.get("post_id"),
+            "created_at": carousel.get("created_at")
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error getting carousel: {e}")
+        raise HTTPException(status_code=500, detail="Error getting carousel")
+
 @api_router.put("/posts/{post_id}/attach-image")
 async def attach_image_to_post(
     post_id: str,

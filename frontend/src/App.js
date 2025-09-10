@@ -1044,9 +1044,11 @@ function MainApp() {
   // Posts management states
   const [selectedPost, setSelectedPost] = useState(null);
   const [isModifyingPost, setIsModifyingPost] = useState(false);
-  const [modificationRequest, setModificationRequest] = useState('');
   const [postsByMonth, setPostsByMonth] = useState({});
   const [collapsedPostMonths, setCollapsedPostMonths] = useState({});
+  
+  // Refs pour inputs non-contrôlés (fix clavier virtuel)
+  const modificationRequestRef = useRef(null);
   
   // Content move states
   const [showMoveModal, setShowMoveModal] = useState(false);

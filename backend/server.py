@@ -932,6 +932,13 @@ async def attach_image_to_post(
         visual_url = ""
         visual_id = ""
         
+        # Détecter si on doit créer un caroussel (mode ajout avec image existante)
+        current_visual_id = current_post.get("visual_id", "")
+        current_visual_url = current_post.get("visual_url", "")
+        has_existing_image = bool(current_visual_id and current_visual_url)
+        
+        print(f"🔍 Post analysis: has_existing_image={has_existing_image}, current_visual_id='{current_visual_id}'")
+        
         if request.image_source == "library":
             # Use existing image from library
             if request.image_id:
@@ -942,11 +949,52 @@ async def attach_image_to_post(
                 image_doc = dbm.db.media.find_one(query)
                 
                 if image_doc:
-                    # Use the original image_id from the request for consistency
-                    visual_id = request.image_id
-                    visual_url = f"/api/content/{visual_id}/file"
+                    new_image_id = request.image_id
+                    new_image_url = f"/api/content/{new_image_id}/file"
                     
-                    # Mark image as used using the same query pattern
+                    # Check if we need to create a carousel (adding to existing image)
+                    if has_existing_image and not current_visual_id.startswith("carousel_"):
+                        # Create carousel with existing + new image
+                        carousel_id = f"carousel_{str(uuid.uuid4())}"
+                        visual_id = carousel_id
+                        visual_url = f"/api/content/carousel/{carousel_id}"
+                        
+                        # Store carousel info in database
+                        carousel_doc = {
+                            "id": carousel_id,
+                            "type": "carousel",
+                            "owner_id": user_id,
+                            "images": [
+                                {"id": current_visual_id, "url": current_visual_url},
+                                {"id": new_image_id, "url": new_image_url}
+                            ],
+                            "post_id": post_id,
+                            "created_at": datetime.utcnow().isoformat()
+                        }
+                        
+                        dbm.db.carousels.insert_one(carousel_doc)
+                        print(f"✅ Created carousel {carousel_id} with existing + new image")
+                        
+                    elif has_existing_image and current_visual_id.startswith("carousel_"):
+                        # Add to existing carousel
+                        carousel_id = current_visual_id
+                        visual_id = carousel_id
+                        visual_url = current_visual_url
+                        
+                        # Add new image to existing carousel
+                        dbm.db.carousels.update_one(
+                            {"id": carousel_id, "owner_id": user_id},
+                            {"$push": {"images": {"id": new_image_id, "url": new_image_url}}}
+                        )
+                        print(f"✅ Added image to existing carousel {carousel_id}")
+                        
+                    else:
+                        # Replace image (normal mode)
+                        visual_id = new_image_id
+                        visual_url = new_image_url
+                        print(f"✅ Replaced image with library image {visual_id}")
+                    
+                    # Mark new image as used
                     update_query = parse_any_id(request.image_id)
                     update_query["owner_id"] = user_id
                     
@@ -954,7 +1002,7 @@ async def attach_image_to_post(
                         update_query,
                         {"$set": {"used_in_posts": True}}
                     )
-                    print(f"✅ Library image {visual_id} marked as used")
+                    print(f"✅ Library image {new_image_id} marked as used")
                 else:
                     raise HTTPException(status_code=404, detail="Image not found in library")
                 

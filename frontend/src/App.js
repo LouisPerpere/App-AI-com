@@ -401,7 +401,7 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage }) => {
             <div className="flex flex-wrap gap-1">
               {post.hashtags.slice(0, 2).map((hashtag, idx) => (
                 <span key={idx} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                  #{hashtag}
+                  {hashtag.startsWith('#') ? hashtag : `#${hashtag}`}
                 </span>
               ))}
               {post.hashtags.length > 2 && (

@@ -6589,7 +6589,9 @@ function MainApp() {
                     <ImageIcon className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-gray-800">Ajouter une image au post</h3>
+                    <h3 className="text-lg font-bold text-gray-800">
+                      {imageAttachmentMode === 'modify' ? 'Modifier l\'image du post' : 'Ajouter une image au post'}
+                    </h3>
                     <p className="text-sm text-gray-600">"{postToAttachImage.title || 'Post généré'}"</p>
                   </div>
                 </div>

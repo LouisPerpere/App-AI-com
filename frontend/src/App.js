@@ -2631,6 +2631,13 @@ function MainApp() {
     setSelectedFiles(files);
   };
 
+  // Fonction pour supprimer un fichier sélectionné 
+  const handleRemoveSelectedFile = (indexToRemove) => {
+    const newFiles = selectedFiles.filter((_, index) => index !== indexToRemove);
+    setSelectedFiles(newFiles);
+    console.log(`🗑️ Removed file at index ${indexToRemove}, ${newFiles.length} files remaining`);
+  };
+
   // Fonction spécialisée pour uploader des fichiers depuis les posts
   const uploadFilesForPost = async (files, postTitle, postText) => {
     if (!files || files.length === 0) return [];

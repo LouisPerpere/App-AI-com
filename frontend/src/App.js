@@ -539,7 +539,7 @@ const PostPreviewModal = ({
               </button>
               <button
                 onClick={handleModifySubmit}
-                disabled={isModifying || !modificationRequest.trim()}
+                disabled={isModifying}
                 className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-lg font-medium transition-colors flex items-center space-x-2"
               >
                 {isModifying && <Loader2 className="w-4 h-4 animate-spin" />}

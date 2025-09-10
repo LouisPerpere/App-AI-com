@@ -103,9 +103,14 @@ class CarouselLogicTester:
             # Create a simple test image file
             test_image_content = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\tpHYs\x00\x00\x0b\x13\x00\x00\x0b\x13\x01\x00\x9a\x9c\x18\x00\x00\x00\nIDATx\x9cc\xf8\x00\x00\x00\x01\x00\x01\x00\x00\x00\x00IEND\xaeB`\x82'
             
-            files = {
-                'files': ('test_image.png', test_image_content, 'image/png')
-            }
+            # Remove Content-Type header for multipart upload
+            headers = self.session.headers.copy()
+            if 'Content-Type' in headers:
+                del headers['Content-Type']
+            
+            files = [
+                ('files', ('test_image.png', test_image_content, 'image/png'))
+            ]
             
             data = {
                 'upload_type': 'single',
@@ -115,7 +120,8 @@ class CarouselLogicTester:
             response = self.session.post(
                 f"{BACKEND_URL}/content/batch-upload",
                 files=files,
-                data=data
+                data=data,
+                headers=headers
             )
             
             if response.status_code == 200:
@@ -123,6 +129,8 @@ class CarouselLogicTester:
                 uploaded_files = result.get("uploaded_files", [])
                 if uploaded_files:
                     return uploaded_files[0].get("id")
+            else:
+                print(f"❌ Upload failed: Status {response.status_code}, Response: {response.text}")
             return None
             
         except Exception as e:

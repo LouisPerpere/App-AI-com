@@ -1102,6 +1102,7 @@ function MainApp() {
   const [postToAttachImage, setPostToAttachImage] = useState(null);
   const [attachImageTab, setAttachImageTab] = useState('library'); // 'library', 'pixabay', 'upload'
   const [isAttachingImage, setIsAttachingImage] = useState(false);
+  const [imageAttachmentMode, setImageAttachmentMode] = useState('add'); // 'add' ou 'modify'
   
   // Pixabay integration states
   const [activeLibraryTab, setActiveLibraryTab] = useState('my-library'); // 'my-library' or 'pixabay-search'

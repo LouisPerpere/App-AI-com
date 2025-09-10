@@ -1018,43 +1018,129 @@ async def attach_image_to_post(
             # Handle newly uploaded files
             if request.uploaded_file_ids:
                 if len(request.uploaded_file_ids) == 1:
-                    # Single upload
-                    visual_id = request.uploaded_file_ids[0]
-                    visual_url = f"/api/content/{visual_id}/file"
+                    # Single upload - check if we need to create carousel
+                    new_image_id = request.uploaded_file_ids[0]
+                    new_image_url = f"/api/content/{new_image_id}/file"
                     
-                    # Mark image as used using parse_any_id
-                    update_query = parse_any_id(visual_id)
+                    if has_existing_image and not current_visual_id.startswith("carousel_"):
+                        # Create carousel with existing + new image
+                        carousel_id = f"carousel_{str(uuid.uuid4())}"
+                        visual_id = carousel_id
+                        visual_url = f"/api/content/carousel/{carousel_id}"
+                        
+                        # Store carousel info in database
+                        carousel_doc = {
+                            "id": carousel_id,
+                            "type": "carousel",
+                            "owner_id": user_id,
+                            "images": [
+                                {"id": current_visual_id, "url": current_visual_url},
+                                {"id": new_image_id, "url": new_image_url}
+                            ],
+                            "post_id": post_id,
+                            "created_at": datetime.utcnow().isoformat()
+                        }
+                        
+                        dbm.db.carousels.insert_one(carousel_doc)
+                        print(f"✅ Created carousel {carousel_id} with existing + uploaded image")
+                        
+                    elif has_existing_image and current_visual_id.startswith("carousel_"):
+                        # Add to existing carousel
+                        carousel_id = current_visual_id
+                        visual_id = carousel_id
+                        visual_url = current_visual_url
+                        
+                        # Add new image to existing carousel
+                        dbm.db.carousels.update_one(
+                            {"id": carousel_id, "owner_id": user_id},
+                            {"$push": {"images": {"id": new_image_id, "url": new_image_url}}}
+                        )
+                        print(f"✅ Added uploaded image to existing carousel {carousel_id}")
+                        
+                    else:
+                        # Replace/set image (normal mode)
+                        visual_id = new_image_id
+                        visual_url = new_image_url
+                        print(f"✅ Set single uploaded image {visual_id}")
+                    
+                    # Mark uploaded image as used
+                    update_query = parse_any_id(new_image_id)
                     update_query["owner_id"] = user_id
                     
                     dbm.db.media.update_one(
                         update_query,
                         {"$set": {"used_in_posts": True}}
                     )
-                    print(f"✅ Single uploaded image {visual_id} attached and marked as used")
                     
                 elif len(request.uploaded_file_ids) > 1:
-                    # Multiple uploads - create a carousel reference
-                    carousel_id = str(uuid.uuid4())
-                    visual_id = carousel_id
-                    visual_url = f"/api/content/carousel/{carousel_id}"
+                    # Multiple uploads
+                    if has_existing_image:
+                        # Add all uploaded images to existing or create new carousel
+                        if current_visual_id.startswith("carousel_"):
+                            # Add to existing carousel
+                            carousel_id = current_visual_id
+                            visual_id = carousel_id
+                            visual_url = current_visual_url
+                            
+                            new_images = [{"id": fid, "url": f"/api/content/{fid}/file"} for fid in request.uploaded_file_ids]
+                            
+                            dbm.db.carousels.update_one(
+                                {"id": carousel_id, "owner_id": user_id},
+                                {"$push": {"images": {"$each": new_images}}}
+                            )
+                            print(f"✅ Added {len(request.uploaded_file_ids)} images to existing carousel")
+                            
+                        else:
+                            # Create carousel with existing + all new uploads
+                            carousel_id = f"carousel_{str(uuid.uuid4())}"
+                            visual_id = carousel_id
+                            visual_url = f"/api/content/carousel/{carousel_id}"
+                            
+                            all_images = [{"id": current_visual_id, "url": current_visual_url}]
+                            all_images.extend([{"id": fid, "url": f"/api/content/{fid}/file"} for fid in request.uploaded_file_ids])
+                            
+                            carousel_doc = {
+                                "id": carousel_id,
+                                "type": "carousel",
+                                "owner_id": user_id,
+                                "images": all_images,
+                                "post_id": post_id,
+                                "created_at": datetime.utcnow().isoformat()
+                            }
+                            
+                            dbm.db.carousels.insert_one(carousel_doc)
+                            print(f"✅ Created carousel with existing + {len(request.uploaded_file_ids)} new images")
+                            
+                    else:
+                        # Create new carousel from uploads only
+                        carousel_id = f"carousel_{str(uuid.uuid4())}"
+                        visual_id = carousel_id
+                        visual_url = f"/api/content/carousel/{carousel_id}"
+                        
+                        all_images = [{"id": fid, "url": f"/api/content/{fid}/file"} for fid in request.uploaded_file_ids]
+                        
+                        carousel_doc = {
+                            "id": carousel_id,
+                            "type": "carousel",
+                            "owner_id": user_id,
+                            "images": all_images,
+                            "post_id": post_id,
+                            "created_at": datetime.utcnow().isoformat()
+                        }
+                        
+                        dbm.db.carousels.insert_one(carousel_doc)
+                        print(f"✅ Created new carousel with {len(request.uploaded_file_ids)} images")
                     
-                    # Mark all images as used and link them to the carousel
+                    # Mark all uploaded images as used
                     for file_id in request.uploaded_file_ids:
                         update_query = parse_any_id(file_id)
                         update_query["owner_id"] = user_id
                         
                         dbm.db.media.update_one(
                             update_query,
-                            {
-                                "$set": {
-                                    "used_in_posts": True,
-                                    "carousel_post_id": post_id
-                                }
-                            }
+                            {"$set": {"used_in_posts": True}}
                         )
-                    
-                    print(f"✅ Carousel with {len(request.uploaded_file_ids)} images created for post")
-                    
+                        
             else:
                 raise HTTPException(status_code=400, detail="No uploaded files provided")
         

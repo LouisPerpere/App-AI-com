@@ -59,7 +59,7 @@ def parse_any_id(file_id: str) -> dict:
         return {"_id": ObjectId(file_id)}
     except Exception:
         print(f"⚠️ Using UUID fallback for file_id: {file_id}")
-        return {"external_id": file_id}
+        return {"id": file_id}
 
 try:
     from website_analyzer_gpt5 import website_router

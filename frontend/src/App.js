@@ -603,7 +603,9 @@ const ImageAttachmentContent = ({
   // Ajout des props pour l'organisation mensuelle
   getMonthlyContentData,
   collapsedMonths,
-  toggleMonthCollapse
+  toggleMonthCollapse,
+  // Nouvelle prop pour supprimer des fichiers
+  onRemoveFile
 }) => {
   
   const handleLibraryImageSelect = (content) => {

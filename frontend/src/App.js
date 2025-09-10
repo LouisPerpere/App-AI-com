@@ -787,25 +787,27 @@ const ImageAttachmentContent = ({
                         <div
                           key={content.id || index}
                           onClick={() => handleLibraryImageSelect(content)}
-                          className="group cursor-pointer transform hover:scale-105 transition-all duration-200 relative"
+                          className="group cursor-pointer transition-all duration-200 relative overflow-visible"
                         >
-                          <ContentThumbnail
-                            content={content}
-                            isSelectionMode={false}
-                            isSelected={false}
-                            onContentClick={() => {}}
-                            onToggleSelection={() => {}}
-                            onMoveContent={() => {}}
-                          />
+                          <div className="transform hover:scale-105 transition-transform duration-200">
+                            <ContentThumbnail
+                              content={content}
+                              isSelectionMode={false}
+                              isSelected={false}
+                              onContentClick={() => {}}
+                              onToggleSelection={() => {}}
+                              onMoveContent={() => {}}
+                            />
+                          </div>
                           
                           {content.used_in_posts && (
-                            <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1">
+                            <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1 z-10">
                               <Check className="w-3 h-3" />
                             </div>
                           )}
                           
-                          <div className="absolute inset-0 bg-orange-500 bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-xl flex items-start justify-start">
-                            <div className="opacity-0 group-hover:opacity-100 bg-white bg-opacity-90 px-3 py-1 rounded-lg font-medium text-orange-600 text-sm transition-opacity m-2">
+                          <div className="absolute inset-0 bg-orange-500 bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-xl flex items-start justify-start overflow-visible">
+                            <div className="opacity-0 group-hover:opacity-100 bg-white bg-opacity-95 px-2 py-1 rounded-md font-medium text-orange-600 text-xs transition-opacity m-1 shadow-lg border border-orange-200 z-20">
                               Sélectionner
                             </div>
                           </div>

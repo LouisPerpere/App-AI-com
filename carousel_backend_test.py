@@ -108,15 +108,8 @@ class CarouselLogicTester:
             if 'Content-Type' in headers:
                 del headers['Content-Type']
             
-            # Correct format for multiple files with same field name
-            files = {
-                'files': ('test_image.png', test_image_content, 'image/png')
-            }
-            
-            data = {
-                'upload_type': 'single',
-                'attributed_month': 'decembre_2025'
-            }
+            files = {'files': ('test_carousel.png', test_image_content, 'image/png')}
+            data = {'upload_type': 'single', 'attributed_month': 'decembre_2025'}
             
             response = self.session.post(
                 f"{BACKEND_URL}/content/batch-upload",
@@ -127,9 +120,9 @@ class CarouselLogicTester:
             
             if response.status_code == 200:
                 result = response.json()
-                uploaded_files = result.get("uploaded_files", [])
-                if uploaded_files:
-                    return uploaded_files[0].get("id")
+                created_files = result.get("created", [])
+                if created_files:
+                    return created_files[0].get("id")
             else:
                 print(f"❌ Upload failed: Status {response.status_code}, Response: {response.text}")
             return None

@@ -257,14 +257,41 @@ class CarouselLogicTester:
         
         self.log_result("Test 2 - Find post with image", True, f"Post ID: {post_id}, Visual ID: {original_visual_id}")
         
-        # Étape 2: Upload un nouveau fichier
-        uploaded_file_id = self.upload_test_image()
-        
-        if not uploaded_file_id:
-            self.log_result("Test 2 - Upload new file", False, "Échec upload nouveau fichier")
+        # Étape 2: Upload un nouveau fichier (using working approach)
+        try:
+            test_image_content = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\tpHYs\x00\x00\x0b\x13\x00\x00\x0b\x13\x01\x00\x9a\x9c\x18\x00\x00\x00\nIDATx\x9cc\xf8\x00\x00\x00\x01\x00\x01\x00\x00\x00\x00IEND\xaeB`\x82'
+            
+            # Remove Content-Type header for multipart upload
+            headers = self.session.headers.copy()
+            if 'Content-Type' in headers:
+                del headers['Content-Type']
+            
+            files = {'files': ('test_carousel2.png', test_image_content, 'image/png')}
+            data = {'upload_type': 'single', 'attributed_month': 'decembre_2025'}
+            
+            response = self.session.post(
+                f"{BACKEND_URL}/content/batch-upload",
+                files=files,
+                data=data,
+                headers=headers
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                created_files = result.get("created", [])
+                if created_files:
+                    uploaded_file_id = created_files[0].get("id")
+                    self.log_result("Test 2 - Upload new file", True, f"Uploaded File ID: {uploaded_file_id}")
+                else:
+                    self.log_result("Test 2 - Upload new file", False, "No files in created array")
+                    return False
+            else:
+                self.log_result("Test 2 - Upload new file", False, f"Status: {response.status_code}, Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_result("Test 2 - Upload new file", False, f"Exception: {str(e)}")
             return False
-        
-        self.log_result("Test 2 - Upload new file", True, f"Uploaded File ID: {uploaded_file_id}")
         
         # Étape 3: Attacher le fichier uploadé au post
         attach_data = {

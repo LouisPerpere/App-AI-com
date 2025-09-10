@@ -411,13 +411,16 @@ const PostPreviewModal = ({
   };
 
   const handleModifySubmit = () => {
-    onModify(post, modificationRequest);
+    const modificationValue = modificationRequestRef.current?.value || '';
+    onModify(post, modificationValue);
     setShowModificationForm(false);
   };
 
   const handleCancel = () => {
     setShowModificationForm(false);
-    setModificationRequest('');
+    if (modificationRequestRef.current) {
+      modificationRequestRef.current.value = '';
+    }
   };
 
   return (

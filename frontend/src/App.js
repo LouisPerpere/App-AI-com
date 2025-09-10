@@ -1047,7 +1047,6 @@ function MainApp() {
   const [isModifyingPost, setIsModifyingPost] = useState(false);
   const [postsByMonth, setPostsByMonth] = useState({});
   const [collapsedPostMonths, setCollapsedPostMonths] = useState({});
-  const [modificationRequest, setModificationRequest] = useState('');
   
   // Refs pour inputs non-contrôlés (fix clavier virtuel)
   const modificationRequestRef = useRef(null);

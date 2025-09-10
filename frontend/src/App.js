@@ -951,6 +951,15 @@ const ImageAttachmentContent = ({
                       </div>
                     </div>
                   </div>
+                  
+                  {/* Bouton de suppression */}
+                  <button
+                    onClick={() => onRemoveFile(index)}
+                    className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors"
+                    title="Supprimer ce fichier"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
                 </div>
               ))}
             </div>

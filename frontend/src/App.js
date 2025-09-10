@@ -6117,8 +6117,7 @@ function MainApp() {
                     onModify={handleModifyPost}
                     onValidate={handleValidatePost}
                     isModifying={isModifyingPost}
-                    modificationRequest={modificationRequest}
-                    setModificationRequest={setModificationRequest}
+                    modificationRequestRef={modificationRequestRef}
                   />
                 )}
 

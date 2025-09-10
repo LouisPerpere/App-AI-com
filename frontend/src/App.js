@@ -392,8 +392,7 @@ const PostPreviewModal = ({
   onModify, 
   onValidate, 
   isModifying, 
-  modificationRequest, 
-  setModificationRequest 
+  modificationRequestRef  // Changé de state à ref
 }) => {
   const [showModificationForm, setShowModificationForm] = useState(false);
 

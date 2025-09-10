@@ -286,6 +286,7 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage }) => {
   };
 
   const needsImage = post.status === 'needs_image' || !post.visual_url;
+  const hasImage = !needsImage;
 
   const handleClick = () => {
     if (needsImage && onAddImage) {

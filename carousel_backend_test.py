@@ -108,9 +108,10 @@ class CarouselLogicTester:
             if 'Content-Type' in headers:
                 del headers['Content-Type']
             
-            files = [
-                ('files', ('test_image.png', test_image_content, 'image/png'))
-            ]
+            # Correct format for multiple files with same field name
+            files = {
+                'files': ('test_image.png', test_image_content, 'image/png')
+            }
             
             data = {
                 'upload_type': 'single',

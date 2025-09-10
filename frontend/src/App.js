@@ -2767,6 +2767,7 @@ function MainApp() {
   const handleAddImageToPost = (post) => {
     console.log(`🖼️ Opening image attachment modal for post: ${post.id}`);
     setPostToAttachImage(post);
+    setImageAttachmentMode('add'); // Mode ajout
     setAttachImageTab('upload'); // Commencer par l'onglet upload par défaut pour ajouter
     setShowImageAttachModal(true);
   };
@@ -2775,6 +2776,7 @@ function MainApp() {
   const handleModifyImagePost = (post) => {
     console.log(`✏️ Opening image modification modal for post: ${post.id}`);
     setPostToAttachImage(post);
+    setImageAttachmentMode('modify'); // Mode modification
     setAttachImageTab('library'); // Commencer par l'onglet bibliothèque pour modifier
     setShowImageAttachModal(true);
   };

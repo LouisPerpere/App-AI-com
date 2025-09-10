@@ -878,8 +878,8 @@ const ImageAttachmentContent = ({
                 </div>
                 
                 {/* Overlay de sélection */}
-                <div className="absolute inset-0 bg-orange-500 bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-xl flex items-center justify-center">
-                  <div className="opacity-0 group-hover:opacity-100 bg-white bg-opacity-90 px-3 py-1 rounded-lg font-medium text-orange-600 text-sm transition-opacity">
+                <div className="absolute inset-0 bg-orange-500 bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-xl flex items-start justify-start">
+                  <div className="opacity-0 group-hover:opacity-100 bg-white bg-opacity-90 px-3 py-1 rounded-lg font-medium text-orange-600 text-sm transition-opacity m-2">
                     Sélectionner
                   </div>
                 </div>

@@ -2618,6 +2618,7 @@ function MainApp() {
                   post={post}
                   onClick={() => setSelectedPost(post)}
                   onAddImage={handleAddImageToPost}
+                  onModifyImage={handleModifyImagePost}
                 />
               ))}
             </div>

@@ -517,7 +517,7 @@ const PostPreviewModal = ({
               <div className="flex flex-wrap gap-2">
                 {post.hashtags.map((hashtag, idx) => (
                   <span key={idx} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-                    #{hashtag}
+                    {hashtag.startsWith('#') ? hashtag : `#${hashtag}`}
                   </span>
                 ))}
               </div>

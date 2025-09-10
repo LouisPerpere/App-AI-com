@@ -2761,11 +2761,20 @@ function MainApp() {
     }
   };
 
-  // Fonctions d'ajout d'image aux posts
+  // Fonction pour ajouter une image à un post (ouvre modal d'attachement)
   const handleAddImageToPost = (post) => {
+    console.log(`🖼️ Opening image attachment modal for post: ${post.id}`);
     setPostToAttachImage(post);
+    setAttachImageTab('upload'); // Commencer par l'onglet upload par défaut pour ajouter
     setShowImageAttachModal(true);
-    setAttachImageTab('library'); // Commencer par la bibliothèque
+  };
+
+  // Fonction pour modifier une image d'un post (ouvre modal d'attachement)
+  const handleModifyImagePost = (post) => {
+    console.log(`✏️ Opening image modification modal for post: ${post.id}`);
+    setPostToAttachImage(post);
+    setAttachImageTab('library'); // Commencer par l'onglet bibliothèque pour modifier
+    setShowImageAttachModal(true);
   };
 
   const attachImageToPost = async (imageSource, imageData) => {

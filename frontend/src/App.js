@@ -32,7 +32,7 @@ import { Building, Sparkles, Crown, Upload, FileText, X, Edit, Edit2, Plus, Cale
 // Import toast for notifications
 import { toast } from 'react-hot-toast';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://claire-marcus-api.onrender.com';
+const BACKEND_URL = import.meta.env?.REACT_APP_BACKEND_URL || process.env.REACT_APP_BACKEND_URL || 'https://claire-marcus-api.onrender.com';
 const API = `${BACKEND_URL}/api`;
 
 // Subscription plans data

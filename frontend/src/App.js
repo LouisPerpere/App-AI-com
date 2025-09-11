@@ -572,39 +572,47 @@ const PostPreviewModal = ({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 flex-shrink-0 bg-white">
+        <div className="flex items-center justify-center space-x-3 p-6 border-t border-gray-200 flex-shrink-0 bg-white">
           {!showModificationForm ? (
             <>
               <button
                 onClick={onValidate}
-                className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
               >
-                ✅ Valider
+                <div className="flex items-center space-x-2">
+                  <Check className="w-4 h-4" />
+                  <span>Valider</span>
+                </div>
               </button>
               <button
                 onClick={() => setShowModificationForm(true)}
-                className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
               >
-                ✏️ Modifier
+                <div className="flex items-center space-x-2">
+                  <Edit className="w-4 h-4" />
+                  <span>Modifier</span>
+                </div>
               </button>
             </>
           ) : (
-            {/* Formulaire de modification */}
-            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-              <h5 className="text-sm font-semibold text-yellow-800 mb-3">
-                ✏️ Demander une modification
-              </h5>
-              
-              <textarea
-                ref={modificationRequestRef}
-                placeholder="Décrivez comment vous souhaitez modifier ce post..."
-                className="w-full p-3 border border-yellow-300 rounded-lg resize-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-                rows="3"
-                disabled={isModifying}
-              />
+            <div className="w-full">
+              {/* Formulaire de modification */}
+              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-4">
+                <h5 className="text-sm font-semibold text-yellow-800 mb-3">
+                  ✏️ Demander une modification
+                </h5>
+                
+                <textarea
+                  ref={modificationRequestRef}
+                  placeholder="Décrivez comment vous souhaitez modifier ce post..."
+                  className="w-full p-3 border border-yellow-300 rounded-lg resize-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                  rows="3"
+                  disabled={isModifying}
+                />
+              </div>
 
               {/* Boutons d'action - modernisés et centrés */}
-              <div className="flex items-center justify-center space-x-4 mt-6">
+              <div className="flex items-center justify-center space-x-4">
                 <button
                   onClick={handleCancel}
                   disabled={isModifying}

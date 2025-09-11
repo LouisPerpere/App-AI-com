@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 """
-URGENT MongoDB Connection and User Data Retrieval Diagnostic Test
-Testing for user lperpere@yahoo.fr / user_id: 6a670c66-c06c-4d75-9dd5-c747e8a0281a
-Issue: User can login but sees NO business data for "My Own Watch" company
+URGENT DATABASE INVESTIGATION: Compare user data between preview and production databases
+for lperpere@yahoo.fr to determine which database contains the actual user data.
+
+Testing both environments:
+- Preview: https://claire-marcus-pwa-1.preview.emergentagent.com/api
+- Production: https://claire-marcus-pwa-1.emergent.host/api
+
+Focus: Determine which database has the user's actual data and why claire-marcus.com shows different user ID.
 """
 
 import requests
@@ -10,394 +15,396 @@ import json
 import sys
 from datetime import datetime
 
-# Configuration
-BASE_URL = "https://claire-marcus-pwa-1.preview.emergentagent.com/api"
-TEST_EMAIL = "lperpere@yahoo.fr"
-TEST_PASSWORD = "L@Reunion974!"
-EXPECTED_USER_ID = "6a670c66-c06c-4d75-9dd5-c747e8a0281a"
-EXPECTED_COMPANY = "My Own Watch"
-
-class MongoDBDataDiagnostic:
+class DatabaseInvestigationTester:
     def __init__(self):
-        self.token = None
-        self.user_id = None
-        self.session = requests.Session()
-        self.session.headers.update({
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        })
+        self.preview_base_url = "https://claire-marcus-pwa-1.preview.emergentagent.com/api"
+        self.production_base_url = "https://claire-marcus-pwa-1.emergent.host/api"
+        self.email = "lperpere@yahoo.fr"
+        self.password = "L@Reunion974!"
+        
+        # Store authentication tokens for both environments
+        self.preview_token = None
+        self.production_token = None
+        self.preview_user_id = None
+        self.production_user_id = None
+        
+        # Store investigation results
+        self.investigation_results = {
+            "preview": {},
+            "production": {},
+            "comparison": {},
+            "conclusion": ""
+        }
         
     def log(self, message, level="INFO"):
         timestamp = datetime.now().strftime("%H:%M:%S")
         print(f"[{timestamp}] {level}: {message}")
         
-    def authenticate(self):
-        """Step 1: Authenticate user and verify credentials"""
-        self.log("🔐 STEP 1: Authenticating user lperpere@yahoo.fr")
-        
+    def authenticate_environment(self, base_url, env_name):
+        """Authenticate with specific environment and return token + user_id"""
         try:
-            response = self.session.post(f"{BASE_URL}/auth/login-robust", json={
-                "email": TEST_EMAIL,
-                "password": TEST_PASSWORD
-            })
+            self.log(f"🔐 Authenticating with {env_name} environment: {base_url}")
+            
+            auth_data = {
+                "email": self.email,
+                "password": self.password
+            }
+            
+            response = requests.post(
+                f"{base_url}/auth/login-robust",
+                json=auth_data,
+                headers={"Content-Type": "application/json"},
+                timeout=30
+            )
             
             if response.status_code == 200:
                 data = response.json()
-                self.token = data.get("access_token")
-                self.user_id = data.get("user_id")
+                token = data.get("access_token")
+                user_id = data.get("user_id")
+                email = data.get("email")
                 
-                self.log(f"✅ Authentication successful")
-                self.log(f"   User ID: {self.user_id}")
-                self.log(f"   Expected: {EXPECTED_USER_ID}")
-                self.log(f"   Match: {'✅ YES' if self.user_id == EXPECTED_USER_ID else '❌ NO'}")
-                self.log(f"   Token: {self.token[:20]}..." if self.token else "   Token: None")
+                self.log(f"✅ {env_name} Authentication successful")
+                self.log(f"   User ID: {user_id}")
+                self.log(f"   Email: {email}")
                 
-                # Set authorization header for subsequent requests
-                self.session.headers.update({
-                    'Authorization': f'Bearer {self.token}'
-                })
-                
-                return True
+                return token, user_id
             else:
-                self.log(f"❌ Authentication failed: {response.status_code}", "ERROR")
-                self.log(f"   Response: {response.text}", "ERROR")
-                return False
+                self.log(f"❌ {env_name} Authentication failed: {response.status_code}")
+                self.log(f"   Response: {response.text}")
+                return None, None
                 
         except Exception as e:
-            self.log(f"❌ Authentication error: {str(e)}", "ERROR")
-            return False
+            self.log(f"❌ {env_name} Authentication error: {str(e)}", "ERROR")
+            return None, None
     
-    def test_mongodb_connection(self):
-        """Step 2: Test MongoDB connection via diagnostic endpoint"""
-        self.log("🔍 STEP 2: Testing MongoDB connection")
+    def get_user_data(self, base_url, token, env_name):
+        """Get comprehensive user data from environment"""
+        if not token:
+            return {}
+            
+        headers = {"Authorization": f"Bearer {token}"}
+        user_data = {}
         
         try:
-            response = self.session.get(f"{BASE_URL}/diag")
-            
+            # 1. Get user profile
+            self.log(f"📋 Getting user profile from {env_name}")
+            response = requests.get(f"{base_url}/auth/me", headers=headers, timeout=30)
             if response.status_code == 200:
-                data = response.json()
-                db_connected = data.get("database_connected", False)
-                db_name = data.get("database_name", "Unknown")
-                mongo_url_prefix = data.get("mongo_url_prefix", "Unknown")
-                
-                self.log(f"✅ Diagnostic endpoint accessible")
-                self.log(f"   Database connected: {'✅ YES' if db_connected else '❌ NO'}")
-                self.log(f"   Database name: {db_name}")
-                self.log(f"   MongoDB URL prefix: {mongo_url_prefix}")
-                
-                return db_connected
+                user_data["profile"] = response.json()
+                self.log(f"   ✅ User profile retrieved")
             else:
-                self.log(f"❌ Diagnostic endpoint failed: {response.status_code}", "ERROR")
-                return False
-                
-        except Exception as e:
-            self.log(f"❌ MongoDB connection test error: {str(e)}", "ERROR")
-            return False
-    
-    def test_user_profile(self):
-        """Step 3: Test GET /api/users/me (user profile)"""
-        self.log("👤 STEP 3: Testing user profile endpoint")
-        
-        try:
-            response = self.session.get(f"{BASE_URL}/auth/me")
+                self.log(f"   ❌ User profile failed: {response.status_code}")
+                user_data["profile"] = None
             
+            # 2. Get business profile
+            self.log(f"🏢 Getting business profile from {env_name}")
+            response = requests.get(f"{base_url}/business-profile", headers=headers, timeout=30)
             if response.status_code == 200:
-                data = response.json()
-                self.log(f"✅ User profile endpoint accessible")
-                self.log(f"   User ID: {data.get('user_id', 'Not found')}")
-                self.log(f"   Email: {data.get('email', 'Not found')}")
-                self.log(f"   Business name: {data.get('business_name', 'Not found')}")
-                self.log(f"   First name: {data.get('first_name', 'Not found')}")
-                self.log(f"   Last name: {data.get('last_name', 'Not found')}")
-                self.log(f"   Subscription: {data.get('subscription_status', 'Not found')}")
+                business_data = response.json()
+                user_data["business_profile"] = business_data
                 
-                # Check if business name matches expected
-                business_name = data.get('business_name', '')
-                if business_name == EXPECTED_COMPANY:
-                    self.log(f"   ✅ Business name matches: {EXPECTED_COMPANY}")
-                elif business_name:
-                    self.log(f"   ⚠️ Business name different: '{business_name}' vs expected '{EXPECTED_COMPANY}'")
+                # Count populated fields
+                populated_fields = sum(1 for v in business_data.values() if v not in [None, "", []])
+                self.log(f"   ✅ Business profile retrieved ({populated_fields} populated fields)")
+                
+                # Check for "My Own Watch" data
+                business_name = business_data.get("business_name", "")
+                if "My Own Watch" in str(business_name):
+                    self.log(f"   🎯 FOUND 'My Own Watch' business data!")
+                    user_data["has_my_own_watch"] = True
                 else:
-                    self.log(f"   ❌ Business name is empty or missing")
-                
-                return True, data
+                    user_data["has_my_own_watch"] = False
+                    
             else:
-                self.log(f"❌ User profile endpoint failed: {response.status_code}", "ERROR")
-                self.log(f"   Response: {response.text}", "ERROR")
-                return False, None
-                
-        except Exception as e:
-            self.log(f"❌ User profile test error: {str(e)}", "ERROR")
-            return False, None
-    
-    def test_business_profile(self):
-        """Step 4: Test GET /api/business-profile (business profile)"""
-        self.log("🏢 STEP 4: Testing business profile endpoint")
-        
-        try:
-            response = self.session.get(f"{BASE_URL}/business-profile")
+                self.log(f"   ❌ Business profile failed: {response.status_code}")
+                user_data["business_profile"] = None
+                user_data["has_my_own_watch"] = False
             
+            # 3. Get content library
+            self.log(f"📚 Getting content library from {env_name}")
+            response = requests.get(f"{base_url}/content/pending?limit=50", headers=headers, timeout=30)
             if response.status_code == 200:
-                data = response.json()
-                self.log(f"✅ Business profile endpoint accessible")
+                content_data = response.json()
+                user_data["content"] = content_data
+                content_count = content_data.get("total", 0)
+                self.log(f"   ✅ Content library retrieved ({content_count} items)")
                 
-                # Check all business profile fields
-                fields_to_check = [
-                    'business_name', 'business_type', 'business_description', 
-                    'target_audience', 'brand_tone', 'posting_frequency',
-                    'preferred_platforms', 'budget_range', 'email', 
-                    'website_url', 'coordinates', 'hashtags_primary', 'hashtags_secondary'
-                ]
-                
-                empty_fields = 0
-                populated_fields = 0
-                
-                for field in fields_to_check:
-                    value = data.get(field)
-                    if value is None or value == "" or (isinstance(value, list) and len(value) == 0):
-                        empty_fields += 1
-                        self.log(f"   ❌ {field}: Empty/None")
-                    else:
-                        populated_fields += 1
-                        if field == 'business_name':
-                            if value == EXPECTED_COMPANY:
-                                self.log(f"   ✅ {field}: '{value}' (matches expected)")
-                            else:
-                                self.log(f"   ⚠️ {field}: '{value}' (expected '{EXPECTED_COMPANY}')")
-                        else:
-                            self.log(f"   ✅ {field}: {value}")
-                
-                self.log(f"   📊 Summary: {populated_fields} populated, {empty_fields} empty fields")
-                
-                if populated_fields == 0:
-                    self.log(f"   🚨 CRITICAL: ALL business profile fields are empty!", "ERROR")
-                    return False, data
+                # Check for 19 content items as mentioned by user
+                if content_count == 19:
+                    self.log(f"   🎯 FOUND exactly 19 content items as reported by user!")
+                    user_data["has_19_content_items"] = True
                 else:
-                    return True, data
+                    user_data["has_19_content_items"] = False
                     
             else:
-                self.log(f"❌ Business profile endpoint failed: {response.status_code}", "ERROR")
-                self.log(f"   Response: {response.text}", "ERROR")
-                return False, None
-                
-        except Exception as e:
-            self.log(f"❌ Business profile test error: {str(e)}", "ERROR")
-            return False, None
-    
-    def test_content_library(self):
-        """Step 5: Test GET /api/content/pending (content library)"""
-        self.log("📚 STEP 5: Testing content library endpoint")
-        
-        try:
-            response = self.session.get(f"{BASE_URL}/content/pending")
+                self.log(f"   ❌ Content library failed: {response.status_code}")
+                user_data["content"] = None
+                user_data["has_19_content_items"] = False
             
+            # 4. Get notes
+            self.log(f"📝 Getting notes from {env_name}")
+            response = requests.get(f"{base_url}/notes", headers=headers, timeout=30)
             if response.status_code == 200:
-                data = response.json()
-                content_items = data.get('content', [])
-                total = data.get('total', 0)
-                loaded = data.get('loaded', 0)
+                notes_data = response.json()
+                user_data["notes"] = notes_data
+                notes_count = len(notes_data.get("notes", []))
+                self.log(f"   ✅ Notes retrieved ({notes_count} notes)")
                 
-                self.log(f"✅ Content library endpoint accessible")
-                self.log(f"   Total content items: {total}")
-                self.log(f"   Loaded items: {loaded}")
-                self.log(f"   Items in response: {len(content_items)}")
-                
-                if total == 0:
-                    self.log(f"   🚨 CRITICAL: No content items found for user!", "ERROR")
-                    return False, data
+                # Check for 2 notes as mentioned by user
+                if notes_count == 2:
+                    self.log(f"   🎯 FOUND exactly 2 notes as reported by user!")
+                    user_data["has_2_notes"] = True
                 else:
-                    # Show sample content items
-                    for i, item in enumerate(content_items[:3]):  # Show first 3 items
-                        self.log(f"   📄 Item {i+1}: {item.get('filename', 'No filename')} ({item.get('file_type', 'Unknown type')})")
-                        self.log(f"      ID: {item.get('id', 'No ID')}")
-                        self.log(f"      Title: {item.get('title', 'No title')}")
-                        self.log(f"      Context: {item.get('context', 'No context')}")
-                    
-                    if len(content_items) > 3:
-                        self.log(f"   ... and {len(content_items) - 3} more items")
-                    
-                    return True, data
+                    user_data["has_2_notes"] = False
                     
             else:
-                self.log(f"❌ Content library endpoint failed: {response.status_code}", "ERROR")
-                self.log(f"   Response: {response.text}", "ERROR")
-                return False, None
-                
-        except Exception as e:
-            self.log(f"❌ Content library test error: {str(e)}", "ERROR")
-            return False, None
-    
-    def test_user_notes(self):
-        """Step 6: Test GET /api/notes (user notes)"""
-        self.log("📝 STEP 6: Testing user notes endpoint")
-        
-        try:
-            response = self.session.get(f"{BASE_URL}/notes")
+                self.log(f"   ❌ Notes failed: {response.status_code}")
+                user_data["notes"] = None
+                user_data["has_2_notes"] = False
             
+            # 5. Get generated posts
+            self.log(f"📄 Getting generated posts from {env_name}")
+            response = requests.get(f"{base_url}/posts/generated", headers=headers, timeout=30)
             if response.status_code == 200:
-                data = response.json()
-                notes = data.get('notes', [])
+                posts_data = response.json()
+                user_data["posts"] = posts_data
+                posts_count = posts_data.get("count", 0)
+                self.log(f"   ✅ Generated posts retrieved ({posts_count} posts)")
                 
-                self.log(f"✅ User notes endpoint accessible")
-                self.log(f"   Total notes: {len(notes)}")
-                
-                if len(notes) == 0:
-                    self.log(f"   ⚠️ No notes found for user")
-                    return True, data  # Empty notes is not necessarily an error
+                # Check for 4 posts as mentioned by user
+                if posts_count == 4:
+                    self.log(f"   🎯 FOUND exactly 4 posts as reported by user!")
+                    user_data["has_4_posts"] = True
                 else:
-                    # Show sample notes
-                    for i, note in enumerate(notes[:3]):  # Show first 3 notes
-                        self.log(f"   📝 Note {i+1}: {note.get('description', 'No description')}")
-                        self.log(f"      Content: {note.get('content', 'No content')[:50]}...")
-                        self.log(f"      Priority: {note.get('priority', 'No priority')}")
-                    
-                    if len(notes) > 3:
-                        self.log(f"   ... and {len(notes) - 3} more notes")
-                    
-                    return True, data
+                    user_data["has_4_posts"] = False
                     
             else:
-                self.log(f"❌ User notes endpoint failed: {response.status_code}", "ERROR")
-                self.log(f"   Response: {response.text}", "ERROR")
-                return False, None
+                self.log(f"   ❌ Generated posts failed: {response.status_code}")
+                user_data["posts"] = None
+                user_data["has_4_posts"] = False
                 
         except Exception as e:
-            self.log(f"❌ User notes test error: {str(e)}", "ERROR")
-            return False, None
-    
-    def test_generated_posts(self):
-        """Step 7: Test GET /api/posts/generated (generated posts)"""
-        self.log("📱 STEP 7: Testing generated posts endpoint")
-        
-        try:
-            response = self.session.get(f"{BASE_URL}/posts/generated")
+            self.log(f"❌ Error getting user data from {env_name}: {str(e)}", "ERROR")
             
-            if response.status_code == 200:
-                data = response.json()
-                posts = data.get('posts', [])
-                count = data.get('count', 0)
-                
-                self.log(f"✅ Generated posts endpoint accessible")
-                self.log(f"   Total posts: {count}")
-                self.log(f"   Posts in response: {len(posts)}")
-                
-                if count == 0:
-                    self.log(f"   ⚠️ No generated posts found for user")
-                    return True, data  # Empty posts is not necessarily an error
-                else:
-                    # Show sample posts
-                    for i, post in enumerate(posts[:3]):  # Show first 3 posts
-                        self.log(f"   📱 Post {i+1}: {post.get('title', 'No title')}")
-                        self.log(f"      Status: {post.get('status', 'No status')}")
-                        self.log(f"      Platform: {post.get('platform', 'No platform')}")
-                        self.log(f"      Scheduled: {post.get('scheduled_date', 'No date')}")
-                    
-                    if len(posts) > 3:
-                        self.log(f"   ... and {len(posts) - 3} more posts")
-                    
-                    return True, data
-                    
-            else:
-                self.log(f"❌ Generated posts endpoint failed: {response.status_code}", "ERROR")
-                self.log(f"   Response: {response.text}", "ERROR")
-                return False, None
-                
-        except Exception as e:
-            self.log(f"❌ Generated posts test error: {str(e)}", "ERROR")
-            return False, None
+        return user_data
     
-    def run_comprehensive_diagnostic(self):
-        """Run complete diagnostic test suite"""
-        self.log("🚀 STARTING COMPREHENSIVE MONGODB DATA DIAGNOSTIC")
-        self.log(f"   Target user: {TEST_EMAIL}")
-        self.log(f"   Expected user ID: {EXPECTED_USER_ID}")
-        self.log(f"   Expected company: {EXPECTED_COMPANY}")
-        self.log(f"   Backend URL: {BASE_URL}")
-        self.log("=" * 80)
+    def analyze_data_completeness(self, user_data, env_name):
+        """Analyze which environment has the most complete user data"""
+        score = 0
+        details = []
         
-        results = {
-            'authentication': False,
-            'mongodb_connection': False,
-            'user_profile': False,
-            'business_profile': False,
-            'content_library': False,
-            'user_notes': False,
-            'generated_posts': False
-        }
-        
-        # Step 1: Authentication
-        if not self.authenticate():
-            self.log("🚨 CRITICAL: Authentication failed - cannot proceed with data tests", "ERROR")
-            return results
-        results['authentication'] = True
-        
-        # Step 2: MongoDB Connection
-        results['mongodb_connection'] = self.test_mongodb_connection()
-        
-        # Step 3: User Profile
-        success, data = self.test_user_profile()
-        results['user_profile'] = success
-        
-        # Step 4: Business Profile
-        success, data = self.test_business_profile()
-        results['business_profile'] = success
-        
-        # Step 5: Content Library
-        success, data = self.test_content_library()
-        results['content_library'] = success
-        
-        # Step 6: User Notes
-        success, data = self.test_user_notes()
-        results['user_notes'] = success
-        
-        # Step 7: Generated Posts
-        success, data = self.test_generated_posts()
-        results['generated_posts'] = success
-        
-        # Final Summary
-        self.log("=" * 80)
-        self.log("🎯 DIAGNOSTIC SUMMARY")
-        
-        passed_tests = sum(1 for result in results.values() if result)
-        total_tests = len(results)
-        success_rate = (passed_tests / total_tests) * 100
-        
-        for test_name, result in results.items():
-            status = "✅ PASS" if result else "❌ FAIL"
-            self.log(f"   {test_name.replace('_', ' ').title()}: {status}")
-        
-        self.log(f"📊 Overall Success Rate: {success_rate:.1f}% ({passed_tests}/{total_tests})")
-        
-        # Critical Issues Analysis
-        critical_issues = []
-        if not results['authentication']:
-            critical_issues.append("Authentication failure prevents all data access")
-        if not results['mongodb_connection']:
-            critical_issues.append("MongoDB connection issue - database not accessible")
-        if not results['business_profile']:
-            critical_issues.append("Business profile data missing or empty - explains empty forms")
-        if not results['content_library']:
-            critical_issues.append("Content library empty - no media files found")
-        
-        if critical_issues:
-            self.log("🚨 CRITICAL ISSUES IDENTIFIED:")
-            for issue in critical_issues:
-                self.log(f"   • {issue}", "ERROR")
+        # Check for "My Own Watch" business data (high priority)
+        if user_data.get("has_my_own_watch", False):
+            score += 10
+            details.append("✅ Has 'My Own Watch' business data")
         else:
-            self.log("✅ No critical issues found - data retrieval working correctly")
+            details.append("❌ Missing 'My Own Watch' business data")
         
-        return results
+        # Check for 19 content items (high priority)
+        if user_data.get("has_19_content_items", False):
+            score += 8
+            details.append("✅ Has exactly 19 content items")
+        else:
+            content_count = 0
+            if user_data.get("content"):
+                content_count = user_data["content"].get("total", 0)
+            details.append(f"❌ Has {content_count} content items (expected 19)")
+        
+        # Check for 2 notes (medium priority)
+        if user_data.get("has_2_notes", False):
+            score += 5
+            details.append("✅ Has exactly 2 notes")
+        else:
+            notes_count = 0
+            if user_data.get("notes"):
+                notes_count = len(user_data["notes"].get("notes", []))
+            details.append(f"❌ Has {notes_count} notes (expected 2)")
+        
+        # Check for 4 posts (medium priority)
+        if user_data.get("has_4_posts", False):
+            score += 5
+            details.append("✅ Has exactly 4 posts")
+        else:
+            posts_count = 0
+            if user_data.get("posts"):
+                posts_count = user_data["posts"].get("count", 0)
+            details.append(f"❌ Has {posts_count} posts (expected 4)")
+        
+        # Check business profile completeness
+        if user_data.get("business_profile"):
+            populated_fields = sum(1 for v in user_data["business_profile"].values() if v not in [None, "", []])
+            if populated_fields >= 10:
+                score += 3
+                details.append(f"✅ Business profile well populated ({populated_fields} fields)")
+            else:
+                details.append(f"⚠️ Business profile partially populated ({populated_fields} fields)")
+        
+        self.log(f"📊 {env_name} Data Completeness Score: {score}/31")
+        for detail in details:
+            self.log(f"   {detail}")
+            
+        return score, details
+    
+    def run_investigation(self):
+        """Run complete database investigation"""
+        self.log("🚀 STARTING URGENT DATABASE INVESTIGATION")
+        self.log("=" * 80)
+        
+        # Step 1: Authenticate with both environments
+        self.log("STEP 1: Authentication Testing")
+        self.log("-" * 40)
+        
+        self.preview_token, self.preview_user_id = self.authenticate_environment(
+            self.preview_base_url, "PREVIEW"
+        )
+        
+        self.production_token, self.production_user_id = self.authenticate_environment(
+            self.production_base_url, "PRODUCTION"
+        )
+        
+        # Step 2: Compare User IDs
+        self.log("\nSTEP 2: User ID Comparison")
+        self.log("-" * 40)
+        
+        if self.preview_user_id and self.production_user_id:
+            if self.preview_user_id == self.production_user_id:
+                self.log("✅ User IDs MATCH between environments")
+                self.log(f"   Consistent User ID: {self.preview_user_id}")
+            else:
+                self.log("❌ User IDs DIFFER between environments")
+                self.log(f"   Preview User ID:    {self.preview_user_id}")
+                self.log(f"   Production User ID: {self.production_user_id}")
+                self.log("   🚨 THIS INDICATES SEPARATE DATABASES!")
+        
+        # Step 3: Get comprehensive data from both environments
+        self.log("\nSTEP 3: Data Retrieval and Analysis")
+        self.log("-" * 40)
+        
+        if self.preview_token:
+            self.log("\n🔍 ANALYZING PREVIEW ENVIRONMENT DATA:")
+            self.investigation_results["preview"] = self.get_user_data(
+                self.preview_base_url, self.preview_token, "PREVIEW"
+            )
+        
+        if self.production_token:
+            self.log("\n🔍 ANALYZING PRODUCTION ENVIRONMENT DATA:")
+            self.investigation_results["production"] = self.get_user_data(
+                self.production_base_url, self.production_token, "PRODUCTION"
+            )
+        
+        # Step 4: Compare data completeness
+        self.log("\nSTEP 4: Data Completeness Analysis")
+        self.log("-" * 40)
+        
+        preview_score = 0
+        production_score = 0
+        
+        if self.investigation_results["preview"]:
+            preview_score, preview_details = self.analyze_data_completeness(
+                self.investigation_results["preview"], "PREVIEW"
+            )
+        
+        if self.investigation_results["production"]:
+            production_score, production_details = self.analyze_data_completeness(
+                self.investigation_results["production"], "PRODUCTION"
+            )
+        
+        # Step 5: Final conclusion
+        self.log("\nSTEP 5: INVESTIGATION CONCLUSION")
+        self.log("=" * 80)
+        
+        if preview_score > production_score:
+            winner = "PREVIEW"
+            winner_score = preview_score
+            winner_url = self.preview_base_url
+            winner_user_id = self.preview_user_id
+        elif production_score > preview_score:
+            winner = "PRODUCTION"
+            winner_score = production_score
+            winner_url = self.production_base_url
+            winner_user_id = self.production_user_id
+        else:
+            winner = "TIE"
+            winner_score = preview_score
+        
+        if winner != "TIE":
+            self.log(f"🎯 CONCLUSION: {winner} database contains the user's actual data")
+            self.log(f"   Environment: {winner}")
+            self.log(f"   URL: {winner_url}")
+            self.log(f"   User ID: {winner_user_id}")
+            self.log(f"   Completeness Score: {winner_score}/31")
+            
+            if winner == "PREVIEW":
+                self.log("🚨 CRITICAL FINDING: Preview database has the actual user data!")
+                self.log("   This means claire-marcus.com production is connected to WRONG database")
+                self.log("   RECOMMENDATION: Update production to use preview database connection")
+            else:
+                self.log("✅ Production database has the correct user data")
+                self.log("   Preview database appears to be outdated or test data")
+        else:
+            self.log("⚠️ INCONCLUSIVE: Both databases have similar data completeness")
+            self.log("   Manual investigation required to determine correct database")
+        
+        # Step 6: MongoDB connection details investigation
+        self.log("\nSTEP 6: MongoDB Connection Investigation")
+        self.log("-" * 40)
+        
+        self.log("🔍 Checking diagnostic endpoints for database connection details...")
+        
+        # Check preview diagnostic
+        try:
+            response = requests.get(f"{self.preview_base_url}/diag", timeout=30)
+            if response.status_code == 200:
+                diag_data = response.json()
+                self.log("📊 PREVIEW Database Connection:")
+                self.log(f"   Connected: {diag_data.get('database_connected', 'Unknown')}")
+                self.log(f"   Database: {diag_data.get('database_name', 'Unknown')}")
+                self.log(f"   Mongo URL: {diag_data.get('mongo_url_prefix', 'Unknown')}")
+        except Exception as e:
+            self.log(f"❌ Preview diagnostic failed: {str(e)}")
+        
+        # Check production diagnostic
+        try:
+            response = requests.get(f"{self.production_base_url}/diag", timeout=30)
+            if response.status_code == 200:
+                diag_data = response.json()
+                self.log("📊 PRODUCTION Database Connection:")
+                self.log(f"   Connected: {diag_data.get('database_connected', 'Unknown')}")
+                self.log(f"   Database: {diag_data.get('database_name', 'Unknown')}")
+                self.log(f"   Mongo URL: {diag_data.get('mongo_url_prefix', 'Unknown')}")
+        except Exception as e:
+            self.log(f"❌ Production diagnostic failed: {str(e)}")
+        
+        self.log("\n" + "=" * 80)
+        self.log("🏁 DATABASE INVESTIGATION COMPLETED")
+        self.log("=" * 80)
+        
+        return {
+            "preview_user_id": self.preview_user_id,
+            "production_user_id": self.production_user_id,
+            "preview_score": preview_score,
+            "production_score": production_score,
+            "winner": winner,
+            "investigation_results": self.investigation_results
+        }
 
 def main():
-    """Main test execution"""
-    diagnostic = MongoDBDataDiagnostic()
-    results = diagnostic.run_comprehensive_diagnostic()
+    """Main function to run the database investigation"""
+    print("🚨 URGENT DATABASE INVESTIGATION FOR lperpere@yahoo.fr")
+    print("Comparing Preview vs Production databases to find actual user data")
+    print("=" * 80)
     
-    # Exit with appropriate code
-    if all(results.values()):
-        sys.exit(0)  # All tests passed
+    tester = DatabaseInvestigationTester()
+    results = tester.run_investigation()
+    
+    # Return appropriate exit code
+    if results["winner"] in ["PREVIEW", "PRODUCTION"]:
+        print(f"\n✅ Investigation completed successfully - {results['winner']} has the actual data")
+        return 0
     else:
-        sys.exit(1)  # Some tests failed
+        print(f"\n⚠️ Investigation inconclusive - manual review required")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    exit_code = main()
+    sys.exit(exit_code)

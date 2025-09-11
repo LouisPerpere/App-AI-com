@@ -241,7 +241,7 @@ frontend:
 
 test_plan:
   current_focus:
-    - "Posts Generation Anti-Promotion System Testing - COMPLETED"
+    - "Post Generation Image Assignment Issue - DIAGNOSED"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

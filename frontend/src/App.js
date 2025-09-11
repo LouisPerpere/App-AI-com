@@ -6720,8 +6720,8 @@ function MainApp() {
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 mt-4 sm:mt-0 social-connection-buttons">
                       {connectedAccounts.instagram ? (
                         <>
-                          <div className="flex items-center space-x-2 text-green-600">
-                            <CheckCircleIcon className="w-5 h-5" />
+                          <div className="flex items-center justify-center space-x-2 text-green-600 px-3 py-2">
+                            <CheckCircleIcon className="w-5 h-5 flex-shrink-0" />
                             <span className="text-sm font-medium">Connecté</span>
                           </div>
                           <button

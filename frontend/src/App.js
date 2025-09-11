@@ -2623,7 +2623,23 @@ function MainApp() {
 
       if (response.data.success) {
         toast.success('Post modifié avec succès !');
-        // Recharger les posts
+        
+        // Mettre à jour automatiquement le post modifié dans la liste
+        setGeneratedPosts(prevPosts => 
+          prevPosts.map(p => 
+            p.id === post.id 
+              ? {
+                  ...p,
+                  title: response.data.new_title || p.title,
+                  text: response.data.new_text || p.text,
+                  hashtags: response.data.new_hashtags || p.hashtags,
+                  modified_at: response.data.modified_at || new Date().toISOString()
+                }
+              : p
+          )
+        );
+        
+        // Mettre à jour aussi dans postsByMonth pour l'affichage
         await loadGeneratedPosts();
       }
       

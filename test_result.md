@@ -2386,6 +2386,18 @@ frontend:
         comment: "🔧 ADDITIONAL AUTHORIZATION HEADER FIXES: Found and fixed 2 more API requests missing explicit Authorization headers: DELETE /api/notes/{noteId} and GET /api/auth/me (with timeout). Also fixed backend database schema to include missing fields (business_description, budget_range, email) in _create_default_business_profile to match Pydantic model. Backend logs confirm token validation working correctly for authenticated requests and proper fallback to demo mode for requests without Authorization headers. All API requests now use explicit headers instead of relying on axios.defaults which can have race conditions."
 
 backend:
+  - task: "User Data Diagnostic for lperpere@yahoo.fr"
+    implemented: true
+    working: true
+    file: "/app/backend_test.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "🎉 USER DATA DIAGNOSTIC COMPLETED SUCCESSFULLY - 100% SUCCESS RATE: Comprehensive diagnostic testing completed for user lperpere@yahoo.fr following deployment to claire-marcus.com domain with all 8/8 tests passed. CRITICAL FINDINGS: ALL USER DATA IS PRESENT AND ACCESSIBLE - ✅ Authentication working perfectly (User ID: bdf87a74-e3f3-44f3-bac2-649cde3ef93e), ✅ User profile complete (Laurent Perpere, active subscription), ✅ Business profile populated (My Own Watch, artisan watchmaker with comprehensive business details including business_name, business_type, business_description, target_audience, brand_tone), ✅ Content library active (19 items total: 18 uploads + 1 other, file types: all image/jpeg, distributed across septembre_2025: 12 items, octobre_2025: 6 items), ✅ Notes system functional (2 notes: 1 monthly note, 1 specific month note, both high priority), ✅ Generated posts working (4 posts, all with 'with_image' status, Instagram platform, all posts have visual content). DATABASE CONNECTIVITY CONFIRMED: MongoDB connection healthy (database_connected: True, DB name: claire_marcus), all collections accessible, no data migration issues detected. CONCLUSION: User data is NOT missing - all backend systems are fully operational. The reported issue may be frontend-related, user interface confusion, or browser caching rather than actual backend data loss. All user authentication, profile retrieval, business profile data, content library uploads, notes (both general and monthly), and website analysis data are present and functioning correctly."
+
   - task: "September Closure Note Integration Fix"
     implemented: true
     working: true

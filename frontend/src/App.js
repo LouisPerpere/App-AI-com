@@ -326,11 +326,21 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage }) => {
             <img 
               src={post.visual_url.startsWith('http') 
                 ? post.visual_url 
-                : `${process.env.REACT_APP_BACKEND_URL}${post.visual_url}?token=${localStorage.getItem('access_token')}`
+                : `${process.env.REACT_APP_BACKEND_URL}${post.visual_url}?token=${localStorage.getItem('access_token')}&t=${Date.now()}`
               } 
               alt={post.title || 'Post'}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                console.error('❌ Error loading post image:', post.visual_url);
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'block';
+              }}
             />
+            {/* Fallback en cas d'erreur de chargement */}
+            <div className="hidden text-center p-4">
+              <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+              <p className="text-sm text-gray-500">Image non disponible</p>
+            </div>
           ) : (
             <div className="text-center p-4">
               {needsImage ? (

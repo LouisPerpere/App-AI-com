@@ -5883,6 +5883,7 @@ function MainApp() {
                   <div className="text-sm text-blue-700 space-y-1">
                     <div>• <strong>Événements :</strong> Fermeture exceptionnelle, participation à un salon, journées portes ouvertes</div>
                     <div>• <strong>Animations :</strong> Organisation d'un jeu, concours, promotion spéciale, nouveauté</div>
+                    <div>• <strong>Promotions :</strong> Réduction 15% ce mois-ci, code promo SPECIAL20, offre fidélité</div>
                     <div>• <strong>Particularités :</strong> Savoir-faire unique, histoire de l'entreprise, valeurs importantes</div>
                     <div>• <strong>Actualités :</strong> Nouveau partenariat, certification obtenue, équipe qui grandit</div>
                   </div>

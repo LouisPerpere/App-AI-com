@@ -246,6 +246,13 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
         </div>
       )}
       
+      {/* Carousel count indicator */}
+      {content.type === 'carousel' && content.count > 1 && (
+        <div className="absolute top-2 left-2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full font-bold shadow-lg z-20" title={`Carrousel de ${content.count} images`}>
+          {content.count}
+        </div>
+      )}
+      
       {/* Used in posts indicator - green checkmark */}
       {content.used_in_posts && !isSelectionMode && (
         <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1 shadow-lg z-10" title="Utilisée dans un post">

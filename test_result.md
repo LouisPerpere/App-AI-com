@@ -241,7 +241,7 @@ frontend:
 
 test_plan:
   current_focus:
-    - "Carousel Logic and Image Attachment System Testing - COMPLETED"
+    - "DELETE Posts Endpoint Testing - COMPLETED"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

@@ -725,6 +725,14 @@ RÈGLES STRICTES DE RÉDACTION:
 - 150-200 mots maximum par post
 - 15-25 hashtags pertinents par post
 
+🚫 INTERDICTION FORMELLE - PROMOTIONS NON DEMANDÉES 🚫
+- NE JAMAIS inventer de promotions, réductions, soldes ou offres commerciales
+- NE JAMAIS proposer de pourcentages de réduction (ex: -20%, -50%)
+- NE JAMAIS créer de codes promo ou d'offres temporaires
+- SEULES les promotions explicitement mentionnées dans les NOTES peuvent être utilisées
+- Si aucune promotion n'est mentionnée dans les notes, NE PAS en proposer
+- Concentre-toi sur la présentation des produits/services sans inventer d'offres
+
 CONTRAINTES DE VARIÉTÉ CRITIQUE:
 - Chaque post doit être UNIQUE et suffisamment différent des autres
 - Varier les angles d'approche, le vocabulaire, et la structure

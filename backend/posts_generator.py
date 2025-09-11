@@ -247,12 +247,28 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
                 # CRITICAL FIX: Use the actual file_id for images, not MongoDB _id
                 actual_file_id = None
                 visual_url = item.get("url", "")
+                
+                # Debug logging to understand ID extraction
+                logger.info(f"   🔍 DEBUG: Processing item with URL: {visual_url}")
+                
                 if visual_url:
                     # Extract file_id from URL like "/api/content/74bc5825-fec4-4696-8235-1bcb9bf20001/file"
                     import re
                     match = re.search(r'/api/content/([^/]+)/file', visual_url)
                     if match:
                         actual_file_id = match.group(1)
+                        logger.info(f"   ✅ DEBUG: Extracted ID: {actual_file_id}")
+                    else:
+                        logger.warning(f"   ⚠️ DEBUG: Could not extract ID from URL: {visual_url}")
+                        # Fallback: use the item's id field directly
+                        actual_file_id = item.get("id", str(item.get("_id", "")))
+                        logger.info(f"   🔄 DEBUG: Using fallback ID: {actual_file_id}")
+                else:
+                    # Fallback: use the item's id field directly
+                    actual_file_id = item.get("id", str(item.get("_id", "")))
+                    logger.warning(f"   ⚠️ DEBUG: No URL found, using direct ID: {actual_file_id}")
+                    
+                logger.info(f"   📋 DEBUG: Final ID to use: {actual_file_id}")
                     
                 content["month_content"].append(ContentSource(
                     id=actual_file_id if actual_file_id else str(item.get("_id", "")),

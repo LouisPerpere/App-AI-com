@@ -6735,7 +6735,7 @@ function MainApp() {
                         <button
                           onClick={connectInstagram}
                           disabled={isConnectingAccount}
-                          className="px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg hover:from-pink-600 hover:to-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                          className="px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg hover:from-pink-600 hover:to-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 social-connect-button"
                         >
                           {isConnectingAccount ? (
                             <>

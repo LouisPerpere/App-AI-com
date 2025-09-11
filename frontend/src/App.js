@@ -1245,13 +1245,8 @@ function MainApp() {
         }
       }));
       
-      setIsInstagramConnected(true);
-      
       // Nettoyer l'URL
       window.history.replaceState(null, null, window.location.pathname);
-      
-      // Recharger les connexions sociales
-      loadSocialConnections();
     }
     
     if (instagramError) {

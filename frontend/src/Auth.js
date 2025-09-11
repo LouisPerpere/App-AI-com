@@ -133,12 +133,12 @@ const AuthPage = ({ onAuthSuccess }) => {
       try {
         console.log('🔄 About to call onAuthSuccess callback with user data...');
         const userData = {
-          userId: data.user_id,
-          email: data.email,
-          firstName: data.first_name,
-          lastName: data.last_name,
-          businessName: data.business_name,
-          subscriptionStatus: data.subscription_status
+          userId: response.data.user_id,
+          email: response.data.email,
+          firstName: response.data.first_name,
+          lastName: response.data.last_name,
+          businessName: response.data.business_name,
+          subscriptionStatus: response.data.subscription_status
         };
         await onAuthSuccess(userData);
         console.log('✅ onAuthSuccess callback completed successfully');

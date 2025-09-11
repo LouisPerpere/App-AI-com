@@ -762,6 +762,37 @@ label[for*="checkbox"] {
     max-width: 100% !important;
     overflow-x: hidden !important;
   }
+  
+  /* Social tab mobile responsiveness */
+  .social-connection-card {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 12px !important;
+  }
+  
+  .social-connection-content {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  
+  .social-connection-buttons {
+    width: 100% !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  
+  /* Social tab buttons responsive */
+  .social-connect-button,
+  .social-disconnect-button,
+  .social-status-button {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+  }
 }
 
 /* Responsive design fixes for notes cards */

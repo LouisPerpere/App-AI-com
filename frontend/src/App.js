@@ -7,6 +7,7 @@ import TestAuth from './TestAuth';
 import PaymentPage from './PaymentPage';
 import AdminDashboard from './AdminDashboard';
 import FacebookCallback from './FacebookCallback';
+import PrivacyPolicy from './PrivacyPolicy';
 
 // Configure axios for cross-site authentication (ChatGPT fix)
 axios.defaults.withCredentials = true;

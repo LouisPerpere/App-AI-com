@@ -1341,7 +1341,8 @@ async def get_generated_posts(user_id: str = Depends(get_current_user_id_robust)
                 "scheduled_date": post.get("scheduled_date", ""),
                 "status": post.get("status", "draft"),
                 "published": post.get("published", False),
-                "created_at": post.get("created_at", "")
+                "created_at": post.get("created_at", ""),
+                "modified_at": post.get("modified_at", "")  # Include modified_at field
             })
         
         print(f"📋 Retrieved {len(formatted_posts)} generated posts for user {user_id}")

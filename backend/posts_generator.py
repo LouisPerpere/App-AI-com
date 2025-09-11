@@ -936,6 +936,9 @@ CONTRAINTES DE VARIÉTÉ CRITIQUE:
 - Adapter le niveau de détail et le style selon le type de post
 - Comme le ferait un expert community manager professionnel
 
+🚨 RAPPEL CRITIQUE - NOTES OBLIGATOIRES 🚨
+AVANT de générer tes posts, relis les NOTES ci-dessus et assure-toi qu'elles sont TOUTES prises en compte dans ta planification. Toute information importante (fermeture, événement, nouveauté) DOIT apparaître dans au moins un post. C'est NON-NÉGOCIABLE.
+
 RÉPONSE ATTENDUE (JSON exact):
 {{
     "text": "Texte naturel sans style IA, max 2-3 emojis",

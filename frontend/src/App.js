@@ -2745,29 +2745,50 @@ function MainApp() {
   };
 
   const handleModifyPost = async (post, modificationRequestValue) => {
-    if (!modificationRequestValue.trim()) {
+    if (!modificationRequestValue?.trim()) {
       toast.error('Veuillez saisir une demande de modification');
+      return;
+    }
+
+    if (!post?.id) {
+      toast.error('Erreur: ID du post manquant');
       return;
     }
 
     setIsModifyingPost(true);
     const token = localStorage.getItem('access_token');
 
+    if (!token) {
+      toast.error('Session expirée, veuillez vous reconnecter');
+      setIsModifyingPost(false);
+      return;
+    }
+
     try {
+      console.log(`🔄 Modification du post ${post.id}:`, modificationRequestValue.trim());
+      
       const response = await axios.put(
         `${API}/posts/${post.id}/modify`,
-        { modification_request: modificationRequestValue },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { modification_request: modificationRequestValue.trim() },
+        { 
+          headers: { Authorization: `Bearer ${token}` },
+          timeout: 30000 // 30 secondes timeout
+        }
       );
 
-      if (response.data.success) {
-        toast.success('Post modifié avec succès ! Actualisation en cours...');
+      if (response.data?.success) {
+        toast.success('✅ Post modifié avec succès ! Actualisation en cours...');
         
-        // Stocker l'ID du post modifié pour repositionnement
-        localStorage.setItem('modifiedPostId', post.id);
-        localStorage.setItem('returnToPostsTab', 'true');
+        // Stocker l'ID du post modifié pour repositionnement sécurisé
+        try {
+          localStorage.setItem('modifiedPostId', post.id);
+          localStorage.setItem('returnToPostsTab', 'true');
+          console.log(`💾 Post ID sauvegardé pour auto-scroll: ${post.id}`);
+        } catch (storageError) {
+          console.warn('⚠️ Erreur localStorage, scroll automatique désactivé:', storageError);
+        }
         
-        // Fermer la modal avant le rechargement
+        // Fermer la modal et nettoyer les refs
         setSelectedPost(null);
         if (modificationRequestRef.current) {
           modificationRequestRef.current.value = '';
@@ -2775,13 +2796,39 @@ function MainApp() {
         
         // Attendre un peu pour que l'utilisateur voie le toast, puis recharger
         setTimeout(() => {
-          window.location.reload();
+          try {
+            window.location.reload();
+          } catch (reloadError) {
+            console.error('❌ Erreur lors du rechargement:', reloadError);
+            // Fallback: recharger les posts manuellement
+            loadGeneratedPosts();
+            setActiveTab('posts');
+          }
         }, 1500);
+      } else {
+        toast.error('❌ Erreur: Réponse invalide du serveur');
+        setIsModifyingPost(false);
       }
       
     } catch (error) {
-      console.error('Error modifying post:', error);
-      toast.error('Erreur lors de la modification du post');
+      console.error('❌ Erreur lors de la modification du post:', error);
+      
+      // Messages d'erreur spécifiques
+      let errorMessage = 'Erreur lors de la modification du post';
+      
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = 'Timeout: La requête a pris trop de temps';
+      } else if (error.response?.status === 401) {
+        errorMessage = 'Session expirée, veuillez vous reconnecter';
+      } else if (error.response?.status === 404) {
+        errorMessage = 'Post non trouvé';
+      } else if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
       setIsModifyingPost(false);
     }
     // Note: setIsModifyingPost(false) n'est pas appelé en cas de succès car on recharge la page

@@ -2783,13 +2783,15 @@ function MainApp() {
           {!isCollapsed && (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {monthData.posts.map((post, index) => (
-                <PostThumbnail
-                  key={post.id || index}
-                  post={post}
-                  onClick={() => setSelectedPost(post)}
-                  onAddImage={handleAddImageToPost}
-                  onModifyImage={handleModifyImagePost}
-                />
+                <div key={post.id || index} data-post-id={post.id}>
+                  <PostThumbnail
+                    key={post.id || index}
+                    post={post}
+                    onClick={() => setSelectedPost(post)}
+                    onAddImage={handleAddImageToPost}
+                    onModifyImage={handleModifyImagePost}
+                  />
+                </div>
               ))}
             </div>
           )}

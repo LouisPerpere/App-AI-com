@@ -26,7 +26,7 @@ import { Label } from './components/ui/label';
 
 
 // Import icons
-import { Building, Sparkles, Crown, Upload, FileText, X, Edit, Edit2, Plus, CalendarIcon, Target, LogOut, Check, Send, Clock, ChevronLeft, ChevronRight, CreditCard, Settings, Globe, Save, Search, Users, Cog, Trash, Trash2, RefreshCw, Calendar, Image as ImageIcon, Info, Play, Eye, ChevronDown, Loader2 } from 'lucide-react';
+import { Building, Sparkles, Crown, Upload, FileText, X, Edit, Edit2, Plus, CalendarIcon, Target, LogOut, Check, Send, Clock, ChevronLeft, ChevronRight, CreditCard, Settings, Globe, Save, Search, Users, Cog, Trash, Trash2, RefreshCw, Calendar, Image as ImageIcon, Info, Play, Eye, ChevronDown, Loader2, Share as ShareIcon, CheckCircle as CheckCircleIcon, Plus as PlusIcon, InformationCircle as InformationCircleIcon } from 'lucide-react';
 
 // Import toast for notifications
 import { toast } from 'react-hot-toast';

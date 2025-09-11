@@ -2144,7 +2144,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Content Movement Functionality Testing"
+    - "Posts Generation Notes Integration Testing - COMPLETED"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

@@ -247,6 +247,18 @@ test_plan:
   test_priority: "high_first"
 
 backend:
+  - task: "MongoDB Connection and User Data Retrieval Diagnostic"
+    implemented: true
+    working: true
+    file: "/app/backend_test.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "🎉 MONGODB CONNECTION AND USER DATA RETRIEVAL DIAGNOSTIC COMPLETED SUCCESSFULLY - 100% SUCCESS RATE: Comprehensive diagnostic testing completed following urgent user report that lperpere@yahoo.fr can login but sees NO business data for 'My Own Watch' company using credentials lperpere@yahoo.fr / L@Reunion974! on backend https://claire-marcus-pwa-1.preview.emergentagent.com/api. CRITICAL FINDINGS - USER ID MISMATCH IDENTIFIED: ❌ ISSUE FOUND: Expected user ID 6a670c66-c06c-4d75-9dd5-c747e8a0281a but actual user ID is bdf87a74-e3f3-44f3-bac2-649cde3ef93e, ✅ AUTHENTICATION WORKING: User lperpere@yahoo.fr authenticates successfully with correct credentials, ✅ MONGODB CONNECTION VERIFIED: Database connected successfully (claire_marcus database), ✅ ALL DATA RETRIEVAL WORKING PERFECTLY: User profile accessible (Laurent Perpere), Business profile fully populated with 'My Own Watch' data (13/13 fields populated including business_name, business_type: artisan, business_description, target_audience, brand_tone: Professionnel, posting_frequency: weekly, preferred_platforms, budget_range: 150€, email: contact@my-own-watch.fr, website_url: https://my-own-watch.fr), Content library working (19 items including images with titles and contexts), User notes accessible (2 notes including 'fermeture exceptionnelle le 30 septembre'), Generated posts working (4 posts with status 'with_image'). ROOT CAUSE ANALYSIS: The user report of 'NO business data showing' is NOT due to backend API issues or MongoDB connection problems. All backend endpoints are working perfectly and returning complete data. The issue appears to be either: (1) Frontend not properly displaying the retrieved data, (2) User interface/UX issue where data is present but not visible, (3) Possible caching issue in browser, (4) User ID confusion - the expected user ID doesn't match the actual authenticated user ID. TECHNICAL VERIFICATION: All 7 critical endpoints tested successfully (100% success rate): Authentication ✅, MongoDB Connection ✅, User Profile ✅, Business Profile ✅, Content Library ✅, User Notes ✅, Generated Posts ✅. CONCLUSION: Backend is FULLY OPERATIONAL for user lperpere@yahoo.fr. All business data for 'My Own Watch' is present and accessible. The issue is likely in the frontend display logic or user interface, not in data retrieval or MongoDB connectivity."
+
   - task: "Post Generation Image Assignment Diagnostic"
     implemented: true
     working: true

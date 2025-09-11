@@ -4546,6 +4546,18 @@ function MainApp() {
                   </div>
                 )}
               </CardContent>
+              
+              {/* Lien politique de confidentialité */}
+              <div className="px-6 pb-4">
+                <div className="border-t border-gray-200 pt-4">
+                  <button
+                    onClick={() => setShowPrivacyPolicy(true)}
+                    className="text-xs text-gray-500 hover:text-purple-600 transition-colors underline"
+                  >
+                    Politique de confidentialité
+                  </button>
+                </div>
+              </div>
             </div>
             </Card>
           </TabsContent>

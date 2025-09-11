@@ -1257,9 +1257,22 @@ function MainApp() {
                 } 
               }, scrollAttempts[attemptIndex]);
             } else {
-              // Toutes les tentatives ont échoué, nettoyer
-              console.log('❌ Impossible de trouver le post modifié après toutes les tentatives');
-              localStorage.removeItem('modifiedPostId');
+              // Toutes les tentatives ont échoué, essayer un fallback
+              console.log('🔄 Tentatives principales échouées, essai de fallback...');
+              
+              // Fallback: essayer de scroller vers le premier post visible
+              setTimeout(() => {
+                const anyPostElement = document.querySelector('[data-post-id]');
+                if (anyPostElement) {
+                  console.log('📌 Fallback: Scroll vers le premier post visible');
+                  anyPostElement.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start',
+                    inline: 'nearest'
+                  });
+                }
+                localStorage.removeItem('modifiedPostId');
+              }, 1000);
             }
           };
           

@@ -253,7 +253,7 @@ frontend:
 
 test_plan:
   current_focus:
-    - "Database Environment Investigation - Preview vs Production - COMPLETED"
+    - "Complete Data Migration Execution - COMPLETED"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

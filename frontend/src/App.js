@@ -6182,23 +6182,38 @@ function MainApp() {
               <CardContent>
                 {/* Bouton de génération manuelle */}
                 <div className="mb-8 text-center">
-                  <Button
-                    onClick={handleOpenGenerationModal}
-                    disabled={isGeneratingPosts}
-                    className="btn-gradient-primary px-8 py-4 text-lg font-semibold"
-                  >
-                    {isGeneratingPosts ? (
-                      <>
-                        <div className="animate-spin rounded-full mr-3 h-5 w-5 border-b-2 border-white"></div>
-                        Génération en cours...
-                      </>
-                    ) : (
-                      <>
-                        <FileText className="w-5 h-5 mr-3" />
-                        Générer les posts du mois
-                      </>
+                  <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+                    <Button
+                      onClick={handleOpenGenerationModal}
+                      disabled={isGeneratingPosts}
+                      className="btn-gradient-primary px-8 py-4 text-lg font-semibold"
+                    >
+                      {isGeneratingPosts ? (
+                        <>
+                          <div className="animate-spin rounded-full mr-3 h-5 w-5 border-b-2 border-white"></div>
+                          Génération en cours...
+                        </>
+                      ) : (
+                        <>
+                          <FileText className="w-5 h-5 mr-3" />
+                          Générer les posts du mois
+                        </>
+                      )}
+                    </Button>
+                    
+                    {/* Bouton de suppression - affiché seulement si des posts existent */}
+                    {generatedPosts.length > 0 && (
+                      <Button
+                        onClick={handleDeleteAllPosts}
+                        disabled={isGeneratingPosts}
+                        variant="outline"
+                        className="px-6 py-4 text-red-600 border-red-300 hover:bg-red-50 font-medium"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Supprimer tous les posts
+                      </Button>
                     )}
-                  </Button>
+                  </div>
                 </div>
 
                 {/* Organisation mensuelle des posts générés */}

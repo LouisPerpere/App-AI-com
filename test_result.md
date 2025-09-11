@@ -241,7 +241,7 @@ frontend:
 
 test_plan:
   current_focus:
-    - "Post Modification System - Success Field Verification - COMPLETED"
+    - "Posts Generation Anti-Promotion System Testing - COMPLETED"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

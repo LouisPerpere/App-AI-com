@@ -3,6 +3,37 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Animation pour highlighter le post modifié */
+@keyframes flash-highlight {
+  0% {
+    background-color: rgba(251, 146, 60, 0); /* orange-400 transparent */
+    transform: scale(1);
+  }
+  25% {
+    background-color: rgba(251, 146, 60, 0.3); /* orange-400 with opacity */
+    transform: scale(1.02);
+  }
+  50% {
+    background-color: rgba(251, 146, 60, 0.1);
+    transform: scale(1.01);
+  }
+  75% {
+    background-color: rgba(251, 146, 60, 0.2);
+    transform: scale(1.01);
+  }
+  100% {
+    background-color: rgba(251, 146, 60, 0);
+    transform: scale(1);
+  }
+}
+
+/* Classe pour l'effet de flash */
+.flash-highlight {
+  animation: flash-highlight 2s ease-in-out;
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",

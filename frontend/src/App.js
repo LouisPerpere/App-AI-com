@@ -1116,6 +1116,73 @@ function MainApp() {
   const [notes, setNotes] = useState([]);
   const [showPaymentPage, setShowPaymentPage] = useState(false);
   
+  // Form states
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [fileCustomData, setFileCustomData] = useState({}); // Store custom titles and contexts for selected files
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSavingBusinessInfo, setIsSavingBusinessInfo] = useState(false);
+  const [isSavingMarketingInfo, setIsSavingMarketingInfo] = useState(false);
+  
+  // Note form states - using refs to prevent re-renders that close virtual keyboard
+  const [isSavingNote, setIsSavingNote] = useState(false);
+  const [editingNoteId, setEditingNoteId] = useState(null);
+  const [isDeletingNote, setIsDeletingNote] = useState(null);
+  
+  // Content library states
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedContentIds, setSelectedContentIds] = useState(new Set());
+  const [isDeletingContent, setIsDeletingContent] = useState(false);
+  const [previewContent, setPreviewContent] = useState(null);
+  const [isSavingContext, setIsSavingContext] = useState(false);
+  
+  // Posts generation states
+  const [showGenerationModal, setShowGenerationModal] = useState(false);
+  const [isGeneratingPosts, setIsGeneratingPosts] = useState(false);
+  const [generatedPosts, setGeneratedPosts] = useState([]);
+  
+  // Posts management states
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [isModifyingPost, setIsModifyingPost] = useState(false);
+  const [postsByMonth, setPostsByMonth] = useState({});
+  const [collapsedPostMonths, setCollapsedPostMonths] = useState({});
+  
+  // Refs pour inputs non-contrôlés (fix clavier virtuel)
+  const modificationRequestRef = useRef(null);
+  const uploadTitleRefs = useRef({}); // Map des refs par index de fichier
+  const uploadContextRefs = useRef({}); // Map des refs par index de fichier
+  
+  // Content move states
+  const [showMoveModal, setShowMoveModal] = useState(false);
+  const [contentToMove, setContentToMove] = useState(null);
+  const [isMovingContent, setIsMovingContent] = useState(false);
+  
+  // Post image attachment states
+  const [showImageAttachModal, setShowImageAttachModal] = useState(false);
+  const [postToAttachImage, setPostToAttachImage] = useState(null);
+  const [attachImageTab, setAttachImageTab] = useState('library'); // 'library', 'pixabay', 'upload'
+  const [isAttachingImage, setIsAttachingImage] = useState(false);
+  const [imageAttachmentMode, setImageAttachmentMode] = useState('add'); // 'add' ou 'modify'
+  
+  // Pixabay integration states
+  const [activeLibraryTab, setActiveLibraryTab] = useState('my-library'); // 'my-library' or 'pixabay-search'
+  const [pixabayResults, setPixabayResults] = useState([]);
+  const [pixabayCategories, setPixabayCategories] = useState([]);
+  const [isSearchingPixabay, setIsSearchingPixabay] = useState(false);
+  const [savedPixabayImages, setSavedPixabayImages] = useState(new Set()); // Track successfully saved images
+  const [pixabayCurrentPage, setPixabayCurrentPage] = useState(1);
+  const [pixabayTotalHits, setPixabayTotalHits] = useState(0);
+  const [pixabayCurrentQuery, setPixabayCurrentQuery] = useState('');
+  const [isLoadingMorePixabay, setIsLoadingMorePixabay] = useState(false);
+  
+  // Content pagination states
+  const [contentPage, setContentPage] = useState(0);
+  const [totalContentCount, setTotalContentCount] = useState(0);
+  
+  // Carousel upload states
+  const [carouselFiles, setCarouselFiles] = useState([]);
+  const [carouselTitle, setCarouselTitle] = useState('');
+  const [carouselContext, setCarouselContext] = useState('');
+
   // Auto-navigation après modification de post
   useEffect(() => {
     const returnToPostsTab = localStorage.getItem('returnToPostsTab');
@@ -1169,71 +1236,6 @@ function MainApp() {
       }, 1000); // 1 seconde après connexion
     }
   }, [isAuthenticated]);
-
-  // Form states
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [fileCustomData, setFileCustomData] = useState({}); // Store custom titles and contexts for selected files
-  const [isUploading, setIsUploading] = useState(false);
-  const [isSavingBusinessInfo, setIsSavingBusinessInfo] = useState(false);
-  const [isSavingMarketingInfo, setIsSavingMarketingInfo] = useState(false);
-  
-  // Note form states - using refs to prevent re-renders that close virtual keyboard
-  const [isSavingNote, setIsSavingNote] = useState(false);
-  const [editingNoteId, setEditingNoteId] = useState(null);
-  const [isDeletingNote, setIsDeletingNote] = useState(null);
-  
-  // Content library states
-  const [isSelectionMode, setIsSelectionMode] = useState(false);
-  const [selectedContentIds, setSelectedContentIds] = useState(new Set());
-  const [isDeletingContent, setIsDeletingContent] = useState(false);
-  const [previewContent, setPreviewContent] = useState(null);
-  const [isSavingContext, setIsSavingContext] = useState(false);
-  
-  // Posts generation states
-  const [showGenerationModal, setShowGenerationModal] = useState(false);
-  const [isGeneratingPosts, setIsGeneratingPosts] = useState(false);
-  const [generatedPosts, setGeneratedPosts] = useState([]);
-  
-  // Posts management states
-  const [selectedPost, setSelectedPost] = useState(null);
-  const [isModifyingPost, setIsModifyingPost] = useState(false);
-  const [postsByMonth, setPostsByMonth] = useState({});
-  const [collapsedPostMonths, setCollapsedPostMonths] = useState({});
-  
-  // Refs pour inputs non-contrôlés (fix clavier virtuel)
-  const modificationRequestRef = useRef(null);
-  
-  // Content move states
-  const [showMoveModal, setShowMoveModal] = useState(false);
-  const [contentToMove, setContentToMove] = useState(null);
-  const [isMovingContent, setIsMovingContent] = useState(false);
-  
-  // Post image attachment states
-  const [showImageAttachModal, setShowImageAttachModal] = useState(false);
-  const [postToAttachImage, setPostToAttachImage] = useState(null);
-  const [attachImageTab, setAttachImageTab] = useState('library'); // 'library', 'pixabay', 'upload'
-  const [isAttachingImage, setIsAttachingImage] = useState(false);
-  const [imageAttachmentMode, setImageAttachmentMode] = useState('add'); // 'add' ou 'modify'
-  
-  // Pixabay integration states
-  const [activeLibraryTab, setActiveLibraryTab] = useState('my-library'); // 'my-library' or 'pixabay-search'
-  const [pixabayResults, setPixabayResults] = useState([]);
-  const [pixabayCategories, setPixabayCategories] = useState([]);
-  const [isSearchingPixabay, setIsSearchingPixabay] = useState(false);
-  const [savedPixabayImages, setSavedPixabayImages] = useState(new Set()); // Track successfully saved images
-  const [pixabayCurrentPage, setPixabayCurrentPage] = useState(1);
-  const [pixabayTotalHits, setPixabayTotalHits] = useState(0);
-  const [pixabayCurrentQuery, setPixabayCurrentQuery] = useState('');
-  const [isLoadingMorePixabay, setIsLoadingMorePixabay] = useState(false);
-  
-  // Content pagination states
-  const [contentPage, setContentPage] = useState(0);
-  const [totalContentCount, setTotalContentCount] = useState(0);
-  
-  // Carousel upload states
-  const [carouselFiles, setCarouselFiles] = useState([]);
-  const [carouselTitle, setCarouselTitle] = useState('');
-  const [carouselContext, setCarouselContext] = useState('');
 
   // Update refs when fileCustomData changes (to preserve field values when month changes)
   useEffect(() => {

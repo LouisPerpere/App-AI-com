@@ -247,9 +247,16 @@ const ContentThumbnail = React.memo(({ content, isSelectionMode, isSelected, onC
       )}
       
       {/* Used in posts indicator - green checkmark */}
-      {content.used_in_posts && (
-        <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1 shadow-lg" title="Utilisée dans un post">
+      {content.used_in_posts && !isSelectionMode && (
+        <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1 shadow-lg z-10" title="Utilisée dans un post">
           <Check className="w-4 h-4" />
+        </div>
+      )}
+      
+      {/* Used in posts indicator when in selection mode - moved to top-left */}
+      {content.used_in_posts && isSelectionMode && (
+        <div className="absolute top-2 left-2 bg-green-500 text-white rounded-full p-1 shadow-lg z-10" title="Utilisée dans un post">
+          <Check className="w-3 h-3" />
         </div>
       )}
       

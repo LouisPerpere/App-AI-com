@@ -1392,12 +1392,16 @@ async def modify_post_with_ai(
         current_hashtags = current_post.get("hashtags", [])
         current_title = current_post.get("title", "")
         
+        # Get current scheduled date for date modification handling
+        current_scheduled_date = current_post.get("scheduled_date", "")
+        
         modification_prompt = f"""Modifie ce post Instagram selon la demande utilisateur.
 
 POST ACTUEL:
 Titre: {current_title}
 Texte: {current_text}
 Hashtags: {', '.join(['#' + tag for tag in current_hashtags])}
+Date programmée: {current_scheduled_date}
 
 DEMANDE DE MODIFICATION:
 {request.modification_request}
@@ -1412,11 +1416,17 @@ RÈGLES STRICTES DE RÉDACTION:
 - Garde un nombre similaire de hashtags (15-25)
 - Adapte selon la demande mais reste cohérent
 
+GESTION DES DATES:
+- Si la demande mentionne une date (ex: "15 septembre", "20 septembre 2025"), extrais et formate en ISO: "2025-09-15T09:00:00"
+- Si aucune heure spécifiée, utilise 09:00:00 par défaut
+- Si aucune date mentionnée, garde la date actuelle
+
 RÉPONSE ATTENDUE (JSON exact):
 {{
     "title": "Nouveau titre simple et direct",
     "text": "Nouveau texte naturel sans style IA, max 2-3 emojis",
-    "hashtags": ["hashtag1", "hashtag2", "hashtag3"]
+    "hashtags": ["hashtag1", "hashtag2", "hashtag3"],
+    "scheduled_date": "2025-09-15T09:00:00"
 }}
 """
         

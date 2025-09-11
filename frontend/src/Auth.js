@@ -11,9 +11,10 @@ import { toast } from 'sonner';
 
 // Ensure we always have a valid backend URL
 const getBackendURL = () => {
-  let envURL = process.env.REACT_APP_BACKEND_URL;
+  // React 18+ uses import.meta.env, fallback to process.env for compatibility
+  let envURL = import.meta.env?.REACT_APP_BACKEND_URL || process.env.REACT_APP_BACKEND_URL;
   if (!envURL || envURL === 'undefined') {
-    console.error('❌ REACT_APP_BACKEND_URL is not set. Configure it in Netlify environment variables.');
+    console.error('❌ REACT_APP_BACKEND_URL is not set. Configure it in environment variables.');
     return '';
   }
   // Normalize: remove trailing slashes and any trailing /api

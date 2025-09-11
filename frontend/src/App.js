@@ -3614,8 +3614,6 @@ function MainApp() {
 
   // Handle file custom data (titles, contexts, month, etc) during upload preview - REFS SIMPLES
   // Refs pour les champs d'upload (éviter bug clavier virtuel)
-  const uploadTitleRefs = useRef({}); // Map des refs par index de fichier
-  const uploadContextRefs = useRef({}); // Map des refs par index de fichier
   const uploadMonthSelectors = useRef({}); // For month selection per file
   
   // Fonctions pour gérer les refs d'upload (éviter clavier virtuel)

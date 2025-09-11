@@ -205,12 +205,13 @@ class AuthenticationTester:
                 data = response.json()
                 auth_url = data.get("auth_url", "")
                 state = data.get("state", "")
+                redirect_uri = data.get("redirect_uri", "")
                 
-                if auth_url and "instagram.com" in auth_url:
+                if auth_url and ("instagram.com" in auth_url or "api.instagram.com" in auth_url):
                     self.log_test(
                         "Instagram Auth URL",
                         True,
-                        f"Auth URL generated successfully, State: {state}, URL length: {len(auth_url)} chars"
+                        f"Auth URL generated successfully, State: {state[:10]}..., Redirect URI: {redirect_uri}, URL length: {len(auth_url)} chars"
                     )
                     return True
                 else:
@@ -221,6 +222,33 @@ class AuthenticationTester:
                         json.dumps(data, indent=2)
                     )
                     return False
+            elif response.status_code == 500:
+                # Check if it's a configuration issue
+                try:
+                    error_data = response.json()
+                    error_detail = error_data.get("detail", response.text)
+                    if "FACEBOOK_APP_ID" in error_detail:
+                        self.log_test(
+                            "Instagram Auth URL",
+                            False,
+                            "Configuration issue - FACEBOOK_APP_ID not configured",
+                            error_detail
+                        )
+                    else:
+                        self.log_test(
+                            "Instagram Auth URL",
+                            False,
+                            f"Server error: {error_detail}",
+                            response.text
+                        )
+                except:
+                    self.log_test(
+                        "Instagram Auth URL",
+                        False,
+                        f"HTTP {response.status_code}",
+                        response.text
+                    )
+                return False
             elif response.status_code == 404:
                 self.log_test(
                     "Instagram Auth URL",

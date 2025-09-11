@@ -589,23 +589,39 @@ const PostPreviewModal = ({
               </button>
             </>
           ) : (
-            <>
+            {/* Boutons d'action - modernisés et centrés */}
+            <div className="flex items-center justify-center space-x-4 mt-6">
               <button
                 onClick={handleCancel}
-                className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
                 disabled={isModifying}
+                className="px-6 py-3 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
               >
-                Annuler
+                <div className="flex items-center space-x-2">
+                  <X className="w-4 h-4" />
+                  <span>Annuler</span>
+                </div>
               </button>
+              
               <button
                 onClick={handleModifySubmit}
                 disabled={isModifying}
-                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-lg font-medium transition-colors flex items-center space-x-2"
+                className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
               >
-                {isModifying && <Loader2 className="w-4 h-4 animate-spin" />}
-                <span>Envoyer</span>
+                <div className="flex items-center space-x-2">
+                  {isModifying ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Envoi...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      <span>Envoyer</span>
+                    </>
+                  )}
+                </div>
               </button>
-            </>
+            </div>
           )}
         </div>
       </div>

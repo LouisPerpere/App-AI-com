@@ -54,11 +54,8 @@ def migrate_photos_to_production():
     if len(preview_contents) > 5:
         print(f"   ... et {len(preview_contents) - 5} autres")
     
-    # Demander confirmation
-    response = input(f"\n⚠️  Migrer {len(preview_contents)} contenus vers production? (oui/non): ")
-    if response.lower() not in ['oui', 'o', 'yes', 'y']:
-        print("❌ Migration annulée par l'utilisateur")
-        return
+    # Migration automatique (demandée par l'utilisateur)
+    print(f"\n⚠️  Migration automatique de {len(preview_contents)} contenus vers production")
     
     print(f"\n🚀 Début de la migration...")
     

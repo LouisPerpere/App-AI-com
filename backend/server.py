@@ -907,6 +907,46 @@ class AttachImageRequest(BaseModel):
     uploaded_files: List[str] = []  # For upload filenames (legacy)
     uploaded_file_ids: List[str] = []  # For upload UUIDs (new)
 
+@api_router.delete("/posts/generated/all")
+async def delete_all_generated_posts(
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Delete all generated posts for the current user"""
+    try:
+        print(f"🗑️ Deleting all generated posts for user {user_id}")
+        
+        dbm = get_database()
+        
+        # Delete all generated posts for this user
+        result = dbm.db.generated_posts.delete_many({
+            "owner_id": user_id
+        })
+        
+        # Also delete any associated carousels
+        carousel_result = dbm.db.carousels.delete_many({
+            "owner_id": user_id
+        })
+        
+        # Reset used_in_posts flag for all media
+        media_result = dbm.db.media.update_many(
+            {"owner_id": user_id},
+            {"$set": {"used_in_posts": False}}
+        )
+        
+        print(f"✅ Deleted {result.deleted_count} posts, {carousel_result.deleted_count} carousels")
+        print(f"✅ Reset used_in_posts flag for {media_result.modified_count} media items")
+        
+        return {
+            "message": f"Successfully deleted {result.deleted_count} posts",
+            "deleted_posts": result.deleted_count,
+            "deleted_carousels": carousel_result.deleted_count,
+            "reset_media_flags": media_result.modified_count
+        }
+        
+    except Exception as e:
+        print(f"❌ Error deleting posts: {e}")
+        raise HTTPException(status_code=500, detail="Error deleting posts")
+
 @api_router.get("/content/carousel/{carousel_id}")
 async def get_carousel_content(
     carousel_id: str,

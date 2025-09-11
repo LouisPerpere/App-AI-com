@@ -196,8 +196,9 @@ class AuthenticationTester:
                 "Content-Type": "application/json"
             }
             
+            # Test internal endpoint first (known to work)
             response = requests.get(
-                f"{self.backend_url}/social/instagram/auth-url",
+                f"{INTERNAL_BACKEND_URL}/social/instagram/auth-url",
                 headers=headers,
                 timeout=10
             )

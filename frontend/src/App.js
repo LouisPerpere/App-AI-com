@@ -6678,25 +6678,147 @@ function MainApp() {
             <Card className="card-gradient">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-3 text-2xl">
-                  <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-teal-500 rounded-2xl flex items-center justify-center">
-                    <Target className="w-6 h-6 text-white" />
+                  <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-2xl flex items-center justify-center">
+                    <ShareIcon className="w-6 h-6 text-white" />
                   </div>
-                  <span className="bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
-                    Comptes sociaux connectés 🌐
+                  <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                    Connexions réseaux sociaux 📱
                   </span>
                 </CardTitle>
                 <CardDescription className="text-lg text-gray-600">
-                  Connectez vos comptes sociaux pour publier automatiquement ⚡
+                  Connectez vos comptes pour publier automatiquement vos posts ⚡
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-center py-20 card-glass rounded-3xl">
-                  <div className="w-24 h-24 bg-gradient-to-r from-green-500 to-teal-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
-                    <Target className="w-12 h-12 text-white" />
+              <CardContent className="space-y-6">
+                
+                {/* Instagram Connection */}
+                <div className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl flex items-center justify-center">
+                        <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">Instagram</h3>
+                        <p className="text-sm text-gray-500">
+                          {connectedAccounts.instagram ? 
+                            `Connecté : @${connectedAccounts.instagram.username}` : 
+                            'Publiez automatiquement sur Instagram'
+                          }
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      {connectedAccounts.instagram ? (
+                        <>
+                          <div className="flex items-center space-x-2 text-green-600">
+                            <CheckCircleIcon className="w-5 h-5" />
+                            <span className="text-sm font-medium">Connecté</span>
+                          </div>
+                          <button
+                            onClick={() => disconnectAccount('instagram')}
+                            className="px-4 py-2 text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"
+                          >
+                            Déconnecter
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={connectInstagram}
+                          disabled={isConnectingAccount}
+                          className="px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg hover:from-pink-600 hover:to-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                        >
+                          {isConnectingAccount ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              <span>Connexion...</span>
+                            </>
+                          ) : (
+                            <>
+                              <PlusIcon className="w-4 h-4" />
+                              <span>Connecter</span>
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-700 mb-4">Réseaux sociaux 🌐</h3>
-                  <p className="text-xl text-gray-500">Connectez vos comptes pour publier automatiquement ! 📱</p>
                 </div>
+
+                {/* Facebook Connection - Coming Soon */}
+                <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 opacity-75">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                        <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">Facebook</h3>
+                        <p className="text-sm text-gray-500">Publiez sur vos pages Facebook</p>
+                      </div>
+                    </div>
+                    
+                    <div className="px-4 py-2 bg-gray-200 text-gray-500 rounded-lg cursor-not-allowed">
+                      Bientôt disponible
+                    </div>
+                  </div>
+                </div>
+
+                {/* LinkedIn Connection - Coming Soon */}
+                <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 opacity-75">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-blue-700 rounded-xl flex items-center justify-center">
+                        <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">LinkedIn</h3>
+                        <p className="text-sm text-gray-500">Partagez sur votre profil professionnel</p>
+                      </div>
+                    </div>
+                    
+                    <div className="px-4 py-2 bg-gray-200 text-gray-500 rounded-lg cursor-not-allowed">
+                      Bientôt disponible
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status Message */}
+                {socialConnectionStatus && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-blue-800 text-center">{socialConnectionStatus}</p>
+                  </div>
+                )}
+
+                {/* Instructions */}
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-purple-900 mb-3 flex items-center">
+                    <InformationCircleIcon className="w-5 h-5 mr-2" />
+                    Comment ça marche ?
+                  </h4>
+                  <div className="space-y-3 text-purple-700">
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0 w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                      <p>Connectez votre compte Instagram en cliquant sur "Connecter"</p>
+                    </div>
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0 w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                      <p>Générez vos posts dans l'onglet "Posts"</p>
+                    </div>
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0 w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
+                      <p>Cliquez sur "Valider" pour publier automatiquement à la date programmée</p>
+                    </div>
+                  </div>
+                </div>
+
               </CardContent>
             </Card>
           </TabsContent>

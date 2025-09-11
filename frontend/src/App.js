@@ -589,38 +589,53 @@ const PostPreviewModal = ({
               </button>
             </>
           ) : (
-            {/* Boutons d'action - modernisés et centrés */}
-            <div className="flex items-center justify-center space-x-4 mt-6">
-              <button
-                onClick={handleCancel}
-                disabled={isModifying}
-                className="px-6 py-3 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
-              >
-                <div className="flex items-center space-x-2">
-                  <X className="w-4 h-4" />
-                  <span>Annuler</span>
-                </div>
-              </button>
+            {/* Formulaire de modification */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+              <h5 className="text-sm font-semibold text-yellow-800 mb-3">
+                ✏️ Demander une modification
+              </h5>
               
-              <button
-                onClick={handleModifySubmit}
+              <textarea
+                ref={modificationRequestRef}
+                placeholder="Décrivez comment vous souhaitez modifier ce post..."
+                className="w-full p-3 border border-yellow-300 rounded-lg resize-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                rows="3"
                 disabled={isModifying}
-                className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
-              >
-                <div className="flex items-center space-x-2">
-                  {isModifying ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Envoi...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      <span>Envoyer</span>
-                    </>
-                  )}
-                </div>
-              </button>
+              />
+
+              {/* Boutons d'action - modernisés et centrés */}
+              <div className="flex items-center justify-center space-x-4 mt-6">
+                <button
+                  onClick={handleCancel}
+                  disabled={isModifying}
+                  className="px-6 py-3 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
+                >
+                  <div className="flex items-center space-x-2">
+                    <X className="w-4 h-4" />
+                    <span>Annuler</span>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={handleModifySubmit}
+                  disabled={isModifying}
+                  className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+                >
+                  <div className="flex items-center space-x-2">
+                    {isModifying ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Envoi...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        <span>Envoyer</span>
+                      </>
+                    )}
+                  </div>
+                </button>
+              </div>
             </div>
           )}
         </div>

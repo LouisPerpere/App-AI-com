@@ -247,6 +247,18 @@ test_plan:
   test_priority: "high_first"
 
 backend:
+  - task: "Post Generation Image Assignment Diagnostic"
+    implemented: true
+    working: false
+    file: "/app/backend/posts_generator.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "🔍 POST GENERATION IMAGE ASSIGNMENT DIAGNOSTIC COMPLETED - ROOT CAUSE IDENTIFIED: Comprehensive diagnostic testing completed following the specific review request to investigate why all posts are generated without images (status 'needs_image' instead of 'with_image') using credentials lperpere@yahoo.fr / L@Reunion974! on backend https://claire-marcus-pwa-1.preview.emergentagent.com/api. DIAGNOSTIC FINDINGS: ✅ Content Available: 19 images available in user's library, ✅ Posts Generated: 4 posts successfully generated, ❌ CRITICAL ISSUE IDENTIFIED: Images available but not assigned to posts - all posts have empty visual_id and visual_url fields. ROOT CAUSE ANALYSIS COMPLETED: The issue is in the content inventory collection logic in posts_generator.py. Database inspection reveals that NO items in the media collection have the 'attributed_month' field (0 items found), but the API endpoint /api/content/pending shows 12 items with attributed_month='septembre_2025'. The posts_generator queries the database directly for items with attributed_month='septembre_2025' and finds 0 results, causing the content inventory to be empty. The fallback logic to use all available content (39 items found in database) is not working correctly. TECHNICAL DETAILS: Database query {'owner_id': 'user_id', 'attributed_month': 'septembre_2025', 'deleted': {'$ne': True}} returns 0 results, Fallback query {'owner_id': 'user_id', 'deleted': {'$ne': True}} returns 39 results, API endpoint somehow shows attributed_month values that don't exist in database. SOLUTION REQUIRED: Fix the content collection logic in posts_generator.py to properly use the fallback mechanism when no month-specific content is found, or ensure that attributed_month field is properly populated in the database during content upload."
+
   - task: "Posts Generation Anti-Promotion System"
     implemented: true
     working: true

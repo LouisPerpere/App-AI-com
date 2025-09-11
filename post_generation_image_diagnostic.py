@@ -359,7 +359,7 @@ class PostGenerationImageDiagnostic:
             print("   1. Content inventory not properly formatted for AI")
             print("   2. AI not returning valid visual_id fields")
             print("   3. Post generation logic not mapping visual_id correctly")
-        elif posts_with_image > 0 but posts_with_image_status == 0:
+        elif posts_with_image > 0 and posts_with_image_status == 0:
             print("❌ ISSUE IDENTIFIED: Posts have visual_id but status not set to 'with_image'")
             print("   POSSIBLE CAUSE: Status assignment logic issue in post generation")
         else:

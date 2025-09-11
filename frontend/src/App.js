@@ -1497,7 +1497,7 @@ function MainApp() {
     
     // Défini directement l'état d'authentification sans race condition
     setIsAuthenticated(true);
-    setUser(userData);
+    setUserProfile(userData);
     setActiveStep('dashboard');
     
     // Attendre un petit délai pour que l'état soit bien défini

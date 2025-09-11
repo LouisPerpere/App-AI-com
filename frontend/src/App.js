@@ -2776,7 +2776,10 @@ function MainApp() {
         }
       );
 
+      console.log('📡 Réponse du serveur:', response.data);
+
       if (response.data?.success) {
+        console.log('✅ Modification réussie, préparation du rechargement...');
         toast.success('✅ Post modifié avec succès ! Actualisation en cours...');
         
         // Stocker l'ID du post modifié pour repositionnement sécurisé
@@ -2795,8 +2798,10 @@ function MainApp() {
         }
         
         // Attendre un peu pour que l'utilisateur voie le toast, puis recharger
+        console.log('⏳ Rechargement programmé dans 1.5 secondes...');
         setTimeout(() => {
           try {
+            console.log('🔄 Rechargement de la page en cours...');
             window.location.reload();
           } catch (reloadError) {
             console.error('❌ Erreur lors du rechargement:', reloadError);
@@ -2806,6 +2811,7 @@ function MainApp() {
           }
         }, 1500);
       } else {
+        console.log('❌ Échec de la modification, response.data:', response.data);
         toast.error('❌ Erreur: Réponse invalide du serveur');
         setIsModifyingPost(false);
       }

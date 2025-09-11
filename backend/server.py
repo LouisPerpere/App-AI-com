@@ -1745,6 +1745,171 @@ async def get_social_connections(user_id: str = Depends(get_current_user_id_robu
         print(f"❌ Error getting social connections: {e}")
         raise HTTPException(status_code=500, detail="Failed to get social connections")
 
+@api_router.get("/social/instagram/auth-url")
+async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robust)):
+    """Générer l'URL d'autorisation Instagram OAuth"""
+    try:
+        facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
+        if not facebook_app_id:
+            raise HTTPException(status_code=500, detail="FACEBOOK_APP_ID non configuré")
+        
+        # URL de redirection après autorisation Instagram
+        redirect_uri = "https://claire-marcus-pwa-1.emergent.host/api/social/instagram/callback"
+        
+        # Générer un état sécurisé pour CSRF protection
+        import secrets
+        state = secrets.token_urlsafe(32)
+        
+        # Stocker l'état temporairement (en production, utiliser Redis ou base de données)
+        # Pour l'instant, on l'inclut dans la réponse pour que le frontend le stocke
+        
+        # Scopes Instagram Basic Display API
+        scopes = "user_profile,user_media"
+        
+        # Construire l'URL d'autorisation Instagram
+        from urllib.parse import urlencode
+        params = {
+            "client_id": facebook_app_id,
+            "redirect_uri": redirect_uri,
+            "scope": scopes,
+            "response_type": "code",
+            "state": state
+        }
+        
+        auth_url = f"https://api.instagram.com/oauth/authorize?{urlencode(params)}"
+        
+        return {
+            "auth_url": auth_url,
+            "state": state,
+            "redirect_uri": redirect_uri
+        }
+        
+    except Exception as e:
+        print(f"❌ Error generating Instagram auth URL: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur génération URL Instagram: {str(e)}")
+
+
+@api_router.get("/social/instagram/callback")
+async def instagram_oauth_callback(
+    code: str = None,
+    state: str = None,
+    error: str = None,
+    error_description: str = None
+):
+    """Traiter le callback Instagram OAuth et échanger le code contre un token"""
+    try:
+        # Vérifier les erreurs OAuth
+        if error:
+            error_msg = f"Instagram OAuth error: {error}"
+            if error_description:
+                error_msg += f" - {error_description}"
+            print(f"❌ {error_msg}")
+            
+            # Rediriger vers le frontend avec erreur
+            frontend_url = "https://claire-marcus-pwa-1.emergent.host/?instagram_error=" + error
+            return RedirectResponse(url=frontend_url)
+        
+        if not code or not state:
+            print("❌ Missing code or state parameter")
+            frontend_url = "https://claire-marcus-pwa-1.emergent.host/?instagram_error=missing_parameters"
+            return RedirectResponse(url=frontend_url)
+        
+        # Configuration OAuth
+        facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
+        facebook_app_secret = os.environ.get('FACEBOOK_APP_SECRET')
+        redirect_uri = "https://claire-marcus-pwa-1.emergent.host/api/social/instagram/callback"
+        
+        if not facebook_app_id or not facebook_app_secret:
+            print("❌ Missing Facebook app credentials")
+            frontend_url = "https://claire-marcus-pwa-1.emergent.host/?instagram_error=config_error"
+            return RedirectResponse(url=frontend_url)
+        
+        # Étape 1: Échanger le code contre un token court
+        token_data = {
+            "client_id": facebook_app_id,
+            "client_secret": facebook_app_secret,
+            "grant_type": "authorization_code",
+            "redirect_uri": redirect_uri,
+            "code": code
+        }
+        
+        print(f"🔄 Exchanging code for token...")
+        token_response = requests.post(
+            "https://api.instagram.com/oauth/access_token",
+            data=token_data,
+            timeout=10
+        )
+        
+        if token_response.status_code != 200:
+            error_detail = token_response.text
+            print(f"❌ Token exchange failed: {token_response.status_code} - {error_detail}")
+            frontend_url = "https://claire-marcus-pwa-1.emergent.host/?instagram_error=token_exchange_failed"
+            return RedirectResponse(url=frontend_url)
+        
+        token_info = token_response.json()
+        short_lived_token = token_info.get("access_token")
+        instagram_user_id = token_info.get("user_id")
+        
+        print(f"✅ Got short-lived token for user: {instagram_user_id}")
+        
+        # Étape 2: Échanger le token court contre un token long (60 jours)
+        long_lived_params = {
+            "grant_type": "ig_exchange_token",
+            "client_secret": facebook_app_secret,
+            "access_token": short_lived_token
+        }
+        
+        print(f"🔄 Exchanging for long-lived token...")
+        long_lived_response = requests.get(
+            "https://graph.instagram.com/access_token",
+            params=long_lived_params,
+            timeout=10
+        )
+        
+        if long_lived_response.status_code == 200:
+            long_lived_data = long_lived_response.json()
+            final_token = long_lived_data.get("access_token", short_lived_token)
+            expires_in = long_lived_data.get("expires_in", 3600)  # 60 jours par défaut
+            print(f"✅ Got long-lived token, expires in: {expires_in} seconds")
+        else:
+            print(f"⚠️ Long-lived token exchange failed, using short-lived token")
+            final_token = short_lived_token
+            expires_in = 3600  # 1 heure
+        
+        # Étape 3: Récupérer les informations du profil utilisateur
+        profile_response = requests.get(
+            f"https://graph.instagram.com/me?fields=id,username,account_type&access_token={final_token}",
+            timeout=10
+        )
+        
+        if profile_response.status_code == 200:
+            profile_data = profile_response.json()
+            username = profile_data.get("username", "unknown")
+            account_type = profile_data.get("account_type", "PERSONAL")
+            print(f"✅ Got profile data: @{username} ({account_type})")
+        else:
+            print(f"⚠️ Profile fetch failed: {profile_response.status_code}")
+            username = "unknown"
+            account_type = "PERSONAL"
+        
+        # Étape 4: Stocker les données dans la base de données
+        # TODO: Associer le token à l'utilisateur actuellement connecté
+        # Pour l'instant, on redirige avec succès
+        
+        print(f"🎉 Instagram OAuth successful for @{username}")
+        
+        # Rediriger vers le frontend avec succès
+        frontend_url = f"https://claire-marcus-pwa-1.emergent.host/?instagram_success=true&username={username}"
+        return RedirectResponse(url=frontend_url)
+        
+    except Exception as e:
+        print(f"💥 Instagram OAuth callback error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        
+        frontend_url = "https://claire-marcus-pwa-1.emergent.host/?instagram_error=callback_error"
+        return RedirectResponse(url=frontend_url)
+
 @api_router.post("/social/instagram/connect")
 async def connect_instagram_account(
     request: InstagramAuthRequest,

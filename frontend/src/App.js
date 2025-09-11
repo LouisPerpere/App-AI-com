@@ -6717,7 +6717,7 @@ function MainApp() {
                       </div>
                     </div>
                     
-                    <div className="flex items-center space-x-3">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 mt-4 sm:mt-0 social-connection-buttons">
                       {connectedAccounts.instagram ? (
                         <>
                           <div className="flex items-center space-x-2 text-green-600">

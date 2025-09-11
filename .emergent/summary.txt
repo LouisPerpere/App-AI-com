@@ -1,65 +1,54 @@
 <analysis>
-The AI engineer's work involved incrementally enhancing the Claire et Marcus PWA, focusing on social media post generation, content management, and UI/UX improvements. The trajectory began with fixing an image attachment modal error (), then expanded to implement carousel support, improve metadata handling for uploads, and refine the business profile saving mechanism. Significant effort was also put into fixing frontend interaction issues, such as the virtual keyboard bug and improving the visual feedback for post modifications. The AI engineer demonstrated a methodical approach, iteratively addressing bugs, implementing new features, and validating changes through screenshots and backend test agents. The work culminated in an automatic page reload and scroll-to-post feature after modifications, aiming for a seamless user experience, but ended with a critical Écran blanc error.
+The AI engineer successfully guided the Claire et Marcus PWA from a functional MVP to a more robust and feature-rich application. The trajectory shows a methodical approach, starting with critical bug fixes like the Écran blanc and auto-scroll issues, and progressively implementing new features. Key achievements include enhancing AI post generation with strict note prioritization and anti-promotion rules, improving image handling with cache fixes, and developing a comprehensive Social tab for Instagram integration. The engineer adeptly diagnosed and resolved complex frontend/backend synchronization problems, including database discrepancies between preview and production environments, culminating in a full data migration. The work demonstrates strong debugging skills and a responsive, user-centric development cycle.
 </analysis>
-
 <product_requirements>
-The Claire et Marcus PWA aims to automate social media for small businesses. Initial features included content CRUD, a content library, thumbnails, AI website analysis, notes, and authentication. The user's explicit requests and intents throughout this trajectory included:
-1.  **Post Generation & Management**: Generate an Instagram calendar based on business profile, website analysis, uploads, and notes. Posts require visuals, text, and scheduled day/time. Content balance, target audience prioritization, and avoidance of AI-generated language/excessive emojis are crucial. The number of posts must adapt to . Users must be able to modify generated posts and attach/modify visuals (from library, Pixabay, or direct upload) to posts, with used images marked.
-2.  **Content Organization & Display**: Monthly collapsible sections (6-month chronological) for content and notes, with larger thumbnails and improved UI/UX (consistent buttons, reduced margins).
-3.  **Image & Video Handling**: Unified upload with multi-month and carousel options. Correct video playback and 720p compression on upload.
-4.  **Specific UI/UX Enhancements**: Fix  error, ensure direct uploads link to the current month, display green check badges on used images, improve marketing language for upload areas, ensure post text is always accessible in image attachment modals, fix badge overlaps, and implement a virtual keyboard fix.
-5.  **Backend Robustness**: Correct  to  handling for images, ensure business profile data (, email) saves persistently, and provide a full post deletion feature for testing.
-6.  **Interactive Feedback**: Display a spinner and modification in progress overlay during post modifications, with automatic post update and page reload/scroll to the modified post.
+The Claire et Marcus PWA automates social media for small businesses. Users need to generate Instagram calendars with visuals, text, and scheduling, based on business profiles, website analysis, uploads, and notes. Content should be balanced, audience-prioritized, and free of AI-generated language/excessive emojis, with post count adapting to . Users must modify generated posts, attach/modify visuals (from library, Pixabay, direct upload) with usage indicators, and handle carousels. Content organization requires monthly collapsible sections with improved UI/UX. The backend must handle  for images, persistently save business profiles, and support full post deletion. Interactive feedback includes spinners, progress overlays, and automatic page reload/scroll-to-modified-post. Recent additions include an Instagram integration roadmap (connect account, auto-publish, analytics), refined Coordonnées and Notes explanations, and a Privacy Policy page.
 </product_requirements>
-
 <key_technical_concepts>
 -   **Full-stack Development**: React.js (Frontend), FastAPI (Backend), MongoDB/GridFS (Database).
--   **State Management**: , ,  for React components.
--   **API Integration**: RESTful endpoints,  (frontend),  (backend).
--   **Image Processing**:  for video compression and streaming.
--   **LLM Integration**: OpenAI GPT (via ) for content generation and post modification.
--   **Data Handling**: MongoDB UUIDs for consistent IDs, ISO strings for DateTime serialization.
--   **UI/UX**: Tailwind CSS, React components for modals, forms, and content display.
+-   **State Management**: , ,  in React.
+-   **API Integration**: RESTful endpoints,  (frontend).
+-   **LLM Integration**: OpenAI GPT (via ) for content generation.
+-   **Data Handling**: MongoDB UUIDs, ISO strings for DateTime.
+-   **UI/UX**: Tailwind CSS, Lucide React icons, Responsive design.
+-   **OAuth**: Facebook/Instagram Graph API for social media integration.
 </key_technical_concepts>
-
 <code_architecture>
 
 -   ****:
-    -   **Importance**: Main FastAPI application handling API routes and database interactions.
-    -   **Changes Made**: Integrated  endpoints. Modified  for AI-driven post text/date modifications. Added  to support existing image replacement and new carousel creation. Implemented  for user-specific post cleanup. Corrected PUT endpoint for business profile to target  collection. Added  related endpoints.
+    -   **Importance**: Main FastAPI application.
+    -   **Changes Made**:  now returns . Added Pydantic models for social connections (, ). Added new API endpoints (, , ) for social media integration. Added a  endpoint to serve the privacy policy HTML.
 -   ****:
-    -   **Importance**: Handles file uploads and content retrieval.
-    -   **Changes Made**: Logic related to image IDs was adjusted to ensure UUID consistency and proper MongoDB insertion for file uploads, including thumbnails.
+    -   **Importance**: Handles AI-driven social media post generation.
+    -   **Changes Made**: Strengthened prompts (lines 682-685, 950-953, global message) to strictly prioritize monthly/general notes and forbid AI-invented promotions. Fixed  to preserve  instead of forcing draft (line 1160).
+-   ****:
+    -   **Importance**: Central React component.
+    -   **Changes Made**: Debugged and rearranged variable declarations (, , ) to fix uninitialized variable error. Improved auto-scroll logic with separate  for tab navigation and scroll after posts load. Updated  to leverage . Added timestamp () to image  and  to  to fix image caching issues. Updated Coordonnées label to Infos contact pour vos posts in business profile. Added structured examples to Notes page, including Promotions. Modified header animation properties (, , , ). Implemented Social tab UI with states (, ), functions (, ), and integrated Lucide React icons (, , , ). Modified Instagram OAuth URL for Facebook Graph v18.0 (temporarily demo mode). Integrated  component, managing its display state and linking from Entreprise tab.
+-   ****:
+    -   **Importance**: Custom CSS.
+    -   **Changes Made**: Added  for post modification visual feedback. Adjusted  animation for discretion and centering. Added responsive CSS for notes (, , ) and social tab buttons ( on mobile) to address overflow and layout issues (some aggressive changes were reverted).
+-   ****:
+    -   **Importance**: Handles user authentication.
+    -   **Changes Made**: Debugged login button event handling; removed conflicting  and added debug logs.
 -   ** (NEW)**:
-    -   **Importance**: Core AI logic for social media post generation.
-    -   **Changes Made**: Refactored prompts for better context, stricter rules, and integration of notes. Adjusted  for testing. Fixed note context parsing ( instead of ).
+    -   **Importance**: New component to display the application's privacy policy.
+    -   **Changes Made**: Created with detailed RGPD-compliant text and basic styling.
 -   ****:
-    -   **Importance**: Handles thumbnail generation and storage.
-    -   **Changes Made**: Corrected  to handle UUID strings and properly   to ensure database interactions are synchronous.
--   ****:
-    -   **Importance**: Central React component, managing UI, state, and API calls.
-    -   **Changes Made**: Major overhaul of Posts tab UI for monthly sections. Implemented  modal with Pixabay, Library, and direct upload options. Corrected  function. Added  and  for modal uploads. Modified  to show Ajouter image / Modifier / + icons. Implemented  for showing post text in modal. Removed hardcoded values for . Refactored post modification input to uncontrolled () to fix virtual keyboard bug. Added file removal functionality in upload modal. Integrated spinner and Modification en cours overlay for post modification. Implemented automatic page reload, navigation to Posts tab, and scroll/highlight to modified post after successful modification.
--   ****:
-    -   **Importance**: Custom CSS for the frontend.
-    -   **Changes Made**: Added CSS for the  animation effect.
+    -   **Importance**: Environment variables.
+    -   **Changes Made**: Updated  and  with user-provided keys.
 </code_architecture>
-
 <pending_tasks>
--   Diagnose and fix the Écran blanc (white screen) issue that occurred immediately after implementing the automatic page reload and scroll feature. This is a critical blocking issue.
+-   Diagnose and fix the carousel deletion issue.
+-   Diagnose and fix the recurring photo modification issue (blue question mark).
+-   Replace the demo mode for Instagram connection with the actual OAuth flow (requires user to complete Facebook Developers Console setup).
+-   Implement the Valider (Validate) button to trigger automatic post publication on Instagram.
+-   Implement the scheduling system for automated publications.
+-   Implement the analytics dashboard for published posts.
+-   Address the website analysis remaining issues (poor analysis quality, model verification, library import).
 </pending_tasks>
-
 <current_work>
-Immediately before this summary request, the AI engineer was implementing an automatic page reload and scroll-to-post feature following successful post modifications. This involved:
-1.  **Frontend Logic ()**:
-    *   Using  to store the ID of the modified post and a flag () before reloading the page.
-    *   On page load, checking  to automatically navigate to the Posts tab.
-    *   Scrolling to the modified post using its  attribute and applying a visual flash animation.
-2.  **CSS ()**:
-    *   Defining the  and  class for the visual feedback.
-
-The goal was to provide a seamless user experience where modifications update automatically without manual page refresh. The AI engineer reported the feature as complètement terminée et opérationnelle (completely finished and operational). However, the subsequent user message reported an Écran blanc. Quelquechose s’est passé (White screen. Something happened), indicating a critical runtime error in the application. The current work is in a broken state due to this newly introduced bug. The AI engineer's last action was to check backend logs for errors, finding none immediately.
+Immediately before this summary request, the AI engineer successfully completed a critical data migration. The production database () was found to be empty for the user , while a separate preview environment held all the user's data (My Own Watch business profile, library, notes, posts). The engineer diagnosed that the production environment was pointing to an empty or new user ID. To resolve this, a comprehensive data migration process was executed to transfer all existing user data (business profile, 19 library items, 2 notes, 4 generated posts) from the preview environment's user ID () to the production environment's user ID (), transforming all references accordingly. Post-migration, the frontend was verified via screenshot, confirming that all My Own Watch data is now correctly displayed on . The connection for  is fully functional with all data restored.
 </current_work>
-
 <optional_next_step>
-Diagnose the Écran blanc issue, starting by inspecting frontend console logs and network requests.
+Diagnose and fix the Analyse de site web quality issue and verify the GPT model used for analysis. Continue en français. Vérifie qu'on utilise bien les clés API personnelles et non la clé emergent. Supprime la clé universelle emergent du code. Vérifie pourquoi le bouton connecter Instagram ne fait toujours aucune action
 </optional_next_step>

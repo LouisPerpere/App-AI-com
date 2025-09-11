@@ -11,7 +11,7 @@ from datetime import datetime
 
 class FinalBatchUploadTest:
     def __init__(self):
-        self.base_url = "https://claire-marcus-pwa-1.preview.emergentagent.com"
+        self.base_url = "https://insta-post-engine.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.user_id = None

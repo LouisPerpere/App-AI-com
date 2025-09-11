@@ -22,7 +22,7 @@ from urllib.parse import urlparse
 import re
 
 # Test configuration
-BACKEND_URL = "https://claire-marcus-pwa-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://insta-post-engine.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"
@@ -500,7 +500,7 @@ URGENT DATABASE INVESTIGATION: Compare user data between preview and production 
 for lperpere@yahoo.fr to determine which database contains the actual user data.
 
 Testing both environments:
-- Preview: https://claire-marcus-pwa-1.preview.emergentagent.com/api
+- Preview: https://insta-post-engine.preview.emergentagent.com/api
 - Production: https://claire-marcus-pwa-1.emergent.host/api
 
 Focus: Determine which database has the user's actual data and why claire-marcus.com shows different user ID.
@@ -513,7 +513,7 @@ from datetime import datetime
 
 class DatabaseInvestigationTester:
     def __init__(self):
-        self.preview_base_url = "https://claire-marcus-pwa-1.preview.emergentagent.com/api"
+        self.preview_base_url = "https://insta-post-engine.preview.emergentagent.com/api"
         self.production_base_url = "https://claire-marcus-pwa-1.emergent.host/api"
         self.email = "lperpere@yahoo.fr"
         self.password = "L@Reunion974!"

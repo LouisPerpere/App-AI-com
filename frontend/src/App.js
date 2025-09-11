@@ -468,7 +468,22 @@ const PostPreviewModal = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto flex flex-col">
+      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto flex flex-col relative">
+        {/* Overlay de modification en cours */}
+        {isModifying && (
+          <div className="absolute inset-0 bg-white bg-opacity-95 flex flex-col items-center justify-center z-50 rounded-2xl">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">✨ Modification en cours</h3>
+                <p className="text-gray-600 max-w-sm">
+                  Notre IA travaille pour améliorer votre post selon vos instructions...
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
@@ -484,7 +499,8 @@ const PostPreviewModal = ({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
+            disabled={isModifying}
+            className="w-8 h-8 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 rounded-full flex items-center justify-center transition-colors"
           >
             <X className="w-4 h-4 text-gray-600" />
           </button>

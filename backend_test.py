@@ -1,13 +1,26 @@
 #!/usr/bin/env python3
 """
-DIAGNOSTIC DIRECT - Valeur réelle posting_frequency en base
-Test spécifique pour identifier le problème de persistance posting_frequency
+DIAGNOSTIC URGENT - Post Modifié Non Affiché + Date Publication
+Test spécifique pour diagnostiquer les problèmes de modification de posts identifiés par l'utilisateur.
+
+PROBLÈMES RAPPORTÉS:
+1. L'utilisateur voit le spinner de modification, mais après completion, c'est toujours l'ancien post qui s'affiche
+2. Les demandes de modification de jour de publication ne semblent pas prises en compte
+
+TESTS CRITIQUES REQUIS:
+- Test 1: Vérification réponse endpoint modification
+- Test 2: Test spécifique modification date  
+- Test 3: Vérification format réponse modification
+- Test 4: Validation complète post-modification
+
+Credentials: lperpere@yahoo.fr / L@Reunion974!
 """
 
 import requests
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
+import time
 
 # Configuration
 BACKEND_URL = "https://social-gpt-5.preview.emergentagent.com/api"

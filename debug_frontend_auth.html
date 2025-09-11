@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Auth - Claire et Marcus</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .form-group { margin-bottom: 15px; }
+        input, button { padding: 10px; width: 100%; box-sizing: border-box; }
+        button { background: purple; color: white; border: none; cursor: pointer; }
+        .log { background: #f5f5f5; padding: 10px; margin: 10px 0; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug Authentification</h1>
+        
+        <div class="form-group">
+            <input type="email" id="email" placeholder="Email" value="lperpere@yahoo.fr">
+        </div>
+        
+        <div class="form-group">
+            <input type="password" id="password" placeholder="Mot de passe" value="L@Reunion974!">
+        </div>
+        
+        <button onclick="testLogin()">🔑 Tester Login</button>
+        
+        <div id="log" class="log">Prêt pour le test...</div>
+    </div>
+
+    <script>
+        const log = document.getElementById('log');
+        
+        function addLog(message) {
+            log.textContent += new Date().toLocaleTimeString() + ' - ' + message + '\n';
+            console.log(message);
+        }
+        
+        async function testLogin() {
+            addLog('🚀 Début du test de login...');
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                // Test 1: URL du backend
+                const backendUrl = 'https://claire-marcus-pwa-1.emergent.host';
+                addLog(`🔍 Backend URL: ${backendUrl}`);
+                
+                // Test 2: Health check
+                addLog('📡 Test health check...');
+                const healthResponse = await fetch(`${backendUrl}/api/health`);
+                const healthData = await healthResponse.json();
+                addLog(`✅ Health: ${healthResponse.status} - ${healthData.status}`);
+                
+                // Test 3: Authentification
+                addLog('🔑 Test authentification...');
+                const authResponse = await fetch(`${backendUrl}/api/auth/login-robust`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                addLog(`📊 Auth Status: ${authResponse.status}`);
+                
+                if (authResponse.ok) {
+                    const authData = await authResponse.json();
+                    addLog(`✅ Login réussi!`);
+                    addLog(`👤 User ID: ${authData.user_id}`);
+                    addLog(`🔑 Token: ${authData.access_token.substring(0, 30)}...`);
+                    
+                    // Test 4: Token validation
+                    addLog('🔍 Test validation token...');
+                    const meResponse = await fetch(`${backendUrl}/api/auth/me`, {
+                        headers: {
+                            'Authorization': `Bearer ${authData.access_token}`
+                        }
+                    });
+                    
+                    if (meResponse.ok) {
+                        const meData = await meResponse.json();
+                        addLog(`✅ Token valide - Utilisateur: ${meData.first_name} ${meData.last_name}`);
+                        
+                        // Simulation du stockage localStorage comme dans l'app
+                        localStorage.setItem('access_token', authData.access_token);
+                        addLog(`💾 Token stocké dans localStorage`);
+                        
+                        addLog(`🎉 SUCCÈS COMPLET - L'authentification fonctionne parfaitement!`);
+                        
+                    } else {
+                        const meError = await meResponse.text();
+                        addLog(`❌ Erreur validation token: ${meResponse.status} - ${meError}`);
+                    }
+                    
+                } else {
+                    const authError = await authResponse.text();
+                    addLog(`❌ Erreur authentification: ${authResponse.status} - ${authError}`);
+                }
+                
+            } catch (error) {
+                addLog(`💥 Erreur JavaScript: ${error.message}`);
+            }
+        }
+        
+        // Auto-test au chargement de la page
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                addLog('🔄 Auto-test dans 2 secondes...');
+                setTimeout(testLogin, 2000);
+            }, 100);
+        });
+    </script>
+</body>
+</html>

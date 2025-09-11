@@ -17,7 +17,7 @@ import base64
 class ContentLibraryTester:
     def __init__(self):
         # Use production backend URL from frontend/.env
-        self.base_url = "https://social-gpt-5.preview.emergentagent.com"
+        self.base_url = "https://claire-marcus-pwa-1.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.tests_run = 0

@@ -10,7 +10,7 @@ from datetime import datetime
 
 def test_specific_scenario():
     """Test the exact scenario from the review request"""
-    base_url = "https://social-gpt-5.preview.emergentagent.com"
+    base_url = "https://claire-marcus-pwa-1.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     print("🔍 TESTING SPECIFIC SCENARIO FROM REVIEW REQUEST")

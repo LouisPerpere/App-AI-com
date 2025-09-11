@@ -23,7 +23,7 @@ from datetime import datetime, timedelta
 import time
 
 # Configuration
-BACKEND_URL = "https://social-gpt-5.preview.emergentagent.com/api"
+BACKEND_URL = "https://claire-marcus-pwa-1.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 
@@ -331,7 +331,7 @@ TESTS À EFFECTUER:
    - visual_url = /api/content/{REAL_WATCH_ID}/file
 4. Vérification que les posts utilisent les vrais titres des montres
 
-Backend URL: https://social-gpt-5.preview.emergentagent.com/api
+Backend URL: https://claire-marcus-pwa-1.preview.emergentagent.com/api
 """
 
 import requests
@@ -340,7 +340,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://social-gpt-5.preview.emergentagent.com/api"
+BASE_URL = "https://claire-marcus-pwa-1.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

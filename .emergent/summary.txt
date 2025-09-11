@@ -1,70 +1,65 @@
 <analysis>
-The AI engineer's work primarily focused on building and refining the Claire et Marcus PWA's core social media post generation feature. This involved extensive backend development for AI integration, content management, and API endpoints, alongside a significant overhaul of the frontend UI for displaying, modifying, and attaching visuals to posts. Key challenges included debugging persistent API key issues (Emergent vs. OpenAI), ensuring content was correctly linked by ID for display, optimizing AI prompts for natural language and content variety, and addressing UI/UX flow for post management and image attachments. The trajectory highlights a methodical approach, with iterative testing, error diagnosis, and feature expansion from a basic generation system to a robust content calendar with image linking and management capabilities.
+The AI engineer's work involved incrementally enhancing the Claire et Marcus PWA, focusing on social media post generation, content management, and UI/UX improvements. The trajectory began with fixing an image attachment modal error (), then expanded to implement carousel support, improve metadata handling for uploads, and refine the business profile saving mechanism. Significant effort was also put into fixing frontend interaction issues, such as the virtual keyboard bug and improving the visual feedback for post modifications. The AI engineer demonstrated a methodical approach, iteratively addressing bugs, implementing new features, and validating changes through screenshots and backend test agents. The work culminated in an automatic page reload and scroll-to-post feature after modifications, aiming for a seamless user experience, but ended with a critical Écran blanc error.
 </analysis>
 
 <product_requirements>
-The Claire et Marcus PWA automates social media for small businesses. Initial features included content CRUD, library, thumbnails, AI website analysis, notes, and authentication. User requirements during this trajectory focused on:
-1.  **Monthly Organization**: Content and notes in collapsible, 6-month chronological sections.
-2.  **Flexible Uploads**: Unified upload button with multi-month and carousel options.
-3.  **Enhanced Pixabay**: Custom title/context, tags from context, month attribution.
-4.  **UI/UX**: Consistent buttons, reduced margins, enlarged thumbnails, repositioned Pixabay badge.
-5.  **Video Playback & Compression**: Correct video playback and 720p compression on upload.
-6.  **Post Generation (Core)**: Create an Instagram publication calendar based on business profile, website analysis, uploads, and notes. Posts need visual, text, day/time. Must balance content types, prioritize target audiences, avoid AI-generated language and excessive emojis, and adapt the number of posts to the . Users need to modify generated posts and attach visuals to posts missing them, including direct uploads or selecting from library/Pixabay. Images used should be marked.
+The Claire et Marcus PWA aims to automate social media for small businesses. Initial features included content CRUD, a content library, thumbnails, AI website analysis, notes, and authentication. The user's explicit requests and intents throughout this trajectory included:
+1.  **Post Generation & Management**: Generate an Instagram calendar based on business profile, website analysis, uploads, and notes. Posts require visuals, text, and scheduled day/time. Content balance, target audience prioritization, and avoidance of AI-generated language/excessive emojis are crucial. The number of posts must adapt to . Users must be able to modify generated posts and attach/modify visuals (from library, Pixabay, or direct upload) to posts, with used images marked.
+2.  **Content Organization & Display**: Monthly collapsible sections (6-month chronological) for content and notes, with larger thumbnails and improved UI/UX (consistent buttons, reduced margins).
+3.  **Image & Video Handling**: Unified upload with multi-month and carousel options. Correct video playback and 720p compression on upload.
+4.  **Specific UI/UX Enhancements**: Fix  error, ensure direct uploads link to the current month, display green check badges on used images, improve marketing language for upload areas, ensure post text is always accessible in image attachment modals, fix badge overlaps, and implement a virtual keyboard fix.
+5.  **Backend Robustness**: Correct  to  handling for images, ensure business profile data (, email) saves persistently, and provide a full post deletion feature for testing.
+6.  **Interactive Feedback**: Display a spinner and modification in progress overlay during post modifications, with automatic post update and page reload/scroll to the modified post.
 </product_requirements>
 
 <key_technical_concepts>
--   **Full-stack**: React.js (Frontend), FastAPI (Backend), MongoDB/GridFS (Database).
--   **State Management**: , , .
+-   **Full-stack Development**: React.js (Frontend), FastAPI (Backend), MongoDB/GridFS (Database).
+-   **State Management**: , ,  for React components.
 -   **API Integration**: RESTful endpoints,  (frontend),  (backend).
--   **Image/Video Processing**:  for compression and streaming.
--   **LLM Integration**: OpenAI GPT-4o (via  then direct API).
--   **Data Handling**: MongoDB UUIDs for IDs.
+-   **Image Processing**:  for video compression and streaming.
+-   **LLM Integration**: OpenAI GPT (via ) for content generation and post modification.
+-   **Data Handling**: MongoDB UUIDs for consistent IDs, ISO strings for DateTime serialization.
+-   **UI/UX**: Tailwind CSS, React components for modals, forms, and content display.
 </key_technical_concepts>
 
 <code_architecture>
 
-
 -   ****:
-    -   **Importance**: Main FastAPI application handling API routes.
-    -   **Changes Made**: Integrated  endpoints for generation () and retrieval (). Added  for post text modification. Added  for batch content deletion. Implemented  to change . Added  for linking visuals. Logic for determining  from business profile's  was incorporated.
+    -   **Importance**: Main FastAPI application handling API routes and database interactions.
+    -   **Changes Made**: Integrated  endpoints. Modified  for AI-driven post text/date modifications. Added  to support existing image replacement and new carousel creation. Implemented  for user-specific post cleanup. Corrected PUT endpoint for business profile to target  collection. Added  related endpoints.
 -   ****:
     -   **Importance**: Handles file uploads and content retrieval.
-    -   **Changes Made**: Implemented HTTP Range header support for video streaming. Added video compression logic.
+    -   **Changes Made**: Logic related to image IDs was adjusted to ensure UUID consistency and proper MongoDB insertion for file uploads, including thumbnails.
 -   ** (NEW)**:
-    -   **Importance**: Houses core AI post generation logic.
-    -   **Changes Made**: Initialized, then refactored to use a single global ChatGPT request per month (instead of per-post). Enhanced AI prompts with full business context, website analysis, and strict rules against AI-generated language/excessive emojis. Removed fixed content strategy, allowing ChatGPT to decide. Corrected visual ID handling (from  to , then from MongoDB  to GridFS /UUIDs). Added logic to mark images as . Implemented  model with  (/). Adjusted parsing to retain all generated posts, even those missing initial visuals.
+    -   **Importance**: Core AI logic for social media post generation.
+    -   **Changes Made**: Refactored prompts for better context, stricter rules, and integration of notes. Adjusted  for testing. Fixed note context parsing ( instead of ).
 -   ****:
-    -   **Importance**: Central React component, managing UI and state.
-    -   **Changes Made**: Major overhaul of the Posts tab UI to monthly collapsible sections with  vignettes and  for detailed view. Implemented dynamic modification buttons and input. Duplicated Uploader X fichiers button. Fixed image display by constructing absolute URLs with authentication tokens. Added  for content movement, . Implemented visual cues for post status ( vs. ). Added image attachment modal () that reuses existing Pixabay and upload components.
+    -   **Importance**: Handles thumbnail generation and storage.
+    -   **Changes Made**: Corrected  to handle UUID strings and properly   to ensure database interactions are synchronous.
 -   ****:
-    -   **Importance**: Frontend environment variables.
-    -   **Changes Made**:  confirmed.  and  were managed here.
+    -   **Importance**: Central React component, managing UI, state, and API calls.
+    -   **Changes Made**: Major overhaul of Posts tab UI for monthly sections. Implemented  modal with Pixabay, Library, and direct upload options. Corrected  function. Added  and  for modal uploads. Modified  to show Ajouter image / Modifier / + icons. Implemented  for showing post text in modal. Removed hardcoded values for . Refactored post modification input to uncontrolled () to fix virtual keyboard bug. Added file removal functionality in upload modal. Integrated spinner and Modification en cours overlay for post modification. Implemented automatic page reload, navigation to Posts tab, and scroll/highlight to modified post after successful modification.
+-   ****:
+    -   **Importance**: Custom CSS for the frontend.
+    -   **Changes Made**: Added CSS for the  animation effect.
 </code_architecture>
 
 <pending_tasks>
--   Fix the JavaScript error  within the  component.
--   Complete the full functionality of the image attachment modal (Library, Pixabay, Upload tabs).
--   Ensure direct uploads from the modal automatically link to the current month.
--   Confirm/complete the display of green check badges on *all* used images in the main content library.
+-   Diagnose and fix the Écran blanc (white screen) issue that occurred immediately after implementing the automatic page reload and scroll feature. This is a critical blocking issue.
 </pending_tasks>
 
 <current_work>
-The AI engineer is currently in the final stages of implementing the **image attachment feature for generated posts**. This feature allows users to link visuals to posts that were generated without them (marked ⚠️ Image requise). The goal is to provide a comprehensive modal interface, similar to the existing content library and Pixabay integration, where users can:
-1.  Select an existing image from their library.
-2.  Search and select an image from Pixabay.
-3.  Directly upload a new image/video.
+Immediately before this summary request, the AI engineer was implementing an automatic page reload and scroll-to-post feature following successful post modifications. This involved:
+1.  **Frontend Logic ()**:
+    *   Using  to store the ID of the modified post and a flag () before reloading the page.
+    *   On page load, checking  to automatically navigate to the Posts tab.
+    *   Scrolling to the modified post using its  attribute and applying a visual flash animation.
+2.  **CSS ()**:
+    *   Defining the  and  class for the visual feedback.
 
-The work so far includes:
-*   Backend endpoint () to link an image to a post.
-*   Modification of the  model to include a  field ( or ).
-*   Tracking of image usage () in the backend.
-*   Frontend  components visually differentiate posts with and without images (green/orange borders, Ajouter image icon).
-*   A new  state and  function to control the modal.
-*   The  component was created to house the modal's internal logic and reuse existing components.
-
-The immediate problem is a JavaScript error () occurring when the  modal is opened, indicating a scope or prop passing issue for the Pixabay search function within this new component.
+The goal was to provide a seamless user experience where modifications update automatically without manual page refresh. The AI engineer reported the feature as complètement terminée et opérationnelle (completely finished and operational). However, the subsequent user message reported an Écran blanc. Quelquechose s’est passé (White screen. Something happened), indicating a critical runtime error in the application. The current work is in a broken state due to this newly introduced bug. The AI engineer's last action was to check backend logs for errors, finding none immediately.
 </current_work>
 
 <optional_next_step>
-Fix the  error in the  component.
+Diagnose the Écran blanc issue, starting by inspecting frontend console logs and network requests.
 </optional_next_step>

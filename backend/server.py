@@ -1355,6 +1355,27 @@ async def get_generated_posts(user_id: str = Depends(get_current_user_id_robust)
 class PostModificationRequest(BaseModel):
     modification_request: str
 
+class SocialConnection(BaseModel):
+    platform: str  # "instagram", "facebook", "linkedin"
+    user_id: str
+    platform_user_id: str
+    username: str
+    access_token: str
+    refresh_token: Optional[str] = None
+    token_expires_at: Optional[datetime] = None
+    connected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    is_active: bool = True
+
+class SocialConnectionResponse(BaseModel):
+    platform: str
+    username: str
+    connected_at: str
+    is_active: bool
+
+class InstagramAuthRequest(BaseModel):
+    code: str
+    redirect_uri: str
+
 @api_router.put("/posts/{post_id}/modify")
 async def modify_post_with_ai(
     post_id: str, 

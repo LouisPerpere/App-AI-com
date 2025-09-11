@@ -1116,6 +1116,44 @@ function MainApp() {
   const [notes, setNotes] = useState([]);
   const [showPaymentPage, setShowPaymentPage] = useState(false);
   
+  // Auto-navigation après modification de post
+  useEffect(() => {
+    const returnToPostsTab = localStorage.getItem('returnToPostsTab');
+    const modifiedPostId = localStorage.getItem('modifiedPostId');
+    
+    if (returnToPostsTab === 'true') {
+      // Naviguer vers l'onglet Posts
+      setActiveTab('posts');
+      
+      // Nettoyer le localStorage
+      localStorage.removeItem('returnToPostsTab');
+      
+      // Si on a un ID de post modifié, on essaie de scroller vers lui après un délai
+      if (modifiedPostId) {
+        setTimeout(() => {
+          const postElement = document.querySelector(`[data-post-id="${modifiedPostId}"]`);
+          if (postElement) {
+            postElement.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center' 
+            });
+            
+            // Effet de flash pour highlighter le post modifié
+            postElement.style.animation = 'flash-highlight 2s ease-in-out';
+            
+            // Nettoyer après highlighting
+            setTimeout(() => {
+              postElement.style.animation = '';
+              localStorage.removeItem('modifiedPostId');
+            }, 2000);
+          } else {
+            localStorage.removeItem('modifiedPostId');
+          }
+        }, 1000); // Attendre que les posts soient chargés
+      }
+    }
+  }, [generatedPosts]); // Dépendance sur generatedPosts pour s'assurer qu'ils sont chargés
+
   // Préchargement des vignettes à la connexion
   useEffect(() => {
     if (isAuthenticated) {

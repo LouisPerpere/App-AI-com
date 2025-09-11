@@ -1,5 +1,7 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
+import requests
 from pydantic import BaseModel, Field
 import jwt
 from passlib.context import CryptContext

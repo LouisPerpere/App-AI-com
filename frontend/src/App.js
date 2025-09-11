@@ -1206,6 +1206,9 @@ function MainApp() {
   });
   const [isConnectingAccount, setIsConnectingAccount] = useState(false);
   const [socialConnectionStatus, setSocialConnectionStatus] = useState('');
+  
+  // Privacy policy state
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
   // Auto-navigation après modification de post - Navigation vers onglet Posts
   useEffect(() => {

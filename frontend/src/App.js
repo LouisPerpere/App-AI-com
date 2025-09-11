@@ -4242,6 +4242,11 @@ function MainApp() {
     return <AdminDashboard user={user} onLogout={handleLogout} />;
   }
 
+  // Show privacy policy if requested
+  if (showPrivacyPolicy) {
+    return <PrivacyPolicy onBack={() => setShowPrivacyPolicy(false)} />;
+  }
+
   const Dashboard = () => (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-cyan-50 to-emerald-50 relative overflow-hidden">
         {/* Fond animé moderne */}

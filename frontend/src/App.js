@@ -1183,43 +1183,87 @@ function MainApp() {
   const [carouselTitle, setCarouselTitle] = useState('');
   const [carouselContext, setCarouselContext] = useState('');
 
-  // Auto-navigation après modification de post
+  // Auto-navigation après modification de post - Version sécurisée
   useEffect(() => {
     const returnToPostsTab = localStorage.getItem('returnToPostsTab');
     const modifiedPostId = localStorage.getItem('modifiedPostId');
     
     if (returnToPostsTab === 'true') {
+      console.log('🔄 Auto-navigation après modification de post');
+      
       // Naviguer vers l'onglet Posts
       setActiveTab('posts');
       
-      // Nettoyer le localStorage
+      // Nettoyer le localStorage immédiatement pour éviter les boucles
       localStorage.removeItem('returnToPostsTab');
       
-      // Si on a un ID de post modifié, on essaie de scroller vers lui après un délai
-      if (modifiedPostId) {
-        setTimeout(() => {
+      // Si on a un ID de post modifié et que les posts sont chargés
+      if (modifiedPostId && generatedPosts && generatedPosts.length > 0) {
+        console.log(`🎯 Tentative de scroll vers le post: ${modifiedPostId}`);
+        
+        // Multiple tentatives avec délais croissants
+        const scrollAttempts = [500, 1000, 1500, 2500]; // Délais en ms
+        let attemptIndex = 0;
+        
+        const attemptScroll = () => {
           const postElement = document.querySelector(`[data-post-id="${modifiedPostId}"]`);
+          
           if (postElement) {
+            console.log('✅ Post trouvé, scroll et highlight en cours...');
+            
+            // Scroll smooth vers le post
             postElement.scrollIntoView({ 
               behavior: 'smooth', 
-              block: 'center' 
+              block: 'center',
+              inline: 'nearest'
             });
             
-            // Effet de flash pour highlighter le post modifié
-            postElement.style.animation = 'flash-highlight 2s ease-in-out';
+            // Appliquer l'effet de flash highlight avec classe CSS
+            postElement.classList.add('highlight-flash');
             
-            // Nettoyer après highlighting
+            // Nettoyer après l'animation
             setTimeout(() => {
-              postElement.style.animation = '';
+              postElement.classList.remove('highlight-flash');
               localStorage.removeItem('modifiedPostId');
+              console.log('🎉 Animation terminée, localStorage nettoyé');
             }, 2000);
+            
+            return true; // Succès
           } else {
-            localStorage.removeItem('modifiedPostId');
+            console.log(`⏳ Tentative ${attemptIndex + 1}: Post non trouvé, retry...`);
+            return false; // Échec
           }
-        }, 1000); // Attendre que les posts soient chargés
+        };
+        
+        // Première tentative immédiate
+        if (!attemptScroll()) {
+          // Tentatives avec délais croissants
+          const scheduleNextAttempt = () => {
+            if (attemptIndex < scrollAttempts.length) {
+              setTimeout(() => {
+                if (!attemptScroll()) {
+                  attemptIndex++;
+                  scheduleNextAttempt();
+                } 
+              }, scrollAttempts[attemptIndex]);
+            } else {
+              // Toutes les tentatives ont échoué, nettoyer
+              console.log('❌ Impossible de trouver le post modifié après toutes les tentatives');
+              localStorage.removeItem('modifiedPostId');
+            }
+          };
+          
+          scheduleNextAttempt();
+        }
+      } else if (modifiedPostId) {
+        // Posts pas encore chargés, mais ID présent - nettoyer après délai max
+        console.log('⚠️ Posts non chargés, nettoyage programmé...');
+        setTimeout(() => {
+          localStorage.removeItem('modifiedPostId');
+        }, 5000);
       }
     }
-  }, [generatedPosts]); // Dépendance sur generatedPosts pour s'assurer qu'ils sont chargés
+  }, [generatedPosts, activeTab]); // Dépendances sécurisées
 
   // Préchargement des vignettes à la connexion
   useEffect(() => {

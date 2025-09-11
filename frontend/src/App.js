@@ -3167,6 +3167,69 @@ function MainApp() {
     }
   };
 
+  // Social Media Connection Functions
+  const loadConnectedAccounts = async () => {
+    const token = localStorage.getItem('access_token');
+    
+    try {
+      const response = await axios.get(`${API}/social/connections`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data?.connections) {
+        setConnectedAccounts(response.data.connections);
+      }
+    } catch (error) {
+      console.error('Error loading connected accounts:', error);
+    }
+  };
+
+  const connectInstagram = async () => {
+    setIsConnectingAccount(true);
+    setSocialConnectionStatus('Redirection vers Instagram...');
+    
+    try {
+      // Redirect to Instagram OAuth
+      const redirectUri = `${window.location.origin}/auth/instagram/callback`;
+      const scope = 'user_profile,user_media';
+      const instagramAuthUrl = `https://api.instagram.com/oauth/authorize?client_id=${process.env.REACT_APP_INSTAGRAM_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&response_type=code`;
+      
+      window.location.href = instagramAuthUrl;
+    } catch (error) {
+      console.error('Error connecting Instagram:', error);
+      toast.error('Erreur lors de la connexion Instagram');
+      setIsConnectingAccount(false);
+      setSocialConnectionStatus('');
+    }
+  };
+
+  const disconnectAccount = async (platform) => {
+    const token = localStorage.getItem('access_token');
+    
+    try {
+      await axios.delete(`${API}/social/connections/${platform}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setConnectedAccounts(prev => ({
+        ...prev,
+        [platform]: null
+      }));
+      
+      toast.success(`${platform} déconnecté avec succès`);
+    } catch (error) {
+      console.error(`Error disconnecting ${platform}:`, error);
+      toast.error(`Erreur lors de la déconnexion ${platform}`);
+    }
+  };
+
+  // Load connected accounts on authentication
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadConnectedAccounts();
+    }
+  }, [isAuthenticated]);
+
   // Générer la liste des mois disponibles
   const getAvailableMonths = () => {
     const months = [];

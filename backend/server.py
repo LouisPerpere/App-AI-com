@@ -1481,6 +1481,7 @@ RÉPONSE ATTENDUE (JSON exact):
         
         # Return response in format expected by frontend
         return {
+            "success": True,  # AJOUT DU CHAMP SUCCESS REQUIS PAR LE FRONTEND
             "message": "Post modifié avec succès",
             "new_title": update_data["title"],
             "new_text": update_data["text"],

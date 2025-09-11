@@ -1492,9 +1492,18 @@ function MainApp() {
     }
   };
 
-  const handleAuthSuccess = async () => {
+  const handleAuthSuccess = async (userData) => {
+    console.log('🎉 AUTH SUCCESS - User data:', userData);
+    
+    // Défini directement l'état d'authentification sans race condition
+    setIsAuthenticated(true);
+    setUserProfile(userData);
     setActiveStep('dashboard');
-    await checkAuth();
+    
+    // Attendre un petit délai pour que l'état soit bien défini
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    console.log('🎯 Navigating to dashboard');
   };
 
   const loadBusinessProfile = async () => {

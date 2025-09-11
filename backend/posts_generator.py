@@ -1157,7 +1157,7 @@ CTA: "Apprenez plus", "Essayez", "Suivez le guide"
                 "scheduled_date": post.scheduled_date.isoformat() if post.scheduled_date else None,
                 "content_type": post.content_type,
                 "visual_type": post.visual_type,
-                "status": "draft",
+                "status": post.status,  # Preserve the actual status from PostContent
                 "created_at": datetime.utcnow().isoformat(),
                 "published": False
             }

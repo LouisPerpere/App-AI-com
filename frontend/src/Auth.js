@@ -129,10 +129,18 @@ const AuthPage = ({ onAuthSuccess }) => {
       // Small delay to ensure defaults and state are applied before navigation
       await new Promise(r => setTimeout(r, 100));
       
-      // Call auth success callback with error handling
+      // Call auth success callback with user data
       try {
-        console.log('🔄 About to call onAuthSuccess callback...');
-        await onAuthSuccess();
+        console.log('🔄 About to call onAuthSuccess callback with user data...');
+        const userData = {
+          userId: data.user_id,
+          email: data.email,
+          firstName: data.first_name,
+          lastName: data.last_name,
+          businessName: data.business_name,
+          subscriptionStatus: data.subscription_status
+        };
+        await onAuthSuccess(userData);
         console.log('✅ onAuthSuccess callback completed successfully');
       } catch (callbackError) {
         console.error('❌ ERROR in onAuthSuccess callback:', callbackError);

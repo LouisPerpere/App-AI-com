@@ -11,6 +11,7 @@ from datetime import datetime
 
 # Configuration des URLs depuis les variables d'environnement
 BACKEND_URL = "https://claire-marcus-pwa-1.emergent.host/api"
+INTERNAL_BACKEND_URL = "http://localhost:8001/api"  # For testing internal endpoints
 
 # Credentials de test spécifiés dans la demande
 TEST_EMAIL = "lperpere@yahoo.fr"

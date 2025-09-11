@@ -77,6 +77,13 @@ RÈGLES STRICTES DE RÉDACTION :
 - Call-to-action simples et directs
 - Hashtags pertinents (max 25, mix populaires/niche)
 
+INTERDICTION ABSOLUE - PROMOTIONS NON DEMANDÉES :
+- Ne JAMAIS inventer de promotions, réductions, soldes ou offres commerciales
+- Ne JAMAIS proposer de pourcentages de réduction sans instruction explicite
+- Ne JAMAIS créer de codes promo de ton propre chef
+- SEULES les promotions explicitement mentionnées dans les notes peuvent être utilisées
+- Si aucune promotion n'est fournie, présenter les produits/services SANS offre
+
 Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             
             print("✅ OpenAI client initialized successfully")

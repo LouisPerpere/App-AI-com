@@ -1197,6 +1197,15 @@ function MainApp() {
   const [carouselTitle, setCarouselTitle] = useState('');
   const [carouselContext, setCarouselContext] = useState('');
 
+  // Social media connections states
+  const [connectedAccounts, setConnectedAccounts] = useState({
+    instagram: null,
+    facebook: null,
+    linkedin: null
+  });
+  const [isConnectingAccount, setIsConnectingAccount] = useState(false);
+  const [socialConnectionStatus, setSocialConnectionStatus] = useState('');
+
   // Auto-navigation après modification de post - Navigation vers onglet Posts
   useEffect(() => {
     const returnToPostsTab = localStorage.getItem('returnToPostsTab');

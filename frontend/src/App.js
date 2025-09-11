@@ -4403,8 +4403,8 @@ function MainApp() {
                       <div className="mt-2">
                         <EditableField
                           fieldId="business_coordinates_edit"
-                          label="Coordonnées"
-                          placeholder="Adresse, téléphone, horaires d'ouverture..."
+                          label="Infos contact pour vos posts"
+                          placeholder="Ex: 📧 contact@entreprise.com | 📞 01 23 45 67 89 | 📍 123 Rue Example, Paris | ⏰ Lun-Ven 9h-18h"
                           defaultValue={businessProfile?.coordinates || ''}
                           isTextarea={true}
                           fieldType="marketing"

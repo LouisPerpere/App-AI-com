@@ -6744,7 +6744,7 @@ function MainApp() {
                             </>
                           ) : (
                             <>
-                              <PlusIcon className="w-4 h-4" />
+                              <PlusIcon className="w-4 h-4 flex-shrink-0" />
                               <span>Connecter</span>
                             </>
                           )}

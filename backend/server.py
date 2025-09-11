@@ -1861,6 +1861,215 @@ async def disconnect_social_account(
 # Include the API router (auth endpoints need to stay without prefix)
 app.include_router(api_router)
 
+# Route for Privacy Policy (direct link for Facebook)
+@app.get("/privacy-policy")
+async def serve_privacy_policy():
+    """Serve privacy policy page for direct access (Facebook requirements)"""
+    html_content = """
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Politique de confidentialité - Claire & Marcus</title>
+        <style>
+            body { 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+                line-height: 1.6; 
+                max-width: 800px; 
+                margin: 0 auto; 
+                padding: 20px; 
+                background: #f8fafc;
+                color: #333;
+            }
+            .header { 
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                color: white; 
+                padding: 20px; 
+                border-radius: 10px; 
+                margin-bottom: 30px; 
+                text-align: center;
+            }
+            .section { 
+                background: white; 
+                padding: 20px; 
+                margin-bottom: 20px; 
+                border-radius: 8px; 
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+            }
+            .section h2 { 
+                color: #667eea; 
+                border-bottom: 2px solid #eee; 
+                padding-bottom: 10px; 
+            }
+            .highlight { 
+                background: #f0f9ff; 
+                padding: 15px; 
+                border-left: 4px solid #667eea; 
+                margin: 15px 0; 
+            }
+            .contact-box { 
+                background: #667eea; 
+                color: white; 
+                padding: 15px; 
+                border-radius: 8px; 
+                text-align: center; 
+            }
+            ul { 
+                padding-left: 20px; 
+            }
+            li { 
+                margin-bottom: 8px; 
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>🛡️ Politique de confidentialité</h1>
+            <p><strong>claire-marcus.com</strong></p>
+            <p>Dernière mise à jour : 11/09/2025</p>
+        </div>
+
+        <div class="section">
+            <h2>1. Responsable du traitement</h2>
+            <p>Le site claire-marcus.com est édité par :</p>
+            <div class="highlight">
+                <strong>Claire & Marcus</strong><br>
+                EI Fou de Vanille, Enregistrée au RCS de Créteil, SIRET 952 513 661 00019.<br>
+                TVA Non Applicable, art. 293 B du CGI<br>
+                Adresse : 44 Rue De Lorraine, 94700 Maisons Alfort<br>
+                Email : contact@claire-marcus.com
+            </div>
+            <p>Le responsable du traitement au sens du Règlement Général sur la Protection des Données (RGPD) est <strong>Alexandra Mara Perpere</strong>.</p>
+        </div>
+
+        <div class="section">
+            <h2>2. Données collectées</h2>
+            <p>Nous collectons et traitons les données suivantes :</p>
+            <ul>
+                <li><strong>Données d'identification :</strong> nom, prénom, adresse e-mail, mot de passe.</li>
+                <li><strong>Données professionnelles :</strong> description de l'activité, localisation, budget publicitaire, informations de connexion aux réseaux sociaux.</li>
+                <li><strong>Contenus fournis :</strong> photos, vidéos, textes, événements, commentaires.</li>
+                <li><strong>Données techniques :</strong> adresse IP, logs de connexion, type d'appareil, statistiques d'utilisation.</li>
+                <li><strong>Données de facturation (si applicables) :</strong> coordonnées de facturation, historique des paiements.</li>
+            </ul>
+            <div class="highlight">
+                <strong>Aucune donnée sensible</strong> (au sens de l'article 9 RGPD) n'est collectée.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>3. Finalités et bases légales</h2>
+            <p>Les données sont utilisées pour :</p>
+            <ul>
+                <li>Créer et gérer votre compte utilisateur (exécution du contrat).</li>
+                <li>Générer automatiquement vos publications et programmer leur diffusion (exécution du contrat).</li>
+                <li>Améliorer nos services et l'expérience utilisateur (intérêt légitime).</li>
+                <li>Respecter nos obligations légales (facturation, sécurité, conservation) (obligation légale).</li>
+                <li>Envoyer des communications commerciales ou newsletters (consentement, que vous pouvez retirer à tout moment).</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>4. Partage des données</h2>
+            <div class="highlight">
+                <strong>Nous ne vendons jamais vos données.</strong>
+            </div>
+            <p>Elles peuvent être transmises uniquement à :</p>
+            <ul>
+                <li>Nos prestataires techniques (hébergement, stockage, maintenance, outils d'analyse).</li>
+                <li>Les plateformes sociales que vous connectez (Facebook, Instagram, LinkedIn, etc.), uniquement pour publier vos contenus.</li>
+                <li>Les autorités administratives ou judiciaires, sur réquisition légale.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>5. Transfert hors Union européenne</h2>
+            <p>Certaines données peuvent être hébergées ou traitées en dehors de l'Union européenne (par ex. Emergent, MongoDB Atlas, situés aux États-Unis).</p>
+            <p>Dans ce cas, nous nous assurons que :</p>
+            <ul>
+                <li>Les prestataires bénéficient de mécanismes de conformité tels que les Clauses Contractuelles Types (CCT) de la Commission européenne.</li>
+                <li>Les transferts sont limités aux stricts besoins du service.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>6. Durée de conservation</h2>
+            <ul>
+                <li><strong>Compte utilisateur :</strong> tant que vous êtes inscrit.</li>
+                <li><strong>Contenus (photos, vidéos, posts) :</strong> jusqu'à suppression par vous, ou 12 mois après la clôture du compte.</li>
+                <li><strong>Logs techniques :</strong> 12 mois.</li>
+                <li><strong>Données de facturation :</strong> 10 ans (obligation légale).</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>7. Sécurité</h2>
+            <p>Nous mettons en œuvre des mesures de sécurité adaptées :</p>
+            <ul>
+                <li>Chiffrement des communications (HTTPS).</li>
+                <li>Accès restreints et authentifiés aux données.</li>
+                <li>Sauvegardes régulières.</li>
+                <li>Jetons d'accès chiffrés pour vos réseaux sociaux.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>8. Vos droits</h2>
+            <p>Conformément au RGPD et à la loi Informatique et Libertés, vous disposez des droits suivants :</p>
+            <ul>
+                <li>Accès à vos données.</li>
+                <li>Rectification des données inexactes.</li>
+                <li>Suppression (« droit à l'oubli »).</li>
+                <li>Limitation du traitement.</li>
+                <li>Portabilité de vos données.</li>
+                <li>Opposition au traitement de vos données pour des motifs légitimes.</li>
+                <li>Retrait du consentement à tout moment (par ex. newsletter, publicités).</li>
+            </ul>
+            <div class="contact-box">
+                <strong>Pour exercer vos droits :</strong> contact@claire-marcus.com<br>
+                Vous pouvez également introduire une réclamation auprès de la CNIL (www.cnil.fr).
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>9. Cookies et traceurs</h2>
+            <p>Notre site utilise des cookies :</p>
+            <ul>
+                <li><strong>Nécessaires</strong> (authentification, session, sécurité).</li>
+                <li><strong>Statistiques</strong> (mesure d'audience anonyme).</li>
+                <li><strong>Marketing</strong> (uniquement avec votre consentement).</li>
+            </ul>
+            <p>Vous pouvez gérer vos préférences directement depuis votre navigateur.</p>
+        </div>
+
+        <div class="section">
+            <h2>10. Hébergement</h2>
+            <p>Le site est hébergé par :</p>
+            <ul>
+                <li><strong>Frontend :</strong> Emergent</li>
+                <li><strong>Backend :</strong> Emergent</li>
+                <li><strong>Base de données :</strong> MongoDB Atlas (possiblement hors UE)</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>11. Contact</h2>
+            <div class="contact-box">
+                <strong>Claire & Marcus</strong><br>
+                Email : contact@claire-marcus.com
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
+            <p>© 2025 Claire & Marcus - Tous droits réservés</p>
+        </div>
+    </body>
+    </html>
+    """
+    
+    return HTMLResponse(content=html_content)
+
 # Include GPT-5 Website Analyzer
 if WEBSITE_ANALYZER_AVAILABLE:
     app.include_router(website_router, prefix="/api")

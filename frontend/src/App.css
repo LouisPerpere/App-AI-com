@@ -176,6 +176,34 @@ body {
   }
 }
 
+/* Animation for highlighting modified posts */
+@keyframes flash-highlight {
+  0% {
+    background-color: rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+    transform: scale(1);
+  }
+  50% {
+    background-color: rgba(139, 92, 246, 0.2);
+    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.3), 0 8px 25px rgba(139, 92, 246, 0.15);
+    transform: scale(1.02);
+  }
+  100% {
+    background-color: rgba(139, 92, 246, 0.05);
+    border-color: rgba(139, 92, 246, 0.2);
+    box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.1);
+    transform: scale(1);
+  }
+}
+
+/* Class for post flash highlighting */
+.highlight-flash {
+  animation: flash-highlight 2s ease-in-out;
+  transition: all 0.3s ease;
+}
+
 @keyframes slideIn {
   from {
     opacity: 0;

@@ -2478,7 +2478,14 @@ function MainApp() {
         // Recharger les posts et contenus pour refléter les changements
         setGeneratedPosts([]);
         setPostsByMonth({});
+        
+        // Force reload from server
+        await loadGeneratedPosts();
         await loadPendingContent(); // Reload pour voir les badges verts retirés
+        
+        // Clear any cached state
+        setSelectedPost(null);
+        setShowImageAttachModal(false);
         
         console.log('✅ All posts deleted and UI refreshed');
       }

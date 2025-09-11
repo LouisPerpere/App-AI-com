@@ -241,7 +241,7 @@ frontend:
 
 test_plan:
   current_focus:
-    - "MongoDB Connection and User Data Retrieval Diagnostic - COMPLETED"
+    - "Frontend Login Functionality Critical Bug - COMPLETED"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

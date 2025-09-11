@@ -1254,7 +1254,7 @@ async def attach_image_to_post(
 
 @api_router.post("/posts/generate")
 async def generate_posts_manual(
-    target_month: str = "octobre_2025",
+    target_month: str = "septembre_2025",  # Changé pour les tests
     user_id: str = Depends(get_current_user_id_robust)
 ):
     """Generate posts manually for the current user with advanced AI system"""

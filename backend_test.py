@@ -1,5 +1,463 @@
 #!/usr/bin/env python3
 """
+Claire et Marcus PWA - Complete Authentication Backend Testing
+Test l'authentification complète du backend selon la demande de révision spécifique
+"""
+
+import requests
+import json
+import sys
+from datetime import datetime
+
+# Configuration des URLs depuis les variables d'environnement
+BACKEND_URL = "https://claire-marcus-pwa-1.emergent.host/api"
+
+# Credentials de test spécifiés dans la demande
+TEST_EMAIL = "lperpere@yahoo.fr"
+TEST_PASSWORD = "L@Reunion974!"
+
+class AuthenticationTester:
+    def __init__(self):
+        self.backend_url = BACKEND_URL
+        self.access_token = None
+        self.user_id = None
+        self.test_results = []
+        
+    def log_test(self, test_name, success, details="", error=""):
+        """Log test results"""
+        result = {
+            "test": test_name,
+            "success": success,
+            "details": details,
+            "error": error,
+            "timestamp": datetime.now().isoformat()
+        }
+        self.test_results.append(result)
+        
+        status = "✅ PASS" if success else "❌ FAIL"
+        print(f"{status} {test_name}")
+        if details:
+            print(f"   📋 {details}")
+        if error:
+            print(f"   ❌ Error: {error}")
+        print()
+    
+    def test_health_endpoint(self):
+        """Test 1: Tester l'endpoint de santé GET /api/health"""
+        try:
+            print("🔍 Test 1: Testing health endpoint...")
+            response = requests.get(f"{self.backend_url}/health", timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                service_name = data.get("service", "Unknown")
+                status = data.get("status", "Unknown")
+                
+                self.log_test(
+                    "Health Endpoint Check",
+                    True,
+                    f"Status: {status}, Service: {service_name}, Response time: {response.elapsed.total_seconds():.2f}s"
+                )
+                return True
+            else:
+                self.log_test(
+                    "Health Endpoint Check",
+                    False,
+                    f"HTTP {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_test("Health Endpoint Check", False, "", str(e))
+            return False
+    
+    def test_robust_authentication(self):
+        """Test 2: Tester l'authentification robuste POST /api/auth/login-robust"""
+        try:
+            print("🔍 Test 2: Testing robust authentication...")
+            
+            login_data = {
+                "email": TEST_EMAIL,
+                "password": TEST_PASSWORD
+            }
+            
+            response = requests.post(
+                f"{self.backend_url}/auth/login-robust",
+                json=login_data,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.access_token = data.get("access_token")
+                self.user_id = data.get("user_id")
+                email = data.get("email")
+                token_type = data.get("token_type")
+                
+                if self.access_token and self.user_id:
+                    self.log_test(
+                        "Robust Authentication",
+                        True,
+                        f"User ID: {self.user_id}, Email: {email}, Token type: {token_type}, Token length: {len(self.access_token)} chars"
+                    )
+                    return True
+                else:
+                    self.log_test(
+                        "Robust Authentication",
+                        False,
+                        "Missing access_token or user_id in response",
+                        json.dumps(data, indent=2)
+                    )
+                    return False
+            else:
+                self.log_test(
+                    "Robust Authentication",
+                    False,
+                    f"HTTP {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_test("Robust Authentication", False, "", str(e))
+            return False
+    
+    def test_token_validation(self):
+        """Test 3: Tester la validation du token GET /api/auth/me"""
+        if not self.access_token:
+            self.log_test("Token Validation", False, "", "No access token available from previous test")
+            return False
+            
+        try:
+            print("🔍 Test 3: Testing token validation...")
+            
+            headers = {
+                "Authorization": f"Bearer {self.access_token}",
+                "Content-Type": "application/json"
+            }
+            
+            response = requests.get(
+                f"{self.backend_url}/auth/me",
+                headers=headers,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                user_id = data.get("user_id")
+                email = data.get("email")
+                first_name = data.get("first_name")
+                last_name = data.get("last_name")
+                business_name = data.get("business_name")
+                subscription_status = data.get("subscription_status")
+                
+                if user_id == self.user_id:
+                    self.log_test(
+                        "Token Validation",
+                        True,
+                        f"User ID: {user_id}, Email: {email}, Name: {first_name} {last_name}, Business: {business_name}, Subscription: {subscription_status}"
+                    )
+                    return True
+                else:
+                    self.log_test(
+                        "Token Validation",
+                        False,
+                        f"User ID mismatch: expected {self.user_id}, got {user_id}",
+                        json.dumps(data, indent=2)
+                    )
+                    return False
+            else:
+                self.log_test(
+                    "Token Validation",
+                    False,
+                    f"HTTP {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_test("Token Validation", False, "", str(e))
+            return False
+    
+    def test_instagram_auth_url(self):
+        """Test 4a: Tester GET /api/social/instagram/auth-url"""
+        if not self.access_token:
+            self.log_test("Instagram Auth URL", False, "", "No access token available")
+            return False
+            
+        try:
+            print("🔍 Test 4a: Testing Instagram auth URL endpoint...")
+            
+            headers = {
+                "Authorization": f"Bearer {self.access_token}",
+                "Content-Type": "application/json"
+            }
+            
+            response = requests.get(
+                f"{self.backend_url}/social/instagram/auth-url",
+                headers=headers,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                auth_url = data.get("auth_url", "")
+                state = data.get("state", "")
+                
+                if auth_url and "instagram.com" in auth_url:
+                    self.log_test(
+                        "Instagram Auth URL",
+                        True,
+                        f"Auth URL generated successfully, State: {state}, URL length: {len(auth_url)} chars"
+                    )
+                    return True
+                else:
+                    self.log_test(
+                        "Instagram Auth URL",
+                        False,
+                        "Invalid auth URL format",
+                        json.dumps(data, indent=2)
+                    )
+                    return False
+            elif response.status_code == 404:
+                self.log_test(
+                    "Instagram Auth URL",
+                    False,
+                    "Endpoint not found - Instagram OAuth not implemented",
+                    f"HTTP 404: {response.text}"
+                )
+                return False
+            else:
+                self.log_test(
+                    "Instagram Auth URL",
+                    False,
+                    f"HTTP {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_test("Instagram Auth URL", False, "", str(e))
+            return False
+    
+    def test_instagram_callback(self):
+        """Test 4b: Tester GET /api/social/instagram/callback avec code et state factices"""
+        if not self.access_token:
+            self.log_test("Instagram Callback", False, "", "No access token available")
+            return False
+            
+        try:
+            print("🔍 Test 4b: Testing Instagram callback endpoint...")
+            
+            headers = {
+                "Authorization": f"Bearer {self.access_token}",
+                "Content-Type": "application/json"
+            }
+            
+            # Paramètres factices pour simuler le callback Instagram
+            params = {
+                "code": "fake_instagram_auth_code_for_testing",
+                "state": "fake_state_parameter_for_testing"
+            }
+            
+            response = requests.get(
+                f"{self.backend_url}/social/instagram/callback",
+                headers=headers,
+                params=params,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log_test(
+                    "Instagram Callback",
+                    True,
+                    f"Callback processed successfully: {json.dumps(data, indent=2)}"
+                )
+                return True
+            elif response.status_code == 400:
+                # Expected for fake credentials
+                self.log_test(
+                    "Instagram Callback",
+                    True,
+                    "Callback endpoint working - rejected fake credentials as expected",
+                    f"HTTP 400: {response.text}"
+                )
+                return True
+            elif response.status_code == 404:
+                self.log_test(
+                    "Instagram Callback",
+                    False,
+                    "Endpoint not found - Instagram OAuth callback not implemented",
+                    f"HTTP 404: {response.text}"
+                )
+                return False
+            else:
+                self.log_test(
+                    "Instagram Callback",
+                    False,
+                    f"HTTP {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_test("Instagram Callback", False, "", str(e))
+            return False
+    
+    def check_backend_logs(self):
+        """Test 5: Vérifier les logs backend pour identifier les problèmes d'authentification React"""
+        try:
+            print("🔍 Test 5: Checking backend logs...")
+            
+            # Tenter de récupérer les logs via l'endpoint de diagnostic
+            response = requests.get(f"{self.backend_url}/diag", timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                db_connected = data.get("database_connected", False)
+                db_name = data.get("database_name", "Unknown")
+                mongo_url_prefix = data.get("mongo_url_prefix", "Unknown")
+                environment = data.get("environment", "Unknown")
+                
+                self.log_test(
+                    "Backend Diagnostic Check",
+                    True,
+                    f"DB Connected: {db_connected}, DB Name: {db_name}, Environment: {environment}, Mongo URL: {mongo_url_prefix}"
+                )
+                
+                # Analyser les problèmes potentiels
+                issues = []
+                if not db_connected:
+                    issues.append("Database connection failed")
+                
+                if issues:
+                    self.log_test(
+                        "Backend Issues Analysis",
+                        False,
+                        "Issues detected",
+                        "; ".join(issues)
+                    )
+                else:
+                    self.log_test(
+                        "Backend Issues Analysis",
+                        True,
+                        "No critical backend issues detected"
+                    )
+                
+                return True
+            else:
+                self.log_test(
+                    "Backend Diagnostic Check",
+                    False,
+                    f"HTTP {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_test("Backend Diagnostic Check", False, "", str(e))
+            return False
+    
+    def run_comprehensive_test(self):
+        """Exécuter tous les tests d'authentification"""
+        print("🚀 CLAIRE ET MARCUS PWA - COMPREHENSIVE AUTHENTICATION TESTING")
+        print("=" * 80)
+        print(f"Backend URL: {self.backend_url}")
+        print(f"Test Credentials: {TEST_EMAIL}")
+        print(f"Test Time: {datetime.now().isoformat()}")
+        print("=" * 80)
+        print()
+        
+        # Exécuter tous les tests dans l'ordre
+        tests = [
+            self.test_health_endpoint,
+            self.test_robust_authentication,
+            self.test_token_validation,
+            self.test_instagram_auth_url,
+            self.test_instagram_callback,
+            self.check_backend_logs
+        ]
+        
+        passed_tests = 0
+        total_tests = len(tests)
+        
+        for test_func in tests:
+            try:
+                if test_func():
+                    passed_tests += 1
+            except Exception as e:
+                print(f"❌ Test function {test_func.__name__} crashed: {e}")
+        
+        # Résumé final
+        print("=" * 80)
+        print("📊 AUTHENTICATION TESTING SUMMARY")
+        print("=" * 80)
+        
+        success_rate = (passed_tests / total_tests) * 100
+        print(f"Success Rate: {success_rate:.1f}% ({passed_tests}/{total_tests} tests passed)")
+        print()
+        
+        # Détails des résultats
+        for result in self.test_results:
+            status = "✅" if result["success"] else "❌"
+            print(f"{status} {result['test']}")
+            if result["details"]:
+                print(f"   📋 {result['details']}")
+            if result["error"]:
+                print(f"   ❌ {result['error']}")
+        
+        print()
+        print("=" * 80)
+        print("🎯 DIAGNOSTIC CONCLUSIONS")
+        print("=" * 80)
+        
+        # Analyser les résultats pour diagnostiquer le problème React
+        auth_working = any(r["test"] == "Robust Authentication" and r["success"] for r in self.test_results)
+        token_working = any(r["test"] == "Token Validation" and r["success"] for r in self.test_results)
+        
+        if auth_working and token_working:
+            print("✅ BACKEND AUTHENTICATION IS FULLY FUNCTIONAL")
+            print("   - User can authenticate successfully")
+            print("   - JWT tokens are generated and validated correctly")
+            print("   - The problem is likely in the FRONTEND React implementation")
+            print()
+            print("🔧 RECOMMENDED ACTIONS:")
+            print("   1. Check React frontend authentication code")
+            print("   2. Verify API calls are being made correctly")
+            print("   3. Check browser console for JavaScript errors")
+            print("   4. Verify CORS configuration")
+            print("   5. Check if frontend is using correct backend URL")
+        elif auth_working and not token_working:
+            print("⚠️ PARTIAL BACKEND ISSUE DETECTED")
+            print("   - Authentication works but token validation fails")
+            print("   - JWT token generation or validation has issues")
+        elif not auth_working:
+            print("❌ BACKEND AUTHENTICATION FAILURE")
+            print("   - User cannot authenticate with provided credentials")
+            print("   - Check user database and password hashing")
+        
+        print()
+        print("=" * 80)
+        
+        return success_rate
+
+def main():
+    """Point d'entrée principal"""
+    tester = AuthenticationTester()
+    success_rate = tester.run_comprehensive_test()
+    
+    # Code de sortie basé sur le taux de succès
+    if success_rate >= 80:
+        sys.exit(0)  # Succès
+    else:
+        sys.exit(1)  # Échec
+
+if __name__ == "__main__":
+    main()
+"""
 MongoDB Database Ownership Investigation Test
 ===========================================
 

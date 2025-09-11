@@ -682,7 +682,15 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
 NOTES IMPORTANTES À INTÉGRER OBLIGATOIREMENT:
 {notes_context}
 
-INSTRUCTION CRITIQUE: Tu DOIS intégrer les informations des notes importantes dans tes posts quand c'est pertinent. Si une note mentionne une fermeture, un événement spécial, ou une information importante, tu DOIS l'inclure dans au moins un des posts générés.
+⚠️ INSTRUCTION CRITIQUE POUR LES NOTES ⚠️
+Les NOTES ci-dessus sont PRIORITAIRES et OBLIGATOIRES :
+- TOUTE note mentionnant une fermeture, un événement, une date spécifique DOIT être intégrée dans les posts
+- TOUTE information importante (salon, concours, promotion, nouveauté) DOIT apparaître dans au moins UN post
+- Les notes du mois en cours sont PRIORITÉ ABSOLUE sur tout autre contenu
+- Si une note mentionne "fermeture du 30", tu DOIS créer un post pour informer les clients
+- Les notes générales (toujours valides) doivent aussi être prises en compte
+- REFUSE de générer des posts qui ignorent ces informations importantes
+- En cas de doute, PRIVILÉGIE TOUJOURS l'information des notes
 
 {recent_posts_context}
 

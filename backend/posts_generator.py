@@ -679,8 +679,10 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
 
 {website_context}
 
-NOTES IMPORTANTES:
+NOTES IMPORTANTES À INTÉGRER OBLIGATOIREMENT:
 {notes_context}
+
+INSTRUCTION CRITIQUE: Tu DOIS intégrer les informations des notes importantes dans tes posts quand c'est pertinent. Si une note mentionne une fermeture, un événement spécial, ou une information importante, tu DOIS l'inclure dans au moins un des posts générés.
 
 {recent_posts_context}
 

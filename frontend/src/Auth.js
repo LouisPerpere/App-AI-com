@@ -513,6 +513,12 @@ const AuthPage = ({ onAuthSuccess }) => {
                       type="submit" 
                       className="w-full h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
                       disabled={isLoading}
+                      onClick={(e) => {
+                        console.log('🔥 LOGIN BUTTON CLICKED!', e);
+                        console.log('🔍 Form state:', loginForm);
+                        console.log('🔍 isLoading:', isLoading);
+                        console.log('🔍 Will call handleLogin...');
+                      }}
                     >
                       {isLoading ? (
                         <div className="flex items-center space-x-2">

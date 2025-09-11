@@ -3190,40 +3190,33 @@ function MainApp() {
 
   const connectInstagram = async () => {
     setIsConnectingAccount(true);
-    setSocialConnectionStatus('Redirection vers Instagram...');
+    setSocialConnectionStatus('Initialisation de la connexion Instagram...');
     
     try {
-      // Instagram Basic Display API requires special setup
-      // For now, let's create a simulated flow for testing
-      const redirectUri = `${window.location.origin}/auth/instagram/callback`;
+      const token = localStorage.getItem('access_token');
       
-      // Instead of using Facebook OAuth, let's create a simple test auth for now
-      // In production, this would need proper Instagram Basic Display API setup
+      // Étape 1: Obtenir l'URL d'autorisation Instagram
+      const response = await axios.get(`${API}/social/instagram/auth-url`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       
-      // For testing purposes, show a message about Instagram setup
-      toast.info('⚠️ Configuration Instagram en cours. Cette fonctionnalité sera bientôt disponible !');
-      
-      console.log('🔗 Instagram connection would redirect to:', redirectUri);
-      
-      // Simulate connection for demo
-      setTimeout(() => {
-        setConnectedAccounts(prev => ({
-          ...prev,
-          instagram: {
-            username: 'demo_account',
-            connected_at: new Date().toISOString(),
-            is_active: true
-          }
-        }));
+      if (response.data?.auth_url) {
+        setSocialConnectionStatus('Redirection vers Instagram...');
         
-        toast.success('✅ Instagram connecté (mode démo)');
-        setIsConnectingAccount(false);
-        setSocialConnectionStatus('');
-      }, 2000);
+        // Stocker l'état pour vérification CSRF
+        localStorage.setItem('instagram_auth_state', response.data.state);
+        
+        // Rediriger vers Instagram OAuth
+        window.location.href = response.data.auth_url;
+        
+      } else {
+        throw new Error('URL d\'autorisation non reçue');
+      }
       
     } catch (error) {
       console.error('Error connecting Instagram:', error);
-      toast.error('Erreur lors de la connexion Instagram');
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur de connexion Instagram';
+      toast.error(`Erreur: ${errorMessage}`);
       setIsConnectingAccount(false);
       setSocialConnectionStatus('');
     }

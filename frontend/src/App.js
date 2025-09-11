@@ -4276,7 +4276,7 @@ function MainApp() {
                   <p className="text-purple-600 font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                     Claire rédige, Marcus programme.
                   </p>
-                  <p className="text-purple-600 font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent relative left-1/2 transform transition-all duration-300 hover:scale-105 -mt-1" 
+                  <p className="text-purple-600 font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent text-center transition-all duration-300 hover:scale-105 -mt-1" 
                      style={{
                        animation: 'breathe 4s ease-in-out infinite'
                      }}>

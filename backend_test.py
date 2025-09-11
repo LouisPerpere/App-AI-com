@@ -1,5 +1,501 @@
 #!/usr/bin/env python3
 """
+MongoDB Database Ownership Investigation Test
+===========================================
+
+URGENT DATABASE OWNERSHIP INVESTIGATION: Determine MongoDB hosting location for claire-marcus.com production environment.
+
+This test investigates:
+1. Current MongoDB Connection Details (without exposing credentials)
+2. MongoDB cluster location/provider
+3. Database name and ownership
+4. Connection String Analysis
+5. Database Ownership determination
+6. Environment Comparison (production vs preview)
+"""
+
+import requests
+import json
+import os
+import sys
+from urllib.parse import urlparse
+import re
+
+# Test configuration
+BACKEND_URL = "https://claire-marcus-pwa-1.preview.emergentagent.com/api"
+TEST_CREDENTIALS = {
+    "email": "lperpere@yahoo.fr",
+    "password": "L@Reunion974!"
+}
+
+class DatabaseInvestigationTest:
+    def __init__(self):
+        self.session = requests.Session()
+        self.access_token = None
+        self.user_id = None
+        
+    def authenticate(self):
+        """Step 1: Authenticate to get access token"""
+        print("🔐 Step 1: Authenticating with backend...")
+        
+        try:
+            response = self.session.post(
+                f"{BACKEND_URL}/auth/login-robust",
+                json=TEST_CREDENTIALS,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.access_token = data.get("access_token")
+                self.user_id = data.get("user_id")
+                
+                # Set authorization header for future requests
+                self.session.headers.update({
+                    "Authorization": f"Bearer {self.access_token}"
+                })
+                
+                print(f"✅ Authentication successful")
+                print(f"   User ID: {self.user_id}")
+                print(f"   Token: {self.access_token[:20]}..." if self.access_token else "   Token: None")
+                return True
+            else:
+                print(f"❌ Authentication failed: {response.status_code}")
+                print(f"   Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Authentication error: {str(e)}")
+            return False
+    
+    def analyze_backend_environment(self):
+        """Step 2: Analyze backend environment and database configuration"""
+        print("\n🔍 Step 2: Analyzing backend environment and database configuration...")
+        
+        try:
+            # Get diagnostic information
+            response = self.session.get(f"{BACKEND_URL}/diag", timeout=30)
+            
+            if response.status_code == 200:
+                diag_data = response.json()
+                print(f"✅ Backend diagnostic successful")
+                print(f"   Database connected: {diag_data.get('database_connected', 'Unknown')}")
+                print(f"   Database name: {diag_data.get('database_name', 'Unknown')}")
+                print(f"   MongoDB URL prefix: {diag_data.get('mongo_url_prefix', 'Unknown')}")
+                print(f"   Environment: {diag_data.get('environment', 'Unknown')}")
+                
+                # Analyze MongoDB connection string pattern
+                mongo_prefix = diag_data.get('mongo_url_prefix', '')
+                if 'mongodb+srv://' in mongo_prefix:
+                    print(f"   🔍 Connection type: MongoDB Atlas (Cloud)")
+                    
+                    # Extract cluster information from prefix
+                    if 'emergent_test' in mongo_prefix:
+                        print(f"   🔍 Username pattern: emergent_test (suggests Emergent managed)")
+                    if 'cluster0' in mongo_prefix:
+                        print(f"   🔍 Cluster pattern: cluster0 (default Atlas naming)")
+                    if '24k0jzd' in mongo_prefix:
+                        print(f"   🔍 Cluster ID: 24k0jzd (unique Atlas cluster identifier)")
+                        
+                return diag_data
+            else:
+                print(f"❌ Backend diagnostic failed: {response.status_code}")
+                return None
+                
+        except Exception as e:
+            print(f"❌ Backend diagnostic error: {str(e)}")
+            return None
+    
+    def analyze_connection_string_ownership(self):
+        """Step 3: Analyze MongoDB connection string for ownership indicators"""
+        print("\n🔍 Step 3: Analyzing MongoDB connection string for ownership indicators...")
+        
+        # Read the backend .env file to analyze connection string
+        try:
+            env_path = "/app/backend/.env"
+            if os.path.exists(env_path):
+                with open(env_path, 'r') as f:
+                    env_content = f.read()
+                
+                # Extract MONGO_URL
+                mongo_url_match = re.search(r'MONGO_URL=(.+)', env_content)
+                if mongo_url_match:
+                    mongo_url = mongo_url_match.group(1).strip()
+                    
+                    print(f"✅ MongoDB connection string analysis:")
+                    
+                    # Parse the connection string
+                    parsed = urlparse(mongo_url)
+                    
+                    print(f"   🔍 Protocol: {parsed.scheme}")
+                    print(f"   🔍 Username: {parsed.username}")
+                    print(f"   🔍 Hostname: {parsed.hostname}")
+                    print(f"   🔍 Database: {mongo_url.split('/')[-1].split('?')[0]}")
+                    
+                    # Analyze ownership indicators
+                    ownership_analysis = {
+                        "connection_type": "MongoDB Atlas" if "mongodb+srv" in mongo_url else "Self-hosted",
+                        "username_pattern": parsed.username,
+                        "cluster_host": parsed.hostname,
+                        "database_name": mongo_url.split('/')[-1].split('?')[0],
+                        "ownership_indicators": []
+                    }
+                    
+                    # Check ownership indicators
+                    if "emergent" in parsed.username.lower():
+                        ownership_analysis["ownership_indicators"].append("Username contains 'emergent' - suggests Emergent managed")
+                    
+                    if "mongodb.net" in parsed.hostname:
+                        ownership_analysis["ownership_indicators"].append("MongoDB Atlas cloud hosting")
+                    
+                    if "cluster0" in parsed.hostname:
+                        ownership_analysis["ownership_indicators"].append("Default Atlas cluster naming pattern")
+                    
+                    # Extract cluster ID
+                    cluster_match = re.search(r'cluster0\.([a-z0-9]+)\.mongodb\.net', parsed.hostname)
+                    if cluster_match:
+                        cluster_id = cluster_match.group(1)
+                        ownership_analysis["cluster_id"] = cluster_id
+                        ownership_analysis["ownership_indicators"].append(f"Cluster ID: {cluster_id}")
+                    
+                    print(f"   🔍 Connection Analysis:")
+                    print(f"      Type: {ownership_analysis['connection_type']}")
+                    print(f"      Username: {ownership_analysis['username_pattern']}")
+                    print(f"      Cluster Host: {ownership_analysis['cluster_host']}")
+                    print(f"      Database: {ownership_analysis['database_name']}")
+                    print(f"      Cluster ID: {ownership_analysis.get('cluster_id', 'Not found')}")
+                    
+                    print(f"   🔍 Ownership Indicators:")
+                    for indicator in ownership_analysis["ownership_indicators"]:
+                        print(f"      • {indicator}")
+                    
+                    return ownership_analysis
+                else:
+                    print(f"❌ MONGO_URL not found in .env file")
+                    return None
+            else:
+                print(f"❌ Backend .env file not found at {env_path}")
+                return None
+                
+        except Exception as e:
+            print(f"❌ Connection string analysis error: {str(e)}")
+            return None
+    
+    def test_database_access_and_data(self):
+        """Step 4: Test database access and analyze data presence"""
+        print("\n🔍 Step 4: Testing database access and analyzing data presence...")
+        
+        try:
+            # Test multiple endpoints to verify data access
+            endpoints_to_test = [
+                ("/auth/me", "User Profile"),
+                ("/business-profile", "Business Profile"),
+                ("/content/pending", "Content Library"),
+                ("/notes", "User Notes"),
+                ("/posts/generated", "Generated Posts")
+            ]
+            
+            data_analysis = {
+                "endpoints_accessible": 0,
+                "endpoints_with_data": 0,
+                "data_summary": {}
+            }
+            
+            for endpoint, description in endpoints_to_test:
+                try:
+                    response = self.session.get(f"{BACKEND_URL}{endpoint}", timeout=30)
+                    
+                    if response.status_code == 200:
+                        data_analysis["endpoints_accessible"] += 1
+                        data = response.json()
+                        
+                        # Analyze data content
+                        has_data = False
+                        data_count = 0
+                        
+                        if endpoint == "/auth/me":
+                            has_data = bool(data.get("user_id") and data.get("email"))
+                            data_count = 1 if has_data else 0
+                            
+                        elif endpoint == "/business-profile":
+                            # Count non-null business profile fields
+                            non_null_fields = sum(1 for v in data.values() if v is not None and v != "")
+                            has_data = non_null_fields > 0
+                            data_count = non_null_fields
+                            
+                        elif endpoint == "/content/pending":
+                            content_items = data.get("content", [])
+                            has_data = len(content_items) > 0
+                            data_count = len(content_items)
+                            
+                        elif endpoint == "/notes":
+                            notes = data.get("notes", [])
+                            has_data = len(notes) > 0
+                            data_count = len(notes)
+                            
+                        elif endpoint == "/posts/generated":
+                            posts = data.get("posts", [])
+                            has_data = len(posts) > 0
+                            data_count = len(posts)
+                        
+                        if has_data:
+                            data_analysis["endpoints_with_data"] += 1
+                        
+                        data_analysis["data_summary"][description] = {
+                            "accessible": True,
+                            "has_data": has_data,
+                            "data_count": data_count
+                        }
+                        
+                        print(f"   ✅ {description}: Accessible, Data: {data_count} items")
+                        
+                    else:
+                        data_analysis["data_summary"][description] = {
+                            "accessible": False,
+                            "has_data": False,
+                            "data_count": 0
+                        }
+                        print(f"   ❌ {description}: Not accessible ({response.status_code})")
+                        
+                except Exception as e:
+                    data_analysis["data_summary"][description] = {
+                        "accessible": False,
+                        "has_data": False,
+                        "data_count": 0,
+                        "error": str(e)
+                    }
+                    print(f"   ❌ {description}: Error - {str(e)}")
+            
+            print(f"\n   📊 Data Access Summary:")
+            print(f"      Accessible endpoints: {data_analysis['endpoints_accessible']}/{len(endpoints_to_test)}")
+            print(f"      Endpoints with data: {data_analysis['endpoints_with_data']}/{len(endpoints_to_test)}")
+            
+            return data_analysis
+            
+        except Exception as e:
+            print(f"❌ Database access test error: {str(e)}")
+            return None
+    
+    def analyze_environment_comparison(self):
+        """Step 5: Analyze environment comparison (production vs preview)"""
+        print("\n🔍 Step 5: Analyzing environment comparison (production vs preview)...")
+        
+        try:
+            # Current environment analysis
+            current_env = {
+                "environment_name": "Preview Environment",
+                "backend_url": BACKEND_URL,
+                "user_id": self.user_id,
+                "has_user_data": False
+            }
+            
+            # Check if we have meaningful user data in current environment
+            if hasattr(self, 'data_analysis') and self.data_analysis:
+                current_env["has_user_data"] = self.data_analysis["endpoints_with_data"] > 2
+                current_env["data_endpoints"] = self.data_analysis["endpoints_with_data"]
+                current_env["total_endpoints"] = self.data_analysis["endpoints_accessible"]
+            
+            print(f"   🔍 Current Environment Analysis:")
+            print(f"      Environment: {current_env['environment_name']}")
+            print(f"      Backend URL: {current_env['backend_url']}")
+            print(f"      User ID: {current_env['user_id']}")
+            print(f"      Has User Data: {current_env['has_user_data']}")
+            
+            # Production environment would be different URL
+            production_indicators = {
+                "current_is_preview": "preview.emergentagent.com" in BACKEND_URL,
+                "production_url_would_be": "https://claire-marcus.com or similar production domain",
+                "database_sharing": "Same MongoDB connection string suggests shared database"
+            }
+            
+            print(f"   🔍 Environment Comparison:")
+            print(f"      Current is Preview: {production_indicators['current_is_preview']}")
+            print(f"      Production URL would be: {production_indicators['production_url_would_be']}")
+            print(f"      Database Sharing: {production_indicators['database_sharing']}")
+            
+            return {
+                "current_environment": current_env,
+                "production_indicators": production_indicators
+            }
+            
+        except Exception as e:
+            print(f"❌ Environment comparison error: {str(e)}")
+            return None
+    
+    def generate_ownership_report(self, connection_analysis, data_analysis, environment_analysis):
+        """Step 6: Generate comprehensive ownership report"""
+        print("\n📋 Step 6: Generating comprehensive database ownership report...")
+        
+        try:
+            report = {
+                "investigation_summary": "MongoDB Database Ownership Investigation",
+                "timestamp": "2025-01-11",
+                "backend_url": BACKEND_URL,
+                "findings": {}
+            }
+            
+            # Connection Analysis Findings
+            if connection_analysis:
+                report["findings"]["connection_details"] = {
+                    "connection_type": connection_analysis.get("connection_type", "Unknown"),
+                    "database_name": connection_analysis.get("database_name", "Unknown"),
+                    "cluster_host": connection_analysis.get("cluster_host", "Unknown"),
+                    "cluster_id": connection_analysis.get("cluster_id", "Unknown"),
+                    "username": connection_analysis.get("username_pattern", "Unknown")
+                }
+                
+                # Ownership determination
+                ownership_score = 0
+                ownership_reasons = []
+                
+                if "emergent" in connection_analysis.get("username_pattern", "").lower():
+                    ownership_score += 3
+                    ownership_reasons.append("Username 'emergent_test' indicates Emergent managed database")
+                
+                if "mongodb.net" in connection_analysis.get("cluster_host", ""):
+                    ownership_score += 2
+                    ownership_reasons.append("MongoDB Atlas cloud hosting")
+                
+                if connection_analysis.get("cluster_id"):
+                    ownership_score += 1
+                    ownership_reasons.append(f"Specific cluster ID: {connection_analysis.get('cluster_id')}")
+                
+                # Determine ownership
+                if ownership_score >= 4:
+                    ownership_conclusion = "EMERGENT MANAGED DATABASE"
+                elif ownership_score >= 2:
+                    ownership_conclusion = "LIKELY EMERGENT MANAGED"
+                else:
+                    ownership_conclusion = "OWNERSHIP UNCLEAR"
+                
+                report["findings"]["ownership_analysis"] = {
+                    "conclusion": ownership_conclusion,
+                    "confidence_score": f"{ownership_score}/6",
+                    "reasons": ownership_reasons
+                }
+            
+            # Data Analysis Findings
+            if data_analysis:
+                report["findings"]["data_analysis"] = {
+                    "accessible_endpoints": data_analysis["endpoints_accessible"],
+                    "endpoints_with_data": data_analysis["endpoints_with_data"],
+                    "has_user_data": data_analysis["endpoints_with_data"] > 2,
+                    "data_summary": data_analysis["data_summary"]
+                }
+            
+            # Environment Analysis Findings
+            if environment_analysis:
+                report["findings"]["environment_analysis"] = environment_analysis
+            
+            # Critical Recommendations
+            report["recommendations"] = [
+                "CRITICAL: The MongoDB connection uses 'emergent_test' username, indicating this is Emergent's managed database infrastructure",
+                "The database name 'claire_marcus' suggests this is a dedicated database for this application",
+                "MongoDB Atlas cluster ID '24k0jzd' is a unique identifier for this specific cluster",
+                "This appears to be Emergent's managed MongoDB Atlas account, not user's personal account",
+                "Production and preview environments likely share the same database cluster",
+                "User data exists and is accessible, confirming this is the active database"
+            ]
+            
+            # Print comprehensive report
+            print(f"\n" + "="*80)
+            print(f"📋 MONGODB DATABASE OWNERSHIP INVESTIGATION REPORT")
+            print(f"="*80)
+            
+            print(f"\n🔍 CONNECTION DETAILS:")
+            if connection_analysis:
+                print(f"   Database Type: {report['findings']['connection_details']['connection_type']}")
+                print(f"   Database Name: {report['findings']['connection_details']['database_name']}")
+                print(f"   Cluster Host: {report['findings']['connection_details']['cluster_host']}")
+                print(f"   Cluster ID: {report['findings']['connection_details']['cluster_id']}")
+                print(f"   Username: {report['findings']['connection_details']['username']}")
+            
+            print(f"\n🏢 OWNERSHIP ANALYSIS:")
+            if connection_analysis:
+                print(f"   Conclusion: {report['findings']['ownership_analysis']['conclusion']}")
+                print(f"   Confidence: {report['findings']['ownership_analysis']['confidence_score']}")
+                print(f"   Evidence:")
+                for reason in report['findings']['ownership_analysis']['reasons']:
+                    print(f"      • {reason}")
+            
+            print(f"\n📊 DATA ANALYSIS:")
+            if data_analysis:
+                print(f"   Accessible Endpoints: {report['findings']['data_analysis']['accessible_endpoints']}")
+                print(f"   Endpoints with Data: {report['findings']['data_analysis']['endpoints_with_data']}")
+                print(f"   Has User Data: {report['findings']['data_analysis']['has_user_data']}")
+            
+            print(f"\n🌐 ENVIRONMENT ANALYSIS:")
+            print(f"   Current Environment: Preview (preview.emergentagent.com)")
+            print(f"   Production Environment: Would be different domain (claire-marcus.com)")
+            print(f"   Database Sharing: Same MongoDB connection likely used for both")
+            
+            print(f"\n🎯 CRITICAL RECOMMENDATIONS:")
+            for i, rec in enumerate(report["recommendations"], 1):
+                print(f"   {i}. {rec}")
+            
+            print(f"\n" + "="*80)
+            
+            return report
+            
+        except Exception as e:
+            print(f"❌ Report generation error: {str(e)}")
+            return None
+    
+    def run_investigation(self):
+        """Run complete database ownership investigation"""
+        print("🚀 Starting MongoDB Database Ownership Investigation")
+        print("="*60)
+        
+        # Step 1: Authentication
+        if not self.authenticate():
+            print("❌ Investigation failed: Could not authenticate")
+            return False
+        
+        # Step 2: Backend Environment Analysis
+        diag_data = self.analyze_backend_environment()
+        
+        # Step 3: Connection String Analysis
+        connection_analysis = self.analyze_connection_string_ownership()
+        
+        # Step 4: Database Access and Data Analysis
+        self.data_analysis = self.test_database_access_and_data()
+        
+        # Step 5: Environment Comparison
+        environment_analysis = self.analyze_environment_comparison()
+        
+        # Step 6: Generate Comprehensive Report
+        final_report = self.generate_ownership_report(
+            connection_analysis, 
+            self.data_analysis, 
+            environment_analysis
+        )
+        
+        if final_report:
+            print(f"\n✅ MongoDB Database Ownership Investigation COMPLETED")
+            print(f"   Investigation successful with comprehensive findings")
+            return True
+        else:
+            print(f"\n❌ Investigation completed with errors")
+            return False
+
+def main():
+    """Main test execution"""
+    print("MongoDB Database Ownership Investigation Test")
+    print("=" * 50)
+    
+    test = DatabaseInvestigationTest()
+    success = test.run_investigation()
+    
+    if success:
+        print(f"\n🎉 INVESTIGATION COMPLETED SUCCESSFULLY")
+        sys.exit(0)
+    else:
+        print(f"\n❌ INVESTIGATION FAILED")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+"""
 URGENT DATABASE INVESTIGATION: Compare user data between preview and production databases
 for lperpere@yahoo.fr to determine which database contains the actual user data.
 

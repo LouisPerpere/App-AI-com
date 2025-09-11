@@ -683,7 +683,7 @@ label[for*="checkbox"] {
   gap: 8px !important;
 }
 
-/* Mobile-friendly touch targets */
+/* Mobile-friendly touch targets and text wrapping */
 @media (max-width: 640px) {
   input[type="checkbox"] {
     width: 20px !important;
@@ -696,6 +696,48 @@ label[for*="checkbox"] {
     gap: 12px !important;
     min-height: 44px !important; /* iOS recommended touch target */
     align-items: center !important;
+  }
+  
+  /* Notes content wrapping and responsive design */
+  .note-content, .note-item {
+    word-wrap: break-word !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    hyphens: auto !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Note containers */
+  .note-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Note text areas */
+  textarea.note-content-input {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 100px !important;
+    resize: vertical !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Responsive card content */
+  .card-content {
+    padding: 12px !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Monthly sections */
+  .monthly-section {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
   }
 }
 

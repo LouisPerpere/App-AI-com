@@ -9,8 +9,8 @@ import AdminDashboard from './AdminDashboard';
 import FacebookCallback from './FacebookCallback';
 import PrivacyPolicy from './PrivacyPolicy';
 
-// Configure axios for cross-site authentication (ChatGPT fix)
-axios.defaults.withCredentials = true;
+// Remove withCredentials to avoid CORS conflicts with token-based auth
+// axios.defaults.withCredentials = true;
 
 // Import UI components
 import { Button } from './components/ui/button';

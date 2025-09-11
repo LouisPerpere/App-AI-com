@@ -1712,6 +1712,152 @@ async def get_pixabay_categories():
     ]
     return {"categories": categories}
 
+# ----------------------------
+# SOCIAL MEDIA CONNECTIONS: /api/social
+# ----------------------------
+
+@api_router.get("/social/connections")
+async def get_social_connections(user_id: str = Depends(get_current_user_id_robust)):
+    """Get all social media connections for the user"""
+    try:
+        dbm = get_database()
+        
+        connections = {}
+        
+        # Get all active connections for this user
+        social_connections = list(dbm.db.social_connections.find({
+            "user_id": user_id,
+            "is_active": True
+        }))
+        
+        for conn in social_connections:
+            connections[conn["platform"]] = {
+                "username": conn["username"],
+                "connected_at": conn["connected_at"].isoformat() if isinstance(conn["connected_at"], datetime) else conn["connected_at"],
+                "is_active": conn["is_active"]
+            }
+        
+        return {"connections": connections}
+        
+    except Exception as e:
+        print(f"❌ Error getting social connections: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get social connections")
+
+@api_router.post("/social/instagram/connect")
+async def connect_instagram_account(
+    request: InstagramAuthRequest,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Connect Instagram account using OAuth code"""
+    try:
+        print(f"🔗 Connecting Instagram for user {user_id}")
+        
+        # Exchange code for access token with Instagram API
+        facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
+        facebook_app_secret = os.environ.get('FACEBOOK_APP_SECRET')
+        
+        if not facebook_app_id or not facebook_app_secret:
+            raise HTTPException(status_code=500, detail="Instagram/Facebook credentials not configured")
+        
+        # Step 1: Exchange code for access token
+        token_url = "https://api.instagram.com/oauth/access_token"
+        token_data = {
+            "client_id": facebook_app_id,
+            "client_secret": facebook_app_secret,
+            "grant_type": "authorization_code",
+            "redirect_uri": request.redirect_uri,
+            "code": request.code
+        }
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.post(token_url, data=token_data) as response:
+                if response.status == 200:
+                    token_response = await response.json()
+                    access_token = token_response.get("access_token")
+                    instagram_user_id = token_response.get("user_id")
+                else:
+                    error_text = await response.text()
+                    print(f"❌ Instagram token exchange failed: {error_text}")
+                    raise HTTPException(status_code=400, detail="Failed to connect Instagram account")
+        
+        # Step 2: Get user info from Instagram
+        user_info_url = f"https://graph.instagram.com/me?fields=id,username&access_token={access_token}"
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.get(user_info_url) as response:
+                if response.status == 200:
+                    user_info = await response.json()
+                    username = user_info.get("username")
+                else:
+                    raise HTTPException(status_code=400, detail="Failed to get Instagram user info")
+        
+        # Step 3: Save connection to database
+        dbm = get_database()
+        
+        # Remove any existing Instagram connection for this user
+        dbm.db.social_connections.delete_many({
+            "user_id": user_id,
+            "platform": "instagram"
+        })
+        
+        # Save new connection
+        connection_data = {
+            "platform": "instagram",
+            "user_id": user_id,
+            "platform_user_id": instagram_user_id,
+            "username": username,
+            "access_token": access_token,
+            "connected_at": datetime.now(timezone.utc),
+            "is_active": True
+        }
+        
+        dbm.db.social_connections.insert_one(connection_data)
+        
+        print(f"✅ Instagram account @{username} connected successfully")
+        
+        return {
+            "message": "Instagram account connected successfully",
+            "platform": "instagram",
+            "username": username,
+            "connected_at": connection_data["connected_at"].isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error connecting Instagram: {e}")
+        raise HTTPException(status_code=500, detail="Failed to connect Instagram account")
+
+@api_router.delete("/social/connections/{platform}")
+async def disconnect_social_account(
+    platform: str,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Disconnect a social media account"""
+    try:
+        if platform not in ["instagram", "facebook", "linkedin"]:
+            raise HTTPException(status_code=400, detail="Invalid platform")
+        
+        dbm = get_database()
+        
+        result = dbm.db.social_connections.delete_many({
+            "user_id": user_id,
+            "platform": platform
+        })
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail=f"{platform} account not found")
+        
+        print(f"✅ {platform} account disconnected for user {user_id}")
+        
+        return {"message": f"{platform} account disconnected successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error disconnecting {platform}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to disconnect {platform} account")
+
 # Include the API router (auth endpoints need to stay without prefix)
 app.include_router(api_router)
 

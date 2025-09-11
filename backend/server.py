@@ -1465,6 +1465,10 @@ RÉPONSE ATTENDUE (JSON exact):
             "modified_at": datetime.utcnow().isoformat()
         }
         
+        # Handle scheduled_date if provided by AI
+        if "scheduled_date" in modified_data and modified_data["scheduled_date"]:
+            update_data["scheduled_date"] = modified_data["scheduled_date"]
+        
         result = db.generated_posts.update_one(
             {"id": post_id, "owner_id": user_id},
             {"$set": update_data}
@@ -1475,8 +1479,14 @@ RÉPONSE ATTENDUE (JSON exact):
         
         print(f"✅ Post {post_id} modified successfully")
         
+        # Return response in format expected by frontend
         return {
             "message": "Post modifié avec succès",
+            "new_title": update_data["title"],
+            "new_text": update_data["text"],
+            "new_hashtags": update_data["hashtags"],
+            "modified_at": update_data["modified_at"],
+            "scheduled_date": update_data.get("scheduled_date", current_scheduled_date),
             "modified_post": {
                 "id": post_id,
                 "title": update_data["title"],

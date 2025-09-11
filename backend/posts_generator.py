@@ -563,7 +563,13 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         
         context_parts = []
         for note in notes[:10]:  # Limit to avoid token overflow
-            context_parts.append(f"- {note.get('title', '')}: {note.get('content', '')}")
+            # Use 'description' field instead of 'title' as notes have description, not title
+            description = note.get('description', '') or note.get('title', '')
+            content = note.get('content', '')
+            if description and content:
+                context_parts.append(f"- {description}: {content}")
+            elif content:
+                context_parts.append(f"- {content}")
         
         return "\n".join(context_parts)
     

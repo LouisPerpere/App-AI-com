@@ -6698,8 +6698,8 @@ function MainApp() {
               <CardContent className="space-y-6">
                 
                 {/* Instagram Connection */}
-                <div className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg transition-shadow">
-                  <div className="flex items-center justify-between">
+                <div className="bg-white rounded-2xl p-4 sm:p-6 border border-gray-100 hover:shadow-lg transition-shadow social-connection-card">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between social-connection-content">
                     <div className="flex items-center space-x-4">
                       <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
                         <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24" style={{aspectRatio: '1'}}>

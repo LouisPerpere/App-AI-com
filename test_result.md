@@ -241,7 +241,7 @@ frontend:
 
 test_plan:
   current_focus:
-    - "DELETE Posts Endpoint Testing - COMPLETED"
+    - "Post Modification System - Dernière Chance Avant Fermeture Issue - COMPLETED"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

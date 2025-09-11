@@ -71,6 +71,7 @@ const AuthPage = ({ onAuthSuccess }) => {
   });
 
   const handleLogin = async (e) => {
+    console.log('🔥 handleLogin called!', e);
     e.preventDefault();
     setIsLoading(true);
     setError('');
@@ -78,6 +79,7 @@ const AuthPage = ({ onAuthSuccess }) => {
     try {
       console.log('🚀 LOGIN START - API URL:', API);
       console.log('🚀 LOGIN DATA:', { email: loginForm.email });
+      console.log('🔍 Form values:', loginForm);
 
       // Ensure backend is awake (Render free instances may be cold)
       setShowConnecting(true);

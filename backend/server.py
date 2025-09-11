@@ -1759,8 +1759,8 @@ async def connect_instagram_account(
         if not facebook_app_id or not facebook_app_secret:
             raise HTTPException(status_code=500, detail="Instagram/Facebook credentials not configured")
         
-        # Step 1: Exchange code for access token
-        token_url = "https://api.instagram.com/oauth/access_token"
+        # Step 1: Exchange code for access token with Facebook OAuth
+        token_url = "https://graph.facebook.com/v18.0/oauth/access_token"
         token_data = {
             "client_id": facebook_app_id,
             "client_secret": facebook_app_secret,

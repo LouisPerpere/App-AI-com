@@ -5857,6 +5857,17 @@ function MainApp() {
                 <CardDescription className="text-base text-gray-600">
                   Ajoutez des informations importantes pour créer des posts qui cartonnent ! 🎯
                 </CardDescription>
+                
+                {/* Exemples d'informations à noter */}
+                <div className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                  <p className="text-sm font-medium text-blue-800 mb-2">💡 Exemples d'informations à noter :</p>
+                  <div className="text-sm text-blue-700 space-y-1">
+                    <div>• <strong>Événements :</strong> Fermeture exceptionnelle, participation à un salon, journées portes ouvertes</div>
+                    <div>• <strong>Animations :</strong> Organisation d'un jeu, concours, promotion spéciale, nouveauté</div>
+                    <div>• <strong>Particularités :</strong> Savoir-faire unique, histoire de l'entreprise, valeurs importantes</div>
+                    <div>• <strong>Actualités :</strong> Nouveau partenariat, certification obtenue, équipe qui grandit</div>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="pt-0">
                 {/* Add New Note Section */}

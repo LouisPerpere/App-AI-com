@@ -7,15 +7,15 @@
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
-/* Animation respiration pour "Vous respirez" - Version discrète */
+/* Animation respiration pour "Vous respirez" - Version discrète et centrée */
 @keyframes breathe {
   0%, 100% { 
     opacity: 0.85;
-    transform: scale(1) translateX(-50%);
+    transform: scale(1);
   }
   50% { 
     opacity: 1;
-    transform: scale(1.02) translateX(-50%);
+    transform: scale(1.02);
   }
 }
 

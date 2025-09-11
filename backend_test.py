@@ -272,18 +272,10 @@ class AuthenticationTester:
     
     def test_instagram_callback(self):
         """Test 4b: Tester GET /api/social/instagram/callback avec code et state factices"""
-        if not self.access_token:
-            self.log_test("Instagram Callback", False, "", "No access token available")
-            return False
-            
         try:
             print("🔍 Test 4b: Testing Instagram callback endpoint...")
             
-            headers = {
-                "Authorization": f"Bearer {self.access_token}",
-                "Content-Type": "application/json"
-            }
-            
+            # Note: This endpoint doesn't require authentication as it's a public OAuth callback
             # Paramètres factices pour simuler le callback Instagram
             params = {
                 "code": "fake_instagram_auth_code_for_testing",
@@ -292,12 +284,31 @@ class AuthenticationTester:
             
             response = requests.get(
                 f"{self.backend_url}/social/instagram/callback",
-                headers=headers,
                 params=params,
-                timeout=10
+                timeout=10,
+                allow_redirects=False  # Don't follow redirects to see the actual response
             )
             
-            if response.status_code == 200:
+            if response.status_code == 302:
+                # Expected redirect response for OAuth callback
+                location = response.headers.get("Location", "")
+                if "instagram_error" in location:
+                    self.log_test(
+                        "Instagram Callback",
+                        True,
+                        "Callback endpoint working - rejected fake credentials as expected (redirected with error)",
+                        f"Redirect to: {location}"
+                    )
+                    return True
+                else:
+                    self.log_test(
+                        "Instagram Callback",
+                        True,
+                        f"Callback endpoint working - redirected to: {location}",
+                        f"HTTP 302 redirect"
+                    )
+                    return True
+            elif response.status_code == 200:
                 data = response.json()
                 self.log_test(
                     "Instagram Callback",
@@ -314,6 +325,33 @@ class AuthenticationTester:
                     f"HTTP 400: {response.text}"
                 )
                 return True
+            elif response.status_code == 500:
+                # Check if it's a configuration issue
+                try:
+                    error_data = response.json()
+                    error_detail = error_data.get("detail", response.text)
+                    if "FACEBOOK_APP" in error_detail:
+                        self.log_test(
+                            "Instagram Callback",
+                            False,
+                            "Configuration issue - Facebook App credentials not configured",
+                            error_detail
+                        )
+                    else:
+                        self.log_test(
+                            "Instagram Callback",
+                            False,
+                            f"Server error: {error_detail}",
+                            response.text
+                        )
+                except:
+                    self.log_test(
+                        "Instagram Callback",
+                        False,
+                        f"HTTP {response.status_code}",
+                        response.text
+                    )
+                return False
             elif response.status_code == 404:
                 self.log_test(
                     "Instagram Callback",

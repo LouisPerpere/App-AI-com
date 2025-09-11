@@ -3189,10 +3189,13 @@ function MainApp() {
     setSocialConnectionStatus('Redirection vers Instagram...');
     
     try {
-      // Redirect to Instagram OAuth
+      // Use Facebook Client ID from environment variables
       const redirectUri = `${window.location.origin}/auth/instagram/callback`;
       const scope = 'user_profile,user_media';
-      const instagramAuthUrl = `https://api.instagram.com/oauth/authorize?client_id=${process.env.REACT_APP_INSTAGRAM_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&response_type=code`;
+      
+      // Construct the Instagram Basic Display API OAuth URL
+      const facebookClientId = '1115451684022643'; // Your Facebook App ID
+      const instagramAuthUrl = `https://api.instagram.com/oauth/authorize?client_id=${facebookClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&response_type=code`;
       
       window.location.href = instagramAuthUrl;
     } catch (error) {

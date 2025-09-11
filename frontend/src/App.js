@@ -1206,6 +1206,16 @@ function MainApp() {
         let attemptIndex = 0;
         
         const attemptScroll = () => {
+          console.log(`🔍 Recherche du post avec ID: ${modifiedPostId}`);
+          
+          // D'abord lister tous les éléments avec data-post-id pour diagnostic
+          const allPostElements = document.querySelectorAll('[data-post-id]');
+          console.log(`📋 Total éléments trouvés avec data-post-id: ${allPostElements.length}`);
+          
+          if (allPostElements.length > 0) {
+            console.log('📋 IDs trouvés:', Array.from(allPostElements).map(el => el.getAttribute('data-post-id')));
+          }
+          
           const postElement = document.querySelector(`[data-post-id="${modifiedPostId}"]`);
           
           if (postElement) {
@@ -1230,7 +1240,7 @@ function MainApp() {
             
             return true; // Succès
           } else {
-            console.log(`⏳ Tentative ${attemptIndex + 1}: Post non trouvé, retry...`);
+            console.log(`⏳ Tentative ${attemptIndex + 1}: Post non trouvé avec ID: ${modifiedPostId}`);
             return false; // Échec
           }
         };

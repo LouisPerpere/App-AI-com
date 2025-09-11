@@ -1225,93 +1225,64 @@ function MainApp() {
     }
   }, []);
 
-  // Auto-scroll vers le post modifié - SE DÉCLENCHE QUAND LES POSTS SONT CHARGÉS
+  // Gérer le callback Instagram OAuth au chargement de la page
   useEffect(() => {
-    const modifiedPostId = localStorage.getItem('modifiedPostId');
+    const urlParams = new URLSearchParams(window.location.search);
+    const instagramSuccess = urlParams.get('instagram_success');
+    const instagramError = urlParams.get('instagram_error');
+    const instagramUsername = urlParams.get('username');
     
-    // Vérifier que nous sommes sur l'onglet Posts et que les posts sont chargés
-    if (modifiedPostId && activeTab === 'posts' && generatedPosts && generatedPosts.length > 0) {
-      console.log(`🎯 Posts chargés (${generatedPosts.length}), tentative de scroll vers: ${modifiedPostId}`);
+    if (instagramSuccess === 'true') {
+      toast.success(`✅ Instagram connecté avec succès! @${instagramUsername || 'utilisateur'}`);
       
-      // Multiple tentatives avec délais croissants
-      const scrollAttempts = [500, 1000, 1500, 2500]; // Délais en ms
-      let attemptIndex = 0;
-      
-      const attemptScroll = () => {
-        console.log(`🔍 Recherche du post avec ID: ${modifiedPostId}`);
-        
-        // D'abord lister tous les éléments avec data-post-id pour diagnostic
-        const allPostElements = document.querySelectorAll('[data-post-id]');
-        console.log(`📋 Total éléments trouvés avec data-post-id: ${allPostElements.length}`);
-        
-        if (allPostElements.length > 0) {
-          console.log('📋 IDs trouvés:', Array.from(allPostElements).map(el => el.getAttribute('data-post-id')));
+      // Mettre à jour l'état des connexions
+      setConnectedAccounts(prev => ({
+        ...prev,
+        instagram: {
+          username: instagramUsername || 'utilisateur',
+          connected_at: new Date().toISOString(),
+          is_active: true
         }
-        
-        const postElement = document.querySelector(`[data-post-id="${modifiedPostId}"]`);
-        
-        if (postElement) {
-          console.log('✅ Post trouvé, scroll et highlight en cours...');
-          
-          // Scroll smooth vers le post
-          postElement.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center',
-            inline: 'nearest'
-          });
-          
-          // Appliquer l'effet de flash highlight avec classe CSS
-          postElement.classList.add('highlight-flash');
-          
-          // Nettoyer après l'animation
-          setTimeout(() => {
-            postElement.classList.remove('highlight-flash');
-            localStorage.removeItem('modifiedPostId');
-            console.log('🎉 Animation terminée, localStorage nettoyé');
-          }, 2000);
-          
-          return true; // Succès
-        } else {
-          console.log(`⏳ Tentative ${attemptIndex + 1}: Post non trouvé avec ID: ${modifiedPostId}`);
-          return false; // Échec
-        }
-      };
+      }));
       
-      // Première tentative immédiate
-      if (!attemptScroll()) {
-        // Tentatives avec délais croissants
-        const scheduleNextAttempt = () => {
-          if (attemptIndex < scrollAttempts.length) {
-            setTimeout(() => {
-              if (!attemptScroll()) {
-                attemptIndex++;
-                scheduleNextAttempt();
-              } 
-            }, scrollAttempts[attemptIndex]);
-          } else {
-            // Toutes les tentatives ont échoué, essayer un fallback
-            console.log('🔄 Tentatives principales échouées, essai de fallback...');
-            
-            // Fallback: essayer de scroller vers le premier post visible
-            setTimeout(() => {
-              const anyPostElement = document.querySelector('[data-post-id]');
-              if (anyPostElement) {
-                console.log('📌 Fallback: Scroll vers le premier post visible');
-                anyPostElement.scrollIntoView({ 
-                  behavior: 'smooth', 
-                  block: 'start',
-                  inline: 'nearest'
-                });
-              }
-              localStorage.removeItem('modifiedPostId');
-            }, 1000);
-          }
-        };
-        
-        scheduleNextAttempt();
-      }
+      setIsInstagramConnected(true);
+      
+      // Nettoyer l'URL
+      window.history.replaceState(null, null, window.location.pathname);
+      
+      // Recharger les connexions sociales
+      loadSocialConnections();
     }
-  }, [generatedPosts, activeTab]); // Dépendances : se déclenche quand les posts sont chargés ET qu'on est sur l'onglet Posts
+    
+    if (instagramError) {
+      let errorMessage = 'Erreur de connexion Instagram';
+      
+      switch (instagramError) {
+        case 'access_denied':
+          errorMessage = 'Accès refusé par l\'utilisateur';
+          break;
+        case 'missing_parameters':
+          errorMessage = 'Paramètres manquants dans la réponse Instagram';
+          break;
+        case 'config_error':
+          errorMessage = 'Erreur de configuration Instagram';
+          break;
+        case 'token_exchange_failed':
+          errorMessage = 'Échec de l\'échange de token Instagram';
+          break;
+        case 'callback_error':
+          errorMessage = 'Erreur lors du traitement du callback Instagram';
+          break;
+        default:
+          errorMessage = `Erreur Instagram: ${instagramError}`;
+      }
+      
+      toast.error(`❌ ${errorMessage}`);
+      
+      // Nettoyer l'URL
+      window.history.replaceState(null, null, window.location.pathname);
+    }
+  }, []);
 
   // Préchargement des vignettes à la connexion
   useEffect(() => {

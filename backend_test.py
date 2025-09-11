@@ -1,25 +1,26 @@
 #!/usr/bin/env python3
 """
-DIAGNOSTIC URGENT - Post Modifié Non Affiché + Date Publication
-Test spécifique pour diagnostiquer les problèmes de modification de posts identifiés par l'utilisateur.
+POST MODIFICATION ENDPOINT TEST - SUCCESS FIELD VERIFICATION
+Test spécifique pour vérifier que l'endpoint /api/posts/{post_id}/modify retourne le bon format de réponse avec success: true.
 
-PROBLÈMES RAPPORTÉS:
-1. L'utilisateur voit le spinner de modification, mais après completion, c'est toujours l'ancien post qui s'affiche
-2. Les demandes de modification de jour de publication ne semblent pas prises en compte
+OBJECTIF:
+Tester l'endpoint PUT /api/posts/{post_id}/modify pour vérifier qu'il retourne maintenant le format correct avec "success": true.
 
-TESTS CRITIQUES REQUIS:
-- Test 1: Vérification réponse endpoint modification
-- Test 2: Test spécifique modification date  
-- Test 3: Vérification format réponse modification
-- Test 4: Validation complète post-modification
+TESTS À EFFECTUER:
+1. Créer un utilisateur de test si nécessaire
+2. Générer quelques posts de test
+3. Tester l'endpoint PUT /api/posts/{post_id}/modify avec une demande de modification valide
+4. Vérifier que la réponse contient "success": true et les autres champs attendus
+5. Vérifier que le post est effectivement modifié dans la base de données
 
 Credentials: lperpere@yahoo.fr / L@Reunion974!
+Backend URL: https://claire-marcus-pwa-1.preview.emergentagent.com/api
 """
 
 import requests
 import json
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 import time
 
 # Configuration

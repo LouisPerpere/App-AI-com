@@ -1183,10 +1183,9 @@ function MainApp() {
   const [carouselTitle, setCarouselTitle] = useState('');
   const [carouselContext, setCarouselContext] = useState('');
 
-  // Auto-navigation après modification de post - Version sécurisée
+  // Auto-navigation après modification de post - Navigation vers onglet Posts
   useEffect(() => {
     const returnToPostsTab = localStorage.getItem('returnToPostsTab');
-    const modifiedPostId = localStorage.getItem('modifiedPostId');
     
     if (returnToPostsTab === 'true') {
       console.log('🔄 Auto-navigation après modification de post');
@@ -1196,97 +1195,96 @@ function MainApp() {
       
       // Nettoyer le localStorage immédiatement pour éviter les boucles
       localStorage.removeItem('returnToPostsTab');
+    }
+  }, []);
+
+  // Auto-scroll vers le post modifié - SE DÉCLENCHE QUAND LES POSTS SONT CHARGÉS
+  useEffect(() => {
+    const modifiedPostId = localStorage.getItem('modifiedPostId');
+    
+    // Vérifier que nous sommes sur l'onglet Posts et que les posts sont chargés
+    if (modifiedPostId && activeTab === 'posts' && generatedPosts && generatedPosts.length > 0) {
+      console.log(`🎯 Posts chargés (${generatedPosts.length}), tentative de scroll vers: ${modifiedPostId}`);
       
-      // Si on a un ID de post modifié et que les posts sont chargés
-      if (modifiedPostId && generatedPosts && generatedPosts.length > 0) {
-        console.log(`🎯 Tentative de scroll vers le post: ${modifiedPostId}`);
+      // Multiple tentatives avec délais croissants
+      const scrollAttempts = [500, 1000, 1500, 2500]; // Délais en ms
+      let attemptIndex = 0;
+      
+      const attemptScroll = () => {
+        console.log(`🔍 Recherche du post avec ID: ${modifiedPostId}`);
         
-        // Multiple tentatives avec délais croissants
-        const scrollAttempts = [500, 1000, 1500, 2500]; // Délais en ms
-        let attemptIndex = 0;
+        // D'abord lister tous les éléments avec data-post-id pour diagnostic
+        const allPostElements = document.querySelectorAll('[data-post-id]');
+        console.log(`📋 Total éléments trouvés avec data-post-id: ${allPostElements.length}`);
         
-        const attemptScroll = () => {
-          console.log(`🔍 Recherche du post avec ID: ${modifiedPostId}`);
+        if (allPostElements.length > 0) {
+          console.log('📋 IDs trouvés:', Array.from(allPostElements).map(el => el.getAttribute('data-post-id')));
+        }
+        
+        const postElement = document.querySelector(`[data-post-id="${modifiedPostId}"]`);
+        
+        if (postElement) {
+          console.log('✅ Post trouvé, scroll et highlight en cours...');
           
-          // D'abord lister tous les éléments avec data-post-id pour diagnostic
-          const allPostElements = document.querySelectorAll('[data-post-id]');
-          console.log(`📋 Total éléments trouvés avec data-post-id: ${allPostElements.length}`);
+          // Scroll smooth vers le post
+          postElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center',
+            inline: 'nearest'
+          });
           
-          if (allPostElements.length > 0) {
-            console.log('📋 IDs trouvés:', Array.from(allPostElements).map(el => el.getAttribute('data-post-id')));
-          }
+          // Appliquer l'effet de flash highlight avec classe CSS
+          postElement.classList.add('highlight-flash');
           
-          const postElement = document.querySelector(`[data-post-id="${modifiedPostId}"]`);
+          // Nettoyer après l'animation
+          setTimeout(() => {
+            postElement.classList.remove('highlight-flash');
+            localStorage.removeItem('modifiedPostId');
+            console.log('🎉 Animation terminée, localStorage nettoyé');
+          }, 2000);
           
-          if (postElement) {
-            console.log('✅ Post trouvé, scroll et highlight en cours...');
-            
-            // Scroll smooth vers le post
-            postElement.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'center',
-              inline: 'nearest'
-            });
-            
-            // Appliquer l'effet de flash highlight avec classe CSS
-            postElement.classList.add('highlight-flash');
-            
-            // Nettoyer après l'animation
+          return true; // Succès
+        } else {
+          console.log(`⏳ Tentative ${attemptIndex + 1}: Post non trouvé avec ID: ${modifiedPostId}`);
+          return false; // Échec
+        }
+      };
+      
+      // Première tentative immédiate
+      if (!attemptScroll()) {
+        // Tentatives avec délais croissants
+        const scheduleNextAttempt = () => {
+          if (attemptIndex < scrollAttempts.length) {
             setTimeout(() => {
-              postElement.classList.remove('highlight-flash');
-              localStorage.removeItem('modifiedPostId');
-              console.log('🎉 Animation terminée, localStorage nettoyé');
-            }, 2000);
-            
-            return true; // Succès
+              if (!attemptScroll()) {
+                attemptIndex++;
+                scheduleNextAttempt();
+              } 
+            }, scrollAttempts[attemptIndex]);
           } else {
-            console.log(`⏳ Tentative ${attemptIndex + 1}: Post non trouvé avec ID: ${modifiedPostId}`);
-            return false; // Échec
+            // Toutes les tentatives ont échoué, essayer un fallback
+            console.log('🔄 Tentatives principales échouées, essai de fallback...');
+            
+            // Fallback: essayer de scroller vers le premier post visible
+            setTimeout(() => {
+              const anyPostElement = document.querySelector('[data-post-id]');
+              if (anyPostElement) {
+                console.log('📌 Fallback: Scroll vers le premier post visible');
+                anyPostElement.scrollIntoView({ 
+                  behavior: 'smooth', 
+                  block: 'start',
+                  inline: 'nearest'
+                });
+              }
+              localStorage.removeItem('modifiedPostId');
+            }, 1000);
           }
         };
         
-        // Première tentative immédiate
-        if (!attemptScroll()) {
-          // Tentatives avec délais croissants
-          const scheduleNextAttempt = () => {
-            if (attemptIndex < scrollAttempts.length) {
-              setTimeout(() => {
-                if (!attemptScroll()) {
-                  attemptIndex++;
-                  scheduleNextAttempt();
-                } 
-              }, scrollAttempts[attemptIndex]);
-            } else {
-              // Toutes les tentatives ont échoué, essayer un fallback
-              console.log('🔄 Tentatives principales échouées, essai de fallback...');
-              
-              // Fallback: essayer de scroller vers le premier post visible
-              setTimeout(() => {
-                const anyPostElement = document.querySelector('[data-post-id]');
-                if (anyPostElement) {
-                  console.log('📌 Fallback: Scroll vers le premier post visible');
-                  anyPostElement.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start',
-                    inline: 'nearest'
-                  });
-                }
-                localStorage.removeItem('modifiedPostId');
-              }, 1000);
-            }
-          };
-          
-          scheduleNextAttempt();
-        }
-      } else if (modifiedPostId) {
-        // Posts pas encore chargés, mais ID présent - nettoyer après délai max
-        console.log('⚠️ Posts non chargés, nettoyage programmé...');
-        setTimeout(() => {
-          localStorage.removeItem('modifiedPostId');
-        }, 5000);
+        scheduleNextAttempt();
       }
     }
-  }, [generatedPosts, activeTab]); // Dépendances sécurisées
+  }, [generatedPosts, activeTab]); // Dépendances : se déclenche quand les posts sont chargés ET qu'on est sur l'onglet Posts
 
   // Préchargement des vignettes à la connexion
   useEffect(() => {

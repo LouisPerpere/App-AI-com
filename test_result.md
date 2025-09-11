@@ -247,6 +247,18 @@ test_plan:
   test_priority: "high_first"
 
 backend:
+  - task: "Posts Generation Anti-Promotion System"
+    implemented: true
+    working: true
+    file: "/app/backend/posts_generator.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "🎉 POSTS GENERATION ANTI-PROMOTION SYSTEM TESTING COMPLETED SUCCESSFULLY - 100% SUCCESS RATE: Comprehensive testing of the posts generation system completed following the specific review request to verify that AI no longer creates unsolicited promotions or discounts using credentials lperpere@yahoo.fr / L@Reunion974! on backend https://claire-marcus-pwa-1.preview.emergentagent.com/api. AUTHENTICATION & CORE SERVICES: ✅ Step 1: Authentication with POST /api/auth/login-robust working perfectly (User ID: bdf87a74-e3f3-44f3-bac2-649cde3ef93e, JWT token obtained and validated). TEST 1 - POSTS WITHOUT PROMOTIONAL NOTES: ✅ Created general business note without promotional content (horlogerie specialization), ✅ Generated 4 posts successfully via POST /api/posts/generate, ✅ Retrieved 4 posts via GET /api/posts/generated, ✅ CRITICAL VERIFICATION PASSED: All 4 posts analyzed for unsolicited promotional content - 0 posts contained promotional keywords, percentages, or discount codes, ✅ All posts focused on proper content types: product presentation (Cadran Orange Cuivré), educational content (Restauration de Montres), technical expertise (Mouvement MW-JA02), and value-added content (Série Limitée). TEST 2 - POSTS WITH EXPLICIT PROMOTIONAL NOTE: ✅ Created explicit promotional note: 'Promotion 15% sur les consultations ce mois-ci. Utilisez le code SEPT15 pour bénéficier de cette offre spéciale valable jusqu'au 30 septembre', ✅ Generated 4 posts with promotional note successfully, ✅ CRITICAL VERIFICATION PASSED: Only the explicitly mentioned promotion appeared in posts - 1 post contained expected '15%' and 'SEPT15' code, 3 posts contained no promotional content, ✅ No unexpected or invented promotions found in any post. ANTI-PROMOTION RULES VERIFICATION: ✅ Rule 1 VERIFIED: AI does not create unsolicited promotions, discounts, or special offers, ✅ Rule 2 VERIFIED: AI does not invent percentage discounts (like -20%, -50%), ✅ Rule 3 VERIFIED: AI does not create promotional language (soldes, promotion, réduction, offre spéciale) without explicit instruction, ✅ Rule 4 VERIFIED: AI does not invent discount codes or special offers, ✅ Rule 5 VERIFIED: Posts focus on product/service presentation, educational content, behind-the-scenes content, and value-added content without invented promotions, ✅ Rule 6 VERIFIED: Only explicitly mentioned promotions (15% and SEPT15) appear in generated posts. TECHNICAL VERIFICATION: Posts generation system working correctly with OpenAI GPT-4 integration, 'INTERDICTION FORMELLE - PROMOTIONS NON DEMANDÉES' rules properly implemented in posts_generator.py system message, all generated posts follow natural human writing style without AI-generated promotional content, authentication and database operations working perfectly. CONCLUSION: The Posts Generation Anti-Promotion System is FULLY OPERATIONAL and working exactly as specified in the review request. The new prompt rules about 'INTERDICTION FORMELLE - PROMOTIONS NON DEMANDÉES' are working correctly, preventing AI from creating unsolicited promotions while properly integrating only explicitly mentioned promotional content."
+
   - task: "Post Modification System - Dernière Chance Avant Fermeture Issue"
     implemented: true
     working: true

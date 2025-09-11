@@ -2677,39 +2677,30 @@ function MainApp() {
       );
 
       if (response.data.success) {
-        toast.success('Post modifié avec succès !');
+        toast.success('Post modifié avec succès ! Actualisation en cours...');
         
-        // Mettre à jour automatiquement le post modifié dans la liste
-        setGeneratedPosts(prevPosts => 
-          prevPosts.map(p => 
-            p.id === post.id 
-              ? {
-                  ...p,
-                  title: response.data.new_title || p.title,
-                  text: response.data.new_text || p.text,
-                  hashtags: response.data.new_hashtags || p.hashtags,
-                  modified_at: response.data.modified_at || new Date().toISOString()
-                }
-              : p
-          )
-        );
+        // Stocker l'ID du post modifié pour repositionnement
+        localStorage.setItem('modifiedPostId', post.id);
+        localStorage.setItem('returnToPostsTab', 'true');
         
-        // Mettre à jour aussi dans postsByMonth pour l'affichage
-        await loadGeneratedPosts();
-      }
-      
-      // Fermer l'aperçu et réinitialiser
-      setSelectedPost(null);
-      if (modificationRequestRef.current) {
-        modificationRequestRef.current.value = '';
+        // Fermer la modal avant le rechargement
+        setSelectedPost(null);
+        if (modificationRequestRef.current) {
+          modificationRequestRef.current.value = '';
+        }
+        
+        // Attendre un peu pour que l'utilisateur voie le toast, puis recharger
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       }
       
     } catch (error) {
       console.error('Error modifying post:', error);
       toast.error('Erreur lors de la modification du post');
-    } finally {
       setIsModifyingPost(false);
     }
+    // Note: setIsModifyingPost(false) n'est pas appelé en cas de succès car on recharge la page
   };
 
   // Render des posts par mois

@@ -3106,6 +3106,11 @@ function MainApp() {
 
       toast.success(`🖼️ ${response.data.message}`);
       
+      // Forcer le rechargement du cache des images
+      if (window.performance && window.performance.clearResourceTimings) {
+        window.performance.clearResourceTimings();
+      }
+      
       // Recharger les posts
       await loadGeneratedPosts();
       

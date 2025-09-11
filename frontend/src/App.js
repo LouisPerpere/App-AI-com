@@ -2448,6 +2448,50 @@ function MainApp() {
   }, []);
 
   // Lancer la génération manuelle des posts
+  // Fonction pour supprimer tous les posts générés
+  const handleDeleteAllPosts = async () => {
+    const confirmed = window.confirm(
+      "⚠️ Êtes-vous sûr de vouloir supprimer TOUS les posts générés ?\n\nCette action est irréversible et supprimera :\n- Tous les posts du calendrier\n- Tous les carrousels créés\n- Les marquages 'utilisé' sur vos images"
+    );
+    
+    if (!confirmed) return;
+    
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast.error('Vous devez être connecté pour supprimer les posts');
+      return;
+    }
+    
+    try {
+      setIsGeneratingPosts(true); // Réutiliser l'état de loading
+      
+      const response = await axios.delete(`${API}/posts/generated/all`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data) {
+        const deletedCount = response.data.deleted_posts || 0;
+        const resetMediaCount = response.data.reset_media_flags || 0;
+        
+        toast.success(`✅ Suppression réussie !\n${deletedCount} posts supprimés\n${resetMediaCount} images remises à "non utilisées"`);
+        
+        // Recharger les posts et contenus pour refléter les changements
+        setGeneratedPosts([]);
+        setPostsByMonth({});
+        await loadPendingContent(); // Reload pour voir les badges verts retirés
+        
+        console.log('✅ All posts deleted and UI refreshed');
+      }
+      
+    } catch (error) {
+      console.error('❌ Error deleting posts:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`Erreur lors de la suppression : ${errorMessage}`);
+    } finally {
+      setIsGeneratingPosts(false);
+    }
+  };
+
   const handleGeneratePosts = async () => {
     const token = localStorage.getItem('access_token');
     if (!token) {

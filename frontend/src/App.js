@@ -6739,7 +6739,7 @@ function MainApp() {
                         >
                           {isConnectingAccount ? (
                             <>
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin flex-shrink-0"></div>
                               <span>Connexion...</span>
                             </>
                           ) : (

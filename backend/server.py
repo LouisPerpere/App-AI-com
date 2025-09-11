@@ -124,7 +124,7 @@ async def log_errors(request, call_next):
         raise
 
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from starlette.requests import Request
 from starlette.exceptions import HTTPException as StarletteHTTPException
 

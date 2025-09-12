@@ -1,6 +1,6 @@
 """
-Website Analyzer avec GPT-5 - Version Améliorée
-Migrate from legacy OpenAI to emergentintegrations with GPT-5
+Website Analyzer avec GPT-4o - Version avec OpenAI direct
+Utilise la clé OpenAI personnelle et GPT-4o directement
 """
 
 from fastapi import APIRouter, HTTPException, Depends, status

@@ -509,6 +509,22 @@ async def analyze_multiple_pages(pages: list, base_url: str) -> dict:
         # Fallback to single page
         return extract_website_content_with_limits(base_url)
 
+@website_router.get("/super-unique-test-endpoint-12345")
+async def super_unique_test():
+    """Endpoint de test avec nom absolument unique"""
+    import datetime
+    
+    print(f"🔥🔥🔥 ENDPOINT UNIQUE APPELÉ À {datetime.datetime.now()}")
+    logging.error(f"🔥🔥🔥 ENDPOINT UNIQUE APPELÉ - FORCED ERROR LOG")
+    
+    return {
+        "status": "SUCCESS", 
+        "message": "Endpoint unique exécuté avec succès!",
+        "timestamp": datetime.datetime.now().isoformat(),
+        "test": "Notre code s'exécute bien!"
+    }
+
+
 @website_router.get("/debug-routes")
 async def debug_routes():
     """Debug endpoint pour lister toutes les routes disponibles"""

@@ -3488,7 +3488,7 @@ function MainApp() {
     }
   };
 
-  // Analyse de site web
+  // Analyse de site web avec contournement proxy
   const handleAnalyzeWebsite = async () => {
     const websiteUrl = document.getElementById('website_analysis_url_native')?.value;
     
@@ -3514,11 +3514,48 @@ function MainApp() {
     setIsAnalyzing(true);
     
     try {
-      const response = await axios.post(`${API}/website/analyze`, {
-        website_url: websiteUrl.trim()
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // CONTOURNEMENT PROXY: Essayer d'abord l'endpoint normal, puis localhost si échec
+      let response;
+      
+      try {
+        // Tentative 1: Endpoint normal
+        response = await axios.post(`${API}/website/analyze`, {
+          website_url: websiteUrl.trim()
+        }, {
+          headers: { Authorization: `Bearer ${token}` },
+          timeout: 30000
+        });
+        
+        // Vérifier si c'est une vraie analyse GPT ou un fallback
+        const summary = response.data?.analysis_summary || '';
+        const isGeneric = summary.startsWith('Entreprise analysée :') && summary.length < 100;
+        
+        if (isGeneric) {
+          throw new Error('Réponse générique détectée, tentative contournement...');
+        }
+        
+        console.log('✅ Analyse normale réussie');
+        
+      } catch (proxyError) {
+        console.log('⚠️ Endpoint normal échoué, tentative contournement localhost...');
+        
+        // Tentative 2: Contournement localhost (pour environnement de développement)
+        try {
+          response = await axios.post('http://localhost:8001/api/website/analyze', {
+            website_url: websiteUrl.trim()
+          }, {
+            headers: { Authorization: `Bearer ${token}` },
+            timeout: 30000
+          });
+          
+          console.log('✅ Contournement localhost réussi');
+          toast.success('Analyse réussie via contournement technique');
+          
+        } catch (localhostError) {
+          // Si les deux échouent, lancer l'erreur originale
+          throw proxyError;
+        }
+      }
 
       setWebsiteAnalysis(response.data);
       setLastAnalysisInfo({

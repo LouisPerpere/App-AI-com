@@ -34,22 +34,15 @@ if jwt_secret:
 else:
     print("❌ JWT_SECRET_KEY not found after loading .env")
 
-# Import emergentintegrations for GPT-5 (with fallback to OpenAI)
+# Import OpenAI directly (no emergentintegrations)
 try:
-    from emergentintegrations.llm.chat import LlmChat, UserMessage
-    EMERGENT_AVAILABLE = True
-    print("✅ emergentintegrations module imported successfully")
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
+    print("✅ OpenAI module imported successfully")
 except ImportError as e:
-    print(f"⚠️ emergentintegrations not available: {e}")
-    print("📌 Falling back to direct OpenAI integration")
-    EMERGENT_AVAILABLE = False
-    
-    # Fallback imports for OpenAI
-    try:
-        from openai import OpenAI
-    except Exception as oe:
-        print(f"⚠️ OpenAI import issue: {oe}")
-        OpenAI = None
+    print(f"❌ OpenAI not available: {e}")
+    OPENAI_AVAILABLE = False
+    OpenAI = None
 
 # Simple User model for compatibility
 class User:
@@ -191,7 +184,7 @@ def extract_website_content_with_limits(url):
         return {"error": (422, f"Impossible d'analyser le HTML de la page: {str(e)}")}
 
 async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
-    """Analyze website content using GPT via emergentintegrations (with OpenAI fallback)"""
+    """Analyze website content using GPT-4o via OpenAI direct integration"""
     if not API_KEY:
         logging.warning("No API key available, using fallback analysis")
         return create_fallback_analysis(content_data, website_url, "no_api_key")
@@ -246,21 +239,36 @@ async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
         IMPORTANT: Sois très généreux dans les détails. Plus c'est précis et détaillé, plus ce sera utile pour créer du contenu marketing pertinent.
         """
 
-        # Use Emergent integrations with GPT-4o (user requested ChatGPT-4o)
-        if EMERGENT_AVAILABLE and API_KEY:
-            print(f"🤖 Using GPT-4o via Emergent integrations for analysis")
-            chat = LlmChat(
-                api_key=API_KEY,
-                session_id=f"website_analysis_{uuid.uuid4()}",
-                system_message="Tu es un expert en analyse de contenu web et marketing digital. Tu analyses les sites web en profondeur pour créer du contenu social media. Réponds UNIQUEMENT en JSON valide et structuré."
-            ).with_model("openai", "gpt-4o")
+        # Use OpenAI directly for GPT-4o analysis
+        if OPENAI_AVAILABLE and API_KEY:
+            print(f"🤖 Using GPT-4o via OpenAI direct integration for analysis")
             
-            user_message = UserMessage(text=prompt)
-            raw = await chat.send_message(user_message)
-            print(f"🤖 GPT-4o raw response length: {len(raw) if raw else 0} characters")
+            try:
+                client = OpenAI(api_key=API_KEY)
+                response = client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[
+                        {
+                            "role": "system", 
+                            "content": "Tu es un expert en analyse de contenu web et marketing digital. Tu analyses les sites web en profondeur pour créer du contenu social media. Réponds UNIQUEMENT en JSON valide et structuré."
+                        },
+                        {
+                            "role": "user", 
+                            "content": prompt
+                        }
+                    ],
+                    temperature=0.7,
+                    max_tokens=2000
+                )
+                raw = response.choices[0].message.content
+                print(f"🤖 GPT-4o raw response length: {len(raw) if raw else 0} characters")
+                
+            except Exception as openai_error:
+                print(f"❌ OpenAI API error: {openai_error}")
+                return create_fallback_analysis(content_data, website_url, "openai_api_error")
             
         else:
-            print(f"❌ Falling back - EMERGENT_AVAILABLE: {EMERGENT_AVAILABLE}, API_KEY: {'Yes' if API_KEY else 'No'}")
+            print(f"❌ Falling back - OPENAI_AVAILABLE: {OPENAI_AVAILABLE}, API_KEY: {'Yes' if API_KEY else 'No'}")
             return create_fallback_analysis(content_data, website_url, "no_api_or_sdk")
 
         # Parse GPT-4o response

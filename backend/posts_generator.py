@@ -55,16 +55,25 @@ class PostsGenerator:
         self._init_llm()
     
     def _init_llm(self):
-        """Initialize OpenAI client for post generation"""
+        """Initialize LLM clients with backup system (OpenAI + Claude)"""
         try:
-            # Use personal OpenAI key as requested by user
+            # Importer le système de backup LLM
+            from llm_backup_system import llm_backup
+            self.llm_backup = llm_backup
+            
+            # Garder l'ancien client OpenAI pour compatibilité
             api_key = os.getenv('OPENAI_API_KEY')
             print(f"🔍 DEBUG: API key loaded: {api_key[:20] if api_key else 'None'}...")
             
-            if not api_key:
-                raise ValueError("No OpenAI API key found")
+            if api_key:
+                self.openai_client = OpenAI(api_key=api_key)
+                print("✅ OpenAI client initialized for posts generation")
+            else:
+                self.openai_client = None
+                print("⚠️ No OpenAI API key, using backup system only")
             
-            self.openai_client = OpenAI(api_key=api_key)
+            print("✅ LLM Backup System initialized for posts generation")
+            
             self.system_message = """Tu es un rédacteur expérimenté spécialisé dans les réseaux sociaux pour PME et artisans.
 
 RÈGLES STRICTES DE RÉDACTION :

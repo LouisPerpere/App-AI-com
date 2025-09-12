@@ -185,6 +185,8 @@ def extract_website_content_with_limits(url):
 
 async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
     """Analyze website content using GPT-4o via OpenAI direct integration"""
+    logging.info(f"🔥 analyze_with_gpt5 CALLED for {website_url}")
+    
     if not API_KEY:
         logging.warning("No API key available, using fallback analysis")
         return create_fallback_analysis(content_data, website_url, "no_api_key")

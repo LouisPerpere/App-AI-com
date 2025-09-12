@@ -1854,7 +1854,8 @@ async def instagram_oauth_callback(
         # Facebook Login for Business envoie les tokens directement
         if not access_token and not long_lived_token:
             print("❌ No access tokens received from Facebook Login for Business")
-            frontend_url = "https://claire-marcus.com/?instagram_error=missing_tokens"
+            frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
+            frontend_url = f"{frontend_base_url}/?instagram_error=missing_tokens"
             return RedirectResponse(url=frontend_url)
         
         # Utiliser le long-lived token si disponible, sinon le token court

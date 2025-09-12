@@ -4484,6 +4484,22 @@ function MainApp() {
                           />
                         </div>
                       </div>
+                      
+                      {/* Nouvelle section - Objectif de résultats */}
+                      <div className="mt-2">
+                        <EditableField
+                          fieldId="business_objective_edit"
+                          label="🎯 Objectif de résultats"
+                          defaultValue={businessProfile?.business_objective || 'equilibre'}
+                          isSelect={true}
+                          options={[
+                            { value: 'conversion', label: '💰 Conversion (+ de ventes)' },
+                            { value: 'communaute', label: '👥 Communauté (+ d\'abonnés)' },
+                            { value: 'equilibre', label: '⚖️ Équilibré (mix ventes/abonnés)' }
+                          ]}
+                          fieldType="business"
+                        />
+                      </div>
                     </div>
                     
                     {/* Section Contact et Marketing */}

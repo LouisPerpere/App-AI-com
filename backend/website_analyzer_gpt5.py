@@ -192,6 +192,8 @@ async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
         return create_fallback_analysis(content_data, website_url, "no_api_key")
 
     try:
+        raw = None  # Initialize raw to avoid NameError
+        
         # Construire le contenu détaillé avec informations des pages multiples
         main_content = f"""
         URL PRINCIPALE: {website_url}

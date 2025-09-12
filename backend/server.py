@@ -1944,7 +1944,8 @@ async def instagram_oauth_callback(
         print(f"✅ Instagram connection successful")
         
         # Rediriger vers le frontend avec succès
-        frontend_url = f"https://claire-marcus.com/?instagram_success=true&username={username}"
+        frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
+        frontend_url = f"{frontend_base_url}/?instagram_success=true&username={username}"
         return RedirectResponse(url=frontend_url)
         
     except Exception as e:

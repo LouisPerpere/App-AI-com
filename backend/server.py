@@ -2029,6 +2029,58 @@ async def disconnect_social_account(
 # Include the API router (auth endpoints need to stay without prefix)
 app.include_router(api_router)
 
+@app.post("/api/website-analysis-gpt4o")
+async def website_analysis_gpt4o_direct(
+    website_url: str,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Endpoint direct pour l'analyse GPT-4o dans le serveur principal"""
+    try:
+        # Import de notre fonction d'analyse
+        from website_analyzer_gpt5 import analyze_with_gpt4o, extract_website_content_with_limits
+        
+        # Normaliser l'URL
+        url = website_url.strip()
+        if not re.match(r'^https?://', url, re.IGNORECASE):
+            url = 'https://' + url
+            
+        print(f"🔥 ANALYSE GPT-4o DIRECTE dans server.py pour: {url}")
+        
+        # Extraction du contenu
+        content_data = extract_website_content_with_limits(url)
+        
+        if "error" in content_data:
+            # Données minimales si extraction échoue
+            content_data = {
+                'meta_title': f'Analyse de {url}',
+                'meta_description': 'Contenu non extrait',
+                'h1_tags': ['Site web'],
+                'h2_tags': [],
+                'text_content': f'Site web à analyser: {url}'
+            }
+        
+        # Appel direct à notre fonction GPT-4o
+        analysis_result = await analyze_with_gpt4o(content_data, url)
+        
+        return {
+            "status": "analyzed_direct",
+            "message": "Analyse GPT-4o directe réussie",
+            "website_url": url,
+            "direct_server_analysis": True,
+            **analysis_result
+        }
+        
+    except Exception as e:
+        print(f"❌ Erreur analyse directe: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erreur analyse directe: {str(e)}"
+        )
+
+
 # Route for Privacy Policy (direct link for Facebook)
 @app.get("/privacy-policy")
 async def serve_privacy_policy():

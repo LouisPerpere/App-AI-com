@@ -39,7 +39,7 @@ print(f"   - Claude Sonnet 4: {'✅' if CLAUDE_AVAILABLE and CLAUDE_API_KEY else
 
 
 class LLMBackupSystem:
-    """Système de backup LLM avec OpenAI primary et Claude secondary"""
+    """Système de backup LLM avec OpenAI + Claude et sélection intelligente selon objectifs"""
     
     def __init__(self):
         self.openai_client = None
@@ -64,6 +64,148 @@ class LLMBackupSystem:
                 print("✅ Claude Sonnet 4 client initialized")
             except Exception as e:
                 print(f"❌ Claude initialization error: {e}")
+    
+    def select_primary_llm(
+        self,
+        business_objective: str = "equilibre",
+        brand_tone: str = "professionnel", 
+        platform: str = "instagram"
+    ) -> tuple:
+        """
+        Sélectionne le LLM primaire et backup selon la stratégie business
+        
+        Args:
+            business_objective: "conversion", "communaute", "equilibre" 
+            brand_tone: ton de marque (si "storytelling" force Claude primary)
+            platform: "instagram", "facebook", "linkedin"
+            
+        Returns:
+            tuple: (primary_llm, backup_llm) où les valeurs sont "openai" ou "claude"
+        """
+        
+        print(f"🧠 LLM Selection - Objective: {business_objective}, Tone: {brand_tone}, Platform: {platform}")
+        
+        # Règle 1: Si storytelling → TOUJOURS Claude primary
+        if brand_tone == "storytelling":
+            print("📖 Storytelling detected → Claude PRIMARY, OpenAI backup")
+            return ("claude", "openai")
+        
+        # Règle 2: Objectif conversion → OpenAI primary
+        if business_objective == "conversion":
+            print("💰 Conversion objective → OpenAI PRIMARY, Claude backup")
+            return ("openai", "claude")
+        
+        # Règle 3: Objectif communauté → Claude primary  
+        if business_objective == "communaute":
+            print("👥 Community objective → Claude PRIMARY, OpenAI backup")
+            return ("claude", "openai")
+        
+        # Règle 4: Équilibré → Logique par plateforme
+        if business_objective == "equilibre":
+            if platform.lower() == "instagram":
+                print("📸 Instagram + Equilibré → OpenAI PRIMARY, Claude backup")
+                return ("openai", "claude")
+            elif platform.lower() in ["facebook", "linkedin"]:
+                print(f"🔗 {platform.title()} + Equilibré → Claude PRIMARY, OpenAI backup")
+                return ("claude", "openai")
+        
+        # Défaut: OpenAI primary
+        print("🔄 Default selection → OpenAI PRIMARY, Claude backup")
+        return ("openai", "claude")
+    
+    async def generate_completion_with_strategy(
+        self,
+        messages: List[Dict[str, str]],
+        business_objective: str = "equilibre",
+        brand_tone: str = "professionnel",
+        platform: str = "instagram",
+        model: str = "gpt-4o",
+        temperature: float = 0.7,
+        max_tokens: int = 2000,
+        system_message: Optional[str] = None
+    ) -> str:
+        """
+        Génère une completion avec sélection intelligente LLM selon la stratégie business
+        """
+        
+        # Sélectionner les LLM selon la stratégie
+        primary_llm, backup_llm = self.select_primary_llm(business_objective, brand_tone, platform)
+        
+        # Construire le prompt pour Claude à partir des messages OpenAI
+        if system_message:
+            full_prompt = f"System: {system_message}\n\n"
+        else:
+            full_prompt = ""
+        
+        for msg in messages:
+            role = msg.get("role", "user")
+            content = msg.get("content", "")
+            full_prompt += f"{role.capitalize()}: {content}\n\n"
+        
+        # Tentative 1: LLM primaire
+        try:
+            if primary_llm == "openai" and self.openai_client:
+                logging.info(f"🚀 Primary OpenAI (objective: {business_objective}, platform: {platform})...")
+                
+                response = self.openai_client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens
+                )
+                
+                result = response.choices[0].message.content
+                logging.info(f"✅ OpenAI primary réussi - {len(result)} chars")
+                return result
+                
+            elif primary_llm == "claude" and self.claude_chat:
+                logging.info(f"🧠 Primary Claude (objective: {business_objective}, platform: {platform})...")
+                
+                user_message = UserMessage(text=full_prompt.strip())
+                response = await self.claude_chat.send_message(user_message)
+                
+                logging.info(f"✅ Claude primary réussi - {len(response)} chars")
+                return response
+                
+        except Exception as primary_error:
+            logging.error(f"❌ Primary {primary_llm} échoué: {primary_error}")
+            print(f"⚠️ Primary {primary_llm} failed, trying {backup_llm} backup...")
+        
+        # Tentative 2: LLM backup
+        try:
+            if backup_llm == "openai" and self.openai_client:
+                logging.info(f"🔄 Backup OpenAI...")
+                
+                response = self.openai_client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens
+                )
+                
+                result = response.choices[0].message.content
+                logging.info(f"✅ OpenAI backup réussi - {len(result)} chars")
+                print("✅ OpenAI backup successful!")
+                return result
+                
+            elif backup_llm == "claude" and self.claude_chat:
+                logging.info(f"🔄 Backup Claude...")
+                
+                user_message = UserMessage(text=full_prompt.strip())
+                response = await self.claude_chat.send_message(user_message)
+                
+                logging.info(f"✅ Claude backup réussi - {len(response)} chars")
+                print("✅ Claude backup successful!")
+                return response
+                
+        except Exception as backup_error:
+            logging.error(f"❌ Backup {backup_llm} échoué: {backup_error}")
+            print(f"❌ Backup {backup_llm} failed: {str(backup_error)[:100]}...")
+        
+        # Si les deux échouent
+        error_msg = f"Both {primary_llm} (primary) and {backup_llm} (backup) failed"
+        logging.error(error_msg)
+        raise Exception(error_msg)
     
     async def generate_completion(
         self,

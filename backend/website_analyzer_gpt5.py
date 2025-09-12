@@ -241,12 +241,12 @@ async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
 
         # Use OpenAI directly for GPT-4o analysis
         if OPENAI_AVAILABLE and API_KEY:
-            print(f"🤖 Using GPT-4o via OpenAI direct integration for analysis")
-            print(f"🔍 Content to analyze: title='{content_data.get('meta_title', '')}', text_length={len(content_data.get('text_content', ''))}")
+            logging.info(f"🤖 Using GPT-4o via OpenAI direct integration for analysis")
+            logging.info(f"🔍 Content to analyze: title='{content_data.get('meta_title', '')}', text_length={len(content_data.get('text_content', ''))}")
             
             try:
                 client = OpenAI(api_key=API_KEY)
-                print(f"📡 Sending request to OpenAI GPT-4o...")
+                logging.info(f"📡 Sending request to OpenAI GPT-4o...")
                 response = client.chat.completions.create(
                     model="gpt-4o",
                     messages=[
@@ -263,15 +263,15 @@ async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
                     max_tokens=2000
                 )
                 raw = response.choices[0].message.content
-                print(f"🤖 GPT-4o raw response length: {len(raw) if raw else 0} characters")
-                print(f"🤖 GPT-4o raw response preview: {raw[:300] if raw else 'None'}...")
+                logging.info(f"🤖 GPT-4o raw response length: {len(raw) if raw else 0} characters")
+                logging.info(f"🤖 GPT-4o raw response preview: {raw[:300] if raw else 'None'}...")
                 
             except Exception as openai_error:
-                print(f"❌ OpenAI API error: {openai_error}")
+                logging.error(f"❌ OpenAI API error: {openai_error}")
                 return create_fallback_analysis(content_data, website_url, "openai_api_error")
             
         else:
-            print(f"❌ Falling back - OPENAI_AVAILABLE: {OPENAI_AVAILABLE}, API_KEY: {'Yes' if API_KEY else 'No'}")
+            logging.error(f"❌ Falling back - OPENAI_AVAILABLE: {OPENAI_AVAILABLE}, API_KEY: {'Yes' if API_KEY else 'No'}")
             return create_fallback_analysis(content_data, website_url, "no_api_or_sdk")
 
         # Parse GPT-4o response

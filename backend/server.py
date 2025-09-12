@@ -1950,7 +1950,8 @@ async def instagram_oauth_callback(
         
     except Exception as e:
         print(f"❌ Error in Instagram callback: {str(e)}")
-        frontend_url = "https://claire-marcus.com/?instagram_error=callback_error"
+        frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
+        frontend_url = f"{frontend_base_url}/?instagram_error=callback_error"
         return RedirectResponse(url=frontend_url)
 
 @api_router.post("/social/instagram/connect")

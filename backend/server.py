@@ -1818,7 +1818,7 @@ async def instagram_oauth_callback(
         # Configuration OAuth
         facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
         facebook_app_secret = os.environ.get('FACEBOOK_APP_SECRET')
-        redirect_uri = "https://claire-marcus-pwa-1.emergent.host/api/social/instagram/callback"
+        redirect_uri = "https://claire-marcus.com/auth/instagram/callback"
         
         if not facebook_app_id or not facebook_app_secret:
             print("❌ Missing Facebook app credentials")

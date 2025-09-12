@@ -183,9 +183,9 @@ def extract_website_content_with_limits(url):
     except Exception as e:
         return {"error": (422, f"Impossible d'analyser le HTML de la page: {str(e)}")}
 
-async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
+async def analyze_with_gpt4o(content_data: dict, website_url: str) -> dict:
     """Analyze website content using GPT-4o via OpenAI direct integration"""
-    logging.info(f"🔥 analyze_with_gpt5 CALLED for {website_url}")
+    logging.info(f"🔥 analyze_with_gpt4o CALLED for {website_url}")
     
     if not API_KEY:
         logging.warning("No API key available, using fallback analysis")
@@ -537,10 +537,10 @@ async def analyze_website_robust(
             return JSONResponse(status_code=code, content={"error": msg})
 
         # Step 3: Enhanced GPT analysis with multi-page context
-        logging.info(f"🚀 About to call analyze_with_gpt5 for {url}")
+        logging.info(f"🚀 About to call analyze_with_gpt4o for {url}")
         logging.info(f"🔍 Content data keys: {list(content_data.keys())}")
-        analysis_result = await analyze_with_gpt5(content_data, url)
-        logging.info(f"🎯 analyze_with_gpt5 completed, result type: {type(analysis_result)}")
+        analysis_result = await analyze_with_gpt4o(content_data, url)
+        logging.info(f"🎯 analyze_with_gpt4o completed, result type: {type(analysis_result)}")
 
         # Step 4: Prepare enhanced response with page details
         analysis_data = {

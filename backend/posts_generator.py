@@ -1033,26 +1033,46 @@ RÉPONSE ATTENDUE (JSON exact):
 }}
 """
             
-            # Send to OpenAI
-            print("🤖 DEBUG: Sending request to OpenAI with model gpt-4o")
+            # Send to LLM Backup System (OpenAI + Claude)
+            print("🤖 DEBUG: Sending request to LLM Backup System")
             print(f"🤖 DEBUG: Prompt length: {len(prompt)}")
             
-            response = self.openai_client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
+            try:
+                messages = [
                     {"role": "system", "content": self.system_message},
                     {"role": "user", "content": prompt}
-                ],
-                temperature=0.7,
-                max_tokens=1000
-            )
-            
-            response_text = response.choices[0].message.content
-            print(f"🤖 DEBUG: Raw response: '{response_text}'")
-            print(f"🤖 DEBUG: Response length: {len(response_text) if response_text else 0}")
-            
-            logger.info(f"   🤖 AI Response length: {len(response_text) if response_text else 0}")
-            logger.info(f"   🤖 AI Response preview: {response_text[:100] if response_text else 'Empty response'}")
+                ]
+                
+                response_text = await self.llm_backup.generate_completion(
+                    messages=messages,
+                    model="gpt-4o",
+                    temperature=0.7,
+                    max_tokens=1000
+                )
+                
+                print(f"🤖 DEBUG: LLM Backup response: '{response_text}'")
+                print(f"🤖 DEBUG: Response length: {len(response_text) if response_text else 0}")
+                
+                logger.info(f"   🤖 LLM Backup Response length: {len(response_text) if response_text else 0}")
+                logger.info(f"   🤖 LLM Response preview: {response_text[:100] if response_text else 'Empty response'}")
+                
+            except Exception as llm_error:
+                logger.error(f"❌ LLM backup failed for single post: {llm_error}")
+                # Fallback to direct OpenAI if backup system fails
+                if self.openai_client:
+                    logger.info("🔄 Falling back to direct OpenAI for single post...")
+                    response = self.openai_client.chat.completions.create(
+                        model="gpt-4o",
+                        messages=[
+                            {"role": "system", "content": self.system_message},
+                            {"role": "user", "content": prompt}
+                        ],
+                        temperature=0.7,
+                        max_tokens=1000
+                    )
+                    response_text = response.choices[0].message.content
+                else:
+                    raise llm_error
             
             # Parse response
             try:

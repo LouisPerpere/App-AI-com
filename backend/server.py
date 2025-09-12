@@ -1755,7 +1755,7 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
             raise HTTPException(status_code=500, detail="FACEBOOK_APP_ID non configuré")
         
         # URL de redirection après autorisation Instagram
-        redirect_uri = "https://claire-marcus-pwa-1.emergent.host/api/social/instagram/callback"
+        redirect_uri = "https://claire-marcus.com/auth/instagram/callback"
         
         # Générer un état sécurisé pour CSRF protection
         import secrets

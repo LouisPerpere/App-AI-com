@@ -2237,7 +2237,7 @@ async def serve_privacy_policy():
     
     return HTMLResponse(content=html_content)
 
-# Include GPT-5 Website Analyzer
+# Include GPT-4o Website Analyzer
 if WEBSITE_ANALYZER_AVAILABLE:
     app.include_router(website_router, prefix="/api")
     print("✅ GPT-5 Website Analyzer endpoints added")

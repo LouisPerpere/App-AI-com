@@ -1900,7 +1900,7 @@ async def instagram_oauth_callback(
         print(f"🎉 Instagram OAuth successful for @{username}")
         
         # Rediriger vers le frontend avec succès
-        frontend_url = f"https://claire-marcus-pwa-1.emergent.host/?instagram_success=true&username={username}"
+        frontend_url = f"https://claire-marcus.com/?instagram_success=true&username={username}"
         return RedirectResponse(url=frontend_url)
         
     except Exception as e:

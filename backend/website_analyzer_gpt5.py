@@ -662,10 +662,14 @@ async def test_claude_only(content_data: dict, website_url: str) -> dict:
 
 @website_router.post("/compare-posts")
 async def compare_posts_generation(
-    business_context: str,
+    request: dict,
     user_id: str = Depends(get_current_user_id_robust)
 ):
     """Compare OpenAI vs Claude pour la génération de posts"""
+    
+    business_context = request.get('business_context', '')
+    if not business_context:
+        raise HTTPException(status_code=400, detail="business_context is required")
     
     results = {
         "comparison_timestamp": datetime.now().isoformat(),

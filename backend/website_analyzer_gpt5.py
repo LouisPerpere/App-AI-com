@@ -668,7 +668,7 @@ async def compare_posts_generation(
     """Compare OpenAI vs Claude pour la génération de posts"""
     
     results = {
-        "comparison_timestamp": datetime.datetime.now().isoformat(),
+        "comparison_timestamp": datetime.now().isoformat(),
         "business_context": business_context
     }
     

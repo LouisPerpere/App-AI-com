@@ -509,6 +509,52 @@ async def analyze_multiple_pages(pages: list, base_url: str) -> dict:
         # Fallback to single page
         return extract_website_content_with_limits(base_url)
 
+@website_router.post("/debug-analyze")
+async def debug_analyze_forced(
+    request: WebsiteAnalysisRequest,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Debug endpoint qui force l'analyse GPT-4o directement"""
+    from fastapi.responses import JSONResponse
+    
+    url = (request.website_url or "").strip()
+    if not re.match(r'^https?://', url, re.IGNORECASE):
+        url = 'https://' + url
+    
+    print(f"🔥 DEBUG ENDPOINT - Forçant l'analyse GPT-4o pour: {url}")
+    
+    # Données de test basiques
+    content_data = {
+        'meta_title': 'Site de test',
+        'meta_description': 'Test description', 
+        'h1_tags': ['Titre principal'],
+        'h2_tags': ['Sous-titre'],
+        'text_content': f'Contenu du site web {url} pour test d\'analyse GPT-4o.'
+    }
+    
+    try:
+        # Appel DIRECT à analyze_with_gpt4o
+        print(f"🚀 Appel DIRECT à analyze_with_gpt4o...")
+        analysis_result = await analyze_with_gpt4o(content_data, url)
+        print(f"✅ Résultat reçu: {type(analysis_result)}")
+        
+        return {
+            "status": "debug_success",
+            "message": "Analyse GPT-4o forcée avec succès!",
+            "debug_mode": True,
+            **analysis_result
+        }
+        
+    except Exception as e:
+        print(f"❌ Erreur debug: {e}")
+        import traceback
+        traceback.print_exc()
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Debug error: {str(e)}"}
+        )
+
+
 @website_router.post("/analyze")
 async def analyze_website_robust(
     request: WebsiteAnalysisRequest,

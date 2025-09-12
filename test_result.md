@@ -253,7 +253,7 @@ frontend:
 
 test_plan:
   current_focus:
-    - "Instagram OAuth Configuration Diagnostic - Invalid Platform App Issue"
+    - "Instagram OAuth Configuration - Facebook Login for Business Migration"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

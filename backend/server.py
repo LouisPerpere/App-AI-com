@@ -1790,6 +1790,33 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         raise HTTPException(status_code=500, detail=f"Erreur génération URL Instagram: {str(e)}")
 
 
+@api_router.get("/auth/instagram/callback")
+async def instagram_oauth_redirect_handler(
+    code: str = None,
+    state: str = None,
+    error: str = None,
+    error_description: str = None
+):
+    """Handle Instagram OAuth callback and redirect to internal handler"""
+    # Redirect to the main handler with all parameters
+    from urllib.parse import urlencode
+    params = {}
+    if code:
+        params['code'] = code
+    if state:
+        params['state'] = state
+    if error:
+        params['error'] = error
+    if error_description:
+        params['error_description'] = error_description
+    
+    query_string = urlencode(params) if params else ""
+    redirect_url = f"/api/social/instagram/callback"
+    if query_string:
+        redirect_url += f"?{query_string}"
+    
+    return RedirectResponse(url=redirect_url, status_code=302)
+
 @api_router.get("/social/instagram/callback")
 async def instagram_oauth_callback(
     code: str = None,

@@ -479,6 +479,90 @@ async def force_real_gpt4o_analysis(
         )
 
 
+@website_router.post("/test-smart-generation")
+async def test_smart_generation(
+    request: dict,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Test de la nouvelle génération intelligente avec sélection LLM"""
+    
+    business_objective = request.get('business_objective', 'equilibre')
+    brand_tone = request.get('brand_tone', 'professionnel')
+    platform = request.get('platform', 'instagram')
+    business_context = request.get('business_context', 'My Own Watch - montres de luxe')
+    
+    try:
+        from llm_backup_system import llm_backup
+        
+        messages = [
+            {
+                "role": "system", 
+                "content": "Tu es un expert en réseaux sociaux. Crée du contenu authentique et engageant."
+            },
+            {
+                "role": "user",
+                "content": f"""Crée un post Instagram pour ce business. Format JSON exact:
+                {{
+                    "title": "Titre accrocheur",
+                    "text": "Texte du post (150 mots max, 2-3 emojis max)",
+                    "hashtags": ["hashtag1", "hashtag2", "hashtag3"]
+                }}
+                
+                Business: {business_context}
+                Objectif: {business_objective}
+                Ton: {brand_tone}
+                Plateforme: {platform}
+                """
+            }
+        ]
+        
+        # Génération avec stratégie intelligente
+        response_text = await llm_backup.generate_completion_with_strategy(
+            messages=messages,
+            business_objective=business_objective,
+            brand_tone=brand_tone, 
+            platform=platform,
+            max_tokens=500
+        )
+        
+        # Parse le JSON
+        import json
+        clean_response = response_text.strip()
+        if clean_response.startswith('```json'):
+            clean_response = clean_response[7:]
+        if clean_response.endswith('```'):
+            clean_response = clean_response[:-3]
+        
+        parsed_post = json.loads(clean_response.strip())
+        
+        # Informations sur la sélection LLM
+        primary_llm, backup_llm = llm_backup.select_primary_llm(business_objective, brand_tone, platform)
+        
+        return {
+            "status": "success",
+            "strategy": {
+                "business_objective": business_objective,
+                "brand_tone": brand_tone,
+                "platform": platform,
+                "primary_llm": primary_llm,
+                "backup_llm": backup_llm
+            },
+            "generated_post": parsed_post,
+            "raw_response": response_text
+        }
+        
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "strategy": {
+                "business_objective": business_objective,
+                "brand_tone": brand_tone,
+                "platform": platform
+            }
+        }
+
+
 @website_router.post("/compare-analysis")
 async def compare_openai_vs_claude(
     request: WebsiteAnalysisRequest,

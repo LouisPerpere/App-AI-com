@@ -581,12 +581,22 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         if business_profile.get('unique_selling_points'):
             context_parts.append(f"Points de différenciation: {business_profile['unique_selling_points']}")
         
-        # Goals and objectives
+        # Goals and objectives  
         if business_profile.get('business_goals'):
             context_parts.append(f"Objectifs business: {business_profile['business_goals']}")
             
         if business_profile.get('social_media_goals'):
             context_parts.append(f"Objectifs réseaux sociaux: {business_profile['social_media_goals']}")
+        
+        # NOUVEAUX CHAMPS - Objectif de résultats et stratégie LLM
+        if business_profile.get('business_objective'):
+            objective_labels = {
+                'conversion': '💰 Conversion (+ de ventes)',
+                'communaute': '👥 Communauté (+ d\'abonnés)', 
+                'equilibre': '⚖️ Équilibré (mix ventes/abonnés)'
+            }
+            objective_desc = objective_labels.get(business_profile['business_objective'], business_profile['business_objective'])
+            context_parts.append(f"🎯 OBJECTIF DE RÉSULTATS: {objective_desc}")
         
         # Posting preferences
         if business_profile.get('posting_frequency'):

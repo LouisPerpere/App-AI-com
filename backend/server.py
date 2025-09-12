@@ -1755,7 +1755,7 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
             raise HTTPException(status_code=500, detail="FACEBOOK_APP_ID non configuré")
         
         # URL de redirection après autorisation Instagram - doit pointer vers le backend API
-        redirect_uri = f"{os.environ.get('REACT_APP_BACKEND_URL', 'https://social-ai-manager-12.preview.emergentagent.com')}/api/social/instagram/callback"
+        redirect_uri = "https://social-ai-manager-12.preview.emergentagent.com/api/social/instagram/callback"
         
         # Générer un état sécurisé pour CSRF protection
         import secrets

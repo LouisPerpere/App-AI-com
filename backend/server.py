@@ -1807,7 +1807,7 @@ async def instagram_oauth_callback(
             print(f"❌ {error_msg}")
             
             # Rediriger vers le frontend avec erreur
-            frontend_url = "https://claire-marcus-pwa-1.emergent.host/?instagram_error=" + error
+            frontend_url = "https://claire-marcus.com/?instagram_error=" + error
             return RedirectResponse(url=frontend_url)
         
         if not code or not state:

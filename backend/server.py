@@ -1879,7 +1879,8 @@ async def instagram_oauth_callback(
         if pages_response.status_code != 200:
             error_detail = pages_response.text
             print(f"❌ Failed to fetch user pages: {pages_response.status_code} - {error_detail}")
-            frontend_url = "https://claire-marcus.com/?instagram_error=pages_fetch_failed"
+            frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
+            frontend_url = f"{frontend_base_url}/?instagram_error=pages_fetch_failed"
             return RedirectResponse(url=frontend_url)
         
         pages_data = pages_response.json()

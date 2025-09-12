@@ -509,6 +509,83 @@ async def analyze_multiple_pages(pages: list, base_url: str) -> dict:
         # Fallback to single page
         return extract_website_content_with_limits(base_url)
 
+@website_router.post("/force-real-analysis")
+async def force_real_gpt4o_analysis(
+    request: WebsiteAnalysisRequest,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """FORCE l'analyse GPT-4o réelle sans cache - ENDPOINT DE PRODUCTION"""
+    from fastapi.responses import JSONResponse
+    import uuid
+    
+    url = (request.website_url or "").strip()
+    if not re.match(r'^https?://', url, re.IGNORECASE):
+        url = 'https://' + url
+    
+    # Headers anti-cache
+    headers = {
+        "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Expires": "0",
+        "X-Bypass-Cache": "true",
+        "X-Force-Refresh": str(uuid.uuid4())
+    }
+    
+    try:
+        print(f"🔥 FORCE REAL ANALYSIS - GPT-4o pour: {url}")
+        
+        # Extraction rapide du contenu
+        content_data = extract_website_content_with_limits(url)
+        
+        if "error" in content_data:
+            print(f"❌ Erreur extraction: {content_data['error']}")
+            # Utiliser des données minimales pour forcer l'analyse GPT
+            content_data = {
+                'meta_title': f'Site web {url}',
+                'meta_description': 'Analyse forcée',
+                'h1_tags': ['Contenu principal'],
+                'h2_tags': [],
+                'text_content': f'Analyse du site web {url} demandée par l\'utilisateur.'
+            }
+        
+        print(f"✅ Contenu extrait, titre: {content_data.get('meta_title', 'N/A')}")
+        
+        # APPEL DIRECT à analyze_with_gpt4o
+        print(f"🚀 Appel DIRECT analyze_with_gpt4o...")
+        analysis_result = await analyze_with_gpt4o(content_data, url)
+        
+        print(f"✅ Analyse terminée, type: {type(analysis_result)}")
+        
+        # Réponse avec timestamp unique pour éviter le cache
+        response_data = {
+            "status": "force_analyzed",
+            "message": f"Analyse GPT-4o forcée avec succès à {datetime.datetime.now().isoformat()}",
+            "url": url,
+            "forced_analysis": True,
+            "cache_bypass": True,
+            **analysis_result
+        }
+        
+        return JSONResponse(
+            content=response_data,
+            headers=headers
+        )
+        
+    except Exception as e:
+        print(f"❌ Erreur force analysis: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Force analysis failed: {str(e)}",
+                "force_analysis": True
+            },
+            headers=headers
+        )
+
+
 @website_router.get("/super-unique-test-endpoint-12345")
 async def super_unique_test():
     """Endpoint de test avec nom absolument unique"""

@@ -1908,7 +1908,7 @@ async def instagram_oauth_callback(
         import traceback
         traceback.print_exc()
         
-        frontend_url = "https://claire-marcus-pwa-1.emergent.host/?instagram_error=callback_error"
+        frontend_url = "https://claire-marcus.com/?instagram_error=callback_error"
         return RedirectResponse(url=frontend_url)
 
 @api_router.post("/social/instagram/connect")

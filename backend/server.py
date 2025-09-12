@@ -68,7 +68,7 @@ try:
     WEBSITE_ANALYZER_AVAILABLE = True
     print("✅ GPT-4o Website Analyzer module loaded")
 except ImportError as e:
-    print(f"⚠️ GPT-5 Website Analyzer module not available: {e}")
+    print(f"⚠️ GPT-4o Website Analyzer module not available: {e}")
     WEBSITE_ANALYZER_AVAILABLE = False
 
 try:

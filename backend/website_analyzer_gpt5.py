@@ -74,12 +74,12 @@ def get_current_user_id(authorization: str = Header(None)) -> str:
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# API Key configuration - Use Emergent LLM Key for GPT-4o
-API_KEY = "sk-emergent-366877a7b4d4d03A1D"  # Emergent universal key
+# API Key configuration - Use personal OpenAI API key as requested
+API_KEY = os.environ.get('OPENAI_API_KEY')  # Use personal OpenAI key
 if API_KEY:
-    print(f"✅ Emergent LLM Key loaded successfully")
+    print(f"✅ Personal OpenAI API key loaded successfully")
 else:
-    print("❌ No Emergent LLM Key found")
+    print("❌ No OPENAI_API_KEY found - check .env configuration")
 
 if not API_KEY:
     logging.warning("No API key found for GPT analysis. Website analysis will use fallback mode.")

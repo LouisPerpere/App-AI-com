@@ -42,7 +42,7 @@ class DirectGPT5Tester:
     def test_gpt5_module_import(self):
         """Test GPT-5 module can be imported"""
         try:
-            from website_analyzer_gpt5 import extract_website_content, analyze_with_gpt5, create_fallback_analysis
+            from website_analyzer_gpt5 import extract_website_content, analyze_with_gpt4o, create_fallback_analysis
             print("   ✅ GPT-5 website analyzer module imported successfully")
             return True
         except ImportError as e:
@@ -100,7 +100,7 @@ class DirectGPT5Tester:
     def test_gpt5_analysis_function(self):
         """Test GPT-5 analysis function directly"""
         try:
-            from website_analyzer_gpt5 import analyze_with_gpt5
+            from website_analyzer_gpt5 import analyze_with_gpt4o
             
             # Create test content data
             content_data = {
@@ -112,7 +112,7 @@ class DirectGPT5Tester:
             }
             
             # Run analysis
-            result = asyncio.run(analyze_with_gpt5(content_data, "https://test-restaurant.com"))
+            result = asyncio.run(analyze_with_gpt4o(content_data, "https://test-restaurant.com"))
             
             # Check result structure
             required_fields = ['analysis_summary', 'key_topics', 'brand_tone', 'target_audience', 'main_services', 'content_suggestions']
@@ -207,7 +207,7 @@ class DirectGPT5Tester:
     def test_comprehensive_analysis_flow(self):
         """Test complete analysis flow with real website"""
         try:
-            from website_analyzer_gpt5 import extract_website_content, analyze_with_gpt5
+            from website_analyzer_gpt5 import extract_website_content, analyze_with_gpt4o
             
             print("   🌐 Testing complete flow with Google.com...")
             
@@ -216,7 +216,7 @@ class DirectGPT5Tester:
             print(f"   ✅ Content extracted from Google.com")
             
             # Step 2: Analyze with GPT-5
-            result = asyncio.run(analyze_with_gpt5(content_data, "https://google.com"))
+            result = asyncio.run(analyze_with_gpt4o(content_data, "https://google.com"))
             print(f"   ✅ Analysis completed")
             
             # Step 3: Verify quality

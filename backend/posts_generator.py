@@ -814,25 +814,47 @@ IMPORTANT: Varie intelligemment les content_type selon ce qui sera le plus effic
             logger.info(f"🤖 Sending GLOBAL request to OpenAI for {num_posts} posts")
             logger.info(f"🤖 Prompt length: {len(prompt)} characters")
             
-            response = self.openai_client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
+            # Utiliser le système de backup LLM (OpenAI + Claude)
+            try:
+                messages = [
                     {"role": "system", "content": self.system_message},
                     {"role": "user", "content": prompt}
-                ],
-                temperature=0.7,
-                max_tokens=4000  # Increased for multiple posts
-            )
-            
-            response_text = response.choices[0].message.content
-            logger.info(f"🤖 Global AI Response length: {len(response_text) if response_text else 0}")
-            
-            # CRITICAL DEBUG: Log the full ChatGPT response to see what it actually returns
-            logger.info("🔍 FULL CHATGPT RESPONSE:")
-            logger.info(f"{response_text}")
-            
-            # Parse the global response with content mapping
-            return self._parse_global_response(response_text, strategy, available_content, num_posts)
+                ]
+                
+                response_text = await self.llm_backup.generate_completion(
+                    messages=messages,
+                    model="gpt-4o",
+                    temperature=0.7,
+                    max_tokens=4000
+                )
+                
+                logger.info(f"🤖 LLM Backup Response length: {len(response_text) if response_text else 0}")
+                
+                # CRITICAL DEBUG: Log the full response to see what it actually returns
+                logger.info("🔍 FULL LLM RESPONSE:")
+                logger.info(f"{response_text}")
+                
+                # Parse the global response with content mapping
+                return self._parse_global_response(response_text, strategy, available_content, num_posts)
+                
+            except Exception as llm_error:
+                logger.error(f"❌ LLM backup failed: {llm_error}")
+                # Fallback to direct OpenAI if backup system fails
+                if self.openai_client:
+                    logger.info("🔄 Falling back to direct OpenAI...")
+                    response = self.openai_client.chat.completions.create(
+                        model="gpt-4o",
+                        messages=[
+                            {"role": "system", "content": self.system_message},
+                            {"role": "user", "content": prompt}
+                        ],
+                        temperature=0.7,
+                        max_tokens=4000
+                    )
+                    response_text = response.choices[0].message.content
+                    return self._parse_global_response(response_text, strategy, available_content, num_posts)
+                else:
+                    raise llm_error
             
         except Exception as e:
             logger.error(f"❌ Failed to generate posts calendar: {str(e)}")

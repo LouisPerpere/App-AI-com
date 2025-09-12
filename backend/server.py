@@ -1844,7 +1844,7 @@ async def instagram_oauth_callback(
         if token_response.status_code != 200:
             error_detail = token_response.text
             print(f"❌ Token exchange failed: {token_response.status_code} - {error_detail}")
-            frontend_url = "https://claire-marcus-pwa-1.emergent.host/?instagram_error=token_exchange_failed"
+            frontend_url = "https://claire-marcus.com/?instagram_error=token_exchange_failed"
             return RedirectResponse(url=frontend_url)
         
         token_info = token_response.json()

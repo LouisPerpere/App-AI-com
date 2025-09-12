@@ -724,8 +724,19 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
     async def _generate_posts_calendar(self, business_context: str, notes_context: str, 
                                      recent_posts_context: str, content_inventory: str,
                                      strategy: Dict, num_posts: int, source_data: Dict = None, available_content: Dict = None) -> List[PostContent]:
-        """Generate entire posts calendar with a single AI request"""
+        """Generate entire posts calendar with intelligent LLM selection based on business objectives"""
         try:
+            # Récupérer les informations du profil business pour la sélection LLM
+            business_profile = source_data.get("business_profile", {}) if source_data else {}
+            business_objective = business_profile.get("business_objective", "equilibre")
+            brand_tone = business_profile.get("brand_voice", "professionnel")
+            platform = "instagram"  # Par défaut Instagram, TODO: rendre dynamique selon la plateforme
+            
+            print(f"🎯 Post Generation Strategy:")
+            print(f"   - Business Objective: {business_objective}")
+            print(f"   - Brand Tone: {brand_tone}")
+            print(f"   - Platform: {platform}")
+            
             # Get website analysis context from source_data
             website_analysis = source_data.get("website_analysis", {}) if source_data else {}
             website_context = self._format_website_analysis_context(website_analysis)

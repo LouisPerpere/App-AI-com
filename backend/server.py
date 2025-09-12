@@ -1822,7 +1822,7 @@ async def instagram_oauth_callback(
         
         if not facebook_app_id or not facebook_app_secret:
             print("❌ Missing Facebook app credentials")
-            frontend_url = "https://claire-marcus-pwa-1.emergent.host/?instagram_error=config_error"
+            frontend_url = "https://claire-marcus.com/?instagram_error=config_error"
             return RedirectResponse(url=frontend_url)
         
         # Étape 1: Échanger le code contre un token court

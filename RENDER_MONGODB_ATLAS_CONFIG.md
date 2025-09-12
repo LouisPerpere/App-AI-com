@@ -45,7 +45,7 @@ Au lieu de:
 ### 5. TEST FINAL
 Une fois corrigé:
 ```
-curl https://insta-post-engine.preview.emergentagent.com/api/diag
+curl https://social-ai-manager-12.preview.emergentagent.com/api/diag
 ```
 
 Devrait retourner: `"database_connected": true`

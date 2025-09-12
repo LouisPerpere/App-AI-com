@@ -8,7 +8,7 @@ import requests
 import json
 from datetime import datetime
 
-BASE_URL = "https://insta-post-engine.preview.emergentagent.com"
+BASE_URL = "https://social-ai-manager-12.preview.emergentagent.com"
 
 def test_endpoint(path, method="GET", data=None):
     """Test a specific endpoint and return detailed info"""

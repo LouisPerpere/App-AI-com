@@ -19,7 +19,7 @@ SPECIFIC TEST SCENARIOS:
 ✅ **Test 6**: Test cleanup logic timing (only runs on 5+ of month)
 
 AUTHENTICATION: lperpere@yahoo.fr / L@Reunion974!
-BACKEND URL: https://insta-post-engine.preview.emergentagent.com/api
+BACKEND URL: https://social-ai-manager-12.preview.emergentagent.com/api
 
 EXPECTED BEHAVIOR:
 - Notes for January 2025 should be deleted on February 5, 2025 
@@ -38,7 +38,7 @@ from dateutil.relativedelta import relativedelta
 
 class PeriodicNotesCleanupTester:
     def __init__(self):
-        self.base_url = "https://insta-post-engine.preview.emergentagent.com/api"
+        self.base_url = "https://social-ai-manager-12.preview.emergentagent.com/api"
         self.session = requests.Session()
         self.access_token = None
         self.user_id = None

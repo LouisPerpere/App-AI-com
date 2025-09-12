@@ -8,7 +8,7 @@ import json
 import sys
 
 class BusinessProfileEditingTester:
-    def __init__(self, base_url="https://insta-post-engine.preview.emergentagent.com"):
+    def __init__(self, base_url="https://social-ai-manager-12.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.access_token = None

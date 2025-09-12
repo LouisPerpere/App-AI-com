@@ -22,7 +22,7 @@ TESTING STRATEGY:
 4. Test edge cases and monthly note preservation
 
 AUTHENTICATION: lperpere@yahoo.fr / L@Reunion974!
-BACKEND URL: https://insta-post-engine.preview.emergentagent.com/api
+BACKEND URL: https://social-ai-manager-12.preview.emergentagent.com/api
 """
 
 import requests
@@ -33,7 +33,7 @@ from dateutil.relativedelta import relativedelta
 
 class AccurateCleanupTester:
     def __init__(self):
-        self.base_url = "https://insta-post-engine.preview.emergentagent.com/api"
+        self.base_url = "https://social-ai-manager-12.preview.emergentagent.com/api"
         self.session = requests.Session()
         self.access_token = None
         self.user_id = None

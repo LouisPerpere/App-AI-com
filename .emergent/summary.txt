@@ -1,54 +1,75 @@
 <analysis>
-The AI engineer successfully guided the Claire et Marcus PWA from a functional MVP to a more robust and feature-rich application. The trajectory shows a methodical approach, starting with critical bug fixes like the Écran blanc and auto-scroll issues, and progressively implementing new features. Key achievements include enhancing AI post generation with strict note prioritization and anti-promotion rules, improving image handling with cache fixes, and developing a comprehensive Social tab for Instagram integration. The engineer adeptly diagnosed and resolved complex frontend/backend synchronization problems, including database discrepancies between preview and production environments, culminating in a full data migration. The work demonstrates strong debugging skills and a responsive, user-centric development cycle.
+This trajectory details a complex development process, moving the Claire et Marcus PWA forward with significant feature additions and extensive debugging. The AI engineer tackled persistent frontend authentication issues, a full data migration, critical fixes to AI-driven website analysis (including transitioning from an emergent LLM key to a personal OpenAI key and correcting model references), and the successful implementation of a Claude Sonnet 4 LLM backup system. A sophisticated intelligent LLM selection strategy, based on business objectives and platform, was also integrated. A major challenge encountered was an external proxy/cache hindering the deployment of new backend features, which required an immediate frontend workaround. The work culminated in diagnosing a new Invalid platform app error for Instagram integration, indicating a continued, albeit more specific, challenge in social media connectivity.
 </analysis>
+
 <product_requirements>
-The Claire et Marcus PWA automates social media for small businesses. Users need to generate Instagram calendars with visuals, text, and scheduling, based on business profiles, website analysis, uploads, and notes. Content should be balanced, audience-prioritized, and free of AI-generated language/excessive emojis, with post count adapting to . Users must modify generated posts, attach/modify visuals (from library, Pixabay, direct upload) with usage indicators, and handle carousels. Content organization requires monthly collapsible sections with improved UI/UX. The backend must handle  for images, persistently save business profiles, and support full post deletion. Interactive feedback includes spinners, progress overlays, and automatic page reload/scroll-to-modified-post. Recent additions include an Instagram integration roadmap (connect account, auto-publish, analytics), refined Coordonnées and Notes explanations, and a Privacy Policy page.
+The Claire et Marcus PWA aims to automate social media for small businesses. Users generate Instagram calendars with visuals, text, and scheduling, drawing from business profiles, website analysis, uploads, and notes. Content should be balanced, audience-prioritized, and free of AI-generated language/excessive emojis, with post count adapting to . Users must modify posts, attach/modify visuals (library, Pixabay, upload) with usage indicators, and handle carousels. Content organization features monthly collapsible sections with improved UI/UX. The backend uses  for images, saves business profiles persistently, and supports full post deletion. Interactive feedback includes spinners, progress overlays, and automatic page reload/scroll-to-modified-post. Recent additions include an Instagram integration roadmap (connect account, auto-publish, analytics), refined Coordonnées and Notes explanations, and a Privacy Policy page. The user explicitly requested an Instagram integration fix, migration of photos from a preview database to production, and switching to a personal OpenAI GPT-4o key while removing the emergent key. Later, a Claude Sonnet 4 backup for LLM functionality was requested, along with an intelligent LLM selection strategy based on Objectif de résultats (conversion, community, balanced) and Ton de marque (storytelling).
 </product_requirements>
+
 <key_technical_concepts>
 -   **Full-stack Development**: React.js (Frontend), FastAPI (Backend), MongoDB/GridFS (Database).
 -   **State Management**: , ,  in React.
 -   **API Integration**: RESTful endpoints,  (frontend).
--   **LLM Integration**: OpenAI GPT (via ) for content generation.
--   **Data Handling**: MongoDB UUIDs, ISO strings for DateTime.
--   **UI/UX**: Tailwind CSS, Lucide React icons, Responsive design.
--   **OAuth**: Facebook/Instagram Graph API for social media integration.
+-   **LLM Integration**: OpenAI GPT-4o, Claude Sonnet 4 (via ).
+-   **Authentication**: JWT, OAuth (Instagram Graph API).
+-   **Data Handling**: MongoDB UUIDs, ISO strings for DateTime, data migration.
+-   **Deployment**: Kubernetes Ingress rules, Nginx/Google proxy challenges.
 </key_technical_concepts>
+
 <code_architecture>
 
 -   ****:
     -   **Importance**: Main FastAPI application.
-    -   **Changes Made**:  now returns . Added Pydantic models for social connections (, ). Added new API endpoints (, , ) for social media integration. Added a  endpoint to serve the privacy policy HTML.
+    -   **Changes Made**: Added Pydantic models for social connections and Instagram. Added API endpoints for social media (, , ). Included new comparison endpoints (, ) and a temporary  for testing LLM selection logic. A temporary  was also added.
 -   ****:
     -   **Importance**: Handles AI-driven social media post generation.
-    -   **Changes Made**: Strengthened prompts (lines 682-685, 950-953, global message) to strictly prioritize monthly/general notes and forbid AI-invented promotions. Fixed  to preserve  instead of forcing draft (line 1160).
+    -   **Changes Made**: Modified to use the new  for all LLM calls, implementing  for intelligent LLM selection based on business profile, objective, tone, and platform. Updated  to include  and  from the business profile.
+-   ****:
+    -   **Importance**: Handles AI-driven website analysis.
+    -   **Changes Made**: Removed hardcoded  and  import. Configured to use  directly for GPT-4o. All references from  to  were updated. Initialized  to prevent . Integrated  for primary/backup LLM calls.
+-   ****:
+    -   **Importance**: This was the old  which was conflicting with .
+    -   **Changes Made**: Renamed from  to  to resolve routing conflicts.
+-   ** (NEW)**:
+    -   **Importance**: New module to abstract LLM calls, providing a unified interface with automatic fallback from OpenAI GPT-4o to Claude Sonnet 4.
+    -   **Changes Made**: Created with  class to manage  and  initialization. Implements  for standard LLM calls and  for intelligent LLM selection based on , , and .
 -   ****:
     -   **Importance**: Central React component.
-    -   **Changes Made**: Debugged and rearranged variable declarations (, , ) to fix uninitialized variable error. Improved auto-scroll logic with separate  for tab navigation and scroll after posts load. Updated  to leverage . Added timestamp () to image  and  to  to fix image caching issues. Updated Coordonnées label to Infos contact pour vos posts in business profile. Added structured examples to Notes page, including Promotions. Modified header animation properties (, , , ). Implemented Social tab UI with states (, ), functions (, ), and integrated Lucide React icons (, , , ). Modified Instagram OAuth URL for Facebook Graph v18.0 (temporarily demo mode). Integrated  component, managing its display state and linking from Entreprise tab.
--   ****:
-    -   **Importance**: Custom CSS.
-    -   **Changes Made**: Added  for post modification visual feedback. Adjusted  animation for discretion and centering. Added responsive CSS for notes (, , ) and social tab buttons ( on mobile) to address overflow and layout issues (some aggressive changes were reverted).
+    -   **Changes Made**: Frontend  URL corrected from preview to production. Corrected environment variable access from  to . Implemented Instagram OAuth UI components. Implemented a temporary workaround for website analysis by conditionally using a local backend URL (localhost) if the external URL response is generic, to bypass proxy/caching issues. Added a new dropdown for Objectif de résultats (Conversion, Communauté, Équilibré) and an option Storytelling to Ton de marque in the business profile form.
 -   ****:
     -   **Importance**: Handles user authentication.
-    -   **Changes Made**: Debugged login button event handling; removed conflicting  and added debug logs.
--   ** (NEW)**:
-    -   **Importance**: New component to display the application's privacy policy.
-    -   **Changes Made**: Created with detailed RGPD-compliant text and basic styling.
+    -   **Changes Made**: Corrected environment variable access from  to . Fixed an issue where  was called without parameters while  in  expected .  is now correctly passed. Debugged login button event handling.
 -   ****:
     -   **Importance**: Environment variables.
-    -   **Changes Made**: Updated  and  with user-provided keys.
+    -   **Changes Made**:  was added with the user-provided key.
+-   ** (NEW temporary script)**:
+    -   **Importance**: A one-off script created to migrate user photo data from a preview environment user ID to a production user ID.
+    -   **Changes Made**: Created to connect to MongoDB, find photos associated with the old user ID, update their  and references, and save them to the new user ID.
+-   ** (NEW temporary script)**:
+    -   **Importance**: A simple HTML file for isolating and testing frontend authentication logic outside the main React application.
+    -   **Changes Made**: Created to verify direct API calls for login and health check.
 </code_architecture>
+
 <pending_tasks>
+-   Diagnose and fix the Invalid platform app error for Instagram connection.
+-   Resolve the persistent frontend authentication issues that prevent users from logging into the main dashboard and subsequently testing other features via the UI.
 -   Diagnose and fix the carousel deletion issue.
 -   Diagnose and fix the recurring photo modification issue (blue question mark).
--   Replace the demo mode for Instagram connection with the actual OAuth flow (requires user to complete Facebook Developers Console setup).
 -   Implement the Valider (Validate) button to trigger automatic post publication on Instagram.
 -   Implement the scheduling system for automated publications.
 -   Implement the analytics dashboard for published posts.
--   Address the website analysis remaining issues (poor analysis quality, model verification, library import).
+-   Address the website analysis remaining issues (library import - though the core analysis logic is now fixed).
+-   Work with the infrastructure team to resolve the external proxy/cache issue that prevents new backend endpoints from being accessible via the public URL.
 </pending_tasks>
+
 <current_work>
-Immediately before this summary request, the AI engineer successfully completed a critical data migration. The production database () was found to be empty for the user , while a separate preview environment held all the user's data (My Own Watch business profile, library, notes, posts). The engineer diagnosed that the production environment was pointing to an empty or new user ID. To resolve this, a comprehensive data migration process was executed to transfer all existing user data (business profile, 19 library items, 2 notes, 4 generated posts) from the preview environment's user ID () to the production environment's user ID (), transforming all references accordingly. Post-migration, the frontend was verified via screenshot, confirming that all My Own Watch data is now correctly displayed on . The connection for  is fully functional with all data restored.
+Immediately before this summary request, the AI engineer was confronted with a user report regarding the Instagram social connect button. When clicked, it redirects to , showing an error message Requête non valide: Les paramètres de demandes ne sont pas valides : Invalid platform app. This indicates a specific configuration error related to the Instagram OAuth setup or the parameters being sent during the authorization request.
+
+This issue blocks further progress on the Instagram integration roadmap, including post publication and analytics. It is crucial to note that while the Instagram OAuth endpoints were implemented in the backend and frontend, the underlying general frontend authentication problem has been a persistent blocker throughout the trajectory, preventing a full end-to-end test of this feature through the UI. The Invalid platform app error suggests a problem deeper than just the general login flow, likely specific to the Instagram Graph API application settings or the / parameters used.
+
+The AI engineer has just begun diagnosing this specific error by Vérification de la configuration OAuth actuelle.
 </current_work>
+
 <optional_next_step>
-Diagnose and fix the Analyse de site web quality issue and verify the GPT model used for analysis. Continue en français. Vérifie qu'on utilise bien les clés API personnelles et non la clé emergent. Supprime la clé universelle emergent du code. Vérifie pourquoi le bouton connecter Instagram ne fait toujours aucune action
+Diagnose the Invalid platform app error by verifying Instagram OAuth configuration and parameters.
 </optional_next_step>

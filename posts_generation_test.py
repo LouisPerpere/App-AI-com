@@ -12,7 +12,7 @@ This script tests the post generation system as requested:
 6. Business profile + notes integration
 
 Using credentials: lperpere@yahoo.fr / L@Reunion974!
-Backend URL: https://insta-post-engine.preview.emergentagent.com/api
+Backend URL: https://social-ai-manager-12.preview.emergentagent.com/api
 """
 
 import requests
@@ -22,7 +22,7 @@ from datetime import datetime
 from typing import Dict, List, Any
 
 # Configuration
-BACKEND_URL = "https://insta-post-engine.preview.emergentagent.com/api"
+BACKEND_URL = "https://social-ai-manager-12.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 

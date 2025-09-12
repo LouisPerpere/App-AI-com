@@ -15,7 +15,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://insta-post-engine.preview.emergentagent.com"
+BACKEND_URL = "https://social-ai-manager-12.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials

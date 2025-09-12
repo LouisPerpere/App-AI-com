@@ -242,9 +242,11 @@ async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
         # Use OpenAI directly for GPT-4o analysis
         if OPENAI_AVAILABLE and API_KEY:
             print(f"🤖 Using GPT-4o via OpenAI direct integration for analysis")
+            print(f"🔍 Content to analyze: title='{content_data.get('meta_title', '')}', text_length={len(content_data.get('text_content', ''))}")
             
             try:
                 client = OpenAI(api_key=API_KEY)
+                print(f"📡 Sending request to OpenAI GPT-4o...")
                 response = client.chat.completions.create(
                     model="gpt-4o",
                     messages=[
@@ -262,6 +264,7 @@ async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
                 )
                 raw = response.choices[0].message.content
                 print(f"🤖 GPT-4o raw response length: {len(raw) if raw else 0} characters")
+                print(f"🤖 GPT-4o raw response preview: {raw[:300] if raw else 'None'}...")
                 
             except Exception as openai_error:
                 print(f"❌ OpenAI API error: {openai_error}")

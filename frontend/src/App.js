@@ -3541,7 +3541,7 @@ function MainApp() {
         
         // Tentative 2: Contournement localhost (pour environnement de développement)
         try {
-          response = await axios.post('http://localhost:8001/api/website/analyze', {
+          response = await axios.post(`${API}/website/analyze`, {
             website_url: websiteUrl.trim()
           }, {
             headers: { Authorization: `Bearer ${token}` },

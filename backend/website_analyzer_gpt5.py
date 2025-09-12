@@ -535,7 +535,10 @@ async def analyze_website_robust(
             return JSONResponse(status_code=code, content={"error": msg})
 
         # Step 3: Enhanced GPT analysis with multi-page context
+        logging.info(f"🚀 About to call analyze_with_gpt5 for {url}")
+        logging.info(f"🔍 Content data keys: {list(content_data.keys())}")
         analysis_result = await analyze_with_gpt5(content_data, url)
+        logging.info(f"🎯 analyze_with_gpt5 completed, result type: {type(analysis_result)}")
 
         # Step 4: Prepare enhanced response with page details
         analysis_data = {

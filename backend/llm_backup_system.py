@@ -216,61 +216,19 @@ class LLMBackupSystem:
         system_message: Optional[str] = None
     ) -> str:
         """
-        Génère une completion avec backup automatique
+        Génère une completion avec backup automatique (mode compatible ancien système)
         Essaie OpenAI d'abord, puis Claude en cas d'échec
         """
-        
-        # Construire le prompt pour Claude à partir des messages OpenAI
-        if system_message:
-            full_prompt = f"System: {system_message}\n\n"
-        else:
-            full_prompt = ""
-        
-        for msg in messages:
-            role = msg.get("role", "user")
-            content = msg.get("content", "")
-            full_prompt += f"{role.capitalize()}: {content}\n\n"
-        
-        # Tentative 1: OpenAI GPT-4o
-        if self.openai_client:
-            try:
-                logging.info("🚀 Tentative OpenAI GPT-4o...")
-                
-                response = self.openai_client.chat.completions.create(
-                    model=model,
-                    messages=messages,
-                    temperature=temperature,
-                    max_tokens=max_tokens
-                )
-                
-                result = response.choices[0].message.content
-                logging.info(f"✅ OpenAI réussi - {len(result)} chars")
-                return result
-                
-            except Exception as openai_error:
-                logging.error(f"❌ OpenAI échoué: {openai_error}")
-                print(f"⚠️ OpenAI failed, trying Claude backup: {str(openai_error)[:100]}...")
-        
-        # Tentative 2: Claude Sonnet 4 (backup)
-        if self.claude_chat:
-            try:
-                logging.info("🔄 Backup Claude Sonnet 4...")
-                
-                user_message = UserMessage(text=full_prompt.strip())
-                response = await self.claude_chat.send_message(user_message)
-                
-                logging.info(f"✅ Claude backup réussi - {len(response)} chars")
-                print("✅ Claude backup successful!")
-                return response
-                
-            except Exception as claude_error:
-                logging.error(f"❌ Claude backup échoué: {claude_error}")
-                print(f"❌ Claude backup failed: {str(claude_error)[:100]}...")
-        
-        # Si les deux échouent
-        error_msg = "Both OpenAI and Claude failed"
-        logging.error(error_msg)
-        raise Exception(error_msg)
+        return await self.generate_completion_with_strategy(
+            messages=messages,
+            business_objective="equilibre",  # Défaut compatible
+            brand_tone="professionnel",
+            platform="instagram",
+            model=model,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            system_message=system_message
+        )
     
     async def analyze_website_content(
         self,

@@ -1901,7 +1901,8 @@ async def instagram_oauth_callback(
         
         if not instagram_page:
             print("❌ No Instagram Business account found connected to Facebook pages")
-            frontend_url = "https://claire-marcus.com/?instagram_error=no_instagram_account"
+            frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
+            frontend_url = f"{frontend_base_url}/?instagram_error=no_instagram_account"
             return RedirectResponse(url=frontend_url)
         
         page_id = instagram_page["id"]

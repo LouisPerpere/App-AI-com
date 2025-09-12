@@ -523,6 +523,7 @@ async def analyze_website_robust(
         url = 'https://' + url
 
     print(f"🔍 Starting enhanced website analysis: {url} for user: {user_id}")
+    logging.error(f"🔍 FORCED ERROR LOG - Starting analysis: {url} for user: {user_id}")
 
     try:
         # Step 1: Discover important pages

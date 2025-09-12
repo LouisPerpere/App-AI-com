@@ -2240,7 +2240,7 @@ async def serve_privacy_policy():
 # Include GPT-4o Website Analyzer
 if WEBSITE_ANALYZER_AVAILABLE:
     app.include_router(website_router, prefix="/api")
-    print("✅ GPT-5 Website Analyzer endpoints added")
+    print("✅ GPT-4o Website Analyzer endpoints added")
 
 # Include thumbnails router
 if THUMBNAILS_AVAILABLE:

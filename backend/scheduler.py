@@ -71,7 +71,7 @@ async def check_and_update_website_analyses():
                 logger.info(f"🔄 Auto-refreshing analysis for user {user_id}, website {website_url}")
                 
                 # Import and call the website analysis function
-                from website_analyzer_gpt5 import analyze_multiple_pages, discover_website_pages, analyze_with_gpt5
+                from website_analyzer_gpt5 import analyze_multiple_pages, discover_website_pages, analyze_with_gpt4o
                 
                 # Discover and analyze pages
                 important_pages = discover_website_pages(website_url, max_pages=5)
@@ -79,7 +79,7 @@ async def check_and_update_website_analyses():
                 
                 if "error" not in content_data:
                     # Analyze with GPT
-                    analysis_result = await analyze_with_gpt5(content_data, website_url)
+                    analysis_result = await analyze_with_gpt4o(content_data, website_url)
                     
                     # Update the analysis in database
                     updated_analysis = {

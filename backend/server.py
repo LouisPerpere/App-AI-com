@@ -1888,7 +1888,8 @@ async def instagram_oauth_callback(
         
         if not pages:
             print("❌ No Facebook pages found")
-            frontend_url = "https://claire-marcus.com/?instagram_error=no_pages_found"
+            frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
+            frontend_url = f"{frontend_base_url}/?instagram_error=no_pages_found"
             return RedirectResponse(url=frontend_url)
         
         # Trouver une page avec un compte Instagram Business connecté

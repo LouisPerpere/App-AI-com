@@ -183,139 +183,32 @@ def extract_website_content_with_limits(url):
     except Exception as e:
         return {"error": (422, f"Impossible d'analyser le HTML de la page: {str(e)}")}
 
-async def analyze_with_gpt4o(content_data: dict, website_url: str) -> dict:
-    """Analyze website content using GPT-4o via OpenAI direct integration"""
-    logging.info(f"🔥 analyze_with_gpt4o CALLED for {website_url}")
+async def analyze_with_gpt4o_and_claude_backup(content_data: dict, website_url: str) -> dict:
+    """Analyze website content using GPT-4o with Claude Sonnet 4 backup"""
+    logging.info(f"🔥 analyze_with_gpt4o_and_claude_backup CALLED for {website_url}")
     
-    if not API_KEY:
-        logging.warning("No API key available, using fallback analysis")
-        return create_fallback_analysis(content_data, website_url, "no_api_key")
-
     try:
-        raw = None  # Initialize raw to avoid NameError
+        # Utiliser le système de backup LLM unifié
+        from llm_backup_system import llm_backup
         
-        # Construire le contenu détaillé avec informations des pages multiples
-        main_content = f"""
-        URL PRINCIPALE: {website_url}
-        TITRE PRINCIPAL: {content_data.get('title', 'N/A')}
-        META DESCRIPTION: {content_data.get('description', 'N/A')}
+        result = await llm_backup.analyze_website_content(content_data, website_url)
+        logging.info(f"✅ LLM backup analysis completed for {website_url}")
         
-        PAGES ANALYSÉES: {len(content_data.get('pages_analyzed', []))} pages
-        {chr(10).join([f"- {page.get('url', '')}: {page.get('title', 'Sans titre')}" for page in content_data.get('pages_analyzed', [])[:5]])}
+        return result
         
-        TITRES H1 COLLECTÉS: {', '.join(content_data.get('h1_tags', [])[:15])}
-        TITRES H2 COLLECTÉS: {', '.join(content_data.get('h2_tags', [])[:20])}
-        
-        CONTENU TEXTUEL COMPLET (multi-pages):
-        {content_data.get('text_content', '')[:4000]}
-        """
-        
-        prompt = f"""
-        Tu es un expert en analyse de sites web et marketing digital. Analyse ce site web de manière TRÈS DÉTAILLÉE pour aider à la génération de posts sur les réseaux sociaux.
-
-        CONTENU À ANALYSER:
-        {main_content}
-
-        MISSION: Créer une analyse marketing approfondie et actionnable. Sois très spécifique et détaillé dans chaque section.
-
-        IMPORTANT: 
-        - NE PAS utiliser l'extension du domaine (.fr, .com, .net, etc.) comme partie du nom de l'entreprise
-        - Identifier le vrai nom commercial de l'entreprise à partir du contenu, titres, et textes du site
-        - Si le nom n'est pas clair, utiliser une description générique plutôt que l'URL
-
-        Réponds UNIQUEMENT avec ce JSON (sans ``` ni markdown):
-        {{
-            "analysis_summary": "Résumé détaillé et complet de l'entreprise, ses activités, son positionnement et sa proposition de valeur unique. 5-8 phrases complètes qui donnent une vision claire de ce que fait cette entreprise et comment elle se différencie. Inclure le secteur d'activité, la localisation si mentionnée, et les points forts identifiés.",
-            
-            "key_topics": ["10 à 15 mots-clés et expressions stratégiques identifiés sur le site, incluant secteur d'activité, services spécifiques, valeurs de l'entreprise, expertises techniques, zone géographique"],
-            
-            "brand_tone": "Choisir parmi: professionnel, décontracté, créatif, technique, luxueux, convivial, artisanal, innovant, éco-responsable, dynamique",
-            
-            "target_audience": "Description précise et détaillée de l'audience cible: âge, profil socio-professionnel, besoins spécifiques, centres d'intérêt, localisation géographique, niveau de revenus estimé, problématiques qu'ils cherchent à résoudre. Minimum 4-5 phrases avec des détails concrets.",
-            
-            "main_services": ["Liste complète et détaillée de tous les services/produits identifiés. Pour chaque service, être spécifique: ne pas juste dire 'conseil' mais 'conseil en transformation digitale pour PME'. Minimum 5-8 services/produits détaillés"],
-            
-            "content_suggestions": [
-                "10 suggestions concrètes et spécifiques de posts pour les réseaux sociaux, adaptées à cette entreprise. Chaque suggestion doit être actionnable et précise, par exemple: 'Post avant/après montrant une réalisation client avec témoignage', 'Infographie sur les 5 étapes de leur processus métier', 'Story derrière l'équipe avec présentation individuelle', etc. Varier les formats: posts éducatifs, témoignages clients, coulisses, actualités secteur, conseils pratiques, études de cas, événements."
-            ]
-        }}
-
-        IMPORTANT: Sois très généreux dans les détails. Plus c'est précis et détaillé, plus ce sera utile pour créer du contenu marketing pertinent.
-        """
-
-        # Use OpenAI directly for GPT-4o analysis
-        if OPENAI_AVAILABLE and API_KEY:
-            logging.info(f"🤖 Using GPT-4o via OpenAI direct integration for analysis")
-            logging.info(f"🔍 Content to analyze: title='{content_data.get('meta_title', '')}', text_length={len(content_data.get('text_content', ''))}")
-            
-            try:
-                client = OpenAI(api_key=API_KEY)
-                logging.info(f"📡 Sending request to OpenAI GPT-4o...")
-                response = client.chat.completions.create(
-                    model="gpt-4o",
-                    messages=[
-                        {
-                            "role": "system", 
-                            "content": "Tu es un expert en analyse de contenu web et marketing digital. Tu analyses les sites web en profondeur pour créer du contenu social media. Réponds UNIQUEMENT en JSON valide et structuré."
-                        },
-                        {
-                            "role": "user", 
-                            "content": prompt
-                        }
-                    ],
-                    temperature=0.7,
-                    max_tokens=2000
-                )
-                raw = response.choices[0].message.content
-                logging.info(f"🤖 GPT-4o raw response length: {len(raw) if raw else 0} characters")
-                logging.info(f"🤖 GPT-4o raw response preview: {raw[:300] if raw else 'None'}...")
-                
-            except Exception as openai_error:
-                logging.error(f"❌ OpenAI API error: {openai_error}")
-                return create_fallback_analysis(content_data, website_url, "openai_api_error")
-            
-        else:
-            logging.error(f"❌ Falling back - OPENAI_AVAILABLE: {OPENAI_AVAILABLE}, API_KEY: {'Yes' if API_KEY else 'No'}")
-            return create_fallback_analysis(content_data, website_url, "no_api_or_sdk")
-
-        # Parse GPT-4o response
-        if not raw or len(raw.strip()) < 10:
-            print(f"❌ Empty or too short GPT-4o response: '{raw}'")
-            return create_fallback_analysis(content_data, website_url, "empty_response")
-        
-        # Clean the response (remove potential markdown artifacts)
-        clean_raw = raw.strip()
-        if clean_raw.startswith('```json'):
-            clean_raw = clean_raw[7:]
-        if clean_raw.endswith('```'):
-            clean_raw = clean_raw[:-3]
-        clean_raw = clean_raw.strip()
-        
-        print(f"🔍 Parsing GPT-4o JSON response: {clean_raw[:200]}...")
-        
-        analysis = json.loads(clean_raw)
-        
-        # Validate required fields
-        required_fields = ["analysis_summary", "key_topics", "brand_tone", "target_audience", "main_services", "content_suggestions"]
-        missing_fields = [field for field in required_fields if not analysis.get(field)]
-        
-        if missing_fields:
-            print(f"⚠️ Missing fields in GPT-4o response: {missing_fields}")
-            return create_fallback_analysis(content_data, website_url, f"missing_fields_{missing_fields}")
-        
-        print(f"✅ GPT-4o analysis successful - Summary length: {len(analysis.get('analysis_summary', ''))}")
-        return analysis
-
-    except json.JSONDecodeError as e:
-        logging.error(f"❌ JSON parsing error from GPT-4o: {e}")
-        logging.error(f"❌ Raw response was: {raw[:500] if raw else 'None'}")
-        return create_fallback_analysis(content_data, website_url, "json_error")
     except Exception as e:
-        logging.error(f"❌ GPT-4o analysis GENERAL error: {e}")
-        logging.error(f"❌ Error type: {type(e)}")
+        logging.error(f"❌ LLM backup system failed: {e}")
         import traceback
-        logging.error(f"❌ Full traceback: {traceback.format_exc()}")
-        return create_fallback_analysis(content_data, website_url, "gpt_error")
+        traceback.print_exc()
+        
+        # Fallback ultime
+        return create_fallback_analysis(content_data, website_url, "llm_backup_failed")
+
+
+# Garder l'ancienne fonction pour compatibilité, mais utiliser le backup
+async def analyze_with_gpt4o(content_data: dict, website_url: str) -> dict:
+    """Analyze website content using GPT-4o via OpenAI direct integration (now with Claude backup)"""
+    return await analyze_with_gpt4o_and_claude_backup(content_data, website_url)
 
 def create_fallback_analysis(content_data: dict, website_url: str, reason: str = "fallback") -> dict:
     title = content_data.get('meta_title', '').strip() or website_url

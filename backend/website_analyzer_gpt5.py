@@ -507,7 +507,7 @@ async def compare_openai_vs_claude(
     
     results = {
         "website_url": url,
-        "comparison_timestamp": datetime.datetime.now().isoformat(),
+        "comparison_timestamp": datetime.now().isoformat(),
         "content_extracted": {
             "title": content_data.get('meta_title', ''),
             "text_length": len(content_data.get('text_content', '')),

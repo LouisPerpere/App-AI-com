@@ -509,6 +509,47 @@ async def analyze_multiple_pages(pages: list, base_url: str) -> dict:
         # Fallback to single page
         return extract_website_content_with_limits(base_url)
 
+@website_router.get("/debug-routes")
+async def debug_routes():
+    """Debug endpoint pour lister toutes les routes disponibles"""
+    try:
+        # Importer FastAPI app depuis server.py
+        import sys
+        import importlib
+        
+        # Cette approche permet de voir les routes enregistrées
+        routes_info = []
+        
+        # Informations sur notre router
+        routes_info.append({
+            "router": "website_router (gpt5)",
+            "prefix": "/website",
+            "routes": []
+        })
+        
+        for route in website_router.routes:
+            if hasattr(route, 'path') and hasattr(route, 'methods'):
+                routes_info[-1]["routes"].append({
+                    "path": route.path,
+                    "methods": list(route.methods) if route.methods else [],
+                    "name": getattr(route, 'name', 'unknown')
+                })
+        
+        return {
+            "status": "debug_routes",
+            "message": "Routes debug info",
+            "routes_info": routes_info,
+            "total_routes": len(website_router.routes)
+        }
+        
+    except Exception as e:
+        return {
+            "status": "error", 
+            "error": str(e),
+            "message": "Failed to get routes info"
+        }
+
+
 @website_router.post("/debug-analyze")
 async def debug_analyze_forced(
     request: WebsiteAnalysisRequest,

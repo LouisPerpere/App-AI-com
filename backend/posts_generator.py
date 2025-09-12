@@ -832,27 +832,32 @@ CRITIQUE: Tu DOIS retourner EXACTEMENT {num_posts} posts. Ni plus, ni moins. Com
 IMPORTANT: Varie intelligemment les content_type selon ce qui sera le plus efficace pour ce business et son audience cible.
 """
             
-            logger.info(f"🤖 Sending GLOBAL request to OpenAI for {num_posts} posts")
+            logger.info(f"🤖 Sending STRATEGIC request for {num_posts} posts")
+            logger.info(f"🤖 Strategy: {business_objective} objective, {brand_tone} tone, {platform} platform")
             logger.info(f"🤖 Prompt length: {len(prompt)} characters")
             
-            # Utiliser le système de backup LLM (OpenAI + Claude)
+            # Utiliser le système de backup LLM avec sélection intelligente
             try:
                 messages = [
                     {"role": "system", "content": self.system_message},
                     {"role": "user", "content": prompt}
                 ]
                 
-                response_text = await self.llm_backup.generate_completion(
+                # NOUVELLE LOGIQUE: Sélection LLM intelligente selon objectifs business
+                response_text = await self.llm_backup.generate_completion_with_strategy(
                     messages=messages,
+                    business_objective=business_objective,
+                    brand_tone=brand_tone,
+                    platform=platform,
                     model="gpt-4o",
                     temperature=0.7,
                     max_tokens=4000
                 )
                 
-                logger.info(f"🤖 LLM Backup Response length: {len(response_text) if response_text else 0}")
+                logger.info(f"🤖 Strategic LLM Response length: {len(response_text) if response_text else 0}")
                 
                 # CRITICAL DEBUG: Log the full response to see what it actually returns
-                logger.info("🔍 FULL LLM RESPONSE:")
+                logger.info("🔍 FULL STRATEGIC LLM RESPONSE:")
                 logger.info(f"{response_text}")
                 
                 # Parse the global response with content mapping

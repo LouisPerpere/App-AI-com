@@ -479,6 +479,325 @@ async def force_real_gpt4o_analysis(
         )
 
 
+@website_router.post("/compare-analysis")
+async def compare_openai_vs_claude(
+    request: WebsiteAnalysisRequest,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Compare OpenAI GPT-4o vs Claude Sonnet 4 analysis side by side"""
+    from fastapi.responses import JSONResponse
+    
+    url = (request.website_url or "").strip()
+    if not re.match(r'^https?://', url, re.IGNORECASE):
+        url = 'https://' + url
+    
+    print(f"🔍 COMPARISON: OpenAI vs Claude for {url}")
+    
+    # Extraction du contenu une seule fois
+    content_data = extract_website_content_with_limits(url)
+    
+    if "error" in content_data:
+        content_data = {
+            'meta_title': f'Site web {url}',
+            'meta_description': 'Contenu pour comparaison',
+            'h1_tags': ['Titre principal'],
+            'h2_tags': [],
+            'text_content': f'Contenu du site web {url} pour comparaison OpenAI vs Claude.'
+        }
+    
+    results = {
+        "website_url": url,
+        "comparison_timestamp": datetime.datetime.now().isoformat(),
+        "content_extracted": {
+            "title": content_data.get('meta_title', ''),
+            "text_length": len(content_data.get('text_content', '')),
+            "h1_count": len(content_data.get('h1_tags', [])),
+            "h2_count": len(content_data.get('h2_tags', []))
+        }
+    }
+    
+    # Test 1: OpenAI GPT-4o uniquement
+    try:
+        print("🤖 Testing OpenAI GPT-4o...")
+        openai_result = await test_openai_only(content_data, url)
+        results["openai_gpt4o"] = {
+            "status": "success",
+            "analysis": openai_result,
+            "model": "gpt-4o"
+        }
+        print(f"✅ OpenAI analysis completed: {len(openai_result.get('analysis_summary', ''))} chars")
+    except Exception as e:
+        results["openai_gpt4o"] = {
+            "status": "error",
+            "error": str(e),
+            "model": "gpt-4o"
+        }
+        print(f"❌ OpenAI failed: {e}")
+    
+    # Test 2: Claude Sonnet 4 uniquement
+    try:
+        print("🧠 Testing Claude Sonnet 4...")
+        claude_result = await test_claude_only(content_data, url)
+        results["claude_sonnet4"] = {
+            "status": "success", 
+            "analysis": claude_result,
+            "model": "claude-4-sonnet"
+        }
+        print(f"✅ Claude analysis completed: {len(claude_result.get('analysis_summary', ''))} chars")
+    except Exception as e:
+        results["claude_sonnet4"] = {
+            "status": "error",
+            "error": str(e),
+            "model": "claude-4-sonnet"
+        }
+        print(f"❌ Claude failed: {e}")
+    
+    return JSONResponse(content=results)
+
+
+async def test_openai_only(content_data: dict, website_url: str) -> dict:
+    """Test OpenAI GPT-4o uniquement"""
+    if not OPENAI_AVAILABLE or not API_KEY:
+        raise Exception("OpenAI not available or API key missing")
+    
+    prompt = f"""
+    Analyse ce site web en profondeur et réponds UNIQUEMENT par un JSON structuré:
+    {{
+        "analysis_summary": "Un résumé détaillé de l'entreprise (200-300 mots)",
+        "key_topics": ["topic1", "topic2", "topic3", "topic4", "topic5"],
+        "brand_tone": "le ton de communication",
+        "target_audience": "description du public cible principal",
+        "main_services": ["service1", "service2", "service3"],
+        "content_suggestions": ["suggestion1", "suggestion2", "suggestion3", "suggestion4"]
+    }}
+
+    Site web: {website_url}
+    Titre: {content_data.get('meta_title', 'Non défini')}
+    Description: {content_data.get('meta_description', 'Non définie')}
+    H1: {content_data.get('h1_tags', [])}
+    H2: {content_data.get('h2_tags', [])}
+    Contenu: {content_data.get('text_content', 'Non disponible')[:2000]}
+    """
+    
+    client = OpenAI(api_key=API_KEY)
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {
+                "role": "system",
+                "content": "Tu es un expert en analyse web. Réponds UNIQUEMENT en JSON valide."
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        temperature=0.7,
+        max_tokens=2000
+    )
+    
+    raw_response = response.choices[0].message.content
+    
+    # Parse JSON
+    clean_response = raw_response.strip()
+    if clean_response.startswith('```json'):
+        clean_response = clean_response[7:]
+    if clean_response.endswith('```'):
+        clean_response = clean_response[:-3]
+    
+    return json.loads(clean_response.strip())
+
+
+async def test_claude_only(content_data: dict, website_url: str) -> dict:
+    """Test Claude Sonnet 4 uniquement"""
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+    except ImportError:
+        raise Exception("Claude/emergentintegrations not available")
+    
+    claude_key = os.environ.get('CLAUDE_API_KEY')
+    if not claude_key:
+        raise Exception("Claude API key missing")
+    
+    # Construire le prompt pour Claude
+    prompt = f"""
+    Tu es un expert en analyse de sites web. Analyse ce site et réponds UNIQUEMENT par un JSON structuré:
+    {{
+        "analysis_summary": "Un résumé détaillé de l'entreprise (200-300 mots)",
+        "key_topics": ["topic1", "topic2", "topic3", "topic4", "topic5"],
+        "brand_tone": "le ton de communication",
+        "target_audience": "description du public cible principal", 
+        "main_services": ["service1", "service2", "service3"],
+        "content_suggestions": ["suggestion1", "suggestion2", "suggestion3", "suggestion4"]
+    }}
+
+    Site web: {website_url}
+    Titre: {content_data.get('meta_title', 'Non défini')}
+    Description: {content_data.get('meta_description', 'Non définie')}
+    H1: {content_data.get('h1_tags', [])}
+    H2: {content_data.get('h2_tags', [])}
+    Contenu: {content_data.get('text_content', 'Non disponible')[:2000]}
+    
+    IMPORTANT: Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.
+    """
+    
+    claude_chat = LlmChat(
+        api_key=claude_key,
+        session_id="comparison-test",
+        system_message="Tu es un expert en analyse web. Tu réponds toujours en JSON valide et structuré."
+    ).with_model("anthropic", "claude-4-sonnet-20250514")
+    
+    user_message = UserMessage(text=prompt)
+    response = await claude_chat.send_message(user_message)
+    
+    # Parse JSON from Claude response
+    clean_response = response.strip()
+    if clean_response.startswith('```json'):
+        clean_response = clean_response[7:]
+    if clean_response.endswith('```'):
+        clean_response = clean_response[:-3]
+    
+    return json.loads(clean_response.strip())
+
+
+@website_router.post("/compare-posts")
+async def compare_posts_generation(
+    business_context: str,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Compare OpenAI vs Claude pour la génération de posts"""
+    
+    results = {
+        "comparison_timestamp": datetime.datetime.now().isoformat(),
+        "business_context": business_context
+    }
+    
+    # Test 1: OpenAI GPT-4o pour posts
+    try:
+        print("🤖 Testing OpenAI for posts...")
+        openai_post = await test_openai_post_generation(business_context)
+        results["openai_gpt4o_post"] = {
+            "status": "success",
+            "post": openai_post,
+            "model": "gpt-4o"
+        }
+    except Exception as e:
+        results["openai_gpt4o_post"] = {
+            "status": "error",
+            "error": str(e),
+            "model": "gpt-4o"
+        }
+    
+    # Test 2: Claude Sonnet 4 pour posts
+    try:
+        print("🧠 Testing Claude for posts...")
+        claude_post = await test_claude_post_generation(business_context)
+        results["claude_sonnet4_post"] = {
+            "status": "success",
+            "post": claude_post,
+            "model": "claude-4-sonnet"
+        }
+    except Exception as e:
+        results["claude_sonnet4_post"] = {
+            "status": "error",
+            "error": str(e),
+            "model": "claude-4-sonnet"
+        }
+    
+    return results
+
+
+async def test_openai_post_generation(business_context: str) -> dict:
+    """Test génération de post avec OpenAI uniquement"""
+    if not OPENAI_AVAILABLE or not API_KEY:
+        raise Exception("OpenAI not available")
+    
+    prompt = f"""
+    Crée un post Instagram pour cette entreprise. Réponds en JSON:
+    {{
+        "text": "Texte du post naturel, max 2-3 emojis",
+        "hashtags": ["hashtag1", "hashtag2", "hashtag3"],
+        "title": "Titre simple et direct"
+    }}
+
+    Contexte entreprise: {business_context}
+    
+    RÈGLES:
+    - Style naturel, pas artificiel
+    - Maximum 2-3 emojis
+    - Call-to-action simple
+    - Hashtags pertinents
+    """
+    
+    client = OpenAI(api_key=API_KEY)
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "Tu es un expert en réseaux sociaux. Réponds UNIQUEMENT en JSON."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.7,
+        max_tokens=500
+    )
+    
+    raw_response = response.choices[0].message.content
+    clean_response = raw_response.strip()
+    if clean_response.startswith('```json'):
+        clean_response = clean_response[7:]
+    if clean_response.endswith('```'):
+        clean_response = clean_response[:-3]
+    
+    return json.loads(clean_response.strip())
+
+
+async def test_claude_post_generation(business_context: str) -> dict:
+    """Test génération de post avec Claude uniquement"""
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+    except ImportError:
+        raise Exception("Claude not available")
+    
+    claude_key = os.environ.get('CLAUDE_API_KEY')
+    if not claude_key:
+        raise Exception("Claude API key missing")
+    
+    prompt = f"""
+    Crée un post Instagram pour cette entreprise. Réponds UNIQUEMENT en JSON:
+    {{
+        "text": "Texte du post naturel, max 2-3 emojis",
+        "hashtags": ["hashtag1", "hashtag2", "hashtag3"],
+        "title": "Titre simple et direct"
+    }}
+
+    Contexte entreprise: {business_context}
+    
+    RÈGLES:
+    - Style naturel, pas artificiel
+    - Maximum 2-3 emojis  
+    - Call-to-action simple
+    - Hashtags pertinents
+    
+    Réponds UNIQUEMENT avec le JSON, rien d'autre.
+    """
+    
+    claude_chat = LlmChat(
+        api_key=claude_key,
+        session_id="posts-comparison",
+        system_message="Tu es un expert en réseaux sociaux. Tu réponds toujours en JSON valide."
+    ).with_model("anthropic", "claude-4-sonnet-20250514")
+    
+    user_message = UserMessage(text=prompt)
+    response = await claude_chat.send_message(user_message)
+    
+    clean_response = response.strip()
+    if clean_response.startswith('```json'):
+        clean_response = clean_response[7:]
+    if clean_response.endswith('```'):
+        clean_response = clean_response[:-3]
+    
+    return json.loads(clean_response.strip())
+
+
 @website_router.get("/super-unique-test-endpoint-12345")
 async def super_unique_test():
     """Endpoint de test avec nom absolument unique"""

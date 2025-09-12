@@ -82,9 +82,8 @@ const AuthPage = ({ onAuthSuccess }) => {
       console.log('🚀 LOGIN DATA:', { email: loginForm.email });
       console.log('🔍 Form values:', loginForm);
 
-      // Ensure backend is awake (Render free instances may be cold)
-      setShowConnecting(true);
-      await pingBackend(60000);
+      // SIMPLIFICATION TEMPORAIRE - pas de pingBackend
+      console.log('⏳ Making direct login request...');
 
       const response = await axios.post(`${API}/auth/login-robust`, {
         email: loginForm.email,
@@ -147,6 +146,7 @@ const AuthPage = ({ onAuthSuccess }) => {
         // Continue anyway - don't let callback errors break login
       } finally {
         setShowConnecting(false);
+        setIsLoading(false);
       }
     } catch (error) {
       console.error('❌ LOGIN ERROR:', error);

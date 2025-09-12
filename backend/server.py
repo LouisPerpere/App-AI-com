@@ -1812,7 +1812,7 @@ async def instagram_oauth_callback(
         
         if not code or not state:
             print("❌ Missing code or state parameter")
-            frontend_url = "https://claire-marcus-pwa-1.emergent.host/?instagram_error=missing_parameters"
+            frontend_url = "https://claire-marcus.com/?instagram_error=missing_parameters"
             return RedirectResponse(url=frontend_url)
         
         # Configuration OAuth

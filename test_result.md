@@ -253,7 +253,7 @@ frontend:
 
 test_plan:
   current_focus:
-    - "Complete Data Migration Execution - COMPLETED"
+    - "Instagram OAuth Configuration Diagnostic - Invalid Platform App Issue"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

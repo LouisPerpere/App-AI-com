@@ -1764,20 +1764,24 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         # Stocker l'état temporairement (en production, utiliser Redis ou base de données)
         # Pour l'instant, on l'inclut dans la réponse pour que le frontend le stocke
         
-        # Scopes Instagram Basic Display API
-        scopes = "user_profile,user_media"
+        # Scopes Instagram Graph API avec Facebook Login for Business
+        scopes = "instagram_basic,instagram_content_publish,instagram_manage_comments,instagram_manage_insights,pages_show_list,pages_read_engagement"
         
-        # Construire l'URL d'autorisation Instagram
+        # Construire l'URL d'autorisation Facebook Login for Business
         from urllib.parse import urlencode
+        import json
+        
         params = {
             "client_id": facebook_app_id,
             "redirect_uri": redirect_uri,
             "scope": scopes,
-            "response_type": "code",
+            "response_type": "token",  # Changé de "code" à "token" pour Facebook Login for Business
+            "display": "page",
+            "extras": json.dumps({"setup": {"channel": "IG_API_ONBOARDING"}}),  # Paramètre spécial pour Instagram onboarding
             "state": state
         }
         
-        auth_url = f"https://api.instagram.com/oauth/authorize?{urlencode(params)}"
+        auth_url = f"https://www.facebook.com/v23.0/dialog/oauth?{urlencode(params)}"
         
         return {
             "auth_url": auth_url,

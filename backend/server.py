@@ -66,7 +66,7 @@ def parse_any_id(file_id: str) -> dict:
 try:
     from website_analyzer_gpt5 import website_router
     WEBSITE_ANALYZER_AVAILABLE = True
-    print("✅ GPT-5 Website Analyzer module loaded")
+    print("✅ GPT-4o Website Analyzer module loaded")
 except ImportError as e:
     print(f"⚠️ GPT-5 Website Analyzer module not available: {e}")
     WEBSITE_ANALYZER_AVAILABLE = False

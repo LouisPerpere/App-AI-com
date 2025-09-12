@@ -72,7 +72,6 @@ const AuthPage = ({ onAuthSuccess }) => {
   });
 
   const handleLogin = async (e) => {
-    alert('🔥 handleLogin CALLED!'); // DEBUG TEST
     console.log('🔥 handleLogin called!', e);
     e.preventDefault();
     setIsLoading(true);

@@ -307,7 +307,10 @@ async def analyze_with_gpt5(content_data: dict, website_url: str) -> dict:
         print(f"❌ Raw response was: {raw[:500] if raw else 'None'}")
         return create_fallback_analysis(content_data, website_url, "json_error")
     except Exception as e:
-        print(f"❌ GPT-4o analysis error: {e}")
+        print(f"❌ GPT-4o analysis GENERAL error: {e}")
+        print(f"❌ Error type: {type(e)}")
+        import traceback
+        print(f"❌ Full traceback: {traceback.format_exc()}")
         return create_fallback_analysis(content_data, website_url, "gpt_error")
 
 def create_fallback_analysis(content_data: dict, website_url: str, reason: str = "fallback") -> dict:

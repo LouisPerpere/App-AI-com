@@ -4462,7 +4462,8 @@ function MainApp() {
                               { value: 'moderne', label: '⚡ Moderne' },
                               { value: 'traditionnel', label: '🏛️ Traditionnel' },
                               { value: 'creatif', label: '🎨 Créatif' },
-                              { value: 'technique', label: '🔧 Technique' }
+                              { value: 'technique', label: '🔧 Technique' },
+                              { value: 'storytelling', label: '📖 Storytelling' }
                             ]}
                             fieldType="business"
                           />

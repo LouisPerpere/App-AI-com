@@ -1,10 +1,11 @@
 """
-Website Analyzer avec GPT-4o - Version avec OpenAI direct
-Utilise la clé OpenAI personnelle et GPT-4o directement
+Website Analyzer avec Orchestration Double IA
+GPT-4o : Analyse business/exécution (concis, structuré, actionnable)
+Claude Sonnet 4 : Analyse narrative/inspiration (storytelling, profondeur)
 """
 
 from fastapi import APIRouter, HTTPException, Depends, status
-from typing import Optional
+from typing import Optional, Dict, Any
 from datetime import datetime, timedelta
 from pydantic import BaseModel, Field, HttpUrl
 import uuid
@@ -14,12 +15,16 @@ import os
 import logging
 import json
 import time
+import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient
 from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import Header
 from typing import Optional
 import re
+
+# Import du système LLM backup pour l'orchestration
+from llm_backup_system import LLMBackupSystem
 
 # EXPLICIT .env loading to ensure JWT variables are available
 env_path = Path(__file__).parent / '.env'

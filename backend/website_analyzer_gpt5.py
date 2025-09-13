@@ -1127,11 +1127,24 @@ IMPORTANT : Sois INSPIRANT, ÉVOCATEUR et axé sur le STORYTELLING. Révèle la 
 
     try:
         # Utiliser Claude Sonnet 4 via le système LLM
-        response = await llm_system.generate_completion(
-            prompt=narrative_prompt,
+        messages = [
+            {
+                "role": "system",
+                "content": "Tu es un expert en storytelling de marque et stratégie éditoriale. Tu analyses les sites web pour révéler leur VISION, leur POSITIONNEMENT et leurs OPPORTUNITÉS NARRATIVES."
+            },
+            {
+                "role": "user",
+                "content": narrative_prompt
+            }
+        ]
+        
+        response = await llm_system.generate_completion_with_strategy(
+            messages=messages,
+            business_objective="communaute",  # Force narrative analysis
+            brand_tone="storytelling",  # Force Claude primary
+            platform="instagram",
             temperature=0.7,  # Plus élevé pour plus de créativité narrative
-            max_tokens=1000,
-            prefer_claude=True  # Forcer Claude pour l'analyse narrative
+            max_tokens=1000
         )
         
         return {

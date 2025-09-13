@@ -994,6 +994,211 @@ async def debug_analyze_forced(
         )
 
 
+async def analyze_with_gpt4o_business(content_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Analyse business/exécution avec GPT-4o : concis, structuré, actionnable"""
+    
+    # Initialiser le système LLM
+    llm_system = LLMBackupSystem()
+    
+    # Préparer le contenu pour l'analyse
+    homepage_content = content_data.get('homepage', {}).get('content', '')
+    pages_content = []
+    for page_key, page_data in content_data.items():
+        if page_key != 'homepage' and isinstance(page_data, dict):
+            pages_content.append(f"Page {page_key}: {page_data.get('content', '')[:500]}")
+    
+    combined_content = f"Homepage: {homepage_content}\n\nAutres pages:\n" + "\n".join(pages_content)
+    
+    # Prompt spécialisé pour GPT-4o (Business/Exécution)
+    business_prompt = f"""Tu es un expert en analyse business et stratégie digitale. Analyse ce site web de manière CONCISE et STRUCTURÉE pour donner des insights immédiatement ACTIONNABLES.
+
+Contenu du site web à analyser :
+{combined_content}
+
+Fournis une analyse business CONCISE et STRUCTURÉE selon ce format exact :
+
+**RÉSUMÉ DE L'ANALYSE**
+[En 40-60 mots maximum : Qui est l'entreprise, que fait-elle, quelle est sa proposition de valeur principale]
+
+**AUDIENCE CIBLE**
+[Profil démographique et psychographique en 30-40 mots : âge, revenus, besoins, motivations]
+
+**SERVICES PRINCIPAUX**
+• [Service 1 - en 5-8 mots max]
+• [Service 2 - en 5-8 mots max] 
+• [Service 3 - en 5-8 mots max]
+
+**SUJETS CLÉS**
+• [mot-clé 1]
+• [mot-clé 2]
+• [mot-clé 3]
+• [mot-clé 4]
+• [mot-clé 5]
+
+**SUGGESTIONS DE CONTENU**
+• [Idée 1 - format court, actionnable]
+• [Idée 2 - format court, actionnable]
+• [Idée 3 - format court, actionnable]
+• [Idée 4 - format court, actionnable]
+
+IMPORTANT : Sois CONCIS, DIRECT et ACTIONNABLE. Pas de phrases longues ou de jargon."""
+
+    try:
+        # Utiliser GPT-4o via le système LLM
+        response = await llm_system.generate_completion(
+            prompt=business_prompt,
+            temperature=0.3,  # Plus bas pour plus de cohérence business
+            max_tokens=800,
+            prefer_openai=True  # Forcer GPT-4o pour l'analyse business
+        )
+        
+        return {
+            "type": "business_analysis",
+            "ai_used": "GPT-4o",
+            "content": response,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        print(f"❌ Erreur analyse business GPT-4o: {e}")
+        return {
+            "type": "business_analysis",
+            "ai_used": "Error",
+            "content": f"Erreur lors de l'analyse business: {str(e)}",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
+
+async def analyze_with_claude_narrative(content_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Analyse narrative/inspiration avec Claude Sonnet 4 : storytelling, profondeur"""
+    
+    # Initialiser le système LLM
+    llm_system = LLMBackupSystem()
+    
+    # Préparer le contenu pour l'analyse
+    homepage_content = content_data.get('homepage', {}).get('content', '')
+    pages_content = []
+    for page_key, page_data in content_data.items():
+        if page_key != 'homepage' and isinstance(page_data, dict):
+            pages_content.append(f"Page {page_key}: {page_data.get('content', '')[:500]}")
+    
+    combined_content = f"Homepage: {homepage_content}\n\nAutres pages:\n" + "\n".join(pages_content)
+    
+    # Prompt spécialisé pour Claude Sonnet 4 (Narrative/Inspiration)
+    narrative_prompt = f"""Tu es un expert en storytelling de marque et stratégie éditoriale. Analyse ce site web pour révéler sa VISION, son POSITIONNEMENT et ses OPPORTUNITÉS NARRATIVES.
+
+Contenu du site web à analyser :
+{combined_content}
+
+Fournis une analyse narrative RICHE et INSPIRANTE selon ce format :
+
+**VISION ET STORYTELLING**
+[Un paragraphe de 60-80 mots qui raconte l'histoire de la marque, son essence, ce qu'elle représente vraiment au-delà de ses services. Utilise un ton engageant et évocateur.]
+
+**POSITIONNEMENT**
+[Un paragraphe de 50-70 mots qui explique où se situe la marque sur son marché, quel territoire elle occupe, et comment elle se différencie. Mets l'accent sur l'émotionnel et l'aspirationnel.]
+
+**AXES ÉDITORIAUX À EXPLOITER**
+1. [Axe 1] – [Explication en 15-20 mots de pourquoi c'est puissant pour cette marque]
+2. [Axe 2] – [Explication en 15-20 mots de l'opportunité narrative]
+3. [Axe 3] – [Explication en 15-20 mots du potentiel storytelling]
+4. [Axe 4] – [Explication en 15-20 mots de l'angle éditorial unique]
+
+**IDÉES DE CONTENUS NARRATIFS**
+• [Idée 1 : Format + angle storytelling spécifique]
+• [Idée 2 : Format + angle émotionnel ou aspirationnel]
+• [Idée 3 : Format + angle communauté ou témoignage transformé]
+• [Idée 4 : Format + angle expertise avec dimension humaine]
+
+IMPORTANT : Sois INSPIRANT, ÉVOCATEUR et axé sur le STORYTELLING. Révèle la dimension émotionnelle et narrative de la marque."""
+
+    try:
+        # Utiliser Claude Sonnet 4 via le système LLM
+        response = await llm_system.generate_completion(
+            prompt=narrative_prompt,
+            temperature=0.7,  # Plus élevé pour plus de créativité narrative
+            max_tokens=1000,
+            prefer_claude=True  # Forcer Claude pour l'analyse narrative
+        )
+        
+        return {
+            "type": "narrative_analysis",
+            "ai_used": "Claude Sonnet 4",
+            "content": response,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        print(f"❌ Erreur analyse narrative Claude: {e}")
+        return {
+            "type": "narrative_analysis", 
+            "ai_used": "Error",
+            "content": f"Erreur lors de l'analyse narrative: {str(e)}",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
+
+async def orchestrate_dual_analysis(content_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Orchestre l'analyse parallèle GPT-4o + Claude Sonnet 4"""
+    
+    print("🎭 Démarrage analyse orchestrée : GPT-4o (Business) + Claude (Narrative)")
+    
+    try:
+        # Lancer les deux analyses en parallèle
+        business_task = analyze_with_gpt4o_business(content_data)
+        narrative_task = analyze_with_claude_narrative(content_data)
+        
+        # Attendre les deux résultats
+        business_result, narrative_result = await asyncio.gather(
+            business_task, 
+            narrative_task,
+            return_exceptions=True
+        )
+        
+        # Gérer les erreurs éventuelles
+        if isinstance(business_result, Exception):
+            print(f"❌ Erreur analyse business: {business_result}")
+            business_result = {
+                "type": "business_analysis",
+                "ai_used": "Error", 
+                "content": f"Erreur: {str(business_result)}",
+                "timestamp": datetime.utcnow().isoformat()
+            }
+            
+        if isinstance(narrative_result, Exception):
+            print(f"❌ Erreur analyse narrative: {narrative_result}")
+            narrative_result = {
+                "type": "narrative_analysis",
+                "ai_used": "Error",
+                "content": f"Erreur: {str(narrative_result)}",
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        
+        # Retourner l'analyse fusionnée
+        dual_analysis = {
+            "analysis_type": "dual_orchestrated",
+            "business_analysis": business_result,
+            "narrative_analysis": narrative_result,
+            "orchestration_summary": {
+                "business_ai": business_result.get("ai_used", "Unknown"),
+                "narrative_ai": narrative_result.get("ai_used", "Unknown"),
+                "completion_time": datetime.utcnow().isoformat(),
+                "status": "completed"
+            }
+        }
+        
+        print("✅ Analyse orchestrée terminée avec succès")
+        return dual_analysis
+        
+    except Exception as e:
+        print(f"❌ Erreur orchestration: {e}")
+        return {
+            "analysis_type": "dual_orchestrated_error",
+            "error": str(e),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
+
 @website_router.post("/analyze")
 async def analyze_website_robust(
     request: WebsiteAnalysisRequest,

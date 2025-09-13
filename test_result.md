@@ -253,7 +253,7 @@ frontend:
 
 test_plan:
   current_focus:
-    - "Instagram OAuth Configuration - Facebook Login for Business Migration"
+    - "Dual AI Orchestration Website Analysis System"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

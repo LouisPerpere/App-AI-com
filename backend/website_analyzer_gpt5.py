@@ -1045,11 +1045,24 @@ IMPORTANT : Sois CONCIS, DIRECT et ACTIONNABLE. Pas de phrases longues ou de jar
 
     try:
         # Utiliser GPT-4o via le système LLM
-        response = await llm_system.generate_completion(
-            prompt=business_prompt,
+        messages = [
+            {
+                "role": "system",
+                "content": "Tu es un expert en analyse business et stratégie digitale. Tu analyses les sites web de manière CONCISE et STRUCTURÉE pour donner des insights immédiatement ACTIONNABLES."
+            },
+            {
+                "role": "user", 
+                "content": business_prompt
+            }
+        ]
+        
+        response = await llm_system.generate_completion_with_strategy(
+            messages=messages,
+            business_objective="conversion",  # Force business analysis
+            brand_tone="professionnel",
+            platform="instagram",
             temperature=0.3,  # Plus bas pour plus de cohérence business
-            max_tokens=800,
-            prefer_openai=True  # Forcer GPT-4o pour l'analyse business
+            max_tokens=800
         )
         
         return {

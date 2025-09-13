@@ -1251,17 +1251,22 @@ async def analyze_website_robust(
             "content_suggestions": []  # Fusionné des deux analyses
         }
 
-        # Step 4: Prepare enhanced response with page details
+        # Step 4: Prepare enhanced response with dual AI analysis
         analysis_data = {
             "analysis_summary": analysis_result.get("analysis_summary", ""),
+            "narrative_insights": analysis_result.get("narrative_insights", ""),
+            "orchestration_info": analysis_result.get("orchestration_info", {}),
             "key_topics": analysis_result.get("key_topics", []),
-            "brand_tone": analysis_result.get("brand_tone", "professional"),
+            "brand_tone": analysis_result.get("brand_tone", "professionnel"),
             "target_audience": analysis_result.get("target_audience", ""),
             "main_services": analysis_result.get("main_services", []),
             "content_suggestions": analysis_result.get("content_suggestions", []),
             "website_url": url,
             "pages_analyzed": content_data.get("pages_analyzed", []),
             "pages_count": len(important_pages),
+            "analysis_type": "dual_orchestrated",
+            "business_ai": dual_analysis.get("orchestration_summary", {}).get("business_ai", "GPT-4o"),
+            "narrative_ai": dual_analysis.get("orchestration_summary", {}).get("narrative_ai", "Claude Sonnet 4"),
             "created_at": datetime.utcnow().isoformat(),
             "next_analysis_due": (datetime.utcnow() + timedelta(days=30)).isoformat()
         }

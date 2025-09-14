@@ -1463,11 +1463,44 @@ async def analyze_website_robust(
             code, msg = content_data["error"]
             return JSONResponse(status_code=code, content={"error": msg})
 
-        # Step 3: Enhanced GPT-4o analysis with multi-page context
-        logging.info(f"🚀 About to call analyze_with_gpt4o for {url}")
+        # Step 3: Enhanced analyses - GPT-4o + Claude Storytelling en parallèle
+        logging.info(f"🚀 About to launch parallel analyses for {url}")
         logging.info(f"🔍 Content data keys: {list(content_data.keys())}")
-        analysis_result = await analyze_with_gpt4o_only(content_data, url)
-        logging.info(f"🎯 analyze_with_gpt4o completed, result type: {type(analysis_result)}")
+        
+        # Lancer les deux analyses en parallèle
+        gpt4o_task = analyze_with_gpt4o_only(content_data, url)
+        claude_task = analyze_with_claude_storytelling(content_data, url)
+        
+        # Attendre les deux résultats
+        gpt4o_result, claude_result = await asyncio.gather(
+            gpt4o_task, 
+            claude_task,
+            return_exceptions=True
+        )
+        
+        # Gérer les erreurs éventuelles pour GPT-4o
+        if isinstance(gpt4o_result, Exception):
+            logging.error(f"❌ GPT-4o analysis failed: {gpt4o_result}")
+            gpt4o_result = create_fallback_analysis(content_data, url, f"gpt4o_error: {str(gpt4o_result)}")
+            
+        # Gérer les erreurs éventuelles pour Claude
+        if isinstance(claude_result, Exception):
+            logging.error(f"❌ Claude storytelling analysis failed: {claude_result}")
+            claude_result = {
+                "storytelling_analysis": "Analyse storytelling non disponible pour le moment.",
+                "ai_used": "Error",
+                "analysis_type": "storytelling_error"
+            }
+        
+        # Combiner les résultats
+        analysis_result = gpt4o_result.copy()  # Base GPT-4o
+        analysis_result.update({
+            "storytelling_analysis": claude_result.get("storytelling_analysis", ""),
+            "storytelling_ai": claude_result.get("ai_used", "Claude Sonnet 4"),
+            "storytelling_type": claude_result.get("analysis_type", "storytelling_narrative")
+        })
+        
+        logging.info(f"🎯 Parallel analyses completed - GPT-4o + Claude Storytelling")
 
         # Step 4: Prepare enhanced response with GPT-4o only analysis
         analysis_data = {

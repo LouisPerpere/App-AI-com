@@ -521,19 +521,28 @@ BUSINESS_FIELDS = [
 async def get_business_profile(user_id: str = Depends(get_current_user_id_robust)):
     try:
         print(f"🔍 DEBUG: get_business_profile called for user_id: {user_id}")
-        dbm = get_database()
-        business_profiles = dbm.db.business_profiles
+        
+        # Utiliser directement pymongo pour éviter les problèmes de connexion
+        import pymongo
+        mongo_url = os.environ.get("MONGO_URL")
+        client = pymongo.MongoClient(mongo_url)
+        db = client.claire_marcus
+        business_profiles = db.business_profiles
         
         # Récupérer le profil business de l'utilisateur depuis business_profiles
         business_profile = business_profiles.find_one({"user_id": user_id})
-        print(f"🔍 DEBUG: Profile found: {business_profile is not None}")
+        print(f"🔍 DEBUG: Profile found with pymongo direct: {business_profile is not None}")
+        
+        if business_profile:
+            print(f"🔍 DEBUG: Business name in found profile: {business_profile.get('business_name')}")
+        
+        # Fermer la connexion
+        client.close()
         
         if not business_profile:
             print(f"🔍 DEBUG: No profile found, returning defaults")
             # Si pas de profil business, retourner des valeurs par défaut
             return {field: None for field in BUSINESS_FIELDS}
-        
-        print(f"🔍 DEBUG: Profile data available, business_name: {business_profile.get('business_name')}")
         
         # Mapper les champs du business profile vers la structure attendue
         out = {}
@@ -543,7 +552,8 @@ async def get_business_profile(user_id: str = Depends(get_current_user_id_robust
             else:
                 out[field] = None
         
-        print(f"🔍 DEBUG: Returning profile with {len([v for v in out.values() if v is not None])} non-null fields")
+        non_null_count = len([v for v in out.values() if v is not None])
+        print(f"🔍 DEBUG: Returning profile with {non_null_count} non-null fields")
         return out
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch business profile: {str(e)}")

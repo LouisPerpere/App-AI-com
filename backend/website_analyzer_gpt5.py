@@ -1375,11 +1375,11 @@ async def analyze_website_robust(
             "content_suggestions": []  # Fusionné des deux analyses
         }
 
-        # Step 4: Prepare enhanced response with dual AI analysis
+        # Step 4: Prepare enhanced response with GPT-4o only analysis
         analysis_data = {
             "analysis_summary": analysis_result.get("analysis_summary", ""),
-            "narrative_insights": analysis_result.get("narrative_insights", ""),
-            "orchestration_info": analysis_result.get("orchestration_info", {}),
+            "narrative_insights": "",  # Not available in GPT-4o only mode
+            "orchestration_info": {},  # Not available in GPT-4o only mode
             "key_topics": analysis_result.get("key_topics", []),
             "brand_tone": analysis_result.get("brand_tone", "professionnel"),
             "target_audience": analysis_result.get("target_audience", ""),
@@ -1388,9 +1388,9 @@ async def analyze_website_robust(
             "website_url": url,
             "pages_analyzed": content_data.get("pages_analyzed", []),
             "pages_count": len(important_pages),
-            "analysis_type": "dual_orchestrated",
-            "business_ai": dual_analysis.get("orchestration_summary", {}).get("business_ai", "GPT-4o"),
-            "narrative_ai": dual_analysis.get("orchestration_summary", {}).get("narrative_ai", "Claude Sonnet 4"),
+            "analysis_type": "gpt4o_only",
+            "business_ai": "GPT-4o",
+            "narrative_ai": "None",
             "created_at": datetime.utcnow().isoformat(),
             "next_analysis_due": (datetime.utcnow() + timedelta(days=30)).isoformat()
         }

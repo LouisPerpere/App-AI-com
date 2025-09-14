@@ -78,6 +78,17 @@ class EnhancedWebsiteAnalysisTest:
                 data = response.json()
                 print(f"✅ Website analysis completed in {analysis_time:.1f} seconds")
                 
+                # Debug: Print actual response structure
+                print(f"\n🔍 DEBUG: Actual response structure:")
+                print(f"   Available fields: {list(data.keys())}")
+                for key, value in data.items():
+                    if isinstance(value, str):
+                        print(f"   {key}: {len(value)} chars")
+                    elif isinstance(value, list):
+                        print(f"   {key}: {len(value)} items")
+                    else:
+                        print(f"   {key}: {type(value)} - {value}")
+                
                 # Test new required fields
                 self.verify_new_fields(data)
                 self.verify_content_richness(data)

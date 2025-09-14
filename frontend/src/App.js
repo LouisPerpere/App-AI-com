@@ -1509,7 +1509,28 @@ function MainApp() {
     // Attendre un petit délai pour que l'état soit bien défini
     await new Promise(resolve => setTimeout(resolve, 100));
     
-    console.log('🎯 Navigating to dashboard');
+    console.log('🔄 Loading user data after successful authentication...');
+    
+    // AJOUT CRITIQUE : Charger toutes les données utilisateur après connexion
+    try {
+      await loadBusinessProfile();
+      console.log('✅ Business profile loaded after login');
+      
+      await loadNotes();
+      console.log('✅ Notes loaded after login');
+      
+      await loadPendingContent();
+      console.log('✅ Pending content loaded after login');
+      
+      await loadGeneratedPosts();
+      console.log('✅ Generated posts loaded after login');
+      
+    } catch (error) {
+      console.error('❌ Error loading user data after login:', error);
+      // Ne pas déconnecter l'utilisateur si le chargement des données échoue
+    }
+    
+    console.log('🎯 Navigating to dashboard with full data loaded');
   };
 
   const loadBusinessProfile = async () => {

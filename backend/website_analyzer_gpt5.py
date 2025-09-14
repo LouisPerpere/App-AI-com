@@ -215,6 +215,80 @@ async def analyze_with_gpt4o(content_data: dict, website_url: str) -> dict:
     """Analyze website content using GPT-4o via OpenAI direct integration (now with Claude backup)"""
     return await analyze_with_gpt4o_and_claude_backup(content_data, website_url)
 
+async def analyze_with_gpt4o_only(content_data: dict, website_url: str) -> dict:
+    """Analyze website content using GPT-4o only (no backup system)"""
+    if not OPENAI_AVAILABLE or not API_KEY:
+        logging.warning("OpenAI not available, using fallback analysis")
+        return create_fallback_analysis(content_data, website_url, "openai_unavailable")
+    
+    # Handle multi-page content structure
+    title = content_data.get('title', content_data.get('meta_title', ''))
+    description = content_data.get('description', content_data.get('meta_description', ''))
+    text_content = content_data.get('text_content', content_data.get('content_text', ''))
+    h1_tags = content_data.get('h1_tags', [])
+    h2_tags = content_data.get('h2_tags', [])
+    pages_analyzed = content_data.get('pages_analyzed', [])
+    
+    # Build comprehensive content for analysis
+    content_summary = f"""
+    Site web: {website_url}
+    Titre: {title or 'Non défini'}
+    Description: {description or 'Non définie'}
+    H1: {h1_tags}
+    H2: {h2_tags[:10]}  # Limit H2 tags
+    Pages analysées: {len(pages_analyzed)} pages
+    Contenu: {text_content[:3000] if text_content else 'Non disponible'}
+    """
+    
+    prompt = f"""
+    Analyse ce site web en profondeur et réponds UNIQUEMENT par un JSON structuré:
+    {{
+        "analysis_summary": "Un résumé détaillé de l'entreprise (200-300 mots)",
+        "key_topics": ["topic1", "topic2", "topic3", "topic4", "topic5"],
+        "brand_tone": "le ton de communication",
+        "target_audience": "description du public cible principal",
+        "main_services": ["service1", "service2", "service3"],
+        "content_suggestions": ["suggestion1", "suggestion2", "suggestion3", "suggestion4"]
+    }}
+
+    {content_summary}
+    """
+    
+    try:
+        client = OpenAI(api_key=API_KEY)
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Tu es un expert en analyse web et stratégie digitale. Réponds UNIQUEMENT en JSON valide."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.7,
+            max_tokens=2000
+        )
+        
+        raw_response = response.choices[0].message.content
+        
+        # Parse JSON
+        clean_response = raw_response.strip()
+        if clean_response.startswith('```json'):
+            clean_response = clean_response[7:]
+        if clean_response.endswith('```'):
+            clean_response = clean_response[:-3]
+        
+        result = json.loads(clean_response.strip())
+        logging.info(f"✅ GPT-4o only analysis completed for {website_url}")
+        return result
+        
+    except Exception as e:
+        logging.error(f"❌ GPT-4o only analysis failed: {e}")
+        return create_fallback_analysis(content_data, website_url, f"gpt4o_error: {str(e)}")
+
 def create_fallback_analysis(content_data: dict, website_url: str, reason: str = "fallback") -> dict:
     title = content_data.get('meta_title', '').strip() or website_url
     description = content_data.get('meta_description', '').strip()

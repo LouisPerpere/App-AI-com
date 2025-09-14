@@ -1553,7 +1553,7 @@ async def analyze_website_robust(
 
         return {
             "status": "analyzed",
-            "message": f"GPT-4o analysis completed - {analysis_data['pages_count']} pages analyzed",
+            "message": f"Analyse complète : GPT-4o + Claude Storytelling - {analysis_data['pages_count']} pages analysées",
             **analysis_data
         }
         

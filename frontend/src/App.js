@@ -4891,12 +4891,206 @@ function MainApp() {
 
                       {/* Suggestions de contenu */}
                       {websiteAnalysis.content_suggestions && websiteAnalysis.content_suggestions.length > 0 && (
-                        <div>
+                        <div className="mb-4">
                           <p className="font-semibold text-gray-700 mb-2 text-xs">💡 Suggestions de contenu:</p>
                           <div className="space-y-1">
                             {websiteAnalysis.content_suggestions.map((suggestion, index) => (
                               <div key={index} className="bg-white rounded p-2 border-l-2 border-l-yellow-400">
                                 <p className="text-xs text-gray-700">{suggestion}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* NOUVELLES SECTIONS APPROFONDIES */}
+
+                      {/* Catalogue Produits */}
+                      {websiteAnalysis.products_catalog && websiteAnalysis.products_catalog.length > 0 && (
+                        <div className="mb-4">
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">🛍️ Catalogue Produits:</p>
+                          <div className="space-y-2">
+                            {websiteAnalysis.products_catalog.map((product, index) => (
+                              <div key={index} className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded p-3 border border-blue-200">
+                                <h4 className="font-semibold text-sm text-gray-800">{product.name}</h4>
+                                <p className="text-xs text-gray-600 mb-1">{product.description}</p>
+                                {product.price && (
+                                  <p className="text-xs font-medium text-green-600">Prix: {product.price}</p>
+                                )}
+                                {product.features && product.features.length > 0 && (
+                                  <div className="mt-1">
+                                    <p className="text-xs font-medium text-gray-700">Caractéristiques:</p>
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                      {product.features.map((feature, i) => (
+                                        <span key={i} className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
+                                          {feature}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Services Détaillés */}
+                      {websiteAnalysis.services_detailed && websiteAnalysis.services_detailed.length > 0 && (
+                        <div className="mb-4">
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">⚙️ Services Détaillés:</p>
+                          <div className="space-y-2">
+                            {websiteAnalysis.services_detailed.map((service, index) => (
+                              <div key={index} className="bg-gradient-to-r from-green-50 to-emerald-50 rounded p-3 border border-green-200">
+                                <h4 className="font-semibold text-sm text-gray-800">{service.service_name}</h4>
+                                <p className="text-xs text-gray-600 mb-1">{service.description}</p>
+                                {service.pricing && (
+                                  <p className="text-xs font-medium text-green-600">Tarif: {service.pricing}</p>
+                                )}
+                                {service.benefits && service.benefits.length > 0 && (
+                                  <div className="mt-1">
+                                    <p className="text-xs font-medium text-gray-700">Bénéfices:</p>
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                      {service.benefits.map((benefit, i) => (
+                                        <span key={i} className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded">
+                                          {benefit}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Histoire de l'Entreprise */}
+                      {websiteAnalysis.company_story && (
+                        <div className="mb-4">
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">📚 Histoire de l'Entreprise:</p>
+                          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded p-3 border border-purple-200">
+                            {websiteAnalysis.company_story.mission && (
+                              <div className="mb-2">
+                                <p className="text-xs font-medium text-gray-700">Mission:</p>
+                                <p className="text-xs text-gray-600">{websiteAnalysis.company_story.mission}</p>
+                              </div>
+                            )}
+                            {websiteAnalysis.company_story.values && websiteAnalysis.company_story.values.length > 0 && (
+                              <div className="mb-2">
+                                <p className="text-xs font-medium text-gray-700">Valeurs:</p>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {websiteAnalysis.company_story.values.map((value, i) => (
+                                    <span key={i} className="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded">
+                                      {value}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Preuve Sociale */}
+                      {websiteAnalysis.social_proof && (
+                        <div className="mb-4">
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">🏆 Preuve Sociale:</p>
+                          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded p-3 border border-yellow-200">
+                            {websiteAnalysis.social_proof.testimonials && websiteAnalysis.social_proof.testimonials.length > 0 && (
+                              <div className="mb-2">
+                                <p className="text-xs font-medium text-gray-700">Témoignages:</p>
+                                {websiteAnalysis.social_proof.testimonials.map((testimonial, i) => (
+                                  <p key={i} className="text-xs text-gray-600 italic mt-1">"{testimonial}"</p>
+                                ))}
+                              </div>
+                            )}
+                            {websiteAnalysis.social_proof.achievements && websiteAnalysis.social_proof.achievements.length > 0 && (
+                              <div>
+                                <p className="text-xs font-medium text-gray-700">Réalisations:</p>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {websiteAnalysis.social_proof.achievements.map((achievement, i) => (
+                                    <span key={i} className="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded">
+                                      {achievement}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Mine de Contenu */}
+                      {websiteAnalysis.content_goldmine && (
+                        <div className="mb-4">
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">💎 Mine de Contenu:</p>
+                          <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded p-3 border border-teal-200">
+                            {websiteAnalysis.content_goldmine.expertise_areas && websiteAnalysis.content_goldmine.expertise_areas.length > 0 && (
+                              <div className="mb-2">
+                                <p className="text-xs font-medium text-gray-700">Domaines d'expertise:</p>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {websiteAnalysis.content_goldmine.expertise_areas.map((area, i) => (
+                                    <span key={i} className="bg-teal-100 text-teal-800 text-xs px-2 py-0.5 rounded">
+                                      {area}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            {websiteAnalysis.content_goldmine.tips_tricks && websiteAnalysis.content_goldmine.tips_tricks.length > 0 && (
+                              <div>
+                                <p className="text-xs font-medium text-gray-700">Conseils pratiques identifiés:</p>
+                                {websiteAnalysis.content_goldmine.tips_tricks.map((tip, i) => (
+                                  <p key={i} className="text-xs text-gray-600 mt-1">• {tip}</p>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Stratégie Hashtags */}
+                      {websiteAnalysis.hashtag_strategy && (
+                        <div className="mb-4">
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">🏷️ Stratégie Hashtags:</p>
+                          <div className="bg-gradient-to-r from-rose-50 to-pink-50 rounded p-3 border border-rose-200">
+                            {websiteAnalysis.hashtag_strategy.primary && websiteAnalysis.hashtag_strategy.primary.length > 0 && (
+                              <div className="mb-2">
+                                <p className="text-xs font-medium text-gray-700">Hashtags principaux:</p>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {websiteAnalysis.hashtag_strategy.primary.map((hashtag, i) => (
+                                    <span key={i} className="bg-rose-100 text-rose-800 text-xs px-2 py-0.5 rounded">
+                                      {hashtag}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            {websiteAnalysis.hashtag_strategy.secondary && websiteAnalysis.hashtag_strategy.secondary.length > 0 && (
+                              <div>
+                                <p className="text-xs font-medium text-gray-700">Hashtags secondaires:</p>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {websiteAnalysis.hashtag_strategy.secondary.map((hashtag, i) => (
+                                    <span key={i} className="bg-pink-100 text-pink-800 text-xs px-2 py-0.5 rounded">
+                                      {hashtag}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Idées Contenu Visuel */}
+                      {websiteAnalysis.visual_content_ideas && websiteAnalysis.visual_content_ideas.length > 0 && (
+                        <div className="mb-4">
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">🎨 Idées Contenu Visuel:</p>
+                          <div className="space-y-2">
+                            {websiteAnalysis.visual_content_ideas.map((idea, index) => (
+                              <div key={index} className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded p-2 border border-indigo-200">
+                                <p className="text-xs text-gray-700">{idea}</p>
                               </div>
                             ))}
                           </div>

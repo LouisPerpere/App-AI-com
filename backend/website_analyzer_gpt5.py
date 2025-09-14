@@ -408,48 +408,131 @@ CONTENU TEXTUEL GLOBAL (pour contexte):
 {text_content[:2000]}
 """
     
-    # Prompt enrichi pour analyse approfondie
-    enhanced_prompt = f"""Tu es un expert en analyse web et stratégie digitale. Analyse ce site web EN PROFONDEUR en exploitant TOUTES les pages pour extraire un MAXIMUM d'informations détaillées.
+    # Prompt ULTRA-APPROFONDI pour analyse maximale
+    ultra_deep_prompt = f"""Tu es un analyste expert en intelligence business et étude de marché. Ta mission : analyser ce site web de manière EXHAUSTIVE pour extraire TOUTES les informations exploitables, en particulier pour la création de contenu marketing et de posts sociaux.
 
 CONTENU COMPLET DU SITE AVEC DÉTAILS PAR PAGE :
 {enriched_content}
 
-Fournis une analyse APPROFONDIE et STRUCTURÉE selon ce format JSON :
+Fournis une analyse ULTRA-APPROFONDIE selon ce format JSON ÉTENDU :
 
 {{
-    "analysis_summary": "Un résumé détaillé et complet de l'entreprise (300-400 mots) incluant : QUI ils sont, CE QU'ILS FONT exactement, COMMENT ils le font, leurs SPÉCIALITÉS, leur APPROCHE, leurs VALEURS, leur EXPÉRIENCE",
+    "analysis_summary": "Résumé complet et détaillé de l'entreprise (400-500 mots) incluant : QUI ils sont, CE QU'ILS FONT exactement, COMMENT ils le font, leurs SPÉCIALITÉS, leur APPROCHE, leurs VALEURS, leur EXPÉRIENCE, leur HISTOIRE, leur POSITIONNEMENT MARCHÉ",
     
-    "key_topics": ["topic1", "topic2", "topic3", "topic4", "topic5", "topic6", "topic7"],
-    
-    "brand_tone": "le ton de communication dominant (professionnel/décontracté/premium/accessible/expert/etc.)",
-    
-    "target_audience": "description PRÉCISE du public cible avec démographie, besoins, motivations, comportements",
-    
-    "main_services": ["service détaillé 1", "service détaillé 2", "service détaillé 3", "service détaillé 4"],
-    
-    "content_suggestions": [
-        "suggestion 1 - basée sur les services spécifiques identifiés", 
-        "suggestion 2 - basée sur l'expertise détectée",
-        "suggestion 3 - basée sur les produits/projets trouvés",
-        "suggestion 4 - basée sur les valeurs/approche de l'entreprise",
-        "suggestion 5 - basée sur le public cible identifié"
+    "products_catalog": [
+        {{
+            "name": "Nom exact du produit/service",
+            "description": "Description détaillée",
+            "price": "Prix si mentionné ou 'Non spécifié'",
+            "features": ["caractéristique 1", "caractéristique 2"],
+            "target": "Public cible spécifique",
+            "keywords": ["mot-clé 1", "mot-clé 2"]
+        }}
     ],
     
-    "products_services_details": "Détails PRÉCIS sur tous les produits/services trouvés avec caractéristiques, tarifs si mentionnés, processus, spécialités",
+    "services_detailed": [
+        {{
+            "service_name": "Nom exact du service",
+            "description": "Description complète",
+            "process": "Processus ou méthodologie si mentionné",
+            "duration": "Durée si spécifiée",
+            "pricing": "Tarification si mentionnée",
+            "benefits": ["bénéfice 1", "bénéfice 2"],
+            "target_clients": "Type de clients visés"
+        }}
+    ],
     
-    "company_expertise": "Domaines d'expertise spécifiques, compétences uniques, années d'expérience, certifications, références",
+    "company_story": {{
+        "founding": "Histoire de création, quand, comment, pourquoi",
+        "mission": "Mission de l'entreprise",
+        "vision": "Vision d'avenir",
+        "values": ["valeur 1", "valeur 2", "valeur 3"],
+        "milestones": ["étape clé 1", "étape clé 2"]
+    }},
     
-    "unique_value_proposition": "Ce qui différencie vraiment cette entreprise de ses concurrents selon les pages analysées"
+    "team_expertise": {{
+        "founder_info": "Informations sur le/les fondateur(s)",
+        "team_size": "Taille de l'équipe si mentionnée",
+        "key_skills": ["compétence 1", "compétence 2"],
+        "certifications": ["certification 1", "certification 2"],
+        "experience_years": "Années d'expérience globales"
+    }},
+    
+    "social_proof": {{
+        "testimonials": ["témoignage 1", "témoignage 2"],
+        "case_studies": ["étude de cas 1", "étude de cas 2"],
+        "client_names": ["client 1", "client 2"],
+        "achievements": ["réalisation 1", "réalisation 2"],
+        "awards": ["prix/reconnaissance 1", "prix/reconnaissance 2"]
+    }},
+    
+    "content_goldmine": {{
+        "blog_topics": ["sujet de blog identifié 1", "sujet 2"],
+        "expertise_areas": ["domaine d'expertise 1", "domaine 2"],
+        "industry_insights": ["insight industrie 1", "insight 2"],
+        "tips_tricks": ["conseil pratique 1", "conseil 2"],
+        "behind_scenes": ["coulisse identifiée 1", "coulisse 2"]
+    }},
+    
+    "competitive_intel": {{
+        "positioning": "Comment ils se positionnent vs la concurrence",
+        "differentiators": ["différenciateur 1", "différenciateur 2"],
+        "unique_approaches": ["approche unique 1", "approche 2"],
+        "market_focus": "Focus marché spécifique"
+    }},
+    
+    "contact_business": {{
+        "locations": ["localisation 1", "localisation 2"],
+        "contact_methods": ["méthode 1", "méthode 2"],
+        "business_hours": "Horaires si mentionnés",
+        "service_areas": ["zone de service 1", "zone 2"]
+    }},
+    
+    "key_topics": ["topic1", "topic2", "topic3", "topic4", "topic5", "topic6", "topic7", "topic8", "topic9", "topic10"],
+    
+    "brand_tone": "Ton de communication dominant avec nuances (professionnel/décontracté/premium/accessible/expert/technique/émotionnel/etc.)",
+    
+    "target_audience": "Description ULTRA-PRÉCISE du public cible : âge, profession, revenus, problématiques, motivations, comportements d'achat, canaux préférés",
+    
+    "main_services": ["service détaillé 1 avec spécificités", "service détaillé 2 avec processus", "service détaillé 3 avec bénéfices", "service détaillé 4 avec cible"],
+    
+    "content_suggestions": [
+        "Post produit : [suggestion basée sur produit/service spécifique]",
+        "Post expertise : [suggestion basée sur compétence identifiée]",
+        "Post témoignage : [suggestion basée sur preuve sociale]",
+        "Post éducatif : [suggestion basée sur expertise métier]",
+        "Post coulisses : [suggestion basée sur processus/équipe]",
+        "Post tendance : [suggestion basée sur positionnement marché]",
+        "Post engagement : [suggestion basée sur valeurs/mission]"
+    ],
+    
+    "hashtag_strategy": {{
+        "primary": ["#hashtag_principal_1", "#hashtag_principal_2", "#hashtag_principal_3"],
+        "secondary": ["#hashtag_niche_1", "#hashtag_niche_2", "#hashtag_niche_3"],
+        "local": ["#hashtag_local_1", "#hashtag_local_2"],
+        "branded": ["#hashtag_marque_1", "#hashtag_marque_2"]
+    }},
+    
+    "visual_content_ideas": [
+        "Idée visuelle 1 basée sur produits/services",
+        "Idée visuelle 2 basée sur processus",
+        "Idée visuelle 3 basée sur équipe/coulisses",
+        "Idée visuelle 4 basée sur résultats clients"
+    ]
 }}
 
-INSTRUCTIONS CRITIQUES :
-- Exploite CHAQUE page analysée pour extraire des détails spécifiques
-- Identifie TOUS les services/produits mentionnés avec leurs détails
-- Relève les SPÉCIALITÉS, PROCESSUS, MÉTHODES de travail
-- Note les RÉFÉRENCES, TÉMOIGNAGES, RÉALISATIONS trouvées
-- Extrais les informations sur l'ÉQUIPE, l'HISTOIRE, les VALEURS
-- Sois PRÉCIS et FACTUEL, évite les généralités
-- Utilise les mots-clés et termes EXACTS trouvés sur le site"""
+INSTRUCTIONS ULTRA-SPÉCIFIQUES :
+- EXTRAIT CHAQUE DÉTAIL EXPLOITABLE de chaque page
+- IDENTIFIE tous produits/services avec prix, caractéristiques, processus
+- RELÈVE tous témoignages, noms de clients, chiffres, réalisations
+- ANALYSE le langage utilisé pour identifier le ton et les valeurs
+- DÉTECTE les mots-clés récurrents et le champ sémantique
+- REPÈRE les éléments différenciants vs la concurrence
+- NOTE tous les éléments visuels décrits ou mentionnés
+- EXTRAIT les informations géographiques et de contact
+- IDENTIFIE les opportunités de contenu dans chaque section
+- SOIS FACTUEL : utilise les termes EXACTS trouvés sur le site
+- PENSE MARKETING : chaque information doit être exploitable pour créer du contenu"""
 
     try:
         client = OpenAI(api_key=API_KEY)
@@ -462,7 +545,7 @@ INSTRUCTIONS CRITIQUES :
                 },
                 {
                     "role": "user",
-                    "content": enhanced_prompt
+                    "content": ultra_deep_prompt
                 }
             ],
             temperature=0.5,  # Équilibre entre précision et richesse

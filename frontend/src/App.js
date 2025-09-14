@@ -4778,10 +4778,18 @@ function MainApp() {
                       {websiteAnalysis.analysis_type === 'gpt4o_plus_claude_storytelling' && (
                         <div className="mb-4">
                           <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-2 border border-gray-200">
-                            <div className="flex gap-4 text-xs text-gray-500">
+                            <div className="flex gap-4 text-xs text-gray-500 mb-1">
                               <span>🧠 Business: {websiteAnalysis.business_ai || 'GPT-4o'}</span>
                               <span>✨ Storytelling: {websiteAnalysis.storytelling_ai || 'Claude Sonnet 4'}</span>
                             </div>
+                            {websiteAnalysis.pages_analyzed && websiteAnalysis.pages_analyzed.length > 0 && (
+                              <div className="text-xs text-gray-500">
+                                📊 Analyse approfondie de {websiteAnalysis.pages_analyzed.length} pages
+                                {websiteAnalysis.non_technical_pages_count && (
+                                  <span> ({websiteAnalysis.non_technical_pages_count} pages de contenu)</span>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}

@@ -1351,29 +1351,11 @@ async def analyze_website_robust(
             code, msg = content_data["error"]
             return JSONResponse(status_code=code, content={"error": msg})
 
-        # Step 3: Orchestration Double IA (GPT-4o Business + Claude Narrative)
-        logging.info(f"🎭 About to start dual AI orchestration for {url}")
+        # Step 3: Enhanced GPT-4o analysis with multi-page context
+        logging.info(f"🚀 About to call analyze_with_gpt4o for {url}")
         logging.info(f"🔍 Content data keys: {list(content_data.keys())}")
-        
-        # Nouvelle orchestration parallèle
-        dual_analysis = await orchestrate_dual_analysis(content_data)
-        logging.info(f"🎯 Dual orchestration completed, result type: {type(dual_analysis)}")
-        
-        # Extraire les résultats des deux analyses
-        business_analysis = dual_analysis.get("business_analysis", {})
-        narrative_analysis = dual_analysis.get("narrative_analysis", {})
-        
-        # Fusionner les analyses pour compatibilité avec le frontend
-        analysis_result = {
-            "analysis_summary": business_analysis.get("content", ""),
-            "narrative_insights": narrative_analysis.get("content", ""),
-            "orchestration_info": dual_analysis.get("orchestration_summary", {}),
-            "key_topics": [],  # Sera extrait du business_analysis
-            "brand_tone": "professionnel",  # Sera extrait du narrative_analysis
-            "target_audience": "",  # Sera extrait du business_analysis
-            "main_services": [],  # Sera extrait du business_analysis
-            "content_suggestions": []  # Fusionné des deux analyses
-        }
+        analysis_result = await analyze_with_gpt4o_only(content_data, url)
+        logging.info(f"🎯 analyze_with_gpt4o completed, result type: {type(analysis_result)}")
 
         # Step 4: Prepare enhanced response with GPT-4o only analysis
         analysis_data = {

@@ -1481,14 +1481,20 @@ function MainApp() {
     } catch (error) {
       console.error('Auth check failed:', error);
       
-      // Only remove token if it's actually invalid
+      // Only remove token and logout if it's actually an authentication error
       if (error.response?.status === 401 || error.response?.status === 403) {
+        console.log('Authentication invalid, logging out');
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
         delete axios.defaults.headers.common['Authorization'];
+        setIsAuthenticated(false);
+      } else {
+        // For network errors or other issues, keep the user logged in
+        console.log('Network error during auth check, keeping user logged in');
+        // Keep isAuthenticated as true if we have a token
+        const token = localStorage.getItem('access_token');
+        setIsAuthenticated(!!token);
       }
-      
-      setIsAuthenticated(false);
     }
   };
 

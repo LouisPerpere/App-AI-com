@@ -561,8 +561,8 @@ async def put_business_profile(body: BusinessProfileIn, user_id: str = Depends(g
         update = {k: v for k, v in body.dict().items() if v is not None}
         if not update:
             return {"success": True, "message": "No changes"}
-        # Use owner_id to match the GET endpoint field
-        business_profiles.update_one({"owner_id": user_id}, {"$set": update}, upsert=True)
+        # Use user_id to match the GET endpoint field
+        business_profiles.update_one({"user_id": user_id}, {"$set": update}, upsert=True)
         return {"success": True}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update business profile: {str(e)}")

@@ -328,12 +328,12 @@ La marque se positionne sur un territoire d'expertise et de confiance, créant u
 
 
 async def analyze_with_gpt4o_only(content_data: dict, website_url: str) -> dict:
-    """Analyze website content using GPT-4o only (no backup system)"""
+    """Analyse approfondie avec GPT-4o - exploitation complète de toutes les pages"""
     if not OPENAI_AVAILABLE or not API_KEY:
         logging.warning("OpenAI not available, using fallback analysis")
         return create_fallback_analysis(content_data, website_url, "openai_unavailable")
     
-    # Handle multi-page content structure
+    # Extraire les données multi-pages avec détails approfondis
     title = content_data.get('title', content_data.get('meta_title', ''))
     description = content_data.get('description', content_data.get('meta_description', ''))
     text_content = content_data.get('text_content', content_data.get('content_text', ''))
@@ -341,31 +341,116 @@ async def analyze_with_gpt4o_only(content_data: dict, website_url: str) -> dict:
     h2_tags = content_data.get('h2_tags', [])
     pages_analyzed = content_data.get('pages_analyzed', [])
     
-    # Build comprehensive content for analysis
-    content_summary = f"""
-    Site web: {website_url}
-    Titre: {title or 'Non défini'}
-    Description: {description or 'Non définie'}
-    H1: {h1_tags}
-    H2: {h2_tags[:10]}  # Limit H2 tags
-    Pages analysées: {len(pages_analyzed)} pages
-    Contenu: {text_content[:3000] if text_content else 'Non disponible'}
-    """
+    # Construire une analyse détaillée par page
+    pages_details = []
+    homepage_content = ""
     
-    prompt = f"""
-    Analyse ce site web en profondeur et réponds UNIQUEMENT par un JSON structuré:
-    {{
-        "analysis_summary": "Un résumé détaillé de l'entreprise (200-300 mots)",
-        "key_topics": ["topic1", "topic2", "topic3", "topic4", "topic5"],
-        "brand_tone": "le ton de communication",
-        "target_audience": "description du public cible principal",
-        "main_services": ["service1", "service2", "service3"],
-        "content_suggestions": ["suggestion1", "suggestion2", "suggestion3", "suggestion4"]
-    }}
+    for page_info in pages_analyzed:
+        page_url = page_info.get('url', '')
+        page_title = page_info.get('title', '')
+        page_content = page_info.get('content', '')
+        page_h1 = page_info.get('h1_tags', [])
+        page_h2 = page_info.get('h2_tags', [])
+        
+        # Identifier le type de page (éviter les pages techniques)
+        url_lower = page_url.lower()
+        is_technical = any(tech in url_lower for tech in [
+            '/legal', '/privacy', '/terms', '/cookies', '/sitemap', 
+            '/robots.txt', '/404', '/admin', '/login', '/register'
+        ])
+        
+        if not is_technical and page_content:
+            # Classifier la page
+            page_type = "homepage" if page_url == website_url else "other"
+            if any(keyword in url_lower for keyword in ['/product', '/service', '/offer']):
+                page_type = "product_service"
+            elif any(keyword in url_lower for keyword in ['/blog', '/news', '/article']):
+                page_type = "blog_content"
+            elif any(keyword in url_lower for keyword in ['/about', '/team', '/company']):
+                page_type = "about_company"
+            elif any(keyword in url_lower for keyword in ['/contact', '/support']):
+                page_type = "contact_support"
+            
+            if page_type == "homepage":
+                homepage_content = f"""
+HOMEPAGE ({page_url}):
+Titre: {page_title}
+H1: {', '.join(page_h1[:3])}
+H2: {', '.join(page_h2[:5])}
+Contenu: {page_content[:1500]}
+"""
+            else:
+                page_detail = f"""
+PAGE {page_type.upper()} ({page_url}):
+Titre: {page_title}
+H1: {', '.join(page_h1[:3])}
+H2: {', '.join(page_h2[:5])}
+Contenu détaillé: {page_content[:1200]}
+"""
+                pages_details.append(page_detail)
+    
+    # Construire le contenu enrichi pour l'analyse
+    enriched_content = f"""
+SITE WEB: {website_url}
+TITRE PRINCIPAL: {title}
+DESCRIPTION META: {description}
 
-    {content_summary}
-    """
+{homepage_content}
+
+PAGES DÉTAILLÉES ANALYSÉES ({len(pages_details)} pages):
+{''.join(pages_details)}
+
+STRUCTURE GLOBALE:
+H1 de toutes les pages: {', '.join(h1_tags[:10])}
+H2 de toutes les pages: {', '.join(h2_tags[:15])}
+
+CONTENU TEXTUEL GLOBAL (pour contexte):
+{text_content[:2000]}
+"""
     
+    # Prompt enrichi pour analyse approfondie
+    enhanced_prompt = f"""Tu es un expert en analyse web et stratégie digitale. Analyse ce site web EN PROFONDEUR en exploitant TOUTES les pages pour extraire un MAXIMUM d'informations détaillées.
+
+CONTENU COMPLET DU SITE AVEC DÉTAILS PAR PAGE :
+{enriched_content}
+
+Fournis une analyse APPROFONDIE et STRUCTURÉE selon ce format JSON :
+
+{{
+    "analysis_summary": "Un résumé détaillé et complet de l'entreprise (300-400 mots) incluant : QUI ils sont, CE QU'ILS FONT exactement, COMMENT ils le font, leurs SPÉCIALITÉS, leur APPROCHE, leurs VALEURS, leur EXPÉRIENCE",
+    
+    "key_topics": ["topic1", "topic2", "topic3", "topic4", "topic5", "topic6", "topic7"],
+    
+    "brand_tone": "le ton de communication dominant (professionnel/décontracté/premium/accessible/expert/etc.)",
+    
+    "target_audience": "description PRÉCISE du public cible avec démographie, besoins, motivations, comportements",
+    
+    "main_services": ["service détaillé 1", "service détaillé 2", "service détaillé 3", "service détaillé 4"],
+    
+    "content_suggestions": [
+        "suggestion 1 - basée sur les services spécifiques identifiés", 
+        "suggestion 2 - basée sur l'expertise détectée",
+        "suggestion 3 - basée sur les produits/projets trouvés",
+        "suggestion 4 - basée sur les valeurs/approche de l'entreprise",
+        "suggestion 5 - basée sur le public cible identifié"
+    ],
+    
+    "products_services_details": "Détails PRÉCIS sur tous les produits/services trouvés avec caractéristiques, tarifs si mentionnés, processus, spécialités",
+    
+    "company_expertise": "Domaines d'expertise spécifiques, compétences uniques, années d'expérience, certifications, références",
+    
+    "unique_value_proposition": "Ce qui différencie vraiment cette entreprise de ses concurrents selon les pages analysées"
+}}
+
+INSTRUCTIONS CRITIQUES :
+- Exploite CHAQUE page analysée pour extraire des détails spécifiques
+- Identifie TOUS les services/produits mentionnés avec leurs détails
+- Relève les SPÉCIALITÉS, PROCESSUS, MÉTHODES de travail
+- Note les RÉFÉRENCES, TÉMOIGNAGES, RÉALISATIONS trouvées
+- Extrais les informations sur l'ÉQUIPE, l'HISTOIRE, les VALEURS
+- Sois PRÉCIS et FACTUEL, évite les généralités
+- Utilise les mots-clés et termes EXACTS trouvés sur le site"""
+
     try:
         client = OpenAI(api_key=API_KEY)
         response = client.chat.completions.create(
@@ -373,20 +458,20 @@ async def analyze_with_gpt4o_only(content_data: dict, website_url: str) -> dict:
             messages=[
                 {
                     "role": "system",
-                    "content": "Tu es un expert en analyse web et stratégie digitale. Réponds UNIQUEMENT en JSON valide."
+                    "content": "Tu es un expert en analyse web approfondie. Tu extrais le maximum d'informations détaillées de chaque page d'un site. Réponds UNIQUEMENT en JSON valide avec tous les détails trouvés."
                 },
                 {
                     "role": "user",
-                    "content": prompt
+                    "content": enhanced_prompt
                 }
             ],
-            temperature=0.7,
-            max_tokens=2000
+            temperature=0.5,  # Équilibre entre précision et richesse
+            max_tokens=3000   # Plus de tokens pour plus de détails
         )
         
         raw_response = response.choices[0].message.content
         
-        # Parse JSON
+        # Parse JSON avec gestion des erreurs
         clean_response = raw_response.strip()
         if clean_response.startswith('```json'):
             clean_response = clean_response[7:]
@@ -394,12 +479,18 @@ async def analyze_with_gpt4o_only(content_data: dict, website_url: str) -> dict:
             clean_response = clean_response[:-3]
         
         result = json.loads(clean_response.strip())
-        logging.info(f"✅ GPT-4o only analysis completed for {website_url}")
+        
+        # Ajouter des métadonnées sur l'analyse approfondie
+        result["analysis_depth"] = "enhanced_multi_page"
+        result["pages_analyzed_count"] = len(pages_analyzed)
+        result["non_technical_pages_count"] = len(pages_details)
+        
+        logging.info(f"✅ GPT-4o enhanced analysis completed for {website_url} - {len(pages_details)} pages in depth")
         return result
         
     except Exception as e:
-        logging.error(f"❌ GPT-4o only analysis failed: {e}")
-        return create_fallback_analysis(content_data, website_url, f"gpt4o_error: {str(e)}")
+        logging.error(f"❌ GPT-4o enhanced analysis failed: {e}")
+        return create_fallback_analysis(content_data, website_url, f"gpt4o_enhanced_error: {str(e)}")
 
 def create_fallback_analysis(content_data: dict, website_url: str, reason: str = "fallback") -> dict:
     title = content_data.get('meta_title', '').strip() or website_url

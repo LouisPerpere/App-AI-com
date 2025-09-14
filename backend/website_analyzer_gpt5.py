@@ -1502,11 +1502,14 @@ async def analyze_website_robust(
         
         logging.info(f"🎯 Parallel analyses completed - GPT-4o + Claude Storytelling")
 
-        # Step 4: Prepare enhanced response with GPT-4o only analysis
+        # Step 4: Prepare enhanced response with GPT-4o + Claude Storytelling
         analysis_data = {
             "analysis_summary": analysis_result.get("analysis_summary", ""),
-            "narrative_insights": "",  # Not available in GPT-4o only mode
-            "orchestration_info": {},  # Not available in GPT-4o only mode
+            "storytelling_analysis": analysis_result.get("storytelling_analysis", ""),
+            "storytelling_ai": analysis_result.get("storytelling_ai", "Claude Sonnet 4"),
+            "storytelling_type": analysis_result.get("storytelling_type", "storytelling_narrative"),
+            "narrative_insights": "",  # Kept for compatibility but empty
+            "orchestration_info": {},  # Kept for compatibility but empty
             "key_topics": analysis_result.get("key_topics", []),
             "brand_tone": analysis_result.get("brand_tone", "professionnel"),
             "target_audience": analysis_result.get("target_audience", ""),
@@ -1515,9 +1518,9 @@ async def analyze_website_robust(
             "website_url": url,
             "pages_analyzed": content_data.get("pages_analyzed", []),
             "pages_count": len(important_pages),
-            "analysis_type": "gpt4o_only",
+            "analysis_type": "gpt4o_plus_claude_storytelling",
             "business_ai": "GPT-4o",
-            "narrative_ai": "None",
+            "narrative_ai": "Claude Sonnet 4",
             "created_at": datetime.utcnow().isoformat(),
             "next_analysis_due": (datetime.utcnow() + timedelta(days=30)).isoformat()
         }

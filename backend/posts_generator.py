@@ -695,6 +695,12 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         if website_analysis.get('content_opportunities'):
             context_parts.append(f"Opportunités de contenu: {website_analysis['content_opportunities']}")
         
+        # ✨ NOUVELLE SECTION : Analyse Storytelling Claude Sonnet 4
+        if website_analysis.get('storytelling_analysis'):
+            context_parts.append("\n=== 🎭 ANALYSE STORYTELLING (Claude Sonnet 4) ===")
+            context_parts.append(f"Analyse narrative et storytelling: {website_analysis['storytelling_analysis']}")
+            context_parts.append(f"IA utilisée pour storytelling: {website_analysis.get('storytelling_ai', 'Claude Sonnet 4')}")
+        
         return "\n".join(context_parts)
     
     def _prepare_content_inventory(self, available_content: Dict) -> str:

@@ -520,7 +520,7 @@ async def get_business_profile(user_id: str = Depends(get_current_user_id_robust
         business_profiles = dbm.db.business_profiles
         
         # Récupérer le profil business de l'utilisateur depuis business_profiles
-        business_profile = business_profiles.find_one({"owner_id": user_id})
+        business_profile = business_profiles.find_one({"user_id": user_id})
         
         if not business_profile:
             # Si pas de profil business, retourner des valeurs par défaut

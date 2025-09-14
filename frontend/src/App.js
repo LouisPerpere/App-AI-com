@@ -4796,7 +4796,7 @@ function MainApp() {
                         </div>
                       )}
 
-                      {/* Services principaux */}
+                      {/* Services principaux avec détails */}
                       {websiteAnalysis.main_services && websiteAnalysis.main_services.length > 0 && (
                         <div className="mb-4">
                           <p className="font-semibold text-gray-700 mb-2 text-xs">🛠️ Services principaux:</p>
@@ -4806,6 +4806,36 @@ function MainApp() {
                                 <p className="text-xs text-gray-700">{service}</p>
                               </div>
                             ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Détails produits/services (nouveau) */}
+                      {websiteAnalysis.products_services_details && (
+                        <div className="mb-4">
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">📦 Détails produits/services:</p>
+                          <div className="bg-blue-50 rounded p-3 border border-blue-200">
+                            <p className="text-gray-700 text-sm leading-relaxed">{websiteAnalysis.products_services_details}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Expertise de l'entreprise (nouveau) */}
+                      {websiteAnalysis.company_expertise && (
+                        <div className="mb-4">
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">🎯 Expertise:</p>
+                          <div className="bg-green-50 rounded p-3 border border-green-200">
+                            <p className="text-gray-700 text-sm leading-relaxed">{websiteAnalysis.company_expertise}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Proposition de valeur unique (nouveau) */}
+                      {websiteAnalysis.unique_value_proposition && (
+                        <div className="mb-4">
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">💎 Proposition de valeur unique:</p>
+                          <div className="bg-yellow-50 rounded p-3 border border-yellow-200">
+                            <p className="text-gray-700 text-sm leading-relaxed">{websiteAnalysis.unique_value_proposition}</p>
                           </div>
                         </div>
                       )}

@@ -215,6 +215,118 @@ async def analyze_with_gpt4o(content_data: dict, website_url: str) -> dict:
     """Analyze website content using GPT-4o via OpenAI direct integration (now with Claude backup)"""
     return await analyze_with_gpt4o_and_claude_backup(content_data, website_url)
 
+async def analyze_with_claude_storytelling(content_data: dict, website_url: str) -> dict:
+    """Analyse storytelling avec Claude Sonnet 4 - dimension narrative et inspiration"""
+    
+    # Initialiser le système LLM
+    from llm_backup_system import LLMBackupSystem
+    llm_system = LLMBackupSystem()
+    
+    # Préparer le contenu pour l'analyse storytelling
+    title = content_data.get('title', content_data.get('meta_title', ''))
+    description = content_data.get('description', content_data.get('meta_description', ''))
+    text_content = content_data.get('text_content', content_data.get('content_text', ''))
+    h1_tags = content_data.get('h1_tags', [])
+    h2_tags = content_data.get('h2_tags', [])
+    pages_analyzed = content_data.get('pages_analyzed', [])
+    
+    # Construire le contenu pour analyse narrative
+    content_summary = f"""
+    Site web: {website_url}
+    Titre: {title or 'Non défini'}
+    Description: {description or 'Non définie'}
+    H1: {h1_tags}
+    H2: {h2_tags[:10]}
+    Pages analysées: {len(pages_analyzed)} pages
+    Contenu: {text_content[:3000] if text_content else 'Non disponible'}
+    """
+    
+    # Prompt spécialisé pour Claude Sonnet 4 (Storytelling)
+    storytelling_prompt = f"""Tu es un expert en storytelling de marque et stratégie narrative. Analyse ce site web pour révéler sa dimension émotionnelle, son potentiel narratif et ses opportunités de storytelling.
+
+Contenu du site web à analyser :
+{content_summary}
+
+Fournis une analyse STORYTELLING INSPIRANTE selon ce format :
+
+**VISION ET STORYTELLING**
+[Un paragraphe de 60-80 mots qui raconte l'HISTOIRE de la marque, son essence émotionnelle, ce qu'elle représente vraiment au-delà de ses services. Utilise un ton engageant et évocateur.]
+
+**POSITIONNEMENT NARRATIF**
+[Un paragraphe de 50-70 mots qui explique le TERRITOIRE ÉMOTIONNEL de la marque, son univers narratif, comment elle touche son audience. Mets l'accent sur l'aspirationnel.]
+
+**AXES ÉDITORIAUX STORYTELLING**
+1. [Axe narratif 1] – [15-20 mots expliquant le potentiel storytelling]
+2. [Axe narratif 2] – [15-20 mots sur l'opportunité émotionnelle] 
+3. [Axe narratif 3] – [15-20 mots sur l'angle humain unique]
+4. [Axe narratif 4] – [15-20 mots sur la dimension aspirationnelle]
+
+**CONTENUS NARRATIFS RECOMMANDÉS**
+• [Format storytelling 1 : angle émotionnel spécifique]
+• [Format storytelling 2 : angle témoignage transformé]
+• [Format storytelling 3 : angle communauté/appartenance]
+• [Format storytelling 4 : angle expertise avec dimension humaine]
+
+IMPORTANT : Sois INSPIRANT, ÉVOCATEUR et axé sur l'ÉMOTION. Révèle le potentiel narratif et storytelling de la marque."""
+
+    try:
+        # Messages pour Claude Sonnet 4
+        messages = [
+            {
+                "role": "system",
+                "content": "Tu es un expert en storytelling de marque et stratégie narrative. Tu révèles la dimension émotionnelle et le potentiel narratif des marques."
+            },
+            {
+                "role": "user",
+                "content": storytelling_prompt
+            }
+        ]
+        
+        # Utiliser Claude Sonnet 4 via le système LLM avec stratégie storytelling
+        response = await llm_system.generate_completion_with_strategy(
+            messages=messages,
+            business_objective="communaute",  # Force narrative/community focus
+            brand_tone="storytelling",  # Force Claude primary selection
+            platform="instagram",
+            temperature=0.8,  # Plus élevé pour plus de créativité narrative
+            max_tokens=1200
+        )
+        
+        return {
+            "storytelling_analysis": response,
+            "ai_used": "Claude Sonnet 4",
+            "analysis_type": "storytelling_narrative",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Claude storytelling analysis failed: {e}")
+        
+        # Fallback storytelling basique
+        return {
+            "storytelling_analysis": f"""**VISION ET STORYTELLING**
+{title or 'Cette marque'} représente une approche authentique et personnalisée dans son domaine. Elle incarne les valeurs de qualité et de proximité avec ses clients.
+
+**POSITIONNEMENT NARRATIF**
+La marque se positionne sur un territoire d'expertise et de confiance, créant une relation privilégiée avec son audience à travers une communication authentique.
+
+**AXES ÉDITORIAUX STORYTELLING**
+1. Authenticité – Montrer les coulisses et la réalité du métier
+2. Expertise – Partager les connaissances et savoir-faire unique
+3. Communauté – Créer du lien avec les clients et témoignages
+4. Innovation – Présenter les nouveautés avec dimension humaine
+
+**CONTENUS NARRATIFS RECOMMANDÉS**
+• Stories behind-the-scenes : Montrer l'envers du décor
+• Témoignages clients transformés en récits inspirants  
+• Posts éducatifs avec storytelling autour de l'expertise
+• Contenus communauté créant du lien et de l'appartenance""",
+            "ai_used": "Fallback",
+            "analysis_type": "storytelling_fallback",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
+
 async def analyze_with_gpt4o_only(content_data: dict, website_url: str) -> dict:
     """Analyze website content using GPT-4o only (no backup system)"""
     if not OPENAI_AVAILABLE or not API_KEY:

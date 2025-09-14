@@ -4750,12 +4750,38 @@ function MainApp() {
                         </div>
                       )}
                       
-                      {/* Résumé de l'analyse */}
+                      {/* Analyse GPT-4o (Business/Structure) */}
                       {websiteAnalysis.analysis_summary && (
                         <div className="mb-4">
-                          <p className="font-semibold text-gray-700 mb-2 text-xs">📋 Résumé de l'analyse:</p>
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">📋 Analyse Business (GPT-4o):</p>
                           <div className="bg-white rounded p-3 border">
                             <p className="text-gray-700 leading-relaxed text-sm">{websiteAnalysis.analysis_summary}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Analyse Claude Storytelling (Dimension Narrative) */}
+                      {websiteAnalysis.storytelling_analysis && (
+                        <div className="mb-4">
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">
+                            ✨ Analyse Storytelling (Claude Sonnet 4):
+                          </p>
+                          <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded p-3 border border-purple-200">
+                            <div className="text-gray-700 leading-relaxed text-sm whitespace-pre-line">
+                              {websiteAnalysis.storytelling_analysis}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Indicateur des IA utilisées */}
+                      {websiteAnalysis.analysis_type === 'gpt4o_plus_claude_storytelling' && (
+                        <div className="mb-4">
+                          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-2 border border-gray-200">
+                            <div className="flex gap-4 text-xs text-gray-500">
+                              <span>🧠 Business: {websiteAnalysis.business_ai || 'GPT-4o'}</span>
+                              <span>✨ Storytelling: {websiteAnalysis.storytelling_ai || 'Claude Sonnet 4'}</span>
+                            </div>
                           </div>
                         </div>
                       )}

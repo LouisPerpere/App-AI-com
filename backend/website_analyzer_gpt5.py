@@ -1624,8 +1624,23 @@ async def analyze_website_robust(
             "next_analysis_due": (datetime.utcnow() + timedelta(days=30)).isoformat()
         }
 
-        # Step 5: Save enhanced analysis to MongoDB
+        # Step 5: Save analysis to database with business profile verification
         try:
+            # CRITICAL: Verify business profile exists before saving (prevent data loss)
+            from database import get_database
+            dbm = get_database()
+            business_profile_check = dbm.db.business_profiles.find_one({"user_id": user_id})
+            if not business_profile_check:
+                logging.warning(f"🚨 CRITICAL: Business profile missing for user {user_id} - skipping database save to prevent data loss")
+                # Still return the analysis but don't save to avoid cascading issues
+                return {
+                    "status": "analyzed",
+                    "message": f"Analyse complète : GPT-4o + Claude Storytelling - {analysis_data['pages_count']} pages analysées (profile check failed)",
+                    "warning": "Business profile verification failed - analysis not saved to database",
+                    **analysis_data
+                }
+            
+            # Proceed with normal database save
             import pymongo
             mongo_url = os.environ.get("MONGO_URL")
             client = pymongo.MongoClient(mongo_url)

@@ -311,8 +311,8 @@ class LLMBackupSystem:
         try:
             raw_response = await self.generate_completion(
                 messages=messages,
-                temperature=0.7,
-                max_tokens=2000
+                temperature=0.6,  # Équilibre entre créativité et précision
+                max_tokens=3500   # Plus de tokens pour des réponses ultra-détaillées
             )
             
             # Parser la réponse JSON

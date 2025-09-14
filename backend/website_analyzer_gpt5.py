@@ -1599,6 +1599,14 @@ async def analyze_website_robust(
             "storytelling_analysis": analysis_result.get("storytelling_analysis", ""),
             "storytelling_ai": analysis_result.get("storytelling_ai", "Claude Sonnet 4"),
             "storytelling_type": analysis_result.get("storytelling_type", "storytelling_narrative"),
+            # Nouveaux champs d'analyse approfondie
+            "products_services_details": analysis_result.get("products_services_details", ""),
+            "company_expertise": analysis_result.get("company_expertise", ""),
+            "unique_value_proposition": analysis_result.get("unique_value_proposition", ""),
+            "analysis_depth": analysis_result.get("analysis_depth", "enhanced_multi_page"),
+            "pages_analyzed_count": analysis_result.get("pages_analyzed_count", len(important_pages)),
+            "non_technical_pages_count": analysis_result.get("non_technical_pages_count", 0),
+            # Champs existants
             "narrative_insights": "",  # Kept for compatibility but empty
             "orchestration_info": {},  # Kept for compatibility but empty
             "key_topics": analysis_result.get("key_topics", []),

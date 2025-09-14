@@ -4750,45 +4750,12 @@ function MainApp() {
                         </div>
                       )}
                       
-                      {/* Indicateur de l'orchestration IA */}
-                      {websiteAnalysis.analysis_type === 'dual_orchestrated' && (
-                        <div className="mb-4">
-                          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-3 border border-blue-200">
-                            <p className="text-xs font-medium text-gray-600 mb-1">
-                              🎭 Analyse orchestrée avec double IA
-                            </p>
-                            <div className="flex gap-4 text-xs text-gray-500">
-                              <span>🧠 Business: {websiteAnalysis.business_ai || 'GPT-4o'}</span>
-                              <span>✨ Narrative: {websiteAnalysis.narrative_ai || 'Claude Sonnet 4'}</span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Analyse Business (GPT-4o) */}
+                      {/* Résumé de l'analyse */}
                       {websiteAnalysis.analysis_summary && (
                         <div className="mb-4">
-                          <p className="font-semibold text-gray-700 mb-2 text-xs">
-                            🧠 Analyse Business (GPT-4o) - Vue structurée et actionnable:
-                          </p>
+                          <p className="font-semibold text-gray-700 mb-2 text-xs">📋 Résumé de l'analyse:</p>
                           <div className="bg-white rounded p-3 border">
-                            <div className="text-gray-700 leading-relaxed text-sm whitespace-pre-line">
-                              {websiteAnalysis.analysis_summary}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Analyse Narrative (Claude Sonnet 4) */}
-                      {websiteAnalysis.narrative_insights && (
-                        <div className="mb-4">
-                          <p className="font-semibold text-gray-700 mb-2 text-xs">
-                            ✨ Analyse Narrative (Claude Sonnet 4) - Vision et storytelling:
-                          </p>
-                          <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded p-3 border border-purple-200">
-                            <div className="text-gray-700 leading-relaxed text-sm whitespace-pre-line">
-                              {websiteAnalysis.narrative_insights}
-                            </div>
+                            <p className="text-gray-700 leading-relaxed text-sm">{websiteAnalysis.analysis_summary}</p>
                           </div>
                         </div>
                       )}

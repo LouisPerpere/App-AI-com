@@ -237,26 +237,64 @@ class LLMBackupSystem:
     ) -> Dict[str, Any]:
         """Analyse de contenu web avec backup"""
         
-        # Prompt pour l'analyse de site web
+        # Prompt ULTRA-APPROFONDI pour analyse maximale (sans changer la structure JSON)
         prompt = f"""
-        Analyse ce site web en profondeur et réponds UNIQUEMENT par un JSON structuré avec les clés suivantes:
+        Tu es un analyste expert en intelligence business et marketing digital. Ta mission : analyser ce site web de manière EXHAUSTIVE pour extraire un MAXIMUM d'informations exploitables pour la création de contenu marketing et posts sociaux.
+
+        Analyse CHAQUE élément du site en profondeur et réponds UNIQUEMENT par un JSON structuré avec les clés suivantes:
         {{
-            "analysis_summary": "Un résumé détaillé de l'entreprise et de ses activités (200-300 mots)",
-            "key_topics": ["topic1", "topic2", "topic3", "topic4", "topic5"],
-            "brand_tone": "le ton de communication (professionnel/décontracté/premium/accessible)",
-            "target_audience": "description du public cible principal",
-            "main_services": ["service1", "service2", "service3"],
-            "content_suggestions": ["suggestion1", "suggestion2", "suggestion3", "suggestion4"]
+            "analysis_summary": "Un résumé ULTRA-DÉTAILLÉ de l'entreprise (400-600 mots) incluant : QUI ils sont exactement (nom, histoire, fondateurs), CE QU'ILS FONT en détail (tous leurs produits/services avec spécificités), COMMENT ils le font (processus, méthodes, approche unique), leurs SPÉCIALITÉS techniques, leur POSITIONNEMENT marché, leurs VALEURS et mission, leur EXPÉRIENCE (années, réalisations, clients), leurs DIFFÉRENCIATEURS vs concurrence, leurs TÉMOIGNAGES clients si mentionnés, leurs TARIFS/PRIX si indiqués, leur ZONE géographique, leurs CERTIFICATIONS/PRIX, leurs ÉQUIPES/EXPERTISE, tous les DÉTAILS exploitables pour créer du contenu spécifique",
+            
+            "key_topics": ["Extraire 8-12 sujets précis du site : tous les produits/services mentionnés, les domaines d'expertise, les mots-clés récurrents, les spécialités techniques, les valeurs/approches, les résultats/réalisations, les processus uniques, etc."],
+            
+            "brand_tone": "Analyser finement le ton de communication avec nuances : professionnel/décontracté/premium/accessible/expert/technique/émotionnel/storytelling - être précis sur le style exact utilisé",
+            
+            "target_audience": "Description ULTRA-PRÉCISE du public cible en analysant tous les indices : âge estimé, profession/secteur, niveau de revenus suggéré, problématiques adressées, motivations, comportements d'achat, canaux préférés, langage utilisé pour s'adresser à eux, exemples de clients mentionnés",
+            
+            "main_services": ["Lister TOUS les services/produits trouvés avec leurs spécificités exactes : 'Service X - processus Y - bénéfice Z - cible W - prix P si mentionné', inclure tous les détails trouvés : durées, méthodologies, outils utilisés, livrables, garanties, etc."],
+            
+            "content_suggestions": ["Générer 6-8 suggestions de posts TRÈS SPÉCIFIQUES basées sur les éléments concrets trouvés : 'Post produit X avec caractéristique Y pour problème Z', 'Post témoignage client A avec résultat B', 'Post processus C avec étapes D-E-F', 'Post expertise G avec conseil H', 'Post coulisses I avec équipe J', 'Post réalisation K avec chiffres L', etc. - chaque suggestion doit être exploitable immédiatement"]
         }}
 
-        Site web: {website_url}
-        Titre de la page: {content_data.get('meta_title', 'Non défini')}
-        Description: {content_data.get('meta_description', 'Non définie')}
-        Titres H1: {content_data.get('h1_tags', [])}
-        Titres H2: {content_data.get('h2_tags', [])}
-        Contenu principal: {content_data.get('text_content', 'Non disponible')[:2000]}
+        CONTENU DU SITE À ANALYSER EN PROFONDEUR :
+        
+        URL du site: {website_url}
+        Titre principal: {content_data.get('meta_title', 'Non défini')}
+        Description meta: {content_data.get('meta_description', 'Non définie')}
+        
+        TOUS les titres H1 (très importants): {content_data.get('h1_tags', [])}
+        TOUS les titres H2 (structure du contenu): {content_data.get('h2_tags', [])}
+        
+        CONTENU TEXTUEL COMPLET (à analyser mot par mot):
+        {content_data.get('text_content', 'Non disponible')[:4000]}
+        
+        PAGES ANALYSÉES: {len(content_data.get('pages_analyzed', []))} pages
+        Détails des pages: {[page.get('title', 'Sans titre') + ' - ' + page.get('url', '') for page in content_data.get('pages_analyzed', [])[:10]]}
 
-        IMPORTANT: Sois très généreux dans les détails. Plus c'est précis et détaillé, plus ce sera utile pour créer du contenu marketing pertinent.
+        INSTRUCTIONS ULTRA-SPÉCIFIQUES :
+        
+        🔍 EXTRACTION MAXIMALE :
+        - IDENTIFIE tous les produits/services avec noms exacts, caractéristiques, prix, processus
+        - RELÈVE tous les témoignages, noms de clients, chiffres de résultats, réalisations
+        - DÉTECTE tous les mots-clés métier, jargon technique, termes spécialisés
+        - ANALYSE le vocabulaire pour identifier le niveau d'expertise et le public visé  
+        - REPÈRE tous les éléments différenciants, points forts, avantages concurrentiels
+        - EXTRAIT les informations sur l'équipe, l'histoire, les valeurs, la mission
+        - NOTE tous les détails géographiques, horaires, contacts, modalités pratiques
+        
+        💡 PENSÉE MARKETING :
+        - CHAQUE information extraite doit être exploitable pour créer un post spécifique
+        - PRIORISE les éléments qui peuvent générer de l'engagement social
+        - IDENTIFIE les angles de contenu : expertise, coulisses, résultats, processus, équipe
+        - SUGGÈRE des posts concrets avec les éléments factuels trouvés
+        
+        📊 FACTUALITÉ TOTALE :
+        - Utilise les TERMES EXACTS trouvés sur le site (pas de paraphrase)
+        - CITE les chiffres, prix, durées, noms précis mentionnés
+        - BASE-toi uniquement sur ce qui est réellement écrit (pas d'invention)
+        - STRUCTURE les informations de manière exploitable pour le marketing
+        
+        OBJECTIF : Extraire suffisamment d'informations détaillées pour créer 50+ posts différents et ciblés !
         """
         
         messages = [

@@ -1423,7 +1423,7 @@ async def analyze_website_robust(
 
         return {
             "status": "analyzed",
-            "message": f"Enhanced analysis completed - {analysis_data['pages_count']} pages analyzed",
+            "message": f"GPT-4o analysis completed - {analysis_data['pages_count']} pages analyzed",
             **analysis_data
         }
         

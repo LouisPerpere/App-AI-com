@@ -522,22 +522,36 @@ async def get_business_profile(user_id: str = Depends(get_current_user_id_robust
     try:
         print(f"🔍 DEBUG: get_business_profile called for user_id: {user_id}")
         
-        # Utiliser directement pymongo pour éviter les problèmes de connexion
+        # Forcer le chargement du .env
+        from dotenv import load_dotenv
+        from pathlib import Path
+        env_path = Path(__file__).parent / '.env'
+        load_dotenv(env_path)
+        
+        # Utiliser directement pymongo avec la variable d'environnement
         import pymongo
         mongo_url = os.environ.get("MONGO_URL")
-        client = pymongo.MongoClient(mongo_url)
-        db = client.claire_marcus
-        business_profiles = db.business_profiles
+        print(f"🔍 DEBUG: MONGO_URL loaded: {mongo_url is not None}")
+        
+        if not mongo_url:
+            print(f"❌ DEBUG: MONGO_URL not found, trying get_database()")
+            dbm = get_database()
+            business_profiles = dbm.db.business_profiles
+        else:
+            client = pymongo.MongoClient(mongo_url)
+            db = client.claire_marcus
+            business_profiles = db.business_profiles
         
         # Récupérer le profil business de l'utilisateur depuis business_profiles
         business_profile = business_profiles.find_one({"user_id": user_id})
-        print(f"🔍 DEBUG: Profile found with pymongo direct: {business_profile is not None}")
+        print(f"🔍 DEBUG: Profile found: {business_profile is not None}")
         
         if business_profile:
             print(f"🔍 DEBUG: Business name in found profile: {business_profile.get('business_name')}")
         
-        # Fermer la connexion
-        client.close()
+        # Fermer la connexion si on a utilisé pymongo direct
+        if mongo_url:
+            client.close()
         
         if not business_profile:
             print(f"🔍 DEBUG: No profile found, returning defaults")
@@ -554,6 +568,7 @@ async def get_business_profile(user_id: str = Depends(get_current_user_id_robust
         
         non_null_count = len([v for v in out.values() if v is not None])
         print(f"🔍 DEBUG: Returning profile with {non_null_count} non-null fields")
+        print(f"🔍 DEBUG: Sample fields - business_name: {out.get('business_name')}, industry: {out.get('industry')}")
         return out
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch business profile: {str(e)}")

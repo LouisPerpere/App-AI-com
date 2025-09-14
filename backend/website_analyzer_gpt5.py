@@ -1100,14 +1100,26 @@ async def analyze_with_claude_narrative(content_data: Dict[str, Any]) -> Dict[st
     # Initialiser le système LLM
     llm_system = LLMBackupSystem()
     
-    # Préparer le contenu pour l'analyse
-    homepage_content = content_data.get('homepage', {}).get('content', '')
-    pages_content = []
-    for page_key, page_data in content_data.items():
-        if page_key != 'homepage' and isinstance(page_data, dict):
-            pages_content.append(f"Page {page_key}: {page_data.get('content', '')[:500]}")
+    # Préparer le contenu pour l'analyse depuis la vraie structure de content_data
+    title = content_data.get('title', '')
+    description = content_data.get('description', '')
+    text_content = content_data.get('text_content', '')
+    h1_tags = content_data.get('h1_tags', [])
+    h2_tags = content_data.get('h2_tags', [])
+    pages_analyzed = content_data.get('pages_analyzed', [])
     
-    combined_content = f"Homepage: {homepage_content}\n\nAutres pages:\n" + "\n".join(pages_content)
+    # Construire le contenu combiné pour l'analyse narrative
+    combined_content = f"""TITRE DU SITE: {title}
+DESCRIPTION: {description}
+
+CONTENUS PRINCIPAUX (H1): {', '.join(h1_tags[:5])}
+SOUS-TITRES (H2): {', '.join(h2_tags[:10])}
+
+CONTENU TEXTUEL EXTRAIT:
+{text_content[:3000]}
+
+PAGES ANALYSÉES: {len(pages_analyzed)} pages
+{', '.join([page.get('url', '') for page in pages_analyzed[:5]])}"""
     
     # Prompt spécialisé pour Claude Sonnet 4 (Narrative/Inspiration)
     narrative_prompt = f"""Tu es un expert en storytelling de marque et stratégie éditoriale. Analyse ce site web pour révéler sa VISION, son POSITIONNEMENT et ses OPPORTUNITÉS NARRATIVES.

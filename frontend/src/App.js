@@ -3614,7 +3614,10 @@ function MainApp() {
       }
 
       // Dismisser le toast de loading et arrêter la progression
-      clearInterval(progressInterval);
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
       setAnalysisProgress(100); // Compléter immédiatement la barre
       toast.dismiss('website-analysis');
       

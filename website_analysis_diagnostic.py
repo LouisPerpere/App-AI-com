@@ -219,7 +219,7 @@ class WebsiteAnalysisTestSuite:
         try:
             response = self.session.post(
                 f"{BASE_URL}/website/debug-analyze",
-                json={"url": "https://example.com"},
+                json={"website_url": "https://example.com"},
                 timeout=30
             )
             duration = time.time() - start_time

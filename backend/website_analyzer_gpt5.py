@@ -26,6 +26,9 @@ import re
 # Import du système LLM backup pour l'orchestration
 from llm_backup_system import LLMBackupSystem
 
+# Import database function for consistency
+from database import get_database
+
 # EXPLICIT .env loading to ensure JWT variables are available
 env_path = Path(__file__).parent / '.env'
 load_dotenv(env_path)

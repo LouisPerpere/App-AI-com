@@ -3619,11 +3619,13 @@ function MainApp() {
       toast.success(`Analyse terminée ! ${response.data.pages_count || 1} page(s) analysée(s)`);
       
     } catch (error) {
+      const errorMessage = error.response?.status === 408 ? 'Timeout - Site trop complexe à analyser' : error.response?.data?.error || error.response?.data?.detail || 'Erreur lors de l\'analyse du site web';
+      toast.error(`Erreur lors de l'analyse : ${errorMessage}`);
       console.error('Website analysis error:', error);
-      const errorMessage = error.response?.data?.error || error.response?.data?.detail || 'Erreur lors de l\'analyse du site web';
-      toast.error(errorMessage);
     } finally {
       setIsAnalyzing(false);
+      // S'assurer que le toast de loading soit bien supprimé
+      toast.dismiss('website-analysis');
     }
   };
 

@@ -288,8 +288,7 @@ backend:
 test_plan:
   current_focus:
     - "Website Analysis System - Mouline dans le vide Diagnostic"
-  stuck_tasks:
-    - "Website Analysis System - Mouline dans le vide Diagnostic"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 

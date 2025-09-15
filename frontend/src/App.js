@@ -1454,6 +1454,15 @@ function MainApp() {
     }
   }, [websiteAnalysis, persistedUrl, activeTab]); // Ajouter activeTab pour déclencher quand on change d'onglet
 
+  // DEBUG: Surveiller les changements de websiteAnalysis pour identifier les problèmes d'affichage
+  useEffect(() => {
+    console.log('🔍 websiteAnalysis changed:', websiteAnalysis ? 'RÉSULTAT PRÉSENT' : 'AUCUN RÉSULTAT');
+    if (websiteAnalysis) {
+      console.log('📊 Analysis data keys:', Object.keys(websiteAnalysis));
+      console.log('📄 Analysis summary length:', websiteAnalysis.analysis_summary?.length || 0);
+    }
+  }, [websiteAnalysis]);
+
   const checkAuth = async () => {
     const token = localStorage.getItem('access_token');
     

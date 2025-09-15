@@ -4939,7 +4939,9 @@ function MainApp() {
                               {typeof websiteAnalysis.products_services_details === 'string' 
                                 ? websiteAnalysis.products_services_details 
                                 : Array.isArray(websiteAnalysis.products_services_details) 
-                                  ? websiteAnalysis.products_services_details.join(' • ')
+                                  ? (websiteAnalysis.products_services_details.length > 0 
+                                     ? websiteAnalysis.products_services_details.join(' • ')
+                                     : 'Aucun détail spécifique sur les produits/services n\'a pu être extrait du site web.')
                                   : 'Informations produits/services non disponibles'
                               }
                             </p>

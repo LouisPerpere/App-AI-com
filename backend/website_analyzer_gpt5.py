@@ -1707,7 +1707,7 @@ async def _perform_website_analysis(url: str, user_id: str) -> dict:
         "storytelling_analysis": claude_result.get("storytelling_analysis", "Analyse narrative indisponible"),
         
         # Champs GPT-4o enrichis (nouvelles fonctionnalités)
-        "products_services_details": gpt4o_result.get("products_catalog", "Aucun détail précis sur les produits/services n'a été trouvé en raison de l'analyse limitée."),
+        "products_services_details": gpt4o_result.get("products_catalog") if gpt4o_result.get("products_catalog") else "Aucun détail spécifique sur les produits/services n'a été trouvé dans les pages analysées.",
         "company_expertise": gpt4o_result.get("team_expertise", "Informations sur l'expertise de l'entreprise non détaillées dans les pages analysées."),
         "unique_value_proposition": gpt4o_result.get("competitive_intel", {}).get("positioning", "Proposition de valeur unique non identifiée dans le contenu analysé."),
         "analysis_depth": "enhanced_multi_page",

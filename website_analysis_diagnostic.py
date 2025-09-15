@@ -1,362 +1,476 @@
 #!/usr/bin/env python3
 """
-Website Analysis Diagnostic Test
-Specifically designed to diagnose the critical issue where POST /api/website/analyze
-empties ALL fields in the "Entreprise" page frontend.
+DIAGNOSTIC MODULE ANALYSE DE SITE WEB - Backend Testing
+Testing the website analysis system that "mouline dans le vide" (spins endlessly)
+
+Focus: Identify where the website analysis gets stuck and why it never completes
+URL: https://insta-automate-2.preview.emergentagent.com/api
+Credentials: lperpere@yahoo.fr / L@Reunion974!
 """
 
 import requests
 import json
-import os
+import time
+import sys
 from datetime import datetime
 
-class WebsiteAnalysisDiagnostic:
-    def __init__(self):
-        # Use the frontend environment URL for testing
-        with open('/app/frontend/.env', 'r') as f:
-            env_content = f.read()
-            for line in env_content.split('\n'):
-                if line.startswith('REACT_APP_BACKEND_URL='):
-                    self.base_url = line.split('=')[1].strip()
-                    break
-            else:
-                self.base_url = "http://localhost:8001"
-            
-        self.api_url = f"{self.base_url}/api"
-        self.access_token = None
-        self.business_profile_before = None
-        self.business_profile_after = None
-        self.analysis_response = None
-        
-        print(f"🔍 Website Analysis Diagnostic Tool")
-        print(f"Backend URL: {self.base_url}")
-        print(f"API URL: {self.api_url}")
-        print("=" * 60)
+# Configuration
+BASE_URL = "https://insta-automate-2.preview.emergentagent.com/api"
+TEST_EMAIL = "lperpere@yahoo.fr"
+TEST_PASSWORD = "L@Reunion974!"
 
-    def authenticate(self):
-        """Authenticate with the specified credentials"""
-        login_data = {
-            "email": "lperpere@yahoo.fr",
-            "password": "L@Reunion974!"
-        }
+# Test URLs suggested in the review request
+TEST_URLS = [
+    "https://myownwatch.fr",  # User's simple site
+    "https://google.com",     # Very simple site for quick test
+    "https://example.com"     # Minimalist site
+]
+
+class WebsiteAnalysisTestSuite:
+    def __init__(self):
+        self.session = requests.Session()
+        self.session.headers.update({
+            'Content-Type': 'application/json',
+            'User-Agent': 'Website-Analysis-Diagnostic/1.0'
+        })
+        self.access_token = None
+        self.user_id = None
+        self.test_results = []
         
-        print("🔐 Authenticating with lperpere@yahoo.fr...")
+    def log_result(self, test_name, success, details, duration=None):
+        """Log test results with timing information"""
+        result = {
+            'test': test_name,
+            'success': success,
+            'details': details,
+            'duration': duration,
+            'timestamp': datetime.now().isoformat()
+        }
+        self.test_results.append(result)
+        
+        status = "✅ PASS" if success else "❌ FAIL"
+        duration_str = f" ({duration:.1f}s)" if duration else ""
+        print(f"{status}: {test_name}{duration_str}")
+        print(f"   Details: {details}")
+        print()
+
+    def test_authentication(self):
+        """Test 1: Authentication with provided credentials"""
+        start_time = time.time()
         
         try:
-            response = requests.post(f"{self.api_url}/auth/login", json=login_data)
-            print(f"   Status: {response.status_code}")
+            response = self.session.post(f"{BASE_URL}/auth/login-robust", json={
+                "email": TEST_EMAIL,
+                "password": TEST_PASSWORD
+            })
+            
+            duration = time.time() - start_time
             
             if response.status_code == 200:
                 data = response.json()
                 self.access_token = data.get('access_token')
-                print(f"   ✅ Authentication successful")
-                print(f"   Token: {self.access_token[:20]}..." if self.access_token else "   ❌ No token received")
-                return True
+                self.user_id = data.get('user_id')
+                
+                if self.access_token:
+                    self.session.headers['Authorization'] = f'Bearer {self.access_token}'
+                    self.log_result(
+                        "Authentication", 
+                        True, 
+                        f"Successfully authenticated user {self.user_id}",
+                        duration
+                    )
+                    return True
+                else:
+                    self.log_result("Authentication", False, "No access token received", duration)
+                    return False
             else:
-                print(f"   ❌ Authentication failed: {response.text}")
+                self.log_result(
+                    "Authentication", 
+                    False, 
+                    f"HTTP {response.status_code}: {response.text}",
+                    duration
+                )
                 return False
                 
         except Exception as e:
-            print(f"   ❌ Authentication error: {e}")
+            duration = time.time() - start_time
+            self.log_result("Authentication", False, f"Exception: {str(e)}", duration)
             return False
 
-    def get_business_profile(self, label=""):
-        """Get current business profile"""
-        if not self.access_token:
-            print("❌ No access token available")
-            return None
-            
-        headers = {'Authorization': f'Bearer {self.access_token}'}
+    def test_backend_health(self):
+        """Test 2: Backend health check"""
+        start_time = time.time()
         
         try:
-            response = requests.get(f"{self.api_url}/business-profile", headers=headers)
-            print(f"📊 Getting Business Profile {label}")
-            print(f"   Status: {response.status_code}")
+            response = self.session.get(f"{BASE_URL}/health")
+            duration = time.time() - start_time
             
             if response.status_code == 200:
                 data = response.json()
-                print(f"   ✅ Profile retrieved successfully")
-                
-                # Print key fields for comparison
-                key_fields = ['business_name', 'business_type', 'business_description', 
-                             'target_audience', 'email', 'website_url']
-                for field in key_fields:
-                    value = data.get(field, 'N/A')
-                    print(f"   {field}: {value}")
-                
-                return data
+                self.log_result(
+                    "Backend Health", 
+                    True, 
+                    f"API healthy: {data.get('service', 'Unknown service')}",
+                    duration
+                )
+                return True
             else:
-                print(f"   ❌ Failed to get profile: {response.text}")
-                return None
+                self.log_result(
+                    "Backend Health", 
+                    False, 
+                    f"HTTP {response.status_code}: {response.text}",
+                    duration
+                )
+                return False
                 
         except Exception as e:
-            print(f"   ❌ Error getting profile: {e}")
-            return None
+            duration = time.time() - start_time
+            self.log_result("Backend Health", False, f"Exception: {str(e)}", duration)
+            return False
 
-    def analyze_website(self):
-        """Test POST /api/website/analyze with specified parameters"""
-        if not self.access_token:
-            print("❌ No access token available")
-            return None
-            
-        headers = {'Authorization': f'Bearer {self.access_token}'}
-        
-        # Test data as specified in the request
-        analysis_data = {
-            "website_url": "https://example.com"
-        }
-        
-        print("🌐 Testing POST /api/website/analyze")
-        print(f"   URL: {self.api_url}/website/analyze")
-        print(f"   Data: {json.dumps(analysis_data, indent=2)}")
+    def test_website_analysis_endpoint(self, test_url, timeout=60):
+        """Test website analysis with specific URL and timeout monitoring"""
+        start_time = time.time()
         
         try:
-            response = requests.post(f"{self.api_url}/website/analyze", 
-                                   json=analysis_data, headers=headers)
-            print(f"   Status: {response.status_code}")
+            print(f"🔍 Testing website analysis for: {test_url}")
+            print(f"   Timeout set to: {timeout} seconds")
+            
+            response = self.session.post(
+                f"{BASE_URL}/website/analyze",
+                json={"url": test_url},
+                timeout=timeout
+            )
+            
+            duration = time.time() - start_time
             
             if response.status_code == 200:
                 data = response.json()
-                print(f"   ✅ Analysis completed successfully")
-                print(f"   Response structure:")
                 
-                # Analyze the complete response
-                self._analyze_response_structure(data)
+                # Check for required fields in response
+                required_fields = ['analysis_summary', 'storytelling_analysis', 'analysis_type']
+                missing_fields = [field for field in required_fields if field not in data]
                 
-                return data
+                if missing_fields:
+                    self.log_result(
+                        f"Website Analysis - {test_url}",
+                        False,
+                        f"Missing required fields: {missing_fields}. Duration: {duration:.1f}s",
+                        duration
+                    )
+                    return False
+                
+                # Check content quality
+                analysis_length = len(data.get('analysis_summary', ''))
+                storytelling_length = len(data.get('storytelling_analysis', ''))
+                
+                self.log_result(
+                    f"Website Analysis - {test_url}",
+                    True,
+                    f"Analysis completed successfully. Analysis: {analysis_length} chars, Storytelling: {storytelling_length} chars, Type: {data.get('analysis_type', 'unknown')}",
+                    duration
+                )
+                return True
+                
+            elif response.status_code == 408 or "timeout" in response.text.lower():
+                self.log_result(
+                    f"Website Analysis - {test_url}",
+                    False,
+                    f"TIMEOUT after {duration:.1f}s - This is the 'mouline dans le vide' issue!",
+                    duration
+                )
+                return False
+                
             else:
-                print(f"   ❌ Analysis failed: {response.text}")
-                return None
+                self.log_result(
+                    f"Website Analysis - {test_url}",
+                    False,
+                    f"HTTP {response.status_code}: {response.text[:200]}...",
+                    duration
+                )
+                return False
+                
+        except requests.exceptions.Timeout:
+            duration = time.time() - start_time
+            self.log_result(
+                f"Website Analysis - {test_url}",
+                False,
+                f"REQUEST TIMEOUT after {duration:.1f}s - Analysis 'mouline dans le vide'!",
+                duration
+            )
+            return False
+            
+        except Exception as e:
+            duration = time.time() - start_time
+            self.log_result(
+                f"Website Analysis - {test_url}",
+                False,
+                f"Exception after {duration:.1f}s: {str(e)}",
+                duration
+            )
+            return False
+
+    def test_debug_endpoints(self):
+        """Test debug endpoints to identify where analysis blocks"""
+        debug_tests = []
+        
+        # Test 1: Debug analyze endpoint
+        start_time = time.time()
+        try:
+            response = self.session.post(
+                f"{BASE_URL}/website/debug-analyze",
+                json={"url": "https://example.com"},
+                timeout=30
+            )
+            duration = time.time() - start_time
+            
+            if response.status_code == 200:
+                debug_tests.append(f"Debug analyze endpoint working ({duration:.1f}s)")
+            else:
+                debug_tests.append(f"Debug analyze failed: HTTP {response.status_code}")
                 
         except Exception as e:
-            print(f"   ❌ Analysis error: {e}")
-            return None
-
-    def _analyze_response_structure(self, data):
-        """Analyze the response structure in detail"""
-        print("   📋 COMPLETE RESPONSE ANALYSIS:")
-        print("   " + "="*50)
+            duration = time.time() - start_time
+            debug_tests.append(f"Debug analyze exception after {duration:.1f}s: {str(e)}")
         
-        # Print the full response
-        response_str = json.dumps(data, indent=4)
-        print(f"   Full Response:\n{response_str}")
-        
-        # Look for specific patterns that might cause issues
-        suspicious_patterns = []
-        
-        # Check for business profile related data
-        business_fields = ['business_name', 'business_type', 'business_description', 
-                          'target_audience', 'email', 'website_url', 'hashtags_primary', 
-                          'hashtags_secondary', 'brand_tone', 'posting_frequency']
-        
-        for field in business_fields:
-            if field in response_str.lower():
-                suspicious_patterns.append(f"Contains business field reference: {field}")
-        
-        # Check for empty values or null values
-        if 'null' in response_str or '""' in response_str or 'None' in response_str:
-            suspicious_patterns.append("Contains null/empty values")
-        
-        # Check for profile/user data
-        if 'profile' in response_str.lower() or 'user' in response_str.lower():
-            suspicious_patterns.append("Contains profile/user references")
-        
-        # Check for update/modify commands
-        update_keywords = ['update', 'modify', 'change', 'set', 'clear', 'reset']
-        for keyword in update_keywords:
-            if keyword in response_str.lower():
-                suspicious_patterns.append(f"Contains update keyword: {keyword}")
-        
-        if suspicious_patterns:
-            print("   ⚠️  SUSPICIOUS PATTERNS DETECTED:")
-            for pattern in suspicious_patterns:
-                print(f"      - {pattern}")
-        else:
-            print("   ✅ No obvious suspicious patterns detected")
-        
-        print("   " + "="*50)
-
-    def compare_profiles(self):
-        """Compare business profiles before and after analysis"""
-        if not self.business_profile_before or not self.business_profile_after:
-            print("❌ Cannot compare - missing profile data")
-            return
-        
-        print("🔍 COMPARING BUSINESS PROFILES BEFORE/AFTER ANALYSIS")
-        print("=" * 60)
-        
-        # Compare all fields
-        all_fields = set(self.business_profile_before.keys()) | set(self.business_profile_after.keys())
-        changes_detected = False
-        
-        for field in sorted(all_fields):
-            before_value = self.business_profile_before.get(field, 'MISSING')
-            after_value = self.business_profile_after.get(field, 'MISSING')
+        # Test 2: Super unique test endpoint
+        start_time = time.time()
+        try:
+            response = self.session.get(f"{BASE_URL}/website/super-unique-test-endpoint-12345", timeout=10)
+            duration = time.time() - start_time
             
-            if before_value != after_value:
-                changes_detected = True
-                print(f"❌ CHANGE DETECTED in {field}:")
-                print(f"   Before: {before_value}")
-                print(f"   After:  {after_value}")
+            if response.status_code == 200:
+                debug_tests.append(f"Test endpoint accessible ({duration:.1f}s)")
             else:
-                print(f"✅ {field}: No change")
+                debug_tests.append(f"Test endpoint: HTTP {response.status_code}")
+                
+        except Exception as e:
+            duration = time.time() - start_time
+            debug_tests.append(f"Test endpoint exception after {duration:.1f}s: {str(e)}")
         
-        if not changes_detected:
-            print("✅ NO CHANGES DETECTED in business profile")
-        else:
-            print("❌ CRITICAL: Business profile data changed after website analysis!")
-        
-        print("=" * 60)
+        self.log_result(
+            "Debug Endpoints",
+            len([t for t in debug_tests if "working" in t or "accessible" in t]) > 0,
+            "; ".join(debug_tests)
+        )
 
-    def test_side_effects(self):
-        """Test for any side effects that might cause field clearing"""
-        print("🔬 TESTING FOR SIDE EFFECTS")
-        print("=" * 40)
+    def test_llm_api_keys(self):
+        """Test if LLM API keys are working by checking environment/config"""
+        start_time = time.time()
         
-        # Test if analysis affects other endpoints
-        if not self.access_token:
-            print("❌ No access token available")
-            return
+        try:
+            # Test diagnostic endpoint to check API key status
+            response = self.session.get(f"{BASE_URL}/diag", timeout=10)
+            duration = time.time() - start_time
             
-        headers = {'Authorization': f'Bearer {self.access_token}'}
+            if response.status_code == 200:
+                data = response.json()
+                self.log_result(
+                    "LLM API Keys Check",
+                    True,
+                    f"Diagnostic endpoint accessible. Database: {data.get('database_connected', 'unknown')}",
+                    duration
+                )
+                return True
+            else:
+                self.log_result(
+                    "LLM API Keys Check",
+                    False,
+                    f"Diagnostic endpoint failed: HTTP {response.status_code}",
+                    duration
+                )
+                return False
+                
+        except Exception as e:
+            duration = time.time() - start_time
+            self.log_result(
+                "LLM API Keys Check",
+                False,
+                f"Exception: {str(e)}",
+                duration
+            )
+            return False
+
+    def test_timeout_scenarios(self):
+        """Test different timeout scenarios to identify blocking points"""
+        timeout_tests = []
         
-        # Test various endpoints that might be affected
-        test_endpoints = [
-            ("GET /api/auth/me", "auth/me"),
-            ("GET /api/notes", "notes"),
-            ("GET /api/bibliotheque", "bibliotheque")
-        ]
-        
-        for endpoint_name, endpoint_path in test_endpoints:
+        for timeout_duration in [10, 30, 60]:
+            start_time = time.time()
             try:
-                response = requests.get(f"{self.api_url}/{endpoint_path}", headers=headers)
-                print(f"   {endpoint_name}: Status {response.status_code}")
+                print(f"   Testing with {timeout_duration}s timeout...")
+                response = self.session.post(
+                    f"{BASE_URL}/website/analyze",
+                    json={"url": "https://example.com"},
+                    timeout=timeout_duration
+                )
+                
+                duration = time.time() - start_time
                 
                 if response.status_code == 200:
-                    data = response.json()
-                    # Look for any business profile data in the response
-                    response_str = json.dumps(data).lower()
-                    if any(field in response_str for field in ['business_name', 'business_type', 'email']):
-                        print(f"      ⚠️  Contains business profile data")
-                    else:
-                        print(f"      ✅ No business profile data")
+                    timeout_tests.append(f"{timeout_duration}s: SUCCESS ({duration:.1f}s)")
+                    break  # If it works with this timeout, no need to test longer ones
                 else:
-                    print(f"      ❌ Failed: {response.text[:100]}")
+                    timeout_tests.append(f"{timeout_duration}s: HTTP {response.status_code}")
                     
+            except requests.exceptions.Timeout:
+                duration = time.time() - start_time
+                timeout_tests.append(f"{timeout_duration}s: TIMEOUT after {duration:.1f}s")
             except Exception as e:
-                print(f"   {endpoint_name}: Error - {e}")
+                duration = time.time() - start_time
+                timeout_tests.append(f"{timeout_duration}s: Exception after {duration:.1f}s")
+        
+        success = any("SUCCESS" in test for test in timeout_tests)
+        self.log_result(
+            "Timeout Scenarios",
+            success,
+            "; ".join(timeout_tests)
+        )
 
-    def run_diagnostic(self):
-        """Run the complete diagnostic sequence"""
-        print("🚀 STARTING WEBSITE ANALYSIS DIAGNOSTIC")
-        print("=" * 60)
+    def run_comprehensive_diagnostic(self):
+        """Run comprehensive diagnostic of website analysis system"""
+        print("🚨 DIAGNOSTIC MODULE ANALYSE DE SITE WEB - 'Mouline dans le vide'")
+        print("=" * 70)
+        print(f"Testing backend: {BASE_URL}")
+        print(f"User credentials: {TEST_EMAIL}")
+        print(f"Test URLs: {', '.join(TEST_URLS)}")
+        print("=" * 70)
+        print()
         
-        # Step 1: Authenticate
-        if not self.authenticate():
-            print("❌ DIAGNOSTIC FAILED: Cannot authenticate")
+        # Step 1: Authentication
+        if not self.test_authentication():
+            print("❌ CRITICAL: Authentication failed - cannot proceed with tests")
             return False
         
-        # Step 2: Get business profile BEFORE analysis
-        print("\n" + "="*60)
-        self.business_profile_before = self.get_business_profile("(BEFORE ANALYSIS)")
-        if not self.business_profile_before:
-            print("❌ DIAGNOSTIC FAILED: Cannot get initial business profile")
-            return False
+        # Step 2: Backend health
+        self.test_backend_health()
         
-        # Step 3: Perform website analysis
-        print("\n" + "="*60)
-        self.analysis_response = self.analyze_website()
-        if not self.analysis_response:
-            print("❌ DIAGNOSTIC FAILED: Website analysis failed")
-            return False
+        # Step 3: Test website analysis with different URLs
+        print("🔍 TESTING WEBSITE ANALYSIS ENDPOINTS")
+        print("-" * 40)
         
-        # Step 4: Get business profile AFTER analysis
-        print("\n" + "="*60)
-        self.business_profile_after = self.get_business_profile("(AFTER ANALYSIS)")
-        if not self.business_profile_after:
-            print("❌ DIAGNOSTIC FAILED: Cannot get post-analysis business profile")
-            return False
+        for test_url in TEST_URLS:
+            self.test_website_analysis_endpoint(test_url, timeout=60)
+            time.sleep(2)  # Brief pause between tests
         
-        # Step 5: Compare profiles
-        print("\n" + "="*60)
-        self.compare_profiles()
+        # Step 4: Debug endpoints
+        print("🔧 TESTING DEBUG ENDPOINTS")
+        print("-" * 40)
+        self.test_debug_endpoints()
         
-        # Step 6: Test for side effects
-        print("\n" + "="*60)
-        self.test_side_effects()
+        # Step 5: LLM API keys check
+        print("🤖 TESTING LLM API CONFIGURATION")
+        print("-" * 40)
+        self.test_llm_api_keys()
         
-        # Step 7: Final analysis
-        print("\n" + "="*60)
-        self.final_analysis()
+        # Step 6: Timeout scenarios
+        print("⏱️ TESTING TIMEOUT SCENARIOS")
+        print("-" * 40)
+        self.test_timeout_scenarios()
+        
+        # Summary
+        self.print_diagnostic_summary()
         
         return True
 
-    def final_analysis(self):
-        """Provide final analysis and recommendations"""
-        print("📋 FINAL DIAGNOSTIC ANALYSIS")
-        print("=" * 60)
+    def print_diagnostic_summary(self):
+        """Print comprehensive diagnostic summary"""
+        print("\n" + "=" * 70)
+        print("🎯 DIAGNOSTIC SUMMARY - WEBSITE ANALYSIS 'MOULINE DANS LE VIDE'")
+        print("=" * 70)
         
-        # Check if the issue is reproduced
-        profiles_changed = self.business_profile_before != self.business_profile_after
+        total_tests = len(self.test_results)
+        passed_tests = len([r for r in self.test_results if r['success']])
+        failed_tests = total_tests - passed_tests
         
-        if profiles_changed:
-            print("❌ CRITICAL ISSUE CONFIRMED:")
-            print("   Business profile data changed after website analysis")
-            print("   This explains why frontend fields appear to be 'emptied'")
-            
-            # Identify the root cause
-            print("\n🔍 ROOT CAUSE ANALYSIS:")
-            
-            # Check if it's a demo mode issue
-            if (self.business_profile_after.get('business_name') == 'Demo Business' and
-                self.business_profile_after.get('email') == 'demo@claire-marcus.com'):
-                print("   ✅ ROOT CAUSE IDENTIFIED: Demo mode hardcoded responses")
-                print("   The backend is returning hardcoded demo data instead of user data")
-                print("   This makes it appear that user data is 'erased' when it's actually")
-                print("   just being overwritten by demo responses")
-            
-            # Check for other patterns
-            elif all(not value or value == "" for value in self.business_profile_after.values() if isinstance(value, str)):
-                print("   ✅ ROOT CAUSE IDENTIFIED: Fields actually being cleared")
-                print("   The analysis endpoint is somehow clearing the business profile data")
-            
-            else:
-                print("   ⚠️  ROOT CAUSE UNCLEAR: Data changed but pattern not recognized")
+        print(f"📊 OVERALL RESULTS:")
+        print(f"   Total tests: {total_tests}")
+        print(f"   Passed: {passed_tests}")
+        print(f"   Failed: {failed_tests}")
+        print(f"   Success rate: {(passed_tests/total_tests)*100:.1f}%")
+        print()
         
+        # Critical issues
+        critical_issues = []
+        timeout_issues = []
+        
+        for result in self.test_results:
+            if not result['success']:
+                if 'timeout' in result['details'].lower() or 'mouline' in result['details'].lower():
+                    timeout_issues.append(f"   - {result['test']}: {result['details']}")
+                else:
+                    critical_issues.append(f"   - {result['test']}: {result['details']}")
+        
+        if timeout_issues:
+            print("🚨 TIMEOUT ISSUES IDENTIFIED (Root cause of 'mouline dans le vide'):")
+            for issue in timeout_issues:
+                print(issue)
+            print()
+        
+        if critical_issues:
+            print("❌ OTHER CRITICAL ISSUES:")
+            for issue in critical_issues:
+                print(issue)
+            print()
+        
+        # Performance analysis
+        analysis_times = []
+        for result in self.test_results:
+            if 'Website Analysis' in result['test'] and result['duration']:
+                analysis_times.append(result['duration'])
+        
+        if analysis_times:
+            avg_time = sum(analysis_times) / len(analysis_times)
+            max_time = max(analysis_times)
+            print(f"⏱️ PERFORMANCE ANALYSIS:")
+            print(f"   Average analysis time: {avg_time:.1f}s")
+            print(f"   Maximum analysis time: {max_time:.1f}s")
+            print(f"   Expected time: <60s")
+            
+            if max_time > 60:
+                print(f"   🚨 ISSUE: Analysis taking longer than 60s timeout!")
+            print()
+        
+        # Recommendations
+        print("💡 RECOMMENDATIONS:")
+        if timeout_issues:
+            print("   1. 🔍 INVESTIGATE LLM API CALLS - Check OpenAI and Claude API response times")
+            print("   2. 🔍 CHECK CONTENT EXTRACTION - Verify website scraping is not hanging")
+            print("   3. 🔍 MONITOR BACKUP SYSTEM - Ensure fallback LLM system works correctly")
+            print("   4. 🔍 ADD LOGGING - Implement detailed logging in website_analyzer_gpt5.py")
+        
+        if not self.access_token:
+            print("   1. ❌ FIX AUTHENTICATION - Cannot test without valid credentials")
+        
+        print("   5. 🔧 IMPLEMENT TIMEOUT HANDLING - Add proper timeout management in analysis")
+        print("   6. 📊 ADD PROGRESS INDICATORS - Show analysis progress to user")
+        print()
+        
+        print("🎯 CONCLUSION:")
+        if timeout_issues:
+            print("   The 'mouline dans le vide' issue is confirmed - website analysis is timing out.")
+            print("   Focus investigation on LLM API calls and content extraction processes.")
+        elif failed_tests == 0:
+            print("   All tests passed - the issue may be intermittent or environment-specific.")
         else:
-            print("✅ NO ISSUE DETECTED:")
-            print("   Business profile data remained unchanged after website analysis")
-            print("   The reported issue may be frontend-specific or intermittent")
+            print("   Multiple issues identified - see critical issues above for details.")
         
-        print("\n💡 RECOMMENDATIONS:")
-        
-        if profiles_changed:
-            print("   1. Fix backend to return actual user data instead of demo data")
-            print("   2. Ensure website analysis doesn't modify business profile")
-            print("   3. Add proper data persistence for business profile updates")
-            print("   4. Test with real database instead of demo mode")
-        else:
-            print("   1. Test with different user accounts and data")
-            print("   2. Check frontend state management after API calls")
-            print("   3. Monitor network requests in browser developer tools")
-            print("   4. Test with various website URLs and parameters")
-        
-        print("\n📊 ANALYSIS RESPONSE SUMMARY:")
-        if self.analysis_response:
-            print(f"   Response contains {len(self.analysis_response)} fields")
-            print(f"   Response size: {len(json.dumps(self.analysis_response))} characters")
-            
-            # Check if response contains business profile data
-            response_str = json.dumps(self.analysis_response).lower()
-            business_fields_in_response = [field for field in ['business_name', 'business_type', 'email', 'website_url'] 
-                                         if field in response_str]
-            if business_fields_in_response:
-                print(f"   ⚠️  Response contains business fields: {business_fields_in_response}")
-            else:
-                print("   ✅ Response doesn't contain business profile fields")
-        
-        print("=" * 60)
+        print("=" * 70)
+
+def main():
+    """Main diagnostic function"""
+    print("Starting Website Analysis Diagnostic...")
+    
+    tester = WebsiteAnalysisTestSuite()
+    
+    try:
+        tester.run_comprehensive_diagnostic()
+    except KeyboardInterrupt:
+        print("\n⚠️ Diagnostic interrupted by user")
+    except Exception as e:
+        print(f"\n❌ Diagnostic failed with exception: {str(e)}")
+    
+    print("\nDiagnostic completed.")
 
 if __name__ == "__main__":
-    diagnostic = WebsiteAnalysisDiagnostic()
-    diagnostic.run_diagnostic()
+    main()

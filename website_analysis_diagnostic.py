@@ -138,7 +138,7 @@ class WebsiteAnalysisTestSuite:
             
             response = self.session.post(
                 f"{BASE_URL}/website/analyze",
-                json={"url": test_url},
+                json={"website_url": test_url},
                 timeout=timeout
             )
             

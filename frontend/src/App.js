@@ -3540,13 +3540,39 @@ function MainApp() {
     }
 
     setIsAnalyzing(true);
+    setAnalysisProgress(0); // Reset barre de progression
+    
+    // Barre de progression fictive qui se remplit sur 90 secondes
+    const progressInterval = setInterval(() => {
+      setAnalysisProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(progressInterval);
+          return 100;
+        }
+        // Progression non-linéaire : plus lente au début, plus rapide à la fin
+        const increment = prev < 30 ? 0.5 : prev < 70 ? 1.2 : 0.8;
+        return Math.min(prev + increment, 99); // Ne pas dépasser 99% tant que l'analyse n'est pas finie
+      });
+    }, 1000); // Mise à jour chaque seconde
     
     try {
-      // Toast d'information avec indicateur de progression
-      toast.loading('Analyse du site web en cours... Cela peut prendre jusqu\'à 45 secondes pour les sites complexes.', {
-        id: 'website-analysis',
-        duration: 50000 // Affichage pendant 50 secondes max
-      });
+      // Toast avec barre de progression
+      toast.loading(
+        <div className="flex flex-col space-y-2">
+          <span>Analyse approfondie en cours... (jusqu'à 90 secondes)</span>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full transition-all duration-1000"
+              style={{ width: `${analysisProgress}%` }}
+            ></div>
+          </div>
+          <span className="text-xs text-gray-600">{Math.round(analysisProgress)}% - Extraction et analyse IA...</span>
+        </div>,
+        {
+          id: 'website-analysis',
+          duration: 95000 // 95 secondes pour être sûr
+        }
+      );
       
       // CONTOURNEMENT PROXY: Essayer d'abord l'endpoint normal, puis localhost si échec
       let response;

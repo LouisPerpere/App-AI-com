@@ -4741,10 +4741,27 @@ function MainApp() {
                     className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isAnalyzing ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Analyse en cours...</span>
-                      </>
+                      <div className="flex flex-col items-center space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>Analyse approfondie en cours...</span>
+                        </div>
+                        {/* Barre de progression fictive */}
+                        <div className="w-full bg-white bg-opacity-20 rounded-full h-2">
+                          <div 
+                            className="bg-white h-2 rounded-full transition-all duration-1000 ease-out"
+                            style={{ width: `${analysisProgress}%` }}
+                          ></div>
+                        </div>
+                        <div className="text-xs text-white text-opacity-80">
+                          {Math.round(analysisProgress)}% - {
+                            analysisProgress < 20 ? 'Découverte des pages...' :
+                            analysisProgress < 50 ? 'Extraction du contenu...' :
+                            analysisProgress < 80 ? 'Analyse IA GPT-4o...' :
+                            'Finalisation Claude...'
+                          }
+                        </div>
+                      </div>
                     ) : (  
                       <>
                         {lastAnalysisInfo ? <RefreshCw className="w-4 h-4" /> : <Search className="w-4 h-4" />}

@@ -1667,21 +1667,21 @@ async def _perform_website_analysis(url: str, user_id: str) -> dict:
     important_pages = discover_website_pages(url, max_pages=3)  # Réduit de 5 à 3
     print(f"📋 Found {len(important_pages)} pages to analyze: {important_pages}")
     
-    # Step 2: Analyse multi-pages avec timeout réduit
+    # Step 2: Analyse multi-pages avec timeout augmenté
     print(f"📄 Step 2: Analyzing content...")
     content_data = await asyncio.wait_for(
         analyze_multiple_pages(important_pages, url),
-        timeout=20.0  # 20 secondes max pour l'extraction de contenu
+        timeout=35.0  # 35 secondes max pour l'extraction de contenu
     )
     
     if "error" in content_data:
         raise Exception(f"Content extraction failed: {content_data['error']}")
 
-    # Step 3: Analyses LLM en parallèle avec timeout
+    # Step 3: Analyses LLM en parallèle avec timeout augmenté
     print(f"🧠 Step 3: Running AI analysis...")
     
-    gpt4o_task = asyncio.wait_for(analyze_with_gpt4o_only(content_data, url), timeout=15.0)
-    claude_task = asyncio.wait_for(analyze_with_claude_storytelling(content_data, url), timeout=15.0)
+    gpt4o_task = asyncio.wait_for(analyze_with_gpt4o_only(content_data, url), timeout=25.0)
+    claude_task = asyncio.wait_for(analyze_with_claude_storytelling(content_data, url), timeout=25.0)
     
     # Attendre les résultats avec gestion d'erreur
     gpt4o_result, claude_result = await asyncio.gather(

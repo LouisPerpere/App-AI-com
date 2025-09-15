@@ -3556,23 +3556,11 @@ function MainApp() {
     }, 1000); // Mise à jour chaque seconde
     
     try {
-      // Toast avec barre de progression
-      toast.loading(
-        <div className="flex flex-col space-y-2">
-          <span>Analyse approfondie en cours... (jusqu'à 90 secondes)</span>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full transition-all duration-1000"
-              style={{ width: `${analysisProgress}%` }}
-            ></div>
-          </div>
-          <span className="text-xs text-gray-600">{Math.round(analysisProgress)}% - Extraction et analyse IA...</span>
-        </div>,
-        {
-          id: 'website-analysis',
-          duration: 95000 // 95 secondes pour être sûr
-        }
-      );
+      // Toast simple d'information
+      toast.loading('Analyse approfondie en cours... Durée maximale : 90 secondes', {
+        id: 'website-analysis',
+        duration: 95000 // 95 secondes pour être sûr
+      });
       
       // CONTOURNEMENT PROXY: Essayer d'abord l'endpoint normal, puis localhost si échec
       let response;

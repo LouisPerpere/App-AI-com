@@ -4938,7 +4938,9 @@ function MainApp() {
                             <p className="text-gray-700 text-sm leading-relaxed">
                               {typeof websiteAnalysis.products_services_details === 'string' 
                                 ? websiteAnalysis.products_services_details 
-                                : JSON.stringify(websiteAnalysis.products_services_details, null, 2).replace(/[{}",]/g, '').replace(/\n/g, ' • ')
+                                : Array.isArray(websiteAnalysis.products_services_details) 
+                                  ? websiteAnalysis.products_services_details.join(' • ')
+                                  : 'Informations produits/services non disponibles'
                               }
                             </p>
                           </div>

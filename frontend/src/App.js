@@ -4936,7 +4936,12 @@ function MainApp() {
                         <div className="mb-4">
                           <p className="font-semibold text-gray-700 mb-2 text-xs">🎯 Expertise:</p>
                           <div className="bg-green-50 rounded p-3 border border-green-200">
-                            <p className="text-gray-700 text-sm leading-relaxed">{websiteAnalysis.company_expertise}</p>
+                            <p className="text-gray-700 text-sm leading-relaxed">
+                              {typeof websiteAnalysis.company_expertise === 'string' 
+                                ? websiteAnalysis.company_expertise 
+                                : JSON.stringify(websiteAnalysis.company_expertise, null, 2).replace(/[{}",]/g, '').replace(/\n/g, ' • ')
+                              }
+                            </p>
                           </div>
                         </div>
                       )}

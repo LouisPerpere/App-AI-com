@@ -1731,7 +1731,8 @@ async def analyze_website_robust(
             import pymongo
             mongo_url = os.environ.get("MONGO_URL")
             client = pymongo.MongoClient(mongo_url)
-            dbp = client.claire_marcus
+            # Utiliser get_database() pour la cohérence
+            dbp = get_database()
             dbp.website_analyses.insert_one({
                 "user_id": user_id,
                 "website_url": url,

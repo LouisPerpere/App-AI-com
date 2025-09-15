@@ -1618,7 +1618,7 @@ async def analyze_website_robust(
     request: WebsiteAnalysisRequest,
     user_id: str = Depends(get_current_user_id_robust)
 ):
-    """Enhanced website analysis with multi-page scanning"""
+    """Enhanced website analysis with timeout handling and progress indicators"""
     from fastapi.responses import JSONResponse
 
     # Normalize URL
@@ -1630,141 +1630,130 @@ async def analyze_website_robust(
     logging.error(f"🔍 FORCED ERROR LOG - Starting analysis: {url} for user: {user_id}")
 
     try:
-        # Step 1: Discover important pages
-        important_pages = discover_website_pages(url, max_pages=5)
-        print(f"📋 Found {len(important_pages)} pages to analyze: {important_pages}")
-        
-        # Step 2: Analyze multiple pages
-        content_data = await analyze_multiple_pages(important_pages, url)
-        
-        if "error" in content_data:
-            code, msg = content_data["error"]
-            return JSONResponse(status_code=code, content={"error": msg})
-
-        # Step 3: Enhanced analyses - GPT-4o + Claude Storytelling en parallèle
-        logging.info(f"🚀 About to launch parallel analyses for {url}")
-        logging.info(f"🔍 Content data keys: {list(content_data.keys())}")
-        
-        # Lancer les deux analyses en parallèle
-        gpt4o_task = analyze_with_gpt4o_only(content_data, url)
-        claude_task = analyze_with_claude_storytelling(content_data, url)
-        
-        # Attendre les deux résultats
-        gpt4o_result, claude_result = await asyncio.gather(
-            gpt4o_task, 
-            claude_task,
-            return_exceptions=True
+        # TIMEOUT GLOBAL : 45 secondes pour éviter le "mouline dans le vide"
+        analysis_result = await asyncio.wait_for(
+            _perform_website_analysis(url, user_id),
+            timeout=45.0  # Timeout de 45 secondes au lieu de laisser tourner indéfiniment
         )
         
-        # Gérer les erreurs éventuelles pour GPT-4o
-        if isinstance(gpt4o_result, Exception):
-            logging.error(f"❌ GPT-4o analysis failed: {gpt4o_result}")
-            gpt4o_result = create_fallback_analysis(content_data, url, f"gpt4o_error: {str(gpt4o_result)}")
-            
-        # Gérer les erreurs éventuelles pour Claude
-        if isinstance(claude_result, Exception):
-            logging.error(f"❌ Claude storytelling analysis failed: {claude_result}")
-            claude_result = {
-                "storytelling_analysis": "Analyse storytelling non disponible pour le moment.",
-                "ai_used": "Error",
-                "analysis_type": "storytelling_error"
-            }
-        
-        # Combiner les résultats
-        analysis_result = gpt4o_result.copy()  # Base GPT-4o
-        analysis_result.update({
-            "storytelling_analysis": claude_result.get("storytelling_analysis", ""),
-            "storytelling_ai": claude_result.get("ai_used", "Claude Sonnet 4"),
-            "storytelling_type": claude_result.get("analysis_type", "storytelling_narrative")
-        })
-        
-        logging.info(f"🎯 Parallel analyses completed - GPT-4o + Claude Storytelling")
+        return analysis_result
 
-        # Step 4: Prepare enhanced response with GPT-4o + Claude Storytelling
-        analysis_data = {
-            "analysis_summary": analysis_result.get("analysis_summary", ""),
-            "storytelling_analysis": analysis_result.get("storytelling_analysis", ""),
-            "storytelling_ai": analysis_result.get("storytelling_ai", "Claude Sonnet 4"),
-            "storytelling_type": analysis_result.get("storytelling_type", "storytelling_narrative"),
-            # Nouveaux champs d'analyse approfondie
-            "products_services_details": analysis_result.get("products_services_details", ""),
-            "company_expertise": analysis_result.get("company_expertise", ""),
-            "unique_value_proposition": analysis_result.get("unique_value_proposition", ""),
-            "analysis_depth": analysis_result.get("analysis_depth", "enhanced_multi_page"),
-            "pages_analyzed_count": analysis_result.get("pages_analyzed_count", len(important_pages)),
-            "non_technical_pages_count": analysis_result.get("non_technical_pages_count", 0),
-            # Champs existants
-            "narrative_insights": "",  # Kept for compatibility but empty
-            "orchestration_info": {},  # Kept for compatibility but empty
-            "key_topics": analysis_result.get("key_topics", []),
-            "brand_tone": analysis_result.get("brand_tone", "professionnel"),
-            "target_audience": analysis_result.get("target_audience", ""),
-            "main_services": analysis_result.get("main_services", []),
-            "content_suggestions": analysis_result.get("content_suggestions", []),
-            "website_url": url,
-            "pages_analyzed": content_data.get("pages_analyzed", []),
-            "pages_count": len(important_pages),
-            "analysis_type": "gpt4o_plus_claude_storytelling",
-            "business_ai": "GPT-4o",
-            "narrative_ai": "Claude Sonnet 4",
-            "created_at": datetime.utcnow().isoformat(),
-            "next_analysis_due": (datetime.utcnow() + timedelta(days=30)).isoformat()
-        }
-
-        # Step 5: Save analysis to database with business profile verification
-        try:
-            # CRITICAL: Verify business profile exists before saving (prevent data loss)
-            from database import get_database
-            dbm = get_database()
-            business_profile_check = dbm.db.business_profiles.find_one({"user_id": user_id})
-            if not business_profile_check:
-                logging.warning(f"🚨 CRITICAL: Business profile missing for user {user_id} - skipping database save to prevent data loss")
-                # Still return the analysis but don't save to avoid cascading issues
-                return {
-                    "status": "analyzed",
-                    "message": f"Analyse complète : GPT-4o + Claude Storytelling - {analysis_data['pages_count']} pages analysées (profile check failed)",
-                    "warning": "Business profile verification failed - analysis not saved to database",
-                    **analysis_data
-                }
-            
-            # Proceed with normal database save
-            import pymongo
-            mongo_url = os.environ.get("MONGO_URL")
-            client = pymongo.MongoClient(mongo_url)
-            # Utiliser get_database() pour la cohérence
-            dbp = get_database()
-            dbp.website_analyses.insert_one({
-                "user_id": user_id,
-                "website_url": url,
-                "analysis_summary": analysis_data["analysis_summary"],
-                "key_topics": analysis_data["key_topics"],
-                "brand_tone": analysis_data["brand_tone"],
-                "target_audience": analysis_data["target_audience"],
-                "main_services": analysis_data["main_services"],
-                "content_suggestions": analysis_data["content_suggestions"],
-                "pages_analyzed": analysis_data["pages_analyzed"],
-                "pages_count": analysis_data["pages_count"],
-                "created_at": datetime.utcnow(),
-                "last_analyzed": datetime.utcnow(),
-                "next_analysis_due": datetime.utcnow() + timedelta(days=30)
-            })
-            client.close()
-            print("✅ Enhanced analysis saved to database")
-        except Exception as db_error:
-            print(f"⚠️ Database save failed: {db_error}")
-
-        return {
-            "status": "analyzed",
-            "message": f"Analyse complète : GPT-4o + Claude Storytelling - {analysis_data['pages_count']} pages analysées",
-            **analysis_data
-        }
-        
-    except Exception as e:
-        print(f"❌ Analysis failed: {e}")
+    except asyncio.TimeoutError:
+        logging.error(f"⏱️ Analysis timeout after 45 seconds for {url}")
         return JSONResponse(
-            status_code=500, 
-            content={"error": "Erreur lors de l'analyse du site web"}
+            status_code=408,  # Request Timeout
+            content={
+                "error": "L'analyse du site web a pris trop de temps. Veuillez réessayer avec une URL plus simple ou contactez le support.",
+                "timeout": True,
+                "url": url,
+                "suggestion": "Les sites complexes avec de nombreuses pages peuvent prendre du temps à analyser."
+            }
         )
+    except Exception as e:
+        logging.error(f"❌ Website analysis failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Analysis failed: {str(e)}"}
+        )
+
+
+async def _perform_website_analysis(url: str, user_id: str) -> dict:
+    """Fonction interne optimisée pour l'analyse avec timeout"""
+    
+    # Step 1: Découverte rapide (max 3 pages pour éviter timeout)
+    print(f"📋 Step 1: Discovering pages...")
+    important_pages = discover_website_pages(url, max_pages=3)  # Réduit de 5 à 3
+    print(f"📋 Found {len(important_pages)} pages to analyze: {important_pages}")
+    
+    # Step 2: Analyse multi-pages avec timeout réduit
+    print(f"📄 Step 2: Analyzing content...")
+    content_data = await asyncio.wait_for(
+        analyze_multiple_pages(important_pages, url),
+        timeout=20.0  # 20 secondes max pour l'extraction de contenu
+    )
+    
+    if "error" in content_data:
+        raise Exception(f"Content extraction failed: {content_data['error']}")
+
+    # Step 3: Analyses LLM en parallèle avec timeout
+    print(f"🧠 Step 3: Running AI analysis...")
+    
+    gpt4o_task = asyncio.wait_for(analyze_with_gpt4o_only(content_data, url), timeout=15.0)
+    claude_task = asyncio.wait_for(analyze_with_claude_storytelling(content_data, url), timeout=15.0)
+    
+    # Attendre les résultats avec gestion d'erreur
+    gpt4o_result, claude_result = await asyncio.gather(
+        gpt4o_task, claude_task,
+        return_exceptions=True
+    )
+    
+    # Traiter les erreurs/timeouts
+    if isinstance(gpt4o_result, Exception):
+        logging.error(f"❌ GPT-4o analysis failed/timeout: {gpt4o_result}")
+        gpt4o_result = create_fallback_analysis(content_data, url, f"gpt4o_timeout: {str(gpt4o_result)}")
+    
+    if isinstance(claude_result, Exception):
+        logging.error(f"❌ Claude analysis failed/timeout: {claude_result}")
+        claude_result = {"storytelling_analysis": "Analyse narrative indisponible (timeout).", "ai_used": "Timeout"}
+    
+    print(f"✅ Step 4: Combining results...")
+    
+    # Combiner les résultats dans le nouveau format unifié
+    combined_result = {
+        "analysis_type": "gpt4o_plus_claude_storytelling",
+        "analysis_summary": gpt4o_result.get("analysis_summary", "Analyse indisponible"),
+        "storytelling_analysis": claude_result.get("storytelling_analysis", "Analyse narrative indisponible"),
+        
+        # Champs GPT-4o enrichis (nouvelles fonctionnalités)
+        "products_services_details": gpt4o_result.get("products_catalog", "Aucun détail précis sur les produits/services n'a été trouvé en raison de l'analyse limitée."),
+        "company_expertise": gpt4o_result.get("team_expertise", "Informations sur l'expertise de l'entreprise non détaillées dans les pages analysées."),
+        "unique_value_proposition": gpt4o_result.get("competitive_intel", {}).get("positioning", "Proposition de valeur unique non identifiée dans le contenu analysé."),
+        "analysis_depth": "enhanced_multi_page",
+        "pages_analyzed_count": len(content_data.get("pages_analyzed", [])),
+        "non_technical_pages_count": len([p for p in content_data.get("pages_analyzed", []) if p.get("status") == "analyzed"]),
+        
+        # Champs existants
+        "key_topics": gpt4o_result.get("key_topics", []),
+        "brand_tone": gpt4o_result.get("brand_tone", "professionnel"),
+        "target_audience": gpt4o_result.get("target_audience", ""),
+        "main_services": gpt4o_result.get("main_services", []),
+        "content_suggestions": gpt4o_result.get("content_suggestions", []),
+        
+        # Métadonnées d'analyse
+        "website_url": url,
+        "pages_count": len(content_data.get("pages_analyzed", [])),
+        "pages_analyzed": [p.get("url", "") for p in content_data.get("pages_analyzed", [])],
+        "business_ai": "GPT-4o",
+        "storytelling_ai": "Claude Sonnet 4",
+        
+        # Indicateurs de performance
+        "analysis_optimized": True,
+        "timeout_handled": True
+    }
+
+    # Sauvegarde en base avec gestion d'erreur
+    try:
+        dbp = get_database()
+        analysis_doc = {
+            "user_id": user_id,
+            "website_url": url,
+            **combined_result,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        # Correct collection name usage
+        await dbp["website_analyses"].insert_one(analysis_doc)
+        logging.info(f"✅ Analysis saved to database for user {user_id}")
+        
+    except Exception as save_error:
+        logging.error(f"⚠️ Failed to save analysis to database: {save_error}")
+        # Continue without failing the request
+    
+    logging.info(f"✅ Combined analysis completed for {url}")
+    return combined_result
 
 # Remove duplicate GET definition (keep only the one above) and keep delete endpoint
 

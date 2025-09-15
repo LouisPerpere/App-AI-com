@@ -3653,14 +3653,14 @@ function MainApp() {
         clearInterval(progressIntervalRef.current);
         progressIntervalRef.current = null;
       }
-      setAnalysisProgress(0);
+      setAnalysisProgress(0); // Reset seulement en cas d'erreur
       
       const errorMessage = error.response?.status === 408 ? 'Timeout - Site trop complexe à analyser (90 secondes)' : error.response?.data?.error || error.response?.data?.detail || 'Erreur lors de l\'analyse du site web';
       toast.error(`Erreur lors de l'analyse : ${errorMessage}`);
       console.error('Website analysis error:', error);
     } finally {
       setIsAnalyzing(false);
-      setAnalysisProgress(0); // Reset final
+      // NE PAS reset setAnalysisProgress(0) ici - garde la barre à 100% en cas de succès
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
         progressIntervalRef.current = null;

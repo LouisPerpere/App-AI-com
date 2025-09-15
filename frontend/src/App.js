@@ -3545,11 +3545,16 @@ function MainApp() {
     setIsAnalyzing(true);
     setAnalysisProgress(0); // Reset barre de progression
     
+    // Nettoyer ancien interval s'il existe
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+    }
+    
     // Barre de progression fictive qui se remplit sur 90 secondes
-    const progressInterval = setInterval(() => {
+    progressIntervalRef.current = setInterval(() => {
       setAnalysisProgress(prev => {
         if (prev >= 100) {
-          clearInterval(progressInterval);
+          clearInterval(progressIntervalRef.current);
           return 100;
         }
         // Progression non-linéaire : plus lente au début, plus rapide à la fin

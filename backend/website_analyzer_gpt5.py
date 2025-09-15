@@ -1639,14 +1639,14 @@ async def analyze_website_robust(
         return analysis_result
 
     except asyncio.TimeoutError:
-        logging.error(f"⏱️ Analysis timeout after 45 seconds for {url}")
+        logging.error(f"⏱️ Analysis timeout after 90 seconds for {url}")
         return JSONResponse(
             status_code=408,  # Request Timeout
             content={
-                "error": "L'analyse du site web a pris trop de temps. Veuillez réessayer avec une URL plus simple ou contactez le support.",
+                "error": "L'analyse du site web a pris trop de temps (90 secondes). Veuillez réessayer avec une URL plus simple ou contactez le support.",
                 "timeout": True,
                 "url": url,
-                "suggestion": "Les sites complexes avec de nombreuses pages peuvent prendre du temps à analyser."
+                "suggestion": "Les sites très complexes avec de nombreuses pages peuvent nécessiter une analyse simplifiée."
             }
         )
     except Exception as e:

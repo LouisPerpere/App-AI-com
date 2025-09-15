@@ -4759,17 +4759,17 @@ function MainApp() {
                     {isAnalyzing ? (
                       <div className="flex flex-col items-center space-y-3">
                         <div className="flex items-center space-x-2">
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Analyse approfondie en cours...</span>
+                          <div className="w-4 h-4 border-2 border-purple-800 border-t-transparent rounded-full animate-spin"></div>
+                          <span className="text-purple-800 font-medium">Analyse approfondie en cours...</span>
                         </div>
                         {/* Barre de progression fictive */}
-                        <div className="w-full bg-white bg-opacity-20 rounded-full h-2">
+                        <div className="w-full bg-purple-100 rounded-full h-3 border border-purple-200">
                           <div 
-                            className="bg-white h-2 rounded-full transition-all duration-1000 ease-out"
+                            className="bg-gradient-to-r from-purple-600 to-pink-600 h-3 rounded-full transition-all duration-1000 ease-out"
                             style={{ width: `${analysisProgress}%` }}
                           ></div>
                         </div>
-                        <div className="text-xs text-white text-opacity-80">
+                        <div className="text-xs text-purple-700 font-medium">
                           {Math.round(analysisProgress)}% - {
                             analysisProgress < 20 ? 'Découverte des pages...' :
                             analysisProgress < 50 ? 'Extraction du contenu...' :

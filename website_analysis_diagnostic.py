@@ -301,7 +301,7 @@ class WebsiteAnalysisTestSuite:
                 print(f"   Testing with {timeout_duration}s timeout...")
                 response = self.session.post(
                     f"{BASE_URL}/website/analyze",
-                    json={"url": "https://example.com"},
+                    json={"website_url": "https://example.com"},
                     timeout=timeout_duration
                 )
                 

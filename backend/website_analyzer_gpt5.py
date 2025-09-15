@@ -1630,10 +1630,10 @@ async def analyze_website_robust(
     logging.error(f"🔍 FORCED ERROR LOG - Starting analysis: {url} for user: {user_id}")
 
     try:
-        # TIMEOUT GLOBAL : 45 secondes pour éviter le "mouline dans le vide"
+        # TIMEOUT GLOBAL : 90 secondes pour analyses approfondies
         analysis_result = await asyncio.wait_for(
             _perform_website_analysis(url, user_id),
-            timeout=45.0  # Timeout de 45 secondes au lieu de laisser tourner indéfiniment
+            timeout=90.0  # Timeout de 90 secondes pour permettre analyses plus complexes
         )
         
         return analysis_result

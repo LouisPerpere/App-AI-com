@@ -3648,7 +3648,10 @@ function MainApp() {
       
     } catch (error) {
       // Arrêter la progression et nettoyer
-      clearInterval(progressInterval);
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
       setAnalysisProgress(0);
       
       const errorMessage = error.response?.status === 408 ? 'Timeout - Site trop complexe à analyser (90 secondes)' : error.response?.data?.error || error.response?.data?.detail || 'Erreur lors de l\'analyse du site web';
@@ -3657,6 +3660,10 @@ function MainApp() {
     } finally {
       setIsAnalyzing(false);
       setAnalysisProgress(0); // Reset final
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
       // S'assurer que le toast de loading soit bien supprimé
       toast.dismiss('website-analysis');
     }

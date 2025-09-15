@@ -3590,10 +3590,20 @@ function MainApp() {
         }
       }
 
+      // Dismisser le toast de loading
+      toast.dismiss('website-analysis');
+      
       setWebsiteAnalysis(response.data);
       setLastAnalysisInfo({
         lastAnalyzed: response.data.created_at,
         nextAnalysisDue: response.data.next_analysis_due
+      });
+      
+      // Toast de succès avec détails
+      const analysisType = response.data.analysis_type || 'standard';
+      const pagesCount = response.data.pages_analyzed_count || response.data.pages_count || 1;
+      toast.success(`Analyse ${analysisType} terminée ! ${pagesCount} page(s) analysée(s)`, {
+        duration: 4000
       });
       
       // Persister l'URL et s'assurer qu'elle reste dans le champ

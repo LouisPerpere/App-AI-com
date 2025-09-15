@@ -3632,9 +3632,14 @@ function MainApp() {
       
       console.log('✅ Analysis completed, setting result:', response.data); // Debug log
       setWebsiteAnalysis(response.data);
+      
+      // Fix dates - utiliser la date actuelle si pas de dates valides du backend
+      const now = new Date().toISOString();
+      const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      
       setLastAnalysisInfo({
-        lastAnalyzed: response.data.created_at,
-        nextAnalysisDue: response.data.next_analysis_due
+        lastAnalyzed: response.data.created_at || response.data.updated_at || now,
+        nextAnalysisDue: response.data.next_analysis_due || nextWeek
       });
       
       // Toast de succès unique (suppression du doublon ligne 3647)

@@ -4585,15 +4585,6 @@ function MainApp() {
                   </div>
                 </div>
               </div>
-                ) : (
-                  <div className="text-center py-12 card-glass rounded-2xl">
-                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <Building className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-700 mb-2">Créez votre profil d'entreprise 🏢</h3>
-                    <p className="text-gray-500">Configurez votre profil pour des posts sur mesure ! 🚀</p>
-                  </div>
-                )}
               </CardContent>
               
               {/* Lien politique de confidentialité */}

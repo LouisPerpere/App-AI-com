@@ -4727,21 +4727,25 @@ function MainApp() {
                       <div>
                         <span className="font-medium text-blue-800">Dernière analyse :</span>
                         <span className="text-blue-700 ml-1">
-                          {new Date(lastAnalysisInfo.lastAnalyzed).toLocaleDateString('fr-FR', {
-                            day: '2-digit',
-                            month: '2-digit', 
-                            year: 'numeric'
-                          })}
+                          {lastAnalysisInfo.lastAnalyzed ? 
+                            new Date(lastAnalysisInfo.lastAnalyzed).toLocaleDateString('fr-FR', {
+                              day: '2-digit',
+                              month: '2-digit', 
+                              year: 'numeric'
+                            }) : 'Date non disponible'
+                          }
                         </span>
                       </div>
                       <div>
                         <span className="font-medium text-blue-800">Prochaine analyse :</span>
                         <span className="text-blue-700 ml-1">
-                          {new Date(lastAnalysisInfo.nextAnalysisDue).toLocaleDateString('fr-FR', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric'
-                          })}
+                          {lastAnalysisInfo.nextAnalysisDue ? 
+                            new Date(lastAnalysisInfo.nextAnalysisDue).toLocaleDateString('fr-FR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric'
+                            }) : 'Date non disponible'
+                          }
                         </span>
                         {needsNewAnalysis() && (
                           <span className="ml-2 px-2 py-0.5 bg-orange-100 text-orange-800 text-xs rounded-full">

@@ -3541,16 +3541,22 @@ function MainApp() {
     setIsAnalyzing(true);
     
     try {
+      // Toast d'information avec indicateur de progression
+      toast.loading('Analyse du site web en cours... Cela peut prendre jusqu\'à 45 secondes pour les sites complexes.', {
+        id: 'website-analysis',
+        duration: 50000 // Affichage pendant 50 secondes max
+      });
+      
       // CONTOURNEMENT PROXY: Essayer d'abord l'endpoint normal, puis localhost si échec
       let response;
       
       try {
-        // Tentative 1: Endpoint normal
+        // Tentative 1: Endpoint normal avec timeout augmenté
         response = await axios.post(`${API}/website/analyze`, {
           website_url: websiteUrl.trim()
         }, {
           headers: { Authorization: `Bearer ${token}` },
-          timeout: 30000
+          timeout: 50000  // Augmenté à 50 secondes pour matcher le backend
         });
         
         // Vérifier si c'est une vraie analyse GPT ou un fallback

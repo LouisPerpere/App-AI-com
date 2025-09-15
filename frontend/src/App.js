@@ -3648,11 +3648,16 @@ function MainApp() {
       toast.success(`Analyse terminée ! ${response.data.pages_count || 1} page(s) analysée(s)`);
       
     } catch (error) {
-      const errorMessage = error.response?.status === 408 ? 'Timeout - Site trop complexe à analyser' : error.response?.data?.error || error.response?.data?.detail || 'Erreur lors de l\'analyse du site web';
+      // Arrêter la progression et nettoyer
+      clearInterval(progressInterval);
+      setAnalysisProgress(0);
+      
+      const errorMessage = error.response?.status === 408 ? 'Timeout - Site trop complexe à analyser (90 secondes)' : error.response?.data?.error || error.response?.data?.detail || 'Erreur lors de l\'analyse du site web';
       toast.error(`Erreur lors de l'analyse : ${errorMessage}`);
       console.error('Website analysis error:', error);
     } finally {
       setIsAnalyzing(false);
+      setAnalysisProgress(0); // Reset final
       // S'assurer que le toast de loading soit bien supprimé
       toast.dismiss('website-analysis');
     }

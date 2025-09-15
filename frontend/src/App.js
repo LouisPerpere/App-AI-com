@@ -4985,7 +4985,7 @@ function MainApp() {
                             <p className="text-gray-700 text-sm leading-relaxed">
                               {typeof websiteAnalysis.unique_value_proposition === 'string' 
                                 ? websiteAnalysis.unique_value_proposition 
-                                : JSON.stringify(websiteAnalysis.unique_value_proposition, null, 2).replace(/[{}",]/g, '').replace(/\n/g, ' • ')
+                                : 'Proposition de valeur non disponible'
                               }
                             </p>
                           </div>

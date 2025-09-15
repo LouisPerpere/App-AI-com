@@ -1412,6 +1412,8 @@ function MainApp() {
   const [websiteAnalysis, setWebsiteAnalysis] = useState(null);
   const [lastAnalysisInfo, setLastAnalysisInfo] = useState(null);
   const [persistedUrl, setPersistedUrl] = useState('');
+  const [analysisProgress, setAnalysisProgress] = useState(0); // Barre de progression fictive
+  
   // Progress interval ref
   const progressIntervalRef = useRef(null);
   

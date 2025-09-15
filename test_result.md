@@ -283,8 +283,10 @@ backend:
         comment: "🚨 CRITICAL ISSUE IDENTIFIED - WEBSITE ANALYSIS 'MOULINE DANS LE VIDE' ROOT CAUSE FOUND: Comprehensive diagnostic testing completed following the urgent French review request with credentials lperpere@yahoo.fr / L@Reunion974! on backend https://insta-automate-2.preview.emergentagent.com/api. AUTHENTICATION & CORE SERVICES: ✅ Step 1: Authentication with POST /api/auth/login-robust working perfectly (User ID: bdf87a74-e3f3-44f3-bac2-649cde3ef93e, JWT token obtained and validated), ✅ Step 2: Backend health check confirms API healthy (Status: healthy, Service: Claire et Marcus API). WEBSITE ANALYSIS TESTING RESULTS: ✅ SUCCESS: https://myownwatch.fr analysis completed successfully in 29.6s (Analysis: 657 chars, Storytelling: 1739 chars, Type: gpt4o_plus_claude_storytelling), ❌ TIMEOUT: https://google.com analysis timed out after 60.1s - CONFIRMED 'mouline dans le vide' issue, ❌ TIMEOUT: https://example.com analysis also experiencing timeout issues. ROOT CAUSE IDENTIFIED: The issue occurs with complex websites that trigger multi-page analysis. Backend logs show Google.com discovers 3 pages ['https://google.com', 'https://google.com/services/', 'https://google.com/intl/en/about.html'] vs simple sites with 1 page. The analysis process gets stuck during multi-page content extraction and LLM processing, exceeding the 60-second timeout. TECHNICAL FINDINGS: Website analysis system is functional for simple sites but fails on complex multi-page sites, LLM API calls (OpenAI GPT-4o + Claude Sonnet 4) are working correctly, Database save error detected: 'DatabaseManager' object has no attribute 'website_analyses', Multi-page discovery working but processing times exceed timeout limits. CRITICAL RECOMMENDATION: Implement timeout handling and progress indicators in website_analyzer_gpt5.py, optimize multi-page analysis performance, fix database save functionality, add proper error handling for complex websites. The 'mouline dans le vide' issue is confirmed and occurs specifically with multi-page website analysis exceeding 60-second timeouts."
 
 test_plan:
-  current_focus: []
-  stuck_tasks: []
+  current_focus:
+    - "Website Analysis System - Mouline dans le vide Diagnostic"
+  stuck_tasks:
+    - "Website Analysis System - Mouline dans le vide Diagnostic"
   test_all: false
   test_priority: "high_first"
 

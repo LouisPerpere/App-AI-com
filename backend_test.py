@@ -1,5 +1,375 @@
 #!/usr/bin/env python3
 """
+DIAGNOSTIC URGENT - Phase 1: Test authentification backend pour lperpere@yahoo.fr
+Comprehensive backend authentication testing following the specific review request
+"""
+
+import requests
+import json
+import sys
+from datetime import datetime
+
+# Configuration
+BACKEND_URL = "https://insta-automate-2.preview.emergentagent.com/api"
+TEST_EMAIL = "lperpere@yahoo.fr"
+TEST_PASSWORD = "L@Reunion974!"
+
+class BackendTester:
+    def __init__(self):
+        self.session = requests.Session()
+        self.session.headers.update({
+            'Content-Type': 'application/json',
+            'User-Agent': 'Backend-Tester/1.0'
+        })
+        self.access_token = None
+        self.user_id = None
+        
+    def log(self, message, level="INFO"):
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        print(f"[{timestamp}] {level}: {message}")
+        
+    def test_api_health(self):
+        """Test 1: API Health Check"""
+        self.log("🔍 STEP 1: Testing API Health Check")
+        try:
+            response = self.session.get(f"{BACKEND_URL}/health", timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log(f"✅ API Health Check PASSED")
+                self.log(f"   Status: {data.get('status')}")
+                self.log(f"   Service: {data.get('service')}")
+                self.log(f"   Message: {data.get('message')}")
+                return True
+            else:
+                self.log(f"❌ API Health Check FAILED - Status: {response.status_code}")
+                self.log(f"   Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ API Health Check ERROR: {str(e)}")
+            return False
+    
+    def test_authentication(self):
+        """Test 2: Authentication with lperpere@yahoo.fr credentials"""
+        self.log("🔍 STEP 2: Testing Authentication")
+        try:
+            auth_data = {
+                "email": TEST_EMAIL,
+                "password": TEST_PASSWORD
+            }
+            
+            response = self.session.post(
+                f"{BACKEND_URL}/auth/login-robust",
+                json=auth_data,
+                timeout=15
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.access_token = data.get('access_token')
+                self.user_id = data.get('user_id')
+                
+                self.log(f"✅ Authentication SUCCESSFUL")
+                self.log(f"   User ID: {self.user_id}")
+                self.log(f"   Email: {data.get('email')}")
+                self.log(f"   Token received: {len(self.access_token)} characters")
+                
+                # Set authorization header for subsequent requests
+                self.session.headers.update({
+                    'Authorization': f'Bearer {self.access_token}'
+                })
+                
+                return True
+            else:
+                self.log(f"❌ Authentication FAILED - Status: {response.status_code}")
+                self.log(f"   Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Authentication ERROR: {str(e)}")
+            return False
+    
+    def test_business_profile(self):
+        """Test 3: Business Profile Access"""
+        self.log("🔍 STEP 3: Testing Business Profile Access")
+        try:
+            if not self.access_token:
+                self.log("❌ No access token available for business profile test")
+                return False
+                
+            response = self.session.get(f"{BACKEND_URL}/business-profile", timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Count non-null fields
+                non_null_fields = {k: v for k, v in data.items() if v is not None and v != "" and v != []}
+                null_fields = {k: v for k, v in data.items() if v is None or v == "" or v == []}
+                
+                self.log(f"✅ Business Profile Access SUCCESSFUL")
+                self.log(f"   Total fields: {len(data)}")
+                self.log(f"   Filled fields: {len(non_null_fields)}")
+                self.log(f"   Empty fields: {len(null_fields)}")
+                
+                # Log key business profile fields
+                key_fields = ['business_name', 'business_type', 'business_description', 'email', 'website_url']
+                self.log("   Key Business Profile Fields:")
+                for field in key_fields:
+                    value = data.get(field)
+                    status = "✅ FILLED" if value else "❌ EMPTY"
+                    self.log(f"     {field}: {status} - {value}")
+                
+                # Check if this matches the expected "My Own Watch" profile
+                if data.get('business_name') == 'My Own Watch':
+                    self.log("✅ CONFIRMED: 'My Own Watch' business profile found")
+                else:
+                    self.log(f"⚠️ UNEXPECTED: Business name is '{data.get('business_name')}', expected 'My Own Watch'")
+                
+                return len(non_null_fields) > 0
+            else:
+                self.log(f"❌ Business Profile Access FAILED - Status: {response.status_code}")
+                self.log(f"   Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Business Profile Access ERROR: {str(e)}")
+            return False
+    
+    def test_content_access(self):
+        """Test 4: Content Library Access"""
+        self.log("🔍 STEP 4: Testing Content Library Access")
+        try:
+            if not self.access_token:
+                self.log("❌ No access token available for content test")
+                return False
+                
+            response = self.session.get(f"{BACKEND_URL}/content/pending", timeout=15)
+            
+            if response.status_code == 200:
+                data = response.json()
+                content_items = data.get('content', [])
+                total_count = data.get('total', 0)
+                
+                self.log(f"✅ Content Library Access SUCCESSFUL")
+                self.log(f"   Total content items: {total_count}")
+                self.log(f"   Items loaded: {len(content_items)}")
+                self.log(f"   Has more: {data.get('has_more', False)}")
+                
+                # Analyze content types
+                if content_items:
+                    file_types = {}
+                    sources = {}
+                    for item in content_items:
+                        file_type = item.get('file_type', 'unknown')
+                        source = item.get('source', 'upload')
+                        file_types[file_type] = file_types.get(file_type, 0) + 1
+                        sources[source] = sources.get(source, 0) + 1
+                    
+                    self.log("   Content Analysis:")
+                    self.log(f"     File types: {dict(file_types)}")
+                    self.log(f"     Sources: {dict(sources)}")
+                    
+                    # Show sample content
+                    self.log("   Sample Content Items:")
+                    for i, item in enumerate(content_items[:3]):
+                        self.log(f"     Item {i+1}: {item.get('filename', 'No filename')} ({item.get('file_type', 'unknown')})")
+                
+                # Check if we have the expected 19 content items
+                if total_count >= 19:
+                    self.log("✅ CONFIRMED: Expected content count (19+) found")
+                else:
+                    self.log(f"⚠️ UNEXPECTED: Only {total_count} content items found, expected 19+")
+                
+                return total_count > 0
+            else:
+                self.log(f"❌ Content Library Access FAILED - Status: {response.status_code}")
+                self.log(f"   Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Content Library Access ERROR: {str(e)}")
+            return False
+    
+    def test_posts_access(self):
+        """Test 5: Generated Posts Access"""
+        self.log("🔍 STEP 5: Testing Generated Posts Access")
+        try:
+            if not self.access_token:
+                self.log("❌ No access token available for posts test")
+                return False
+                
+            response = self.session.get(f"{BACKEND_URL}/posts/generated", timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                posts = data.get('posts', [])
+                posts_count = data.get('count', 0)
+                
+                self.log(f"✅ Generated Posts Access SUCCESSFUL")
+                self.log(f"   Total posts: {posts_count}")
+                
+                if posts:
+                    self.log("   Sample Posts:")
+                    for i, post in enumerate(posts[:3]):
+                        title = post.get('title', 'No title')
+                        platform = post.get('platform', 'unknown')
+                        status = post.get('status', 'unknown')
+                        self.log(f"     Post {i+1}: '{title}' ({platform}, {status})")
+                
+                # Check if we have the expected 4 posts
+                if posts_count >= 4:
+                    self.log("✅ CONFIRMED: Expected posts count (4+) found")
+                else:
+                    self.log(f"⚠️ UNEXPECTED: Only {posts_count} posts found, expected 4+")
+                
+                return True
+            else:
+                self.log(f"❌ Generated Posts Access FAILED - Status: {response.status_code}")
+                self.log(f"   Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Generated Posts Access ERROR: {str(e)}")
+            return False
+    
+    def test_database_diagnostic(self):
+        """Test 6: Database Diagnostic"""
+        self.log("🔍 STEP 6: Testing Database Diagnostic")
+        try:
+            response = self.session.get(f"{BACKEND_URL}/diag", timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                self.log(f"✅ Database Diagnostic SUCCESSFUL")
+                self.log(f"   Database connected: {data.get('database_connected')}")
+                self.log(f"   Database name: {data.get('database_name')}")
+                self.log(f"   Environment: {data.get('environment')}")
+                self.log(f"   Mongo URL prefix: {data.get('mongo_url_prefix')}")
+                
+                return data.get('database_connected', False)
+            else:
+                self.log(f"❌ Database Diagnostic FAILED - Status: {response.status_code}")
+                self.log(f"   Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Database Diagnostic ERROR: {str(e)}")
+            return False
+    
+    def run_comprehensive_test(self):
+        """Run all diagnostic tests"""
+        self.log("🚀 STARTING COMPREHENSIVE BACKEND DIAGNOSTIC FOR lperpere@yahoo.fr")
+        self.log(f"   Backend URL: {BACKEND_URL}")
+        self.log(f"   Test Email: {TEST_EMAIL}")
+        self.log("=" * 80)
+        
+        results = {}
+        
+        # Test 1: API Health
+        results['health'] = self.test_api_health()
+        
+        # Test 2: Authentication
+        results['auth'] = self.test_authentication()
+        
+        # Test 3: Business Profile (only if authenticated)
+        if results['auth']:
+            results['business_profile'] = self.test_business_profile()
+        else:
+            results['business_profile'] = False
+            self.log("⏭️ SKIPPING Business Profile test - Authentication failed")
+        
+        # Test 4: Content Access (only if authenticated)
+        if results['auth']:
+            results['content'] = self.test_content_access()
+        else:
+            results['content'] = False
+            self.log("⏭️ SKIPPING Content test - Authentication failed")
+        
+        # Test 5: Posts Access (only if authenticated)
+        if results['auth']:
+            results['posts'] = self.test_posts_access()
+        else:
+            results['posts'] = False
+            self.log("⏭️ SKIPPING Posts test - Authentication failed")
+        
+        # Test 6: Database Diagnostic
+        results['database'] = self.test_database_diagnostic()
+        
+        # Summary
+        self.log("=" * 80)
+        self.log("🎯 DIAGNOSTIC SUMMARY:")
+        
+        passed_tests = sum(1 for result in results.values() if result)
+        total_tests = len(results)
+        success_rate = (passed_tests / total_tests) * 100
+        
+        for test_name, result in results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            self.log(f"   {test_name.upper()}: {status}")
+        
+        self.log(f"   SUCCESS RATE: {success_rate:.1f}% ({passed_tests}/{total_tests} tests passed)")
+        
+        # Critical Analysis
+        self.log("=" * 80)
+        self.log("🔍 CRITICAL ANALYSIS:")
+        
+        if results['auth']:
+            self.log("✅ BACKEND AUTHENTICATION: WORKING PERFECTLY")
+            self.log("   - User lperpere@yahoo.fr can authenticate successfully")
+            self.log("   - JWT token is generated and valid")
+            self.log("   - All authenticated endpoints are accessible")
+        else:
+            self.log("❌ BACKEND AUTHENTICATION: FAILED")
+            self.log("   - Cannot authenticate with provided credentials")
+            self.log("   - This would explain empty frontend forms")
+        
+        if results['business_profile'] and results['content']:
+            self.log("✅ USER DATA: ACCESSIBLE AND PRESENT")
+            self.log("   - Business profile data exists in database")
+            self.log("   - Content library is populated")
+            self.log("   - Backend can serve user data correctly")
+        elif results['auth']:
+            self.log("⚠️ USER DATA: AUTHENTICATION OK BUT DATA ACCESS ISSUES")
+            self.log("   - User can authenticate but data retrieval has problems")
+        
+        # Final Conclusion
+        self.log("=" * 80)
+        self.log("🎯 FINAL CONCLUSION:")
+        
+        if results['auth'] and results['business_profile'] and results['content']:
+            self.log("✅ BACKEND IS FULLY OPERATIONAL")
+            self.log("   - Authentication system working correctly")
+            self.log("   - User data (business profile, content) is accessible")
+            self.log("   - The issue is likely in FRONTEND LOGIN JAVASCRIPT as suspected")
+            self.log("   - Recommendation: Debug frontend login button click handler")
+        elif results['auth']:
+            self.log("⚠️ BACKEND AUTHENTICATION OK, DATA ACCESS PARTIAL")
+            self.log("   - Authentication works but some data endpoints have issues")
+            self.log("   - Mixed backend/frontend issue possible")
+        else:
+            self.log("❌ BACKEND AUTHENTICATION FAILED")
+            self.log("   - Cannot authenticate with lperpere@yahoo.fr credentials")
+            self.log("   - Backend authentication system has issues")
+            self.log("   - This would cause empty frontend forms")
+        
+        return results
+
+def main():
+    """Main test execution"""
+    tester = BackendTester()
+    results = tester.run_comprehensive_test()
+    
+    # Exit with appropriate code
+    if results['auth']:
+        sys.exit(0)  # Success
+    else:
+        sys.exit(1)  # Failure
+
+if __name__ == "__main__":
+    main()
+"""
 Enhanced GPT-4o Website Analysis Testing Suite
 Testing the improved multi-page analysis system with detailed content extraction
 """

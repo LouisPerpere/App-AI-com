@@ -4956,7 +4956,12 @@ function MainApp() {
                         <div className="mb-4">
                           <p className="font-semibold text-gray-700 mb-2 text-xs">💎 Proposition de valeur unique:</p>
                           <div className="bg-yellow-50 rounded p-3 border border-yellow-200">
-                            <p className="text-gray-700 text-sm leading-relaxed">{websiteAnalysis.unique_value_proposition}</p>
+                            <p className="text-gray-700 text-sm leading-relaxed">
+                              {typeof websiteAnalysis.unique_value_proposition === 'string' 
+                                ? websiteAnalysis.unique_value_proposition 
+                                : JSON.stringify(websiteAnalysis.unique_value_proposition, null, 2).replace(/[{}",]/g, '').replace(/\n/g, ' • ')
+                              }
+                            </p>
                           </div>
                         </div>
                       )}

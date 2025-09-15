@@ -3583,7 +3583,7 @@ function MainApp() {
           website_url: websiteUrl.trim()
         }, {
           headers: { Authorization: `Bearer ${token}` },
-          timeout: 50000  // Augmenté à 50 secondes pour matcher le backend
+          timeout: 95000  // Augmenté à 95 secondes pour matcher le backend 90s + marge
         });
         
         // Vérifier si c'est une vraie analyse GPT ou un fallback

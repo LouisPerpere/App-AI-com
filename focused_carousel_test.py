@@ -10,7 +10,7 @@ import io
 from PIL import Image
 
 # Configuration
-BACKEND_URL = "https://social-ai-manager-12.preview.emergentagent.com/api"
+BACKEND_URL = "https://insta-automate-2.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 

@@ -55,7 +55,7 @@ Le site de production https://claire-marcus.netlify.app avait des problèmes d'a
 
 **Local (fonctionne) :**
 ```
-REACT_APP_BACKEND_URL=https://social-ai-manager-12.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://insta-automate-2.preview.emergentagent.com
 USING_FALLBACK: false
 ```
 

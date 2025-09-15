@@ -3645,7 +3645,7 @@ function MainApp() {
         }
       }, 100);
       
-      toast.success(`Analyse terminée ! ${response.data.pages_count || 1} page(s) analysée(s)`);
+      // SUPPRESSION DU DOUBLON DE TOAST - déjà affiché ligne 3634
       
     } catch (error) {
       // Arrêter la progression et nettoyer

@@ -4952,12 +4952,27 @@ function MainApp() {
                         <div className="mb-4">
                           <p className="font-semibold text-gray-700 mb-2 text-xs">🎯 Expertise:</p>
                           <div className="bg-green-50 rounded p-3 border border-green-200">
-                            <p className="text-gray-700 text-sm leading-relaxed">
-                              {typeof websiteAnalysis.company_expertise === 'string' 
-                                ? websiteAnalysis.company_expertise 
-                                : JSON.stringify(websiteAnalysis.company_expertise, null, 2).replace(/[{}",]/g, '').replace(/\n/g, ' • ')
-                              }
-                            </p>
+                            {typeof websiteAnalysis.company_expertise === 'string' ? (
+                              <p className="text-gray-700 text-sm leading-relaxed">{websiteAnalysis.company_expertise}</p>
+                            ) : (
+                              <div className="text-gray-700 text-sm leading-relaxed space-y-2">
+                                {websiteAnalysis.company_expertise.founder_info && (
+                                  <div><span className="font-medium">👤 Fondateur:</span> {websiteAnalysis.company_expertise.founder_info}</div>
+                                )}
+                                {websiteAnalysis.company_expertise.team_size && (
+                                  <div><span className="font-medium">👥 Équipe:</span> {websiteAnalysis.company_expertise.team_size}</div>
+                                )}
+                                {websiteAnalysis.company_expertise.key_skills && Array.isArray(websiteAnalysis.company_expertise.key_skills) && (
+                                  <div><span className="font-medium">🔧 Compétences:</span> {websiteAnalysis.company_expertise.key_skills.join(', ')}</div>
+                                )}
+                                {websiteAnalysis.company_expertise.certifications && Array.isArray(websiteAnalysis.company_expertise.certifications) && (
+                                  <div><span className="font-medium">🏆 Certifications:</span> {websiteAnalysis.company_expertise.certifications.join(', ')}</div>
+                                )}
+                                {websiteAnalysis.company_expertise.experience_years && (
+                                  <div><span className="font-medium">📅 Expérience:</span> {websiteAnalysis.company_expertise.experience_years}</div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}

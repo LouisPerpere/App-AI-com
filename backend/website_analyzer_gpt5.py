@@ -244,33 +244,33 @@ async def analyze_with_claude_storytelling(content_data: dict, website_url: str)
     Contenu: {text_content[:3000] if text_content else 'Non disponible'}
     """
     
-    # Prompt spécialisé pour Claude Sonnet 4 (Storytelling)
-    storytelling_prompt = f"""Tu es un expert en storytelling de marque et stratégie narrative. Analyse ce site web pour révéler sa dimension émotionnelle, son potentiel narratif et ses opportunités de storytelling.
+    # Prompt spécialisé pour Claude Sonnet 4 (Storytelling naturel)
+    storytelling_prompt = f"""Tu es un consultant en communication d'entreprise. Analyse ce site web avec un regard humain et authentique, sans langage marketing excessif.
 
 Contenu du site web à analyser :
 {content_summary}
 
-Fournis une analyse STORYTELLING INSPIRANTE selon ce format :
+Fournis une analyse NARRATIVE AUTHENTIQUE selon ce format :
 
-**VISION ET STORYTELLING**
-[Un paragraphe de 60-80 mots qui raconte l'HISTOIRE de la marque, son essence émotionnelle, ce qu'elle représente vraiment au-delà de ses services. Utilise un ton engageant et évocateur.]
+**L'HISTOIRE DE L'ENTREPRISE**
+[Un paragraphe de 60-80 mots qui raconte simplement qui ils sont, d'où ils viennent, ce qui les motive. Ton naturel et accessible, comme si tu parlais à un ami.]
 
-**POSITIONNEMENT NARRATIF**
-[Un paragraphe de 50-70 mots qui explique le TERRITOIRE ÉMOTIONNEL de la marque, son univers narratif, comment elle touche son audience. Mets l'accent sur l'aspirationnel.]
+**CE QUI LES REND UNIQUES**
+[Un paragraphe de 50-70 mots qui explique concrètement ce qui les différencie, leurs forces particulières, leur approche. Reste factuel et authentique.]
 
-**AXES ÉDITORIAUX STORYTELLING**
-1. [Axe narratif 1] – [15-20 mots expliquant le potentiel storytelling]
-2. [Axe narratif 2] – [15-20 mots sur l'opportunité émotionnelle] 
-3. [Axe narratif 3] – [15-20 mots sur l'angle humain unique]
-4. [Axe narratif 4] – [15-20 mots sur la dimension aspirationnelle]
+**ANGLES DE COMMUNICATION NATURELS**
+1. [Angle 1] – [15-20 mots expliquant l'opportunité de contenu authentique]
+2. [Angle 2] – [15-20 mots sur l'aspect humain/relationnel] 
+3. [Angle 3] – [15-20 mots sur l'expertise concrète]
+4. [Angle 4] – [15-20 mots sur les valeurs pratiques]
 
-**CONTENUS NARRATIFS RECOMMANDÉS**
-• [Format storytelling 1 : angle émotionnel spécifique]
-• [Format storytelling 2 : angle témoignage transformé]
-• [Format storytelling 3 : angle communauté/appartenance]
-• [Format storytelling 4 : angle expertise avec dimension humaine]
+**IDÉES DE CONTENUS AUTHENTIQUES**
+• [Format 1 : approche directe et humaine]
+• [Format 2 : témoignages simples et vrais]
+• [Format 3 : partage d'expertise sans jargon]
+• [Format 4 : coulisses naturelles]
 
-IMPORTANT : Sois INSPIRANT, ÉVOCATEUR et axé sur l'ÉMOTION. Révèle le potentiel narratif et storytelling de la marque."""
+IMPORTANT : Reste naturel, authentique et accessible. Évite les superlatifs excessifs, les étoiles, les formulations "marketing". Parle comme un humain qui comprend vraiment l'entreprise."""
 
     try:
         # Messages pour Claude Sonnet 4

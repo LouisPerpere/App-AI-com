@@ -2054,9 +2054,23 @@ async def _perform_website_analysis(url: str, user_id: str) -> dict:
     
     print(f"✅ Step 4: Combining results...")
     
-    # Combiner les résultats dans le nouveau format unifié
+    # Déterminer quels LLMs ont été utilisés (principal ou backup)
+    business_ai = gpt4o_result.get("ai_used", "GPT-4o")
+    storytelling_ai = claude_result.get("ai_used", "Claude Sonnet 4")
+    
+    # Déterminer le type d'analyse selon les backups utilisés
+    if "Backup" in business_ai and "Backup" in storytelling_ai:
+        analysis_type = "dual_backup_analysis"
+    elif "Backup" in business_ai:
+        analysis_type = "gpt4o_failed_claude_business_backup"
+    elif "Backup" in storytelling_ai:
+        analysis_type = "claude_failed_gpt4o_storytelling_backup"
+    else:
+        analysis_type = "gpt4o_plus_claude_storytelling"
+    
+    # Combiner les résultats dans le nouveau format unifié avec métadonnées backup
     combined_result = {
-        "analysis_type": "gpt4o_plus_claude_storytelling",
+        "analysis_type": analysis_type,
         "analysis_summary": gpt4o_result.get("analysis_summary", "Analyse indisponible"),
         "storytelling_analysis": claude_result.get("storytelling_analysis", "Analyse narrative indisponible"),
         

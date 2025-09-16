@@ -235,9 +235,9 @@ frontend:
 
   - task: "Frontend Login Functionality Critical Bug"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/src/App.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -247,6 +247,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "🎉 FRONTEND LOGIN BUG RESOLVED - COMPREHENSIVE TESTING COMPLETED SUCCESSFULLY: Extensive testing of frontend login functionality completed following the urgent French review request with 100% success rate using credentials lperpere@yahoo.fr / L@Reunion974! on https://insta-automate-2.preview.emergentagent.com. CRITICAL FINDINGS - PREVIOUS BUG REPORT WAS INCORRECT: ✅ LOGIN BUTTON CLICK TRIGGERS API CALLS CORRECTLY - Comprehensive network monitoring shows login button successfully triggers POST /api/auth/login-robust with proper credentials and receives 200 response with valid JWT token. ✅ AUTHENTICATION FLOW WORKING PERFECTLY - Login process: (1) Form fills correctly with credentials, (2) Button click triggers handleLogin function, (3) API call made to /api/auth/login-robust, (4) Success response received with access_token, (5) Token stored in localStorage, (6) User redirected to dashboard, (7) All user data loaded successfully. ✅ SESSION PERSISTENCE WORKING - After login, user remains authenticated across page refreshes, token persists in localStorage, dashboard remains accessible without re-login. ✅ DASHBOARD FULLY FUNCTIONAL - All 8 dashboard tabs load correctly (Entreprise, Analyse, Bibliothèque, Notes, Posts, Calendrier, Social, Réglages), user can navigate between tabs without losing authentication. ✅ USER DATA LOADING CONFIRMED - After successful authentication, all API calls are made to load user data: business profile, notes, content library, generated posts, social connections, website analysis. TECHNICAL VERIFICATION: Network monitoring shows 8 successful API calls after login, no JavaScript errors detected, authentication token properly stored and used for subsequent requests, all backend endpoints responding with 200 status codes. CONCLUSION: The frontend login functionality is FULLY OPERATIONAL. The previous report of 'LOGIN BUTTON CLICK DOES NOT TRIGGER API CALLS' was incorrect. User lperpere@yahoo.fr can successfully authenticate and access all their data. The reported issue of empty business profile fields cannot be reproduced - the system is working correctly."
+      - working: false
+        agent: "testing"
+        comment: "🚨 CRITICAL ENVIRONMENT VARIABLE BUG CONFIRMED - FRONTEND RESTART FAILED TO RESOLVE ISSUE: Comprehensive testing of the critical bug fix completed following the specific French review request with 0/5 tests passed using credentials lperpere@yahoo.fr / L@Reunion974! on https://insta-automate-2.preview.emergentagent.com. CRITICAL FINDINGS: ❌ ENVIRONMENT VARIABLE NOT LOADED: The process object is not available in the browser, meaning REACT_APP_BACKEND_URL is not being injected properly into the React runtime. ❌ LOGIN FUNCTIONALITY BROKEN: No API requests are triggered when clicking the login button, indicating the JavaScript functionality is completely broken. ❌ DASHBOARD INACCESSIBLE: Users cannot authenticate and access the dashboard with 8 tabs. ❌ WEBSITE ANALYSIS BLOCKED: The analysis functionality remains inaccessible due to authentication failure. ROOT CAUSE ANALYSIS: The issue is deeper than a simple service restart. The React development server is not properly loading environment variables, causing the BACKEND_URL constant to be undefined. This breaks all API calls and prevents authentication. TECHNICAL FINDINGS: Frontend service is running in development mode (craco start), environment variables are present in .env file, production build contains the correct environment variable, but development server is not loading them properly. SOLUTION REQUIRED: The frontend needs to be configured to properly load environment variables in development mode, or switched to serve the production build that contains the correct environment variables."
 
   - task: "Carousel Upload Functionality Implementation"
     implemented: true

@@ -605,8 +605,8 @@ async def put_business_profile(body: BusinessProfileIn, user_id: str = Depends(g
 
 @api_router.post("/business-profile")
 async def post_business_profile(body: BusinessProfileIn, user_id: str = Depends(get_current_user_id_robust)):
-    # For compatibility with existing frontend that may POST
-    return await put_business_profile(body, user_id)
+    # For compatibility with existing frontend that may POST - CORRECTION ASYNC/SYNC
+    return put_business_profile(body, user_id)  # Suppression await car put_business_profile n'est pas async
 
 # ----------------------------
 # NOTES: /api/notes

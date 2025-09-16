@@ -4538,7 +4538,7 @@ function MainApp() {
             <div className="flex items-center space-x-3 min-w-0 flex-1">
               <div className="relative">
                 <Avatar className="w-12 h-12 sm:w-14 sm:h-14 ring-4 ring-gradient-to-r ring-purple-400/30 flex-shrink-0 shadow-lg shadow-purple-500/25 transition-all duration-300 hover:scale-105">
-                  <AvatarImage src={businessProfile?.logo_url ? `${BACKEND_URL}${businessProfile.logo_url}` : ""} />
+                  <AvatarImage src={businessProfile?.logo_url ? `${getBackendURL()}${businessProfile.logo_url}` : ""} />
                   <AvatarFallback className="bg-gradient-to-br from-purple-600 via-pink-500 to-red-500 text-white text-base sm:text-lg font-bold">
                     <div className="logo-cm text-white transform transition-transform duration-300 hover:rotate-12">
                       <span className="logo-c">C</span>

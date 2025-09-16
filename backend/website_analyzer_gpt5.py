@@ -609,7 +609,7 @@ def get_website_analysis(user_id: str = Depends(get_current_user_id_robust)):
         client = pymongo.MongoClient(mongo_url)
         # Utiliser get_database() pour la cohérence
         dbp = get_database()
-        collection = dbp.website_analyses
+        collection = dbp.db.website_analyses
         latest = collection.find_one({"user_id": user_id}, sort=[("created_at", -1)])
         if latest:
             analysis_data = {

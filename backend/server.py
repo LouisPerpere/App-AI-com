@@ -1943,6 +1943,7 @@ async def instagram_oauth_callback(
     """Traiter le callback Facebook Login for Business pour Instagram"""
     try:
         print(f"🔄 Instagram OAuth callback received")
+        print(f"   Code: {'✅ Present' if code else '❌ Missing'}")
         print(f"   Access token: {'✅ Present' if access_token else '❌ Missing'}")
         print(f"   Long lived token: {'✅ Present' if long_lived_token else '❌ Missing'}")
         print(f"   State: {state}")
@@ -1956,19 +1957,34 @@ async def instagram_oauth_callback(
             print(f"❌ {error_msg}")
             
             # Rediriger vers le frontend avec erreur
-            frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
+            frontend_base_url = os.environ.get('FRONTEND_URL', 'https://insta-automate-3.preview.emergentagent.com')
             frontend_url = f"{frontend_base_url}/?instagram_error=" + error
             return RedirectResponse(url=frontend_url)
         
-        # Facebook Login for Business envoie les tokens directement
-        if not access_token and not long_lived_token:
-            print("❌ No access tokens received from Facebook Login for Business")
-            frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-            frontend_url = f"{frontend_base_url}/?instagram_error=missing_tokens"
+        # Facebook OAuth envoie un code d'autorisation
+        if code:
+            print(f"✅ Authorization code received: {code[:10]}...")
+            # Rediriger vers le frontend avec succès et code
+            frontend_base_url = os.environ.get('FRONTEND_URL', 'https://insta-automate-3.preview.emergentagent.com')
+            frontend_url = f"{frontend_base_url}/?instagram_success=true&code={code}&state={state}"
             return RedirectResponse(url=frontend_url)
         
-        # Utiliser le long-lived token si disponible, sinon le token court
-        final_token = long_lived_token if long_lived_token else access_token
+        # Facebook Login for Business peut aussi envoyer les tokens directement
+        if access_token or long_lived_token:
+            print("✅ Direct tokens received from Facebook Login for Business")
+            # Utiliser le long-lived token si disponible, sinon le token court
+            final_token = long_lived_token if long_lived_token else access_token
+            
+            # Rediriger vers le frontend avec succès et token
+            frontend_base_url = os.environ.get('FRONTEND_URL', 'https://insta-automate-3.preview.emergentagent.com')
+            frontend_url = f"{frontend_base_url}/?instagram_success=true&access_token={final_token}&state={state}"
+            return RedirectResponse(url=frontend_url)
+        
+        # Aucun code ni token reçu
+        print("❌ No authorization code or access tokens received")
+        frontend_base_url = os.environ.get('FRONTEND_URL', 'https://insta-automate-3.preview.emergentagent.com')
+        frontend_url = f"{frontend_base_url}/?instagram_error=missing_authorization"
+        return RedirectResponse(url=frontend_url)
         token_type = "long-lived" if long_lived_token else "short-lived"
         
         print(f"✅ Received {token_type} token")

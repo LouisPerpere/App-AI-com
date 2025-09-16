@@ -32,8 +32,31 @@ import { Building, Sparkles, Crown, Upload, FileText, X, Edit, Edit2, Plus, Cale
 // Import toast for notifications
 import { toast } from 'react-hot-toast';
 
-const BACKEND_URL = import.meta.env?.REACT_APP_BACKEND_URL || process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+// Fonction robuste pour obtenir l'URL backend avec fallback
+const getBackendURL = () => {
+  // Tentative 1: Variables d'environnement standard
+  if (import.meta.env?.REACT_APP_BACKEND_URL) {
+    return import.meta.env.REACT_APP_BACKEND_URL;
+  }
+  
+  // Tentative 2: Process.env (fallback)
+  if (process.env.REACT_APP_BACKEND_URL) {
+    return process.env.REACT_APP_BACKEND_URL;
+  }
+  
+  // Tentative 3: Détection automatique URL courante
+  if (typeof window !== 'undefined') {
+    const currentUrl = window.location.origin;
+    if (currentUrl.includes('insta-automate-2.preview.emergentagent.com')) {
+      return 'https://insta-automate-2.preview.emergentagent.com';
+    }
+  }
+  
+  // Fallback final: URL hardcodée pour garantir fonctionnement
+  return 'https://insta-automate-2.preview.emergentagent.com';
+};
+
+const API = `${getBackendURL()}/api`;
 
 // Subscription plans data
 const SUBSCRIPTION_PLANS = [

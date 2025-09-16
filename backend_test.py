@@ -351,26 +351,40 @@ class ClaudeAnalysisTest:
         if not existing_result.get("success") and not new_result.get("success"):
             print("❌ CRITICAL: Both existing and new analysis retrieval failed")
             print("   Possible causes: Backend API issues, authentication problems")
+        elif existing_result.get("success") and not existing_result.get("data_found"):
+            print("⚠️ NO EXISTING DATA: No previous analysis found in database")
+            print("   This is normal for first-time analysis or after data cleanup")
         elif existing_result.get("success") and not existing_result.get("has_storytelling_analysis"):
             print("❌ ISSUE CONFIRMED: storytelling_analysis missing from existing data")
             print("   Possible causes: Database field missing, Claude analysis not saved")
         elif new_result.get("success") and not new_result.get("has_storytelling_analysis"):
             print("❌ ISSUE CONFIRMED: Claude analysis not generated in new analysis")
             print("   Possible causes: Claude API failure, timeout, configuration issue")
-        elif (existing_result.get("has_storytelling_analysis") and 
-              new_result.get("has_storytelling_analysis")):
-            print("✅ ISSUE NOT REPRODUCED: Both analyses contain storytelling_analysis")
-            print("   Possible causes: Issue was already fixed, frontend display problem")
+        elif (new_result.get("has_storytelling_analysis") and 
+              persistence_result.get("persistence_working")):
+            print("✅ ISSUE NOT REPRODUCED: Claude analysis working correctly")
+            print("   - New analysis generates both GPT-4o and Claude content")
+            print("   - Analysis persists correctly in database")
+            print("   - Retrieval works after generation")
         else:
             print("⚠️ MIXED RESULTS: Partial success detected")
         
         print("\n📋 RECOMMENDATION:")
         if (new_result.get("success") and 
             new_result.get("has_storytelling_analysis") and 
-            new_result.get("has_analysis_summary")):
-            print("✅ Backend Claude integration appears to be working correctly")
-            print("   - Check frontend display logic for storytelling_analysis field")
-            print("   - Verify frontend is reading the correct field names")
+            new_result.get("has_analysis_summary") and
+            persistence_result.get("persistence_working")):
+            print("✅ Backend Claude integration is working correctly")
+            print("   - Both GPT-4o and Claude analyses are generated")
+            print("   - Data persists correctly in database")
+            print("   - Issue likely in frontend display logic")
+            print("   - Check frontend code for storytelling_analysis field handling")
+            print("   - Verify frontend is reading from correct API endpoint")
+        elif new_result.get("success") and not persistence_result.get("persistence_working"):
+            print("⚠️ Generation works but persistence fails")
+            print("   - Claude analysis generates correctly")
+            print("   - Database save operation may have issues")
+            print("   - Check backend logs for database errors")
         else:
             print("❌ Backend Claude integration has issues")
             print("   - Check Claude API key configuration")

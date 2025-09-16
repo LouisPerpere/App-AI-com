@@ -1559,6 +1559,9 @@ function MainApp() {
       await loadBusinessProfile();
       console.log('✅ Business profile loaded after login');
       
+      await loadWebsiteAnalysis();  // AJOUT CRITIQUE: charger l'analyse de site web
+      console.log('✅ Website analysis loaded after login');
+      
       await loadNotes();
       console.log('✅ Notes loaded after login');
       

@@ -1827,7 +1827,8 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
             "redirect_uri": redirect_uri,
             "scope": scopes,
             "response_type": "code",  # Code pour Facebook Login for Business
-            "state": state
+            "state": state,
+            "config_id": "184257284638727"  # Configuration ID créée dans Facebook Developer
         }
         
         # ✅ CORRECTION: Utiliser Facebook OAuth endpoint (pas Instagram direct)

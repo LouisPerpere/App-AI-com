@@ -1291,15 +1291,32 @@ async def attach_image_to_post(
 # POSTS GENERATION: /api/posts
 # ----------------------------
 
+class PostGenerationRequest(BaseModel):
+    month_key: Optional[str] = None  # Format: "2025-01" pour janvier 2025
+    target_month: Optional[str] = None  # Legacy field, keep for compatibility
+
 @api_router.post("/posts/generate")
 async def generate_posts_manual(
-    target_month: str = "septembre_2025",  # Changé pour les tests
+    request: PostGenerationRequest = PostGenerationRequest(),
     user_id: str = Depends(get_current_user_id_robust)
 ):
     """Generate posts manually for the current user with advanced AI system"""
     try:
+        # Determine target month from request
+        if request.month_key:
+            # New month_key format: "2025-01" 
+            from datetime import datetime
+            year, month = request.month_key.split('-')
+            date_obj = datetime(int(year), int(month), 1)
+            target_month = date_obj.strftime("%B_%Y").lower()  # "janvier_2025"
+            target_month_fr = date_obj.strftime("%B %Y")  # "janvier 2025" pour affichage
+        else:
+            # Legacy support
+            target_month = request.target_month or "septembre_2025"
+            target_month_fr = target_month.replace('_', ' ')
+        
         print(f"🚀 Starting advanced post generation for user {user_id}")
-        print(f"   📅 Target month: {target_month}")
+        print(f"   📅 Target month: {target_month} ({target_month_fr})")
         
         # Get business profile to determine posting frequency
         dbm = get_database()

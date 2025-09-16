@@ -550,7 +550,11 @@ async def get_business_profile(user_id: str = Depends(get_current_user_id_robust
             if field in business_profile:
                 out[field] = business_profile[field]
             else:
-                out[field] = None
+                # Valeurs par défaut pour certains champs critiques
+                if field == "business_objective":
+                    out[field] = "equilibre"  # Valeur par défaut pour nouveaux utilisateurs
+                else:
+                    out[field] = None
         
         non_null_count = len([v for v in out.values() if v is not None])
         print(f"🔍 DEBUG: Returning profile with {non_null_count} non-null fields")

@@ -2944,7 +2944,7 @@ function MainApp() {
     const allMonths = generateMonthsList();
     
     return allMonths.map(month => {
-      const monthPosts = postsByMonth[month.key] || { posts: [], monthLabel: month.name };
+      const monthPosts = postsByMonth[month.key] || { posts: [], name: month.name };
       const isCollapsed = collapsedPostMonths[month.key];
       const hasGeneratedPosts = monthPosts.posts && monthPosts.posts.length > 0;
       

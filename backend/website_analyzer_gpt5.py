@@ -1728,6 +1728,11 @@ async def _perform_website_analysis(url: str, user_id: str) -> dict:
         "business_ai": "GPT-4o",
         "storytelling_ai": "Claude Sonnet 4",
         
+        # Dates d'analyse (ajout critique pour persistance)
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+        "next_analysis_due": datetime.utcnow() + timedelta(days=30),  # 1 mois après
+        
         # Indicateurs de performance
         "analysis_optimized": True,
         "timeout_handled": True

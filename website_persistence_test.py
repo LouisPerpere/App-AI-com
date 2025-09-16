@@ -79,7 +79,7 @@ class WebsitePersistenceTester:
         self.log("🌐 STEP 2: Website Analysis with Persistence Testing")
         try:
             analysis_data = {
-                "url": TEST_URL
+                "website_url": TEST_URL
             }
             
             self.log(f"   Analyzing URL: {TEST_URL}")

@@ -2093,8 +2093,13 @@ async def _perform_website_analysis(url: str, user_id: str) -> dict:
         "website_url": url,
         "pages_count": len(content_data.get("pages_analyzed", [])),
         "pages_analyzed": [p.get("url", "") for p in content_data.get("pages_analyzed", [])],
-        "business_ai": "GPT-4o",
-        "storytelling_ai": "Claude Sonnet 4",
+        "business_ai": business_ai,
+        "storytelling_ai": storytelling_ai,
+        
+        # Métadonnées système backup croisé
+        "cross_backup_system": True,
+        "backup_business_available": "Claude Sonnet 4",
+        "backup_storytelling_available": "GPT-4o",
         
         # Dates d'analyse (ajout critique pour persistance)
         "created_at": datetime.utcnow(),

@@ -745,6 +745,173 @@ IMPORTANT : Sois INSPIRANT, NARRATIF et ENGAGEANT. Focus sur le storytelling et 
             "timestamp": datetime.utcnow().isoformat()
         }
 
+async def analyze_with_claude_business_backup(content_data: dict, website_url: str) -> dict:
+    """Claude backup pour analyse business quand GPT-4o échoue"""
+    try:
+        from llm_backup_system import LLMBackupSystem
+        llm_system = LLMBackupSystem()
+        
+        # Préparer le contenu pour l'analyse business
+        title = content_data.get('title', content_data.get('meta_title', ''))
+        description = content_data.get('description', content_data.get('meta_description', ''))
+        text_content = content_data.get('text_content', content_data.get('content_text', ''))
+        h1_tags = content_data.get('h1_tags', [])
+        h2_tags = content_data.get('h2_tags', [])
+        
+        # Construire le contenu pour analyse business
+        content_summary = f"""
+        Site web: {website_url}
+        Titre: {title or 'Non défini'}
+        Description: {description or 'Non définie'}
+        H1: {h1_tags}
+        H2: {h2_tags[:10]}
+        Contenu: {text_content[:3000] if text_content else 'Non disponible'}
+        """
+        
+        # Prompt business pour Claude (format similaire à GPT-4o)
+        business_prompt = f"""Tu es un expert en analyse business. Analyse ce site web de manière CONCISE et STRUCTURÉE.
+
+Contenu du site web à analyser :
+{content_summary}
+
+Fournis une analyse business CONCISE selon ce format JSON :
+{{
+    "analysis_summary": "Résumé de l'entreprise en 100-150 mots",
+    "key_topics": ["topic1", "topic2", "topic3", "topic4", "topic5"],
+    "brand_tone": "Ton de communication",
+    "target_audience": "Description du public cible",
+    "main_services": ["service1", "service2", "service3"],
+    "content_suggestions": ["suggestion1", "suggestion2", "suggestion3", "suggestion4"]
+}}
+
+IMPORTANT : Réponds UNIQUEMENT en JSON valide."""
+
+        messages = [
+            {
+                "role": "system",
+                "content": "Tu es un expert en analyse business. Tu analyses les sites web de manière CONCISE et STRUCTURÉE. Réponds toujours en JSON valide."
+            },
+            {
+                "role": "user",
+                "content": business_prompt
+            }
+        ]
+        
+        # Utiliser Claude avec stratégie business
+        response = await llm_system.generate_completion_with_strategy(
+            messages=messages,
+            business_objective="conversion",  # Force business analysis
+            brand_tone="professionnel",
+            platform="instagram",
+            temperature=0.4,  # Plus bas pour cohérence business
+            max_tokens=1000
+        )
+        
+        # Parse JSON response
+        import json
+        clean_response = response.strip()
+        if clean_response.startswith('```json'):
+            clean_response = clean_response[7:]
+        if clean_response.endswith('```'):
+            clean_response = clean_response[:-3]
+        
+        result = json.loads(clean_response.strip())
+        result["backup_analysis"] = True
+        result["ai_used"] = "Claude Sonnet 4 (Business Backup)"
+        
+        return result
+        
+    except Exception as e:
+        logging.error(f"❌ Claude business backup failed: {e}")
+        return create_fallback_analysis(content_data, website_url, f"claude_business_backup_failed: {str(e)}")
+
+async def analyze_with_gpt4o_storytelling_backup(content_data: dict, website_url: str) -> dict:
+    """GPT-4o backup pour analyse storytelling quand Claude échoue"""
+    try:
+        if not OPENAI_AVAILABLE or not API_KEY:
+            raise Exception("OpenAI not available for storytelling backup")
+        
+        # Préparer le contenu pour l'analyse storytelling
+        title = content_data.get('title', content_data.get('meta_title', ''))
+        description = content_data.get('description', content_data.get('meta_description', ''))
+        text_content = content_data.get('text_content', content_data.get('content_text', ''))
+        h1_tags = content_data.get('h1_tags', [])
+        h2_tags = content_data.get('h2_tags', [])
+        
+        # Construire le contenu pour analyse narrative
+        content_summary = f"""
+        Site web: {website_url}
+        Titre: {title or 'Non défini'}
+        Description: {description or 'Non définie'}
+        H1: {h1_tags}
+        H2: {h2_tags[:10]}
+        Contenu: {text_content[:3000] if text_content else 'Non disponible'}
+        """
+        
+        # Prompt storytelling pour GPT-4o (format similaire à Claude)
+        storytelling_prompt = f"""Tu es un expert en storytelling et communication de marque. Analyse ce site web avec un regard narratif et inspirant.
+
+Contenu du site web à analyser :
+{content_summary}
+
+Fournis une analyse NARRATIVE selon ce format :
+
+**L'HISTOIRE DE L'ENTREPRISE**
+[Un paragraphe de 60-80 mots qui raconte qui ils sont, leur histoire, leur motivation. Ton naturel et engageant.]
+
+**CE QUI LES REND UNIQUES**
+[Un paragraphe de 50-70 mots qui explique leur différenciation, leurs forces, leur approche unique.]
+
+**ANGLES DE COMMUNICATION NARRATIFS**
+1. [Angle 1] – [15-20 mots sur l'opportunité storytelling]
+2. [Angle 2] – [15-20 mots sur l'aspect humain/émotionnel] 
+3. [Angle 3] – [15-20 mots sur l'expertise avec dimension narrative]
+4. [Angle 4] – [15-20 mots sur les valeurs et la vision]
+
+**IDÉES DE CONTENUS STORYTELLING**
+• [Format 1 : approche narrative et humaine]
+• [Format 2 : témoignages transformés en histoires]
+• [Format 3 : expertise racontée avec passion]
+• [Format 4 : coulisses avec dimension émotionnelle]
+
+IMPORTANT : Sois INSPIRANT, NARRATIF et ENGAGEANT. Focus sur le storytelling et l'émotion."""
+
+        client = OpenAI(api_key=API_KEY)
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Tu es un expert en storytelling et communication de marque. Tu analyses les sites web avec un regard narratif et inspirant pour révéler leur potentiel storytelling."
+                },
+                {
+                    "role": "user",
+                    "content": storytelling_prompt
+                }
+            ],
+            temperature=0.7,  # Plus élevé pour créativité narrative
+            max_tokens=1200
+        )
+        
+        storytelling_content = response.choices[0].message.content
+        
+        return {
+            "storytelling_analysis": storytelling_content,
+            "ai_used": "GPT-4o (Storytelling Backup)",
+            "analysis_type": "storytelling_backup",
+            "backup_analysis": True,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ GPT-4o storytelling backup failed: {e}")
+        return {
+            "storytelling_analysis": f"Analyse narrative indisponible (backup GPT-4o échoué): {str(e)}",
+            "ai_used": "Backup_Failed",
+            "analysis_type": "storytelling_backup_failed",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
 def create_fallback_analysis(content_data: dict, website_url: str, reason: str = "fallback") -> dict:
     title = content_data.get('meta_title', '').strip() or website_url
     description = content_data.get('meta_description', '').strip()

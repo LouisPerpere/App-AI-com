@@ -255,15 +255,16 @@ class FrenchReviewValidator:
             load_response = self.session.get(f"{BASE_URL}/website/analysis", timeout=30)
             
             if load_response.status_code == 200:
-                load_data = load_response.json()
-                if isinstance(load_data, list) and len(load_data) > 0:
-                    latest_analysis = load_data[0]  # Should be most recent
-                    if latest_analysis.get("analysis_summary"):
+                load_response_data = load_response.json()
+                if isinstance(load_response_data, dict) and "analysis" in load_response_data:
+                    analysis_data = load_response_data["analysis"]
+                    
+                    if analysis_data is not None and analysis_data.get("analysis_summary"):
                         self.log_test("Analysis Loading", True, "Website analysis loaded successfully after auth")
                         
                         # Check for lastAnalysisInfo equivalent data
                         required_info = ["analysis_summary", "created_at"]
-                        has_info = all(field in latest_analysis for field in required_info)
+                        has_info = all(field in analysis_data for field in required_info)
                         
                         if has_info:
                             self.log_test("Analysis Info Structure", True, "lastAnalysisInfo equivalent data present")
@@ -272,10 +273,10 @@ class FrenchReviewValidator:
                         
                         return True
                     else:
-                        self.log_test("Analysis Loading", False, "Analysis loaded but missing analysis_summary")
+                        self.log_test("Analysis Loading", False, "Analysis loaded but missing analysis_summary or is null")
                         return False
                 else:
-                    self.log_test("Analysis Loading", False, "No analyses found after creation")
+                    self.log_test("Analysis Loading", False, "Unexpected response format for analysis loading")
                     return False
             else:
                 self.log_test("Analysis Loading", False, f"Failed to load analysis: {load_response.status_code}")

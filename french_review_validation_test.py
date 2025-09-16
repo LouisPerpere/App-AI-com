@@ -379,36 +379,40 @@ class FrenchReviewValidator:
                 self.log_test("Object Formatting Check", False, f"Status: {analysis_response.status_code}")
                 return False
             
-            analysis_data = analysis_response.json()
+            analysis_response_data = analysis_response.json()
             
-            if isinstance(analysis_data, list) and len(analysis_data) > 0:
-                latest_analysis = analysis_data[0]
+            if isinstance(analysis_response_data, dict) and "analysis" in analysis_response_data:
+                analysis_data = analysis_response_data["analysis"]
                 
-                # Check for problematic fields that might show "[object Object]"
-                problematic_fields = ["products_services_details", "company_expertise", "unique_value_proposition"]
-                
-                formatting_issues = []
-                for field in problematic_fields:
-                    if field in latest_analysis:
-                        value = latest_analysis[field]
-                        if isinstance(value, dict):
-                            # This would cause "[object Object]" in frontend
-                            formatting_issues.append(f"{field} is dict (would show [object Object])")
-                        elif isinstance(value, str) and value.strip():
-                            # This is good - properly formatted string
-                            pass
-                        elif isinstance(value, list):
-                            # This is also acceptable
-                            pass
-                
-                if formatting_issues:
-                    self.log_test("Object Formatting Fix", False, f"Formatting issues found: {formatting_issues}")
-                    return False
+                if analysis_data is not None:
+                    # Check for problematic fields that might show "[object Object]"
+                    problematic_fields = ["products_services_details", "company_expertise", "unique_value_proposition"]
+                    
+                    formatting_issues = []
+                    for field in problematic_fields:
+                        if field in analysis_data:
+                            value = analysis_data[field]
+                            if isinstance(value, dict):
+                                # This would cause "[object Object]" in frontend
+                                formatting_issues.append(f"{field} is dict (would show [object Object])")
+                            elif isinstance(value, str) and value.strip():
+                                # This is good - properly formatted string
+                                pass
+                            elif isinstance(value, list):
+                                # This is also acceptable
+                                pass
+                    
+                    if formatting_issues:
+                        self.log_test("Object Formatting Fix", False, f"Formatting issues found: {formatting_issues}")
+                        return False
+                    else:
+                        self.log_test("Object Formatting Fix", True, "No '[object Object]' formatting issues detected")
+                        return True
                 else:
-                    self.log_test("Object Formatting Fix", True, "No '[object Object]' formatting issues detected")
-                    return True
+                    self.log_test("Object Formatting Check", False, "No analysis data to check formatting (analysis is null)")
+                    return False
             else:
-                self.log_test("Object Formatting Check", False, "No analysis data to check formatting")
+                self.log_test("Object Formatting Check", False, "Unexpected response format for formatting check")
                 return False
             
         except Exception as e:

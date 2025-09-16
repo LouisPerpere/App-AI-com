@@ -1,21 +1,12 @@
 #!/usr/bin/env python3
 """
-CRITICAL PERSISTENCE VALIDATION TEST - Async/Sync Corrections
-Testing the specific fixes applied to resolve database persistence issues:
-1. business_objective persistence after PUT operations
-2. website analysis persistence in MongoDB
-3. Verification of async/sync corrections
+DIAGNOSTIC ANALYSE CLAUDE MANQUANTE - storytelling_analysis
+Backend testing for Claude Storytelling Analysis missing issue
 
-CONTEXTE CRITIQUE:
-Corrections appliquées pour résoudre le problème systémique de persistance base de données :
-1. ✅ website_analyzer_gpt5.py ligne 1753 : await dbp.website_analyses.insert_one() → dbp.db.website_analyses.insert_one()
-2. ✅ server.py ligne 593 : async def put_business_profile() → def put_business_profile() (synchrone)
-3. ✅ server.py ligne 609 : Appel cohérent sans await sur fonction synchrone
-
-CREDENTIALS DE TEST:
-- Email: mara.alexandra@gmail.com (utilisateur ayant reporté le problème)
-- Password: password123
-- URL: https://insta-automate-2.preview.emergentagent.com/api
+Test credentials:
+- Email: lperpere@yahoo.fr  
+- Password: L@Reunion974!
+- Backend URL: https://insta-automate-2.preview.emergentagent.com/api
 """
 
 import requests

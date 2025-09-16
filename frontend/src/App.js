@@ -3026,15 +3026,15 @@ function MainApp() {
               ? 'bg-gradient-to-r from-emerald-50 to-blue-50 border-emerald-200'
               : 'bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200'
           }`}>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div 
-                className="flex items-center space-x-3 cursor-pointer"
+                className="flex items-center space-x-3 cursor-pointer flex-1 min-w-0"
                 onClick={() => setCollapsedPostMonths(prev => ({
                   ...prev,
                   [month.key]: !prev[month.key]
                 }))}
               >
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
                   month.isPast 
                     ? 'bg-gray-400' 
                     : hasGeneratedPosts
@@ -3043,18 +3043,18 @@ function MainApp() {
                 }`}>
                   <Calendar className="w-5 h-5 text-white" />
                 </div>
-                <div>
-                  <h3 className={`text-lg font-bold ${
+                <div className="flex-1 min-w-0">
+                  <h3 className={`text-lg font-bold truncate ${
                     month.isPast ? 'text-gray-600' : 'text-gray-900'
                   }`}>
                     {month.name}
-                    {month.isCurrent && <span className="ml-2 text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">Mois actuel</span>}
+                    {month.isCurrent && <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full whitespace-nowrap">Actuel</span>}
                   </h3>
-                  <p className={`text-sm ${
+                  <p className={`text-sm truncate ${
                     month.isPast ? 'text-gray-500' : 'text-gray-600'
                   }`}>
                     {hasGeneratedPosts 
-                      ? `${monthPosts.posts.length} post${monthPosts.posts.length > 1 ? 's' : ''} généré${monthPosts.posts.length > 1 ? 's' : ''}`
+                      ? `${monthPosts.posts.length} post${monthPosts.posts.length > 1 ? 's' : ''}`
                       : month.isPast 
                       ? 'Mois passé'
                       : 'Aucun post généré'
@@ -3062,41 +3062,50 @@ function MainApp() {
                   </p>
                 </div>
                 <ChevronDown 
-                  className={`w-4 h-4 text-gray-400 transform transition-transform ${
+                  className={`w-4 h-4 text-gray-400 transform transition-transform flex-shrink-0 ${
                     isCollapsed ? 'rotate-180' : ''
                   }`} 
                 />
               </div>
               
-              {/* Bouton générer dans l'en-tête */}
+              {/* Bouton générer dans l'en-tête - Version responsive */}
               {!month.isPast && (
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation(); // Empêcher le collapse/expand
-                    handleGeneratePosts(month.key);
-                  }}
-                  disabled={isGeneratingPosts}
-                  className={`px-4 py-2 text-sm font-medium transition-all ${
-                    hasGeneratedPosts
-                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                      : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
-                  }`}
-                >
-                  {isGeneratingPosts ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                      Génération...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      {hasGeneratedPosts 
-                        ? `Regénérer ${month.name.split(' ')[0]}`
-                        : `Générer les posts ${month.name.split(' ')[0]}`
-                      }
-                    </>
-                  )}
-                </Button>
+                <div className="flex-shrink-0">
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation(); // Empêcher le collapse/expand
+                      handleGeneratePosts(month.key);
+                    }}
+                    disabled={isGeneratingPosts}
+                    size="sm"
+                    className={`w-full sm:w-auto px-3 py-2 text-xs font-medium transition-all ${
+                      hasGeneratedPosts
+                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                        : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
+                    }`}
+                  >
+                    {isGeneratingPosts ? (
+                      <>
+                        <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1.5"></div>
+                        <span className="hidden sm:inline">Génération...</span>
+                        <span className="sm:hidden">...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-3 h-3 mr-1.5" />
+                        <span className="hidden sm:inline">
+                          {hasGeneratedPosts 
+                            ? `Regénérer ${month.name.split(' ')[0]}`
+                            : `Générer ${month.name.split(' ')[0]}`
+                          }
+                        </span>
+                        <span className="sm:hidden">
+                          {hasGeneratedPosts ? 'Regénérer' : 'Générer'}
+                        </span>
+                      </>
+                    )}
+                  </Button>
+                </div>
               )}
             </div>
           </div>

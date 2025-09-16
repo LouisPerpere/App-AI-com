@@ -1744,8 +1744,8 @@ async def _perform_website_analysis(url: str, user_id: str) -> dict:
             "updated_at": datetime.utcnow()
         }
         
-        # Correct collection name usage
-        await dbp["website_analyses"].insert_one(analysis_doc)
+        # Consistent collection access using dot notation
+        await dbp.website_analyses.insert_one(analysis_doc)
         logging.info(f"✅ Analysis saved to database for user {user_id}")
         
     except Exception as save_error:

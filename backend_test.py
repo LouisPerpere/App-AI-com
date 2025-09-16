@@ -73,14 +73,33 @@ class ClaudeAnalysisTest:
         try:
             response = self.session.get(f"{BACKEND_URL}/website/analysis")
             
+            print(f"   📋 Response status: {response.status_code}")
+            print(f"   📋 Response headers: {dict(response.headers)}")
+            
             if response.status_code == 200:
                 data = response.json()
                 print(f"✅ Analysis retrieval successful")
+                print(f"   📋 Response type: {type(data)}")
+                
+                # Handle both single object and array responses
+                if isinstance(data, list):
+                    if len(data) > 0:
+                        analysis_data = data[0]  # Get first analysis
+                        print(f"   📋 Found {len(data)} analyses, using first one")
+                    else:
+                        print(f"   📋 Empty analysis list returned")
+                        analysis_data = {}
+                elif isinstance(data, dict):
+                    analysis_data = data
+                    print(f"   📋 Single analysis object returned")
+                else:
+                    print(f"   ⚠️ Unexpected response format: {type(data)}")
+                    analysis_data = {}
                 
                 # Check for storytelling_analysis field
-                storytelling_analysis = data.get("storytelling_analysis")
-                analysis_summary = data.get("analysis_summary")
-                analysis_type = data.get("analysis_type")
+                storytelling_analysis = analysis_data.get("storytelling_analysis")
+                analysis_summary = analysis_data.get("analysis_summary")
+                analysis_type = analysis_data.get("analysis_type")
                 
                 print(f"   📋 Analysis type: {analysis_type}")
                 print(f"   📋 Analysis summary present: {'✅' if analysis_summary else '❌'}")
@@ -99,11 +118,16 @@ class ClaudeAnalysisTest:
                     print(f"   📋 Analysis summary length: {len(str(analysis_summary))} chars")
                 
                 # Check metadata fields
-                storytelling_ai = data.get("storytelling_ai")
-                business_ai = data.get("business_ai")
+                storytelling_ai = analysis_data.get("storytelling_ai")
+                business_ai = analysis_data.get("business_ai")
                 
                 print(f"   📋 Business AI: {business_ai}")
                 print(f"   📋 Storytelling AI: {storytelling_ai}")
+                
+                # Show all available fields for debugging
+                if analysis_data:
+                    all_fields = list(analysis_data.keys())
+                    print(f"   📋 Available fields ({len(all_fields)}): {', '.join(all_fields[:10])}{'...' if len(all_fields) > 10 else ''}")
                 
                 return {
                     "success": True,
@@ -111,7 +135,8 @@ class ClaudeAnalysisTest:
                     "has_analysis_summary": bool(analysis_summary),
                     "analysis_type": analysis_type,
                     "storytelling_ai": storytelling_ai,
-                    "business_ai": business_ai
+                    "business_ai": business_ai,
+                    "data_found": bool(analysis_data)
                 }
             else:
                 print(f"❌ Analysis retrieval failed: {response.status_code}")

@@ -514,7 +514,7 @@ BUSINESS_FIELDS = [
     # Nouveaux champs ajoutés
     "industry", "value_proposition", "target_audience_details", "brand_voice",
     "content_themes", "products_services", "unique_selling_points", "business_goals",
-    "objective"
+    "business_objective", "objective"  # Ajout business_objective pour cohérence
 ]
 
 @api_router.get("/business-profile")

@@ -577,6 +577,17 @@ class BusinessProfileIn(BaseModel):
     coordinates: Optional[str] = None
     hashtags_primary: Optional[List[str]] = None
     hashtags_secondary: Optional[List[str]] = None
+    # Nouveaux champs ajoutés
+    industry: Optional[str] = None
+    value_proposition: Optional[str] = None
+    target_audience_details: Optional[str] = None
+    brand_voice: Optional[str] = None
+    content_themes: Optional[str] = None
+    products_services: Optional[str] = None
+    unique_selling_points: Optional[str] = None
+    business_goals: Optional[str] = None
+    business_objective: Optional[str] = None  # AJOUT CRITIQUE: business_objective field
+    objective: Optional[str] = None
 
 @api_router.put("/business-profile")
 async def put_business_profile(body: BusinessProfileIn, user_id: str = Depends(get_current_user_id_robust)):

@@ -1870,7 +1870,8 @@ async def test_instagram_auth():
             "redirect_uri": instagram_redirect_uri,
             "scope": scopes,
             "response_type": "code",
-            "state": test_state
+            "state": test_state,
+            "config_id": "184257284638727"  # Configuration ID créée dans Facebook Developer
         }
         
         test_auth_url = f"https://api.instagram.com/oauth/authorize?{urlencode(params)}"

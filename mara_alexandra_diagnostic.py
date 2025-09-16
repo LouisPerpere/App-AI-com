@@ -21,8 +21,8 @@ from datetime import datetime
 
 # Configuration de test
 BASE_URL = "https://insta-automate-2.preview.emergentagent.com/api"
-TEST_EMAIL = "mara.alexandra@gmail.com"
-TEST_PASSWORD = "password123"  # Using standard test password
+TEST_EMAIL = "lperpere@yahoo.fr"
+TEST_PASSWORD = "L@Reunion974!"
 
 class BusinessObjectiveDiagnostic:
     def __init__(self):

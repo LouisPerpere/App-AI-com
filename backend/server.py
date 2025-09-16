@@ -1929,6 +1929,16 @@ async def instagram_oauth_redirect_handler(
     
     return RedirectResponse(url=redirect_url, status_code=302)
 
+@api_router.get("/social/instagram/test-callback")
+async def test_instagram_callback():
+    """Endpoint de test pour vérifier si le callback est accessible"""
+    return {
+        "status": "success",
+        "message": "Callback endpoint accessible",
+        "timestamp": datetime.now().isoformat(),
+        "url": "https://insta-automate-3.preview.emergentagent.com/api/social/instagram/callback"
+    }
+
 @api_router.get("/social/instagram/callback")
 async def instagram_oauth_callback(
     code: str = None,

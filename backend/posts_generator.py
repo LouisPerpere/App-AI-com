@@ -175,7 +175,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         source_data = {}
         
         # Business profile
-        business_profile = self.db.business_profiles.find_one({"owner_id": user_id})
+        business_profile = self.db.business_profiles.find_one({"user_id": user_id})
         source_data["business_profile"] = business_profile
         logger.info(f"   📋 Business profile: {'✅' if business_profile else '❌'}")
         

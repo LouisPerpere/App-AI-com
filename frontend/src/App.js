@@ -2903,7 +2903,36 @@ function MainApp() {
     // Note: setIsModifyingPost(false) n'est pas appelé en cas de succès car on recharge la page
   };
 
-  // Render des posts par mois
+  // Générer la liste des mois (3 mois passés + mois actuel + 8 mois futurs)
+  const generateMonthsList = () => {
+    const months = [];
+    const currentDate = new Date();
+    
+    // 3 mois passés
+    for (let i = 3; i >= 1; i--) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const monthName = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      months.push({ key: monthKey, name: monthName, date: date, isPast: true });
+    }
+    
+    // Mois actuel
+    const currentMonthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+    const currentMonthName = currentDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    months.push({ key: currentMonthKey, name: currentMonthName, date: new Date(currentDate), isPast: false, isCurrent: true });
+    
+    // 8 mois futurs
+    for (let i = 1; i <= 8; i++) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const monthName = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      months.push({ key: monthKey, name: monthName, date: date, isPast: false });
+    }
+    
+    return months;
+  };
+
+  // Render des posts par mois avec nouvelle structure
   const renderPostsByMonth = () => {
     const sortedMonths = Object.keys(postsByMonth).sort().reverse(); // Mois les plus récents en premier
     

@@ -1838,8 +1838,8 @@ async def _perform_website_analysis(url: str, user_id: str) -> dict:
     if "error" in content_data:
         raise Exception(f"Content extraction failed: {content_data['error']}")
 
-    # Step 3: Analyses LLM en parallèle avec timeout augmenté
-    print(f"🧠 Step 3: Running AI analysis...")
+    # Step 3: Analyses LLM en parallèle avec backup croisé
+    print(f"🧠 Step 3: Running AI analysis with cross-backup system...")
     
     gpt4o_task = asyncio.wait_for(analyze_with_gpt4o_only(content_data, url), timeout=25.0)
     claude_task = asyncio.wait_for(analyze_with_claude_storytelling(content_data, url), timeout=25.0)
@@ -1850,14 +1850,40 @@ async def _perform_website_analysis(url: str, user_id: str) -> dict:
         return_exceptions=True
     )
     
-    # Traiter les erreurs/timeouts
-    if isinstance(gpt4o_result, Exception):
-        logging.error(f"❌ GPT-4o analysis failed/timeout: {gpt4o_result}")
-        gpt4o_result = create_fallback_analysis(content_data, url, f"gpt4o_timeout: {str(gpt4o_result)}")
+    # SYSTÈME DE BACKUP CROISÉ
+    print(f"🔄 Step 3.5: Implementing cross-backup system...")
     
+    # Traiter GPT-4o (business analysis) avec Claude backup
+    if isinstance(gpt4o_result, Exception):
+        logging.error(f"❌ GPT-4o business analysis failed: {gpt4o_result}")
+        print(f"🔄 Attempting Claude backup for business analysis...")
+        try:
+            # Claude backup pour analyse business
+            claude_business_backup = await asyncio.wait_for(
+                analyze_with_claude_business_backup(content_data, url), 
+                timeout=20.0
+            )
+            gpt4o_result = claude_business_backup
+            logging.info(f"✅ Claude successfully provided business analysis backup")
+        except Exception as claude_backup_error:
+            logging.error(f"❌ Claude business backup also failed: {claude_backup_error}")
+            gpt4o_result = create_fallback_analysis(content_data, url, f"both_failed: GPT-4o + Claude backup")
+    
+    # Traiter Claude (storytelling analysis) avec GPT-4o backup  
     if isinstance(claude_result, Exception):
-        logging.error(f"❌ Claude analysis failed/timeout: {claude_result}")
-        claude_result = {"storytelling_analysis": "Analyse narrative indisponible (timeout).", "ai_used": "Timeout"}
+        logging.error(f"❌ Claude storytelling analysis failed: {claude_result}")
+        print(f"🔄 Attempting GPT-4o backup for storytelling analysis...")
+        try:
+            # GPT-4o backup pour analyse storytelling
+            gpt4o_storytelling_backup = await asyncio.wait_for(
+                analyze_with_gpt4o_storytelling_backup(content_data, url),
+                timeout=20.0
+            )
+            claude_result = gpt4o_storytelling_backup
+            logging.info(f"✅ GPT-4o successfully provided storytelling analysis backup")
+        except Exception as gpt4o_backup_error:
+            logging.error(f"❌ GPT-4o storytelling backup also failed: {gpt4o_backup_error}")
+            claude_result = {"storytelling_analysis": "Analyse narrative indisponible (tous les systèmes ont échoué).", "ai_used": "All_Failed"}
     
     print(f"✅ Step 4: Combining results...")
     

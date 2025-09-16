@@ -4590,7 +4590,7 @@ function MainApp() {
                         <EditableField
                           fieldId="business_objective_edit"
                           label="🎯 Objectif de résultats"
-                          defaultValue={businessProfile?.business_objective || ''}
+                          defaultValue={businessProfile?.business_objective || 'equilibre'}
                           isSelect={true}
                           options={[
                             { value: 'conversion', label: '💰 Conversion (+ de ventes)' },

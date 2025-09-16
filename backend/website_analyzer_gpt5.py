@@ -612,19 +612,13 @@ def get_website_analysis(user_id: str = Depends(get_current_user_id_robust)):
         collection = dbp.db.website_analyses
         latest = collection.find_one({"user_id": user_id}, sort=[("created_at", -1)])
         if latest:
-            analysis_data = {
-                "analysis_summary": latest.get("analysis_summary", ""),
-                "key_topics": latest.get("key_topics", []),
-                "brand_tone": latest.get("brand_tone", "professional"),
-                "target_audience": latest.get("target_audience", ""),
-                "main_services": latest.get("main_services", []),
-                "content_suggestions": latest.get("content_suggestions", []),
-                "website_url": latest.get("website_url", ""),
-                "created_at": latest.get("created_at", ""),
-                "next_analysis_due": latest.get("next_analysis_due", "")
-            }
+            # Return all fields from the saved analysis, not just a subset
+            analysis_data = dict(latest)
+            # Remove MongoDB internal fields
+            analysis_data.pop('_id', None)
+            
             client.close()
-            return {"analysis": analysis_data}
+            return analysis_data  # Return directly, not wrapped in {"analysis": ...}
         client.close()
         return {"analysis": None}
     except Exception as e:

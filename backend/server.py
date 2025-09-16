@@ -2026,8 +2026,8 @@ async def connect_instagram_account(
         if not facebook_app_id or not facebook_app_secret:
             raise HTTPException(status_code=500, detail="Instagram/Facebook credentials not configured")
         
-        # Step 1: Exchange code for access token with Facebook OAuth
-        token_url = "https://graph.facebook.com/v18.0/oauth/access_token"
+        # ✅ STEP 1: Exchange code for access token with Instagram Graph API 2025
+        token_url = "https://api.instagram.com/oauth/access_token"
         token_data = {
             "client_id": facebook_app_id,
             "client_secret": facebook_app_secret,
@@ -2036,19 +2036,22 @@ async def connect_instagram_account(
             "code": request.code
         }
         
+        print(f"🔄 Exchanging Instagram authorization code for access token...")
+        
         async with aiohttp.ClientSession() as session:
             async with session.post(token_url, data=token_data) as response:
                 if response.status == 200:
                     token_response = await response.json()
                     access_token = token_response.get("access_token")
                     instagram_user_id = token_response.get("user_id")
+                    print(f"✅ Instagram token exchange successful - User ID: {instagram_user_id}")
                 else:
                     error_text = await response.text()
                     print(f"❌ Instagram token exchange failed: {error_text}")
                     raise HTTPException(status_code=400, detail="Failed to connect Instagram account")
         
-        # Step 2: Get user info from Instagram
-        user_info_url = f"https://graph.instagram.com/me?fields=id,username&access_token={access_token}"
+        # ✅ STEP 2: Get user info from Instagram Graph API
+        user_info_url = f"https://graph.instagram.com/me?fields=id,username,account_type&access_token={access_token}"
         
         async with aiohttp.ClientSession() as session:
             async with session.get(user_info_url) as response:

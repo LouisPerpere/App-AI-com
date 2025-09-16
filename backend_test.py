@@ -313,8 +313,8 @@ class ClaudeAnalysisTest:
         # Step 3: Test new analysis generation
         new_result = self.test_new_analysis_generation()
         
-        # Step 4: Monitor Claude logs (informational)
-        log_result = self.test_claude_logs_monitoring()
+        # Step 4: Test analysis persistence after generation
+        persistence_result = self.test_analysis_persistence_after_generation()
         
         # Summary
         print("\n" + "=" * 80)

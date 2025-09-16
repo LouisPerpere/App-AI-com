@@ -193,7 +193,7 @@ class PersistenceValidator:
             # Start website analysis
             analysis_response = self.session.post(
                 f"{BASE_URL}/website/analyze",
-                json={"url": test_url},
+                json={"website_url": test_url},
                 timeout=60  # Website analysis can take time
             )
             

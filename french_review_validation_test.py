@@ -348,11 +348,15 @@ class FrenchReviewValidator:
             analysis_check = self.session.get(f"{BASE_URL}/website/analysis", timeout=30)
             
             if analysis_check.status_code == 200:
-                analysis_data = analysis_check.json()
-                if isinstance(analysis_data, list) and len(analysis_data) > 0:
-                    self.log_test("Analysis Auto-Loading", True, f"Website analysis automatically loaded ({len(analysis_data)} analyses)")
+                analysis_response_data = analysis_check.json()
+                if isinstance(analysis_response_data, dict) and "analysis" in analysis_response_data:
+                    analysis_data = analysis_response_data["analysis"]
+                    if analysis_data is not None:
+                        self.log_test("Analysis Auto-Loading", True, "Website analysis automatically loaded after re-auth")
+                    else:
+                        self.log_test("Analysis Auto-Loading", False, "No analysis data loaded automatically")
                 else:
-                    self.log_test("Analysis Auto-Loading", False, "No analyses loaded automatically")
+                    self.log_test("Analysis Auto-Loading", False, "Unexpected response format for auto-loading")
             else:
                 self.log_test("Analysis Auto-Loading", False, f"Failed to load analyses: {analysis_check.status_code}")
             

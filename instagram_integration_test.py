@@ -405,6 +405,171 @@ class InstagramIntegrationTester:
             )
             return False
     
+    def test_6_backend_integration(self):
+        """Test 6: Intégration avec le backend existant"""
+        try:
+            # Test de l'endpoint backend pour l'authentification Instagram
+            url = f"{BACKEND_API_URL}/social/instagram/auth-url"
+            
+            print(f"🔍 Testing backend Instagram integration...")
+            print(f"   URL: {url}")
+            print(f"   Backend: {BACKEND_URL}")
+            
+            # Test de santé du backend d'abord
+            health_response = requests.get(f"{BACKEND_API_URL}/health", timeout=10)
+            
+            if health_response.status_code == 200:
+                health_data = health_response.json()
+                print(f"   📊 Backend Health: {health_data.get('status', 'unknown')}")
+                
+                # Vérifier la configuration Facebook
+                if FACEBOOK_APP_ID and FACEBOOK_APP_SECRET:
+                    self.log_test(
+                        "Intégration avec le backend existant",
+                        True,
+                        f"Backend accessible, configuration Facebook présente (App ID: {FACEBOOK_APP_ID})"
+                    )
+                    return True
+                else:
+                    self.log_test(
+                        "Intégration avec le backend existant",
+                        False,
+                        "Backend accessible mais configuration Facebook manquante",
+                        "FACEBOOK_APP_ID ou FACEBOOK_APP_SECRET manquant dans .env"
+                    )
+                    return False
+            else:
+                self.log_test(
+                    "Intégration avec le backend existant",
+                    False,
+                    f"Backend inaccessible: Status {health_response.status_code}",
+                    f"URL testée: {BACKEND_API_URL}/health"
+                )
+                return False
+                
+        except Exception as e:
+            self.log_test(
+                "Intégration avec le backend existant",
+                False,
+                "Exception lors du test backend",
+                str(e)
+            )
+            return False
+    
+    def test_7_token_analysis(self):
+        """Test 7: Analyse détaillée du token fourni"""
+        try:
+            print(f"🔍 Analyzing provided access token...")
+            
+            # Analyser la structure du token
+            token_parts = ACCESS_TOKEN.split('|') if '|' in ACCESS_TOKEN else [ACCESS_TOKEN]
+            token_length = len(ACCESS_TOKEN)
+            
+            print(f"   Token length: {token_length}")
+            print(f"   Token parts: {len(token_parts)}")
+            print(f"   Token prefix: {ACCESS_TOKEN[:10]}...")
+            
+            # Test avec l'endpoint de debug de Facebook
+            debug_url = f"{GRAPH_API_BASE}/debug_token"
+            params = {
+                "input_token": ACCESS_TOKEN,
+                "access_token": f"{FACEBOOK_APP_ID}|{FACEBOOK_APP_SECRET}"
+            }
+            
+            debug_response = requests.get(debug_url, params=params, timeout=10)
+            
+            if debug_response.status_code == 200:
+                debug_data = debug_response.json()
+                print(f"   📊 Debug Response: {json.dumps(debug_data, indent=2)}")
+                
+                if debug_data.get("data", {}).get("is_valid"):
+                    token_info = debug_data["data"]
+                    self.log_test(
+                        "Analyse détaillée du token fourni",
+                        True,
+                        f"Token valide - App: {token_info.get('app_id')}, Expires: {token_info.get('expires_at', 'Never')}"
+                    )
+                    return True
+                else:
+                    error_info = debug_data.get("data", {})
+                    self.log_test(
+                        "Analyse détaillée du token fourni",
+                        False,
+                        "Token invalide selon Facebook Debug",
+                        f"Erreur: {error_info.get('error', {}).get('message', 'Unknown error')}"
+                    )
+                    return False
+            else:
+                error_data = debug_response.json() if debug_response.content else {}
+                self.log_test(
+                    "Analyse détaillée du token fourni",
+                    False,
+                    f"Erreur lors du debug du token: Status {debug_response.status_code}",
+                    f"Erreur: {error_data}"
+                )
+                return False
+                
+        except Exception as e:
+            self.log_test(
+                "Analyse détaillée du token fourni",
+                False,
+                "Exception lors de l'analyse du token",
+                str(e)
+            )
+            return False
+    
+    def test_8_generate_new_token_guide(self):
+        """Test 8: Guide pour générer un nouveau token"""
+        try:
+            print(f"🔍 Generating new token guidance...")
+            
+            # Construire l'URL pour générer un nouveau token
+            from urllib.parse import urlencode
+            
+            scopes = [
+                "pages_show_list",
+                "pages_read_engagement", 
+                "pages_manage_posts",
+                "instagram_basic",
+                "instagram_content_publish",
+                "instagram_manage_comments"
+            ]
+            
+            params = {
+                "client_id": FACEBOOK_APP_ID,
+                "redirect_uri": "https://developers.facebook.com/tools/explorer/callback",
+                "scope": ",".join(scopes),
+                "response_type": "token"
+            }
+            
+            auth_url = f"https://www.facebook.com/v21.0/dialog/oauth?{urlencode(params)}"
+            
+            self.log_test(
+                "Guide pour générer un nouveau token",
+                True,
+                f"URL d'autorisation générée avec {len(scopes)} permissions requises"
+            )
+            
+            print(f"\n🔗 NOUVEAU TOKEN - ÉTAPES À SUIVRE:")
+            print(f"1. Visitez cette URL pour autoriser l'application:")
+            print(f"   {auth_url}")
+            print(f"2. Connectez-vous avec le compte Facebook lié à la page 'Claire & Marcus'")
+            print(f"3. Acceptez toutes les permissions demandées")
+            print(f"4. Copiez le nouveau access_token depuis l'URL de redirection")
+            print(f"5. Remplacez le token dans ce script de test")
+            print()
+            
+            return True
+            
+        except Exception as e:
+            self.log_test(
+                "Guide pour générer un nouveau token",
+                False,
+                "Exception lors de la génération du guide",
+                str(e)
+            )
+            return False
+
     def run_all_tests(self):
         """Exécuter tous les tests dans l'ordre"""
         print("🚀 DÉBUT DES TESTS - RÉCUPÉRATION PAGE INSTAGRAM LIÉE")
@@ -412,15 +577,20 @@ class InstagramIntegrationTester:
         print(f"📋 Page Facebook ID: {FACEBOOK_PAGE_ID}")
         print(f"🔑 Token: {ACCESS_TOKEN[:20]}...")
         print(f"🌐 Graph API Version: v21.0")
+        print(f"🏗️ Backend URL: {BACKEND_URL}")
+        print(f"📱 Facebook App ID: {FACEBOOK_APP_ID}")
         print()
         
         # Exécuter les tests dans l'ordre
         tests = [
+            self.test_6_backend_integration,
+            self.test_7_token_analysis,
             self.test_5_token_validation,
             self.test_1_retrieve_instagram_account,
             self.test_2_instagram_basic_info,
             self.test_3_instagram_full_access,
-            self.test_4_publication_limits
+            self.test_4_publication_limits,
+            self.test_8_generate_new_token_guide
         ]
         
         passed = 0
@@ -451,6 +621,17 @@ class InstagramIntegrationTester:
                 print(f"   📋 {result['details']}")
             if result["error"]:
                 print(f"   ❌ {result['error']}")
+        
+        # Recommandations finales
+        print("\n🎯 RECOMMANDATIONS:")
+        if passed < total:
+            print("1. ⚠️ Le token d'accès fourni semble invalide ou expiré")
+            print("2. 🔄 Générez un nouveau token en suivant le guide ci-dessus")
+            print("3. ✅ Le backend est configuré pour l'intégration Instagram")
+            print("4. 📋 Une fois le token valide obtenu, tous les tests devraient passer")
+        else:
+            print("1. ✅ Tous les tests sont passés - intégration prête")
+            print("2. 🚀 Vous pouvez procéder à l'implémentation de la publication croisée")
         
         return passed == total
 

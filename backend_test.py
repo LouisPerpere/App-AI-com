@@ -11,46 +11,35 @@ Test credentials:
 
 import requests
 import json
-import time
 import sys
 from datetime import datetime
 
-# Test configuration
-BASE_URL = "https://insta-automate-2.preview.emergentagent.com/api"
-TEST_CREDENTIALS = {
-    "email": "mara.alexandra@gmail.com",
-    "password": "password123"
-}
+# Configuration
+BACKEND_URL = "https://insta-automate-2.preview.emergentagent.com/api"
+TEST_EMAIL = "lperpere@yahoo.fr"
+TEST_PASSWORD = "L@Reunion974!"
+TEST_WEBSITE_URL = "https://myownwatch.fr"
 
-class PersistenceValidator:
+class ClaudeAnalysisTest:
     def __init__(self):
         self.session = requests.Session()
-        self.user_id = None
         self.access_token = None
-        self.test_results = []
+        self.user_id = None
         
-    def log_test(self, test_name, success, details=""):
-        """Log test results"""
-        status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status} {test_name}")
-        if details:
-            print(f"   {details}")
-        self.test_results.append({
-            "test": test_name,
-            "success": success,
-            "details": details,
-            "timestamp": datetime.now().isoformat()
-        })
-    
     def authenticate(self):
-        """Step 1: Authenticate with test credentials"""
-        print(f"\n🔐 STEP 1: Authentication with {TEST_CREDENTIALS['email']}")
+        """Step 1: Authenticate with backend"""
+        print("🔐 Step 1: Authentication with POST /api/auth/login-robust")
+        
+        auth_data = {
+            "email": TEST_EMAIL,
+            "password": TEST_PASSWORD
+        }
         
         try:
             response = self.session.post(
-                f"{BASE_URL}/auth/login-robust",
-                json=TEST_CREDENTIALS,
-                timeout=30
+                f"{BACKEND_URL}/auth/login-robust",
+                json=auth_data,
+                headers={"Content-Type": "application/json"}
             )
             
             if response.status_code == 200:
@@ -58,281 +47,251 @@ class PersistenceValidator:
                 self.access_token = data.get("access_token")
                 self.user_id = data.get("user_id")
                 
-                # Set authorization header for all future requests
+                # Set authorization header for future requests
                 self.session.headers.update({
                     "Authorization": f"Bearer {self.access_token}"
                 })
                 
-                self.log_test("Authentication", True, f"User ID: {self.user_id}")
+                print(f"✅ Authentication successful")
+                print(f"   User ID: {self.user_id}")
+                print(f"   Token: {self.access_token[:20]}..." if self.access_token else "   Token: None")
                 return True
             else:
-                self.log_test("Authentication", False, f"Status: {response.status_code}, Response: {response.text}")
+                print(f"❌ Authentication failed: {response.status_code}")
+                print(f"   Response: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("Authentication", False, f"Exception: {str(e)}")
+            print(f"❌ Authentication error: {str(e)}")
             return False
     
-    def test_business_objective_persistence(self):
-        """Step 2: Test business_objective persistence - CRITICAL TEST"""
-        print(f"\n📊 STEP 2: Testing business_objective persistence (CRITICAL)")
+    def test_existing_analysis_retrieval(self):
+        """Step 2: Test récupération analyse existante - GET /api/website/analysis"""
+        print("\n📊 Step 2: Test récupération analyse existante")
+        print("   GET /api/website/analysis pour lperpere@yahoo.fr")
         
         try:
-            # Get initial business profile state
-            print("   📋 Getting initial business profile state...")
-            initial_response = self.session.get(f"{BASE_URL}/business-profile", timeout=30)
+            response = self.session.get(f"{BACKEND_URL}/website/analysis")
             
-            if initial_response.status_code != 200:
-                self.log_test("Business Profile Initial State", False, f"Status: {initial_response.status_code}")
-                return False
-            
-            initial_data = initial_response.json()
-            initial_objective = initial_data.get("business_objective")
-            print(f"   📋 Initial business_objective: {initial_objective}")
-            
-            # Test 1: Save business_objective to "communaute"
-            print("   💾 Saving business_objective to 'communaute'...")
-            save_response = self.session.put(
-                f"{BASE_URL}/business-profile",
-                json={"business_objective": "communaute"},
-                timeout=30
-            )
-            
-            if save_response.status_code != 200:
-                self.log_test("Business Objective Save", False, f"Status: {save_response.status_code}, Response: {save_response.text}")
-                return False
-            
-            save_data = save_response.json()
-            if not save_data.get("success"):
-                self.log_test("Business Objective Save", False, f"Save response: {save_data}")
-                return False
-            
-            self.log_test("Business Objective Save", True, "Successfully saved 'communaute'")
-            
-            # Test 2: Immediate verification
-            print("   🔍 Immediate verification...")
-            immediate_response = self.session.get(f"{BASE_URL}/business-profile", timeout=30)
-            
-            if immediate_response.status_code != 200:
-                self.log_test("Immediate Verification", False, f"Status: {immediate_response.status_code}")
-                return False
-            
-            immediate_data = immediate_response.json()
-            immediate_objective = immediate_data.get("business_objective")
-            
-            if immediate_objective == "communaute":
-                self.log_test("Immediate Verification", True, f"business_objective = '{immediate_objective}'")
-            else:
-                self.log_test("Immediate Verification", False, f"Expected 'communaute', got '{immediate_objective}'")
-                return False
-            
-            # Test 3: Persistence after delay (simulate page reload)
-            print("   ⏱️  Testing persistence after 10-second delay...")
-            time.sleep(10)
-            
-            delayed_response = self.session.get(f"{BASE_URL}/business-profile", timeout=30)
-            
-            if delayed_response.status_code != 200:
-                self.log_test("Delayed Persistence", False, f"Status: {delayed_response.status_code}")
-                return False
-            
-            delayed_data = delayed_response.json()
-            delayed_objective = delayed_data.get("business_objective")
-            
-            if delayed_objective == "communaute":
-                self.log_test("Delayed Persistence", True, f"business_objective still = '{delayed_objective}' after 10s")
-            else:
-                self.log_test("Delayed Persistence", False, f"PERSISTENCE FAILURE: Expected 'communaute', got '{delayed_objective}' after delay")
-                return False
-            
-            # Test 4: Multiple consecutive GET requests to verify consistency
-            print("   🔄 Testing consistency across multiple requests...")
-            consistent = True
-            for i in range(3):
-                check_response = self.session.get(f"{BASE_URL}/business-profile", timeout=30)
-                if check_response.status_code == 200:
-                    check_data = check_response.json()
-                    check_objective = check_data.get("business_objective")
-                    if check_objective != "communaute":
-                        consistent = False
-                        break
+            if response.status_code == 200:
+                data = response.json()
+                print(f"✅ Analysis retrieval successful")
+                
+                # Check for storytelling_analysis field
+                storytelling_analysis = data.get("storytelling_analysis")
+                analysis_summary = data.get("analysis_summary")
+                analysis_type = data.get("analysis_type")
+                
+                print(f"   📋 Analysis type: {analysis_type}")
+                print(f"   📋 Analysis summary present: {'✅' if analysis_summary else '❌'}")
+                print(f"   📋 Storytelling analysis present: {'✅' if storytelling_analysis else '❌'}")
+                
+                if storytelling_analysis:
+                    print(f"   📋 Storytelling analysis length: {len(str(storytelling_analysis))} chars")
+                    if isinstance(storytelling_analysis, str) and len(storytelling_analysis) > 0:
+                        print(f"   📋 Storytelling analysis preview: {storytelling_analysis[:100]}...")
+                    else:
+                        print(f"   ⚠️ Storytelling analysis is empty or null: {storytelling_analysis}")
                 else:
-                    consistent = False
-                    break
-                time.sleep(2)
-            
-            if consistent:
-                self.log_test("Consistency Check", True, "business_objective consistent across multiple requests")
+                    print(f"   ❌ CRITICAL: storytelling_analysis field is missing or null")
+                
+                if analysis_summary:
+                    print(f"   📋 Analysis summary length: {len(str(analysis_summary))} chars")
+                
+                # Check metadata fields
+                storytelling_ai = data.get("storytelling_ai")
+                business_ai = data.get("business_ai")
+                
+                print(f"   📋 Business AI: {business_ai}")
+                print(f"   📋 Storytelling AI: {storytelling_ai}")
+                
+                return {
+                    "success": True,
+                    "has_storytelling_analysis": bool(storytelling_analysis),
+                    "has_analysis_summary": bool(analysis_summary),
+                    "analysis_type": analysis_type,
+                    "storytelling_ai": storytelling_ai,
+                    "business_ai": business_ai
+                }
             else:
-                self.log_test("Consistency Check", False, "business_objective inconsistent across requests")
-                return False
-            
-            return True
-            
+                print(f"❌ Analysis retrieval failed: {response.status_code}")
+                print(f"   Response: {response.text}")
+                return {"success": False, "error": f"HTTP {response.status_code}"}
+                
         except Exception as e:
-            self.log_test("Business Objective Persistence", False, f"Exception: {str(e)}")
-            return False
+            print(f"❌ Analysis retrieval error: {str(e)}")
+            return {"success": False, "error": str(e)}
     
-    def test_website_analysis_persistence(self):
-        """Step 3: Test website analysis persistence"""
-        print(f"\n🌐 STEP 3: Testing website analysis persistence")
+    def test_new_analysis_generation(self):
+        """Step 3: Test génération nouvelle analyse - POST /api/website/analyze"""
+        print(f"\n🔍 Step 3: Test génération nouvelle analyse")
+        print(f"   POST /api/website/analyze avec URL: {TEST_WEBSITE_URL}")
+        
+        analyze_data = {
+            "url": TEST_WEBSITE_URL
+        }
         
         try:
-            test_url = "https://myownwatch.fr"
-            print(f"   🔍 Analyzing website: {test_url}")
-            
-            # Start website analysis
-            analysis_response = self.session.post(
-                f"{BASE_URL}/website/analyze",
-                json={"website_url": test_url},
-                timeout=60  # Website analysis can take time
+            print("   🚀 Launching website analysis...")
+            response = self.session.post(
+                f"{BACKEND_URL}/website/analyze",
+                json=analyze_data,
+                headers={"Content-Type": "application/json"},
+                timeout=60  # 60 seconds timeout for analysis
             )
             
-            if analysis_response.status_code != 200:
-                self.log_test("Website Analysis", False, f"Status: {analysis_response.status_code}, Response: {analysis_response.text}")
-                return False
-            
-            analysis_data = analysis_response.json()
-            
-            # Check if analysis completed successfully
-            if not analysis_data.get("analysis_summary"):
-                self.log_test("Website Analysis", False, "No analysis_summary in response")
-                return False
-            
-            # Check for required fields indicating successful save
-            required_fields = ["created_at", "updated_at"]
-            missing_fields = [field for field in required_fields if not analysis_data.get(field)]
-            
-            if missing_fields:
-                self.log_test("Website Analysis Fields", False, f"Missing fields: {missing_fields}")
-            else:
-                self.log_test("Website Analysis Fields", True, "All required timestamp fields present")
-            
-            self.log_test("Website Analysis", True, f"Analysis completed successfully for {test_url}")
-            
-            # Test persistence by retrieving analysis
-            print("   📋 Verifying analysis persistence...")
-            time.sleep(10)  # Wait to simulate page reload
-            
-            retrieval_response = self.session.get(f"{BASE_URL}/website/analysis", timeout=30)
-            
-            if retrieval_response.status_code == 200:
-                retrieval_data = retrieval_response.json()
-                if retrieval_data and len(retrieval_data) > 0:
-                    self.log_test("Analysis Persistence", True, "Analysis retrieved from database after delay")
+            if response.status_code == 200:
+                data = response.json()
+                print(f"✅ New analysis generation successful")
+                
+                # Verify both analyses are present
+                storytelling_analysis = data.get("storytelling_analysis")
+                analysis_summary = data.get("analysis_summary")
+                analysis_type = data.get("analysis_type")
+                
+                print(f"   📋 Analysis type: {analysis_type}")
+                print(f"   📋 Expected: 'gpt4o_plus_claude_storytelling'")
+                
+                # Check GPT-4o analysis
+                if analysis_summary:
+                    print(f"   ✅ GPT-4o analysis (analysis_summary) present: {len(str(analysis_summary))} chars")
+                    print(f"   📋 GPT-4o preview: {str(analysis_summary)[:100]}...")
                 else:
-                    self.log_test("Analysis Persistence", False, "No analysis found in database")
-                    return False
+                    print(f"   ❌ GPT-4o analysis (analysis_summary) missing")
+                
+                # Check Claude analysis
+                if storytelling_analysis:
+                    print(f"   ✅ Claude analysis (storytelling_analysis) present: {len(str(storytelling_analysis))} chars")
+                    print(f"   📋 Claude preview: {str(storytelling_analysis)[:100]}...")
+                else:
+                    print(f"   ❌ CRITICAL: Claude analysis (storytelling_analysis) missing or null")
+                    print(f"   📋 storytelling_analysis value: {storytelling_analysis}")
+                
+                # Check AI metadata
+                storytelling_ai = data.get("storytelling_ai")
+                business_ai = data.get("business_ai")
+                
+                print(f"   📋 Business AI: {business_ai} (expected: 'GPT-4o')")
+                print(f"   📋 Storytelling AI: {storytelling_ai} (expected: 'Claude Sonnet 4')")
+                
+                # Check all fields present
+                all_fields = list(data.keys())
+                print(f"   📋 Total response fields: {len(all_fields)}")
+                print(f"   📋 Response fields: {', '.join(all_fields[:10])}{'...' if len(all_fields) > 10 else ''}")
+                
+                return {
+                    "success": True,
+                    "has_storytelling_analysis": bool(storytelling_analysis and str(storytelling_analysis).strip()),
+                    "has_analysis_summary": bool(analysis_summary and str(analysis_summary).strip()),
+                    "analysis_type": analysis_type,
+                    "storytelling_ai": storytelling_ai,
+                    "business_ai": business_ai,
+                    "storytelling_content": str(storytelling_analysis)[:200] if storytelling_analysis else None,
+                    "analysis_content": str(analysis_summary)[:200] if analysis_summary else None
+                }
             else:
-                self.log_test("Analysis Persistence", False, f"Failed to retrieve analysis: {retrieval_response.status_code}")
-                return False
-            
-            return True
-            
+                print(f"❌ New analysis generation failed: {response.status_code}")
+                print(f"   Response: {response.text}")
+                return {"success": False, "error": f"HTTP {response.status_code}"}
+                
         except Exception as e:
-            self.log_test("Website Analysis Persistence", False, f"Exception: {str(e)}")
-            return False
+            print(f"❌ New analysis generation error: {str(e)}")
+            return {"success": False, "error": str(e)}
     
-    def test_save_logs_verification(self):
-        """Step 4: Test for successful save logs"""
-        print(f"\n📝 STEP 4: Verifying save operation logs")
+    def test_claude_logs_monitoring(self):
+        """Step 4: Test logs Claude Sonnet 4 pendant la génération"""
+        print(f"\n📝 Step 4: Monitoring Claude Sonnet 4 logs")
         
-        # This is a conceptual test - in a real environment we'd check server logs
-        # For now, we verify that our previous operations succeeded without errors
+        # This would require access to backend logs, which we can't directly access
+        # But we can check if Claude API key is configured
+        print("   📋 Claude API configuration check:")
+        print("   📋 Note: Direct log access not available from API testing")
+        print("   📋 Claude functionality will be verified through analysis results")
         
-        success_indicators = [
-            "Authentication successful",
-            "Business objective saved and persisted",
-            "Website analysis completed and saved"
-        ]
-        
-        failed_tests = [result for result in self.test_results if not result["success"]]
-        
-        if not failed_tests:
-            self.log_test("Save Logs Verification", True, "All save operations completed without errors")
-            return True
-        else:
-            self.log_test("Save Logs Verification", False, f"Found {len(failed_tests)} failed operations")
-            return False
+        return {"success": True, "note": "Log monitoring requires backend access"}
     
-    def run_comprehensive_test(self):
-        """Run all persistence validation tests"""
-        print("🚀 STARTING CRITICAL PERSISTENCE VALIDATION TESTS")
-        print("=" * 60)
-        print("Testing async/sync corrections for database persistence")
-        print(f"Backend URL: {BASE_URL}")
-        print(f"Test User: {TEST_CREDENTIALS['email']}")
-        print("=" * 60)
+    def run_diagnostic(self):
+        """Run complete diagnostic for Claude storytelling analysis"""
+        print("=" * 80)
+        print("🔍 DIAGNOSTIC ANALYSE CLAUDE MANQUANTE - storytelling_analysis")
+        print("=" * 80)
+        print(f"Backend URL: {BACKEND_URL}")
+        print(f"Test credentials: {TEST_EMAIL}")
+        print(f"Test website: {TEST_WEBSITE_URL}")
+        print(f"Timestamp: {datetime.now().isoformat()}")
+        print("=" * 80)
         
         # Step 1: Authentication
         if not self.authenticate():
-            print("\n❌ CRITICAL FAILURE: Authentication failed - cannot proceed with tests")
+            print("\n❌ DIAGNOSTIC FAILED: Authentication failed")
             return False
         
-        # Step 2: Business objective persistence (CRITICAL)
-        if not self.test_business_objective_persistence():
-            print("\n❌ CRITICAL FAILURE: Business objective persistence failed")
-            return False
+        # Step 2: Test existing analysis retrieval
+        existing_result = self.test_existing_analysis_retrieval()
         
-        # Step 3: Website analysis persistence
-        if not self.test_website_analysis_persistence():
-            print("\n❌ CRITICAL FAILURE: Website analysis persistence failed")
-            return False
+        # Step 3: Test new analysis generation
+        new_result = self.test_new_analysis_generation()
         
-        # Step 4: Save logs verification
-        self.test_save_logs_verification()
+        # Step 4: Monitor Claude logs (informational)
+        log_result = self.test_claude_logs_monitoring()
         
         # Summary
-        self.print_summary()
+        print("\n" + "=" * 80)
+        print("📊 DIAGNOSTIC SUMMARY")
+        print("=" * 80)
+        
+        if existing_result.get("success"):
+            print("✅ Existing analysis retrieval: SUCCESS")
+            print(f"   - Has storytelling_analysis: {'✅' if existing_result.get('has_storytelling_analysis') else '❌'}")
+            print(f"   - Has analysis_summary: {'✅' if existing_result.get('has_analysis_summary') else '❌'}")
+            print(f"   - Analysis type: {existing_result.get('analysis_type')}")
+        else:
+            print("❌ Existing analysis retrieval: FAILED")
+        
+        if new_result.get("success"):
+            print("✅ New analysis generation: SUCCESS")
+            print(f"   - Has storytelling_analysis: {'✅' if new_result.get('has_storytelling_analysis') else '❌'}")
+            print(f"   - Has analysis_summary: {'✅' if new_result.get('has_analysis_summary') else '❌'}")
+            print(f"   - Analysis type: {new_result.get('analysis_type')}")
+            print(f"   - Business AI: {new_result.get('business_ai')}")
+            print(f"   - Storytelling AI: {new_result.get('storytelling_ai')}")
+        else:
+            print("❌ New analysis generation: FAILED")
+        
+        # Determine root cause
+        print("\n🔍 ROOT CAUSE ANALYSIS:")
+        
+        if not existing_result.get("success") and not new_result.get("success"):
+            print("❌ CRITICAL: Both existing and new analysis retrieval failed")
+            print("   Possible causes: Backend API issues, authentication problems")
+        elif existing_result.get("success") and not existing_result.get("has_storytelling_analysis"):
+            print("❌ ISSUE CONFIRMED: storytelling_analysis missing from existing data")
+            print("   Possible causes: Database field missing, Claude analysis not saved")
+        elif new_result.get("success") and not new_result.get("has_storytelling_analysis"):
+            print("❌ ISSUE CONFIRMED: Claude analysis not generated in new analysis")
+            print("   Possible causes: Claude API failure, timeout, configuration issue")
+        elif (existing_result.get("has_storytelling_analysis") and 
+              new_result.get("has_storytelling_analysis")):
+            print("✅ ISSUE NOT REPRODUCED: Both analyses contain storytelling_analysis")
+            print("   Possible causes: Issue was already fixed, frontend display problem")
+        else:
+            print("⚠️ MIXED RESULTS: Partial success detected")
+        
+        print("\n📋 RECOMMENDATION:")
+        if (new_result.get("success") and 
+            new_result.get("has_storytelling_analysis") and 
+            new_result.get("has_analysis_summary")):
+            print("✅ Backend Claude integration appears to be working correctly")
+            print("   - Check frontend display logic for storytelling_analysis field")
+            print("   - Verify frontend is reading the correct field names")
+        else:
+            print("❌ Backend Claude integration has issues")
+            print("   - Check Claude API key configuration")
+            print("   - Check backend logs for Claude API errors")
+            print("   - Verify dual LLM system implementation")
         
         return True
-    
-    def print_summary(self):
-        """Print test summary"""
-        print("\n" + "=" * 60)
-        print("🎯 PERSISTENCE VALIDATION TEST SUMMARY")
-        print("=" * 60)
-        
-        total_tests = len(self.test_results)
-        passed_tests = len([r for r in self.test_results if r["success"]])
-        failed_tests = total_tests - passed_tests
-        
-        print(f"Total Tests: {total_tests}")
-        print(f"Passed: {passed_tests}")
-        print(f"Failed: {failed_tests}")
-        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
-        
-        if failed_tests > 0:
-            print("\n❌ FAILED TESTS:")
-            for result in self.test_results:
-                if not result["success"]:
-                    print(f"   - {result['test']}: {result['details']}")
-        
-        print("\n🔍 CRITICAL FINDINGS:")
-        if passed_tests == total_tests:
-            print("✅ ALL PERSISTENCE CORRECTIONS WORKING CORRECTLY")
-            print("✅ business_objective persistence: RESOLVED")
-            print("✅ Website analysis persistence: RESOLVED") 
-            print("✅ Async/sync database issues: RESOLVED")
-        else:
-            print("❌ PERSISTENCE ISSUES STILL PRESENT")
-            print("❌ Async/sync corrections may need additional work")
-        
-        print("=" * 60)
-
-def main():
-    """Main test execution"""
-    validator = PersistenceValidator()
-    
-    try:
-        success = validator.run_comprehensive_test()
-        sys.exit(0 if success else 1)
-    except KeyboardInterrupt:
-        print("\n⚠️ Test interrupted by user")
-        sys.exit(1)
-    except Exception as e:
-        print(f"\n❌ Unexpected error: {str(e)}")
-        sys.exit(1)
 
 if __name__ == "__main__":
-    main()
+    tester = ClaudeAnalysisTest()
+    tester.run_diagnostic()

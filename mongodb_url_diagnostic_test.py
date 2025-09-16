@@ -26,7 +26,7 @@ from pymongo import MongoClient
 from bson import ObjectId
 
 # Configuration - Using the correct backend URL from frontend/.env
-BACKEND_URL = "https://insta-automate-2.preview.emergentagent.com"
+BACKEND_URL = "https://insta-automate-3.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request

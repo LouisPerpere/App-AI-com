@@ -13,7 +13,7 @@ from io import BytesIO
 from PIL import Image
 
 # Configuration
-BACKEND_URL = "https://insta-automate-2.preview.emergentagent.com"
+BACKEND_URL = "https://insta-automate-3.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Credentials

@@ -10,7 +10,7 @@ import time
 from datetime import datetime
 
 # Configuration from review request
-BACKEND_URL = "https://insta-automate-2.preview.emergentagent.com/api"
+BACKEND_URL = "https://insta-automate-3.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"

@@ -10,7 +10,7 @@ mais après rechargement ça revient à "equilibré". Le problème de persistanc
 CREDENTIALS DE TEST:
 - Email: mara.alexandra@gmail.com (utilisateur ayant le problème)  
 - Password: [utiliser les credentials standards si disponibles]
-- URL: https://insta-automate-2.preview.emergentagent.com/api
+- URL: https://insta-automate-3.preview.emergentagent.com/api
 """
 
 import requests
@@ -20,7 +20,7 @@ import time
 from datetime import datetime
 
 # Configuration de test
-BASE_URL = "https://insta-automate-2.preview.emergentagent.com/api"
+BASE_URL = "https://insta-automate-3.preview.emergentagent.com/api"
 TEST_EMAIL = "mara.alexandra@gmail.com"
 TEST_PASSWORD = "password123"
 

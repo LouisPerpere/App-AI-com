@@ -14,7 +14,7 @@ PROBLÈME RACINE IDENTIFIÉ :
 - Analyse site web jamais rechargée après authentification (disparaît après reload)
 - products_services_details mal formaté côté frontend
 
-URL DE TEST : https://insta-automate-2.preview.emergentagent.com/api
+URL DE TEST : https://insta-automate-3.preview.emergentagent.com/api
 
 CREDENTIALS DE TEST :
 - Email: lperpere@yahoo.fr  
@@ -65,7 +65,7 @@ import sys
 from datetime import datetime
 
 # Test configuration
-BASE_URL = "https://insta-automate-2.preview.emergentagent.com/api"
+BASE_URL = "https://insta-automate-3.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"

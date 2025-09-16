@@ -1815,10 +1815,9 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         import secrets
         state = secrets.token_urlsafe(32)
         
-        # ✅ NOUVEAUX SCOPES 2025 - Instagram Business Login
-        # Anciens scopes dépréciés : instagram_basic, instagram_content_publish, instagram_manage_comments
-        # Nouveaux scopes valides depuis janvier 2025
-        scopes = "pages_show_list,pages_read_engagement,pages_manage_posts,instagram_business_basic,instagram_business_content_publish,instagram_business_manage_comments"
+        # ✅ SCOPES DE BASE APPROUVÉS AUTOMATIQUEMENT
+        # Commencer avec les permissions de base, puis demander l'approbation pour Instagram Business
+        scopes = "pages_show_list,pages_read_engagement,pages_manage_posts"
         
         # Construire l'URL d'autorisation Facebook Login for Business
         from urllib.parse import urlencode

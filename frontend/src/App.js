@@ -1454,6 +1454,14 @@ function MainApp() {
     }
   }, [websiteAnalysis, persistedUrl, activeTab]); // Ajouter activeTab pour déclencher quand on change d'onglet
 
+  // Load website analysis when navigating to Analysis tab
+  useEffect(() => {
+    if (activeTab === 'analyse' && isAuthenticated && user && !websiteAnalysis) {
+      console.log('🔄 Loading website analysis for Analysis tab...');
+      loadWebsiteAnalysis();
+    }
+  }, [activeTab, isAuthenticated, user, websiteAnalysis]);
+
   // DEBUG: Surveiller les changements de websiteAnalysis pour identifier les problèmes d'affichage
   useEffect(() => {
     console.log('🔍 websiteAnalysis changed:', websiteAnalysis ? 'RÉSULTAT PRÉSENT' : 'AUCUN RÉSULTAT');

@@ -1463,6 +1463,36 @@ function MainApp() {
     }
   }, [websiteAnalysis]);
 
+  // Load website analysis from database
+  const loadWebsiteAnalysis = async () => {
+    if (!user) return;
+    
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) return;
+      
+      const response = await axios.get(`${API}/website/analysis`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data && response.data.analysis_summary) {
+        console.log('🔍 Website analysis loaded from database:', response.data);
+        setWebsiteAnalysis(response.data);
+        
+        // Set last analysis info if available
+        if (response.data.created_at) {
+          setLastAnalysisInfo({
+            lastAnalyzed: response.data.created_at,
+            nextAnalysisDue: response.data.next_analysis_due || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+          });
+        }
+      }
+    } catch (error) {
+      console.log('ℹ️ No website analysis found or error loading:', error.response?.status);
+      // Pas d'erreur visible à l'utilisateur - normal si pas d'analyse
+    }
+  };
+
   const checkAuth = async () => {
     const token = localStorage.getItem('access_token');
     

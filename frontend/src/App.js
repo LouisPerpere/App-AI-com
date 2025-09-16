@@ -7381,10 +7381,10 @@ function MainApp() {
                   </div>
                 </div>
 
-                {/* Facebook Connection - Coming Soon */}
-                <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 opacity-75">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
+                {/* Facebook Connection - Maintenant Active */}
+                <div className="bg-white rounded-2xl p-4 sm:p-6 border border-gray-100 hover:shadow-lg transition-shadow social-connection-card">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between social-connection-content">
+                    <div className="flex items-center space-x-4 flex-1 min-w-0">
                       <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
                         <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24" style={{aspectRatio: '1'}}>
                           <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -7392,12 +7392,48 @@ function MainApp() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-lg font-semibold text-gray-900">Facebook</h3>
-                        <p className="text-sm text-gray-500 truncate">Publiez sur vos pages Facebook</p>
+                        <p className="text-sm text-gray-500 truncate">
+                          {connectedAccounts.facebook ? 
+                            `Connecté : ${connectedAccounts.facebook.page_name}` : 
+                            'Publiez sur vos pages Facebook'
+                          }
+                        </p>
                       </div>
                     </div>
                     
-                    <div className="px-4 py-2 bg-gray-200 text-gray-500 rounded-lg cursor-not-allowed">
-                      Bientôt disponible
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 mt-4 sm:mt-0 social-connection-buttons">
+                      {connectedAccounts.facebook ? (
+                        <>
+                          <div className="flex items-center justify-center space-x-2 text-green-600 px-3 py-2">
+                            <CheckCircleIcon className="w-5 h-5 flex-shrink-0" />
+                            <span className="text-sm font-medium">Connecté</span>
+                          </div>
+                          <button
+                            onClick={() => disconnectAccount('facebook')}
+                            className="px-4 py-2 text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors social-disconnect-button"
+                          >
+                            Déconnecter
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={connectFacebook}
+                          disabled={isConnectingAccount}
+                          className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 social-connect-button"
+                        >
+                          {isConnectingAccount ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin flex-shrink-0"></div>
+                              <span>Connexion...</span>
+                            </>
+                          ) : (
+                            <>
+                              <PlusIcon className="w-4 h-4 flex-shrink-0" />
+                              <span>Connecter</span>
+                            </>
+                          )}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

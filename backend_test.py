@@ -339,6 +339,12 @@ class ClaudeAnalysisTest:
         else:
             print("❌ New analysis generation: FAILED")
         
+        if persistence_result.get("success"):
+            print("✅ Analysis persistence after generation: SUCCESS")
+            print(f"   - Analysis retrievable after generation: {'✅' if persistence_result.get('persistence_working') else '❌'}")
+        else:
+            print("❌ Analysis persistence after generation: FAILED")
+        
         # Determine root cause
         print("\n🔍 ROOT CAUSE ANALYSIS:")
         

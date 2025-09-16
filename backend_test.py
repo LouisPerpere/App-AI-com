@@ -1,29 +1,28 @@
 #!/usr/bin/env python3
 """
-BUSINESS_OBJECTIVE VALIDATION TEST - Valeur par défaut et persistance
-Test complet de la logique business_objective selon la demande critique française
+DIAGNOSTIC URGENT - business_objective persistence test for mara.alexandra
+Testing the specific issue where business_objective reverts from "communauté" to "equilibré"
 
 CONTEXTE CRITIQUE:
-- Nouveaux comptes → business_objective = "equilibre" par défaut  
-- Utilisateurs existants SANS ce champ → business_objective = "equilibre" par défaut
-- Utilisateurs existants AVEC ce champ → garder leur valeur (persistance)
-- Case jamais vide (toujours une valeur)
+Malgré les corrections appliquées, l'utilisateur "mara.alexandra" a modifié l'objectif à "communauté" 
+mais après rechargement ça revient à "equilibré". Le problème de persistance n'est PAS résolu.
 
 CREDENTIALS DE TEST:
-- Email: lperpere@yahoo.fr (utilisateur existant)
-- Password: L@Reunion974!
+- Email: mara.alexandra@gmail.com (utilisateur ayant le problème)  
+- Password: [utiliser les credentials standards si disponibles]
 - URL: https://insta-automate-2.preview.emergentagent.com/api
 """
 
 import requests
 import json
 import sys
+import time
 from datetime import datetime
 
 # Configuration de test
 BASE_URL = "https://insta-automate-2.preview.emergentagent.com/api"
-TEST_EMAIL = "lperpere@yahoo.fr"
-TEST_PASSWORD = "L@Reunion974!"
+TEST_EMAIL = "mara.alexandra@gmail.com"
+TEST_PASSWORD = "password123"  # Using standard test password
 
 class BusinessObjectiveValidator:
     def __init__(self):

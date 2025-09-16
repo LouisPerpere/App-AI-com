@@ -3372,6 +3372,38 @@ function MainApp() {
     }
   };
 
+  const connectFacebook = async () => {
+    setIsConnectingAccount(true);
+    setSocialConnectionStatus('Initialisation de la connexion Facebook...');
+    
+    try {
+      const token = localStorage.getItem('access_token');
+      
+      // Étape 1: Obtenir l'URL d'autorisation Facebook (même endpoint que Instagram pour pages)
+      const response = await axios.get(`${API}/social/instagram/auth-url`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data?.auth_url) {
+        setSocialConnectionStatus('Redirection vers Facebook...');
+        
+        // Stocker l'état pour vérification CSRF
+        localStorage.setItem('facebook_auth_state', response.data.state);
+        
+        // Rediriger vers Facebook OAuth
+        window.location.href = response.data.auth_url;
+      } else {
+        throw new Error('URL d\'autorisation non disponible');
+      }
+      
+    } catch (error) {
+      console.error('❌ Error connecting Facebook:', error);
+      toast.error('Erreur lors de la connexion Facebook');
+      setSocialConnectionStatus('');
+      setIsConnectingAccount(false);
+    }
+  };
+
   const connectInstagram = async () => {
     setIsConnectingAccount(true);
     setSocialConnectionStatus('Initialisation de la connexion Instagram...');

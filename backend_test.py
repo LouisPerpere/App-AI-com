@@ -128,7 +128,7 @@ class ClaudeAnalysisTest:
         print(f"   POST /api/website/analyze avec URL: {TEST_WEBSITE_URL}")
         
         analyze_data = {
-            "url": TEST_WEBSITE_URL
+            "website_url": TEST_WEBSITE_URL
         }
         
         try:

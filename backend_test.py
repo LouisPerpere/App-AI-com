@@ -223,17 +223,73 @@ class ClaudeAnalysisTest:
             print(f"❌ New analysis generation error: {str(e)}")
             return {"success": False, "error": str(e)}
     
-    def test_claude_logs_monitoring(self):
-        """Step 4: Test logs Claude Sonnet 4 pendant la génération"""
-        print(f"\n📝 Step 4: Monitoring Claude Sonnet 4 logs")
+    def test_analysis_persistence_after_generation(self):
+        """Step 4: Test that newly generated analysis persists and can be retrieved"""
+        print(f"\n💾 Step 4: Test analysis persistence after generation")
+        print("   Verifying that the analysis we just generated can be retrieved")
         
-        # This would require access to backend logs, which we can't directly access
-        # But we can check if Claude API key is configured
-        print("   📋 Claude API configuration check:")
-        print("   📋 Note: Direct log access not available from API testing")
-        print("   📋 Claude functionality will be verified through analysis results")
-        
-        return {"success": True, "note": "Log monitoring requires backend access"}
+        try:
+            # Wait a moment for database write to complete
+            import time
+            time.sleep(2)
+            
+            response = self.session.get(f"{BACKEND_URL}/website/analysis")
+            
+            if response.status_code == 200:
+                data = response.json()
+                print(f"✅ Post-generation analysis retrieval successful")
+                
+                # Handle both single object and array responses
+                if isinstance(data, list):
+                    if len(data) > 0:
+                        analysis_data = data[0]  # Get first analysis
+                        print(f"   📋 Found {len(data)} analyses after generation")
+                    else:
+                        print(f"   ❌ No analyses found after generation")
+                        return {"success": False, "error": "No analyses found after generation"}
+                elif isinstance(data, dict):
+                    analysis_data = data
+                    print(f"   📋 Single analysis object found after generation")
+                else:
+                    print(f"   ⚠️ Unexpected response format: {type(data)}")
+                    return {"success": False, "error": "Unexpected response format"}
+                
+                # Check if the newly generated analysis is present
+                storytelling_analysis = analysis_data.get("storytelling_analysis")
+                analysis_summary = analysis_data.get("analysis_summary")
+                analysis_type = analysis_data.get("analysis_type")
+                
+                print(f"   📋 Analysis type: {analysis_type}")
+                print(f"   📋 Analysis summary present: {'✅' if analysis_summary else '❌'}")
+                print(f"   📋 Storytelling analysis present: {'✅' if storytelling_analysis else '❌'}")
+                
+                if storytelling_analysis and analysis_summary:
+                    print(f"   ✅ PERSISTENCE SUCCESS: Both analyses are now retrievable")
+                    print(f"   📋 Storytelling analysis length: {len(str(storytelling_analysis))} chars")
+                    print(f"   📋 Analysis summary length: {len(str(analysis_summary))} chars")
+                    
+                    return {
+                        "success": True,
+                        "has_storytelling_analysis": True,
+                        "has_analysis_summary": True,
+                        "analysis_type": analysis_type,
+                        "persistence_working": True
+                    }
+                else:
+                    print(f"   ❌ PERSISTENCE FAILURE: Generated analysis not retrievable")
+                    return {
+                        "success": False,
+                        "error": "Generated analysis not retrievable",
+                        "has_storytelling_analysis": bool(storytelling_analysis),
+                        "has_analysis_summary": bool(analysis_summary)
+                    }
+            else:
+                print(f"❌ Post-generation analysis retrieval failed: {response.status_code}")
+                return {"success": False, "error": f"HTTP {response.status_code}"}
+                
+        except Exception as e:
+            print(f"❌ Post-generation analysis retrieval error: {str(e)}")
+            return {"success": False, "error": str(e)}
     
     def run_diagnostic(self):
         """Run complete diagnostic for Claude storytelling analysis"""

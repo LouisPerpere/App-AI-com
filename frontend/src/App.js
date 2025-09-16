@@ -441,23 +441,27 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage }) => {
         
         {/* Contenu */}
         <div className="p-3">
-          <h4 className="font-semibold text-gray-800 text-sm mb-1 line-clamp-1">
-            {post.title || 'Post généré'}
+          <h4 className="font-semibold text-gray-800 text-sm mb-1">
+            <div className="line-clamp-1 overflow-hidden">
+              {post.title || 'Post généré'}
+            </div>
           </h4>
-          <p className="text-gray-600 text-xs line-clamp-2 mb-2">
-            {post.text || 'Aucun texte disponible'}
-          </p>
+          <div className="text-gray-600 text-xs mb-2">
+            <div className="line-clamp-2 overflow-hidden leading-tight">
+              {post.text || 'Aucun texte disponible'}
+            </div>
+          </div>
           
           {/* Hashtags */}
           {post.hashtags && post.hashtags.length > 0 && (
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap gap-1 overflow-hidden">
               {post.hashtags.slice(0, 2).map((hashtag, idx) => (
-                <span key={idx} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                <span key={idx} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full whitespace-nowrap">
                   {hashtag.startsWith('#') ? hashtag : `#${hashtag}`}
                 </span>
               ))}
               {post.hashtags.length > 2 && (
-                <span className="text-xs text-gray-500">+{post.hashtags.length - 2}</span>
+                <span className="text-xs text-gray-500 whitespace-nowrap">+{post.hashtags.length - 2}</span>
               )}
             </div>
           )}

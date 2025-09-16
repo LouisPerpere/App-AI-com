@@ -2076,8 +2076,8 @@ async def connect_instagram_account(
         if not facebook_app_id or not facebook_app_secret:
             raise HTTPException(status_code=500, detail="Instagram/Facebook credentials not configured")
         
-        # ✅ STEP 1: Exchange code for access token with Instagram Graph API 2025
-        token_url = "https://api.instagram.com/oauth/access_token"
+        # ✅ STEP 1: Exchange code for access token with Facebook OAuth (pour Instagram)
+        token_url = "https://graph.facebook.com/v20.0/oauth/access_token"
         token_data = {
             "client_id": facebook_app_id,
             "client_secret": facebook_app_secret,
@@ -2086,30 +2086,52 @@ async def connect_instagram_account(
             "code": request.code
         }
         
-        print(f"🔄 Exchanging Instagram authorization code for access token...")
+        print(f"🔄 Exchanging Facebook authorization code for access token (for Instagram)...")
         
         async with aiohttp.ClientSession() as session:
             async with session.post(token_url, data=token_data) as response:
                 if response.status == 200:
                     token_response = await response.json()
                     access_token = token_response.get("access_token")
-                    instagram_user_id = token_response.get("user_id")
-                    print(f"✅ Instagram token exchange successful - User ID: {instagram_user_id}")
+                    print(f"✅ Facebook token exchange successful - Access token obtained")
                 else:
                     error_text = await response.text()
-                    print(f"❌ Instagram token exchange failed: {error_text}")
-                    raise HTTPException(status_code=400, detail="Failed to connect Instagram account")
+                    print(f"❌ Facebook token exchange failed: {error_text}")
+                    raise HTTPException(status_code=400, detail="Failed to connect Instagram account via Facebook")
         
-        # ✅ STEP 2: Get user info from Instagram Graph API
-        user_info_url = f"https://graph.instagram.com/me?fields=id,username,account_type&access_token={access_token}"
+        # ✅ STEP 2: Get Facebook pages to find Instagram business account
+        pages_url = f"https://graph.facebook.com/v20.0/me/accounts?fields=id,name,instagram_business_account&access_token={access_token}"
+        
+        instagram_user_id = None
+        username = None
         
         async with aiohttp.ClientSession() as session:
-            async with session.get(user_info_url) as response:
+            async with session.get(pages_url) as response:
                 if response.status == 200:
-                    user_info = await response.json()
-                    username = user_info.get("username")
+                    pages_data = await response.json()
+                    pages = pages_data.get("data", [])
+                    
+                    # Find the first page with an Instagram business account
+                    for page in pages:
+                        instagram_account = page.get("instagram_business_account")
+                        if instagram_account:
+                            instagram_user_id = instagram_account.get("id")
+                            
+                            # Get Instagram account details
+                            instagram_info_url = f"https://graph.facebook.com/v20.0/{instagram_user_id}?fields=username&access_token={access_token}"
+                            async with session.get(instagram_info_url) as ig_response:
+                                if ig_response.status == 200:
+                                    ig_data = await ig_response.json()
+                                    username = ig_data.get("username")
+                                    print(f"✅ Found Instagram business account: @{username} (ID: {instagram_user_id})")
+                                    break
+                    
+                    if not instagram_user_id:
+                        raise HTTPException(status_code=400, detail="No Instagram business account found. Please connect a Facebook page with an Instagram business account.")
                 else:
-                    raise HTTPException(status_code=400, detail="Failed to get Instagram user info")
+                    error_text = await response.text()
+                    print(f"❌ Failed to get Facebook pages: {error_text}")
+                    raise HTTPException(status_code=400, detail="Failed to get Instagram account info")
         
         # Step 3: Save connection to database
         dbm = get_database()

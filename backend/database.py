@@ -266,6 +266,7 @@ class DatabaseManager:
             "business_description": "",  # Ajouté pour correspondre au modèle Pydantic
             "target_audience": "Clients locaux",
             "brand_tone": "professionnel",
+            "business_objective": "equilibre",  # AJOUT CRITIQUE: Objectif par défaut
             "posting_frequency": "weekly",
             "preferred_platforms": ["Facebook", "Instagram"],
             "budget_range": "",  # Ajouté pour correspondre au modèle Pydantic

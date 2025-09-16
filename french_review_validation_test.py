@@ -193,27 +193,28 @@ class FrenchReviewValidator:
                 return False
             
             # Check response structure
-            analysis_data = analysis_response.json()
+            analysis_response_data = analysis_response.json()
             
-            if isinstance(analysis_data, list):
-                if len(analysis_data) > 0:
-                    # Check structure of first analysis
-                    first_analysis = analysis_data[0]
+            if isinstance(analysis_response_data, dict) and "analysis" in analysis_response_data:
+                analysis_data = analysis_response_data["analysis"]
+                
+                if analysis_data is not None:
+                    # Check structure of analysis
                     required_fields = ["analysis_summary", "created_at"]
-                    missing_fields = [field for field in required_fields if field not in first_analysis]
+                    missing_fields = [field for field in required_fields if field not in analysis_data]
                     
                     if missing_fields:
                         self.log_test("Analysis Structure", False, f"Missing fields: {missing_fields}")
                     else:
-                        self.log_test("Analysis Structure", True, f"Found {len(analysis_data)} analyses with correct structure")
+                        self.log_test("Analysis Structure", True, "Analysis has correct structure")
                     
-                    self.log_test("Website Analysis Endpoint", True, f"Endpoint working, returned {len(analysis_data)} analyses")
+                    self.log_test("Website Analysis Endpoint", True, "Endpoint working, returned analysis data")
                     return True
                 else:
-                    self.log_test("Website Analysis Endpoint", True, "Endpoint working, no analyses found (empty list)")
+                    self.log_test("Website Analysis Endpoint", True, "Endpoint working, no analysis found (null)")
                     return True
             else:
-                self.log_test("Website Analysis Endpoint", False, f"Unexpected response format: {type(analysis_data)}")
+                self.log_test("Website Analysis Endpoint", False, f"Unexpected response format: {type(analysis_response_data)}")
                 return False
             
         except Exception as e:

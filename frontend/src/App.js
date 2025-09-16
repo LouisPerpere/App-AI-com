@@ -3036,18 +3036,17 @@ function MainApp() {
           {/* Contenu des posts (collapse) */}
           {!isCollapsed && hasGeneratedPosts && (
             <div className="pl-4 space-y-4">
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {monthPosts.posts.map((post, index) => (
-                  <PostCard 
-                    key={`${month.key}-${index}`}
-                    post={post}
-                    onView={() => setSelectedPost(post)}
-                    onModify={() => {
-                      setSelectedPost(post);
-                      // Auto-open modification mode
-                    }}
-                    onValidate={() => handleValidatePost(post)}
-                  />
+                  <div key={post.id || index} data-post-id={post.id}>
+                    <PostThumbnail
+                      key={post.id || index}
+                      post={post}
+                      onClick={() => setSelectedPost(post)}
+                      onAddImage={handleAddImageToPost}
+                      onModifyImage={handleModifyImagePost}
+                    />
+                  </div>
                 ))}
               </div>
             </div>

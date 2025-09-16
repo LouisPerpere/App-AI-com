@@ -3888,7 +3888,8 @@ function MainApp() {
         'business_email_edit': 'email',
         'business_website_edit': 'website_url',
         'target_audience_edit': 'target_audience',
-        'business_coordinates_edit': 'coordinates'
+        'business_coordinates_edit': 'coordinates',
+        'business_objective_edit': 'business_objective'  // AJOUT CRITIQUE: mapping manquant
       };
 
       const apiField = fieldMapping[fieldName] || fieldName;

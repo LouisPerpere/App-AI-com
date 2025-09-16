@@ -3,17 +3,37 @@
 TEST RÉCUPÉRATION PAGE INSTAGRAM LIÉE - ClaireEtMarcus
 Test de récupération des informations de la page Instagram liée à la page Facebook
 pour implémenter la publication croisée Facebook + Instagram.
+
+Ce test vérifie:
+1. La validité du token d'accès Facebook
+2. La récupération du compte Instagram Business lié
+3. Les permissions Instagram pour la publication
+4. Les limites de publication Instagram
+5. L'intégration avec le backend existant
 """
 
 import requests
 import json
 import sys
+import os
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement
+load_dotenv()
 
 # Configuration des tests
 FACEBOOK_PAGE_ID = "741078965763774"
 ACCESS_TOKEN = "EAAP2f1Vj6XMBPbsv5Dqs3aeN4vIVuAkFPcuqDqN0CrZBeszwhHaAmU83xLMEddvEb70EQRO3yzffvFHLMAIhZCSbav3BZARn2RtzZCdXsqF76oqRZA9n9UrBWrCqgGxujyOwrajJuPZCXiUBXwww8U0HBjeHhXcuoAKB55gqNbpQChpkILCJNLbqaOpUXJScNTOYRSX1M7tvfkDbvq3P46ZCtHpCGTuf7nEzjBZAxXZC3wXZClIcCZD"
 GRAPH_API_BASE = "https://graph.facebook.com/v21.0"
+
+# Configuration backend
+BACKEND_URL = os.getenv('REACT_APP_BACKEND_URL', 'https://insta-automate-2.preview.emergentagent.com')
+BACKEND_API_URL = f"{BACKEND_URL}/api"
+
+# Configuration Facebook depuis .env
+FACEBOOK_APP_ID = os.getenv('FACEBOOK_APP_ID', '1115451684022643')
+FACEBOOK_APP_SECRET = os.getenv('FACEBOOK_APP_SECRET', '68a3924e5551a06e5b1074d9316277b2')
 
 class InstagramIntegrationTester:
     def __init__(self):

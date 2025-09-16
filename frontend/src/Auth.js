@@ -9,18 +9,28 @@ import { Alert, AlertDescription } from './components/ui/alert';
 import { Eye, EyeOff, LogIn, UserPlus, Sparkles, Shield, Zap, Users, Building, Upload, FileText, Send, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
-// Ensure we always have a valid backend URL
+// Fonction robuste pour obtenir l'URL backend avec fallback
 const getBackendURL = () => {
-  // React 18+ uses import.meta.env, fallback to process.env for compatibility
-  let envURL = import.meta.env?.REACT_APP_BACKEND_URL || process.env.REACT_APP_BACKEND_URL;
-  if (!envURL || envURL === 'undefined') {
-    console.error('❌ REACT_APP_BACKEND_URL is not set. Configure it in environment variables.');
-    return '';
+  // Tentative 1: Variables d'environnement standard
+  if (import.meta.env?.REACT_APP_BACKEND_URL) {
+    return import.meta.env.REACT_APP_BACKEND_URL;
   }
-  // Normalize: remove trailing slashes and any trailing /api
-  envURL = envURL.trim().replace(/\/+$/, '');
-  envURL = envURL.replace(/\/api$/, '');
-  return envURL;
+  
+  // Tentative 2: Process.env (fallback)
+  if (process.env.REACT_APP_BACKEND_URL) {
+    return process.env.REACT_APP_BACKEND_URL;
+  }
+  
+  // Tentative 3: Détection automatique URL courante
+  if (typeof window !== 'undefined') {
+    const currentUrl = window.location.origin;
+    if (currentUrl.includes('insta-automate-2.preview.emergentagent.com')) {
+      return 'https://insta-automate-2.preview.emergentagent.com';
+    }
+  }
+  
+  // Fallback final: URL hardcodée pour garantir fonctionnement
+  return 'https://insta-automate-2.preview.emergentagent.com';
 };
 
 const BACKEND_URL = getBackendURL();

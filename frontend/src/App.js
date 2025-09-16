@@ -5042,14 +5042,23 @@ function MainApp() {
                           <p className="font-semibold text-gray-700 mb-2 text-xs">📦 Détails produits/services:</p>
                           <div className="bg-blue-50 rounded p-3 border border-blue-200">
                             <p className="text-gray-700 text-sm leading-relaxed">
-                              {typeof websiteAnalysis.products_services_details === 'string' 
-                                ? websiteAnalysis.products_services_details 
-                                : Array.isArray(websiteAnalysis.products_services_details) 
-                                  ? (websiteAnalysis.products_services_details.length > 0 
-                                     ? websiteAnalysis.products_services_details.join(' • ')
-                                     : 'Aucun détail spécifique sur les produits/services n\'a pu être extrait du site web.')
-                                  : 'Informations produits/services non disponibles'
-                              }
+                              {(() => {
+                                const details = websiteAnalysis.products_services_details;
+                                if (typeof details === 'string') {
+                                  return details;
+                                } else if (Array.isArray(details)) {
+                                  return details.length > 0 
+                                    ? details.join(' • ')
+                                    : 'Aucun détail spécifique sur les produits/services n\'a pu être extrait du site web.';
+                                } else if (typeof details === 'object' && details !== null) {
+                                  // Formatage intelligent pour objets
+                                  return Object.entries(details)
+                                    .map(([key, value]) => `${key}: ${value}`)
+                                    .join(' • ');
+                                } else {
+                                  return 'Informations produits/services non disponibles';
+                                }
+                              })()}
                             </p>
                           </div>
                         </div>

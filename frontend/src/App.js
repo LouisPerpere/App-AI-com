@@ -7134,21 +7134,10 @@ function MainApp() {
                   </div>
                 </div>
 
-                {/* Organisation mensuelle des posts générés */}
-                {generatedPosts.length > 0 ? (
-                  <div className="space-y-6">
-                    {renderPostsByMonth()}
-                  </div>
-                ) : (
-                  <div className="text-center py-20 card-glass rounded-3xl">
-                    <div className="w-24 h-24 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
-                      <FileText className="w-12 h-12 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-700 mb-4">Centre de gestion des posts 📊</h3>
-                    <p className="text-xl text-gray-500 mb-6">Vos posts générés apparaîtront ici ! 🎪</p>
-                    <p className="text-sm text-gray-400">Cliquez sur "Générer les posts du mois" pour commencer</p>
-                  </div>
-                )}
+                {/* Organisation mensuelle des posts - TOUJOURS AFFICHÉE */}
+                <div className="space-y-6">
+                  {renderPostsByMonth()}
+                </div>
 
                 {/* Modal d'aperçu de post */}
                 {selectedPost && (

@@ -1931,6 +1931,7 @@ async def instagram_oauth_redirect_handler(
 
 @api_router.get("/social/instagram/callback")
 async def instagram_oauth_callback(
+    code: str = None,
     access_token: str = None,
     long_lived_token: str = None,
     state: str = None,

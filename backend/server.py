@@ -590,7 +590,8 @@ class BusinessProfileIn(BaseModel):
     objective: Optional[str] = None
 
 @api_router.put("/business-profile")
-async def put_business_profile(body: BusinessProfileIn, user_id: str = Depends(get_current_user_id_robust)):
+def put_business_profile(body: BusinessProfileIn, user_id: str = Depends(get_current_user_id_robust)):
+    # Suppression async car utilise client MongoDB synchrone
     try:
         dbm = get_database()
         business_profiles = dbm.db.business_profiles  # Use business_profiles collection like GET
@@ -605,8 +606,8 @@ async def put_business_profile(body: BusinessProfileIn, user_id: str = Depends(g
 
 @api_router.post("/business-profile")
 async def post_business_profile(body: BusinessProfileIn, user_id: str = Depends(get_current_user_id_robust)):
-    # For compatibility with existing frontend that may POST - CORRECTION ASYNC/SYNC
-    return put_business_profile(body, user_id)  # Suppression await car put_business_profile n'est pas async
+    # For compatibility with existing frontend that may POST - CORRECTION ASYNC/SYNC  
+    return put_business_profile(body, user_id)  # Maintenant cohérent
 
 # ----------------------------
 # NOTES: /api/notes

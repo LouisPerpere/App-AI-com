@@ -1802,38 +1802,38 @@ async def get_social_connections(user_id: str = Depends(get_current_user_id_robu
 
 @api_router.get("/social/instagram/auth-url")
 async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robust)):
-    """Générer l'URL d'autorisation Instagram OAuth - Mise à jour 2025"""
+    """Générer l'URL d'autorisation Instagram OAuth via Facebook Login for Business"""
     try:
         facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
         if not facebook_app_id:
             raise HTTPException(status_code=500, detail="FACEBOOK_APP_ID non configuré")
         
         # URL de redirection après autorisation Instagram - basée sur l'environnement
-        redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://claire-marcus-pwa-1.emergent.host/api/social/instagram/callback')
+        redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://insta-automate-3.preview.emergentagent.com/api/social/instagram/callback')
         
         # Générer un état sécurisé pour CSRF protection
         import secrets
         state = secrets.token_urlsafe(32)
         
-        # ✅ NOUVEAUX SCOPES INSTAGRAM GRAPH API 2025 (mise à jour décembre 2024)
-        # Les anciens scopes instagram_basic, instagram_content_publish ont été dépréciés
-        scopes = "instagram_business_basic,instagram_business_content_publishing,instagram_business_manage_comments,instagram_business_manage_messages"
+        # ✅ CORRECTION: Utiliser Facebook Login for Business pour Instagram
+        # L'endpoint Instagram direct donne "Invalid platform app" - nous devons passer par Facebook
+        scopes = "pages_show_list,pages_read_engagement,pages_manage_posts,instagram_basic,instagram_content_publish,instagram_manage_comments"
         
-        # Construire l'URL d'autorisation Instagram Graph API 2025
+        # Construire l'URL d'autorisation Facebook Login for Business
         from urllib.parse import urlencode
         
         params = {
             "client_id": facebook_app_id,
             "redirect_uri": redirect_uri,
             "scope": scopes,
-            "response_type": "code",  # ✅ CORRECTION: "code" pour Instagram Graph API (pas "token")
+            "response_type": "code",  # Code pour Facebook Login for Business
             "state": state
         }
         
-        # ✅ CORRECTION: Utiliser l'endpoint Instagram Graph API (pas Facebook OAuth)
-        auth_url = f"https://api.instagram.com/oauth/authorize?{urlencode(params)}"
+        # ✅ CORRECTION: Utiliser Facebook OAuth endpoint (pas Instagram direct)
+        auth_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(params)}"
         
-        print(f"🔗 Generated Instagram OAuth URL: {auth_url}")
+        print(f"🔗 Generated Facebook Login for Business URL: {auth_url}")
         print(f"🔑 Using scopes: {scopes}")
         print(f"📍 Redirect URI: {redirect_uri}")
         
@@ -1842,7 +1842,8 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
             "state": state,
             "redirect_uri": redirect_uri,
             "scopes": scopes.split(","),
-            "api_version": "Instagram Graph API 2025"
+            "api_version": "Facebook Login for Business v20.0",
+            "note": "Using Facebook OAuth to access Instagram Business account"
         }
         
     except Exception as e:

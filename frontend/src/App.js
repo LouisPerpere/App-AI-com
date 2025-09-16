@@ -2715,7 +2715,7 @@ function MainApp() {
     }
   };
 
-  const handleGeneratePosts = async () => {
+  const handleGeneratePosts = async (monthKey = null) => {
     const token = localStorage.getItem('access_token');
     if (!token) {
       toast.error('Vous devez être connecté pour générer des posts');
@@ -2723,14 +2723,21 @@ function MainApp() {
     }
 
     setIsGeneratingPosts(true);
-    setShowGenerationModal(false);
+    if (!monthKey) {
+      setShowGenerationModal(false);
+    }
 
     try {
-      const response = await axios.post(`${API}/posts/generate`, {}, {
+      const requestBody = monthKey ? { month_key: monthKey } : {};
+      const response = await axios.post(`${API}/posts/generate`, requestBody, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      toast.success('Posts générés avec succès ! 🎉');
+      const monthName = monthKey ? 
+        new Date(monthKey + '-01').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) :
+        'ce mois';
+      
+      toast.success(`Posts générés avec succès pour ${monthName} ! 🎉`);
       
       // Recharger les posts générés
       await loadGeneratedPosts();

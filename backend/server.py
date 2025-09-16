@@ -1849,6 +1849,55 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         print(f"❌ Error generating Instagram auth URL: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erreur génération URL Instagram: {str(e)}")
 
+@api_router.get("/social/instagram/test-auth")
+async def test_instagram_auth():
+    """Endpoint de test pour générer et vérifier l'URL d'autorisation Instagram"""
+    try:
+        facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
+        instagram_redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI')
+        
+        # Générer l'URL d'autorisation de test
+        from urllib.parse import urlencode
+        import secrets
+        
+        test_state = secrets.token_urlsafe(16)
+        scopes = "instagram_business_basic,instagram_business_content_publishing"
+        
+        params = {
+            "client_id": facebook_app_id,
+            "redirect_uri": instagram_redirect_uri,
+            "scope": scopes,
+            "response_type": "code",
+            "state": test_state
+        }
+        
+        test_auth_url = f"https://api.instagram.com/oauth/authorize?{urlencode(params)}"
+        
+        return {
+            "status": "success",
+            "message": "URL d'autorisation Instagram générée avec succès",
+            "test_auth_url": test_auth_url,
+            "configuration": {
+                "facebook_app_id": facebook_app_id,
+                "redirect_uri": instagram_redirect_uri,
+                "scopes": scopes.split(","),
+                "api_endpoint": "https://api.instagram.com/oauth/authorize",
+                "api_version": "Instagram Graph API 2025"
+            },
+            "instructions": "Copiez cette URL dans votre navigateur pour tester l'autorisation Instagram"
+        }
+        
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Erreur génération URL de test: {str(e)}",
+            "configuration_check": {
+                "facebook_app_id": "✅ Configuré" if os.environ.get('FACEBOOK_APP_ID') else "❌ Manquant",
+                "facebook_app_secret": "✅ Configuré" if os.environ.get('FACEBOOK_APP_SECRET') else "❌ Manquant",
+                "instagram_redirect_uri": os.environ.get('INSTAGRAM_REDIRECT_URI', "❌ Non configuré")
+            }
+        }
+
 
 @api_router.get("/auth/instagram/callback")
 async def instagram_oauth_redirect_handler(

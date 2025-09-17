@@ -1615,12 +1615,13 @@ function MainApp() {
       setIsAuthenticated(true);
       setActiveStep('dashboard');
       
-      // Load business profile, notes, content and posts
+      // Load business profile, notes, content, posts and social connections
       loadBusinessProfile();
       loadNotes();
       loadPendingContent();
       loadGeneratedPosts();
       loadPixabayCategories();
+      loadConnectedAccounts(); // Charger les connexions sociales
       
     } catch (error) {
       console.error('Auth check failed:', error);

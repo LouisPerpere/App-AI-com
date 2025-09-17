@@ -1555,6 +1555,14 @@ function MainApp() {
     }
   }, [activeTab, isAuthenticated, user, websiteAnalysis]);
 
+  // Load social connections when navigating to Social tab
+  useEffect(() => {
+    if (activeTab === 'social' && isAuthenticated && user) {
+      console.log('🔄 Loading social connections for Social tab...');
+      loadConnectedAccounts();
+    }
+  }, [activeTab, isAuthenticated, user]);
+
   // DEBUG: Surveiller les changements de websiteAnalysis pour identifier les problèmes d'affichage
   useEffect(() => {
     console.log('🔍 websiteAnalysis changed:', websiteAnalysis ? 'RÉSULTAT PRÉSENT' : 'AUCUN RÉSULTAT');

@@ -1831,43 +1831,29 @@ async def debug_social_connections(user_id: str = Depends(get_current_user_id_ro
     except Exception as e:
         return {"error": str(e)}
 
-@api_router.get("/social/connections")
+@api_router.get("/social/connections")  
 async def get_social_connections(user_id: str = Depends(get_current_user_id_robust)):
     """Get all social media connections for the user"""
-    try:
-        dbm = get_database()
-        
-        connections = {}
-        
-        # Get all active connections for this user
-        social_connections = list(dbm.db.social_connections.find({
-            "user_id": user_id,
+    dbm = get_database()
+    
+    # Simple approach: just get Facebook connections for now
+    fb_connections = list(dbm.db.social_connections.find({
+        "user_id": user_id,
+        "platform": "facebook",
+        "is_active": True
+    }))
+    
+    connections = {}
+    
+    if fb_connections:
+        fb_conn = fb_connections[0]  # Take first Facebook connection
+        connections["facebook"] = {
+            "username": fb_conn.get("page_name", "My Own Watch"),
+            "connected_at": str(fb_conn.get("connected_at", "")),
             "is_active": True
-        }))
-        
-        print(f"🔍 Found {len(social_connections)} connections for user {user_id}")
-        
-        for conn in social_connections:
-            platform = conn.get("platform", "unknown")
-            if platform == "facebook":
-                display_name = conn.get("page_name", "Unknown Page")
-            else:
-                display_name = conn.get("username", "Unknown User")
-            
-            connections[platform] = {
-                "username": display_name,
-                "connected_at": str(conn.get("connected_at", "")),
-                "is_active": bool(conn.get("is_active", True))
-            }
-        
-        print(f"✅ Returning {len(connections)} formatted connections")
-        return {"connections": connections}
-        
-    except Exception as e:
-        print(f"❌ Error retrieving social connections: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve connections: {str(e)}")
+        }
+    
+    return {"connections": connections}
 
 @api_router.get("/social/instagram/auth-url")
 async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robust)):

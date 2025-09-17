@@ -1893,9 +1893,13 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         
         # Ajouter config_id pour Instagram spécifique
         instagram_config_id = os.environ.get('INSTAGRAM_CONFIG_ID')
+        print(f"🔍 INSTAGRAM_CONFIG_ID from env: {instagram_config_id}")
+        
         if instagram_config_id:
             params["config_id"] = instagram_config_id
             print(f"🎯 Using Instagram config_id: {instagram_config_id}")
+        else:
+            print("❌ No INSTAGRAM_CONFIG_ID found in environment")
         
         # ✅ CORRECTION: Utiliser Facebook OAuth endpoint (pas Instagram direct)
         auth_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(params)}"

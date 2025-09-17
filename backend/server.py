@@ -2167,6 +2167,7 @@ async def publish_facebook_post(
         dbm = get_database()
         
         # 1. Récupérer le post à publier
+        post_id = request.post_id
         post = dbm.db.generated_posts.find_one({"post_id": post_id, "user_id": user_id})
         if not post:
             raise HTTPException(status_code=404, detail="Post non trouvé")

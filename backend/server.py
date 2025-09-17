@@ -2084,17 +2084,6 @@ async def instagram_oauth_callback(
                 frontend_url = f"{frontend_base_url}/?facebook_error=invalid_state"
                 return RedirectResponse(url=frontend_url)
         
-        # Facebook Login for Business peut aussi envoyer les tokens directement
-        if access_token or long_lived_token:
-            print("✅ Direct tokens received from Facebook Login for Business")
-            # Utiliser le long-lived token si disponible, sinon le token court
-            final_token = long_lived_token if long_lived_token else access_token
-            
-            # Rediriger vers le frontend avec succès et token
-            frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-            frontend_url = f"{frontend_base_url}/?instagram_success=true&access_token={final_token}&state={state}"
-            return RedirectResponse(url=frontend_url)
-        
         # Aucun code ni token reçu
         print("❌ No authorization code or access tokens received")
         frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')

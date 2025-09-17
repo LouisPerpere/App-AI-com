@@ -1872,22 +1872,13 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         
         # Construire l'URL d'autorisation Facebook Login for Business
         from urllib.parse import urlencode
-        import json
         
         params = {
             "client_id": facebook_app_id,
             "redirect_uri": redirect_uri,
             "scope": scopes,
-            "response_type": "code",  # Code pour Facebook Login for Business
-            "state": state,
-            "display": "page",  # Force l'affichage page pour Business
-            "auth_type": "rerequest",  # Redemander les permissions si nécessaire
-            "extras": json.dumps({
-                "setup": {
-                    "channel": "IG_API_ONBOARDING"  # Paramètre Instagram Business
-                }
-            })
-            # Suppression temporaire du config_id pour test
+            "response_type": "code",
+            "state": state
         }
         
         # ✅ CORRECTION: Utiliser Facebook OAuth endpoint (pas Instagram direct)

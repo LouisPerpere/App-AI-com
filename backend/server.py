@@ -2342,6 +2342,66 @@ async def connect_instagram_account(
         print(f"❌ Error connecting Instagram: {e}")
         raise HTTPException(status_code=500, detail="Failed to connect Instagram account")
 
+@api_router.get("/social/debug-connections")
+async def debug_social_connections(user_id: str = Depends(get_current_user_id_robust)):
+    """Debug endpoint to check social connections state"""
+    try:
+        dbm = get_database()
+        
+        # Get ALL connections for this user (active and inactive)
+        all_connections = list(dbm.db.social_connections.find({
+            "user_id": user_id
+        }))
+        
+        # Get only active connections
+        active_connections = list(dbm.db.social_connections.find({
+            "user_id": user_id,
+            "is_active": True
+        }))
+        
+        # Debug info
+        debug_info = {
+            "user_id": user_id,
+            "total_connections": len(all_connections),
+            "active_connections": len(active_connections),
+            "all_connections_details": [
+                {
+                    "platform": conn.get("platform"),
+                    "page_name": conn.get("page_name", "N/A"),
+                    "username": conn.get("username", "N/A"),
+                    "is_active": conn.get("is_active"),
+                    "connected_at": conn.get("connected_at"),
+                    "connection_id": str(conn.get("_id"))
+                }
+                for conn in all_connections
+            ],
+            "formatted_active": {}
+        }
+        
+        # Format active connections
+        for conn in active_connections:
+            platform = conn.get("platform")
+            if platform == "facebook":
+                debug_info["formatted_active"]["facebook"] = {
+                    "page_name": conn.get("page_name"),
+                    "connected_at": conn.get("connected_at"),
+                    "is_active": conn.get("is_active", True)
+                }
+            elif platform == "instagram":
+                debug_info["formatted_active"]["instagram"] = {
+                    "username": conn.get("username"),  
+                    "connected_at": conn.get("connected_at"),
+                    "is_active": conn.get("is_active", True)
+                }
+        
+        print(f"🔍 DEBUG: User {user_id} has {len(all_connections)} total connections, {len(active_connections)} active")
+        
+        return debug_info
+        
+    except Exception as e:
+        print(f"❌ Error in debug connections: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Debug failed: {str(e)}")
+
 @api_router.delete("/social/connections/{platform}")
 async def disconnect_social_platform(
     platform: str,

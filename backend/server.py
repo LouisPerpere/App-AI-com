@@ -2157,6 +2157,11 @@ async def instagram_oauth_callback(
 class PublishPostRequest(BaseModel):
     post_id: str
 
+@api_router.get("/test/facebook-publish")
+async def test_facebook_publish_endpoint():
+    """Test endpoint pour vérifier si les nouvelles routes fonctionnent"""
+    return {"message": "Facebook publish endpoint is working", "timestamp": datetime.now().isoformat()}
+
 @api_router.post("/social/facebook/publish")
 async def publish_facebook_post(
     request: PublishPostRequest,

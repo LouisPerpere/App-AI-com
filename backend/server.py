@@ -2121,7 +2121,7 @@ async def instagram_oauth_callback(
                                             print("⚠️ Could not extract user_id from state, skipping database save")
                                         
                                         # Rediriger vers le frontend avec succès
-                                        frontend_base_url = os.environ.get('FRONTEND_URL', 'https://insta-automate-3.preview.emergentagent.com')
+                                        frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
                                         frontend_url = f"{frontend_base_url}/?facebook_success=true&page_name={page_name}&state={state}"
                                         return RedirectResponse(url=frontend_url)
                                         

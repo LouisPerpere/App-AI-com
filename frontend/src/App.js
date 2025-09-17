@@ -7551,7 +7551,10 @@ function MainApp() {
                       <div className="bg-blue-50 rounded-lg p-4 mb-6">
                         <h4 className="font-semibold text-blue-900 mb-3 flex items-center">
                           <Info className="w-4 h-4 mr-2" />
-                          Vérifiez vos prérequis :
+                          Vérifiez vos prérequis pour {selectedMonthForGeneration ? 
+                            new Date(selectedMonthForGeneration + '-01').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) :
+                            'ce mois'
+                          } :
                         </h4>
                         <div className="space-y-2">
                           <div className="flex items-center text-sm">
@@ -7575,32 +7578,62 @@ function MainApp() {
                             </span>
                           </div>
                           <div className="flex items-center text-sm">
-                            {notes && notes.length > 0 ? (
-                              <Check className="w-4 h-4 mr-2 text-green-600" />
-                            ) : (
-                              <X className="w-4 h-4 mr-2 text-red-500" />
-                            )}
-                            <span className={notes && notes.length > 0 ? 'text-green-800' : 'text-red-600'}>
-                              Notes ajoutées ({notes ? notes.length : 0})
-                            </span>
+                            {(() => {
+                              const monthNotes = getNotesForMonth(selectedMonthForGeneration);
+                              const hasNotes = monthNotes.length > 0;
+                              return (
+                                <>
+                                  {hasNotes ? (
+                                    <Check className="w-4 h-4 mr-2 text-green-600" />
+                                  ) : (
+                                    <X className="w-4 h-4 mr-2 text-red-500" />
+                                  )}
+                                  <span className={hasNotes ? 'text-green-800' : 'text-red-600'}>
+                                    Notes pour ce mois ({monthNotes.length})
+                                  </span>
+                                </>
+                              );
+                            })()}
                           </div>
                           <div className="flex items-center text-sm">
-                            {pendingContent && pendingContent.length > 0 ? (
-                              <Check className="w-4 h-4 mr-2 text-green-600" />
-                            ) : (
-                              <X className="w-4 h-4 mr-2 text-red-500" />
-                            )}
-                            <span className={pendingContent && pendingContent.length > 0 ? 'text-green-800' : 'text-red-600'}>
-                              Médias uploadés ({pendingContent ? pendingContent.length : 0})
-                            </span>
+                            {(() => {
+                              const monthMedia = getMediaForMonth(selectedMonthForGeneration);
+                              const hasMedia = monthMedia.length > 0;
+                              return (
+                                <>
+                                  {hasMedia ? (
+                                    <Check className="w-4 h-4 mr-2 text-green-600" />
+                                  ) : (
+                                    <X className="w-4 h-4 mr-2 text-red-500" />
+                                  )}
+                                  <span className={hasMedia ? 'text-green-800' : 'text-red-600'}>
+                                    Médias pour ce mois ({monthMedia.length})
+                                  </span>
+                                </>
+                              );
+                            })()}
                           </div>
                         </div>
                         
-                        {(!businessProfile || !websiteAnalysis || !notes?.length || !pendingContent?.length) && (
-                          <div className="mt-3 p-2 bg-amber-100 border border-amber-300 rounded text-amber-800 text-xs">
-                            ⚠️ Certains éléments manquent. Vous pouvez continuer, mais les posts seront moins riches.
-                          </div>
-                        )}
+                        {(() => {
+                          const monthNotes = getNotesForMonth(selectedMonthForGeneration);
+                          const monthMedia = getMediaForMonth(selectedMonthForGeneration);
+                          const missingElements = [];
+                          
+                          if (!businessProfile || Object.keys(businessProfile).length <= 3) missingElements.push('profil d\'entreprise');
+                          if (!websiteAnalysis) missingElements.push('analyse de site web');
+                          if (monthNotes.length === 0) missingElements.push('notes pour ce mois');
+                          if (monthMedia.length === 0) missingElements.push('médias pour ce mois');
+                          
+                          if (missingElements.length > 0) {
+                            return (
+                              <div className="mt-3 p-2 bg-amber-100 border border-amber-300 rounded text-amber-800 text-xs">
+                                ⚠️ Éléments manquants : {missingElements.join(', ')}. Vous pouvez continuer, mais les posts seront moins riches.
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
                       </div>
 
                       {/* Boutons d'action */}

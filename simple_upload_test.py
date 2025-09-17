@@ -9,7 +9,7 @@ import tempfile
 import os
 
 def test_batch_upload():
-    base_url = "https://insta-automate-3.preview.emergentagent.com"
+    base_url = "https://authflow-10.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     # Login first

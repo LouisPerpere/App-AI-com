@@ -21,7 +21,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://insta-automate-3.preview.emergentagent.com/api"
+BACKEND_URL = "https://authflow-10.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"

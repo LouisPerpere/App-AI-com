@@ -1860,7 +1860,7 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
             raise HTTPException(status_code=500, detail="FACEBOOK_APP_ID non configuré")
         
         # URL de redirection après autorisation Instagram - basée sur l'environnement
-        redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://insta-automate-3.preview.emergentagent.com/api/social/instagram/callback')
+        redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://authflow-10.preview.emergentagent.com/api/social/instagram/callback')
         
         # Générer un état sécurisé pour CSRF protection
         import secrets
@@ -1986,7 +1986,7 @@ async def test_instagram_callback():
         "status": "success",
         "message": "Callback endpoint accessible",
         "timestamp": datetime.now().isoformat(),
-        "url": "https://insta-automate-3.preview.emergentagent.com/api/social/instagram/callback"
+        "url": "https://authflow-10.preview.emergentagent.com/api/social/instagram/callback"
     }
 
 @api_router.get("/social/instagram/callback")

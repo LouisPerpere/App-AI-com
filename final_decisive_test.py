@@ -24,7 +24,7 @@ TESTS CRITIQUES:
    - URLs fonctionnelles /api/content/{REAL_GRIDFS_ID}/file
 5. Test d'accès aux images avec les nouveaux IDs
 
-Backend URL: https://insta-automate-3.preview.emergentagent.com/api
+Backend URL: https://authflow-10.preview.emergentagent.com/api
 """
 
 import requests
@@ -34,7 +34,7 @@ import re
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://insta-automate-3.preview.emergentagent.com/api"
+BASE_URL = "https://authflow-10.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 TARGET_MONTH = "septembre_2025"

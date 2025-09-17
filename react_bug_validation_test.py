@@ -12,7 +12,7 @@ OBJECTIF CRITIQUE:
 Confirmer que le backend retourne bien ces champs comme objets (pas strings) 
 pour justifier la correction React typeof + JSON.stringify.
 
-URL DE TEST: https://insta-automate-3.preview.emergentagent.com/api
+URL DE TEST: https://authflow-10.preview.emergentagent.com/api
 CREDENTIALS: lperpere@yahoo.fr / L@Reunion974!
 """
 
@@ -22,7 +22,7 @@ import time
 from datetime import datetime
 
 # Configuration from review request
-BACKEND_URL = "https://insta-automate-3.preview.emergentagent.com/api"
+BACKEND_URL = "https://authflow-10.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"

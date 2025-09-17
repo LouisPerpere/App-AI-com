@@ -22,7 +22,7 @@ import io
 from PIL import Image
 
 # Configuration
-BASE_URL = "https://insta-automate-3.preview.emergentagent.com/api"
+BASE_URL = "https://authflow-10.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

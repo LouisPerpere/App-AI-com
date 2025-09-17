@@ -20,7 +20,7 @@ import sys
 from urllib.parse import urlparse, parse_qs
 
 # Configuration
-BACKEND_URL = "https://insta-automate-3.preview.emergentagent.com/api"
+BACKEND_URL = "https://authflow-10.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 
@@ -237,7 +237,7 @@ class InstagramIntegrationTester:
                         corrections_valid = False
                     
                     # Check 4: Redirect URI should match expected
-                    expected_redirect = "https://insta-automate-3.preview.emergentagent.com/api/social/instagram/callback"
+                    expected_redirect = "https://authflow-10.preview.emergentagent.com/api/social/instagram/callback"
                     if redirect_uri_param == expected_redirect:
                         print(f"   ✅ CORRECTION VERIFIED: Correct redirect URI")
                     else:
@@ -280,7 +280,7 @@ class InstagramIntegrationTester:
                     
                     # Expected configuration values
                     expected_app_id = "1115451684022643"
-                    expected_redirect_uri = "https://insta-automate-3.preview.emergentagent.com/api/social/instagram/callback"
+                    expected_redirect_uri = "https://authflow-10.preview.emergentagent.com/api/social/instagram/callback"
                     
                     print(f"   📋 Configuration verification:")
                     

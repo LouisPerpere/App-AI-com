@@ -21,7 +21,7 @@ from datetime import datetime
 class WebsiteAnalysisDiagnostic:
     def __init__(self):
         # Use production backend URL from frontend/.env
-        self.base_url = "https://insta-automate-3.preview.emergentagent.com"
+        self.base_url = "https://authflow-10.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.tests_run = 0

@@ -11,7 +11,7 @@ from datetime import datetime
 
 class DualAIOrchestrationTester:
     def __init__(self):
-        self.base_url = "https://insta-automate-3.preview.emergentagent.com/api"
+        self.base_url = "https://authflow-10.preview.emergentagent.com/api"
         self.session = requests.Session()
         self.access_token = None
         self.user_id = None

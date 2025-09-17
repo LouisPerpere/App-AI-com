@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://insta-automate-3.preview.emergentagent.com/api"
+BASE_URL = "https://authflow-10.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 

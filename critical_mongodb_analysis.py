@@ -331,7 +331,7 @@ class CriticalMongoDBAnalyzer:
             # First, try to authenticate
             session = requests.Session()
             
-            auth_response = session.post("https://insta-automate-3.preview.emergentagent.com/api/auth/login", json={
+            auth_response = session.post("https://authflow-10.preview.emergentagent.com/api/auth/login", json={
                 "email": TEST_EMAIL,
                 "password": TEST_PASSWORD
             })
@@ -346,7 +346,7 @@ class CriticalMongoDBAnalyzer:
                 })
                 
                 # Test API with authentication
-                api_response = session.get("https://insta-automate-3.preview.emergentagent.com/api/content/pending?limit=100")
+                api_response = session.get("https://authflow-10.preview.emergentagent.com/api/content/pending?limit=100")
                 
                 if api_response.status_code == 200:
                     api_data = api_response.json()

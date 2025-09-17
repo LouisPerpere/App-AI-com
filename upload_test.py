@@ -12,7 +12,7 @@ from io import BytesIO
 from PIL import Image
 
 # Configuration
-BACKEND_URL = "https://insta-automate-3.preview.emergentagent.com/api"
+BACKEND_URL = "https://authflow-10.preview.emergentagent.com/api"
 CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"

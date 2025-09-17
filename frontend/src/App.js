@@ -3791,15 +3791,54 @@ function MainApp() {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      setConnectedAccounts(prev => ({
-        ...prev,
-        [platform]: null
-      }));
+      // Recharger les comptes connectés
+      await loadConnectedAccounts();
+      toast.success(`Déconnexion ${platform} réussie`);
       
-      toast.success(`${platform} déconnecté avec succès`);
     } catch (error) {
       console.error(`Error disconnecting ${platform}:`, error);
       toast.error(`Erreur lors de la déconnexion ${platform}`);
+    }
+  };
+
+  // Fonction pour valider et publier un post sur Facebook
+  const handleValidatePost = async (post) => {
+    if (!connectedAccounts.facebook) {
+      toast.error('Vous devez connecter votre page Facebook pour publier');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Êtes-vous sûr de vouloir publier ce post sur Facebook ?\n\n"${post.title}"\n\nCette action est irréversible.`
+    );
+
+    if (!confirmed) return;
+
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast.error('Vous devez être connecté pour publier');
+      return;
+    }
+
+    try {
+      // Ajouter un état de chargement pour ce post spécifique
+      const response = await axios.post(
+        `${API}/social/facebook/publish`,
+        { post_id: post.id },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      toast.success(`Post publié avec succès sur Facebook !`);
+      
+      // Recharger les posts pour voir le statut mis à jour
+      // Vous pouvez ajouter ici une fonction pour recharger les posts si nécessaire
+      
+    } catch (error) {
+      console.error('Error publishing post:', error);
+      const errorMessage = error.response?.data?.detail || 'Erreur lors de la publication';
+      toast.error(`Erreur: ${errorMessage}`);
     }
   };
 

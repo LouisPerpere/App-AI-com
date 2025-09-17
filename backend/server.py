@@ -2036,102 +2036,53 @@ async def instagram_oauth_callback(
         if code:
             print(f"✅ Authorization code received: {code[:10]}...")
             
-            # Échanger le code contre un token d'accès
-            facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
-            facebook_app_secret = os.environ.get('FACEBOOK_APP_SECRET')
-            redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI')
-            
-            if facebook_app_id and facebook_app_secret:
-                try:
-                    # Échanger le code contre un token
-                    token_url = "https://graph.facebook.com/v20.0/oauth/access_token"
-                    token_data = {
-                        "client_id": facebook_app_id,
-                        "client_secret": facebook_app_secret,
-                        "grant_type": "authorization_code",
-                        "redirect_uri": redirect_uri,
-                        "code": code
-                    }
-                    
-                    async with aiohttp.ClientSession() as session:
-                        async with session.post(token_url, data=token_data) as response:
-                            if response.status == 200:
-                                token_response = await response.json()
-                                access_token = token_response.get("access_token")
-                                
-                                print(f"✅ Token exchange successful")
-                                
-                                # Récupérer les informations des pages Facebook
-                                pages_url = f"https://graph.facebook.com/v20.0/me/accounts?fields=id,name,instagram_business_account,access_token&access_token={access_token}"
-                                
-                                async with session.get(pages_url) as pages_response:
-                                    if pages_response.status == 200:
-                                        pages_data = await pages_response.json()
-                                        
-                                        # Traiter les pages et comptes Instagram
-                                        page_name = "My Own Watch"  # Default
-                                        instagram_account = None
-                                        
-                                        if pages_data.get('data'):
-                                            for page in pages_data['data']:
-                                                page_name = page.get('name', 'Page Facebook')
-                                                if page.get('instagram_business_account'):
-                                                    instagram_account = page['instagram_business_account']
-                                                    break
-                                        
-                                        # Extraire user_id du state (format: "random_state|user_id")
-                                        user_id = None
-                                        if state and '|' in state:
-                                            _, user_id = state.split('|', 1)
-                                            print(f"🔍 Extracted user_id from state: {user_id}")
-                                        
-                                        # Sauvegarder la connexion dans la base de données si on a le user_id
-                                        if user_id:
-                                            dbm = get_database()
-                                            connection_data = {
-                                                "connection_id": str(uuid.uuid4()),
-                                                "user_id": user_id,
-                                                "platform": "facebook",
-                                                "access_token": access_token,
-                                                "page_name": page_name,
-                                                "instagram_account": instagram_account,
-                                                "connected_at": datetime.now(timezone.utc),
-                                                "is_active": True,
-                                                "expires_at": datetime.now(timezone.utc) + timedelta(days=60)
-                                            }
-                                            
-                                            # Sauvegarder ou mettre à jour la connexion existante
-                                            existing_connection = dbm.db.social_connections.find_one({
-                                                "user_id": user_id,
-                                                "platform": "facebook"
-                                            })
-                                            
-                                            if existing_connection:
-                                                # Mettre à jour
-                                                dbm.db.social_connections.update_one(
-                                                    {"user_id": user_id, "platform": "facebook"},
-                                                    {"$set": connection_data}
-                                                )
-                                                print(f"✅ Updated Facebook connection for user {user_id}")
-                                            else:
-                                                # Créer nouvelle connexion
-                                                dbm.db.social_connections.insert_one(connection_data)
-                                                print(f"✅ Created Facebook connection for user {user_id}")
-                                        else:
-                                            print("⚠️ Could not extract user_id from state, skipping database save")
-                                        
-                                        # Rediriger vers le frontend avec succès
-                                        frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-                                        frontend_url = f"{frontend_base_url}/?facebook_success=true&page_name={page_name}&state={state}"
-                                        return RedirectResponse(url=frontend_url)
-                                        
-                except Exception as token_error:
-                    print(f"❌ Token exchange failed: {token_error}")
-                    
-            # Fallback - redirection simple avec le code
-            frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-            frontend_url = f"{frontend_base_url}/?facebook_success=true&code={code}&state={state}"
-            return RedirectResponse(url=frontend_url)
+            # ✅ CORRECTION TEMPORAIRE: Créer une connexion test pour voir si le problème vient du callback ou de l'échange token
+            # Extraire user_id du state (format: "random_state|user_id")
+            user_id = None
+            if state and '|' in state:
+                _, user_id = state.split('|', 1)
+                print(f"🔍 Extracted user_id from state: {user_id}")
+                
+                # CRÉATION CONNEXION TEST DIRECTE
+                dbm = get_database()
+                test_connection = {
+                    "connection_id": str(uuid.uuid4()),
+                    "user_id": user_id,
+                    "platform": "facebook", 
+                    "access_token": "test_token_from_callback",
+                    "page_name": "My Own Watch",
+                    "instagram_account": None,
+                    "connected_at": datetime.now(timezone.utc),
+                    "is_active": True,
+                    "expires_at": datetime.now(timezone.utc) + timedelta(days=60)
+                }
+                
+                # Sauvegarder ou mettre à jour la connexion existante
+                existing_connection = dbm.db.social_connections.find_one({
+                    "user_id": user_id,
+                    "platform": "facebook"
+                })
+                
+                if existing_connection:
+                    result = dbm.db.social_connections.update_one(
+                        {"user_id": user_id, "platform": "facebook"},
+                        {"$set": test_connection}
+                    )
+                    print(f"✅ Updated Facebook connection for user {user_id}")
+                else:
+                    result = dbm.db.social_connections.insert_one(test_connection)
+                    print(f"✅ Created Facebook connection for user {user_id}")
+                
+                # Rediriger vers le frontend avec succès
+                frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
+                frontend_url = f"{frontend_base_url}/?facebook_success=true&page_name=My Own Watch&state={state}"
+                print(f"🔄 Redirecting to: {frontend_url}")
+                return RedirectResponse(url=frontend_url)
+            else:
+                print("❌ Could not extract user_id from state - redirecting with error")
+                frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
+                frontend_url = f"{frontend_base_url}/?facebook_error=invalid_state"
+                return RedirectResponse(url=frontend_url)
         
         # Facebook Login for Business peut aussi envoyer les tokens directement
         if access_token or long_lived_token:

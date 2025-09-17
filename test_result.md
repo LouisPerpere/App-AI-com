@@ -2532,7 +2532,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Posts Generation Notes Integration Testing - COMPLETED"
+    - "Social Connections Facebook Integration - CRITICAL URL MISMATCH IDENTIFIED"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

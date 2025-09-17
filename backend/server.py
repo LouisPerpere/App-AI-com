@@ -1865,6 +1865,8 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         # DEBUG: Log the redirect URI being used
         print(f"🔍 DEBUG: INSTAGRAM_REDIRECT_URI from env: {os.environ.get('INSTAGRAM_REDIRECT_URI')}")
         print(f"🔍 DEBUG: redirect_uri variable: {redirect_uri}")
+        print(f"🔍 DEBUG: All env vars with 'INSTAGRAM': {[(k,v) for k,v in os.environ.items() if 'INSTAGRAM' in k]}")
+        print(f"🔍 DEBUG: All env vars with 'insta-automate': {[(k,v) for k,v in os.environ.items() if 'insta-automate' in v]}")
         
         # Générer un état sécurisé pour CSRF protection
         import secrets

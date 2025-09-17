@@ -1,28 +1,31 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for Facebook Connection State Management
-Testing the complete Facebook connection flow after callback
+Backend Testing Suite - Social Connections Facebook Integration
+Focus: Validation finale connexions sociales Facebook sur environnement live claire-marcus.com
 
 Test Requirements from French Review Request:
-1. Test GET /api/social/connections endpoint - should return existing connections for user
-2. Test Facebook callback simulation - verify connection is saved
-3. Test state format with user_id - verify user_id extraction from "state|user_id"
-4. Test database - verify connections are stored in social_connections
-5. Validate data structure - connection_id, user_id, platform, access_token, page_name, timestamps
+1. Test authentication with lperpere@yahoo.fr / L@Reunion974!
+2. Test health check on https://claire-marcus.com/api/health
+3. Test GET /api/social/connections endpoint
+4. Validate Facebook URLs configuration
+5. Test Instagram callback URL
+6. Test authorization URL generation
 
-Expected credentials: lperpere@yahoo.fr / L@Reunion974!
-Expected User ID: bdf87a74-e3f3-44f3-bac2-649cde3ef93e
+OBJECTIF CRITIQUE: Valider que l'alignement sur environnement live (claire-marcus.com) 
+résout définitivement le problème de sauvegarde des connexions Facebook.
 """
 
 import requests
 import json
 import sys
-from urllib.parse import urlparse, parse_qs
+from datetime import datetime
 
-# Configuration
-BACKEND_URL = "https://authflow-10.preview.emergentagent.com/api"
-TEST_EMAIL = "lperpere@yahoo.fr"
-TEST_PASSWORD = "L@Reunion974!"
+# Configuration pour environnement live
+BASE_URL = "https://claire-marcus.com/api"
+TEST_CREDENTIALS = {
+    "email": "lperpere@yahoo.fr",
+    "password": "L@Reunion974!"
+}
 
 class InstagramIntegrationTester:
     def __init__(self):

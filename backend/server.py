@@ -2146,7 +2146,7 @@ async def instagram_oauth_callback(
         
         # Aucun code ni token reçu
         print("❌ No authorization code or access tokens received")
-        frontend_base_url = os.environ.get('FRONTEND_URL', 'https://insta-automate-3.preview.emergentagent.com')
+        frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
         frontend_url = f"{frontend_base_url}/?instagram_error=missing_authorization"
         return RedirectResponse(url=frontend_url)
         token_type = "long-lived" if long_lived_token else "short-lived"

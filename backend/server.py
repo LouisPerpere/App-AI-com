@@ -1855,6 +1855,48 @@ async def get_social_connections(user_id: str = Depends(get_current_user_id_robu
     
     return {"connections": connections}
 
+@api_router.get("/social/facebook/auth-url")
+async def get_facebook_auth_url(user_id: str = Depends(get_current_user_id_robust)):
+    """Générer l'URL d'autorisation Facebook OAuth pour pages Facebook"""
+    try:
+        facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
+        if not facebook_app_id:
+            raise HTTPException(status_code=500, detail="FACEBOOK_APP_ID non configuré")
+        
+        redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://claire-marcus.com/api/social/instagram/callback')
+        
+        # Générer un état sécurisé pour CSRF protection
+        import secrets
+        state = secrets.token_urlsafe(32)
+        
+        # Scopes Facebook pour pages uniquement
+        scopes = "pages_show_list,pages_read_engagement,pages_manage_posts"
+        
+        # Construire l'URL d'autorisation Facebook
+        from urllib.parse import urlencode
+        
+        params = {
+            "client_id": facebook_app_id,
+            "redirect_uri": redirect_uri,
+            "scope": scopes,
+            "response_type": "code",
+            "state": state
+        }
+        
+        auth_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(params)}"
+        
+        return {
+            "auth_url": auth_url,
+            "state": state,
+            "redirect_uri": redirect_uri,
+            "scopes": scopes.split(","),
+            "api_version": "Facebook Login for Business v20.0",
+            "note": "Facebook OAuth for Pages only"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur génération URL Facebook: {str(e)}")
+
 @api_router.get("/social/instagram/auth-url")
 async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robust)):
     """Générer l'URL d'autorisation Instagram OAuth via Facebook Login for Business"""

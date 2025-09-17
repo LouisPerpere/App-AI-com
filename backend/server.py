@@ -2164,7 +2164,7 @@ async def test_facebook_publish_endpoint():
 
 @api_router.post("/social/facebook/publish-simple")
 async def publish_facebook_post_simple(
-    request: dict,
+    request: PublishPostRequest,
     user_id: str = Depends(get_current_user_id_robust)
 ):
     """Version simplifiée de l'endpoint de publication Facebook"""

@@ -3225,7 +3225,7 @@ function MainApp() {
                             e.stopPropagation(); // Empêcher le collapse/expand
                             handleGeneratePosts(month.key);
                           }}
-                          disabled={isGeneratingPosts}
+                          disabled={generatingMonths.has(month.key)}
                           size="sm"
                           className={`w-full sm:w-auto px-3 py-2 text-xs font-medium transition-all ${
                             hasGeneratedPosts
@@ -3233,7 +3233,7 @@ function MainApp() {
                               : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
                           }`}
                         >
-                          {isGeneratingPosts ? (
+                          {generatingMonths.has(month.key) ? (
                             <>
                               <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1.5"></div>
                               <span className="hidden sm:inline">Génération...</span>

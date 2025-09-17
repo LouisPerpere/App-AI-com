@@ -1568,6 +1568,51 @@ function MainApp() {
     }
   }, [activeTab, isAuthenticated, user]);
 
+  // Add message listener for OAuth callback success
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data?.type === 'FACEBOOK_AUTH_SUCCESS' || event.data?.type === 'INSTAGRAM_AUTH_SUCCESS') {
+        console.log('🎉 Received OAuth success message:', event.data);
+        
+        // Update connected accounts state
+        if (event.data.type === 'FACEBOOK_AUTH_SUCCESS' && event.data.page_name) {
+          setConnectedAccounts(prev => ({
+            ...prev,
+            facebook: {
+              page_name: event.data.page_name,
+              connected_at: new Date().toISOString(),
+              is_active: true
+            }
+          }));
+          toast.success(`✅ Facebook connecté: ${event.data.page_name}`);
+        }
+        
+        if (event.data.type === 'INSTAGRAM_AUTH_SUCCESS' && event.data.username) {
+          setConnectedAccounts(prev => ({
+            ...prev,
+            instagram: {
+              username: event.data.username,
+              connected_at: new Date().toISOString(),
+              is_active: true
+            }
+          }));
+          toast.success(`✅ Instagram connecté: @${event.data.username}`);
+        }
+        
+        // Reload connections from database
+        setTimeout(() => {
+          loadConnectedAccounts();
+        }, 1000);
+        
+        setIsConnectingAccount(false);
+        setSocialConnectionStatus('');
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
   // DEBUG: Surveiller les changements de websiteAnalysis pour identifier les problèmes d'affichage
   useEffect(() => {
     console.log('🔍 websiteAnalysis changed:', websiteAnalysis ? 'RÉSULTAT PRÉSENT' : 'AUCUN RÉSULTAT');

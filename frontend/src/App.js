@@ -1682,6 +1682,7 @@ function MainApp() {
       loadGeneratedPosts();
       loadPixabayCategories();
       loadConnectedAccounts(); // Charger les connexions sociales
+      loadWebsiteAnalysis(); // ✅ AJOUT CRITIQUE: Charger l'analyse de site web dès la connexion
       
     } catch (error) {
       console.error('Auth check failed:', error);

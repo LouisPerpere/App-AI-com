@@ -2978,170 +2978,257 @@ function MainApp() {
     // Note: setIsModifyingPost(false) n'est pas appelé en cas de succès car on recharge la page
   };
 
-  // Générer la liste des mois (3 mois passés + mois actuel + 8 mois futurs)
+  // Générer la liste des mois organisée comme la bibliothèque
   const generateMonthsList = () => {
-    const months = [];
     const currentDate = new Date();
-    
-    // 3 mois passés
-    for (let i = 3; i >= 1; i--) {
-      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      const monthName = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-      months.push({ key: monthKey, name: monthName, date: date, isPast: true });
-    }
+    const currentAndFuture = [];
+    const pastMonths = [];
     
     // Mois actuel
     const currentMonthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
     const currentMonthName = currentDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-    months.push({ key: currentMonthKey, name: currentMonthName, date: new Date(currentDate), isPast: false, isCurrent: true });
+    currentAndFuture.push({ 
+      key: currentMonthKey, 
+      name: currentMonthName, 
+      date: new Date(currentDate), 
+      isPast: false, 
+      isCurrent: true 
+    });
     
     // 8 mois futurs
     for (let i = 1; i <= 8; i++) {
       const date = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       const monthName = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-      months.push({ key: monthKey, name: monthName, date: date, isPast: false });
+      currentAndFuture.push({ key: monthKey, name: monthName, date: date, isPast: false });
     }
     
-    return months;
+    // 6 mois passés (ordre inverse pour avoir le plus récent en premier)
+    for (let i = 1; i <= 6; i++) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const monthName = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      pastMonths.push({ key: monthKey, name: monthName, date: date, isPast: true });
+    }
+    
+    return { currentAndFuture, pastMonths };
   };
 
-  // Render des posts par mois avec nouvelle structure
+  // Render des posts par mois avec organisation similaire à la bibliothèque
   const renderPostsByMonth = () => {
-    const allMonths = generateMonthsList();
+    const { currentAndFuture, pastMonths } = generateMonthsList();
     
-    return allMonths.map(month => {
-      const monthPosts = postsByMonth[month.key] || { posts: [], name: month.name };
-      const isCollapsed = collapsedPostMonths[month.key];
-      const hasGeneratedPosts = monthPosts.posts && monthPosts.posts.length > 0;
-      
-      return (
-        <div key={month.key} className="space-y-4">
-          {/* En-tête du mois avec bouton générer intégré */}
-          <div className={`p-4 rounded-xl border transition-all ${
-            month.isPast 
-              ? 'bg-gray-50 border-gray-200' 
-              : hasGeneratedPosts
-              ? 'bg-gradient-to-r from-emerald-50 to-blue-50 border-emerald-200'
-              : 'bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200'
-          }`}>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div 
-                className="flex items-center space-x-3 cursor-pointer flex-1 min-w-0"
-                onClick={() => setCollapsedPostMonths(prev => ({
-                  ...prev,
-                  [month.key]: !prev[month.key]
-                }))}
-              >
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+    return (
+      <>
+        {/* Mois actuels et futurs */}
+        <div className="space-y-4">
+          {currentAndFuture.map(month => {
+            const monthPosts = postsByMonth[month.key] || { posts: [], name: month.name };
+            const isCollapsed = collapsedPostMonths[month.key];
+            const hasGeneratedPosts = monthPosts.posts && monthPosts.posts.length > 0;
+            
+            return (
+              <div key={month.key} className="space-y-4">
+                {/* En-tête du mois avec bouton générer intégré */}
+                <div className={`p-4 rounded-xl border transition-all ${
                   month.isPast 
-                    ? 'bg-gray-400' 
+                    ? 'bg-gray-50 border-gray-200' 
                     : hasGeneratedPosts
-                    ? 'bg-gradient-to-r from-emerald-500 to-blue-500'
-                    : 'bg-gradient-to-r from-purple-500 to-pink-500'
+                    ? 'bg-gradient-to-r from-emerald-50 to-blue-50 border-emerald-200'
+                    : 'bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200'
                 }`}>
-                  <Calendar className="w-5 h-5 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className={`text-lg font-bold truncate ${
-                    month.isPast ? 'text-gray-600' : 'text-gray-900'
-                  }`}>
-                    {month.name}
-                    {month.isCurrent && <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full whitespace-nowrap">Actuel</span>}
-                  </h3>
-                  <p className={`text-sm truncate ${
-                    month.isPast ? 'text-gray-500' : 'text-gray-600'
-                  }`}>
-                    {hasGeneratedPosts 
-                      ? `${monthPosts.posts.length} post${monthPosts.posts.length > 1 ? 's' : ''}`
-                      : month.isPast 
-                      ? 'Mois passé'
-                      : 'Aucun post généré'
-                    }
-                  </p>
-                </div>
-                <ChevronDown 
-                  className={`w-4 h-4 text-gray-400 transform transition-transform flex-shrink-0 ${
-                    isCollapsed ? 'rotate-180' : ''
-                  }`} 
-                />
-              </div>
-              
-              {/* Bouton générer dans l'en-tête - Version responsive */}
-              {!month.isPast && (
-                <div className="flex-shrink-0">
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation(); // Empêcher le collapse/expand
-                      handleGeneratePosts(month.key);
-                    }}
-                    disabled={isGeneratingPosts}
-                    size="sm"
-                    className={`w-full sm:w-auto px-3 py-2 text-xs font-medium transition-all ${
-                      hasGeneratedPosts
-                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                        : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
-                    }`}
-                  >
-                    {isGeneratingPosts ? (
-                      <>
-                        <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1.5"></div>
-                        <span className="hidden sm:inline">Génération...</span>
-                        <span className="sm:hidden">...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-3 h-3 mr-1.5" />
-                        <span className="hidden sm:inline">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div 
+                      className="flex items-center space-x-3 cursor-pointer flex-1 min-w-0"
+                      onClick={() => setCollapsedPostMonths(prev => ({
+                        ...prev,
+                        [month.key]: !prev[month.key]
+                      }))}
+                    >
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                        month.isPast 
+                          ? 'bg-gray-400' 
+                          : hasGeneratedPosts
+                          ? 'bg-gradient-to-r from-emerald-500 to-blue-500'
+                          : 'bg-gradient-to-r from-purple-500 to-pink-500'
+                      }`}>
+                        <Calendar className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className={`text-lg font-bold truncate ${
+                          month.isPast ? 'text-gray-600' : 'text-gray-900'
+                        }`}>
+                          {month.name}
+                          {month.isCurrent && <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full whitespace-nowrap">Actuel</span>}
+                        </h3>
+                        <p className={`text-sm truncate ${
+                          month.isPast ? 'text-gray-500' : 'text-gray-600'
+                        }`}>
                           {hasGeneratedPosts 
-                            ? `Regénérer ${month.name.split(' ')[0]}`
-                            : `Générer ${month.name.split(' ')[0]}`
+                            ? `${monthPosts.posts.length} post${monthPosts.posts.length > 1 ? 's' : ''}`
+                            : month.isPast 
+                            ? 'Mois passé'
+                            : 'Aucun post généré'
                           }
-                        </span>
-                        <span className="sm:hidden">
-                          {hasGeneratedPosts ? 'Regénérer' : 'Générer'}
-                        </span>
-                      </>
+                        </p>
+                      </div>
+                      <ChevronDown 
+                        className={`w-4 h-4 text-gray-400 transform transition-transform flex-shrink-0 ${
+                          isCollapsed ? 'rotate-180' : ''
+                        }`} 
+                      />
+                    </div>
+                    
+                    {/* Bouton générer dans l'en-tête - Version responsive */}
+                    {!month.isPast && (
+                      <div className="flex-shrink-0">
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation(); // Empêcher le collapse/expand
+                            handleGeneratePosts(month.key);
+                          }}
+                          disabled={isGeneratingPosts}
+                          size="sm"
+                          className={`w-full sm:w-auto px-3 py-2 text-xs font-medium transition-all ${
+                            hasGeneratedPosts
+                              ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                              : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
+                          }`}
+                        >
+                          {isGeneratingPosts ? (
+                            <>
+                              <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1.5"></div>
+                              <span className="hidden sm:inline">Génération...</span>
+                              <span className="sm:hidden">...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="w-3 h-3 mr-1.5" />
+                              <span className="hidden sm:inline">
+                                {hasGeneratedPosts 
+                                  ? `Regénérer ${month.name.split(' ')[0]}`
+                                  : `Générer ${month.name.split(' ')[0]}`
+                                }
+                              </span>
+                              <span className="sm:hidden">
+                                {hasGeneratedPosts ? 'Regénérer' : 'Générer'}
+                              </span>
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     )}
-                  </Button>
+                  </div>
                 </div>
-              )}
+
+                {/* Contenu des posts (collapse) */}
+                {!isCollapsed && hasGeneratedPosts && (
+                  <div className="pl-4 space-y-4">
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                      {monthPosts.posts.map((post, index) => (
+                        <div key={post.id || index} data-post-id={post.id}>
+                          <PostThumbnail
+                            post={post}
+                            onClick={() => setSelectedPost(post)}
+                            onAddImage={(post) => handleAddImageToPost(post, 'add')}
+                            onModifyImage={(post) => handleAddImageToPost(post, 'modify')}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {!isCollapsed && !hasGeneratedPosts && !month.isPast && (
+                  <div className="pl-4">
+                    <div className="text-center py-8 bg-purple-50 rounded-lg border border-purple-200">
+                      <Sparkles className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                      <p className="text-purple-700 font-medium">Aucun post pour ce mois</p>
+                      <p className="text-purple-600 text-sm">Cliquez sur "Générer" pour commencer</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Séparateur Archives */}
+        {pastMonths.length > 0 && (
+          <div className="flex items-center justify-center py-6">
+            <div className="flex items-center space-x-3">
+              <div className="h-px bg-gray-300 flex-1 w-12"></div>
+              <span className="text-sm text-gray-500 font-medium">Archives</span>
+              <div className="h-px bg-gray-300 flex-1 w-12"></div>
             </div>
           </div>
-
-          {/* Contenu des posts (collapse) */}
-          {!isCollapsed && hasGeneratedPosts && (
-            <div className="pl-4 space-y-4">
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {monthPosts.posts.map((post, index) => (
-                  <div key={post.id || index} data-post-id={post.id}>
-                    <PostThumbnail
-                      key={post.id || index}
-                      post={post}
-                      onClick={() => setSelectedPost(post)}
-                      onAddImage={handleAddImageToPost}
-                      onModifyImage={handleModifyImagePost}
-                    />
+        )}
+        
+        {/* Mois passés (archives) */}
+        <div className="space-y-4 opacity-75">
+          {pastMonths.map(month => {
+            const monthPosts = postsByMonth[month.key] || { posts: [], name: month.name };
+            const isCollapsed = collapsedPostMonths[month.key] !== false; // Collapsed par défaut
+            const hasGeneratedPosts = monthPosts.posts && monthPosts.posts.length > 0;
+            
+            return (
+              <div key={month.key} className="space-y-4">
+                {/* En-tête du mois passé */}
+                <div className="p-4 rounded-xl border bg-gray-50 border-gray-200">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div 
+                      className="flex items-center space-x-3 cursor-pointer flex-1 min-w-0"
+                      onClick={() => setCollapsedPostMonths(prev => ({
+                        ...prev,
+                        [month.key]: !prev[month.key]
+                      }))}
+                    >
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-gray-400">
+                        <Calendar className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-bold truncate text-gray-600">
+                          {month.name}
+                        </h3>
+                        <p className="text-sm truncate text-gray-500">
+                          {hasGeneratedPosts 
+                            ? `${monthPosts.posts.length} post${monthPosts.posts.length > 1 ? 's' : ''}`
+                            : 'Mois passé'
+                          }
+                        </p>
+                      </div>
+                      <ChevronDown 
+                        className={`w-4 h-4 text-gray-400 transform transition-transform flex-shrink-0 ${
+                          isCollapsed ? 'rotate-180' : ''
+                        }`} 
+                      />
+                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+                </div>
 
-          {/* Message si mois vide et développé */}
-          {!isCollapsed && !hasGeneratedPosts && !month.isPast && (
-            <div className="pl-4">
-              <div className="text-center py-8 bg-purple-50 rounded-lg border border-purple-200">
-                <Sparkles className="w-8 h-8 text-purple-500 mx-auto mb-2" />
-                <p className="text-purple-700 font-medium">Aucun post pour ce mois</p>
-                <p className="text-purple-600 text-sm">Cliquez sur "Générer les posts" pour commencer</p>
+                {/* Contenu des posts passés */}
+                {!isCollapsed && hasGeneratedPosts && (
+                  <div className="pl-4 space-y-4">
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                      {monthPosts.posts.map((post, index) => (
+                        <div key={post.id || index} data-post-id={post.id}>
+                          <PostThumbnail
+                            post={post}
+                            onClick={() => setSelectedPost(post)}
+                            onAddImage={(post) => handleAddImageToPost(post, 'add')}
+                            onModifyImage={(post) => handleAddImageToPost(post, 'modify')}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            );
+          })}
         </div>
-      );
-    });
+      </>
+    );
   };
 
   // Fonctions Pixabay

@@ -1842,11 +1842,14 @@ async def get_social_connections(user_id: str = Depends(get_current_user_id_robu
                 "is_active": conn["is_active"]
             }
         
+        print(f"🔍 Retrieved {len(social_connections)} social connections for user {user_id}")
+        print(f"   Formatted result: {connections}")
+        
         return {"connections": connections}
         
     except Exception as e:
-        print(f"❌ Error getting social connections: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get social connections")
+        print(f"❌ Error retrieving social connections: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve connections: {str(e)}")
 
 @api_router.get("/social/instagram/auth-url")
 async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robust)):

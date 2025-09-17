@@ -428,6 +428,18 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage }) => {
               >
                 <Plus className="w-3 h-3" />
               </button>
+              
+              {/* Bouton Valider - Publier sur Facebook */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onValidatePost && onValidatePost(post);
+                }}
+                className="w-7 h-7 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+                title="Valider et publier sur Facebook"
+              >
+                <Check className="w-3 h-3" />
+              </button>
             </div>
           )}
           

@@ -1182,11 +1182,46 @@ function MainApp() {
   const [isGeneratingPosts, setIsGeneratingPosts] = useState(false);
   const [generatedPosts, setGeneratedPosts] = useState([]);
   
+  // Initialize collapsed post months - current and next month open, others closed
+  const getInitialCollapsedPostMonths = () => {
+    const collapsed = {};
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth(); // 0-based
+    
+    // Current month key
+    const currentMonthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+    
+    // Next month key
+    const nextMonthDate = new Date(currentYear, currentMonth + 1, 1);
+    const nextMonthKey = `${nextMonthDate.getFullYear()}-${String(nextMonthDate.getMonth() + 1).padStart(2, '0')}`;
+    
+    // Generate all future months and collapse them except current and next
+    for (let i = 0; i <= 8; i++) {
+      const targetDate = new Date(currentYear, currentMonth + i, 1);
+      const monthKey = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}`;
+      
+      // Collapse all except current and next month
+      if (monthKey !== currentMonthKey && monthKey !== nextMonthKey) {
+        collapsed[monthKey] = true;
+      }
+    }
+    
+    // Collapse all past months by default
+    for (let i = 1; i <= 6; i++) {
+      const targetDate = new Date(currentYear, currentMonth - i, 1);
+      const monthKey = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}`;
+      collapsed[monthKey] = true;
+    }
+    
+    return collapsed;
+  };
+
   // Posts management states
   const [selectedPost, setSelectedPost] = useState(null);
   const [isModifyingPost, setIsModifyingPost] = useState(false);
   const [postsByMonth, setPostsByMonth] = useState({});
-  const [collapsedPostMonths, setCollapsedPostMonths] = useState({});
+  const [collapsedPostMonths, setCollapsedPostMonths] = useState(() => getInitialCollapsedPostMonths());
   
   // Refs pour inputs non-contrôlés (fix clavier virtuel)
   const modificationRequestRef = useRef(null);

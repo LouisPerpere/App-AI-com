@@ -1744,7 +1744,7 @@ function MainApp() {
       setActiveStep('dashboard');
       
       // Load business profile, notes, content, posts and social connections
-      // Use setTimeout to ensure user state is updated before calling these functions
+      // Use setTimeout with longer delay to ensure user state is updated
       setTimeout(() => {
         loadBusinessProfile();
         loadNotes();
@@ -1752,8 +1752,8 @@ function MainApp() {
         loadGeneratedPosts();
         loadPixabayCategories();
         loadConnectedAccounts();
-        loadWebsiteAnalysis(); // ✅ CRITIQUE: Charger l'analyse après mise à jour du state user
-      }, 100);
+        loadWebsiteAnalysis(); // ✅ CRITIQUE: Charger l'analyse avec délai suffisant pour l'état user
+      }, 500); // ✅ CORRECTION: Augmenté de 100ms à 500ms pour le timing React
       
     } catch (error) {
       console.error('Auth check failed:', error);

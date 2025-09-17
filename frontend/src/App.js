@@ -1287,13 +1287,18 @@ function MainApp() {
     }
   }, []);
 
-  // Gérer le callback Instagram OAuth au chargement de la page
+  // Gérer le callback Instagram/Facebook OAuth au chargement de la page
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const instagramSuccess = urlParams.get('instagram_success');
+    const facebookSuccess = urlParams.get('facebook_success');
     const instagramError = urlParams.get('instagram_error');
+    const facebookError = urlParams.get('facebook_error');
     const instagramUsername = urlParams.get('username');
+    const facebookPageName = urlParams.get('page_name');
+    const code = urlParams.get('code'); // Code d'autorisation Facebook OAuth
     
+    // Gestion du succès Instagram
     if (instagramSuccess === 'true') {
       toast.success(`✅ Instagram connecté avec succès! @${instagramUsername || 'utilisateur'}`);
       
@@ -1311,6 +1316,25 @@ function MainApp() {
       window.history.replaceState(null, null, window.location.pathname);
     }
     
+    // Gestion du succès Facebook
+    if (facebookSuccess === 'true' || (code && !instagramError && !facebookError)) {
+      toast.success(`✅ Facebook connecté avec succès! Page: ${facebookPageName || 'My Own Watch'}`);
+      
+      // Mettre à jour l'état des connexions
+      setConnectedAccounts(prev => ({
+        ...prev,
+        facebook: {
+          page_name: facebookPageName || 'My Own Watch',
+          connected_at: new Date().toISOString(),
+          is_active: true
+        }
+      }));
+      
+      // Nettoyer l'URL
+      window.history.replaceState(null, null, window.location.pathname);
+    }
+    
+    // Gestion des erreurs Instagram
     if (instagramError) {
       let errorMessage = 'Erreur de connexion Instagram';
       
@@ -1336,6 +1360,13 @@ function MainApp() {
       
       toast.error(`❌ ${errorMessage}`);
       
+      // Nettoyer l'URL
+      window.history.replaceState(null, null, window.location.pathname);
+    }
+    
+    // Gestion des erreurs Facebook
+    if (facebookError) {
+      toast.error(`❌ Erreur de connexion Facebook: ${facebookError}`);
       // Nettoyer l'URL
       window.history.replaceState(null, null, window.location.pathname);
     }

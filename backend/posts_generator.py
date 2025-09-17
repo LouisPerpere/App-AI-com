@@ -209,6 +209,35 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         
         return source_data
     
+    def _parse_target_month(self, target_month: str) -> tuple:
+        """Parse target_month string (e.g., 'septembre_2025') into month number and year"""
+        try:
+            # Split by underscore to get month and year
+            parts = target_month.split('_')
+            if len(parts) != 2:
+                logger.warning(f"   ⚠️ Invalid target_month format: {target_month}, using current month")
+                current_date = datetime.now()
+                return current_date.month, current_date.year
+            
+            month_name, year_str = parts
+            year = int(year_str)
+            
+            # French month name to number mapping
+            french_months = {
+                "janvier": 1, "février": 2, "mars": 3, "avril": 4, "mai": 5, "juin": 6,
+                "juillet": 7, "août": 8, "septembre": 9, "octobre": 10, "novembre": 11, "décembre": 12
+            }
+            
+            month_num = french_months.get(month_name.lower(), datetime.now().month)
+            
+            logger.info(f"   📅 Parsed '{target_month}' -> month: {month_num}, year: {year}")
+            return month_num, year
+            
+        except Exception as e:
+            logger.error(f"   ❌ Error parsing target_month '{target_month}': {e}")
+            current_date = datetime.now()
+            return current_date.month, current_date.year
+
     def _collect_available_content(self, user_id: str, target_month: str) -> Dict[str, List[ContentSource]]:
         """Collect all available visual content in priority order, grouping carousels"""
         logger.info("🖼️ Step 2/6: Collecting available content...")

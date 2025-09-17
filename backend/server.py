@@ -1916,6 +1916,18 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         print(f"❌ Error generating Instagram auth URL: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erreur génération URL Instagram: {str(e)}")
 
+@api_router.get("/test/config-debug")
+async def test_config_debug():
+    """Test endpoint pour vérifier config_id"""
+    from urllib.parse import urlencode
+    params = {
+        "client_id": "1115451684022643",
+        "config_id": "786070880800578",
+        "scope": "pages_show_list"
+    }
+    test_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(params)}"
+    return {"test_url": test_url, "params": params}
+
 @api_router.get("/social/instagram/test-auth")
 async def test_instagram_auth():
     """Endpoint de test pour générer et vérifier l'URL d'autorisation Instagram"""

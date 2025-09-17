@@ -387,10 +387,18 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
           )}
           
           {/* Badge plateforme */}
-          <div className="absolute top-2 left-2">
+          <div className="absolute top-2 left-2 flex flex-col space-y-1">
             <span className="bg-emerald-500 text-white text-xs px-2 py-1 rounded-full font-medium">
               {post.platform || 'Instagram'}
             </span>
+            
+            {/* Badge "Publié" - affiché seulement si le post a été publié */}
+            {post.published && (
+              <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium flex items-center space-x-1">
+                <Check className="w-2 h-2" />
+                <span>Publié</span>
+              </span>
+            )}
           </div>
           
           {/* Badge statut image */}

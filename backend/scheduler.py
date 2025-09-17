@@ -1218,6 +1218,10 @@ async def main_scheduler():
             if current_minute % 60 == 0:  # Run every hour (when minutes = 0)
                 await check_and_update_website_analyses()
             
+            # Check for monthly rotation (run every hour on the 1st of the month)
+            if current_minute % 60 == 0:  # Run every hour
+                await monthly_rotation_check()
+            
             # Check for periodic notes cleanup (run once daily at midnight UTC)
             current_hour = datetime.utcnow().hour
             current_minute_exact = datetime.utcnow().minute

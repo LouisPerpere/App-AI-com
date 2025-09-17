@@ -1848,20 +1848,17 @@ async def get_social_connections(user_id: str = Depends(get_current_user_id_robu
         print(f"🔍 Found {len(social_connections)} connections for user {user_id}")
         
         for conn in social_connections:
-            try:
-                platform = conn.get("platform", "unknown")
-                display_name = conn.get("page_name") or conn.get("username", "Unknown")
-                
-                connections[platform] = {
-                    "username": display_name,
-                    "connected_at": conn.get("connected_at", "Unknown"),
-                    "is_active": conn.get("is_active", True)
-                }
-                print(f"✅ Added {platform} connection: {display_name}")
-                
-            except Exception as inner_e:
-                print(f"❌ Error processing individual connection: {str(inner_e)}")
-                continue
+            platform = conn.get("platform", "unknown")
+            if platform == "facebook":
+                display_name = conn.get("page_name", "Unknown Page")
+            else:
+                display_name = conn.get("username", "Unknown User")
+            
+            connections[platform] = {
+                "username": display_name,
+                "connected_at": str(conn.get("connected_at", "")),
+                "is_active": bool(conn.get("is_active", True))
+            }
         
         print(f"✅ Returning {len(connections)} formatted connections")
         return {"connections": connections}

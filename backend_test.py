@@ -27,25 +27,29 @@ TEST_CREDENTIALS = {
     "password": "L@Reunion974!"
 }
 
-class InstagramIntegrationTester:
+class FacebookConnectionsTester:
     def __init__(self):
-        self.session = requests.Session()
-        self.access_token = None
+        self.base_url = BASE_URL
+        self.token = None
         self.user_id = None
+        self.session = requests.Session()
+        self.session.headers.update({
+            'Content-Type': 'application/json',
+            'User-Agent': 'Claire-Marcus-Backend-Test/1.0'
+        })
         
-    def authenticate(self):
-        """Step 1: Authenticate with test credentials"""
-        print("🔐 Step 1: Authentication with test credentials")
-        print(f"   Email: {TEST_EMAIL}")
-        print(f"   Password: {TEST_PASSWORD}")
+    def log(self, message, level="INFO"):
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        print(f"[{timestamp}] {level}: {message}")
+        
+    def test_authentication(self):
+        """Test 1: Authentification utilisateur avec credentials spécifiés"""
+        self.log("🔐 STEP 1: Testing user authentication")
         
         try:
             response = self.session.post(
-                f"{BACKEND_URL}/auth/login-robust",
-                json={
-                    "email": TEST_EMAIL,
-                    "password": TEST_PASSWORD
-                },
+                f"{self.base_url}/auth/login-robust",
+                json=TEST_CREDENTIALS,
                 timeout=10
             )
             

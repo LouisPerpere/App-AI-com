@@ -2018,21 +2018,46 @@ async def instagram_oauth_callback(
                                                     instagram_account = page['instagram_business_account']
                                                     break
                                         
-                                        # Sauvegarder la connexion dans la base de données
-                                        dbm = get_database()
+                                        # Extraire user_id du state (format: "random_state|user_id")
+                                        user_id = None
+                                        if state and '|' in state:
+                                            _, user_id = state.split('|', 1)
+                                            print(f"🔍 Extracted user_id from state: {user_id}")
                                         
-                                        # Get user_id from state or create a method to get it
-                                        # For now, we'll need to handle this differently
-                                        connection_data = {
-                                            "connection_id": str(uuid.uuid4()),
-                                            "platform": "facebook",
-                                            "access_token": access_token,
-                                            "page_name": page_name,
-                                            "instagram_account": instagram_account,
-                                            "connected_at": datetime.now(timezone.utc),
-                                            "is_active": True,
-                                            "expires_at": datetime.now(timezone.utc) + timedelta(days=60)
-                                        }
+                                        # Sauvegarder la connexion dans la base de données si on a le user_id
+                                        if user_id:
+                                            dbm = get_database()
+                                            connection_data = {
+                                                "connection_id": str(uuid.uuid4()),
+                                                "user_id": user_id,
+                                                "platform": "facebook",
+                                                "access_token": access_token,
+                                                "page_name": page_name,
+                                                "instagram_account": instagram_account,
+                                                "connected_at": datetime.now(timezone.utc),
+                                                "is_active": True,
+                                                "expires_at": datetime.now(timezone.utc) + timedelta(days=60)
+                                            }
+                                            
+                                            # Sauvegarder ou mettre à jour la connexion existante
+                                            existing_connection = dbm.db.social_connections.find_one({
+                                                "user_id": user_id,
+                                                "platform": "facebook"
+                                            })
+                                            
+                                            if existing_connection:
+                                                # Mettre à jour
+                                                dbm.db.social_connections.update_one(
+                                                    {"user_id": user_id, "platform": "facebook"},
+                                                    {"$set": connection_data}
+                                                )
+                                                print(f"✅ Updated Facebook connection for user {user_id}")
+                                            else:
+                                                # Créer nouvelle connexion
+                                                dbm.db.social_connections.insert_one(connection_data)
+                                                print(f"✅ Created Facebook connection for user {user_id}")
+                                        else:
+                                            print("⚠️ Could not extract user_id from state, skipping database save")
                                         
                                         # Rediriger vers le frontend avec succès
                                         frontend_base_url = os.environ.get('FRONTEND_URL', 'https://insta-automate-3.preview.emergentagent.com')

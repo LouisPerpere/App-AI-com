@@ -2149,96 +2149,9 @@ async def instagram_oauth_callback(
         frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
         frontend_url = f"{frontend_base_url}/?instagram_error=missing_authorization"
         return RedirectResponse(url=frontend_url)
-        token_type = "long-lived" if long_lived_token else "short-lived"
-        
-        print(f"✅ Received {token_type} token")
-        
-        # Étape 1: Récupérer les informations utilisateur et pages Facebook
-        print("🔄 Fetching user pages and Instagram accounts...")
-        
-        pages_response = requests.get(
-            f"https://graph.facebook.com/v23.0/me/accounts",
-            params={
-                "fields": "id,name,access_token,instagram_business_account",
-                "access_token": final_token
-            },
-            timeout=10
-        )
-        
-        if pages_response.status_code != 200:
-            error_detail = pages_response.text
-            print(f"❌ Failed to fetch user pages: {pages_response.status_code} - {error_detail}")
-            frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-            frontend_url = f"{frontend_base_url}/?instagram_error=pages_fetch_failed"
-            return RedirectResponse(url=frontend_url)
-        
-        pages_data = pages_response.json()
-        pages = pages_data.get("data", [])
-        
-        if not pages:
-            print("❌ No Facebook pages found")
-            frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-            frontend_url = f"{frontend_base_url}/?instagram_error=no_pages_found"
-            return RedirectResponse(url=frontend_url)
-        
-        # Trouver une page avec un compte Instagram Business connecté
-        instagram_page = None
-        for page in pages:
-            if page.get("instagram_business_account"):
-                instagram_page = page
-                break
-        
-        if not instagram_page:
-            print("❌ No Instagram Business account found connected to Facebook pages")
-            frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-            frontend_url = f"{frontend_base_url}/?instagram_error=no_instagram_account"
-            return RedirectResponse(url=frontend_url)
-        
-        page_id = instagram_page["id"]
-        page_name = instagram_page["name"]
-        page_access_token = instagram_page["access_token"]
-        instagram_account_id = instagram_page["instagram_business_account"]["id"]
-        
-        print(f"✅ Found Instagram Business account:")
-        print(f"   Page: {page_name} (ID: {page_id})")
-        print(f"   Instagram Account ID: {instagram_account_id}")
-        
-        # Étape 2: Récupérer les informations du profil Instagram
-        instagram_response = requests.get(
-            f"https://graph.facebook.com/v23.0/{instagram_account_id}",
-            params={
-                "fields": "username,name,profile_picture_url",
-                "access_token": page_access_token
-            },
-            timeout=10
-        )
-        
-        instagram_profile = {}
-        if instagram_response.status_code == 200:
-            instagram_profile = instagram_response.json()
-            print(f"✅ Instagram profile: @{instagram_profile.get('username', 'unknown')}")
-        else:
-            print(f"⚠️ Could not fetch Instagram profile details")
-        
-        username = instagram_profile.get("username", "utilisateur")
-        
-        # TODO: Sauvegarder les informations de connexion Instagram dans la base de données
-        # Ici, vous pouvez sauvegarder:
-        # - page_id
-        # - page_access_token 
-        # - instagram_account_id
-        # - final_token (user access token)
-        # - username
-        
-        print(f"✅ Instagram connection successful")
-        
-        # Rediriger vers le frontend avec succès
-        frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-        frontend_url = f"{frontend_base_url}/?instagram_success=true&username={username}"
-        return RedirectResponse(url=frontend_url)
         
     except Exception as e:
-        print(f"❌ Error in Instagram callback: {str(e)}")
+        print(f"❌ Error in Instagram OAuth callback: {str(e)}")
         frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
         frontend_url = f"{frontend_base_url}/?instagram_error=callback_error"
         return RedirectResponse(url=frontend_url)

@@ -3223,7 +3223,9 @@ function MainApp() {
                         <Button
                           onClick={(e) => {
                             e.stopPropagation(); // Empêcher le collapse/expand
-                            handleGeneratePosts(month.key);
+                            // Stocker le mois sélectionné et ouvrir le modal de confirmation
+                            setSelectedMonthForGeneration(month.key);
+                            setShowGenerationModal(true);
                           }}
                           disabled={generatingMonths.has(month.key)}
                           size="sm"

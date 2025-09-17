@@ -240,15 +240,18 @@ backend:
 
   - task: "Social Connections Facebook Integration"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py, /app/backend/.env"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: false
         agent: "testing"
         comment: "🚨 DIAGNOSTIC CONNEXIONS SOCIALES FACEBOOK TERMINÉ - CAUSE RACINE IDENTIFIÉE: Test diagnostique complet des connexions sociales après connexion Facebook réalisé suivant la demande de révision française avec credentials lperpere@yahoo.fr / L@Reunion974! (User ID: bdf87a74-e3f3-44f3-bac2-649cde3ef93e). PROBLÈME IDENTIFIÉ: ❌ CONFIGURATION URL INCORRECTE - L'endpoint GET /api/social/connections fonctionne parfaitement mais retourne toujours {} (aucune connexion) car le callback Instagram/Facebook ne sauvegarde pas les connexions. ROOT CAUSE CONFIRMÉE: ❌ REDIRECT URI MISMATCH dans /app/backend/.env - INSTAGRAM_REDIRECT_URI='https://claire-marcus.com/api/social/instagram/callback' mais le backend fonctionne sur 'https://authflow-10.preview.emergentagent.com'. Cette différence d'URL cause l'échec silencieux de l'échange de token Facebook, empêchant la sauvegarde des connexions. TESTS RÉALISÉS: ✅ Authentification utilisateur (100% succès), ✅ Endpoint GET /api/social/connections accessible et fonctionnel, ✅ Callback Instagram traite les requêtes mais ne sauvegarde pas, ✅ Configuration Facebook App ID correcte (1115451684022643), ❌ Token exchange échoue à cause du mismatch d'URL. SOLUTION CRITIQUE: Corriger INSTAGRAM_REDIRECT_URI vers 'https://authflow-10.preview.emergentagent.com/api/social/instagram/callback' dans backend/.env pour résoudre le problème 'Connecter' au lieu de 'Connecté : Page Facebook'. IMPACT: Les utilisateurs voient toujours 'Connecter' au lieu de 'Connecté : Page Facebook' car aucune connexion n'est sauvegardée en base de données. TESTS DIAGNOSTIQUES: 80% succès (4/5 tests) - Callback traite les requêtes mais token exchange échoue silencieusement. RECOMMANDATION URGENTE: Corriger la configuration URL dans .env pour permettre la sauvegarde des connexions Facebook."
+      - working: true
+        agent: "main"
+        comment: "🔧 URL CONFIGURATION CORRECTED - ROOT CAUSE FIXED: Correction critique appliquée dans /app/backend/.env pour résoudre le problème de sauvegarde des connexions sociales. CHANGEMENTS EFFECTUÉS: (1) INSTAGRAM_REDIRECT_URI corrigé de 'https://claire-marcus.com/api/social/instagram/callback' vers 'https://authflow-10.preview.emergentagent.com/api/social/instagram/callback' pour correspondre à l'environnement preview actuel, (2) FRONTEND_URL corrigé de 'https://claire-marcus.com' vers 'https://authflow-10.preview.emergentagent.com' pour assurer les redirections correctes après callback OAuth. IMPACT ATTENDU: Les connexions Facebook devraient maintenant être sauvegardées correctement en base de données et l'interface devrait afficher 'Connecté : Page Facebook' au lieu de 'Connecter'. Backend redémarré avec nouvelles configurations. TESTS REQUIS: Test complet du flow Facebook Login for Business (connexion → autorisation → callback → sauvegarde → affichage interface) pour valider la correction."
 
   - task: "Website Analysis Auto-Loading Upon Login"
     implemented: true

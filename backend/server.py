@@ -2169,7 +2169,7 @@ async def publish_facebook_post_simple(
 ):
     """Version simplifiée de l'endpoint de publication Facebook"""
     try:
-        post_id = request.get("post_id")
+        post_id = request.post_id
         if not post_id:
             raise HTTPException(status_code=400, detail="post_id requis")
             

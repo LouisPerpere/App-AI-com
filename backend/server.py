@@ -1862,6 +1862,10 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         # URL de redirection après autorisation Instagram - basée sur l'environnement
         redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://claire-marcus.com/api/social/instagram/callback')
         
+        # DEBUG: Log the redirect URI being used
+        print(f"🔍 DEBUG: INSTAGRAM_REDIRECT_URI from env: {os.environ.get('INSTAGRAM_REDIRECT_URI')}")
+        print(f"🔍 DEBUG: redirect_uri variable: {redirect_uri}")
+        
         # Générer un état sécurisé pour CSRF protection
         import secrets
         state = secrets.token_urlsafe(32)

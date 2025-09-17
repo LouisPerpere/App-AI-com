@@ -1836,8 +1836,11 @@ async def get_social_connections(user_id: str = Depends(get_current_user_id_robu
         }))
         
         for conn in social_connections:
+            print(f"🔍 Processing connection: {conn}")
+            display_name = conn.get("username") or conn.get("page_name", "Unknown")
+            print(f"🔍 Display name resolved to: {display_name}")
             connections[conn["platform"]] = {
-                "username": conn.get("username") or conn.get("page_name", "Unknown"),
+                "username": display_name,
                 "connected_at": conn["connected_at"].isoformat() if isinstance(conn["connected_at"], datetime) else conn["connected_at"],
                 "is_active": conn["is_active"]
             }

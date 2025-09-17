@@ -55,447 +55,229 @@ class FacebookConnectionsTester:
             
             if response.status_code == 200:
                 data = response.json()
-                self.access_token = data.get("access_token")
-                self.user_id = data.get("user_id")
+                self.token = data.get('access_token')
+                self.user_id = data.get('user_id')
                 
                 # Configure session with token
                 self.session.headers.update({
-                    "Authorization": f"Bearer {self.access_token}"
+                    'Authorization': f'Bearer {self.token}'
                 })
                 
-                print(f"   ✅ Authentication successful")
-                print(f"   User ID: {self.user_id}")
-                print(f"   Token: {self.access_token[:20]}..." if self.access_token else "No token")
+                self.log(f"✅ Authentication successful - User ID: {self.user_id}")
                 return True
             else:
-                print(f"   ❌ Authentication failed: {response.status_code}")
-                print(f"   Response: {response.text}")
+                self.log(f"❌ Authentication failed - Status: {response.status_code}, Response: {response.text}", "ERROR")
                 return False
                 
         except Exception as e:
-            print(f"   ❌ Authentication error: {str(e)}")
+            self.log(f"❌ Authentication error: {str(e)}", "ERROR")
             return False
     
-    def test_backend_health(self):
-        """Step 2: Test backend health and configuration"""
-        print("\n🏥 Step 2: Backend health check")
+    def test_health_check(self):
+        """Test 2: Health check backend sur environnement live"""
+        self.log("🏥 STEP 2: Testing backend health check")
         
         try:
-            response = self.session.get(f"{BACKEND_URL}/health", timeout=10)
+            response = self.session.get(f"{self.base_url}/health", timeout=10)
             
             if response.status_code == 200:
                 data = response.json()
-                print(f"   ✅ Backend healthy")
-                print(f"   Status: {data.get('status')}")
-                print(f"   Service: {data.get('service')}")
+                status = data.get('status')
+                service = data.get('service')
+                
+                self.log(f"✅ Health check successful - Status: {status}, Service: {service}")
                 return True
             else:
-                print(f"   ❌ Backend health check failed: {response.status_code}")
+                self.log(f"❌ Health check failed - Status: {response.status_code}", "ERROR")
                 return False
                 
         except Exception as e:
-            print(f"   ❌ Backend health check error: {str(e)}")
+            self.log(f"❌ Health check error: {str(e)}", "ERROR")
             return False
     
-    def test_instagram_test_auth_endpoint(self):
-        """Step 3: Test /api/social/instagram/test-auth endpoint"""
-        print("\n🧪 Step 3: Test Instagram test-auth endpoint")
+    def test_social_connections_endpoint(self):
+        """Test 3: Endpoint GET /api/social/connections - vérifier accessibilité"""
+        self.log("🔗 STEP 3: Testing social connections endpoint")
         
         try:
-            response = self.session.get(f"{BACKEND_URL}/social/instagram/test-auth", timeout=10)
+            response = self.session.get(f"{self.base_url}/social/connections", timeout=10)
             
             if response.status_code == 200:
                 data = response.json()
-                print(f"   ✅ Test-auth endpoint accessible")
-                print(f"   Status: {data.get('status')}")
-                print(f"   Message: {data.get('message')}")
+                self.log(f"✅ Social connections endpoint accessible - Response: {data}")
+                return True
+            else:
+                self.log(f"❌ Social connections endpoint failed - Status: {response.status_code}, Response: {response.text}", "ERROR")
+                return False
                 
-                # Check configuration
-                config = data.get('configuration', {})
-                print(f"   📋 Configuration check:")
-                print(f"      Facebook App ID: {config.get('facebook_app_id')}")
-                print(f"      Redirect URI: {config.get('redirect_uri')}")
-                print(f"      API Endpoint: {config.get('api_endpoint')}")
-                print(f"      API Version: {config.get('api_version')}")
+        except Exception as e:
+            self.log(f"❌ Social connections endpoint error: {str(e)}", "ERROR")
+            return False
+    
+    def test_facebook_urls_configuration(self):
+        """Test 4: Configuration Facebook URLs - valider alignement sur claire-marcus.com"""
+        self.log("🔧 STEP 4: Testing Facebook URLs configuration")
+        
+        try:
+            # Test Instagram auth URL generation
+            response = self.session.get(f"{self.base_url}/social/instagram/auth-url", timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                auth_url = data.get('auth_url', '')
                 
-                # Check scopes
-                scopes = config.get('scopes', [])
-                print(f"      Scopes: {', '.join(scopes)}")
-                
-                # Validate test auth URL
-                test_auth_url = data.get('test_auth_url')
-                if test_auth_url:
-                    print(f"   🔗 Test auth URL generated: {test_auth_url[:100]}...")
-                    
-                    # Parse URL to validate parameters
-                    parsed_url = urlparse(test_auth_url)
-                    query_params = parse_qs(parsed_url.query)
-                    
-                    print(f"   📊 URL Analysis:")
-                    print(f"      Domain: {parsed_url.netloc}")
-                    print(f"      Path: {parsed_url.path}")
-                    print(f"      Client ID: {query_params.get('client_id', ['Not found'])[0]}")
-                    print(f"      Response Type: {query_params.get('response_type', ['Not found'])[0]}")
-                    print(f"      Scope: {query_params.get('scope', ['Not found'])[0]}")
-                    
-                    # Validate expected parameters
-                    expected_endpoint = "api.instagram.com"
-                    if expected_endpoint in test_auth_url:
-                        print(f"   ✅ Using correct Instagram Graph API endpoint")
-                    else:
-                        print(f"   ⚠️ Unexpected endpoint in URL")
-                    
+                # Vérifier que l'URL contient claire-marcus.com
+                if 'claire-marcus.com' in auth_url:
+                    self.log(f"✅ Facebook URLs correctly configured with claire-marcus.com")
+                    self.log(f"   Auth URL: {auth_url[:100]}...")
                     return True
                 else:
-                    print(f"   ❌ No test auth URL generated")
+                    self.log(f"❌ Facebook URLs not aligned with claire-marcus.com - URL: {auth_url}", "ERROR")
                     return False
-                    
             else:
-                print(f"   ❌ Test-auth endpoint failed: {response.status_code}")
-                print(f"   Response: {response.text}")
+                self.log(f"❌ Facebook URL configuration test failed - Status: {response.status_code}", "ERROR")
                 return False
                 
         except Exception as e:
-            print(f"   ❌ Test-auth endpoint error: {str(e)}")
+            self.log(f"❌ Facebook URLs configuration error: {str(e)}", "ERROR")
             return False
     
-    def test_instagram_auth_url_endpoint(self):
-        """Step 4: Test /api/social/instagram/auth-url endpoint (authenticated)"""
-        print("\n🔗 Step 4: Test Instagram auth-url endpoint (authenticated)")
-        
-        if not self.access_token:
-            print("   ❌ No access token available for authenticated request")
-            return False
+    def test_instagram_callback_url(self):
+        """Test 5: Callback Instagram URL - tester accessibilité sur environnement live"""
+        self.log("📞 STEP 5: Testing Instagram callback URL")
         
         try:
-            response = self.session.get(f"{BACKEND_URL}/social/instagram/auth-url", timeout=10)
+            # Test callback endpoint accessibility (without parameters for basic test)
+            response = self.session.get(f"{self.base_url}/social/instagram/callback", timeout=10)
             
-            if response.status_code == 200:
-                data = response.json()
-                print(f"   ✅ Auth-url endpoint accessible")
-                
-                # Check response structure
-                auth_url = data.get('auth_url')
-                state = data.get('state')
-                redirect_uri = data.get('redirect_uri')
-                scopes = data.get('scopes', [])
-                api_version = data.get('api_version')
-                
-                print(f"   📋 Response analysis:")
-                print(f"      Auth URL: {auth_url[:100]}..." if auth_url else "Not found")
-                print(f"      State: {state[:20]}..." if state else "Not found")
-                print(f"      Redirect URI: {redirect_uri}")
-                print(f"      Scopes: {', '.join(scopes)}")
-                print(f"      API Version: {api_version}")
-                
-                if auth_url:
-                    # Parse and validate the generated URL
-                    parsed_url = urlparse(auth_url)
-                    query_params = parse_qs(parsed_url.query)
-                    
-                    print(f"   🔍 URL Validation:")
-                    print(f"      Domain: {parsed_url.netloc}")
-                    print(f"      Path: {parsed_url.path}")
-                    
-                    # Check for Facebook OAuth endpoint (corrected from Instagram direct)
-                    expected_domain = "www.facebook.com"
-                    if expected_domain in auth_url:
-                        print(f"   ✅ Using correct Facebook OAuth endpoint")
-                    else:
-                        print(f"   ⚠️ Unexpected OAuth endpoint")
-                    
-                    # Validate parameters
-                    client_id = query_params.get('client_id', [''])[0]
-                    response_type = query_params.get('response_type', [''])[0]
-                    scope = query_params.get('scope', [''])[0]
-                    redirect_uri_param = query_params.get('redirect_uri', [''])[0]
-                    
-                    print(f"      Client ID: {client_id}")
-                    print(f"      Response Type: {response_type}")
-                    print(f"      Scope: {scope}")
-                    print(f"      Redirect URI: {redirect_uri_param}")
-                    
-                    # Validate corrections
-                    corrections_valid = True
-                    
-                    # Check 1: No config_id should be present
-                    if 'config_id' not in query_params:
-                        print(f"   ✅ CORRECTION VERIFIED: config_id removed (no longer present)")
-                    else:
-                        print(f"   ❌ CORRECTION FAILED: config_id still present")
-                        corrections_valid = False
-                    
-                    # Check 2: Basic scopes should be used
-                    expected_scopes = ["pages_show_list", "pages_read_engagement", "pages_manage_posts"]
-                    scope_list = scope.split(',') if scope else []
-                    
-                    if all(expected_scope in scope_list for expected_scope in expected_scopes):
-                        print(f"   ✅ CORRECTION VERIFIED: Using basic scopes")
-                    else:
-                        print(f"   ⚠️ CORRECTION CHECK: Scopes may differ from expected basic scopes")
-                        print(f"      Expected: {', '.join(expected_scopes)}")
-                        print(f"      Found: {', '.join(scope_list)}")
-                    
-                    # Check 3: Response type should be 'code'
-                    if response_type == 'code':
-                        print(f"   ✅ CORRECTION VERIFIED: Using response_type=code")
-                    else:
-                        print(f"   ❌ CORRECTION FAILED: response_type should be 'code', found '{response_type}'")
-                        corrections_valid = False
-                    
-                    # Check 4: Redirect URI should match expected
-                    expected_redirect = "https://authflow-10.preview.emergentagent.com/api/social/instagram/callback"
-                    if redirect_uri_param == expected_redirect:
-                        print(f"   ✅ CORRECTION VERIFIED: Correct redirect URI")
-                    else:
-                        print(f"   ❌ CORRECTION FAILED: Redirect URI mismatch")
-                        print(f"      Expected: {expected_redirect}")
-                        print(f"      Found: {redirect_uri_param}")
-                        corrections_valid = False
-                    
-                    return corrections_valid
-                else:
-                    print(f"   ❌ No auth URL generated")
-                    return False
-                    
+            # Callback should be accessible (might return error without proper params but should not be 404)
+            if response.status_code in [200, 400, 302, 307]:
+                self.log(f"✅ Instagram callback URL accessible - Status: {response.status_code}")
+                return True
             else:
-                print(f"   ❌ Auth-url endpoint failed: {response.status_code}")
-                print(f"   Response: {response.text}")
+                self.log(f"❌ Instagram callback URL not accessible - Status: {response.status_code}", "ERROR")
                 return False
                 
         except Exception as e:
-            print(f"   ❌ Auth-url endpoint error: {str(e)}")
+            self.log(f"❌ Instagram callback URL error: {str(e)}", "ERROR")
             return False
     
-    def test_facebook_app_configuration(self):
-        """Step 5: Test Facebook App configuration"""
-        print("\n⚙️ Step 5: Facebook App configuration verification")
+    def test_authorization_url_generation(self):
+        """Test 6: Authorization URL generation - vérifier génération URL d'autorisation Facebook correcte"""
+        self.log("🔑 STEP 6: Testing authorization URL generation")
         
         try:
-            # Test the diagnostic endpoint to check configuration
-            response = self.session.get(f"{BACKEND_URL}/diag", timeout=10)
+            # Test both Instagram auth endpoints
+            endpoints_to_test = [
+                "/social/instagram/auth-url",
+                "/social/instagram/test-auth"
+            ]
             
-            if response.status_code == 200:
-                print(f"   ✅ Diagnostic endpoint accessible")
-                
-                # Also test the test-auth endpoint for configuration details
-                test_response = self.session.get(f"{BACKEND_URL}/social/instagram/test-auth", timeout=10)
-                
-                if test_response.status_code == 200:
-                    test_data = test_response.json()
-                    config = test_data.get('configuration', {})
+            success_count = 0
+            
+            for endpoint in endpoints_to_test:
+                try:
+                    response = self.session.get(f"{self.base_url}{endpoint}", timeout=10)
                     
-                    # Expected configuration values
-                    expected_app_id = "1115451684022643"
-                    expected_redirect_uri = "https://authflow-10.preview.emergentagent.com/api/social/instagram/callback"
-                    
-                    print(f"   📋 Configuration verification:")
-                    
-                    # Check App ID
-                    app_id = config.get('facebook_app_id')
-                    if app_id == expected_app_id:
-                        print(f"   ✅ Facebook App ID matches expected value: {app_id}")
-                    else:
-                        print(f"   ❌ Facebook App ID mismatch:")
-                        print(f"      Expected: {expected_app_id}")
-                        print(f"      Found: {app_id}")
-                        return False
-                    
-                    # Check Redirect URI
-                    redirect_uri = config.get('redirect_uri')
-                    if redirect_uri == expected_redirect_uri:
-                        print(f"   ✅ Redirect URI matches expected value")
-                        print(f"      URI: {redirect_uri}")
-                    else:
-                        print(f"   ❌ Redirect URI mismatch:")
-                        print(f"      Expected: {expected_redirect_uri}")
-                        print(f"      Found: {redirect_uri}")
-                        return False
-                    
-                    # Check API endpoint
-                    api_endpoint = config.get('api_endpoint')
-                    if api_endpoint:
-                        print(f"   ✅ API endpoint configured: {api_endpoint}")
+                    if response.status_code == 200:
+                        data = response.json()
+                        auth_url = data.get('auth_url', data.get('authorization_url', ''))
                         
-                        # Verify it's the new Instagram Graph API endpoint
-                        if "api.instagram.com" in api_endpoint:
-                            print(f"   ✅ Using new Instagram Graph API endpoint")
+                        if auth_url:
+                            # Vérifier les composants critiques de l'URL
+                            url_checks = [
+                                ('claire-marcus.com' in auth_url, 'claire-marcus.com domain'),
+                                ('client_id=' in auth_url, 'client_id parameter'),
+                                ('redirect_uri=' in auth_url, 'redirect_uri parameter'),
+                                ('scope=' in auth_url, 'scope parameter')
+                            ]
+                            
+                            all_checks_passed = all(check[0] for check in url_checks)
+                            
+                            if all_checks_passed:
+                                self.log(f"✅ Authorization URL generation working - Endpoint: {endpoint}")
+                                success_count += 1
+                            else:
+                                failed_checks = [check[1] for check in url_checks if not check[0]]
+                                self.log(f"⚠️ Authorization URL missing components - Endpoint: {endpoint}, Missing: {failed_checks}")
                         else:
-                            print(f"   ⚠️ API endpoint may not be the new Instagram Graph API")
-                    
-                    return True
-                else:
-                    print(f"   ❌ Could not retrieve configuration details")
-                    return False
-                    
-            else:
-                print(f"   ❌ Diagnostic endpoint failed: {response.status_code}")
-                return False
-                
-        except Exception as e:
-            print(f"   ❌ Configuration verification error: {str(e)}")
-            return False
-    
-    def test_callback_endpoint_accessibility(self):
-        """Step 6: Test callback endpoint accessibility"""
-        print("\n📞 Step 6: Callback endpoint accessibility test")
-        
-        try:
-            # Test the callback endpoint without parameters (should handle gracefully)
-            response = self.session.get(f"{BACKEND_URL}/social/instagram/callback", timeout=10)
-            
-            # The callback should handle requests even without parameters
-            if response.status_code in [200, 302]:  # 302 for redirect is also acceptable
-                print(f"   ✅ Callback endpoint accessible")
-                print(f"   Status code: {response.status_code}")
-                
-                if response.status_code == 302:
-                    # Check redirect location
-                    location = response.headers.get('Location', '')
-                    print(f"   Redirect location: {location}")
-                    
-                    # Should redirect to frontend with error for missing parameters
-                    if "insta-automate-3.preview.emergentagent.com" in location:
-                        print(f"   ✅ Redirects to correct frontend domain")
+                            self.log(f"⚠️ No authorization URL returned - Endpoint: {endpoint}")
                     else:
-                        print(f"   ⚠️ Redirect domain may be unexpected")
-                
+                        self.log(f"⚠️ Authorization endpoint failed - Endpoint: {endpoint}, Status: {response.status_code}")
+                        
+                except Exception as e:
+                    self.log(f"⚠️ Authorization endpoint error - Endpoint: {endpoint}, Error: {str(e)}")
+            
+            if success_count > 0:
+                self.log(f"✅ Authorization URL generation working ({success_count}/{len(endpoints_to_test)} endpoints)")
                 return True
             else:
-                print(f"   ❌ Callback endpoint failed: {response.status_code}")
-                print(f"   Response: {response.text}")
+                self.log("❌ Authorization URL generation failed on all endpoints", "ERROR")
                 return False
                 
         except Exception as e:
-            print(f"   ❌ Callback endpoint error: {str(e)}")
+            self.log(f"❌ Authorization URL generation error: {str(e)}", "ERROR")
             return False
     
-    def test_callback_with_parameters(self):
-        """Step 7: Test callback endpoint with sample parameters"""
-        print("\n📞 Step 7: Callback endpoint with parameters test")
+    def run_all_tests(self):
+        """Execute all tests for Facebook connections validation"""
+        self.log("🚀 STARTING FACEBOOK CONNECTIONS VALIDATION - ENVIRONNEMENT LIVE")
+        self.log(f"   Backend URL: {self.base_url}")
+        self.log(f"   Test credentials: {TEST_CREDENTIALS['email']}")
         
-        try:
-            # Test callback with sample authorization code
-            test_params = {
-                'code': 'test_authorization_code_12345',
-                'state': 'test_state_token'
-            }
-            
-            response = self.session.get(
-                f"{BACKEND_URL}/social/instagram/callback",
-                params=test_params,
-                timeout=10,
-                allow_redirects=False  # Don't follow redirects to see the response
-            )
-            
-            if response.status_code == 302:  # Should redirect
-                print(f"   ✅ Callback handles parameters correctly")
-                print(f"   Status code: {response.status_code}")
-                
-                # Check redirect location
-                location = response.headers.get('Location', '')
-                print(f"   Redirect location: {location}")
-                
-                # Should redirect to frontend with success parameters
-                if "instagram_success=true" in location and "code=" in location:
-                    print(f"   ✅ Redirects with success parameters")
-                elif "instagram_error=" in location:
-                    print(f"   ⚠️ Redirects with error (expected for test code)")
-                else:
-                    print(f"   ⚠️ Redirect format may be unexpected")
-                
-                return True
-            else:
-                print(f"   ❌ Callback with parameters failed: {response.status_code}")
-                print(f"   Response: {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"   ❌ Callback with parameters error: {str(e)}")
-            return False
-    
-    def run_comprehensive_test(self):
-        """Run all tests and provide comprehensive report"""
-        print("🚀 COMPREHENSIVE INSTAGRAM/FACEBOOK INTEGRATION TESTING")
-        print("=" * 80)
-        print(f"Backend URL: {BACKEND_URL}")
-        print(f"Test credentials: {TEST_EMAIL} / {TEST_PASSWORD}")
-        print("=" * 80)
-        
-        test_results = []
-        
-        # Run all tests
         tests = [
-            ("Authentication", self.authenticate),
-            ("Backend Health Check", self.test_backend_health),
-            ("Instagram Test-Auth Endpoint", self.test_instagram_test_auth_endpoint),
-            ("Instagram Auth-URL Endpoint", self.test_instagram_auth_url_endpoint),
-            ("Facebook App Configuration", self.test_facebook_app_configuration),
-            ("Callback Endpoint Accessibility", self.test_callback_endpoint_accessibility),
-            ("Callback with Parameters", self.test_callback_with_parameters)
+            ("Authentication", self.test_authentication),
+            ("Health Check", self.test_health_check),
+            ("Social Connections Endpoint", self.test_social_connections_endpoint),
+            ("Facebook URLs Configuration", self.test_facebook_urls_configuration),
+            ("Instagram Callback URL", self.test_instagram_callback_url),
+            ("Authorization URL Generation", self.test_authorization_url_generation)
         ]
         
+        results = []
+        
         for test_name, test_func in tests:
+            self.log(f"\n{'='*60}")
             try:
                 result = test_func()
-                test_results.append((test_name, result))
+                results.append((test_name, result))
             except Exception as e:
-                print(f"   ❌ Test '{test_name}' crashed: {str(e)}")
-                test_results.append((test_name, False))
+                self.log(f"❌ Test '{test_name}' crashed: {str(e)}", "ERROR")
+                results.append((test_name, False))
         
-        # Generate comprehensive report
-        print("\n" + "=" * 80)
-        print("📊 COMPREHENSIVE TEST RESULTS SUMMARY")
-        print("=" * 80)
+        # Summary
+        self.log(f"\n{'='*60}")
+        self.log("📊 TEST RESULTS SUMMARY")
+        self.log(f"{'='*60}")
         
-        passed_tests = 0
-        total_tests = len(test_results)
+        passed = 0
+        total = len(results)
         
-        for test_name, result in test_results:
+        for test_name, result in results:
             status = "✅ PASS" if result else "❌ FAIL"
-            print(f"{status} - {test_name}")
+            self.log(f"   {status}: {test_name}")
             if result:
-                passed_tests += 1
+                passed += 1
         
-        success_rate = (passed_tests / total_tests) * 100
-        print(f"\n📈 SUCCESS RATE: {passed_tests}/{total_tests} tests passed ({success_rate:.1f}%)")
+        success_rate = (passed / total) * 100
+        self.log(f"\n🎯 SUCCESS RATE: {passed}/{total} tests passed ({success_rate:.1f}%)")
         
-        # Critical corrections validation summary
-        print("\n🔧 CRITICAL CORRECTIONS VALIDATION:")
-        
-        if passed_tests >= 5:  # Most tests should pass for corrections to be validated
-            print("✅ INSTAGRAM GRAPH API 2025 INTEGRATION CORRECTIONS VALIDATED")
-            print("✅ Config_id removal confirmed")
-            print("✅ Basic scopes implementation confirmed")
-            print("✅ Facebook OAuth endpoint usage confirmed")
-            print("✅ Callback functionality confirmed")
-            print("✅ Environment configuration confirmed")
+        if success_rate >= 80:
+            self.log("🎉 FACEBOOK CONNECTIONS VALIDATION: SUCCESSFUL")
         else:
-            print("❌ INTEGRATION CORRECTIONS NEED ATTENTION")
-            print("❌ Some critical tests failed - review implementation")
+            self.log("🚨 FACEBOOK CONNECTIONS VALIDATION: NEEDS ATTENTION")
         
-        print("\n🎯 OBJECTIVE STATUS:")
-        if success_rate >= 85:
-            print("✅ OBJECTIVE ACHIEVED: All corrections are functional")
-            print("✅ Generated authorization URL should no longer produce 'Something went wrong' error")
-        else:
-            print("⚠️ OBJECTIVE PARTIALLY ACHIEVED: Some issues remain")
-            print("⚠️ Review failed tests before production use")
-        
-        print("=" * 80)
-        return success_rate >= 85
+        return success_rate >= 80
 
 def main():
     """Main test execution"""
-    tester = InstagramIntegrationTester()
-    success = tester.run_comprehensive_test()
+    print("Facebook Connections Backend Testing Suite")
+    print("=" * 60)
     
-    if success:
-        print("🎉 ALL TESTS COMPLETED SUCCESSFULLY")
-        sys.exit(0)
-    else:
-        print("⚠️ SOME TESTS FAILED - REVIEW REQUIRED")
-        sys.exit(1)
+    tester = FacebookConnectionsTester()
+    success = tester.run_all_tests()
+    
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
     main()

@@ -7483,46 +7483,89 @@ function MainApp() {
                           <FileText className="w-8 h-8 text-white" />
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 mb-2">
-                          Générer les posts du mois ?
+                          {selectedMonthForGeneration ? 
+                            `Générer les posts de ${new Date(selectedMonthForGeneration + '-01').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })} ?` :
+                            'Générer les posts du mois ?'
+                          }
                         </h3>
                         <p className="text-gray-600 text-sm">
                           Claire va analyser votre profil, vos photos et vos notes pour créer des posts engageants.
                         </p>
                       </div>
 
-                      {/* Rappel d'uploader du contenu */}
+                      {/* Vérifications des prérequis */}
                       <div className="bg-blue-50 rounded-lg p-4 mb-6">
-                        <h4 className="font-semibold text-blue-900 mb-2 flex items-center">
+                        <h4 className="font-semibold text-blue-900 mb-3 flex items-center">
                           <Info className="w-4 h-4 mr-2" />
-                          Avant de générer, assurez-vous d'avoir :
+                          Vérifiez vos prérequis :
                         </h4>
-                        <ul className="text-sm text-blue-800 space-y-1">
-                          <li className="flex items-center">
-                            <Check className="w-4 h-4 mr-2" />
-                            Uploadé vos photos/vidéos dans "Bibliothèque"
-                          </li>
-                          <li className="flex items-center">
-                            <Check className="w-4 h-4 mr-2" />
-                            Ajouté des notes avec vos idées dans "Notes"
-                          </li>
-                          <li className="flex items-center">
-                            <Check className="w-4 h-4 mr-2" />
-                            Complété votre profil dans "Entreprise"
-                          </li>
-                        </ul>
+                        <div className="space-y-2">
+                          <div className="flex items-center text-sm">
+                            {businessProfile && Object.keys(businessProfile).length > 3 ? (
+                              <Check className="w-4 h-4 mr-2 text-green-600" />
+                            ) : (
+                              <X className="w-4 h-4 mr-2 text-red-500" />
+                            )}
+                            <span className={businessProfile && Object.keys(businessProfile).length > 3 ? 'text-green-800' : 'text-red-600'}>
+                              Profil d'entreprise complété
+                            </span>
+                          </div>
+                          <div className="flex items-center text-sm">
+                            {websiteAnalysis ? (
+                              <Check className="w-4 h-4 mr-2 text-green-600" />
+                            ) : (
+                              <X className="w-4 h-4 mr-2 text-red-500" />
+                            )}
+                            <span className={websiteAnalysis ? 'text-green-800' : 'text-red-600'}>
+                              Analyse de site web effectuée
+                            </span>
+                          </div>
+                          <div className="flex items-center text-sm">
+                            {notes && notes.length > 0 ? (
+                              <Check className="w-4 h-4 mr-2 text-green-600" />
+                            ) : (
+                              <X className="w-4 h-4 mr-2 text-red-500" />
+                            )}
+                            <span className={notes && notes.length > 0 ? 'text-green-800' : 'text-red-600'}>
+                              Notes ajoutées ({notes ? notes.length : 0})
+                            </span>
+                          </div>
+                          <div className="flex items-center text-sm">
+                            {pendingContent && pendingContent.length > 0 ? (
+                              <Check className="w-4 h-4 mr-2 text-green-600" />
+                            ) : (
+                              <X className="w-4 h-4 mr-2 text-red-500" />
+                            )}
+                            <span className={pendingContent && pendingContent.length > 0 ? 'text-green-800' : 'text-red-600'}>
+                              Médias uploadés ({pendingContent ? pendingContent.length : 0})
+                            </span>
+                          </div>
+                        </div>
+                        
+                        {(!businessProfile || !websiteAnalysis || !notes?.length || !pendingContent?.length) && (
+                          <div className="mt-3 p-2 bg-amber-100 border border-amber-300 rounded text-amber-800 text-xs">
+                            ⚠️ Certains éléments manquent. Vous pouvez continuer, mais les posts seront moins riches.
+                          </div>
+                        )}
                       </div>
 
                       {/* Boutons d'action */}
                       <div className="flex space-x-3">
                         <Button
-                          onClick={handleCloseGenerationModal}
+                          onClick={() => {
+                            setShowGenerationModal(false);
+                            setSelectedMonthForGeneration(null);
+                          }}
                           variant="outline"
                           className="flex-1"
                         >
                           Annuler
                         </Button>
                         <Button
-                          onClick={handleGeneratePosts}
+                          onClick={() => {
+                            handleGeneratePosts(selectedMonthForGeneration);
+                            setSelectedMonthForGeneration(null);
+                          }}
                           className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
                         >
                           <FileText className="w-4 h-4 mr-2" />

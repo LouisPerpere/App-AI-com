@@ -3700,8 +3700,8 @@ function MainApp() {
     try {
       const token = localStorage.getItem('access_token');
       
-      // Étape 1: Obtenir l'URL d'autorisation Facebook (même endpoint que Instagram pour pages)
-      const response = await axios.get(`${API}/social/instagram/auth-url`, {
+      // Étape 1: Obtenir l'URL d'autorisation Facebook (endpoint dédié)
+      const response = await axios.get(`${API}/social/facebook/auth-url`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

@@ -1679,12 +1679,21 @@ function MainApp() {
 
   // Load website analysis from database
   const loadWebsiteAnalysis = async () => {
-    if (!user) return;
+    console.log('🔄 loadWebsiteAnalysis called, user:', user ? 'PRESENT' : 'MISSING');
+    
+    if (!user) {
+      console.log('❌ No user found, skipping website analysis load');
+      return;
+    }
     
     try {
       const token = localStorage.getItem('access_token');
-      if (!token) return;
+      if (!token) {
+        console.log('❌ No access token found');
+        return;
+      }
       
+      console.log('🌐 Fetching website analysis from API...');
       const response = await axios.get(`${API}/website/analysis`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -1692,6 +1701,7 @@ function MainApp() {
       if (response.data && response.data.analysis_summary) {
         console.log('🔍 Website analysis loaded from database:', response.data);
         setWebsiteAnalysis(response.data);
+        console.log('✅ Website analysis state updated successfully');
         
         // Set last analysis info if available
         if (response.data.created_at) {
@@ -1700,9 +1710,14 @@ function MainApp() {
             nextAnalysisDue: response.data.next_analysis_due || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
           });
         }
+      } else {
+        console.log('⚠️ No website analysis data returned from API');
       }
     } catch (error) {
-      console.log('ℹ️ No website analysis found or error loading:', error.response?.status);
+      console.error('❌ Error loading website analysis:', error);
+      if (error.response?.status === 404) {
+        console.log('🔍 No website analysis found in database');
+      }
       // Pas d'erreur visible à l'utilisateur - normal si pas d'analyse
     }
   };

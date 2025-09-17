@@ -2154,6 +2154,86 @@ async def instagram_oauth_callback(
         frontend_url = f"{frontend_base_url}/?instagram_error=callback_error"
         return RedirectResponse(url=frontend_url)
 
+@api_router.post("/social/facebook/publish")
+async def publish_facebook_post(
+    post_id: str,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Publier un post sur Facebook automatiquement"""
+    try:
+        dbm = get_database()
+        
+        # 1. Récupérer le post à publier
+        post = dbm.db.generated_posts.find_one({"post_id": post_id, "user_id": user_id})
+        if not post:
+            raise HTTPException(status_code=404, detail="Post non trouvé")
+        
+        # 2. Récupérer la connexion Facebook de l'utilisateur
+        facebook_connection = dbm.db.social_connections.find_one({
+            "user_id": user_id,
+            "platform": "facebook",
+            "is_active": True
+        })
+        
+        if not facebook_connection:
+            raise HTTPException(status_code=400, detail="Aucune connexion Facebook active")
+        
+        access_token = facebook_connection.get("access_token")
+        page_name = facebook_connection.get("page_name", "Page Facebook")
+        
+        # 3. Publier sur Facebook via Graph API
+        import aiohttp
+        
+        # Préparer le contenu du post
+        message = f"{post.get('text', '')}\n\n{' '.join(post.get('hashtags', []))}"
+        
+        # URL de publication Facebook (pages)
+        facebook_url = f"https://graph.facebook.com/v20.0/me/feed"
+        
+        post_data = {
+            "message": message,
+            "access_token": access_token
+        }
+        
+        # Ajouter l'image si disponible
+        if post.get("visual_url"):
+            post_data["link"] = post.get("visual_url")
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.post(facebook_url, data=post_data) as response:
+                if response.status == 200:
+                    facebook_response = await response.json()
+                    facebook_post_id = facebook_response.get("id")
+                    
+                    # 4. Mettre à jour le post avec les informations de publication
+                    dbm.db.generated_posts.update_one(
+                        {"post_id": post_id, "user_id": user_id},
+                        {
+                            "$set": {
+                                "published": True,
+                                "published_at": datetime.now(timezone.utc),
+                                "facebook_post_id": facebook_post_id,
+                                "publication_platform": "facebook"
+                            }
+                        }
+                    )
+                    
+                    print(f"✅ Post {post_id} publié sur Facebook: {facebook_post_id}")
+                    
+                    return {
+                        "message": f"Post publié avec succès sur {page_name}",
+                        "facebook_post_id": facebook_post_id,
+                        "published_at": datetime.now(timezone.utc).isoformat()
+                    }
+                else:
+                    error_text = await response.text()
+                    print(f"❌ Erreur publication Facebook: {response.status} - {error_text}")
+                    raise HTTPException(status_code=400, detail=f"Erreur Facebook: {error_text}")
+    
+    except Exception as e:
+        print(f"❌ Error publishing Facebook post: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur publication: {str(e)}")
+
 @api_router.post("/social/instagram/connect")
 async def connect_instagram_account(
     request: InstagramAuthRequest,

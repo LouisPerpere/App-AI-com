@@ -44,6 +44,100 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Website analysis auto-refresh functionality
+async def monthly_rotation_check():
+    """Check if it's time for monthly rotation and perform it"""
+    try:
+        now = datetime.utcnow()
+        
+        # Check if it's the 1st of the month at 1 AM (or later in the same hour)
+        if now.day == 1 and now.hour == 1:
+            logger.info("🔄 Monthly rotation time detected! Performing monthly updates...")
+            
+            # Update website analyses that need monthly refresh  
+            await check_and_update_website_analyses()
+            
+            # Trigger monthly rotation for all active users
+            await trigger_monthly_rotation_for_users()
+            
+            logger.info("✅ Monthly rotation completed successfully")
+        
+    except Exception as e:
+        logger.error(f"❌ Error during monthly rotation: {e}")
+
+async def trigger_monthly_rotation_for_users():
+    """Trigger monthly rotation logic for all users (update month organization)"""
+    try:
+        logger.info("🔄 Triggering monthly rotation for all users...")
+        
+        # Get all unique user IDs from various collections
+        users_collection = db.users
+        all_users = await users_collection.find({}, {"user_id": 1}).to_list(length=None)
+        
+        logger.info(f"📊 Found {len(all_users)} users for monthly rotation")
+        
+        for user in all_users:
+            user_id = user.get("user_id")
+            if user_id:
+                await update_user_monthly_organization(user_id)
+        
+        logger.info("✅ Monthly rotation completed for all users")
+        
+    except Exception as e:
+        logger.error(f"❌ Error in monthly rotation for users: {e}")
+
+async def update_user_monthly_organization(user_id: str):
+    """Update monthly organization for a specific user"""
+    try:
+        logger.info(f"🔄 Updating monthly organization for user {user_id}")
+        
+        current_date = datetime.utcnow()
+        current_month = current_date.month
+        current_year = current_date.year
+        
+        # Update media attribution - move unattributed media to previous month
+        previous_month = current_month - 1 if current_month > 1 else 12
+        previous_year = current_year if current_month > 1 else current_year - 1
+        
+        # French month mapping for attribution
+        french_months = {
+            1: "janvier", 2: "février", 3: "mars", 4: "avril", 5: "mai", 6: "juin",
+            7: "juillet", 8: "août", 9: "septembre", 10: "octobre", 11: "novembre", 12: "décembre"
+        }
+        
+        previous_month_name = f"{french_months[previous_month]}_{previous_year}"
+        
+        # Update media that doesn't have attribution to previous month
+        media_update_result = await db.media.update_many(
+            {
+                "owner_id": user_id,
+                "attributed_month": {"$exists": False},
+                "created_at": {"$lt": current_date.replace(day=1)}  # Created before this month
+            },
+            {
+                "$set": {"attributed_month": previous_month_name}
+            }
+        )
+        
+        # Update notes monthly organization
+        notes_update_result = await db.content_notes.update_many(
+            {
+                "owner_id": user_id,
+                "note_month": {"$exists": False},
+                "created_at": {"$lt": current_date.replace(day=1)}
+            },
+            {
+                "$set": {
+                    "note_month": previous_month,
+                    "note_year": previous_year
+                }
+            }
+        )
+        
+        logger.info(f"✅ Updated {media_update_result.modified_count} media items and {notes_update_result.modified_count} notes for user {user_id}")
+        
+    except Exception as e:
+        logger.error(f"❌ Error updating monthly organization for user {user_id}: {e}")
+
 async def check_and_update_website_analyses():
     """Check for website analyses that need monthly refresh and update them"""
     try:

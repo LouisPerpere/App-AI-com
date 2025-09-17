@@ -1729,13 +1729,16 @@ function MainApp() {
       setActiveStep('dashboard');
       
       // Load business profile, notes, content, posts and social connections
-      loadBusinessProfile();
-      loadNotes();
-      loadPendingContent();
-      loadGeneratedPosts();
-      loadPixabayCategories();
-      loadConnectedAccounts(); // Charger les connexions sociales
-      loadWebsiteAnalysis(); // ✅ AJOUT CRITIQUE: Charger l'analyse de site web dès la connexion
+      // Use setTimeout to ensure user state is updated before calling these functions
+      setTimeout(() => {
+        loadBusinessProfile();
+        loadNotes();
+        loadPendingContent();
+        loadGeneratedPosts();
+        loadPixabayCategories();
+        loadConnectedAccounts();
+        loadWebsiteAnalysis(); // ✅ CRITIQUE: Charger l'analyse après mise à jour du state user
+      }, 100);
       
     } catch (error) {
       console.error('Auth check failed:', error);

@@ -3624,38 +3624,6 @@ function MainApp() {
       setIsConnectingAccount(false);
     }
   };
-    setIsConnectingAccount(true);
-    setSocialConnectionStatus('Initialisation de la connexion Instagram...');
-    
-    try {
-      const token = localStorage.getItem('access_token');
-      
-      // Étape 1: Obtenir l'URL d'autorisation Instagram
-      const response = await axios.get(`${API}/social/instagram/auth-url`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      if (response.data?.auth_url) {
-        setSocialConnectionStatus('Redirection vers Instagram...');
-        
-        // Stocker l'état pour vérification CSRF
-        localStorage.setItem('instagram_auth_state', response.data.state);
-        
-        // Rediriger vers Instagram OAuth
-        window.location.href = response.data.auth_url;
-        
-      } else {
-        throw new Error('URL d\'autorisation non reçue');
-      }
-      
-    } catch (error) {
-      console.error('Error connecting Instagram:', error);
-      const errorMessage = error.response?.data?.detail || error.message || 'Erreur de connexion Instagram';
-      toast.error(`Erreur: ${errorMessage}`);
-      setIsConnectingAccount(false);
-      setSocialConnectionStatus('');
-    }
-  };
 
   const disconnectAccount = async (platform) => {
     const token = localStorage.getItem('access_token');

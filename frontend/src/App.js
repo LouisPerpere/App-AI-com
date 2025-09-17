@@ -1330,6 +1330,11 @@ function MainApp() {
         }
       }));
       
+      // Recharger les connexions depuis la base de données
+      setTimeout(() => {
+        loadConnectedAccounts();
+      }, 1000);
+      
       // Nettoyer l'URL
       window.history.replaceState(null, null, window.location.pathname);
     }

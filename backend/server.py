@@ -1899,30 +1899,22 @@ async def get_facebook_auth_url(user_id: str = Depends(get_current_user_id_robus
 
 @api_router.get("/social/instagram/auth-url")
 async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robust)):
-    """Générer l'URL d'autorisation Instagram OAuth via Facebook Login for Business"""
+    """Générer l'URL d'autorisation Instagram OAuth avec configuration spécifique"""
     try:
         facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
         if not facebook_app_id:
             raise HTTPException(status_code=500, detail="FACEBOOK_APP_ID non configuré")
         
-        # URL de redirection après autorisation Instagram - basée sur l'environnement
         redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://claire-marcus.com/api/social/instagram/callback')
-        
-        # DEBUG: Log the redirect URI being used
-        print(f"🔍 DEBUG: INSTAGRAM_REDIRECT_URI from env: {os.environ.get('INSTAGRAM_REDIRECT_URI')}")
-        print(f"🔍 DEBUG: redirect_uri variable: {redirect_uri}")
-        print(f"🔍 DEBUG: All env vars with 'INSTAGRAM': {[(k,v) for k,v in os.environ.items() if 'INSTAGRAM' in k]}")
-        print(f"🔍 DEBUG: All env vars with 'insta-automate': {[(k,v) for k,v in os.environ.items() if 'insta-automate' in v]}")
         
         # Générer un état sécurisé pour CSRF protection
         import secrets
         state = secrets.token_urlsafe(32)
         
-        # ✅ SCOPES DE BASE Facebook Login for Business
-        # Permissions de base qui fonctionnent pour pages Facebook + Instagram
-        scopes = "pages_show_list,pages_read_engagement,pages_manage_posts"
+        # Scopes Instagram spécifiques
+        scopes = "pages_show_list,pages_read_engagement,pages_manage_posts,instagram_basic,instagram_content_publish"
         
-        # Construire l'URL d'autorisation Facebook Login for Business
+        # Construire l'URL d'autorisation Instagram avec config_id
         from urllib.parse import urlencode
         
         params = {
@@ -1930,28 +1922,19 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
             "redirect_uri": redirect_uri,
             "scope": scopes,
             "response_type": "code",
-            "state": state
+            "state": state,
+            "config_id": "786070880800578"  # ID configuration Instagram spécifique
         }
         
-        # Ajouter config_id pour Instagram spécifique (temporaire hardcodé)
-        instagram_config_id = "786070880800578"  # ID de configuration Instagram fourni
-        params["config_id"] = instagram_config_id
-        print(f"🎯 Using Instagram config_id: {instagram_config_id}")
-        
-        # ✅ CORRECTION: Utiliser Facebook OAuth endpoint (pas Instagram direct)
         auth_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(params)}"
-        
-        print(f"🔗 Generated Facebook Login for Business URL: {auth_url}")
-        print(f"🔑 Using scopes: {scopes}")
-        print(f"📍 Redirect URI: {redirect_uri}")
         
         return {
             "auth_url": auth_url,
             "state": state,
             "redirect_uri": redirect_uri,
             "scopes": scopes.split(","),
-            "api_version": "Facebook Login for Business v20.0",
-            "note": "Using Facebook OAuth to access Instagram Business account"
+            "api_version": "Facebook Login for Business v20.0 avec Instagram config",
+            "note": "Instagram OAuth avec configuration spécifique ID 786070880800578"
         }
         
     except Exception as e:

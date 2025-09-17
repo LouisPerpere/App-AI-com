@@ -441,6 +441,7 @@ backend:
 test_plan:
   current_focus:
     - "Instagram Integration - Page Liée ClaireEtMarcus Testing - COMPLETED"
+    - "Website Analysis Auto-Loading Upon Login - COMPLETED"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

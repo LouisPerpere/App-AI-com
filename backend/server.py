@@ -1986,7 +1986,7 @@ async def test_instagram_callback():
         "status": "success",
         "message": "Callback endpoint accessible",
         "timestamp": datetime.now().isoformat(),
-        "url": "https://authflow-10.preview.emergentagent.com/api/social/instagram/callback"
+        "url": "https://claire-marcus.com/api/social/instagram/callback"
     }
 
 @api_router.get("/social/instagram/callback")

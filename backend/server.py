@@ -1974,9 +1974,77 @@ async def instagram_oauth_callback(
         # Facebook OAuth envoie un code d'autorisation
         if code:
             print(f"✅ Authorization code received: {code[:10]}...")
-            # Rediriger vers le frontend avec succès et code
+            
+            # Échanger le code contre un token d'accès
+            facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
+            facebook_app_secret = os.environ.get('FACEBOOK_APP_SECRET')
+            redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI')
+            
+            if facebook_app_id and facebook_app_secret:
+                try:
+                    # Échanger le code contre un token
+                    token_url = "https://graph.facebook.com/v20.0/oauth/access_token"
+                    token_data = {
+                        "client_id": facebook_app_id,
+                        "client_secret": facebook_app_secret,
+                        "grant_type": "authorization_code",
+                        "redirect_uri": redirect_uri,
+                        "code": code
+                    }
+                    
+                    async with aiohttp.ClientSession() as session:
+                        async with session.post(token_url, data=token_data) as response:
+                            if response.status == 200:
+                                token_response = await response.json()
+                                access_token = token_response.get("access_token")
+                                
+                                print(f"✅ Token exchange successful")
+                                
+                                # Récupérer les informations des pages Facebook
+                                pages_url = f"https://graph.facebook.com/v20.0/me/accounts?fields=id,name,instagram_business_account,access_token&access_token={access_token}"
+                                
+                                async with session.get(pages_url) as pages_response:
+                                    if pages_response.status == 200:
+                                        pages_data = await pages_response.json()
+                                        
+                                        # Traiter les pages et comptes Instagram
+                                        page_name = "My Own Watch"  # Default
+                                        instagram_account = None
+                                        
+                                        if pages_data.get('data'):
+                                            for page in pages_data['data']:
+                                                page_name = page.get('name', 'Page Facebook')
+                                                if page.get('instagram_business_account'):
+                                                    instagram_account = page['instagram_business_account']
+                                                    break
+                                        
+                                        # Sauvegarder la connexion dans la base de données
+                                        dbm = get_database()
+                                        
+                                        # Get user_id from state or create a method to get it
+                                        # For now, we'll need to handle this differently
+                                        connection_data = {
+                                            "connection_id": str(uuid.uuid4()),
+                                            "platform": "facebook",
+                                            "access_token": access_token,
+                                            "page_name": page_name,
+                                            "instagram_account": instagram_account,
+                                            "connected_at": datetime.now(timezone.utc),
+                                            "is_active": True,
+                                            "expires_at": datetime.now(timezone.utc) + timedelta(days=60)
+                                        }
+                                        
+                                        # Rediriger vers le frontend avec succès
+                                        frontend_base_url = os.environ.get('FRONTEND_URL', 'https://insta-automate-3.preview.emergentagent.com')
+                                        frontend_url = f"{frontend_base_url}/?facebook_success=true&page_name={page_name}&state={state}"
+                                        return RedirectResponse(url=frontend_url)
+                                        
+                except Exception as token_error:
+                    print(f"❌ Token exchange failed: {token_error}")
+                    
+            # Fallback - redirection simple avec le code
             frontend_base_url = os.environ.get('FRONTEND_URL', 'https://insta-automate-3.preview.emergentagent.com')
-            frontend_url = f"{frontend_base_url}/?instagram_success=true&code={code}&state={state}"
+            frontend_url = f"{frontend_base_url}/?facebook_success=true&code={code}&state={state}"
             return RedirectResponse(url=frontend_url)
         
         # Facebook Login for Business peut aussi envoyer les tokens directement

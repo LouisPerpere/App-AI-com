@@ -3365,6 +3365,7 @@ function MainApp() {
                             onClick={() => setSelectedPost(post)}
                             onAddImage={(post) => handleAddImageToPost(post, 'add')}
                             onModifyImage={(post) => handleAddImageToPost(post, 'modify')}
+                            onValidatePost={handleValidatePost}
                           />
                         </div>
                       ))}
@@ -3450,6 +3451,7 @@ function MainApp() {
                             onClick={() => setSelectedPost(post)}
                             onAddImage={(post) => handleAddImageToPost(post, 'add')}
                             onModifyImage={(post) => handleAddImageToPost(post, 'modify')}
+                            onValidatePost={handleValidatePost}
                           />
                         </div>
                       ))}

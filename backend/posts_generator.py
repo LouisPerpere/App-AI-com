@@ -210,13 +210,14 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         return source_data
     
     def _collect_available_content(self, user_id: str, target_month: str) -> Dict[str, List[ContentSource]]:
-        """Collect all available visual content in priority order"""
+        """Collect all available visual content in priority order, grouping carousels"""
         logger.info("🖼️ Step 2/6: Collecting available content...")
         
         content = {
             "month_content": [],
             "older_content": [],
-            "pixabay_candidates": []
+            "pixabay_candidates": [],
+            "carousels": []  # Add carousel content
         }
         
         # CRITICAL FIX: Get ALL available media, not just month-specific
@@ -241,8 +242,51 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             
             logger.info(f"   📂 Total media found: {len(all_media)}")
             
-            # Treat all media as "month content" for the calendar
+            # Group media by carousel_id
+            carousel_groups = {}
+            standalone_media = []
+            
             for item in all_media:
+                carousel_id = item.get("carousel_id")
+                if carousel_id:
+                    if carousel_id not in carousel_groups:
+                        carousel_groups[carousel_id] = []
+                    carousel_groups[carousel_id].append(item)
+                else:
+                    standalone_media.append(item)
+            
+            logger.info(f"   🎠 Found {len(carousel_groups)} carousels and {len(standalone_media)} standalone images")
+            
+            # Process carousels first (create one ContentSource per carousel)
+            for carousel_id, carousel_items in carousel_groups.items():
+                if len(carousel_items) > 1:  # Only treat as carousel if multiple images
+                    # Use the first image as primary for the carousel
+                    primary_item = carousel_items[0]
+                    common_title = primary_item.get("common_title", "")
+                    
+                    # Create ContentSource for the entire carousel
+                    title = common_title or primary_item.get("title") or f"Carrousel {carousel_id[:8]}"
+                    context = primary_item.get("context") or primary_item.get("description", "")
+                    
+                    carousel_source = ContentSource(
+                        id=carousel_id,
+                        title=title,
+                        context=f"Carrousel de {len(carousel_items)} images: {context}",
+                        visual_url=primary_item.get("s3_url", ""),
+                        file_type="carousel",
+                        attributed_month=primary_item.get("attributed_month", target_month),
+                        source="carousel",
+                        used=False
+                    )
+                    
+                    content["carousels"].append(carousel_source)
+                    logger.info(f"   🎠 Added carousel '{title}' with {len(carousel_items)} images")
+                else:
+                    # Single image "carousel" - treat as standalone
+                    standalone_media.extend(carousel_items)
+            
+            # Process standalone media
+            for item in standalone_media:
                 # Use filename as title if no title, description as context if available
                 original_filename = item.get("original_filename", "")
                 # Clean filename for title (remove pixabay prefix and extensions)

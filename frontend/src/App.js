@@ -3107,12 +3107,6 @@ function MainApp() {
   };
 
   // Fonctions de gestion des posts
-  const handleValidatePost = (post) => {
-    // Pour l'instant, ferme juste l'aperçu
-    setSelectedPost(null);
-    toast.success('Post validé ! 👍');
-  };
-
   const handleModifyPost = async (post, modificationRequestValue) => {
     if (!modificationRequestValue?.trim()) {
       toast.error('Veuillez saisir une demande de modification');

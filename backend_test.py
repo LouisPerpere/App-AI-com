@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-Test complet des corrections apportées à l'intégration Facebook/Instagram
-Comprehensive testing of Facebook/Instagram integration corrections
+Backend Test Suite for Facebook Connection State Management
+Testing the complete Facebook connection flow after callback
 
-Test credentials: lperpere@yahoo.fr / L@Reunion974!
-Backend URL: https://insta-automate-3.preview.emergentagent.com/api
+Test Requirements from French Review Request:
+1. Test GET /api/social/connections endpoint - should return existing connections for user
+2. Test Facebook callback simulation - verify connection is saved
+3. Test state format with user_id - verify user_id extraction from "state|user_id"
+4. Test database - verify connections are stored in social_connections
+5. Validate data structure - connection_id, user_id, platform, access_token, page_name, timestamps
 
-Tests requis pour validation:
-1. Test endpoint auth-url: Vérifier que l'URL d'autorisation est générée correctement sans config_id
-2. Test endpoint callback: Vérifier que le callback accepte les paramètres GET avec code d'autorisation
-3. Validation URL générée: Vérifier que l'URL contient les bons scopes et paramètres
-4. Test configuration Facebook: Vérifier que les variables d'environnement sont correctes
-5. Test endpoint test simple: /api/social/instagram/test-auth pour diagnostic
+Expected credentials: lperpere@yahoo.fr / L@Reunion974!
+Expected User ID: bdf87a74-e3f3-44f3-bac2-649cde3ef93e
 """
 
 import requests

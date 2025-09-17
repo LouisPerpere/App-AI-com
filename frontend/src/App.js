@@ -1184,6 +1184,59 @@ function MainApp() {
   const [generatingMonths, setGeneratingMonths] = useState(new Set()); // Track which months are generating
   const [selectedMonthForGeneration, setSelectedMonthForGeneration] = useState(null); // Store selected month for modal
   
+  // Function to get notes specific to a month or always valid
+  const getNotesForMonth = (monthKey) => {
+    if (!notes || !monthKey) return [];
+    
+    // Parse month key (e.g., "2025-10" -> month: 10, year: 2025)
+    const [year, month] = monthKey.split('-').map(Number);
+    
+    return notes.filter(note => {
+      // Always valid notes (monthly notes or high priority general notes)
+      if (note.is_monthly_note || (note.priority === 'high' && !note.note_month && !note.note_year)) {
+        return true;
+      }
+      
+      // Month-specific notes
+      if (note.note_month && note.note_year) {
+        return note.note_month === month && note.note_year === year;
+      }
+      
+      return false;
+    });
+  };
+
+  // Function to get media specific to a month
+  const getMediaForMonth = (monthKey) => {
+    if (!pendingContent || !monthKey) return [];
+    
+    // Parse month key to create target_month format (e.g., "2025-10" -> "octobre_2025")
+    const [year, month] = monthKey.split('-').map(Number);
+    const frenchMonths = [
+      'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+      'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+    ];
+    const targetMonth = `${frenchMonths[month - 1]}_${year}`;
+    
+    return pendingContent.filter(media => {
+      // Media explicitly attributed to this month
+      if (media.attributed_month === targetMonth) {
+        return true;
+      }
+      
+      // For current month, include unattributed recent media
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+      
+      if (month === currentMonth && year === currentYear && !media.attributed_month) {
+        return true;
+      }
+      
+      return false;
+    });
+  };
+
   // Initialize collapsed post months - current and next month open, others closed
   const getInitialCollapsedPostMonths = () => {
     const collapsed = {};

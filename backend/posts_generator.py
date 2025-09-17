@@ -1306,3 +1306,17 @@ CTA: "Apprenez plus", "Essayez", "Suivez le guide"
     def _parse_year(self, target_month: str) -> int:
         """Parse year from target_month string"""
         return int(target_month.split('_')[1])
+    
+    def _parse_target_month(self, target_month: str) -> tuple:
+        """Parse target month string into month number and year"""
+        month_name, year_str = target_month.split('_')
+        year = int(year_str)
+        
+        month_map = {
+            'janvier': 1, 'février': 2, 'mars': 3, 'avril': 4,
+            'mai': 5, 'juin': 6, 'juillet': 7, 'août': 8,
+            'septembre': 9, 'octobre': 10, 'novembre': 11, 'décembre': 12
+        }
+        
+        month_num = month_map.get(month_name, 10)
+        return month_num, year

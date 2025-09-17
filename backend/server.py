@@ -1307,10 +1307,29 @@ async def generate_posts_manual(
         if request.month_key:
             # New month_key format: "2025-01" 
             from datetime import datetime
+            import locale
+            
+            try:
+                # Try to set French locale for month names
+                locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
+            except:
+                # Fallback to manual French month mapping
+                pass
+            
             year, month = request.month_key.split('-')
             date_obj = datetime(int(year), int(month), 1)
-            target_month = date_obj.strftime("%B_%Y").lower()  # "janvier_2025"
-            target_month_fr = date_obj.strftime("%B %Y")  # "janvier 2025" pour affichage
+            
+            # Manual French month mapping to ensure consistency
+            french_months = {
+                1: "janvier", 2: "février", 3: "mars", 4: "avril", 5: "mai", 6: "juin",
+                7: "juillet", 8: "août", 9: "septembre", 10: "octobre", 11: "novembre", 12: "décembre"
+            }
+            
+            month_name = french_months.get(int(month), "janvier")
+            target_month = f"{month_name}_{year}"  # "septembre_2025"
+            target_month_fr = f"{month_name} {year}"  # "septembre 2025" pour affichage
+            
+            print(f"🗓️ Month key '{request.month_key}' converted to target_month: '{target_month}'")
         else:
             # Legacy support
             target_month = request.target_month or "septembre_2025"

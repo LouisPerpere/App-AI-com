@@ -3829,7 +3829,7 @@ function MainApp() {
     try {
       // Ajouter un état de chargement pour ce post spécifique
       const response = await axios.post(
-        `${API}/social/facebook/publish`,
+        `${API}/social/facebook/publish-simple`,
         { post_id: post.id },
         {
           headers: { Authorization: `Bearer ${token}` }

@@ -1866,9 +1866,9 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         import secrets
         state = secrets.token_urlsafe(32)
         
-        # ✅ CORRECTION CRITIQUE: Scopes Facebook Login for Business 2025
-        # Pour gérer les pages Instagram Business via Facebook
-        scopes = "pages_show_list,pages_read_engagement,pages_manage_posts,instagram_basic,pages_manage_metadata"
+        # ✅ SCOPES DE BASE Facebook Login for Business
+        # Permissions de base qui fonctionnent pour pages Facebook + Instagram
+        scopes = "pages_show_list,pages_read_engagement,pages_manage_posts"
         
         # Construire l'URL d'autorisation Facebook Login for Business
         from urllib.parse import urlencode

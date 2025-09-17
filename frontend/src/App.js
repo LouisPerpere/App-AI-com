@@ -3562,11 +3562,18 @@ function MainApp() {
       if (response.data?.auth_url) {
         setSocialConnectionStatus('Redirection vers Facebook...');
         
-        // Stocker l'état pour vérification CSRF
-        localStorage.setItem('facebook_auth_state', response.data.state);
+        // Stocker l'état avec user_id pour vérification CSRF et identification utilisateur
+        const stateWithUserId = `${response.data.state}|${user.user_id}`;
+        localStorage.setItem('facebook_auth_state', stateWithUserId);
+        
+        // Modifier l'URL pour inclure le user_id dans le state
+        const urlWithUserId = response.data.auth_url.replace(
+          `state=${response.data.state}`,
+          `state=${encodeURIComponent(stateWithUserId)}`
+        );
         
         // Rediriger vers Facebook OAuth
-        window.location.href = response.data.auth_url;
+        window.location.href = urlWithUserId;
       } else {
         throw new Error('URL d\'autorisation non disponible');
       }
@@ -3580,6 +3587,43 @@ function MainApp() {
   };
 
   const connectInstagram = async () => {
+    setIsConnectingAccount(true);
+    setSocialConnectionStatus('Initialisation de la connexion Instagram...');
+    
+    try {
+      const token = localStorage.getItem('access_token');
+      
+      // Étape 1: Obtenir l'URL d'autorisation Instagram
+      const response = await axios.get(`${API}/social/instagram/auth-url`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data?.auth_url) {
+        setSocialConnectionStatus('Redirection vers Instagram...');
+        
+        // Stocker l'état avec user_id pour vérification CSRF et identification utilisateur
+        const stateWithUserId = `${response.data.state}|${user.user_id}`;
+        localStorage.setItem('instagram_auth_state', stateWithUserId);
+        
+        // Modifier l'URL pour inclure le user_id dans le state
+        const urlWithUserId = response.data.auth_url.replace(
+          `state=${response.data.state}`,
+          `state=${encodeURIComponent(stateWithUserId)}`
+        );
+        
+        // Rediriger vers Instagram OAuth
+        window.location.href = urlWithUserId;
+      } else {
+        throw new Error('URL d\'autorisation non disponible');
+      }
+      
+    } catch (error) {
+      console.error('❌ Error connecting Instagram:', error);
+      toast.error('Erreur lors de la connexion Instagram');
+      setSocialConnectionStatus('');
+      setIsConnectingAccount(false);
+    }
+  };
     setIsConnectingAccount(true);
     setSocialConnectionStatus('Initialisation de la connexion Instagram...');
     

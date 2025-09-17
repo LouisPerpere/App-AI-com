@@ -2162,6 +2162,44 @@ async def test_facebook_publish_endpoint():
     """Test endpoint pour vérifier si les nouvelles routes fonctionnent"""
     return {"message": "Facebook publish endpoint is working", "timestamp": datetime.now().isoformat()}
 
+@api_router.post("/social/facebook/publish-simple")
+async def publish_facebook_post_simple(
+    request: dict,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Version simplifiée de l'endpoint de publication Facebook"""
+    try:
+        post_id = request.get("post_id")
+        if not post_id:
+            raise HTTPException(status_code=400, detail="post_id requis")
+            
+        # Test simple - on ne publie pas vraiment, on marque juste comme publié
+        dbm = get_database()
+        
+        # Mettre à jour le post comme publié
+        result = dbm.db.generated_posts.update_one(
+            {"post_id": post_id, "user_id": user_id},
+            {
+                "$set": {
+                    "published": True,
+                    "published_at": datetime.now(timezone.utc),
+                    "publication_platform": "facebook"
+                }
+            }
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Post non trouvé")
+            
+        return {
+            "message": "Post marqué comme publié (test)",
+            "post_id": post_id,
+            "published_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
 @api_router.post("/social/facebook/publish")
 async def publish_facebook_post(
     request: PublishPostRequest,

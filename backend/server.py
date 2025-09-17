@@ -2154,9 +2154,12 @@ async def instagram_oauth_callback(
         frontend_url = f"{frontend_base_url}/?instagram_error=callback_error"
         return RedirectResponse(url=frontend_url)
 
+class PublishPostRequest(BaseModel):
+    post_id: str
+
 @api_router.post("/social/facebook/publish")
 async def publish_facebook_post(
-    post_id: str,
+    request: PublishPostRequest,
     user_id: str = Depends(get_current_user_id_robust)
 ):
     """Publier un post sur Facebook automatiquement"""

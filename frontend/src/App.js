@@ -3805,7 +3805,7 @@ function MainApp() {
     }
 
     const confirmed = window.confirm(
-      `Êtes-vous sûr de vouloir publier ce post sur Facebook ?\n\n"${post.title}"\n\nCette action est irréversible.`
+      `Êtes-vous sûr de vouloir publier ce post sur Facebook ?\n\n"${post.title || post.text || 'Post généré'}"\n\nCette action est irréversible.`
     );
 
     if (!confirmed) return;

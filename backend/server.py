@@ -1835,23 +1835,31 @@ async def get_social_connections(user_id: str = Depends(get_current_user_id_robu
             "is_active": True
         }))
         
+        print(f"🔍 Found {len(social_connections)} connections for user {user_id}")
+        
         for conn in social_connections:
-            print(f"🔍 Processing connection: {conn}")
-            display_name = conn.get("username") or conn.get("page_name", "Unknown")
-            print(f"🔍 Display name resolved to: {display_name}")
-            connections[conn["platform"]] = {
-                "username": display_name,
-                "connected_at": conn["connected_at"].isoformat() if isinstance(conn["connected_at"], datetime) else conn["connected_at"],
-                "is_active": conn["is_active"]
-            }
+            try:
+                platform = conn.get("platform", "unknown")
+                display_name = conn.get("page_name") or conn.get("username", "Unknown")
+                
+                connections[platform] = {
+                    "username": display_name,
+                    "connected_at": conn.get("connected_at", "Unknown"),
+                    "is_active": conn.get("is_active", True)
+                }
+                print(f"✅ Added {platform} connection: {display_name}")
+                
+            except Exception as inner_e:
+                print(f"❌ Error processing individual connection: {str(inner_e)}")
+                continue
         
-        print(f"🔍 Retrieved {len(social_connections)} social connections for user {user_id}")
-        print(f"   Formatted result: {connections}")
-        
+        print(f"✅ Returning {len(connections)} formatted connections")
         return {"connections": connections}
         
     except Exception as e:
         print(f"❌ Error retrieving social connections: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Failed to retrieve connections: {str(e)}")
 
 @api_router.get("/social/instagram/auth-url")

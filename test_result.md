@@ -2536,6 +2536,7 @@ metadata:
 test_plan:
   current_focus:
     - "Social Connections Facebook Integration - CRITICAL URL MISMATCH IDENTIFIED"
+    - "Facebook Post Publication System"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

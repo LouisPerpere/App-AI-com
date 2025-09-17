@@ -2344,34 +2344,41 @@ async def connect_instagram_account(
         raise HTTPException(status_code=500, detail="Failed to connect Instagram account")
 
 @api_router.delete("/social/connections/{platform}")
-async def disconnect_social_account(
+async def disconnect_social_platform(
     platform: str,
     user_id: str = Depends(get_current_user_id_robust)
 ):
-    """Disconnect a social media account"""
+    """Disconnect a specific social media platform (enforces one account per platform)"""
     try:
-        if platform not in ["instagram", "facebook", "linkedin"]:
-            raise HTTPException(status_code=400, detail="Invalid platform")
+        if platform not in ["facebook", "instagram"]:
+            raise HTTPException(status_code=400, detail="Platform must be 'facebook' or 'instagram'")
         
         dbm = get_database()
         
-        result = dbm.db.social_connections.delete_many({
-            "user_id": user_id,
-            "platform": platform
-        })
+        # Set all connections for this platform as inactive (soft delete)
+        result = dbm.db.social_connections.update_many(
+            {
+                "user_id": user_id,
+                "platform": platform
+            },
+            {
+                "$set": {
+                    "is_active": False,
+                    "disconnected_at": datetime.now(timezone.utc)
+                }
+            }
+        )
         
-        if result.deleted_count == 0:
-            raise HTTPException(status_code=404, detail=f"{platform} account not found")
+        print(f"🔌 Disconnected {result.modified_count} {platform} connection(s) for user {user_id}")
         
-        print(f"✅ {platform} account disconnected for user {user_id}")
+        return {
+            "message": f"Successfully disconnected {platform}",
+            "disconnected_connections": result.modified_count
+        }
         
-        return {"message": f"{platform} account disconnected successfully"}
-        
-    except HTTPException:
-        raise
     except Exception as e:
-        print(f"❌ Error disconnecting {platform}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to disconnect {platform} account")
+        print(f"❌ Error disconnecting {platform}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to disconnect {platform}: {str(e)}")
 
 # Include the API router (auth endpoints need to stay without prefix)
 app.include_router(api_router)

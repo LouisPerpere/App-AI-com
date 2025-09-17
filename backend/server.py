@@ -2009,6 +2009,17 @@ async def instagram_oauth_callback(
         print(f"   State: {state}")
         print(f"   Error: {error}")
         
+        # CRITIQUE: Log détaillé pour diagnostic
+        if state:
+            print(f"🔍 STATE RECEIVED: '{state}' (length: {len(state)})")
+            if '|' in state:
+                parts = state.split('|', 1)
+                print(f"🔍 STATE PARTS: random='{parts[0]}', user_id='{parts[1] if len(parts) > 1 else 'MISSING'}'")
+            else:
+                print(f"❌ STATE FORMAT ERROR: No '|' separator found in state")
+        else:
+            print(f"❌ STATE MISSING COMPLETELY")
+        
         # Vérifier les erreurs OAuth
         if error:
             error_msg = f"Instagram OAuth error: {error}"

@@ -1182,6 +1182,7 @@ function MainApp() {
   const [isGeneratingPosts, setIsGeneratingPosts] = useState(false);
   const [generatedPosts, setGeneratedPosts] = useState([]);
   const [generatingMonths, setGeneratingMonths] = useState(new Set()); // Track which months are generating
+  const [selectedMonthForGeneration, setSelectedMonthForGeneration] = useState(null); // Store selected month for modal
   
   // Initialize collapsed post months - current and next month open, others closed
   const getInitialCollapsedPostMonths = () => {

@@ -2028,7 +2028,7 @@ async def instagram_oauth_callback(
             print(f"❌ {error_msg}")
             
             # Rediriger vers le frontend avec erreur
-            frontend_base_url = os.environ.get('FRONTEND_URL', 'https://insta-automate-3.preview.emergentagent.com')
+            frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
             frontend_url = f"{frontend_base_url}/?instagram_error=" + error
             return RedirectResponse(url=frontend_url)
         

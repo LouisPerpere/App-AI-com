@@ -1668,6 +1668,14 @@ function MainApp() {
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
+  // ✅ SOLUTION DE SECOURS: Charger l'analyse quand user devient disponible
+  useEffect(() => {
+    if (user && isAuthenticated && !websiteAnalysis) {
+      console.log('🔄 User state available, loading website analysis as fallback...');
+      loadWebsiteAnalysis();
+    }
+  }, [user, isAuthenticated, websiteAnalysis]);
+
   // DEBUG: Surveiller les changements de websiteAnalysis pour identifier les problèmes d'affichage
   useEffect(() => {
     console.log('🔍 websiteAnalysis changed:', websiteAnalysis ? 'RÉSULTAT PRÉSENT' : 'AUCUN RÉSULTAT');

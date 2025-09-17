@@ -212,167 +212,152 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
     def _collect_available_content(self, user_id: str, target_month: str) -> Dict[str, List[ContentSource]]:
         """Collect all available visual content in priority order, grouping carousels"""
         logger.info("🖼️ Step 2/6: Collecting available content...")
+        logger.info(f"   🎯 Target month: {target_month}")
         
         content = {
             "month_content": [],
             "older_content": [],
             "pixabay_candidates": [],
-            "carousels": []  # Add carousel content
+            "carousels": []
         }
         
-        # CRITICAL FIX: Get ALL available media, not just month-specific
-        logger.info(f"   🔍 Searching for media with owner_id: {user_id}")
+        # Get ALL media for this user, sorted by priority
+        logger.info(f"   🔍 Searching for all media with owner_id: {user_id}")
         
-        # First try month-specific content (if attributed_month exists)
-        month_content = list(self.db.media.find({
+        all_media = list(self.db.media.find({
             "owner_id": user_id,
-            "attributed_month": target_month,
             "deleted": {"$ne": True}
-        }).limit(50))
+        }).sort([("created_at", -1)]).limit(100))
         
-        logger.info(f"   📅 Month-specific content found: {len(month_content)}")
+        logger.info(f"   📂 Total media found: {len(all_media)}")
         
-        # If no month-specific content, get ALL available media for this user
-        if len(month_content) == 0:
-            logger.info("   📂 No month-specific content, getting all available media...")
-            all_media = list(self.db.media.find({
-                "owner_id": user_id,
-                "deleted": {"$ne": True}
-            }).sort([("created_at", -1)]).limit(50))  # Newest first
+        # PRIORITY SORTING: Group by month relevance
+        month_specific_media = []  # Media attributed to target_month
+        current_month_media = []   # Media from current month (if different from target)
+        other_media = []          # All other media
+        
+        # Extract month from target_month (e.g., "septembre_2025" -> 9, 2025)
+        target_month_num, target_year = self._parse_target_month(target_month)
+        current_date = datetime.now()
+        current_month_num = current_date.month
+        current_year = current_date.year
+        
+        logger.info(f"   📅 Target month parsed: {target_month_num}/{target_year}")
+        logger.info(f"   📅 Current month: {current_month_num}/{current_year}")
+        
+        for item in all_media:
+            attributed_month = item.get("attributed_month", "")
             
-            logger.info(f"   📂 Total media found: {len(all_media)}")
+            # Check if explicitly attributed to target month
+            if attributed_month == target_month:
+                month_specific_media.append(item)
+                logger.info(f"   ✅ Found media attributed to {target_month}: {item.get('title', 'Untitled')}")
+            # If not attributed but we're generating for current month, include recent uploads
+            elif (target_month_num == current_month_num and target_year == current_year and 
+                  not attributed_month):
+                current_month_media.append(item)
+                logger.info(f"   📍 Found current month media: {item.get('title', 'Untitled')}")
+            else:
+                other_media.append(item)
+        
+        logger.info(f"   📊 Priority distribution:")
+        logger.info(f"      - Month-specific media: {len(month_specific_media)}")
+        logger.info(f"      - Current month media: {len(current_month_media)}")
+        logger.info(f"      - Other media: {len(other_media)}")
+        
+        # Process in priority order: month-specific first, then current month, then others
+        prioritized_media = month_specific_media + current_month_media + other_media
+        
+        # Group media by carousel_id
+        carousel_groups = {}
+        standalone_media = []
+        
+        for item in prioritized_media:
+            carousel_id = item.get("carousel_id")
+            if carousel_id:
+                if carousel_id not in carousel_groups:
+                    carousel_groups[carousel_id] = []
+                carousel_groups[carousel_id].append(item)
+            else:
+                standalone_media.append(item)
+        
+        logger.info(f"   🎠 Found {len(carousel_groups)} carousels and {len(standalone_media)} standalone images")
+        
+        # Process carousels first (create one ContentSource per carousel)
+        for carousel_id, carousel_items in carousel_groups.items():
+            if len(carousel_items) > 1:  # Only treat as carousel if multiple images
+                # Use the first image as primary for the carousel
+                primary_item = carousel_items[0]
+                common_title = primary_item.get("common_title", "")
+                
+                # Create ContentSource for the entire carousel
+                title = common_title or primary_item.get("title") or f"Carrousel {carousel_id[:8]}"
+                context = primary_item.get("context") or primary_item.get("description", "")
+                
+                carousel_source = ContentSource(
+                    id=carousel_id,
+                    title=title,
+                    context=f"Carrousel de {len(carousel_items)} images: {context}",
+                    visual_url=primary_item.get("s3_url", "") or primary_item.get("url", ""),
+                    file_type="carousel",
+                    attributed_month=primary_item.get("attributed_month", target_month),
+                    source="carousel",
+                    used=False
+                )
+                
+                content["carousels"].append(carousel_source)
+                logger.info(f"   🎠 Added carousel '{title}' with {len(carousel_items)} images")
+            else:
+                # Single image "carousel" - treat as standalone
+                standalone_media.extend(carousel_items)
+        
+        # Process standalone media with priority handling
+        for item in standalone_media:
+            # Use filename as title if no title, description as context if available
+            original_filename = item.get("original_filename", "")
+            # Clean filename for title (remove pixabay prefix and extensions)
+            title = item.get("title") or original_filename.replace('pixabay_', '').replace('.jpg', '').replace('.jpeg', '').replace('.png', '')
+            context = item.get("context") or item.get("description", "")
             
-            # Group media by carousel_id
-            carousel_groups = {}
-            standalone_media = []
+            # Truncate long context for better AI processing
+            if context and len(context) > 200:
+                context = context[:200] + "..."
             
-            for item in all_media:
-                carousel_id = item.get("carousel_id")
-                if carousel_id:
-                    if carousel_id not in carousel_groups:
-                        carousel_groups[carousel_id] = []
-                    carousel_groups[carousel_id].append(item)
+            # CRITICAL FIX: Use the actual file_id for images, not MongoDB _id
+            actual_file_id = None
+            visual_url = item.get("url", "")
+            
+            # Debug logging to understand ID extraction
+            logger.info(f"   🔍 DEBUG: Processing item with URL: {visual_url}")
+            
+            if visual_url:
+                # Extract file_id from URL like "/api/content/74bc5825-fec4-4696-8235-1bcb9bf20001/file"
+                import re
+                match = re.search(r'/api/content/([^/]+)/file', visual_url)
+                if match:
+                    actual_file_id = match.group(1)
+                    logger.info(f"   ✅ DEBUG: Extracted ID: {actual_file_id}")
                 else:
-                    standalone_media.append(item)
-            
-            logger.info(f"   🎠 Found {len(carousel_groups)} carousels and {len(standalone_media)} standalone images")
-            
-            # Process carousels first (create one ContentSource per carousel)
-            for carousel_id, carousel_items in carousel_groups.items():
-                if len(carousel_items) > 1:  # Only treat as carousel if multiple images
-                    # Use the first image as primary for the carousel
-                    primary_item = carousel_items[0]
-                    common_title = primary_item.get("common_title", "")
-                    
-                    # Create ContentSource for the entire carousel
-                    title = common_title or primary_item.get("title") or f"Carrousel {carousel_id[:8]}"
-                    context = primary_item.get("context") or primary_item.get("description", "")
-                    
-                    carousel_source = ContentSource(
-                        id=carousel_id,
-                        title=title,
-                        context=f"Carrousel de {len(carousel_items)} images: {context}",
-                        visual_url=primary_item.get("s3_url", ""),
-                        file_type="carousel",
-                        attributed_month=primary_item.get("attributed_month", target_month),
-                        source="carousel",
-                        used=False
-                    )
-                    
-                    content["carousels"].append(carousel_source)
-                    logger.info(f"   🎠 Added carousel '{title}' with {len(carousel_items)} images")
-                else:
-                    # Single image "carousel" - treat as standalone
-                    standalone_media.extend(carousel_items)
-            
-            # Process standalone media
-            for item in standalone_media:
-                # Use filename as title if no title, description as context if available
-                original_filename = item.get("original_filename", "")
-                # Clean filename for title (remove pixabay prefix and extensions)
-                title = item.get("title") or original_filename.replace('pixabay_', '').replace('.jpg', '').replace('.jpeg', '').replace('.png', '')
-                context = item.get("context") or item.get("description", "")
-                
-                # Truncate long context for better AI processing
-                if context and len(context) > 200:
-                    context = context[:200] + "..."
-                
-                # CRITICAL FIX: Use the actual file_id for images, not MongoDB _id
-                actual_file_id = None
-                visual_url = item.get("url", "")
-                
-                # Debug logging to understand ID extraction
-                logger.info(f"   🔍 DEBUG: Processing item with URL: {visual_url}")
-                
-                if visual_url:
-                    # Extract file_id from URL like "/api/content/74bc5825-fec4-4696-8235-1bcb9bf20001/file"
-                    import re
-                    match = re.search(r'/api/content/([^/]+)/file', visual_url)
-                    if match:
-                        actual_file_id = match.group(1)
-                        logger.info(f"   ✅ DEBUG: Extracted ID: {actual_file_id}")
-                    else:
-                        logger.warning(f"   ⚠️ DEBUG: Could not extract ID from URL: {visual_url}")
-                        # Fallback: use the item's id field directly
-                        actual_file_id = item.get("id", str(item.get("_id", "")))
-                        logger.info(f"   🔄 DEBUG: Using fallback ID: {actual_file_id}")
-                else:
+                    logger.warning(f"   ⚠️ DEBUG: Could not extract ID from URL: {visual_url}")
                     # Fallback: use the item's id field directly
                     actual_file_id = item.get("id", str(item.get("_id", "")))
-                    logger.warning(f"   ⚠️ DEBUG: No URL found, using direct ID: {actual_file_id}")
-                    
-                logger.info(f"   📋 DEBUG: Final ID to use: {actual_file_id}")
-                    
-                content["month_content"].append(ContentSource(
-                    id=actual_file_id if actual_file_id else str(item.get("_id", "")),
-                    title=title if title else "Photo",
-                    context=context if context else "Image pour votre business",
-                    visual_url=visual_url,
-                    file_type=item.get("file_type", "image/jpeg"),
-                    attributed_month=target_month,  # Assign to current month
-                    source=item.get("source", "upload")  # Keep source info (pixabay vs upload)
-                ))
-        else:
-            # Process month-specific content normally with GridFS file_id correction
-            for item in month_content:
-                title = item.get("title") or item.get("original_filename", "").replace('.jpg', '').replace('.jpeg', '').replace('.png', '')
-                context = item.get("context") or item.get("description", "")
+                    logger.info(f"   🔄 DEBUG: Using fallback ID: {actual_file_id}")
+            else:
+                # Fallback: use the item's id field directly
+                actual_file_id = item.get("id", str(item.get("_id", "")))
+                logger.warning(f"   ⚠️ DEBUG: No URL found, using direct ID: {actual_file_id}")
                 
-                # CRITICAL FIX: Use the actual file_id for images, not MongoDB _id
-                actual_file_id = None
-                visual_url = item.get("url", "")
+            logger.info(f"   📋 DEBUG: Final ID to use: {actual_file_id}")
                 
-                # Debug logging to understand ID extraction
-                logger.info(f"   🔍 DEBUG: Processing item with URL: {visual_url}")
-                
-                if visual_url:
-                    # Extract file_id from URL like "/api/content/74bc5825-fec4-4696-8235-1bcb9bf20001/file"
-                    import re
-                    match = re.search(r'/api/content/([^/]+)/file', visual_url)
-                    if match:
-                        actual_file_id = match.group(1)
-                        logger.info(f"   ✅ DEBUG: Extracted ID: {actual_file_id}")
-                    else:
-                        logger.warning(f"   ⚠️ DEBUG: Could not extract ID from URL: {visual_url}")
-                        # Fallback: use the item's id field directly
-                        actual_file_id = item.get("id", str(item.get("_id", "")))
-                        logger.info(f"   🔄 DEBUG: Using fallback ID: {actual_file_id}")
-                else:
-                    # Fallback: use the item's id field directly
-                    actual_file_id = item.get("id", str(item.get("_id", "")))
-                    logger.warning(f"   ⚠️ DEBUG: No URL found, using direct ID: {actual_file_id}")
-                    
-                logger.info(f"   📋 DEBUG: Final ID to use: {actual_file_id}")
-
-                content["month_content"].append(ContentSource(
-                    id=actual_file_id if actual_file_id else str(item.get("_id", "")),
-                    title=title if title else "Photo",
-                    context=context if context else "Contenu visuel pour votre entreprise",
-                    visual_url=visual_url,
-                    file_type=item.get("file_type", "image/jpeg"),
-                    attributed_month=target_month,
-                    source="upload"
-                ))
+            content["month_content"].append(ContentSource(
+                id=actual_file_id if actual_file_id else str(item.get("_id", "")),
+                title=title if title else "Photo",
+                context=context if context else "Image pour votre business",
+                visual_url=visual_url,
+                file_type=item.get("file_type", "image/jpeg"),
+                attributed_month=target_month,  # Assign to current month
+                source=item.get("source", "upload")  # Keep source info (pixabay vs upload)
+            ))
         
         logger.info(f"   ✅ FINAL month content available: {len(content['month_content'])}")
         

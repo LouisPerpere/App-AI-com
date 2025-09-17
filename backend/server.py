@@ -1925,14 +1925,20 @@ async def test_instagram_auth():
         test_state = secrets.token_urlsafe(16)
         scopes = "instagram_business_basic,instagram_business_content_publishing"
         
+        # Ajouter config_id pour Instagram spécifique
+        instagram_config_id = os.environ.get('INSTAGRAM_CONFIG_ID')
+        
         params = {
             "client_id": facebook_app_id,
             "redirect_uri": instagram_redirect_uri,
             "scope": scopes,
             "response_type": "code",
             "state": test_state
-            # Suppression temporaire du config_id pour test
         }
+        
+        # Ajouter config_id si disponible
+        if instagram_config_id:
+            params["config_id"] = instagram_config_id
         
         test_auth_url = f"https://api.instagram.com/oauth/authorize?{urlencode(params)}"
         

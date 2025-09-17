@@ -1821,6 +1821,16 @@ async def get_pixabay_categories():
 # SOCIAL MEDIA CONNECTIONS: /api/social
 # ----------------------------
 
+@api_router.get("/social/connections/debug")
+async def debug_social_connections(user_id: str = Depends(get_current_user_id_robust)):
+    """Debug endpoint to check raw connections data"""
+    try:
+        dbm = get_database()
+        social_connections = list(dbm.db.social_connections.find({"user_id": user_id}))
+        return {"user_id": user_id, "raw_connections": social_connections}
+    except Exception as e:
+        return {"error": str(e)}
+
 @api_router.get("/social/connections")
 async def get_social_connections(user_id: str = Depends(get_current_user_id_robust)):
     """Get all social media connections for the user"""

@@ -1911,8 +1911,8 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         import secrets
         state = secrets.token_urlsafe(32)
         
-        # Scopes Instagram spécifiques
-        scopes = "pages_show_list,pages_read_engagement,pages_manage_posts,instagram_basic,instagram_content_publish"
+        # Scopes Instagram de base - commencer par le minimum
+        scopes = "pages_show_list,pages_read_engagement"
         
         # Construire l'URL d'autorisation Instagram avec config_id
         from urllib.parse import urlencode

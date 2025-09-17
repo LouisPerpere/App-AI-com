@@ -2916,8 +2916,11 @@ function MainApp() {
       return;
     }
 
-    setIsGeneratingPosts(true);
-    if (!monthKey) {
+    // Add the month to generating set
+    if (monthKey) {
+      setGeneratingMonths(prev => new Set(prev).add(monthKey));
+    } else {
+      setIsGeneratingPosts(true);
       setShowGenerationModal(false);
     }
 
@@ -2941,7 +2944,16 @@ function MainApp() {
       const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
       toast.error(`Erreur lors de la génération: ${errorMessage}`);
     } finally {
-      setIsGeneratingPosts(false);
+      // Remove the month from generating set
+      if (monthKey) {
+        setGeneratingMonths(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(monthKey);
+          return newSet;
+        });
+      } else {
+        setIsGeneratingPosts(false);
+      }
     }
   };
 

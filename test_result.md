@@ -63,6 +63,8 @@
 ##     message: "🔧 RÉSOLUTION BIBLIOTHÈQUE - URL Configuration Fix: Corrigé l'URL du frontend de https://authflow-10.preview.emergentagent.com vers http://localhost:8001/api pour résoudre les problèmes de synchronisation. Services redémarrés. Phase de test des 3 symptômes identifiés par ChatGPT: (1) médias supprimés qui reviennent, (2) commentaires non enregistrés, (3) badges non affichés. Tests requis pour validation."
 ##   - agent: "main"
 ##     message: "🔧 PHASE CRITIQUE - DIAGNOSTIC VIGNETTES: Commencer le diagnostic des problèmes de vignettes identifiés par l'utilisateur: (1) 8/9 nouveaux uploads sans vignettes (icônes bleues), (2) 7 fichiers anciens avec thumb_url corrompus (expressions MongoDB au lieu d'URLs), (3) Images ne s'affichent pas même au clic. Investigation MongoDB et système de génération automatique de vignettes en cours."
+##   - agent: "main"
+##     message: "🎯 PHASE 1 - CONNEXIONS SOCIALES FACEBOOK FIX CRITIQUE: Identifié et corrigé le problème racine des connexions sociales non sauvegardées. CAUSE RACINE: Mismatch URLs entre environnement preview (actuel) et production dans .env backend. CORRECTION APPLIQUÉE: (1) INSTAGRAM_REDIRECT_URI: 'claire-marcus.com' → 'authflow-10.preview.emergentagent.com', (2) FRONTEND_URL: 'claire-marcus.com' → 'authflow-10.preview.emergentagent.com'. Backend redémarré. IMPACT ATTENDU: Les connexions Facebook devraient maintenant être sauvegardées et l'interface devrait afficher 'Connecté : Page Facebook'. TEST REQUIS: Validation complète du flow Facebook Login for Business après cette correction."
 
 # Protocol Guidelines for Main agent
 #

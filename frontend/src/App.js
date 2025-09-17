@@ -1554,10 +1554,10 @@ function MainApp() {
     }
   }, [websiteAnalysis, persistedUrl, activeTab]); // Ajouter activeTab pour déclencher quand on change d'onglet
 
-  // Load website analysis when navigating to Analysis tab
+  // Load website analysis when navigating to Analysis tab (only if not already loaded)
   useEffect(() => {
     if (activeTab === 'analyse' && isAuthenticated && user && !websiteAnalysis) {
-      console.log('🔄 Loading website analysis for Analysis tab...');
+      console.log('🔄 Loading website analysis for Analysis tab (not found in initial load)...');
       loadWebsiteAnalysis();
     }
   }, [activeTab, isAuthenticated, user, websiteAnalysis]);

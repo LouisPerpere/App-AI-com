@@ -834,7 +834,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
     
     async def _generate_posts_calendar(self, business_context: str, notes_context: str, 
                                      recent_posts_context: str, content_inventory: str,
-                                     strategy: Dict, num_posts: int, source_data: Dict = None, available_content: Dict = None) -> List[PostContent]:
+                                     strategy: Dict, num_posts: int, target_platform: str, source_data: Dict = None, available_content: Dict = None) -> List[PostContent]:
         """Generate entire posts calendar with intelligent LLM selection based on business objectives"""
         try:
             # Récupérer les informations du profil business pour la sélection LLM

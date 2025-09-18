@@ -7734,8 +7734,9 @@ function MainApp() {
                         </Button>
                         <Button
                           onClick={() => {
-                            handleGeneratePosts(selectedMonthForGeneration);
+                            const monthKey = selectedMonthForGeneration;
                             setSelectedMonthForGeneration(null);
+                            handleGeneratePosts(monthKey);
                           }}
                           className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
                         >

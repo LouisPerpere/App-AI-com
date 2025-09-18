@@ -63,6 +63,7 @@ def fix_missing_images():
                 "$set": {
                     "needs_image": True,
                     "with_image": False,
+                    "status": "needs_image",  # CORRECTION: Changer le status
                     "fixed_at": "2025-09-18T11:30:00.000Z"
                 }
             }

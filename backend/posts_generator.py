@@ -121,9 +121,21 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             # STEP 1: Gather all source data
             source_data = self._gather_source_data(user_id, target_month)
             
-            # STEP 1.5: Déterminer la plateforme cible selon les connexions
-            target_platform = self._determine_target_platform(user_id)
-            logger.info(f"🎯 Plateforme cible déterminée: {target_platform}")
+            # STEP 1.5: Vérifier les plateformes connectées
+            connected_platforms = self._get_connected_platforms(user_id)
+            
+            # Nouvelle logique : pas de fallback, erreur si aucune connexion
+            if not connected_platforms:
+                logger.error("❌ Aucune plateforme connectée - génération impossible")
+                return {
+                    "success": False,
+                    "error": "Aucune plateforme sociale connectée. Veuillez connecter au moins un réseau social avant de générer des posts.",
+                    "error_type": "no_connected_platforms",
+                    "posts_count": 0,
+                    "posts": []
+                }
+            
+            logger.info(f"🎯 Plateformes connectées trouvées: {connected_platforms}")
             
             # STEP 2: Collect available content
             available_content = self._collect_available_content(user_id, target_month)

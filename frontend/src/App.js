@@ -413,6 +413,18 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
           {/* Boutons d'action pour posts avec images */}
           {hasImage && (
             <div className="absolute top-2 right-2 flex space-x-1">
+              {/* Bouton supprimer post */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeletePost && onDeletePost(post);
+                }}
+                className="w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+                title="Supprimer ce post"
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+              
               {/* Bouton modifier image */}
               <button
                 onClick={(e) => {

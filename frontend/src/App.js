@@ -7632,13 +7632,25 @@ function MainApp() {
           <TabsContent value="posts" className="space-y-8">
             <Card className="card-gradient">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-3 text-2xl">
-                  <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl flex items-center justify-center">
-                    <FileText className="w-6 h-6 text-white" />
+                <CardTitle className="flex items-center justify-between text-2xl">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
+                      Posts engageants générés pour vous 🚀
+                    </span>
                   </div>
-                  <span className="bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
-                    Posts engageants générés pour vous 🚀
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={loadGeneratedPosts}
+                      className="px-3 py-2 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center space-x-2"
+                      title="Recharger les posts depuis le serveur"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      <span className="hidden sm:inline">Actualiser</span>
+                    </button>
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>

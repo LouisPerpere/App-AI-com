@@ -244,7 +244,7 @@ backend:
     file: "/app/backend/server.py, /app/backend/.env"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "testing"

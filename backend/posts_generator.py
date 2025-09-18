@@ -156,11 +156,19 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
                     generated_posts = []
                 
                 # STEP 4b: Mark used content with timestamps
-                await self._mark_used_content(generated_posts)
+                try:
+                    await self._mark_used_content(generated_posts)
+                    print(f"🔍 DEBUG: Marked content as used for {len(generated_posts)} posts")
+                except Exception as e:
+                    print(f"❌ DEBUG: Error marking content: {str(e)}")
                 
                 # STEP 5: Create posting schedule for this platform
-                scheduled_posts = self._create_posting_schedule(generated_posts, target_month, platform)
-                all_scheduled_posts.extend(scheduled_posts)
+                try:
+                    scheduled_posts = self._create_posting_schedule(generated_posts, target_month, platform)
+                    print(f"🔍 DEBUG: Scheduled {len(scheduled_posts)} posts for {platform}")
+                    all_scheduled_posts.extend(scheduled_posts)
+                except Exception as e:
+                    print(f"❌ DEBUG: Error scheduling posts: {str(e)}")
             
             # STEP 6: Save to database
             self._save_generated_posts(user_id, all_scheduled_posts)

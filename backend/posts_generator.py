@@ -186,11 +186,14 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             
             connected_platforms = [conn.get("platform") for conn in social_connections if conn.get("platform")]
             logger.info(f"🔗 Plateformes connectées: {connected_platforms}")
+            print(f"🔍 DEBUG: social_connections found: {len(social_connections)}")
+            print(f"🔍 DEBUG: connected_platforms: {connected_platforms}")
             
             # Retourner la première plateforme connectée selon la priorité
             for platform in platform_priority:
                 if platform in connected_platforms:
                     logger.info(f"✅ Plateforme sélectionnée: {platform}")
+                    print(f"🔍 DEBUG: Selected platform: {platform}")
                     return platform
             
             # Fallback sur Instagram si aucune connexion

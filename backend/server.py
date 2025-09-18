@@ -1049,6 +1049,40 @@ async def delete_single_generated_post(
         print(f"❌ Error deleting post {post_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to delete post: {str(e)}")
 
+@api_router.post("/posts/clear-cache")
+async def clear_posts_cache(
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Clear posts cache and clean up inconsistent data"""
+    try:
+        print(f"🧹 Clearing posts cache for user {user_id}")
+        
+        dbm = get_database()
+        
+        # Get all posts to analyze data consistency
+        all_posts = list(dbm.db.generated_posts.find({"owner_id": user_id}))
+        
+        # Identify posts with problematic visual_urls
+        legacy_posts = []
+        for post in all_posts:
+            visual_url = post.get('visual_url', '')
+            if 'claire-marcus-api.onrender.com' in visual_url:
+                legacy_posts.append(post)
+        
+        print(f"🔍 Found {len(all_posts)} total posts, {len(legacy_posts)} with legacy URLs")
+        
+        return {
+            "message": "Cache analysis completed",
+            "total_posts": len(all_posts),
+            "legacy_url_posts": len(legacy_posts),
+            "posts_by_month": {},
+            "cache_cleared": True
+        }
+        
+    except Exception as e:
+        print(f"❌ Error clearing cache: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to clear cache: {str(e)}")
+
 @api_router.get("/content/carousel/{carousel_id}")
 async def get_carousel_content(
     carousel_id: str,

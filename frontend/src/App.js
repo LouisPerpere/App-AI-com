@@ -323,7 +323,7 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
     });
   };
 
-  const needsImage = post.status === 'needs_image' || !post.visual_url;
+  const needsImage = post.status === 'needs_image' || !post.visual_url || post.visual_url === '';
   const hasImage = !needsImage;
 
   const handleClick = () => {

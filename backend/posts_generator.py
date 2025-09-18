@@ -28,7 +28,7 @@ class PostContent:
     title: str
     text: str
     hashtags: List[str]
-    platform: str = "facebook"
+    platform: str = "instagram"
     scheduled_date: datetime = None
     content_type: str = "product"  # product, backstage, value, sales, info, educational
     visual_type: str = "image"  # image, video

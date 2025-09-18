@@ -3484,6 +3484,7 @@ function MainApp() {
                             onAddImage={(post) => handleAddImageToPost(post, 'add')}
                             onModifyImage={(post) => handleAddImageToPost(post, 'modify')}
                             onValidatePost={handleValidatePost}
+                            onDeletePost={handleDeletePost}
                           />
                         </div>
                       ))}

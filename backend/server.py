@@ -1910,20 +1910,37 @@ async def get_social_connections(user_id: str = Depends(get_current_user_id_robu
     """Get all social media connections for the user"""
     dbm = get_database()
     
-    # Simple approach: just get Facebook connections for now
+    # Get Facebook connections
     fb_connections = list(dbm.db.social_connections.find({
         "user_id": user_id,
         "platform": "facebook",
         "is_active": True
     }))
     
+    # Get Instagram connections
+    ig_connections = list(dbm.db.social_connections.find({
+        "user_id": user_id,
+        "platform": "instagram",
+        "is_active": True
+    }))
+    
     connections = {}
     
+    # Add Facebook connection if exists
     if fb_connections:
         fb_conn = fb_connections[0]  # Take first Facebook connection
         connections["facebook"] = {
             "username": fb_conn.get("page_name", "My Own Watch"),
             "connected_at": str(fb_conn.get("connected_at", "")),
+            "is_active": True
+        }
+    
+    # Add Instagram connection if exists
+    if ig_connections:
+        ig_conn = ig_connections[0]  # Take first Instagram connection
+        connections["instagram"] = {
+            "username": ig_conn.get("username", "Instagram Account"),
+            "connected_at": str(ig_conn.get("connected_at", "")),
             "is_active": True
         }
     

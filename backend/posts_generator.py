@@ -173,8 +173,9 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             
             return {
                 "success": True,
-                "posts_count": len(scheduled_posts),
-                "posts": scheduled_posts,
+                "posts_count": len(all_scheduled_posts),
+                "posts": all_scheduled_posts,
+                "platforms": connected_platforms,
                 "strategy": content_strategy,
                 "sources_used": {
                     "business_profile": source_data.get("business_profile") is not None,

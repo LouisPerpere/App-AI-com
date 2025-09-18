@@ -535,6 +535,7 @@ async def upload_content_batch(
 
 
 @router.get("/content/{file_id}/file")
+@router.head("/content/{file_id}/file")
 async def get_original_file(file_id: str, token: Optional[str] = None, authorization: Optional[str] = Header(None), range: Optional[str] = Header(None)):
     """Stream original file from GridFS with auth and Range support for videos."""
     print(f"🔍 GET /content/{file_id}/file - token: {token is not None}, auth: {authorization is not None}, range: {range}")

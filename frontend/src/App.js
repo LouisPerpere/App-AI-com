@@ -3019,9 +3019,10 @@ function MainApp() {
       return;
     }
 
-    // Add the month to generating set
+    // Add the month to generating set and close modal
     if (monthKey) {
       setGeneratingMonths(prev => new Set(prev).add(monthKey));
+      setShowGenerationModal(false);
     } else {
       setIsGeneratingPosts(true);
       setShowGenerationModal(false);

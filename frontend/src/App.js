@@ -3061,6 +3061,32 @@ function MainApp() {
     }
   };
 
+  // Supprimer un post individuel
+  const handleDeletePost = async (post) => {
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer ce post ?\n\n"${post.title || 'Post sans titre'}"`)) {
+      return;
+    }
+
+    const token = localStorage.getItem('access_token');
+    
+    try {
+      const response = await axios.delete(`${API}/posts/generated/${post.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.status === 200) {
+        toast.success('🗑️ Post supprimé avec succès');
+        
+        // Recharger les posts pour refléter la suppression
+        await loadGeneratedPosts();
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression du post:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`Erreur lors de la suppression: ${errorMessage}`);
+    }
+  };
+
   // Charger les posts générés
   const loadGeneratedPosts = async () => {
     const token = localStorage.getItem('access_token');

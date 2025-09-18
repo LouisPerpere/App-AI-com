@@ -2169,6 +2169,45 @@ async def test_facebook_publish_endpoint():
     """Test endpoint pour vérifier si les nouvelles routes fonctionnent"""
     return {"message": "Facebook publish endpoint is working", "timestamp": datetime.now().isoformat()}
 
+@api_router.get("/posts/debug-db")
+async def debug_db_posts(user_id: str = Depends(get_current_user_id_robust)):
+    """Endpoint de debug DIRECT sur la base de données"""
+    try:
+        from database import get_database
+        
+        dbm = get_database()
+        db = dbm.db
+        
+        # Comptage direct des posts par différents critères
+        total_posts = db.generated_posts.count_documents({})
+        user_posts_owner = db.generated_posts.count_documents({"owner_id": user_id})
+        user_posts_user = db.generated_posts.count_documents({"user_id": user_id})
+        
+        # Échantillon de posts
+        sample_posts = list(db.generated_posts.find({}).limit(3))
+        
+        return {
+            "debug_info": {
+                "database_name": db.name,
+                "user_id": user_id,
+                "total_posts_in_db": total_posts,
+                "posts_with_owner_id": user_posts_owner,
+                "posts_with_user_id": user_posts_user,
+                "sample_posts": [
+                    {
+                        "title": post.get("title", "N/A"),
+                        "platform": post.get("platform", "N/A"),
+                        "owner_id": post.get("owner_id", "N/A"),
+                        "user_id": post.get("user_id", "N/A")
+                    }
+                    for post in sample_posts
+                ]
+            }
+        }
+        
+    except Exception as e:
+        return {"error": f"Debug error: {str(e)}"}
+
 @api_router.delete("/posts/nuclear-clean")
 async def nuclear_clean_posts(user_id: str = Depends(get_current_user_id_robust)):
     """NETTOYAGE NUCLÉAIRE - Supprime TOUT et force la regénération"""

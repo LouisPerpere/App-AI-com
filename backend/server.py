@@ -2169,6 +2169,60 @@ async def test_facebook_publish_endpoint():
     """Test endpoint pour vérifier si les nouvelles routes fonctionnent"""
     return {"message": "Facebook publish endpoint is working", "timestamp": datetime.now().isoformat()}
 
+@api_router.delete("/posts/nuclear-clean")
+async def nuclear_clean_posts(user_id: str = Depends(get_current_user_id_robust)):
+    """NETTOYAGE NUCLÉAIRE - Supprime TOUT et force la regénération"""
+    try:
+        dbm = get_database()
+        
+        # Suppression NUCLÉAIRE de toutes les données posts de cet utilisateur
+        result1 = dbm.db.generated_posts.delete_many({"owner_id": user_id})
+        result2 = dbm.db.generated_posts.delete_many({"user_id": user_id})
+        result3 = dbm.db.generated_posts.delete_many({"id": {"$regex": user_id}})
+        
+        print(f"🧹 NETTOYAGE NUCLÉAIRE: {result1.deleted_count + result2.deleted_count + result3.deleted_count} posts supprimés")
+        
+        return {
+            "message": "Nettoyage nucléaire effectué",
+            "deleted_owner_id": result1.deleted_count,
+            "deleted_user_id": result2.deleted_count,
+            "deleted_by_id_regex": result3.deleted_count,
+            "total_deleted": result1.deleted_count + result2.deleted_count + result3.deleted_count
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur nettoyage: {str(e)}")
+
+@api_router.post("/posts/force-generate-facebook")
+async def force_generate_facebook_posts(user_id: str = Depends(get_current_user_id_robust)):
+    """Force la génération de posts Facebook avec nouveau système"""
+    try:
+        from posts_generator import PostsGenerator
+        
+        # Vérifier la connexion Facebook
+        dbm = get_database()
+        fb_connection = dbm.db.social_connections.find_one({
+            "user_id": user_id,
+            "platform": "facebook",
+            "is_active": True
+        })
+        
+        if not fb_connection:
+            raise HTTPException(status_code=400, detail="Aucune connexion Facebook active")
+        
+        # Générer des posts Facebook manuellement
+        generator = PostsGenerator()
+        result = await generator.generate_posts_for_month(
+            user_id=user_id,
+            target_month="octobre_2024",
+            num_posts=3
+        )
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur génération forcée: {str(e)}")
+
 @api_router.post("/posts/validate")
 async def validate_post(
     post_id: str,

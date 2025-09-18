@@ -2152,6 +2152,49 @@ async def test_instagram_callback():
         "url": "https://claire-marcus.com/api/social/instagram/callback"
     }
 
+@api_router.get("/social/facebook/callback")
+async def facebook_oauth_callback(
+    code: str = None,
+    access_token: str = None,
+    state: str = None,
+    error: str = None,
+    error_description: str = None,
+    expires_in: str = None
+):
+    """Traiter le callback Facebook OAuth pour pages Facebook"""
+    try:
+        print(f"🔄 Facebook OAuth callback received")
+        print(f"   Code: {'✅ Present' if code else '❌ Missing'}")
+        print(f"   Access token: {'✅ Present' if access_token else '❌ Missing'}")
+        print(f"   State: {state}")
+        print(f"   Error: {error}")
+        
+        # Vérifier les erreurs OAuth
+        if error:
+            error_msg = f"Facebook OAuth error: {error}"
+            if error_description:
+                error_msg += f" - {error_description}"
+            print(f"❌ {error_msg}")
+            
+            # Rediriger vers le frontend avec l'erreur
+            frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
+            error_redirect = f"{frontend_url}?auth_error=facebook_oauth_failed&error_detail={error}"
+            return RedirectResponse(url=error_redirect, status_code=302)
+        
+        # Traitement similaire à Instagram mais pour Facebook
+        # Pour l'instant, redirection simple vers le frontend
+        frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
+        success_redirect = f"{frontend_url}?auth_success=facebook_connected"
+        
+        print(f"✅ Facebook callback processed, redirecting to: {success_redirect}")
+        return RedirectResponse(url=success_redirect, status_code=302)
+        
+    except Exception as e:
+        print(f"❌ Error in Facebook callback: {str(e)}")
+        frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
+        error_redirect = f"{frontend_url}?auth_error=facebook_callback_error"
+        return RedirectResponse(url=error_redirect, status_code=302)
+
 @api_router.get("/social/instagram/callback")
 async def instagram_oauth_callback(
     code: str = None,

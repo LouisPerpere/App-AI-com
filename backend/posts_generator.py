@@ -1268,7 +1268,7 @@ CTA: "Apprenez plus", "Essayez", "Suivez le guide"
         logger.info(f"   📸 Would search Pixabay for {content_type} content")
         return None
     
-    def _create_posting_schedule(self, posts: List[PostContent], target_month: str, platform: str = "facebook") -> List[PostContent]:
+    def _create_posting_schedule(self, posts: List[PostContent], target_month: str) -> List[PostContent]:
         """Create intelligent posting schedule"""
         logger.info("📅 Step 5/6: Creating posting schedule...")
         

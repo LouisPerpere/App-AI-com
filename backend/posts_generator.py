@@ -121,22 +121,26 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             # STEP 1: Gather all source data
             source_data = self._gather_source_data(user_id, target_month)
             
+            # STEP 1.5: Déterminer la plateforme cible selon les connexions
+            target_platform = self._determine_target_platform(user_id)
+            logger.info(f"🎯 Plateforme cible déterminée: {target_platform}")
+            
             # STEP 2: Collect available content
             available_content = self._collect_available_content(user_id, target_month)
             
             # STEP 3: Determine content mix strategy  
             content_strategy = self._determine_content_strategy(source_data, num_posts)
             
-            # STEP 4: Generate posts according to strategy (Instagram par défaut)
+            # STEP 4: Generate posts according to strategy for target platform
             generated_posts = await self._generate_posts_with_strategy(
-                source_data, available_content, content_strategy, num_posts, user_id
+                source_data, available_content, content_strategy, num_posts, user_id, target_platform
             )
             
             # STEP 4.5: Mark used content with timestamps
             await self._mark_used_content(generated_posts)
             
             # STEP 5: Create posting schedule
-            scheduled_posts = self._create_posting_schedule(generated_posts, target_month)
+            scheduled_posts = self._create_posting_schedule(generated_posts, target_month, target_platform)
             
             # STEP 6: Save to database
             self._save_generated_posts(user_id, scheduled_posts)

@@ -143,21 +143,33 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             # STEP 3: Determine content mix strategy  
             content_strategy = self._determine_content_strategy(source_data, num_posts)
             
-            # STEP 4: Generate posts according to strategy for target platform
-            generated_posts = await self._generate_posts_with_strategy(
-                source_data, available_content, content_strategy, num_posts, user_id, target_platform
-            )
+            # STEP 4: Generate posts for each connected platform independently
+            all_generated_posts = []
+            all_scheduled_posts = []
             
-            # STEP 4.5: Mark used content with timestamps
-            await self._mark_used_content(generated_posts)
+            for platform in connected_platforms:
+                logger.info(f"🎯 Génération pour la plateforme: {platform}")
+                
+                # Generate posts for this specific platform
+                platform_posts = await self._generate_posts_with_strategy(
+                    source_data, available_content, content_strategy, num_posts, user_id, platform
+                )
+                
+                # Mark used content with timestamps
+                await self._mark_used_content(platform_posts)
+                
+                # Create posting schedule for this platform
+                platform_scheduled_posts = self._create_posting_schedule(platform_posts, target_month, platform)
+                
+                # Save to database
+                self._save_generated_posts(user_id, platform_scheduled_posts)
+                
+                all_generated_posts.extend(platform_posts)
+                all_scheduled_posts.extend(platform_scheduled_posts)
+                
+                logger.info(f"✅ Generated {len(platform_scheduled_posts)} posts for {platform}")
             
-            # STEP 5: Create posting schedule
-            scheduled_posts = self._create_posting_schedule(generated_posts, target_month, target_platform)
-            
-            # STEP 6: Save to database
-            self._save_generated_posts(user_id, scheduled_posts)
-            
-            logger.info(f"✅ Generated {len(scheduled_posts)} posts successfully")
+            logger.info(f"✅ Generated {len(all_scheduled_posts)} posts total across {len(connected_platforms)} platforms")
             
             return {
                 "success": True,

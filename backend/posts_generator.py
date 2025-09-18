@@ -336,7 +336,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             else:
                 other_media.append(item)
         
-        logger.info(f"   📊 Priority distribution:")
+        logger.info("   📊 Priority distribution:")
         logger.info(f"      - Month-specific media: {len(month_specific_media)}")
         logger.info(f"      - Current month media: {len(current_month_media)}")
         logger.info(f"      - Other media: {len(other_media)}")
@@ -844,7 +844,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             brand_tone = business_profile.get("brand_voice", "professionnel")
             platform = target_platform  # Utilise la plateforme déterminée selon les connexions
             
-            print(f"🎯 Post Generation Strategy:")
+            print("🎯 Post Generation Strategy:")
             print(f"   - Business Objective: {business_objective}")
             print(f"   - Brand Tone: {brand_tone}")
             print(f"   - Platform: {platform}")

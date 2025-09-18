@@ -479,28 +479,42 @@ async def get_pending_content_mongo(offset: int = 0, limit: int = 24, user_id: s
         )
         items = []
         for d in cursor:
-            items.append({
-                "id": d.get("id") or str(d.get("_id")),  # Use UUID if available, fallback to ObjectId
-                "filename": d.get("filename", ""),
-                "file_type": d.get("file_type", ""),
-                "url": d.get("url", ""),
-                "thumb_url": d.get("thumb_url", ""),
-                "description": d.get("description", ""),
-                "context": d.get("context", ""),  # Include context field
-                "title": d.get("title", ""),  # Include operational title field
-                "source": d.get("source", ""),  # Include source field (e.g., "pixabay")
-                "save_type": d.get("save_type", ""),  # Include save_type field
-                "upload_type": d.get("upload_type", ""),  # Include upload_type field
-                "attributed_month": d.get("attributed_month", ""),  # Include attributed_month field
-                "carousel_id": d.get("carousel_id", ""),  # Include carousel_id field for grouping
-                "common_title": d.get("common_title", ""),  # Include common_title field for carousel
-                "created_at": d.get("created_at").isoformat() if d.get("created_at") else None,
-                "uploaded_at": d.get("uploaded_at") if d.get("uploaded_at") else None,
-                "used_in_posts": d.get("used_in_posts", False),  # NEW: Add usage status
-                "last_used": d.get("last_used", ""),
-                "usage_count": d.get("usage_count", 0)
-            })
-        return {"content": items, "total": total, "offset": offset, "limit": limit, "has_more": offset + limit < total, "loaded": len(items)}
+            try:
+                # Handle created_at safely
+                created_at = d.get("created_at")
+                if hasattr(created_at, 'isoformat'):
+                    created_at_str = created_at.isoformat()
+                elif isinstance(created_at, str):
+                    created_at_str = created_at
+                else:
+                    created_at_str = None
+                
+                items.append({
+                    "id": d.get("id") or str(d.get("_id")),  # Use UUID if available, fallback to ObjectId
+                    "filename": d.get("filename", ""),
+                    "file_type": d.get("file_type", ""),
+                    "url": d.get("url", ""),
+                    "thumb_url": d.get("thumb_url", ""),
+                    "description": d.get("description", ""),
+                    "context": d.get("context", ""),  # Include context field
+                    "title": d.get("title", ""),  # Include operational title field
+                    "source": d.get("source", ""),  # Include source field (e.g., "pixabay")
+                    "save_type": d.get("save_type", ""),  # Include save_type field
+                    "upload_type": d.get("upload_type", ""),  # Include upload_type field
+                    "attributed_month": d.get("attributed_month", ""),  # Include attributed_month field
+                    "carousel_id": d.get("carousel_id", ""),  # Include carousel_id field for grouping
+                    "common_title": d.get("common_title", ""),  # Include common_title field for carousel
+                    "created_at": created_at_str,
+                    "uploaded_at": d.get("uploaded_at") if d.get("uploaded_at") else None,
+                    "used_in_posts": d.get("used_in_posts", False),  # NEW: Add usage status
+                    "last_used": d.get("last_used", ""),
+                    "usage_count": d.get("usage_count", 0)
+                })
+            except Exception as item_error:
+                print(f"⚠️ Error processing media item {d.get('id', 'unknown')}: {item_error}")
+                continue
+                
+        return {"images": items, "total": total, "offset": offset, "limit": limit, "has_more": offset + limit < total, "loaded": len(items)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch content: {str(e)}")
 

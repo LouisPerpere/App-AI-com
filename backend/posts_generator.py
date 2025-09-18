@@ -174,14 +174,6 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         
         source_data = {}
         
-        # Vérifier les connexions sociales
-        connected_platforms = self._get_connected_platforms(user_id)
-        source_data["connected_platforms"] = connected_platforms
-        
-        if not connected_platforms:
-            logger.warning("⚠️ Aucune plateforme sociale connectée - génération annulée")
-            return source_data
-        
         # Business profile
         business_profile = self.db.business_profiles.find_one({"user_id": user_id})
         source_data["business_profile"] = business_profile

@@ -168,11 +168,37 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
                 "posts": []
             }
     
+    def _get_connected_platforms(self, user_id: str) -> List[str]:
+        """Récupérer les plateformes connectées pour l'utilisateur"""
+        connected_platforms = []
+        
+        # Récupérer toutes les connexions actives
+        social_connections = list(self.db.social_connections.find({
+            "user_id": user_id,
+            "is_active": True
+        }))
+        
+        for connection in social_connections:
+            platform = connection.get("platform")
+            if platform:
+                connected_platforms.append(platform)
+        
+        logger.info(f"🔗 Plateformes connectées: {connected_platforms}")
+        return connected_platforms
+
     def _gather_source_data(self, user_id: str, target_month: str) -> Dict[str, Any]:
         """Gather all source data for post generation"""
         logger.info("📊 Step 1/6: Gathering source data...")
         
         source_data = {}
+        
+        # Vérifier les connexions sociales
+        connected_platforms = self._get_connected_platforms(user_id)
+        source_data["connected_platforms"] = connected_platforms
+        
+        if not connected_platforms:
+            logger.warning("⚠️ Aucune plateforme sociale connectée - génération annulée")
+            return source_data
         
         # Business profile
         business_profile = self.db.business_profiles.find_one({"user_id": user_id})

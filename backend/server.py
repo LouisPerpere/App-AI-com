@@ -2169,6 +2169,52 @@ async def test_facebook_publish_endpoint():
     """Test endpoint pour vérifier si les nouvelles routes fonctionnent"""
     return {"message": "Facebook publish endpoint is working", "timestamp": datetime.now().isoformat()}
 
+@api_router.get("/posts/real-data")
+async def get_real_posts(user_id: str = Depends(get_current_user_id_robust)):
+    """Endpoint BYPASS - retourne les VRAIS posts de la base locale"""
+    try:
+        # Connexion directe sans cache
+        from database import get_database
+        dbm = get_database()
+        db = dbm.db
+        
+        # Recherche directe des posts réels
+        real_posts = list(db.generated_posts.find({"owner_id": user_id}).sort([("scheduled_date", 1)]))
+        
+        # Format exactly like the original endpoint
+        formatted_posts = []
+        for post in real_posts:
+            formatted_posts.append({
+                "id": post.get("post_id") or post.get("id") or str(post.get("_id")),
+                "title": post.get("title", ""),
+                "text": post.get("text", ""),
+                "hashtags": post.get("hashtags", []),
+                "visual_url": post.get("visual_url", ""),
+                "visual_id": post.get("visual_id", ""),
+                "platform": post.get("platform", "instagram"),
+                "content_type": post.get("content_type", "product"),
+                "scheduled_date": post.get("scheduled_date", ""),
+                "published": post.get("published", False),
+                "status": post.get("status", "needs_image"),
+                "attributed_month": post.get("attributed_month", ""),
+                "created_at": post.get("created_at", ""),
+                "modified_at": post.get("modified_at", "")
+            })
+        
+        return {
+            "posts": formatted_posts,
+            "count": len(formatted_posts),
+            "message": f"REAL data from local DB: {db.name}",
+            "database_info": {
+                "name": db.name,
+                "user_id": user_id,
+                "total_posts_in_db": db.generated_posts.count_documents({})
+            }
+        }
+        
+    except Exception as e:
+        return {"error": f"Real data error: {str(e)}"}
+
 @api_router.get("/posts/force-clear-cache")
 async def force_clear_all_caches(user_id: str = Depends(get_current_user_id_robust)):
     """Force le vidage de tous les caches possibles"""

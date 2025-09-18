@@ -1261,7 +1261,7 @@ CTA: "Apprenez plus", "Essayez", "Suivez le guide"
         # Create schedule spread across the month
         start_date = datetime(year, month_num, 1)
         
-        # Optimal posting times for social media (research-based)
+        # Optimal posting times for Instagram (research-based)
         optimal_hours = [9, 11, 13, 17, 19, 21]  # Best engagement hours
         
         for i, post in enumerate(posts):

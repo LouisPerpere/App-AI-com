@@ -563,18 +563,42 @@ async def get_original_file(file_id: str, token: Optional[str] = None, authoriza
         media = media_collection.find_one({"id": file_id, "owner_id": user_id, "deleted": {"$ne": True}})
         if not media:
             raise HTTPException(404, "Media not found")
-        if media.get("storage") != "gridfs" or not media.get("gridfs_id"):
-            raise HTTPException(404, "Original not stored in GridFS")
-
-        gid = media.get("gridfs_id")
-        if isinstance(gid, str):
-            gid = ObjectId(gid)
-        f = fs.get(gid)
-        content_type = f.content_type or media.get("file_type") or "application/octet-stream"
+        # Check storage type
+        storage_type = media.get("storage", "")
         
-        # Read all file data into memory for range support
-        file_data = f.read()
-        file_size = len(file_data)
+        if storage_type == "gridfs":
+            # Handle GridFS stored files
+            if not media.get("gridfs_id"):
+                raise HTTPException(404, "GridFS ID missing")
+                
+            gid = media.get("gridfs_id")
+            if isinstance(gid, str):
+                gid = ObjectId(gid)
+            f = fs.get(gid)
+            content_type = f.content_type or media.get("file_type") or "application/octet-stream"
+            
+            # Read all file data into memory for range support
+            file_data = f.read()
+            file_size = len(file_data)
+            
+        elif storage_type == "external" and media.get("is_external"):
+            # Handle external/repaired files - return placeholder or redirect
+            file_path = media.get("file_path", "")
+            url = media.get("url", "")
+            
+            if url and url.startswith("http"):
+                # Redirect to external URL
+                from fastapi.responses import RedirectResponse
+                return RedirectResponse(url=url)
+            else:
+                # Return a placeholder response
+                placeholder_content = b"External file - use thumbnail"
+                file_data = placeholder_content
+                file_size = len(file_data)
+                content_type = media.get("file_type") or "image/jpeg"
+        
+        else:
+            raise HTTPException(404, "File not accessible - invalid storage type")
         
         # Handle Range requests for video streaming
         if range and content_type.startswith('video/'):

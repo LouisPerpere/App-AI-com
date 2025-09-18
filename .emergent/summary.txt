@@ -1,68 +1,58 @@
 <analysis>
-This trajectory details the AI engineer's extensive work on the Claire et Marcus PWA, primarily focusing on fixing and enhancing Facebook and Instagram integration. Key challenges included migrating from the deprecated Instagram Basic Display API to the Instagram Graph API 2025, navigating complex Facebook Login for Business configurations, and resolving persistent Sorry, something went wrong and Invalid Scopes errors. The engineer systematically addressed issues such as incorrect redirect URIs, missing OAuth parameters (), and outdated scopes. Significant effort was also directed at improving the frontend UI: fixing post display, implementing a dynamic month-collapsing logic, and ensuring the website analysis and social connection statuses loaded and displayed correctly. The work culminated in diagnosing why connections weren't being saved in the database despite successful user authorization, indicating a deeper backend callback or routing issue.
+The AI engineer's work primarily involved stabilizing and enhancing the Claire et Marcus PWA, focusing on social media integration and AI post generation. Initially, efforts concentrated on fixing Facebook and Instagram OAuth, migrating to the Instagram Graph API 2025, and troubleshooting persistent redirect URI and scope issues. This included extensive debugging of environment variables () and backend server logic () to align with the live environment and Facebook Login for Business requirements. A major challenge was a phantom posts issue, where the UI displayed posts not present in the database, eventually traced to a misconfigured  pointing to an old external MongoDB. Concurrently, the post generation system in  was refactored to conditionally generate posts based on active social media connections. This involved adding platform-specific logic and prompts. The engineer iteratively debugged generation failures, discovering issues like missing user data and content in the newly pointed local MongoDB. The trajectory concludes with the engineer re-implementing generation logic to strictly adhere to user-defined rules for connected platforms, moving towards robust multi-platform post creation.
 </analysis>
+
 <product_requirements>
-The Claire et Marcus PWA aims to automate social media for small businesses by generating Instagram calendars with visuals, text, and scheduling. Content generation is based on business profiles, website analysis, user uploads, and notes, prioritizing balanced, audience-specific content. Key features include post modification, visual attachment (library, Pixabay, upload), carousel support, and monthly collapsible sections for content organization. Initial requests included fixing Instagram integration by migrating to Facebook Login for Business, managing photos, using OpenAI GPT-4o with Claude Sonnet 4 as backup, and implementing an intelligent LLM selection strategy for website analysis and storytelling. UI fixes were also requested for the header, ensuring direct access to business profile fields, and a fictitious 90-second progress bar for website analysis. The ultimate goal is automatic post publication on Facebook and Instagram, requiring robust social media account connectivity and a seamless user experience.
+The Claire et Marcus PWA aims to automate social media content for small businesses, generating Instagram calendars with AI-curated visuals and text. It leverages business profiles, website analysis, user uploads, and notes for tailored content. Core features include post modification, diverse visual attachments, carousel support, and monthly collapsible content sections. Initial user requests focused on fixing Instagram integration, migrating to Facebook Login for Business, managing photos, and using OpenAI GPT-4o with Claude Sonnet 4 as backup for LLM-driven content. UI improvements were also sought, including header fixes, direct access to business profile fields, and a fictitious 90-second website analysis progress bar. The overarching goal is automated publication on Facebook and Instagram, requiring robust social account connectivity. More recently, the user explicitly requested a refined post generation logic: only generate posts if a network is connected, for that specific network; if multiple networks are connected, generate independently for each. Phantom posts displayed in the UI also need resolution.
 </product_requirements>
+
 <key_technical_concepts>
--   **Full-stack Development**: React.js (Frontend), FastAPI (Backend), MongoDB (Database).
--   **LLM Integration**: OpenAI GPT-4o, Anthropic Claude Sonnet 4, intelligent LLM orchestration.
--   **Authentication/Authorization**: JWT, OAuth 2.0 (Facebook Login for Business, Instagram Graph API 2025).
--   **Data Management**: MongoDB collections (e.g., ), UUIDs, environment variables, async/sync handling.
--   **Deployment**: Kubernetes Ingress rules, supervisor, environment variable configuration ().
--   **UI/UX**: Tailwind CSS, React state management, dynamic content rendering.
+- **Full-stack Development**: React.js (Frontend), FastAPI (Backend), MongoDB (Database).
+- **LLM Integration**: OpenAI GPT-4o, Anthropic Claude Sonnet 4, intelligent LLM orchestration.
+- **Authentication/Authorization**: JWT, OAuth 2.0 (Facebook Login for Business, Instagram Graph API 2025).
+- **Data Management**: MongoDB collections, UUIDs, environment variables (), Pydantic.
+- **Deployment**: Kubernetes Ingress rules, supervisor, .
+- **UI/UX**: Tailwind CSS, React state management, dynamic content rendering.
 </key_technical_concepts>
+
 <code_architecture>
 
--   ****: Main FastAPI application handling all backend routes.
-    -   **Importance**: Critical for authentication, social media integration, and content generation.
-    -   **Changes Made**: Instagram OAuth updated for Graph API 2025 (endpoints, scopes). Facebook Login for Business integration refined multiple times to use correct endpoints, scopes (, , , ), and parameters (e.g.,  added, then removed, specific business-focused parameters attempted and reverted). Callback () adjusted to handle GET requests with  parameter, extract  from OAuth , and save social connections to MongoDB. Temporary endpoints added for testing/debugging (, , , ).
--   ****: Handles AI-driven social media post generation.
-    -   **Importance**: Orchestrates LLM outputs for tailored social media posts based on user content.
-    -   **Changes Made**:  modified to prioritize media specific to the target month for post generation. Logic initiated to group carousel images by  to generate single carousel posts instead of multiple individual posts.
--   ****: Manages scheduled background tasks.
-    -   **Importance**: Designed for automation, including monthly updates.
-    -   **Changes Made**:  function added and integrated into the main scheduler loop to manage month-based content archiving and new month generation (triggered on 1st of month at 1h UTC).
+-   ****: Main FastAPI application.
+    -   **Importance**: Handles all backend routes, including authentication and social media callbacks.
+    -   **Changes Made**: Instagram/Facebook OAuth callback logic refined to handle correct redirect URIs, scopes, and  for Facebook Login for Business. Debugging statements and temporary test endpoints (, , ) were added and removed repeatedly to diagnose environment variable propagation and phantom data issues. Endpoints for Facebook and Instagram auth (, ) were separated, and the  for Instagram was integrated. Publication endpoint () was created and iteratively debugged.
+-   ****: Manages AI-driven social media post generation.
+    -   **Importance**: Orchestrates LLM outputs for tailored social media posts.
+    -   **Changes Made**: Heavily modified to include platform-specific generation logic. Initially changed to use  by default and conditionally generate based on . Later, a default  was restored. Logic for , , and  was introduced, modified, removed, and re-introduced to handle multi-platform generation and ensure posts are created for connected accounts. Prompts were updated to be platform-aware.
 -   ****: Backend environment variables.
-    -   **Importance**: Stores critical configuration, including , , and Facebook/Instagram credentials.
-    -   **Changes Made**:  and  were frequently adjusted between preview () and production () URLs to manage testing and deployment environments.
--   ****: Main React component managing global state, authentication, and UI rendering.
-    -   **Importance**: Central to user interaction, displaying business profiles, website analysis, social feeds, and post generation.
-    -   **Changes Made**:
-        *   **Social Connections**:  function added. Handled  in the callback.  integrated to run on app mount and when navigating to the Social tab to update connection status.  included in OAuth state for backend processing.
-        *   **Post Display**: Refactored  and  to implement new monthly collapsing logic (current/next month open, others collapsed; past months in Archives). Responsive styling added to post generation buttons and text display (, , , ).
-        *   **Post Generation Popup**: Restored and modified to show a checklist of prerequisites. Updated to use month-specific counts for notes () and media () instead of global totals.
-        *   **Website Analysis Loading**:  added to  for automatic loading on login.  adjusted and a  fallback added to address React timing issues where  state wasn't immediately available.
-        *   **Spinners**:  was changed to  (a per-month state) to ensure only the clicked month's button showed a spinner.
-        *   **Message Listener**: Added a listener for  messages from the OAuth callback.
--   ****: Frontend styling.
-    -   **Importance**: Controls the visual presentation of the application.
-    -   **Changes Made**: Added CSS for  utility classes to manage text overflow in post previews.
--   ****: New documentation file.
-    -   **Importance**: Provides user instructions for configuring the Facebook Developer App.
-    -   **Changes Made**: Created to guide the user on necessary steps for Instagram Graph API 2025 integration.
+    -   **Importance**: Stores critical configuration, , and Facebook/Instagram credentials.
+    -   **Changes Made**:  and  were adjusted multiple times between preview and production URLs.  (e.g., ) was added. Crucially,  was changed from an external MongoDB Atlas cluster to  to use the local Emergent MongoDB instance, resolving phantom post issues.
+-   ****: Main React component.
+    -   **Importance**: Manages global state, authentication, UI rendering, and user interaction.
+    -   **Changes Made**:  and  functions were updated to call distinct backend endpoints.  was implemented to show a confirmation modal and attempt post publication. The rendering logic for posts was updated to display a Publié badge conditionally for published posts and a Valider button for unpublished posts, replacing a universal Valider button. Logic for  and the post generation modal was fixed to prevent double popups and correctly reset state.
 </code_architecture>
+
 <pending_tasks>
--   Investigate why social connections are not being saved in the database despite successful Facebook authorization (current focus).
--   Implement the Valider (Validate) button to trigger automatic post publication on Instagram.
--   Implement the full scheduling system for automated publications.
--   Implement the analytics dashboard for published posts.
--   Diagnose and fix the carousel deletion issue (if still present).
--   Diagnose and fix the recurring photo modification issue (blue question mark).
--   Work with the infrastructure team to resolve the external proxy/cache issue.
--   Finalize the carousel display logic (grey placeholder instead of first image).
+- Investigate the persistent phantom posts in the frontend UI despite database deletions.
+- Ensure all newly created backend endpoints are consistently accessible (e.g., for post publication, cache clearing).
+- Implement the full scheduling system for automated publications.
+- Implement the analytics dashboard for published posts.
+- Diagnose and fix the carousel deletion issue (if still present).
+- Diagnose and fix the recurring photo modification issue (blue question mark).
+- Work with the infrastructure team to resolve any remaining external proxy/cache issue.
+- Finalize the carousel display logic (grey placeholder instead of first image).
 </pending_tasks>
+
 <current_work>
-Immediately before this summary request, the AI engineer was actively troubleshooting a critical issue where, despite a successful Facebook Login for Business authorization flow (user was able to select My Own Watch page and was redirected to ), the application's Social tab still displayed Connecter buttons instead of showing a Connecté status with the connected page.
+Immediately prior to this summary, the AI engineer was actively engaged in refining the post generation logic within . The user reported that the generation system was not correctly taking into account connected social networks, generating Instagram posts even when Facebook was connected, and showing 12 phantom posts in the UI.
 
-Initial diagnosis revealed that the backend's  endpoint reported  connections, indicating that the OAuth callback was not successfully saving the connection to the database. The root cause was suspected to be a problem where the backend (running in a preview environment) was configured to redirect to a production URL (), causing a mismatch.
+The engineer identified that previous modifications had inadvertently broken the generation logic by adding a fallback to Instagram or by not properly detecting connected platforms. The core issue was to implement a strict logic for multi-platform post generation:
+1.  If no network is connected, show an error popup.
+2.  If one network is connected, generate posts only for that network.
+3.  If multiple networks are connected, generate posts independently for each.
 
-The engineer adjusted the  in  to  and redeployed the backend, aiming to align the redirect URI. However, subsequent testing showed that the deployed production environment was still using an older configuration, redirecting to the preview URL.
-
-To address the callback failure, the AI engineer added a simple logging statement to the callback function in  to diagnose if the callback endpoint is even being reached. This is the immediate step before the next redeployment.
-
-The overall goal is to achieve persistent display of connected social accounts and enable automatic post publication, which is currently blocked by the inability to save social connections. On continue en français. A noter que la redirection après la connexion Facebook se fait sur la preview, il faut modifier pour pointer l'air la version déployée. 
+The engineer has successfully re-implemented this logic, modifying , , and  to detect active Facebook connections, select facebook as the target platform, and adapt AI prompts accordingly. Initial tests confirm the no connection error and single-platform (Facebook) generation now work. The engineer just finished setting up a test for multiple connections by adding an Instagram connection.
 </current_work>
+
 <optional_next_step>
-Redeploy the backend to production with the updated callback logging, then test the Facebook login flow to check backend logs for callback execution.
+Test the multi-platform post generation logic with both Facebook and Instagram connections active.
 </optional_next_step>

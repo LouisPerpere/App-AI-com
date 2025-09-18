@@ -12,7 +12,7 @@ import os
 def test_facebook_integration():
     """Test Facebook/Instagram integration with real credentials"""
     
-    base_url = "https://authflow-10.preview.emergentagent.com"
+    base_url = "https://smartposter.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     print("🔍 Testing Facebook/Instagram Integration with Real Credentials")

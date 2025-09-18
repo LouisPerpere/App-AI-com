@@ -7,7 +7,7 @@ import requests
 import json
 
 def debug_website_analysis():
-    base_url = "https://authflow-10.preview.emergentagent.com"
+    base_url = "https://smartposter.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     # Login first

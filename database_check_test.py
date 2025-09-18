@@ -11,7 +11,7 @@ import json
 from database import get_database
 
 # Configuration
-BASE_URL = "https://authflow-10.preview.emergentagent.com/api"
+BASE_URL = "https://smartposter.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

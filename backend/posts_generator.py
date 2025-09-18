@@ -141,12 +141,12 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             # STEP 6: Save to database
             self._save_generated_posts(user_id, scheduled_posts)
             
-            logger.info(f"✅ Generated {len(all_scheduled_posts)} posts successfully")
+            logger.info(f"✅ Generated {len(scheduled_posts)} posts successfully")
             
             return {
                 "success": True,
-                "posts_count": len(all_scheduled_posts),
-                "posts": all_scheduled_posts,
+                "posts_count": len(scheduled_posts),
+                "posts": scheduled_posts,
                 "strategy": content_strategy,
                 "sources_used": {
                     "business_profile": source_data.get("business_profile") is not None,

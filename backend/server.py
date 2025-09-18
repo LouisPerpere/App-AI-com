@@ -1016,6 +1016,39 @@ async def delete_posts_by_month(
         print(f"❌ Error deleting posts for month {target_month}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to delete posts: {str(e)}")
 
+@api_router.delete("/posts/generated/{post_id}")
+async def delete_single_generated_post(
+    post_id: str,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Delete a single generated post by ID"""
+    try:
+        print(f"🗑️ Deleting single post '{post_id}' for user {user_id}")
+        
+        dbm = get_database()
+        
+        # Delete the specific post (ensure ownership)
+        result = dbm.db.generated_posts.delete_one({
+            "id": post_id,
+            "owner_id": user_id
+        })
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Post not found or not owned by user")
+        
+        print(f"✅ Successfully deleted post {post_id}")
+        
+        return {
+            "message": "Post supprimé avec succès",
+            "deleted_post_id": post_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error deleting post {post_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete post: {str(e)}")
+
 @api_router.get("/content/carousel/{carousel_id}")
 async def get_carousel_content(
     carousel_id: str,

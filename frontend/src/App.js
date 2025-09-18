@@ -346,7 +346,7 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
       }`}>
         {/* Image/Visual du post */}
         <div className="aspect-square bg-gradient-to-br from-emerald-100 to-blue-100 flex items-center justify-center relative">
-          {post.visual_url && !needsImage ? (
+          {post.visual_url && post.visual_url.length > 0 && !needsImage ? (
             <>
               <img 
                 src={post.visual_url.startsWith('http') 

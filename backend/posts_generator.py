@@ -794,7 +794,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             business_profile = source_data.get("business_profile", {}) if source_data else {}
             business_objective = business_profile.get("business_objective", "equilibre")
             brand_tone = business_profile.get("brand_voice", "professionnel")
-            # La plateforme est maintenant passée en paramètre
+            platform = "instagram"  # Par défaut Instagram, TODO: rendre dynamique selon la plateforme
             
             print(f"🎯 Post Generation Strategy:")
             print(f"   - Business Objective: {business_objective}")

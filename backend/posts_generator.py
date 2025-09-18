@@ -143,11 +143,17 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             # STEP 4: Générer des posts pour chaque plateforme connectée
             for platform in connected_platforms:
                 logger.info(f"📱 Génération posts pour {platform}...")
+                print(f"🔍 DEBUG: Génération posts pour {platform}...")
                 
                 # STEP 4a: Generate posts according to strategy for this platform
-                generated_posts = await self._generate_posts_with_strategy(
-                    source_data, available_content, content_strategy, num_posts, user_id, platform
-                )
+                try:
+                    generated_posts = await self._generate_posts_with_strategy(
+                        source_data, available_content, content_strategy, num_posts, user_id, platform
+                    )
+                    print(f"🔍 DEBUG: Generated {len(generated_posts)} posts for {platform}")
+                except Exception as e:
+                    print(f"❌ DEBUG: Error generating posts for {platform}: {str(e)}")
+                    generated_posts = []
                 
                 # STEP 4b: Mark used content with timestamps
                 await self._mark_used_content(generated_posts)

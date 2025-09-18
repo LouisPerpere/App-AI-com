@@ -1297,9 +1297,6 @@ CTA: "Apprenez plus", "Essayez", "Suivez le guide"
             
             scheduled_date = start_date + timedelta(days=day_offset, hours=hour)
             post.scheduled_date = scheduled_date
-            
-            # Assigner la plateforme correcte
-            post.platform = platform
         
         # Sort by scheduled date
         posts.sort(key=lambda p: p.scheduled_date)

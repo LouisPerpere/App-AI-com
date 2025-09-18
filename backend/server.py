@@ -1423,12 +1423,19 @@ async def generate_posts_manual(
 async def get_generated_posts(user_id: str = Depends(get_current_user_id_robust)):
     """Get generated posts for the current user with enhanced format"""
     try:
+        print(f"🔍 DEBUG: get_generated_posts called for user {user_id}")
+        
         dbm = get_database()
         db = dbm.db
+        
+        print(f"🔍 DEBUG: Database name: {db.name}")
+        print(f"🔍 DEBUG: Looking for posts with owner_id: {user_id}")
         
         posts = list(db.generated_posts.find(
             {"owner_id": user_id}
         ).sort([("scheduled_date", 1)]).limit(100))
+        
+        print(f"🔍 DEBUG: Found {len(posts)} posts in database")
         
         # Format posts for frontend display (similar to content/notes)
         formatted_posts = []

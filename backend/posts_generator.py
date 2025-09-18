@@ -1105,7 +1105,7 @@ IMPORTANT: Varie intelligemment les content_type selon ce qui sera le plus effic
             logger.error(f"❌ Error parsing global response: {str(e)}")
             return []
     async def _generate_single_post(self, visual_content: ContentSource, content_type: str, 
-                                   business_context: str, notes_context: str, user_id: str) -> Optional[PostContent]:
+                                   business_context: str, notes_context: str, user_id: str, platform: str = "facebook") -> Optional[PostContent]:
         """Generate a single post with AI"""
         try:
             # Get recent posts context to avoid duplication

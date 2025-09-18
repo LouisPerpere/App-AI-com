@@ -1112,7 +1112,7 @@ IMPORTANT: Varie intelligemment les content_type selon ce qui sera le plus effic
             recent_posts_context = await self._get_recent_posts_context(user_id)
             
             # Build prompt for AI
-            prompt = f"""Crée un post Instagram {content_type} naturel et authentique.
+            prompt = f"""Crée un post {platform.title()} {content_type} naturel et authentique.
 
 CONTEXTE BUSINESS:
 {business_context}

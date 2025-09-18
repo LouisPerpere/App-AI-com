@@ -172,8 +172,8 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
                 "posts": []
             }
     
-    def _determine_target_platform(self, user_id: str) -> str:
-        """Déterminer la plateforme cible selon les connexions actives"""
+    def _get_connected_platforms(self, user_id: str) -> List[str]:
+        """Récupérer toutes les plateformes connectées pour l'utilisateur"""
         try:
             # Récupérer les connexions sociales actives
             social_connections = list(self.db.social_connections.find({
@@ -181,24 +181,14 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
                 "is_active": True
             }))
             
-            # Priorité des plateformes
-            platform_priority = ["facebook", "instagram", "linkedin"]
-            
             connected_platforms = [conn.get("platform") for conn in social_connections if conn.get("platform")]
             logger.info(f"🔗 Plateformes connectées: {connected_platforms}")
-            # Retourner la première plateforme connectée selon la priorité
-            for platform in platform_priority:
-                if platform in connected_platforms:
-                    logger.info(f"✅ Plateforme sélectionnée: {platform}")
-                    return platform
             
-            # Fallback sur Instagram si aucune connexion
-            logger.warning("⚠️ Aucune connexion active - fallback sur Instagram")
-            return "instagram"
+            return connected_platforms
             
         except Exception as e:
-            logger.error(f"❌ Erreur détermination plateforme: {str(e)}")
-            return "instagram"  # Fallback sécurisé
+            logger.error(f"❌ Erreur récupération plateformes: {str(e)}")
+            return []
 
     def _gather_source_data(self, user_id: str, target_month: str) -> Dict[str, Any]:
         """Gather all source data for post generation"""

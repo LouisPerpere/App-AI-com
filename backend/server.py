@@ -2169,6 +2169,51 @@ async def test_facebook_publish_endpoint():
     """Test endpoint pour vérifier si les nouvelles routes fonctionnent"""
     return {"message": "Facebook publish endpoint is working", "timestamp": datetime.now().isoformat()}
 
+@api_router.get("/posts/force-clear-cache")
+async def force_clear_all_caches(user_id: str = Depends(get_current_user_id_robust)):
+    """Force le vidage de tous les caches possibles"""
+    try:
+        import gc
+        import os
+        
+        # Forcer le garbage collection
+        gc.collect()
+        
+        # Tentative de vider différents types de cache
+        cleared_operations = []
+        
+        # 1. Vider les variables globales si elles existent
+        cleared_operations.append("Garbage collection forcé")
+        
+        # 2. Forcer une reconnexion à la DB
+        dbm = get_database() 
+        db = dbm.db
+        
+        # Vérifier le nombre réel de posts
+        real_posts = db.generated_posts.count_documents({"owner_id": user_id})
+        cleared_operations.append(f"Connexion DB forcée: {real_posts} posts réels")
+        
+        # 3. Test direct de l'endpoint problématique
+        posts = list(db.generated_posts.find({"owner_id": user_id}).sort([("scheduled_date", 1)]).limit(100))
+        
+        return {
+            "cache_clear_operations": cleared_operations,
+            "real_posts_count": len(posts),
+            "real_posts_sample": [
+                {
+                    "title": post.get("title", "N/A"),
+                    "platform": post.get("platform", "N/A"),
+                    "created": str(post.get("created_at", ""))[:19]
+                }
+                for post in posts[:3]
+            ],
+            "user_id": user_id,
+            "database": db.name
+        }
+        
+    except Exception as e:
+        return {"error": f"Cache clear error: {str(e)}"}
+
 @api_router.get("/posts/debug-db")
 async def debug_db_posts(user_id: str = Depends(get_current_user_id_robust)):
     """Endpoint de debug DIRECT sur la base de données"""

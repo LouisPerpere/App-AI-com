@@ -990,7 +990,7 @@ IMPORTANT: Varie intelligemment les content_type selon ce qui sera le plus effic
                         max_tokens=4000
                     )
                     response_text = response.choices[0].message.content
-                    return self._parse_global_response(response_text, strategy, available_content, num_posts)
+                    return self._parse_global_response(response_text, strategy, available_content, num_posts, target_platform)
                 else:
                     raise llm_error
             

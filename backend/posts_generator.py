@@ -121,57 +121,25 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             # STEP 1: Gather all source data
             source_data = self._gather_source_data(user_id, target_month)
             
-            # Vérifier s'il y a des plateformes connectées
-            connected_platforms = source_data.get("connected_platforms", [])
-            if not connected_platforms:
-                logger.warning("❌ Aucune plateforme sociale connectée - génération annulée")
-                return {
-                    "success": False,
-                    "error": "Aucune plateforme sociale connectée. Connectez Facebook, Instagram ou LinkedIn pour générer des posts.",
-                    "posts_count": 0,
-                    "posts": []
-                }
-            
             # STEP 2: Collect available content
             available_content = self._collect_available_content(user_id, target_month)
             
             # STEP 3: Determine content mix strategy  
             content_strategy = self._determine_content_strategy(source_data, num_posts)
             
-            all_scheduled_posts = []
+            # STEP 4: Generate posts according to strategy (Instagram par défaut)
+            generated_posts = await self._generate_posts_with_strategy(
+                source_data, available_content, content_strategy, num_posts, user_id
+            )
             
-            # STEP 4: Générer des posts pour chaque plateforme connectée
-            for platform in connected_platforms:
-                logger.info(f"📱 Génération posts pour {platform}...")
-                print(f"🔍 DEBUG: Génération posts pour {platform}...")
-                
-                # STEP 4a: Generate posts according to strategy for this platform
-                try:
-                    generated_posts = await self._generate_posts_with_strategy(
-                        source_data, available_content, content_strategy, num_posts, user_id, platform
-                    )
-                    print(f"🔍 DEBUG: Generated {len(generated_posts)} posts for {platform}")
-                except Exception as e:
-                    print(f"❌ DEBUG: Error generating posts for {platform}: {str(e)}")
-                    generated_posts = []
-                
-                # STEP 4b: Mark used content with timestamps
-                try:
-                    await self._mark_used_content(generated_posts)
-                    print(f"🔍 DEBUG: Marked content as used for {len(generated_posts)} posts")
-                except Exception as e:
-                    print(f"❌ DEBUG: Error marking content: {str(e)}")
-                
-                # STEP 5: Create posting schedule for this platform
-                try:
-                    scheduled_posts = self._create_posting_schedule(generated_posts, target_month, platform)
-                    print(f"🔍 DEBUG: Scheduled {len(scheduled_posts)} posts for {platform}")
-                    all_scheduled_posts.extend(scheduled_posts)
-                except Exception as e:
-                    print(f"❌ DEBUG: Error scheduling posts: {str(e)}")
+            # STEP 4.5: Mark used content with timestamps
+            await self._mark_used_content(generated_posts)
+            
+            # STEP 5: Create posting schedule
+            scheduled_posts = self._create_posting_schedule(generated_posts, target_month)
             
             # STEP 6: Save to database
-            self._save_generated_posts(user_id, all_scheduled_posts)
+            self._save_generated_posts(user_id, scheduled_posts)
             
             logger.info(f"✅ Generated {len(all_scheduled_posts)} posts successfully")
             

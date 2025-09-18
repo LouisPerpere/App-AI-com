@@ -3105,16 +3105,23 @@ function MainApp() {
     if (!token) return;
 
     try {
-      const response = await axios.get(`${API}/posts/generated`, {
+      console.log('🔄 Loading generated posts from server...');
+      const response = await axios.get(`${API}/posts/generated?t=${Date.now()}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
       if (response.data && response.data.posts) {
+        console.log(`📊 Loaded ${response.data.posts.length} posts from server`);
         setGeneratedPosts(response.data.posts);
         
         // Organiser les posts par mois
         const postsByMonth = organizePosts(response.data.posts);
         setPostsByMonth(postsByMonth);
+        
+        // Debug: Log des posts par mois
+        Object.keys(postsByMonth).forEach(monthKey => {
+          console.log(`📅 ${monthKey}: ${postsByMonth[monthKey].posts.length} posts`);
+        });
       }
     } catch (error) {
       console.error('Error loading generated posts:', error);

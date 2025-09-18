@@ -1239,7 +1239,7 @@ RÉPONSE ATTENDUE (JSON exact):
                     title=response_data.get("title", visual_content.title),
                     text=response_data.get("text", ""),
                     hashtags=response_data.get("hashtags", []),
-                    platform=platform,
+                    platform=target_platform,
                     content_type=content_type,
                     visual_type="video" if visual_content.file_type.startswith("video") else "image"
                 )

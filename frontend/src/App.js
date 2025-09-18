@@ -7862,7 +7862,7 @@ function MainApp() {
                         <h3 className="text-lg font-semibold text-gray-900">Facebook</h3>
                         <p className="text-sm text-gray-500 truncate">
                           {connectedAccounts.facebook ? 
-                            `Connecté : ${connectedAccounts.facebook.page_name}` : 
+                            `Connecté : ${connectedAccounts.facebook.username}` : 
                             'Publiez sur vos pages Facebook'
                           }
                         </p>

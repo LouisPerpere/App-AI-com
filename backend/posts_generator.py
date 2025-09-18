@@ -492,7 +492,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         return strategy
     
     async def _generate_posts_with_strategy(self, source_data: Dict, available_content: Dict, 
-                                          strategy: Dict, num_posts: int, user_id: str) -> List[PostContent]:
+                                          strategy: Dict, num_posts: int, user_id: str, target_platform: str = "instagram") -> List[PostContent]:
         """Generate posts according to the determined strategy with ONE global ChatGPT request"""
         logger.info("✨ Step 4/6: Generating posts with AI...")
         logger.info(f"🚀 NEW APPROACH: Single global request for {num_posts} posts instead of individual requests")

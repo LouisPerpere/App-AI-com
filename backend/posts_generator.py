@@ -1051,7 +1051,7 @@ IMPORTANT: Varie intelligemment les content_type selon ce qui sera le plus effic
                         title=post_data.get("title", f"Post {i+1}"),
                         text=post_data.get("text", ""),
                         hashtags=post_data.get("hashtags", []),
-                        platform=platform,
+                        platform="instagram",
                         content_type=post_data.get("content_type", "product"),
                         status="with_image"
                     )
@@ -1068,7 +1068,7 @@ IMPORTANT: Varie intelligemment les content_type selon ce qui sera le plus effic
                         title=post_data.get("title", f"Post {i+1}"),
                         text=post_data.get("text", ""),
                         hashtags=post_data.get("hashtags", []),
-                        platform=platform,
+                        platform="instagram",
                         content_type=post_data.get("content_type", "product"),
                         status="needs_image"  # Mark as needing image
                     )

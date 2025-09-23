@@ -2024,7 +2024,7 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         scopes = "pages_show_list,pages_read_engagement,pages_manage_posts"
         
         # Config ID Instagram dédié
-        instagram_config_id = os.environ.get('INSTAGRAM_CONFIG_ID', '1309694717566880')
+        instagram_config_id = os.environ.get('INSTAGRAM_CONFIG_ID_PAGES', os.environ.get('INSTAGRAM_CONFIG_ID', '1309694717566880'))
         
         # OAuth avec config_id (configuration Instagram dédiée)
         from urllib.parse import urlencode

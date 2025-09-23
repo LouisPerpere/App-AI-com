@@ -2016,18 +2016,22 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         import secrets
         state = secrets.token_urlsafe(32)
         
-        # Scopes Pages seulement (même stratégie que Facebook)
+        # Scopes Pages seulement (votre nouvelle config Instagram)
         scopes = "pages_show_list,pages_read_engagement,pages_manage_posts"
         
-        # OAuth classique (comme Facebook) - PAS Facebook Login for Business
+        # Config ID Instagram dédié
+        instagram_config_id = os.environ.get('INSTAGRAM_CONFIG_ID', '1309694717566880')
+        
+        # OAuth avec config_id (configuration Instagram dédiée)
         from urllib.parse import urlencode
         
         params = {
             "client_id": facebook_app_id,
             "redirect_uri": redirect_uri,
             "scope": scopes,
-            "response_type": "code",  # Comme Facebook
-            "state": state
+            "response_type": "code",
+            "state": state,
+            "config_id": instagram_config_id  # Configuration Instagram dédiée
         }
         
         # URL OAuth classique (comme Facebook)

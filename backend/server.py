@@ -2042,8 +2042,9 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
             "state": state,
             "redirect_uri": redirect_uri,
             "scopes": scopes.split(","),
-            "flow_type": "oauth_classic",
-            "note": "Instagram via OAuth classique (même stratégie que Facebook)"
+            "config_id": instagram_config_id,
+            "flow_type": "oauth_with_config_id",
+            "note": "Instagram avec configuration dédiée (ID: " + instagram_config_id + ")"
         }
         
     except Exception as e:

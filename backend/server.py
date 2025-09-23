@@ -2109,6 +2109,46 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         print(f"❌ Error generating Instagram auth URL: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to generate auth URL: {str(e)}")
 
+@api_router.get("/test/media-for-user/{user_id}")
+async def get_media_for_specific_user(user_id: str):
+    """Endpoint de test pour récupérer les médias d'un utilisateur sans authentification"""
+    try:
+        media_collection = get_media_collection()
+        q = {"owner_id": user_id, "$or": [{"deleted": {"$ne": True}}, {"deleted": {"$exists": False}}]}
+        total = media_collection.count_documents(q)
+        
+        if total == 0:
+            return {
+                "user_id": user_id,
+                "total": 0,
+                "message": "Aucun média trouvé pour cet utilisateur",
+                "query": str(q)
+            }
+        
+        # Récupérer quelques médias pour test
+        items = []
+        cursor = media_collection.find(q).limit(5)
+        for d in cursor:
+            file_id = d.get("id") or str(d.get("_id"))
+            items.append({
+                "id": file_id,
+                "filename": d.get("filename", ""),
+                "file_type": d.get("file_type", ""),
+                "url": f"/api/content/{file_id}/file",
+                "thumb_url": f"/api/content/{file_id}/thumb",
+                "created_at": str(d.get("created_at", ""))
+            })
+        
+        return {
+            "user_id": user_id,
+            "total": total,
+            "sample_items": items,
+            "message": f"Trouvé {total} médias pour cet utilisateur",
+            "note": "Données disponibles - problème d'authentification frontend"
+        }
+    except Exception as e:
+        return {"error": f"Erreur: {str(e)}"}
+
 @api_router.get("/test/frontend-connection")
 async def test_frontend_connection():
     """Endpoint simple pour tester la connectivité frontend-backend"""

@@ -1362,6 +1362,14 @@ function MainApp() {
   // Privacy policy state
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
+  // Auto-load content on app start for debugging
+  useEffect(() => {
+    console.log('🚀 App started - auto-loading content for debug...');
+    setTimeout(() => {
+      loadPendingContent();
+    }, 2000); // Attendre 2 secondes après le démarrage
+  }, []);
+
   // Auto-navigation après modification de post - Navigation vers onglet Posts
   useEffect(() => {
     const returnToPostsTab = localStorage.getItem('returnToPostsTab');

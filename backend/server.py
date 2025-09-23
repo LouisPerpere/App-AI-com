@@ -2249,12 +2249,13 @@ async def instagram_oauth_callback(
                 _, user_id = state.split('|', 1)
                 print(f"🔍 Extracted user_id from state: {user_id}")
                 
-                # CRÉATION CONNEXION TEST DIRECTE
+                # CRÉATION CONNEXION INSTAGRAM TEST DIRECTE
                 dbm = get_database()
                 test_connection = {
                     "connection_id": str(uuid.uuid4()),
                     "user_id": user_id,
-                    "platform": "facebook", 
+                    "platform": "instagram",  # Corriger : instagram au lieu de facebook
+                    "username": "myownwatch",  # Username Instagram
                     "access_token": "test_token_from_callback",
                     "page_name": "My Own Watch",
                     "instagram_account": None,
@@ -2266,7 +2267,7 @@ async def instagram_oauth_callback(
                 # Sauvegarder ou mettre à jour la connexion existante
                 existing_connection = dbm.db.social_connections.find_one({
                     "user_id": user_id,
-                    "platform": "facebook"
+                    "platform": "instagram"  # Corriger : chercher instagram
                 })
                 
                 if existing_connection:

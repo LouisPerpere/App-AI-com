@@ -2063,6 +2063,12 @@ function MainApp() {
 
   // Monthly content organization utilities
   const getMonthlyContentData = useCallback(() => {
+    console.log('🗓️ getMonthlyContentData called with pendingContent:', {
+      isArray: Array.isArray(pendingContent),
+      length: pendingContent?.length,
+      sample: pendingContent?.[0]
+    });
+    
     if (!Array.isArray(pendingContent)) return { currentAndFuture: {}, archives: {} };
     
     const currentDate = new Date();

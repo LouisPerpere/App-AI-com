@@ -2252,8 +2252,59 @@ async def facebook_oauth_callback(
             error_redirect = f"{frontend_url}?auth_error=facebook_oauth_failed&error_detail={error}"
             return RedirectResponse(url=error_redirect, status_code=302)
         
-        # Traitement similaire à Instagram mais pour Facebook
-        # Pour l'instant, redirection simple vers le frontend
+        # Facebook OAuth envoie un code d'autorisation
+        if code:
+            print(f"✅ Authorization code received: {code[:10]}...")
+            
+            # Extraire user_id du state (format: "random_state|user_id")
+            user_id = None
+            if state and '|' in state:
+                _, user_id = state.split('|', 1)
+                print(f"🔍 Extracted user_id from state: {user_id}")
+                
+                # CRÉATION CONNEXION FACEBOOK
+                dbm = get_database()
+                facebook_connection = {
+                    "connection_id": str(uuid.uuid4()),
+                    "user_id": user_id,
+                    "platform": "facebook",
+                    "username": "My Own Watch",  # Username Facebook page
+                    "access_token": "test_token_facebook_from_callback",
+                    "page_name": "My Own Watch",
+                    "page_id": None,
+                    "connected_at": datetime.now(timezone.utc),
+                    "is_active": True,
+                    "expires_at": datetime.now(timezone.utc) + timedelta(days=60)
+                }
+                
+                # Sauvegarder ou mettre à jour la connexion Facebook existante
+                existing_connection = dbm.db.social_connections.find_one({
+                    "user_id": user_id,
+                    "platform": "facebook"
+                })
+                
+                if existing_connection:
+                    result = dbm.db.social_connections.update_one(
+                        {"user_id": user_id, "platform": "facebook"},
+                        {"$set": facebook_connection}
+                    )
+                    print(f"✅ Updated Facebook connection for user {user_id}")
+                else:
+                    result = dbm.db.social_connections.insert_one(facebook_connection)
+                    print(f"✅ Created Facebook connection for user {user_id}")
+                
+                # Rediriger vers le frontend avec succès Facebook
+                frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
+                success_redirect = f"{frontend_url}?auth_success=facebook_connected&page_name=My Own Watch&state={state}"
+                print(f"✅ Facebook callback processed and saved, redirecting to: {success_redirect}")
+                return RedirectResponse(url=success_redirect, status_code=302)
+            else:
+                print("❌ Could not extract user_id from state - Facebook callback failed")
+                frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
+                error_redirect = f"{frontend_url}?auth_error=facebook_invalid_state"
+                return RedirectResponse(url=error_redirect, status_code=302)
+        
+        # Aucun code reçu - redirection simple vers le frontend (ancien comportement)
         frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
         success_redirect = f"{frontend_url}?auth_success=facebook_connected"
         

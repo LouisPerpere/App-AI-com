@@ -489,12 +489,30 @@ async def get_pending_content_mongo(offset: int = 0, limit: int = 24, user_id: s
                 else:
                     created_at_str = None
                 
+                # Corriger les URLs obsolètes à la volée
+                url = d.get("url", "")
+                thumb_url = d.get("thumb_url", "")
+                file_id = d.get("id") or str(d.get("_id"))
+                
+                # Remplacer les anciennes URLs par le nouveau système de serveur de fichiers
+                if url and "claire-marcus-api.onrender.com" in url:
+                    url = f"/api/content/{file_id}/file"
+                elif not url and file_id:
+                    # Générer URL pour les médias sans URL
+                    url = f"/api/content/{file_id}/file"
+                
+                if thumb_url and "claire-marcus-api.onrender.com" in thumb_url:
+                    thumb_url = f"/api/content/{file_id}/thumb"
+                elif not thumb_url and file_id:
+                    # Générer URL de vignette pour les médias sans vignette
+                    thumb_url = f"/api/content/{file_id}/thumb"
+                
                 items.append({
-                    "id": d.get("id") or str(d.get("_id")),  # Use UUID if available, fallback to ObjectId
+                    "id": file_id,
                     "filename": d.get("filename", ""),
                     "file_type": d.get("file_type", ""),
-                    "url": d.get("url", ""),
-                    "thumb_url": d.get("thumb_url", ""),
+                    "url": url,
+                    "thumb_url": thumb_url,
                     "description": d.get("description", ""),
                     "context": d.get("context", ""),  # Include context field
                     "title": d.get("title", ""),  # Include operational title field

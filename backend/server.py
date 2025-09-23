@@ -1977,8 +1977,8 @@ async def get_facebook_auth_url(user_id: str = Depends(get_current_user_id_robus
         # Scopes Facebook pour pages uniquement
         scopes = "pages_show_list,pages_read_engagement,pages_manage_posts"
         
-        # Utiliser la même config_id que Instagram (car votre app nécessite un config_id)
-        config_id = os.environ.get('INSTAGRAM_CONFIG_ID', '1309694717566880')
+        # Utiliser le config_id dédié pour Facebook
+        config_id = os.environ.get('FACEBOOK_CONFIG_ID_PAGES', os.environ.get('FACEBOOK_CONFIG_ID', '1878388119742903'))
         
         # Construire l'URL d'autorisation Facebook avec config_id
         from urllib.parse import urlencode

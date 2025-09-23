@@ -1891,13 +1891,20 @@ function MainApp() {
       const page = append ? contentPage + 1 : 0;
       const limit = 24; // Charge par batches de 24
       
-      // Récupérer le token de manière sécurisée
+      // Récupérer le token de manière sécurisée avec debug complet
       const token = localStorage.getItem('access_token');
-      console.log('🔍 Loading content with token:', token ? 'Present' : 'Missing');
+      console.log('🔍 Debug loadPendingContent:');
+      console.log('  - Token exists:', !!token);
+      console.log('  - Token preview:', token ? token.substring(0, 20) + '...' : 'null');
+      console.log('  - localStorage keys:', Object.keys(localStorage));
+      console.log('  - axios default auth:', axios.defaults.headers.common['Authorization']);
       
       const headers = {};
       if (token) {
         headers.Authorization = `Bearer ${token}`;
+        console.log('  - Using explicit auth header');
+      } else {
+        console.log('  - No token, relying on axios defaults');
       }
       
       const response = await axios.get(`${API}/content/pending`, {

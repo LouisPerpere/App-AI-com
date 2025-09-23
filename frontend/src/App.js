@@ -1888,6 +1888,18 @@ function MainApp() {
 
   const loadPendingContent = async (append = false) => {
     try {
+      // TEST CONNEXION BACKEND
+      console.log('🔍 Testing backend connection...');
+      console.log('API URL:', API);
+      
+      try {
+        const pingResponse = await axios.get(`${API}/health`);
+        console.log('✅ Backend reachable:', pingResponse.status);
+      } catch (pingError) {
+        console.error('❌ Backend NOT reachable:', pingError.message);
+        console.error('Full error:', pingError);
+      }
+      
       const page = append ? contentPage + 1 : 0;
       const limit = 24; // Charge par batches de 24
       
@@ -1906,6 +1918,8 @@ function MainApp() {
       } else {
         console.log('  - No token, relying on axios defaults');
       }
+      
+      console.log('🚀 Making request to:', `${API}/content/pending`);
       
       const response = await axios.get(`${API}/content/pending`, {
         params: { 

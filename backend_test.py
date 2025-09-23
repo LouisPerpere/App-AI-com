@@ -30,7 +30,7 @@ import os
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://smartposter.preview.emergentagent.com/api"
+BACKEND_URL = "https://post-genius-13.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 EXPECTED_USER_ID = "6a670c66-c06c-4d75-9dd5-c747e8a0281a"

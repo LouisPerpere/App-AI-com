@@ -2004,7 +2004,7 @@ async def get_facebook_auth_url(user_id: str = Depends(get_current_user_id_robus
 
 @api_router.get("/social/instagram/auth-url")
 async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robust)):
-    """Générer l'URL Facebook Login for Business pour Instagram (selon documentation officielle)"""
+    """Générer l'URL d'autorisation Instagram via OAuth classique (comme Facebook)"""
     try:
         facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
         if not facebook_app_id:
@@ -2012,31 +2012,34 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         
         redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://smartposter.preview.emergentagent.com/api/social/instagram/callback')
         
-        # Scopes Pages seulement (votre app n'a pas les permissions Instagram spécifiques)
+        # Générer un état sécurisé pour CSRF protection
+        import secrets
+        state = secrets.token_urlsafe(32)
+        
+        # Scopes Pages seulement (même stratégie que Facebook)
         scopes = "pages_show_list,pages_read_engagement,pages_manage_posts"
         
-        # Paramètres requis pour Facebook Login for Business (selon doc)
+        # OAuth classique (comme Facebook) - PAS Facebook Login for Business
         from urllib.parse import urlencode
-        import json
         
         params = {
             "client_id": facebook_app_id,
-            "display": "page",
-            "extras": json.dumps({"setup": {"channel": "IG_API_ONBOARDING"}}),
             "redirect_uri": redirect_uri,
-            "response_type": "token",  # DIFFÉRENT : token au lieu de code
-            "scope": scopes
+            "scope": scopes,
+            "response_type": "code",  # Comme Facebook
+            "state": state
         }
         
-        # URL Facebook Login for Business (pas de version dans l'URL)
-        auth_url = f"https://www.facebook.com/dialog/oauth?{urlencode(params)}"
+        # URL OAuth classique (comme Facebook)
+        auth_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(params)}"
         
         return {
             "auth_url": auth_url,
+            "state": state,
             "redirect_uri": redirect_uri,
             "scopes": scopes.split(","),
-            "flow_type": "facebook_login_for_business",
-            "note": "Instagram requires Facebook Login for Business flow"
+            "flow_type": "oauth_classic",
+            "note": "Instagram via OAuth classique (même stratégie que Facebook)"
         }
         
     except Exception as e:

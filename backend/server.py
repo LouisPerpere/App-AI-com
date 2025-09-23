@@ -2012,8 +2012,8 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         
         redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://smartposter.preview.emergentagent.com/api/social/instagram/callback')
         
-        # Scopes Instagram requis selon documentation Facebook Login for Business
-        scopes = "instagram_basic,instagram_content_publish,instagram_manage_comments,instagram_manage_insights,pages_show_list,pages_read_engagement"
+        # Scopes Pages seulement (votre app n'a pas les permissions Instagram spécifiques)
+        scopes = "pages_show_list,pages_read_engagement,pages_manage_posts"
         
         # Paramètres requis pour Facebook Login for Business (selon doc)
         from urllib.parse import urlencode

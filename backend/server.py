@@ -2109,6 +2109,17 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         print(f"❌ Error generating Instagram auth URL: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to generate auth URL: {str(e)}")
 
+@api_router.get("/test/frontend-connection")
+async def test_frontend_connection():
+    """Endpoint simple pour tester la connectivité frontend-backend"""
+    return {
+        "status": "SUCCESS",
+        "message": "Frontend peut joindre le backend",
+        "timestamp": datetime.now().isoformat(),
+        "backend_url": "post-genius-13.preview.emergentagent.com",
+        "note": "Si vous voyez ceci, la connexion fonctionne"
+    }
+
 @api_router.get("/test/debug-content-pending")
 async def debug_content_pending_simulation():
     """Test endpoint pour simuler /api/content/pending sans authentification"""

@@ -2072,6 +2072,62 @@ async def test_config_debug():
         "note": "Configurations dédiées pour Facebook et Instagram"
     }
 
+@api_router.get("/test/auth-urls-debug")
+async def test_auth_urls_debug():
+    """Test endpoint pour générer les URLs d'authentification sans token"""
+    import os
+    import secrets
+    from urllib.parse import urlencode
+    
+    # Configuration Facebook
+    facebook_config_id = os.environ.get('FACEBOOK_CONFIG_ID_PAGES', os.environ.get('FACEBOOK_CONFIG_ID', '1878388119742903'))
+    facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
+    facebook_redirect_uri = os.environ.get('FACEBOOK_REDIRECT_URI', 'https://post-genius-13.preview.emergentagent.com/api/social/facebook/callback')
+    
+    # Configuration Instagram  
+    instagram_config_id = os.environ.get('INSTAGRAM_CONFIG_ID_PAGES', os.environ.get('INSTAGRAM_CONFIG_ID', '1309694717566880'))
+    instagram_redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://post-genius-13.preview.emergentagent.com/api/social/instagram/callback')
+    
+    # Générer URLs de test
+    test_state = secrets.token_urlsafe(16)
+    scopes = "pages_show_list,pages_read_engagement,pages_manage_posts"
+    
+    # Facebook URL
+    facebook_params = {
+        "client_id": facebook_app_id,
+        "redirect_uri": facebook_redirect_uri,
+        "scope": scopes,
+        "response_type": "code",
+        "state": test_state,
+        "config_id": facebook_config_id
+    }
+    facebook_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(facebook_params)}"
+    
+    # Instagram URL  
+    instagram_params = {
+        "client_id": facebook_app_id,
+        "redirect_uri": instagram_redirect_uri,
+        "scope": scopes,
+        "response_type": "code",
+        "state": test_state,
+        "config_id": instagram_config_id
+    }
+    instagram_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(instagram_params)}"
+    
+    return {
+        "facebook": {
+            "config_id": facebook_config_id,
+            "auth_url": facebook_url,
+            "redirect_uri": facebook_redirect_uri
+        },
+        "instagram": {
+            "config_id": instagram_config_id,
+            "auth_url": instagram_url,
+            "redirect_uri": instagram_redirect_uri
+        },
+        "note": "URLs d'authentification avec config_id dédiés"
+    }
+
 @api_router.get("/social/instagram/test-auth")
 async def test_instagram_auth():
     """Endpoint de test pour générer et vérifier l'URL d'autorisation Instagram"""

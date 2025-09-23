@@ -1365,10 +1365,21 @@ function MainApp() {
   // Auto-load content on app start for debugging
   useEffect(() => {
     console.log('🚀 App started - auto-loading content for debug...');
-    setTimeout(() => {
-      loadPendingContent();
-    }, 2000); // Attendre 2 secondes après le démarrage
-  }, []);
+    console.log('🔍 Current pendingContent state:', pendingContent?.length);
+    
+    // Force immediate load
+    const forceLoad = async () => {
+      try {
+        console.log('💪 Force loading...');
+        await loadPendingContent();
+        console.log('✅ Force load completed');
+      } catch (error) {
+        console.error('❌ Force load failed:', error);
+      }
+    };
+    
+    setTimeout(forceLoad, 1000); // Réduire à 1 seconde
+  }, [loadPendingContent]); // Ajouter loadPendingContent comme dépendance
 
   // Auto-navigation après modification de post - Navigation vers onglet Posts
   useEffect(() => {

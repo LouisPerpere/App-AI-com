@@ -108,6 +108,26 @@ app.add_middleware(
 )
 
 @app.middleware("http")
+async def log_requests(request, call_next):
+    # Log toutes les requêtes pour diagnostic
+    method = request.method
+    url = str(request.url)
+    
+    # Ne logger que les requêtes importantes (pas les static)
+    if "/api/" in url and "debug" not in url:
+        auth_header = request.headers.get("authorization", "None")
+        auth_preview = auth_header[:30] + "..." if auth_header and len(auth_header) > 30 else auth_header
+        print(f"📥 {method} {url} | Auth: {auth_preview}")
+    
+    response = await call_next(request)
+    
+    # Log le status de réponse pour les API
+    if "/api/" in url and "debug" not in url:
+        print(f"📤 {method} {url} | Status: {response.status_code}")
+    
+    return response
+
+@app.middleware("http")
 async def add_no_cache_headers(request, call_next):
     response = await call_next(request)
     # Apply no-cache headers to API endpoints EXCEPT thumbnails

@@ -487,10 +487,19 @@ async def login_robust(body: LoginIn):
 # ----------------------------
 @api_router.get("/content/pending")
 async def get_pending_content_mongo(offset: int = 0, limit: int = 24, user_id: str = Depends(get_current_user_id_robust)):
+    # DEBUG: Log détaillé pour iPhone debugging
+    print(f"🔍 CONTENT/PENDING DEBUG:")
+    print(f"  - User ID reçu: {user_id}")
+    print(f"  - Offset: {offset}, Limit: {limit}")
+    
     try:
         media_collection = get_media_collection()
         q = {"owner_id": user_id, "$or": [{"deleted": {"$ne": True}}, {"deleted": {"$exists": False}}]}
         total = media_collection.count_documents(q)
+        
+        print(f"  - Query MongoDB: {q}")
+        print(f"  - Total trouvé: {total}")
+        
         cursor = (
             media_collection.find(q)
             .sort([("created_at", -1), ("_id", -1)])
@@ -552,8 +561,14 @@ async def get_pending_content_mongo(offset: int = 0, limit: int = 24, user_id: s
                 print(f"⚠️ Error processing media item {d.get('id', 'unknown')}: {item_error}")
                 continue
                 
-        return {"images": items, "total": total, "offset": offset, "limit": limit, "has_more": offset + limit < total, "loaded": len(items)}
+        print(f"  - Items formatés: {len(items)}")
+        
+        result = {"images": items, "total": total, "offset": offset, "limit": limit, "has_more": offset + limit < total, "loaded": len(items)}
+        print(f"  - Réponse finale: total={total}, loaded={len(items)}")
+        
+        return result
     except Exception as e:
+        print(f"❌ ERREUR CONTENT/PENDING: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch content: {str(e)}")
 
 # ----------------------------

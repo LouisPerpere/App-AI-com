@@ -2091,6 +2091,58 @@ async def debug_media_content():
     except Exception as e:
         return {"error": f"Erreur diagnostic: {str(e)}"}
 
+@api_router.get("/test/debug-user-media/{user_id}")
+async def debug_user_specific_media(user_id: str):
+    """Test endpoint pour diagnostiquer les médias d'un utilisateur spécifique"""
+    try:
+        media_collection = get_media_collection()
+        
+        # Query exacte utilisée par /api/content/pending
+        q = {"owner_id": user_id, "$or": [{"deleted": {"$ne": True}}, {"deleted": {"$exists": False}}]}
+        
+        total = media_collection.count_documents(q)
+        media_items = list(media_collection.find(q).sort([("created_at", -1), ("_id", -1)]).limit(10))
+        
+        # Formatage similaire à /api/content/pending
+        formatted_items = []
+        for d in media_items:
+            try:
+                created_at = d.get("created_at")
+                if hasattr(created_at, 'isoformat'):
+                    created_at_str = created_at.isoformat()
+                elif isinstance(created_at, str):
+                    created_at_str = created_at
+                else:
+                    created_at_str = None
+                
+                formatted_items.append({
+                    "id": d.get("id") or str(d.get("_id")),
+                    "filename": d.get("filename", ""),
+                    "file_type": d.get("file_type", ""),
+                    "url": d.get("url", ""),
+                    "thumb_url": d.get("thumb_url", ""),
+                    "description": d.get("description", ""),
+                    "context": d.get("context", ""),
+                    "title": d.get("title", ""),
+                    "created_at": created_at_str,
+                    "owner_id": d.get("owner_id", ""),
+                    "deleted": d.get("deleted", False)
+                })
+            except Exception as item_error:
+                print(f"Error processing item: {item_error}")
+                continue
+        
+        return {
+            "user_id": user_id,
+            "query": str(q),
+            "total_found": total,
+            "items": formatted_items,
+            "note": f"Médias pour user_id: {user_id}"
+        }
+        
+    except Exception as e:
+        return {"error": f"Erreur diagnostic user: {str(e)}"}
+
 @api_router.get("/test/config-debug")
 async def test_config_debug():
     """Test endpoint pour vérifier les nouveaux config_id séparés"""

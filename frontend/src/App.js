@@ -1988,6 +1988,25 @@ function MainApp() {
     await loadPendingContent();
   }, [loadPendingContent]);
 
+  // Auto-load content on app start for debugging (PLACÉ APRÈS loadPendingContent)
+  useEffect(() => {
+    console.log('🚀 App started - auto-loading content for debug...');
+    console.log('🔍 Current pendingContent state:', pendingContent?.length);
+    
+    // Force immediate load
+    const forceLoad = async () => {
+      try {
+        console.log('💪 Force loading...');
+        await loadPendingContent();
+        console.log('✅ Force load completed');
+      } catch (error) {
+        console.error('❌ Force load failed:', error);
+      }
+    };
+    
+    setTimeout(forceLoad, 1000); // 1 seconde après le démarrage
+  }, [loadPendingContent]); // Dépendance correcte
+
   // Fonction de tri des notes selon les spécifications périodiques
   const sortNotes = useCallback((notes) => {
     if (!Array.isArray(notes)) return [];

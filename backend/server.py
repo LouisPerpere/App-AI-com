@@ -2082,50 +2082,51 @@ async def test_auth_urls_debug():
     # Configuration Facebook
     facebook_config_id = os.environ.get('FACEBOOK_CONFIG_ID_PAGES', os.environ.get('FACEBOOK_CONFIG_ID', '1878388119742903'))
     facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
-    facebook_redirect_uri = os.environ.get('FACEBOOK_REDIRECT_URI', 'https://post-genius-13.preview.emergentagent.com/api/social/facebook/callback')
     
     # Configuration Instagram  
     instagram_config_id = os.environ.get('INSTAGRAM_CONFIG_ID_PAGES', os.environ.get('INSTAGRAM_CONFIG_ID', '1309694717566880'))
-    instagram_redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://post-genius-13.preview.emergentagent.com/api/social/instagram/callback')
     
-    # Générer URLs de test
+    # Test des différentes URIs pour diagnostic
+    preview_base = "https://post-genius-13.preview.emergentagent.com"
+    live_base = "https://claire-marcus.com"
+    
     test_state = secrets.token_urlsafe(16)
     scopes = "pages_show_list,pages_read_engagement,pages_manage_posts"
     
-    # Facebook URL
-    facebook_params = {
-        "client_id": facebook_app_id,
-        "redirect_uri": facebook_redirect_uri,
-        "scope": scopes,
-        "response_type": "code",
-        "state": test_state,
-        "config_id": facebook_config_id
-    }
-    facebook_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(facebook_params)}"
+    results = {}
     
-    # Instagram URL  
-    instagram_params = {
-        "client_id": facebook_app_id,
-        "redirect_uri": instagram_redirect_uri,
-        "scope": scopes,
-        "response_type": "code",
-        "state": test_state,
-        "config_id": instagram_config_id
-    }
-    instagram_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(instagram_params)}"
+    # Test 4 configurations possibles
+    for env_name, base_url in [("preview", preview_base), ("live", live_base)]:
+        for platform in ["facebook", "instagram"]:
+            config_id = facebook_config_id if platform == "facebook" else instagram_config_id
+            redirect_uri = f"{base_url}/api/social/{platform}/callback"
+            
+            params = {
+                "client_id": facebook_app_id,
+                "redirect_uri": redirect_uri,
+                "scope": scopes,
+                "response_type": "code",
+                "state": test_state,
+                "config_id": config_id
+            }
+            auth_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(params)}"
+            
+            results[f"{platform}_{env_name}"] = {
+                "config_id": config_id,
+                "auth_url": auth_url,
+                "redirect_uri": redirect_uri,
+                "is_configured_in_facebook": redirect_uri in [
+                    "https://claire-marcus.com/api/social/instagram/callback",
+                    "https://claire-marcus.com/api/social/facebook/callback",
+                    "https://post-genius-13.preview.emergentagent.com/api/social/facebook/callback",
+                    "https://post-genius-13.preview.emergentagent.com/api/social/instagram/callback"
+                ]
+            }
     
     return {
-        "facebook": {
-            "config_id": facebook_config_id,
-            "auth_url": facebook_url,
-            "redirect_uri": facebook_redirect_uri
-        },
-        "instagram": {
-            "config_id": instagram_config_id,
-            "auth_url": instagram_url,
-            "redirect_uri": instagram_redirect_uri
-        },
-        "note": "URLs d'authentification avec config_id dédiés"
+        "current_env": os.environ.get('FRONTEND_URL', 'https://post-genius-13.preview.emergentagent.com'),
+        "test_urls": results,
+        "note": "Test des 4 combinaisons possibles avec vérification Facebook Developer Console"
     }
 
 @api_router.get("/social/instagram/test-auth")

@@ -2004,47 +2004,44 @@ async def get_facebook_auth_url(user_id: str = Depends(get_current_user_id_robus
 
 @api_router.get("/social/instagram/auth-url")
 async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robust)):
-    """Générer l'URL d'autorisation Instagram OAuth avec configuration spécifique"""
+    """Générer l'URL Facebook Login for Business pour Instagram (selon documentation officielle)"""
     try:
         facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
         if not facebook_app_id:
             raise HTTPException(status_code=500, detail="FACEBOOK_APP_ID non configuré")
         
-        redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://claire-marcus.com/api/social/instagram/callback')
+        redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://smartposter.preview.emergentagent.com/api/social/instagram/callback')
         
-        # Générer un état sécurisé pour CSRF protection
-        import secrets
-        state = secrets.token_urlsafe(32)
+        # Scopes Instagram requis selon documentation Facebook Login for Business
+        scopes = "instagram_basic,instagram_content_publish,instagram_manage_comments,instagram_manage_insights,pages_show_list,pages_read_engagement"
         
-        # Scopes pages uniquement (Instagram via Facebook pages)
-        scopes = "pages_show_list,pages_read_engagement,pages_manage_posts"
-        
-        # Construire l'URL d'autorisation Instagram avec config_id
+        # Paramètres requis pour Facebook Login for Business (selon doc)
         from urllib.parse import urlencode
+        import json
         
         params = {
             "client_id": facebook_app_id,
+            "display": "page",
+            "extras": json.dumps({"setup": {"channel": "IG_API_ONBOARDING"}}),
             "redirect_uri": redirect_uri,
-            "scope": scopes,
-            "response_type": "code",
-            "state": state,
-            "config_id": "786070880800578"  # ID configuration Instagram spécifique
+            "response_type": "token",  # DIFFÉRENT : token au lieu de code
+            "scope": scopes
         }
         
-        auth_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(params)}"
+        # URL Facebook Login for Business (pas de version dans l'URL)
+        auth_url = f"https://www.facebook.com/dialog/oauth?{urlencode(params)}"
         
         return {
             "auth_url": auth_url,
-            "state": state,
             "redirect_uri": redirect_uri,
             "scopes": scopes.split(","),
-            "api_version": "Facebook Login for Business v20.0 avec Instagram config",
-            "note": "Instagram OAuth avec configuration spécifique ID 786070880800578"
+            "flow_type": "facebook_login_for_business",
+            "note": "Instagram requires Facebook Login for Business flow"
         }
         
     except Exception as e:
         print(f"❌ Error generating Instagram auth URL: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Erreur génération URL Instagram: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate auth URL: {str(e)}")
 
 @api_router.get("/test/config-debug")
 async def test_config_debug():

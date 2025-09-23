@@ -1891,14 +1891,21 @@ function MainApp() {
       const page = append ? contentPage + 1 : 0;
       const limit = 24; // Charge par batches de 24
       
+      // Récupérer le token de manière sécurisée
+      const token = localStorage.getItem('access_token');
+      console.log('🔍 Loading content with token:', token ? 'Present' : 'Missing');
+      
+      const headers = {};
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+      
       const response = await axios.get(`${API}/content/pending`, {
         params: { 
           limit,
           offset: page * limit 
         },
-        headers: { 
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-        }
+        headers
       });
       
       const data = response.data;

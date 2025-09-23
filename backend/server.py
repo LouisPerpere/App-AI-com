@@ -2058,15 +2058,19 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
 
 @api_router.get("/test/config-debug")
 async def test_config_debug():
-    """Test endpoint pour vérifier config_id"""
-    from urllib.parse import urlencode
-    params = {
-        "client_id": "1115451684022643",
-        "config_id": "786070880800578",
-        "scope": "pages_show_list"
+    """Test endpoint pour vérifier les nouveaux config_id séparés"""
+    import os
+    facebook_config_id = os.environ.get('FACEBOOK_CONFIG_ID_PAGES', os.environ.get('FACEBOOK_CONFIG_ID', 'NOT_SET'))
+    instagram_config_id = os.environ.get('INSTAGRAM_CONFIG_ID_PAGES', os.environ.get('INSTAGRAM_CONFIG_ID', 'NOT_SET'))
+    
+    return {
+        "facebook_config_id": facebook_config_id,
+        "instagram_config_id": instagram_config_id,
+        "facebook_app_id": os.environ.get('FACEBOOK_APP_ID', 'NOT_SET'),
+        "facebook_redirect_uri": os.environ.get('FACEBOOK_REDIRECT_URI', 'NOT_SET'),
+        "instagram_redirect_uri": os.environ.get('INSTAGRAM_REDIRECT_URI', 'NOT_SET'),
+        "note": "Configurations dédiées pour Facebook et Instagram"
     }
-    test_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(params)}"
-    return {"test_url": test_url, "params": params}
 
 @api_router.get("/social/instagram/test-auth")
 async def test_instagram_auth():

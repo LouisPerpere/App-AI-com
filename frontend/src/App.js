@@ -1927,24 +1927,54 @@ function MainApp() {
           offset: page * limit 
         }
       });
+
+      console.log('📦 Backend response:', {
+        status: response.status,
+        total: response.data?.total,
+        loaded: response.data?.loaded,
+        content_count: response.data?.content?.length,
+        first_content: response.data?.content?.[0]
+      });
       
       const data = response.data;
       
-      // Mettre à jour le total
-      setTotalContentCount(data.total || 0);
-      
-      if (append) {
-        // Ajouter à la liste existante
-        setPendingContent(prev => [...prev, ...(data.content || [])]);
-        setContentPage(page);
+      if (data && data.content) {
+        const content = data.content;
+        console.log('✅ Content received from backend:', content.length);
+        console.log('🔍 Sample content:', content[0]);
+        
+        // Mettre à jour le total
+        setTotalContentCount(data.total || 0);
+        
+        if (append) {
+          console.log('📎 Appending to existing content...');
+          // Ajouter à la liste existante
+          setPendingContent(prev => {
+            const updated = [...prev, ...content];
+            console.log('📋 Updated pendingContent length:', updated.length);
+            return updated;
+          });
+          setContentPage(page);
+        } else {
+          console.log('🔄 Setting new content...');
+          // Remplacer la liste
+          setPendingContent(content);
+          setContentPage(0);
+          console.log('📋 Set pendingContent length:', content.length);
+        }
+        
+        // Update total count for display
+        setTotalContentCount(data.total || 0);
+        
+        console.log('🎯 State updated:', {
+          page: append ? page : 0,
+          total: data.total,
+          contentLength: content.length
+        });
       } else {
-        // Remplacer la liste
-        setPendingContent(data.content || []);
-        setContentPage(0);
+        console.error('❌ No content in response:', data);
+        setTotalContentCount(0);
       }
-      
-      // Update total count for display
-      setTotalContentCount(data.total || 0);
       
     } catch (error) {
       console.error('Error loading pending content:', error);

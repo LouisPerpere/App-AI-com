@@ -2155,45 +2155,7 @@ async def get_media_for_specific_user(user_id: str):
 
 
 
-@api_router.get("/test/current-user-debug")
-async def debug_current_user(authorization: str = Header(None)):
-    """Test endpoint pour vérifier quel user_id le frontend envoie"""
-    try:
-        if not authorization:
-            return {"error": "No Authorization header", "header_present": False}
-        
-        if not authorization.startswith("Bearer "):
-            return {"error": "Invalid Authorization format", "header_value": authorization[:50]}
-        
-        token = authorization.replace("Bearer ", "")
-        print(f"🔍 Token received: {token[:20]}...")
-        
-        try:
-            payload = jwt.decode(
-                token,
-                JWT_SECRET,
-                algorithms=[JWT_ALG],
-                options={"require": ["sub", "exp"]},
-                issuer=JWT_ISS
-            )
-            user_id = payload.get("sub")
-            email = payload.get("email")
-            
-            return {
-                "authentication": "SUCCESS",
-                "user_id": user_id,
-                "email": email,
-                "token_valid": True,
-                "token_preview": token[:20] + "...",
-                "payload_keys": list(payload.keys())
-            }
-        except jwt.ExpiredSignatureError:
-            return {"error": "Token expired", "authentication": "FAILED"}
-        except jwt.InvalidTokenError as e:
-            return {"error": f"Invalid token: {e}", "authentication": "FAILED", "token_preview": token[:20] + "..."}
-            
-    except Exception as e:
-        return {"error": f"Debug error: {str(e)}"}
+
 
 @api_router.get("/test/debug-media")
 async def debug_media_content():

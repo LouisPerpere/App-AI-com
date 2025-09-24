@@ -569,6 +569,30 @@ const PostPreviewModal = ({
   modificationRequestRef  // Changé de state à ref
 }) => {
   const [showModificationForm, setShowModificationForm] = useState(false);
+  const [showScheduleForm, setShowScheduleForm] = useState(false);
+  const [newScheduledDate, setNewScheduledDate] = useState('');
+  const [newScheduledTime, setNewScheduledTime] = useState('');
+
+  // Initialiser les champs de date et heure avec les valeurs actuelles
+  useEffect(() => {
+    if (post.scheduled_date) {
+      const date = new Date(post.scheduled_date);
+      const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+      const timeStr = date.toTimeString().split(' ')[0].slice(0, 5); // HH:MM
+      setNewScheduledDate(dateStr);
+      setNewScheduledTime(timeStr);
+    } else {
+      // Valeurs par défaut : demain à 10h
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(10, 0, 0, 0);
+      
+      const dateStr = tomorrow.toISOString().split('T')[0];
+      const timeStr = '10:00';
+      setNewScheduledDate(dateStr);
+      setNewScheduledTime(timeStr);
+    }
+  }, [post.scheduled_date]);
 
   const formatDate = (dateString) => {
     if (!dateString) return 'Non programmé';
@@ -585,12 +609,34 @@ const PostPreviewModal = ({
 
   const handleModifySubmit = () => {
     const modificationValue = modificationRequestRef.current?.value || '';
-    onModify(post, modificationValue);
+    onModify(post, modificationValue, 'content'); // Ajout du type de modification
     setShowModificationForm(false);
+  };
+
+  const handleScheduleSubmit = () => {
+    if (!newScheduledDate || !newScheduledTime) {
+      toast.error('Veuillez sélectionner une date et une heure');
+      return;
+    }
+    
+    // Créer la date programmée
+    const scheduledDateTime = new Date(`${newScheduledDate}T${newScheduledTime}:00`);
+    const now = new Date();
+    
+    // Vérifier que la date est dans le futur
+    if (scheduledDateTime <= now) {
+      toast.error('La date de programmation doit être dans le futur');
+      return;
+    }
+    
+    // Appeler la fonction de modification avec le nouveau schedule
+    onModify(post, scheduledDateTime.toISOString(), 'schedule');
+    setShowScheduleForm(false);
   };
 
   const handleCancel = () => {
     setShowModificationForm(false);
+    setShowScheduleForm(false);
     if (modificationRequestRef.current) {
       modificationRequestRef.current.value = '';
     }

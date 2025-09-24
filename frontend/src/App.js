@@ -4198,6 +4198,26 @@ function MainApp() {
   const [newScheduleDate, setNewScheduleDate] = useState('');
   const [newScheduleTime, setNewScheduleTime] = useState('');
 
+  // Fonction pour vérifier si une date/heure est valide
+  const isDateTimeValid = (post, dateStr, timeStr) => {
+    if (!dateStr || !timeStr || !post) return { dateValid: true, timeValid: true };
+    
+    try {
+      const limits = getDateLimitsForPost(post);
+      const minDate = new Date(limits.min);
+      const maxDate = new Date(limits.max);
+      const selectedDateTime = new Date(`${dateStr}T${timeStr}:00`);
+      const now = new Date();
+      
+      const dateValid = selectedDateTime >= now && selectedDateTime >= minDate && selectedDateTime <= maxDate;
+      const timeValid = dateValid; // Si la date est valide, l'heure l'est aussi dans ce contexte
+      
+      return { dateValid, timeValid };
+    } catch (error) {
+      return { dateValid: false, timeValid: false };
+    }
+  };
+
   // Fonction pour modifier manuellement la date et l'heure d'un post
   const handleModifyDateTime = async (post) => {
     // Ouvrir le modal avec les valeurs actuelles du post

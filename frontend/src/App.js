@@ -4136,19 +4136,15 @@ function MainApp() {
       return;
     }
 
+    // Vérifier que le post a une date/heure programmée
+    if (!post.scheduled_date) {
+      toast.error('Le post doit avoir une date et heure de programmation. Utilisez le bouton "Modifier date/heure" d\'abord.');
+      return;
+    }
+
     const platformName = targetPlatform.charAt(0).toUpperCase() + targetPlatform.slice(1);
 
-    const confirmed = window.confirm(
-      `Programmer ce post sur ${platformName} ?\n\n"${post.title || post.text || 'Post généré'}"\n\nDate programmée : ${post.scheduled_date ? new Date(post.scheduled_date).toLocaleDateString('fr-FR', { 
-        day: '2-digit', 
-        month: 'long', 
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }) : 'Non définie'}`
-    );
-
-    if (!confirmed) return;
+    // Plus de popup de confirmation - validation directe
 
     const token = localStorage.getItem('access_token');
     if (!token) {

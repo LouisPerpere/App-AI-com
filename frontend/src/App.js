@@ -8140,7 +8140,7 @@ function MainApp() {
                           <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
                             <p className="text-sm text-amber-800">
                               <Clock className="w-4 h-4 inline mr-2" />
-                              Publication programmée pour le{' '}
+                              Date et heure du post :{' '}
                               <strong>
                                 {new Date(`${newScheduleDate}T${newScheduleTime}:00`).toLocaleDateString('fr-FR', {
                                   weekday: 'long',
@@ -8159,7 +8159,7 @@ function MainApp() {
                         <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                           <p className="text-xs text-blue-700">
                             <Info className="w-3 h-3 inline mr-1" />
-                            Limitations : minimum 10 min après maintenant, maximum fin du mois suivant
+                            Limitations : minimum demain, maximum fin du mois suivant
                           </p>
                         </div>
                       </div>

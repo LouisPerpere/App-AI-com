@@ -536,16 +536,18 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
             <span className="bg-black/50 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
               {formatDate(post.scheduled_date)}
             </span>
-            {/* Bouton modifier date/heure - TOUJOURS visible */}
+            {/* Bouton modifier date/heure - TOUJOURS visible - VERSION DEBUG */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
+                console.log('🔥 Date/time button clicked!', post);
                 onModifyDateTime && onModifyDateTime(post);
               }}
-              className="w-6 h-6 bg-amber-500 hover:bg-amber-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
-              title="Modifier la date et l'heure"
+              className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-lg border-2 border-white"
+              title="Modifier la date et l'heure - DEBUG"
+              style={{ zIndex: 1000 }}
             >
-              <Clock className="w-3 h-3" />
+              <Clock className="w-4 h-4" />
             </button>
           </div>
         </div>

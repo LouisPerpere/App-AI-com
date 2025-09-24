@@ -4220,19 +4220,48 @@ function MainApp() {
     setShowDateTimeModal(true);
   };
 
-  // Calculer les dates limites pour le calendrier
-  const getDateLimits = () => {
+  // Calculer les dates limites pour le calendrier basées sur le mois du post
+  const getDateLimitsForPost = (post) => {
     const now = new Date();
     
-    // Date minimum : demain (pour éviter les problèmes de timezone)
+    // Date minimum : aujourd'hui (pas hier)
     const minDate = new Date();
-    minDate.setDate(minDate.getDate() + 1);
     minDate.setHours(0, 0, 0, 0);
     
-    // Date maximum : dernier jour du mois suivant
-    const maxDate = new Date();
-    maxDate.setMonth(maxDate.getMonth() + 2);
-    maxDate.setDate(0); // Dernier jour du mois suivant
+    // Déterminer le mois du post
+    let postMonth, postYear;
+    
+    // Essayer de déterminer le mois depuis différentes sources
+    if (post.attributed_month) {
+      // Format: "septembre_2025" ou "2025-09"
+      if (post.attributed_month.includes('_')) {
+        const [monthName, year] = post.attributed_month.split('_');
+        const monthNames = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+        postMonth = monthNames.indexOf(monthName);
+        postYear = parseInt(year);
+      } else if (post.attributed_month.includes('-')) {
+        const [year, month] = post.attributed_month.split('-');
+        postYear = parseInt(year);
+        postMonth = parseInt(month) - 1; // JavaScript months are 0-indexed
+      }
+    } else if (post.target_month) {
+      // Format similaire à attributed_month
+      if (post.target_month.includes('_')) {
+        const [monthName, year] = post.target_month.split('_');
+        const monthNames = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+        postMonth = monthNames.indexOf(monthName);
+        postYear = parseInt(year);
+      }
+    }
+    
+    // Si on n'arrive pas à déterminer le mois du post, utiliser le mois actuel
+    if (postMonth === undefined || postYear === undefined) {
+      postMonth = now.getMonth();
+      postYear = now.getFullYear();
+    }
+    
+    // Date maximum : dernier jour du mois suivant au mois du post
+    const maxDate = new Date(postYear, postMonth + 2, 0); // Mois suivant = postMonth + 1, donc +2 pour obtenir le dernier jour
     maxDate.setHours(23, 59, 59, 999);
     
     return {

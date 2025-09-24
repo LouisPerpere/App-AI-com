@@ -103,20 +103,30 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             logger.error(f"❌ Failed to initialize OpenAI client: {str(e)}")
             self.openai_client = None
     
-    async def generate_posts_for_month(self, user_id: str, target_month: str, num_posts: int = 20) -> Dict[str, Any]:
+    async def generate_posts_for_month(self, user_id: str, target_month: str, num_posts: int = 20, connected_platforms: List[str] = None) -> Dict[str, Any]:
         """
-        Generate complete post calendar for a specific month
+        Generate complete post calendar for a specific month for connected platforms
         
         Args:
             user_id: User ID
             target_month: Month in format "octobre_2025"
-            num_posts: Number of posts to generate
+            num_posts: Number of posts to generate per platform
+            connected_platforms: List of connected social platforms ['facebook', 'instagram', 'linkedin']
             
         Returns:
             Dict with generated posts and metadata
         """
         try:
-            logger.info(f"🚀 Starting post generation for user {user_id}, month {target_month}, {num_posts} posts")
+            # Default to all platforms if none specified (backward compatibility)
+            if connected_platforms is None:
+                connected_platforms = ['facebook', 'instagram', 'linkedin']
+            
+            logger.info(f"🚀 Starting post generation for user {user_id}, month {target_month}")
+            logger.info(f"📱 Target platforms: {connected_platforms}")
+            logger.info(f"📊 Posts per platform: {num_posts}")
+            
+            all_generated_posts = []
+            all_scheduled_posts = []
             
             # STEP 1: Gather all source data
             source_data = self._gather_source_data(user_id, target_month)

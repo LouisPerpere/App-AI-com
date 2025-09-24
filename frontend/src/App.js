@@ -3043,6 +3043,28 @@ function MainApp() {
       return;
     }
 
+    // Vérifier les réseaux sociaux connectés
+    const connectedPlatforms = [];
+    if (connectedAccounts.instagram) connectedPlatforms.push('Instagram');
+    if (connectedAccounts.facebook) connectedPlatforms.push('Facebook');
+    if (connectedAccounts.linkedin) connectedPlatforms.push('LinkedIn');
+
+    // Si aucun réseau connecté, afficher un popup d'explication
+    if (connectedPlatforms.length === 0) {
+      toast.error(
+        'Aucun réseau social connecté ! Veuillez d\'abord connecter vos comptes Facebook, Instagram ou LinkedIn dans l\'onglet "Réseaux sociaux" pour générer des posts.',
+        {
+          duration: 6000,
+          style: {
+            background: '#fef2f2',
+            border: '1px solid #fecaca',
+            color: '#991b1b',
+          }
+        }
+      );
+      return;
+    }
+
     // Add the month to generating set and close modal
     if (monthKey) {
       setGeneratingMonths(prev => new Set(prev).add(monthKey));
@@ -3053,6 +3075,12 @@ function MainApp() {
     }
 
     try {
+      // Informer l'utilisateur des réseaux pour lesquels les posts seront générés
+      const platformList = connectedPlatforms.join(', ');
+      toast.success(`Génération de posts en cours pour : ${platformList}`, {
+        duration: 3000
+      });
+
       const requestBody = monthKey ? { month_key: monthKey } : {};
       const response = await axios.post(`${API}/posts/generate`, requestBody, {
         headers: { Authorization: `Bearer ${token}` }
@@ -3062,7 +3090,7 @@ function MainApp() {
         new Date(monthKey + '-01').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) :
         'ce mois';
       
-      toast.success(`Posts générés avec succès pour ${monthName} ! 🎉`);
+      toast.success(`Posts générés avec succès pour ${monthName} sur ${platformList} ! 🎉`);
       
       // Recharger les posts générés
       await loadGeneratedPosts();

@@ -1944,12 +1944,11 @@ function MainApp() {
         headers.Authorization = `Bearer ${token}`;
       }
       
-      const response = await axios.get(`${API}/content/pending`, {
+      const response = await axios.get(`${API}/content/pending-temp`, {
         params: { 
           limit,
           offset: page * limit 
-        },
-        headers
+        }
       });
 
       const data = response.data;

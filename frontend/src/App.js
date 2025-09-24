@@ -496,18 +496,25 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
                 <Plus className="w-3 h-3" />
               </button>
               
-              {/* Bouton Valider - Publier sur Facebook (seulement si pas encore publié) */}
-              {!post.published && (
+              {/* Bouton Valider - Envoyer au calendrier (seulement si pas encore publié) */}
+              {!post.published && !post.validated && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     onValidatePost && onValidatePost(post);
                   }}
-                  className="w-7 h-7 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
-                  title="Valider et publier sur Facebook"
+                  className="w-7 h-7 bg-orange-500 hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+                  title="Valider et envoyer au calendrier"
                 >
-                  <Check className="w-3 h-3" />
+                  <Calendar className="w-3 h-3" />
                 </button>
+              )}
+              
+              {/* Indicateur si déjà validé */}
+              {post.validated && (
+                <div className="w-7 h-7 bg-green-500 text-white rounded-full flex items-center justify-center shadow-md" title="Envoyé au calendrier">
+                  <Check className="w-3 h-3" />
+                </div>
               )}
             </div>
           )}

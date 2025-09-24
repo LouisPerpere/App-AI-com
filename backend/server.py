@@ -2151,16 +2151,7 @@ async def get_media_for_specific_user(user_id: str):
 
 
 
-@api_router.get("/test/frontend-connection")
-async def test_frontend_connection():
-    """Endpoint simple pour tester la connectivité frontend-backend"""
-    return {
-        "status": "SUCCESS",
-        "message": "Frontend peut joindre le backend",
-        "timestamp": datetime.now().isoformat(),
-        "backend_url": "post-genius-13.preview.emergentagent.com",
-        "note": "Si vous voyez ceci, la connexion fonctionne"
-    }
+
 
 @api_router.get("/test/debug-content-pending")
 async def debug_content_pending_simulation():

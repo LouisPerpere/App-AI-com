@@ -1265,6 +1265,18 @@ function MainApp() {
   const [generatingMonths, setGeneratingMonths] = useState(new Set()); // Track which months are generating
   const [selectedMonthForGeneration, setSelectedMonthForGeneration] = useState(null); // Store selected month for modal
   
+  // États pour le calendrier
+  const [calendarPosts, setCalendarPosts] = useState([]);
+  const [calendarView, setCalendarView] = useState('month'); // 'month', 'week', 'list'
+  const [calendarFilters, setCalendarFilters] = useState({
+    platform: 'all', // 'all', 'facebook', 'instagram', 'linkedin'
+    status: 'all' // 'all', 'scheduled', 'published', 'failed'
+  });
+  const [calendarDate, setCalendarDate] = useState(new Date());
+  const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
+
+  // Fonction pour charger les posts du calendrier
+  
   // Function to get notes specific to a month or always valid
   const getNotesForMonth = (monthKey) => {
     if (!notes || !monthKey) return [];

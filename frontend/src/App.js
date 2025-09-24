@@ -8164,10 +8164,17 @@ function MainApp() {
                             type="date"
                             value={newScheduleDate}
                             onChange={(e) => setNewScheduleDate(e.target.value)}
-                            className="w-full"
+                            className={`w-full ${!isDateTimeValid(selectedPostForDateTime, newScheduleDate, newScheduleTime).dateValid 
+                              ? 'border-red-500 bg-red-50 text-red-700' 
+                              : 'border-gray-300'}`}
                             min={getDateLimitsForPost(selectedPostForDateTime).min}
                             max={getDateLimitsForPost(selectedPostForDateTime).max}
                           />
+                          {!isDateTimeValid(selectedPostForDateTime, newScheduleDate, newScheduleTime).dateValid && newScheduleDate && (
+                            <p className="text-sm text-red-600 mt-1">
+                              ❌ Date hors des limites autorisées
+                            </p>
+                          )}
                         </div>
 
                         {/* Heure */}
@@ -8180,8 +8187,15 @@ function MainApp() {
                             type="time"
                             value={newScheduleTime}
                             onChange={(e) => setNewScheduleTime(e.target.value)}
-                            className="w-full"
+                            className={`w-full ${!isDateTimeValid(selectedPostForDateTime, newScheduleDate, newScheduleTime).timeValid 
+                              ? 'border-red-500 bg-red-50 text-red-700' 
+                              : 'border-gray-300'}`}
                           />
+                          {!isDateTimeValid(selectedPostForDateTime, newScheduleDate, newScheduleTime).timeValid && newScheduleTime && (
+                            <p className="text-sm text-red-600 mt-1">
+                              ❌ Heure invalide pour cette date
+                            </p>
+                          )}
                         </div>
 
                         {/* Aperçu de la date programmée */}

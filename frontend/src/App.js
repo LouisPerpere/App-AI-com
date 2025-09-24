@@ -513,7 +513,12 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onValidatePost && onValidatePost(post);
+                    console.log('🔥 Validate button clicked!', { post, onValidatePost: typeof onValidatePost });
+                    if (onValidatePost) {
+                      onValidatePost(post);
+                    } else {
+                      console.error('❌ onValidatePost is not defined!');
+                    }
                   }}
                   className="w-7 h-7 bg-orange-500 hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
                   title="Valider et envoyer au calendrier"

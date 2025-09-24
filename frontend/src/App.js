@@ -1942,64 +1942,6 @@ function MainApp() {
     await loadPendingContent();
   }, [loadPendingContent]);
 
-  // DIAGNOSTIC IMMÉDIAT: Forcer le chargement des contenus
-  useEffect(() => {
-    console.log('🚀 DIAGNOSTIC: Composant chargé');
-    
-    const diagnosticLoad = async () => {
-      try {
-        console.log('🔍 DIAGNOSTIC: Tentative de chargement...');
-        const API = process.env.REACT_APP_BACKEND_URL || 'https://post-genius-13.preview.emergentagent.com';
-        console.log('📡 DIAGNOSTIC: API URL =', API);
-        
-        const response = await fetch(`${API}/api/content/pending-bypass?limit=24&offset=0`);
-        console.log('📦 DIAGNOSTIC: Response status =', response.status);
-        
-        const data = await response.json();
-        console.log('📊 DIAGNOSTIC: Data received =', {
-          total: data.total,
-          content_length: data.content?.length,
-          first_item: data.content?.[0]
-        });
-        
-        if (data.content && data.content.length > 0) {
-          console.log('✅ DIAGNOSTIC: Setting pendingContent with', data.content.length, 'items');
-          setPendingContent(data.content);
-          setTotalContentCount(data.total);
-        } else {
-          console.log('❌ DIAGNOSTIC: No content received');
-        }
-      } catch (error) {
-        console.error('❌ DIAGNOSTIC ERROR:', error);
-      }
-    };
-    
-    // Lancement immédiat puis toutes les 3 secondes pour test
-    diagnosticLoad();
-    const interval = setInterval(diagnosticLoad, 3000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
-  // Auto-load content on app start for debugging (PLACÉ APRÈS loadPendingContent)
-  useEffect(() => {
-    console.log('🚀 App started - auto-loading content for debug...');
-    console.log('🔍 Current pendingContent state:', pendingContent?.length);
-    
-    // Force immediate load
-    const forceLoad = async () => {
-      try {
-        console.log('💪 Force loading...');
-        await loadPendingContent();
-        console.log('✅ Force load completed');
-      } catch (error) {
-        console.error('❌ Force load failed:', error);
-      }
-    };
-    
-    setTimeout(forceLoad, 1000); // 1 seconde après le démarrage
-  }, [loadPendingContent]); // Dépendance correcte
-
   // Fonction de tri des notes selon les spécifications périodiques
   const sortNotes = useCallback((notes) => {
     if (!Array.isArray(notes)) return [];

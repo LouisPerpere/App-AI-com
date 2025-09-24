@@ -4208,38 +4208,6 @@ function MainApp() {
     }
   };
 
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      toast.error('Vous devez être connecté pour valider un post');
-      return;
-    }
-
-    try {
-      // Envoyer le post au calendrier avec la plateforme du post et sa date programmée
-      const response = await axios.post(
-        `${API}/posts/validate-to-calendar`,
-        {
-          post_id: post.id,
-          platforms: [targetPlatform],
-          scheduled_date: post.scheduled_date
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
-
-      toast.success(`Post programmé sur ${platformName} ! 📅`);
-      
-      // Recharger les posts pour voir le statut mis à jour
-      await loadGeneratedPosts();
-      
-    } catch (error) {
-      console.error('Error validating post to calendar:', error);
-      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
-      toast.error(`Erreur lors de la programmation: ${errorMessage}`);
-    }
-  };
-
   // États pour le modal de modification date/heure
   const [showDateTimeModal, setShowDateTimeModal] = useState(false);
   const [selectedPostForDateTime, setSelectedPostForDateTime] = useState(null);

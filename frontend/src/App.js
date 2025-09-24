@@ -8066,6 +8066,102 @@ function MainApp() {
                   />
                 )}
 
+                {/* Modal de modification date/heure */}
+                {showDateTimeModal && selectedPostForDateTime && (
+                  <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl max-w-md w-full p-6">
+                      <div className="text-center mb-6">
+                        <div className="w-16 h-16 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <CalendarIcon className="w-8 h-8 text-white" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                          Modifier la programmation
+                        </h3>
+                        <p className="text-gray-600">
+                          Choisissez une nouvelle date et heure pour ce post
+                        </p>
+                      </div>
+
+                      {/* Formulaire de date/heure */}
+                      <div className="space-y-4 mb-6">
+                        {/* Date */}
+                        <div>
+                          <Label htmlFor="schedule-date" className="text-sm font-medium text-gray-700 mb-2 block">
+                            Date de publication
+                          </Label>
+                          <Input
+                            id="schedule-date"
+                            type="date"
+                            value={newScheduleDate}
+                            onChange={(e) => setNewScheduleDate(e.target.value)}
+                            className="w-full"
+                            min={new Date().toISOString().split('T')[0]}
+                          />
+                        </div>
+
+                        {/* Heure */}
+                        <div>
+                          <Label htmlFor="schedule-time" className="text-sm font-medium text-gray-700 mb-2 block">
+                            Heure de publication
+                          </Label>
+                          <Input
+                            id="schedule-time"
+                            type="time"
+                            value={newScheduleTime}
+                            onChange={(e) => setNewScheduleTime(e.target.value)}
+                            className="w-full"
+                          />
+                        </div>
+
+                        {/* Aperçu de la date programmée */}
+                        {newScheduleDate && newScheduleTime && (
+                          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                            <p className="text-sm text-amber-800">
+                              <Clock className="w-4 h-4 inline mr-2" />
+                              Publication programmée pour le{' '}
+                              <strong>
+                                {new Date(`${newScheduleDate}T${newScheduleTime}:00`).toLocaleDateString('fr-FR', {
+                                  weekday: 'long',
+                                  day: '2-digit',
+                                  month: 'long',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </strong>
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Limitations */}
+                        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                          <p className="text-xs text-blue-700">
+                            <Info className="w-3 h-3 inline mr-1" />
+                            Limitations : minimum 10 min après maintenant, maximum fin du mois suivant
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Boutons */}
+                      <div className="flex space-x-3">
+                        <Button
+                          onClick={handleCancelDateTimeChange}
+                          variant="outline"
+                          className="flex-1"
+                        >
+                          Annuler
+                        </Button>
+                        <Button
+                          onClick={handleSaveDateTimeChange}
+                          className="flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+                        >
+                          Programmer
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Modal de confirmation de génération */}
                 {showGenerationModal && (
                   <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">

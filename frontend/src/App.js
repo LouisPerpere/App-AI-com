@@ -531,11 +531,22 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
             </div>
           )}
           
-          {/* Badge date */}
-          <div className="absolute bottom-2 right-2">
+          {/* Badge date avec lien de modification */}
+          <div className="absolute bottom-2 right-2 flex items-center space-x-1">
             <span className="bg-black/50 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
               {formatDate(post.scheduled_date)}
             </span>
+            {/* Lien pour modifier date/heure */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onModifyDateTime && onModifyDateTime(post);
+              }}
+              className="w-5 h-5 bg-amber-500 hover:bg-amber-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+              title="Modifier la date et l'heure"
+            >
+              <Edit className="w-2.5 h-2.5" />
+            </button>
           </div>
         </div>
         

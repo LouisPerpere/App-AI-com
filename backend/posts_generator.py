@@ -166,7 +166,7 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
                 )
                 
                 # Mark used content with timestamps
-                await self._mark_used_content(platform_posts)
+                await self._mark_used_content(platform_posts, platform)
                 
                 # Create posting schedule for this platform
                 platform_scheduled_posts = self._create_posting_schedule(platform_posts, target_month, platform)

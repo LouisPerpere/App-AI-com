@@ -8510,139 +8510,177 @@ function MainApp() {
                     <p className="text-gray-500">Chargement du calendrier...</p>
                   </div>
                 ) : (
-                  <>
-                    {/* Statistiques rapides */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                      <div className="bg-white p-4 rounded-lg border">
-                        <div className="text-2xl font-bold text-gray-700">{calendarPosts.length}</div>
-                        <div className="text-sm text-gray-500">Posts programmés</div>
-                      </div>
-                      <div className="bg-white p-4 rounded-lg border">
-                        <div className="text-2xl font-bold text-blue-600">
-                          {calendarPosts.filter(p => p.platform === 'facebook').length}
+                  <div className="space-y-6">
+                    {/* Calendrier principal - toujours affiché */}
+                    <div className="bg-white rounded-xl border">
+                      {/* Grille calendrier */}
+                      <div className="p-4">
+                        {/* En-tête jours de la semaine */}
+                        <div className="grid grid-cols-7 gap-1 mb-4">
+                          {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map(day => (
+                            <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
+                              {day}
+                            </div>
+                          ))}
                         </div>
-                        <div className="text-sm text-gray-500">Facebook</div>
-                      </div>
-                      <div className="bg-white p-4 rounded-lg border">
-                        <div className="text-2xl font-bold text-pink-600">
-                          {calendarPosts.filter(p => p.platform === 'instagram').length}
+                        
+                        {/* Grille des jours du mois */}
+                        <div className="grid grid-cols-7 gap-1">
+                          {(() => {
+                            const year = calendarDate.getFullYear();
+                            const month = calendarDate.getMonth();
+                            const firstDay = new Date(year, month, 1);
+                            const lastDay = new Date(year, month + 1, 0);
+                            const startDate = new Date(firstDay);
+                            startDate.setDate(startDate.getDate() - ((firstDay.getDay() + 6) % 7));
+                            
+                            const days = [];
+                            const currentDate = new Date(startDate);
+                            
+                            for (let i = 0; i < 42; i++) {
+                              const dayPosts = calendarPosts.filter(post => {
+                                const postDate = new Date(post.scheduled_date);
+                                return postDate.toDateString() === currentDate.toDateString();
+                              });
+                              
+                              const isCurrentMonth = currentDate.getMonth() === month;
+                              const isToday = currentDate.toDateString() === new Date().toDateString();
+                              
+                              days.push(
+                                <div
+                                  key={currentDate.toISOString()}
+                                  className={`
+                                    min-h-[80px] p-1 border border-gray-100 rounded-lg
+                                    ${isCurrentMonth ? 'bg-white' : 'bg-gray-50'}
+                                    ${isToday ? 'ring-2 ring-orange-500 bg-orange-50' : ''}
+                                  `}
+                                >
+                                  <div className={`
+                                    text-sm font-medium mb-1
+                                    ${isCurrentMonth ? 'text-gray-900' : 'text-gray-400'}
+                                    ${isToday ? 'text-orange-600' : ''}
+                                  `}>
+                                    {currentDate.getDate()}
+                                  </div>
+                                  
+                                  {/* Posts du jour */}
+                                  <div className="space-y-1">
+                                    {dayPosts.slice(0, 3).map((post, idx) => (
+                                      <div
+                                        key={idx}
+                                        className={`
+                                          text-xs p-1 rounded truncate cursor-pointer
+                                          ${post.platform === 'facebook' ? 'bg-blue-100 text-blue-800' : ''}
+                                          ${post.platform === 'instagram' ? 'bg-pink-100 text-pink-800' : ''}
+                                          ${post.platform === 'linkedin' ? 'bg-blue-100 text-blue-900' : ''}
+                                        `}
+                                        title={`${post.platform}: ${post.text?.slice(0, 50) || 'Post'}...`}
+                                      >
+                                        {post.platform === 'facebook' && '📘'}
+                                        {post.platform === 'instagram' && '📷'}
+                                        {post.platform === 'linkedin' && '💼'}
+                                        {' '}{new Date(post.scheduled_date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                                      </div>
+                                    ))}
+                                    {dayPosts.length > 3 && (
+                                      <div className="text-xs text-gray-500 p-1">
+                                        +{dayPosts.length - 3} autres
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                              
+                              currentDate.setDate(currentDate.getDate() + 1);
+                            }
+                            
+                            return days;
+                          })()}
                         </div>
-                        <div className="text-sm text-gray-500">Instagram</div>
-                      </div>
-                      <div className="bg-white p-4 rounded-lg border">
-                        <div className="text-2xl font-bold text-blue-700">
-                          {calendarPosts.filter(p => p.platform === 'linkedin').length}
-                        </div>
-                        <div className="text-sm text-gray-500">LinkedIn</div>
                       </div>
                     </div>
                     
-                    {/* Liste des posts du calendrier */}
-                    {calendarPosts.length === 0 ? (
-                      <div className="text-center py-20 card-glass rounded-3xl">
-                        <div className="w-24 h-24 bg-gradient-to-r from-orange-500 to-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                          <CalendarIcon className="w-12 h-12 text-white" />
+                    {/* Liste détaillée des posts (optionnelle, repliable) */}
+                    {calendarPosts.length > 0 && (
+                      <div className="bg-white rounded-xl border">
+                        <div className="p-4 border-b">
+                          <h3 className="font-medium text-gray-900">Posts détaillés</h3>
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-700 mb-4">Aucun post programmé</h3>
-                        <p className="text-xl text-gray-500 mb-6">
-                          Validez des posts depuis l'onglet "Posts" pour les voir apparaître ici 📅
-                        </p>
+                        <div className="p-4 space-y-3 max-h-96 overflow-y-auto">
+                          {Object.entries(
+                            calendarPosts.reduce((groups, post) => {
+                              const date = new Date(post.scheduled_date).toLocaleDateString('fr-FR', {
+                                weekday: 'long',
+                                day: '2-digit',
+                                month: 'long'
+                              });
+                              groups[date] = groups[date] || [];
+                              groups[date].push(post);
+                              return groups;
+                            }, {})
+                          ).map(([date, posts]) => (
+                            <div key={date} className="space-y-2">
+                              <h4 className="font-medium text-gray-700 capitalize">{date}</h4>
+                              <div className="space-y-2 pl-4">
+                                {posts.map((post, index) => (
+                                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div className="flex items-center space-x-3">
+                                      <div className={`
+                                        w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm
+                                        ${post.platform === 'facebook' ? 'bg-blue-600' : ''}
+                                        ${post.platform === 'instagram' ? 'bg-pink-600' : ''}
+                                        ${post.platform === 'linkedin' ? 'bg-blue-700' : ''}
+                                      `}>
+                                        {post.platform === 'facebook' && '📘'}
+                                        {post.platform === 'instagram' && '📷'}
+                                        {post.platform === 'linkedin' && '💼'}
+                                      </div>
+                                      <div>
+                                        <div className="font-medium text-sm text-gray-900">
+                                          {new Date(post.scheduled_date).toLocaleTimeString('fr-FR', { 
+                                            hour: '2-digit', 
+                                            minute: '2-digit' 
+                                          })}
+                                        </div>
+                                        <div className="text-xs text-gray-500 truncate max-w-md">
+                                          {post.text?.slice(0, 100) || 'Post sans texte'}...
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className={`
+                                      px-2 py-1 rounded-full text-xs font-medium
+                                      ${post.status === 'scheduled' ? 'bg-blue-100 text-blue-800' : ''}
+                                      ${post.status === 'published' ? 'bg-green-100 text-green-800' : ''}
+                                      ${post.status === 'failed' ? 'bg-red-100 text-red-800' : ''}
+                                    `}>
+                                      {post.status === 'scheduled' && '📅 Programmé'}
+                                      {post.status === 'published' && '✅ Publié'}
+                                      {post.status === 'failed' && '❌ Échec'}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Message si vide - plus petit et moins intrusif */}
+                    {calendarPosts.length === 0 && (
+                      <div className="text-center py-8 bg-gray-50 rounded-xl">
+                        <CalendarIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                        <p className="text-gray-500 mb-3">Aucun post programmé ce mois-ci</p>
                         <Button 
                           onClick={() => setActiveTab('posts')}
+                          size="sm"
                           className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
                         >
                           Aller aux Posts
                         </Button>
                       </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {/* Grouper les posts par date */}
-                        {Object.entries(
-                          calendarPosts.reduce((groups, post) => {
-                            const date = new Date(post.scheduled_date).toLocaleDateString('fr-FR', {
-                              weekday: 'long',
-                              day: '2-digit',
-                              month: 'long'
-                            });
-                            if (!groups[date]) groups[date] = [];
-                            groups[date].push(post);
-                            return groups;
-                          }, {})
-                        ).map(([date, posts]) => (
-                          <div key={date} className="bg-white rounded-xl border shadow-sm">
-                            <div className="px-6 py-4 border-b bg-gray-50 rounded-t-xl">
-                              <h3 className="font-semibold text-gray-800 capitalize">{date}</h3>
-                              <p className="text-sm text-gray-600">{posts.length} post{posts.length > 1 ? 's' : ''}</p>
-                            </div>
-                            
-                            <div className="p-6 space-y-4">
-                              {posts.map((post) => (
-                                <div key={post.id} className="flex items-start space-x-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                                  {/* Badge réseau social */}
-                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold ${
-                                    post.platform === 'facebook' ? 'bg-blue-600' :
-                                    post.platform === 'instagram' ? 'bg-gradient-to-r from-pink-500 to-purple-500' :
-                                    post.platform === 'linkedin' ? 'bg-blue-700' : 'bg-gray-400'
-                                  }`}>
-                                    {post.platform === 'facebook' ? 'FB' :
-                                     post.platform === 'instagram' ? 'IG' :
-                                     post.platform === 'linkedin' ? 'LI' : '?'}
-                                  </div>
-                                  
-                                  {/* Contenu du post */}
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-start justify-between">
-                                      <div>
-                                        <h4 className="font-medium text-gray-800 truncate">
-                                          {post.title || 'Post sans titre'}
-                                        </h4>
-                                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                                          {post.text || 'Aucun texte'}
-                                        </p>
-                                      </div>
-                                      
-                                      {/* Heure et statut */}
-                                      <div className="flex flex-col items-end space-y-1">
-                                        <div className="text-sm text-gray-500">
-                                          {new Date(post.scheduled_date).toLocaleTimeString('fr-FR', {
-                                            hour: '2-digit',
-                                            minute: '2-digit'
-                                          })}
-                                        </div>
-                                        <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                          post.status === 'scheduled' ? 'bg-orange-100 text-orange-700' :
-                                          post.status === 'published' ? 'bg-green-100 text-green-700' :
-                                          post.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
-                                        }`}>
-                                          {post.status === 'scheduled' ? '📅 Programmé' :
-                                           post.status === 'published' ? '✅ Publié' :
-                                           post.status === 'failed' ? '❌ Échec' : post.status}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  
-                                  {/* Image si disponible */}
-                                  {post.visual_url && (
-                                    <div className="flex-shrink-0">
-                                      <img 
-                                        src={post.visual_url} 
-                                        alt="Post" 
-                                        className="w-16 h-16 object-cover rounded-lg"
-                                        onError={(e) => {
-                                          e.target.style.display = 'none';
-                                        }}
-                                      />
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
                     )}
-                  </>
+                  </div>
                 )}
               </CardContent>
             </Card>

@@ -5,7 +5,7 @@ Testing the operational title functionality after critical bug fixes have been a
 
 Test Requirements:
 - Authentication: lperpere@yahoo.fr / L@Reunion974!
-- Backend URL: https://post-genius-13.preview.emergentagent.com/api
+- Backend URL: https://instamanager-1.preview.emergentagent.com/api
 - Critical Issues Fixed: Upload title preservation, modal save bug, state management
 
 Test Scenarios:
@@ -20,7 +20,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://post-genius-13.preview.emergentagent.com/api"
+BASE_URL = "https://instamanager-1.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

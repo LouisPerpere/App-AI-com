@@ -13,7 +13,7 @@ class ComprehensiveBackendTester:
     def __init__(self):
         self.backends = {
             "Local": "http://localhost:8001",
-            "Production": "https://post-genius-13.preview.emergentagent.com"
+            "Production": "https://instamanager-1.preview.emergentagent.com"
         }
         self.email = "lperpere@yahoo.fr"
         self.password = "L@Reunion974!"

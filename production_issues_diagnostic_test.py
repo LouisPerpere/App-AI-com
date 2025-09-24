@@ -25,7 +25,7 @@ import time
 class ProductionIssuesDiagnostic:
     def __init__(self):
         # Use the backend URL from frontend .env
-        self.backend_url = "https://post-genius-13.preview.emergentagent.com/api"
+        self.backend_url = "https://instamanager-1.preview.emergentagent.com/api"
         self.test_website = "https://my-own-watch.fr"
         self.credentials = {
             "email": "lperpere@yahoo.fr",

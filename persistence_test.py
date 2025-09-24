@@ -15,7 +15,7 @@ import base64
 class PersistenceAPITester:
     def __init__(self):
         # Use the production backend URL from frontend/.env
-        self.base_url = "https://post-genius-13.preview.emergentagent.com"
+        self.base_url = "https://instamanager-1.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.test_files = []  # Track uploaded files for cleanup

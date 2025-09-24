@@ -47,7 +47,7 @@ import uuid
 
 class DataMigrationExecutor:
     def __init__(self):
-        self.preview_base_url = "https://post-genius-13.preview.emergentagent.com/api"
+        self.preview_base_url = "https://instamanager-1.preview.emergentagent.com/api"
         self.production_base_url = "https://claire-marcus-pwa-1.emergent.host/api"
         self.email = "lperpere@yahoo.fr"
         self.password = "L@Reunion974!"

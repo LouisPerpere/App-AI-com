@@ -12,7 +12,7 @@ Test Requirements:
 6. Check thumbnail cache headers
 
 Credentials: lperpere@yahoo.fr / L@Reunion974!
-Backend URL: https://post-genius-13.preview.emergentagent.com/api
+Backend URL: https://instamanager-1.preview.emergentagent.com/api
 """
 
 import requests
@@ -26,7 +26,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
 
 # Configuration
-BASE_URL = "https://post-genius-13.preview.emergentagent.com/api"
+BASE_URL = "https://instamanager-1.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 

@@ -1,56 +1,79 @@
 <analysis>
-The AI engineer's work addressed several critical issues for the Claire et Marcus PWA, primarily focusing on social media integration, content generation, and media management. Initially, efforts centered on resolving phantom posts (traced to  misconfiguration and frontend caching) and refining multi-platform post generation logic in . A significant portion involved debugging Facebook and Instagram OAuth, which suffered from incorrect redirect URIs,  usage, and shared callback URLs leading to conflicts. Media display issues (grey placeholders) were tackled by diagnosing missing GridFS storage, repairing corrupted media metadata, and adjusting frontend display logic in  and backend . The engineer also added a per-post delete button. The trajectory concluded with the user providing separate Facebook and Instagram s, prompting the engineer to update the backend to use these dedicated configurations to resolve persistent authentication conflicts and  errors.
+The AI engineer's work primarily focused on stabilizing core application functionalities like social media integrations and content management, while iteratively implementing new features. Initial efforts resolved Facebook/Instagram OAuth conflicts, persistent URL bloquée errors, and phantom posts through dedicated s, correct redirect URIs, and persistent connection saving. A major effort addressed the 0/22 items displayed in the media library, diagnosing and fixing obsolete media URLs, authentication issues (missing bearer tokens), and critical React timing errors. Post-generation logic was enhanced with proportional calculation and platform-specific usage marking. An attempt to implement a full calendar UI and manual scheduling led to compilation errors, prompting a rollback to a stable state. The trajectory concludes with the AI re-addressing the Valider button's behavior and the manual date/time modification feature, focusing on a more modular implementation without the full calendar.
 </analysis>
 
 <product_requirements>
-The Claire et Marcus PWA automates social media content, generating Instagram calendars with AI visuals/text using business profiles, website analysis, user uploads, and notes. Core features include post modification, diverse visuals, carousel support, and monthly content sections. Initial requirements were fixing Instagram integration, migrating to Facebook Login for Business, managing photos, and using OpenAI GPT-4o with Claude Sonnet 4 backup. UI improvements included header fixes and a website analysis progress bar. The goal is automated publication on Facebook and Instagram, requiring robust account connectivity and refined post generation logic (only for connected networks). Subsequent requests involved fixing connecté undefined on Facebook, persistent phantom posts, incorrect generation month, adding a post delete button, resolving image upload/display issues (grey placeholder), and debugging Instagram and Facebook authentication failures (e.g., Invalid Scopes, URL bloquée). The user ultimately provided dedicated Facebook and Instagram Config IDs for separate management.
+The Claire et Marcus PWA aims to automate social media content, generating Instagram calendars with AI visuals/text using business profiles, website analysis, user uploads, and notes. Key features include post modification, diverse visuals, carousel support, and monthly content sections. Initial fixes addressed Instagram integration, migration to Facebook Login for Business, photo management, and OpenAI/Claude LLM integration. Subsequent requests involved fixing connecté undefined, phantom posts, incorrect generation month, adding a post delete button, resolving image display issues (grey placeholder), and debugging Facebook/Instagram authentication errors (Invalid Scopes, URL bloquée). The user provided dedicated Facebook and Instagram Config IDs. Later, requests included refining post generation (proportional, next-day scheduling, last-day blocking, per-network generation), an intelligent calendar UI with post validation and filters, and manual date/time modification for posts.
 </product_requirements>
 
 <key_technical_concepts>
 - **Full-stack Development**: React.js (Frontend), FastAPI (Backend), MongoDB (Database).
-- **LLM Integration**: OpenAI GPT-4o, Anthropic Claude Sonnet 4, intelligent LLM orchestration, Emergent LLM Key.
-- **Authentication/Authorization**: OAuth 2.0 (Facebook Login for Business, Instagram Graph API).
-- **Data Management**: MongoDB collections, GridFS, UUIDs, environment variables ().
-- **Deployment**: Kubernetes Ingress rules, supervisor, .
+- **LLM Integration**: OpenAI GPT-4o, Anthropic Claude Sonnet 4.
+- **Authentication/Authorization**: OAuth 2.0 (Facebook Login for Business, Instagram Graph API), JWT tokens.
+- **Data Management**: MongoDB collections (social_connections, publication_calendar), GridFS, environment variables ().
+- **Deployment**: Kubernetes Ingress rules, supervisor, , .
 </key_technical_concepts>
 
 <code_architecture>
 
--   ****: Main FastAPI application handling API routes, authentication, and social media callbacks.
-    -   **Importance**: Orchestrates all backend interactions.
-    -   **Changes Made**: Heavily modified for Facebook/Instagram OAuth callbacks, separating them to prevent conflicts. Debug endpoints were added/removed. The logic for  was updated to correctly retrieve both Facebook and Instagram connections. Image attachment endpoints were adjusted. Authentication flows for Facebook and Instagram were iteratively refined to use correct , , and  (including reverting changes that broke working features).
+-   ****: Main FastAPI application.
+    -   **Importance**: Orchestrates all backend interactions, API routes, authentication, and social media callbacks.
+    -   **Changes Made**:
+        -   Facebook/Instagram OAuth logic: Separated  usage, updated to dedicated  and .
+        -   Facebook callback: Modified to persist user social connections in MongoDB.
+        -   Media handling:  endpoint updated to fix obsolete image URLs ( to ) and include platform-specific usage data.
+        -   Post generation:  modified to accept connected platforms, calculate proportional posts based on remaining days, and schedule posts from the day after generation.
+        -   Debug endpoints: Added , , , , , . Most were temporary and later removed.
+        -   Temporal  added for frontend debugging.
 -   ****: Manages AI-driven social media post generation.
     -   **Importance**: Generates tailored posts using LLMs.
-    -   **Changes Made**: Logic was refined to correctly identify and use connected platforms (, ), ensuring posts are generated only for active social networks.
+    -   **Changes Made**:
+        -   : Updated to accept  and use them in post generation logic.
+        -   : Modified to mark media usage per social media platform.
+        -   : Modified to schedule posts from the day *after* generation, instead of the 1st of the month.
 -   ****: Stores backend environment variables.
     -   **Importance**: Critical for configuration (DB URL, API keys, redirect URIs).
-    -   **Changes Made**:  was updated to a local instance.  and  were adjusted for preview/live environments.  was introduced, then  was added. Most recently,  (1309694717566880) and  (1878388119742903) were added based on user input for dedicated configurations.
+    -   **Changes Made**:  and  were introduced.  was temporarily switched between  and  to align with Facebook Developer Console.
 -   ****: Main React component.
     -   **Importance**: Manages UI state, renders posts, handles user interactions like social connection and image upload.
-    -   **Changes Made**: Corrected display of Facebook username (from  to ). Implemented  and integrated a delete button ( icon) on each post. Added a Forcer le rechargement button for posts. Modified image display logic to correctly show an Ajouter image placeholder for posts without valid images and prevent  empty string issues.
--   ****: Handles content file serving.
-    -   **Importance**: Serves uploaded images and other media.
-    -   **Changes Made**: Modified the  endpoint to correctly serve media regardless of whether it was initially stored in GridFS or marked as external, especially after media corruption fixes. Added support for HEAD requests to check image accessibility.
--   ****: (New file) A script to identify and reset posts with corrupted image references to a needs_image status.
--   ****: (New file) A script to repair media documents in MongoDB by adding missing  and  fields, making them accessible.
+    -   **Changes Made**:
+        -   Image display:  updated to ensure authentication token is sent correctly, and  variable is correctly populated.
+        -   Critical bug fix:  calling  moved after function definition to resolve  error.
+        -   Post generation:  modified to check for connected networks and display popups.
+        -   Media display: Replaced general used check with platform-specific badges.
+        -    in  was adjusted to match backend's expectations for different environments.
+        -   *Temporary changes for calendar and manual scheduling were rolled back.*
+        -    modified to add a button for manual date/time modification.
+-   ****: Stores frontend environment variables.
+    -   **Importance**: Critical for backend URL configuration.
+    -   **Changes Made**:  was modified multiple times to address connectivity issues and align with Facebook's domain restrictions, eventually pointing to , then temporarily to , and finally back to  (as of the last consistent state).
+
 </code_architecture>
 
 <pending_tasks>
-- Fully implement the scheduling system for automated publications.
+- Fully implement the scheduling system for automated publications (after rollback).
 - Implement the analytics dashboard for published posts.
 - Diagnose and fix carousel deletion (if still present).
 - Diagnose and fix recurring photo modification issue (blue question mark).
 - Work with infrastructure team to resolve any remaining external proxy/cache issues.
 - Finalize carousel display logic (grey placeholder instead of first image).
-- Continue to apply and verify all corrections on the LIVE environment, given the discrepancies with PREVIEW.
+- Continue to apply and verify all corrections on the LIVE environment.
+- Re-implement the manual date/time modification feature for posts in a stable manner.
 </pending_tasks>
 
 <current_work>
-Immediately prior to this summary, the AI engineer was addressing the persistent authentication issues for Facebook and Instagram. The user reported that while Instagram was working on PREVIEW, Facebook broke with an URL bloquée error, and Instagram still failed on LIVE. The user then provided new, dedicated s:  for Facebook-only access and  for Instagram-only access.
+Immediately prior to this summary, the AI engineer had successfully restored the application to a stable state after encountering critical compilation errors () during the implementation of a comprehensive calendar UI and manual scheduling feature. The problematic code for the calendar UI and manual scheduling was reverted using a HEAD is now at 85fd8f79 auto-commit for e4ee7228-3fbd-4396-a763-54357d8a3eae to a previously stable commit ().
 
-The AI engineer's current task is to integrate these new dedicated s into the backend. Specifically, the last action mentioned was updating the Facebook authentication logic in  to use the newly provided  (). This is to ensure Facebook authentication works reliably without conflicting with Instagram, utilizing a separate, purpose-built configuration. This follows a period of trying to consolidate, then separate, the OAuth flows and callbacks for both platforms, repeatedly encountering issues with  and redirect URI mismatches on Facebook's side. The goal is to ensure both platforms can connect simultaneously and stably with their respective, distinct configurations.
+The user confirmed that the application was working well again, with Facebook and Instagram connections functional, the media library displaying content, and post generation logic (proportional, next-day scheduling) operational.
+
+The user's most recent request was to refine the Valider button behavior, specifically:
+1.  Remove the popup that asks to choose a social network, as the post already specifies the network.
+2.  Ensure the Valider function considers the post's date and time for scheduling.
+3.  Re-add a function to manually modify the publication date and time on each post, without involving AI.
+
+The AI engineer's current actions involve addressing these three points. The last action taken was to begin adding a button for manual date/time modification within the  component in .
 </current_work>
 
 <optional_next_step>
-Update the  file with  and then modify  to utilize this new Facebook-specific configuration.
+Complete the implementation of the button for manual date/time modification in the  component in .
 </optional_next_step>

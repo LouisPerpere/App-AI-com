@@ -4,7 +4,7 @@ Netlify Proxy URL Update Test - French Review Request
 Testing the MongoDB URL updates according to ChatGPT Option B
 
 OBJECTIF: Mettre à jour TOUTES les thumb_url et url en MongoDB
-- Remplacer "https://post-genius-13.preview.emergentagent.com/uploads/" par "https://claire-marcus.com/uploads/"
+- Remplacer "https://instamanager-1.preview.emergentagent.com/uploads/" par "https://claire-marcus.com/uploads/"
 - Utiliser le proxy Netlify configuré dans _redirects
 - Vérifier le nombre d'URLs mises à jour
 - Tester GET /api/content/pending pour confirmer les URLs
@@ -18,7 +18,7 @@ from pymongo import MongoClient
 from urllib.parse import urlparse
 
 # Configuration
-BACKEND_URL = "https://post-genius-13.preview.emergentagent.com"
+BACKEND_URL = "https://instamanager-1.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request
@@ -210,7 +210,7 @@ class NetlifyProxyURLTester:
                 old_thumb_url = doc.get("thumb_url", "")
                 if old_thumb_url and "libfusion.preview.emergentagent.com" in old_thumb_url:
                     new_thumb_url = old_thumb_url.replace(
-                        "https://post-genius-13.preview.emergentagent.com/uploads/",
+                        "https://instamanager-1.preview.emergentagent.com/uploads/",
                         "https://claire-marcus.com/uploads/"
                     )
                     
@@ -231,7 +231,7 @@ class NetlifyProxyURLTester:
                 old_url = doc.get("url", "")
                 if old_url and "libfusion.preview.emergentagent.com" in old_url:
                     new_url = old_url.replace(
-                        "https://post-genius-13.preview.emergentagent.com/uploads/",
+                        "https://instamanager-1.preview.emergentagent.com/uploads/",
                         "https://claire-marcus.com/uploads/"
                     )
                     

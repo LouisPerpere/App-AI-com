@@ -12,7 +12,7 @@ from urllib.parse import urlparse
 import re
 
 # Configuration
-BACKEND_URL = "https://post-genius-13.preview.emergentagent.com"
+BACKEND_URL = "https://instamanager-1.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials

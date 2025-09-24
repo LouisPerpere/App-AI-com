@@ -11,7 +11,7 @@ CONTEXTE TECHNIQUE:
 - Format JSON corrigé: "visual_id" au lieu de "visual_content_used"
 - Parsing corrigé pour utiliser les vrais IDs au lieu de "global_fallback_X"
 
-Backend URL: https://post-genius-13.preview.emergentagent.com/api
+Backend URL: https://instamanager-1.preview.emergentagent.com/api
 Credentials: lperpere@yahoo.fr / L@Reunion974!
 """
 
@@ -23,7 +23,7 @@ from datetime import datetime
 
 class PhotoPostLinkingTester:
     def __init__(self):
-        self.base_url = "https://post-genius-13.preview.emergentagent.com/api"
+        self.base_url = "https://instamanager-1.preview.emergentagent.com/api"
         self.session = requests.Session()
         self.session.headers.update({
             'Content-Type': 'application/json',

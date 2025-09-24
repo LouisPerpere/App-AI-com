@@ -12,7 +12,7 @@ from io import BytesIO
 from PIL import Image
 
 # Configuration
-BACKEND_URL = "https://post-genius-13.preview.emergentagent.com/api"
+BACKEND_URL = "https://instamanager-1.preview.emergentagent.com/api"
 CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"

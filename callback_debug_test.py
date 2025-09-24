@@ -15,7 +15,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://post-genius-13.preview.emergentagent.com/api"
+BACKEND_URL = "https://instamanager-1.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 EXPECTED_USER_ID = "bdf87a74-e3f3-44f3-bac2-649cde3ef93e"
@@ -247,7 +247,7 @@ class CallbackDebugTester:
         
         # Check redirect URI configuration
         print("   📊 Redirect URI configuration:")
-        print("      Expected: https://post-genius-13.preview.emergentagent.com/api/social/instagram/callback")
+        print("      Expected: https://instamanager-1.preview.emergentagent.com/api/social/instagram/callback")
         print("      ✅ This matches the callback endpoint we're testing")
         
         # Analyze potential issues

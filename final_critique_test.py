@@ -22,7 +22,7 @@ CRITÈRES DE SUCCÈS:
 - Titre accrocheur
 - Sauvegarde en base de données
 
-Backend URL: https://post-genius-13.preview.emergentagent.com/api
+Backend URL: https://instamanager-1.preview.emergentagent.com/api
 
 SI SUCCÈS: Système 100% opérationnel, prêt pour utilisation
 SI ÉCHEC: Identifier la cause exacte (clé, API, budget, etc.)
@@ -34,7 +34,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://post-genius-13.preview.emergentagent.com/api"
+BACKEND_URL = "https://instamanager-1.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 

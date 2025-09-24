@@ -12,7 +12,7 @@ CHANGEMENTS TESTÉS:
 3. Endpoints de test: /test/config-debug et /test/auth-urls-debug
 4. Endpoints d'auth: /api/social/facebook/auth-url et /api/social/instagram/auth-url
 
-BASE_URL: https://post-genius-13.preview.emergentagent.com/api
+BASE_URL: https://instamanager-1.preview.emergentagent.com/api
 CREDENTIALS: lperpere@yahoo.fr / L@Reunion974!
 """
 
@@ -23,7 +23,7 @@ from datetime import datetime
 from urllib.parse import urlparse, parse_qs
 
 # Configuration
-BASE_URL = "https://post-genius-13.preview.emergentagent.com/api"
+BASE_URL = "https://instamanager-1.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

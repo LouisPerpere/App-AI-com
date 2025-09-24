@@ -9,7 +9,7 @@ import json
 import sys
 
 # Configuration
-BACKEND_URL = "https://post-genius-13.preview.emergentagent.com"
+BACKEND_URL = "https://instamanager-1.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
@@ -168,7 +168,7 @@ def main():
             thumb_url = example['thumb_url']
             if thumb_url.startswith("https://claire-marcus.com/uploads/thumbs/"):
                 url_type = "Absolue (claire-marcus.com)"
-            elif thumb_url.startswith("https://post-genius-13.preview.emergentagent.com/uploads/thumbs/"):
+            elif thumb_url.startswith("https://instamanager-1.preview.emergentagent.com/uploads/thumbs/"):
                 url_type = "Absolue (libfusion)"
             elif thumb_url.startswith("/uploads/thumbs/"):
                 url_type = "Relative"

@@ -11,7 +11,7 @@ import os
 from typing import Dict, Any, Optional
 
 # Configuration
-BACKEND_URL = "https://post-genius-13.preview.emergentagent.com"
+BACKEND_URL = "https://instamanager-1.preview.emergentagent.com"
 LOGIN_EMAIL = "lperpere@yahoo.fr"
 LOGIN_PASSWORD = "L@Reunion974!"
 

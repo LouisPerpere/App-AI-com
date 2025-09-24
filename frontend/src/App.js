@@ -4281,21 +4281,20 @@ function MainApp() {
     const scheduledDateTime = new Date(`${newScheduleDate}T${newScheduleTime}:00`);
     const now = new Date();
     
-    // Vérification : minimum 10 minutes après maintenant
-    const minTime = new Date(now.getTime() + 10 * 60 * 1000);
-    if (scheduledDateTime < minTime) {
-      toast.error('La date de programmation doit être au moins 10 minutes après maintenant');
+    // Obtenir les limites pour ce post spécifique
+    const limits = getDateLimitsForPost(selectedPostForDateTime);
+    const minDate = new Date(limits.min);
+    const maxDate = new Date(limits.max);
+    
+    // Vérification : pas avant aujourd'hui
+    if (scheduledDateTime < now) {
+      toast.error('La date ne peut pas être dans le passé');
       return;
     }
 
-    // Vérification : maximum fin du mois suivant (contrôle supplémentaire)
-    const maxDate = new Date();
-    maxDate.setMonth(maxDate.getMonth() + 2);
-    maxDate.setDate(0); // Dernier jour du mois suivant
-    maxDate.setHours(23, 59, 59, 999);
-    
+    // Vérification : pas après la fin du mois suivant au mois du post
     if (scheduledDateTime > maxDate) {
-      toast.error('La date ne peut pas dépasser la fin du mois suivant');
+      toast.error('La date ne peut pas dépasser la fin du mois suivant au mois du post');
       return;
     }
 

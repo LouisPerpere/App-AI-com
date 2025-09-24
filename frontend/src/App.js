@@ -8146,8 +8146,8 @@ function MainApp() {
                             value={newScheduleDate}
                             onChange={(e) => setNewScheduleDate(e.target.value)}
                             className="w-full"
-                            min={getDateLimits().min}
-                            max={getDateLimits().max}
+                            min={getDateLimitsForPost(selectedPostForDateTime).min}
+                            max={getDateLimitsForPost(selectedPostForDateTime).max}
                           />
                         </div>
 

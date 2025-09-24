@@ -4191,61 +4191,62 @@ function MainApp() {
     }
   };
 
+  // États pour le modal de modification date/heure
+  const [showDateTimeModal, setShowDateTimeModal] = useState(false);
+  const [selectedPostForDateTime, setSelectedPostForDateTime] = useState(null);
+  const [newScheduleDate, setNewScheduleDate] = useState('');
+  const [newScheduleTime, setNewScheduleTime] = useState('');
+
   // Fonction pour modifier manuellement la date et l'heure d'un post
   const handleModifyDateTime = async (post) => {
-    // Créer un formulaire simple avec prompt
-    const currentDate = post.scheduled_date ? new Date(post.scheduled_date) : new Date();
-    currentDate.setDate(currentDate.getDate() + 1); // Par défaut: demain
+    // Ouvrir le modal avec les valeurs actuelles du post
+    setSelectedPostForDateTime(post);
     
-    const currentDateStr = currentDate.toISOString().split('T')[0]; // YYYY-MM-DD
-    const currentTimeStr = currentDate.toTimeString().split(' ')[0].slice(0, 5); // HH:MM
+    // Initialiser les valeurs
+    if (post.scheduled_date) {
+      const date = new Date(post.scheduled_date);
+      setNewScheduleDate(date.toISOString().split('T')[0]); // YYYY-MM-DD
+      setNewScheduleTime(date.toTimeString().slice(0, 5)); // HH:MM
+    } else {
+      // Valeur par défaut : demain à 10h
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(10, 0, 0, 0);
+      setNewScheduleDate(tomorrow.toISOString().split('T')[0]);
+      setNewScheduleTime('10:00');
+    }
+    
+    setShowDateTimeModal(true);
+  };
 
-    const newDate = prompt(
-      `Modifier la date de publication :\n\nDate actuelle: ${post.scheduled_date ? new Date(post.scheduled_date).toLocaleDateString('fr-FR', { 
-        day: '2-digit', 
-        month: 'long', 
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }) : 'Non définie'}\n\nNouvelle date (AAAA-MM-JJ):`,
-      currentDateStr
-    );
+  // Fonction pour sauvegarder la nouvelle date/heure
+  const handleSaveDateTimeChange = async () => {
+    if (!newScheduleDate || !newScheduleTime) {
+      toast.error('Veuillez sélectionner une date et une heure');
+      return;
+    }
 
-    if (!newDate) return; // Annulé
-
-    const newTime = prompt(
-      `Modifier l'heure de publication :\n\nNouvelle heure (HH:MM):`,
-      currentTimeStr
-    );
-
-    if (!newTime) return; // Annulé
-
-    // Validation
-    const newDateTime = new Date(`${newDate}T${newTime}:00`);
+    // Créer la date programmée
+    const scheduledDateTime = new Date(`${newScheduleDate}T${newScheduleTime}:00`);
     const now = new Date();
-
-    if (isNaN(newDateTime.getTime())) {
-      toast.error('Format de date/heure invalide');
+    
+    // Vérification : minimum 10 minutes après maintenant
+    const minTime = new Date(now.getTime() + 10 * 60 * 1000);
+    if (scheduledDateTime < minTime) {
+      toast.error('La date de programmation doit être au moins 10 minutes après maintenant');
       return;
     }
 
-    if (newDateTime <= now) {
-      toast.error('La date de programmation doit être dans le futur');
+    // Vérification : maximum fin du mois suivant
+    const maxDate = new Date();
+    maxDate.setMonth(maxDate.getMonth() + 2);
+    maxDate.setDate(0); // Dernier jour du mois suivant
+    maxDate.setHours(23, 59, 59, 999);
+    
+    if (scheduledDateTime > maxDate) {
+      toast.error('La date de programmation ne peut pas dépasser la fin du mois suivant');
       return;
     }
-
-    const confirmed = window.confirm(
-      `Programmer ce post pour :\n${newDateTime.toLocaleDateString('fr-FR', {
-        weekday: 'long',
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })} ?\n\n"${post.title || post.text || 'Post généré'}"`
-    );
-
-    if (!confirmed) return;
 
     const token = localStorage.getItem('access_token');
     if (!token) {
@@ -4255,8 +4256,8 @@ function MainApp() {
 
     try {
       const response = await axios.put(
-        `${API}/posts/${post.id}/schedule`,
-        { scheduled_date: newDateTime.toISOString() },
+        `${API}/posts/${selectedPostForDateTime.id}/schedule`,
+        { scheduled_date: scheduledDateTime.toISOString() },
         { 
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -4267,6 +4268,10 @@ function MainApp() {
         
         // Recharger les posts pour afficher la nouvelle programmation
         await loadGeneratedPosts();
+        
+        // Fermer le modal
+        setShowDateTimeModal(false);
+        setSelectedPostForDateTime(null);
       } else {
         throw new Error(response.data?.message || 'Erreur lors de la mise à jour');
       }
@@ -4276,6 +4281,14 @@ function MainApp() {
       const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
       toast.error(`Erreur lors de la mise à jour: ${errorMessage}`);
     }
+  };
+
+  // Fonction pour annuler la modification date/heure
+  const handleCancelDateTimeChange = () => {
+    setShowDateTimeModal(false);
+    setSelectedPostForDateTime(null);
+    setNewScheduleDate('');
+    setNewScheduleTime('');
   };
 
   // Load connected accounts on authentication

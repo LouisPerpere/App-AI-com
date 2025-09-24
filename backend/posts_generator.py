@@ -548,9 +548,9 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         
         return generated_posts
     
-    async def _mark_used_content(self, generated_posts: List[PostContent]):
-        """Mark used content with timestamps"""
-        logger.info("🏷️ Step 4.5/6: Marking used content...")
+    async def _mark_used_content(self, generated_posts: List[PostContent], platform: str):
+        """Mark used content with timestamps and platform info"""
+        logger.info(f"🏷️ Step 4.5/6: Marking used content for {platform}...")
         
         # Collect all used content IDs from generated posts
         used_content = []
@@ -558,38 +558,51 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
             if post.visual_id:
                 used_content.append(post.visual_id)
         
-        logger.info(f"   📊 Found {len(used_content)} content items to mark as used")
+        logger.info(f"   📊 Found {len(used_content)} content items to mark as used for {platform}")
         
-        # Mark used content with timestamps
+        # Mark used content with timestamps and platform info
         if used_content:
             from bson import ObjectId
             from datetime import datetime
+            
+            # Map platform names to field names
+            platform_field_map = {
+                'facebook': 'used_on_facebook',
+                'instagram': 'used_on_instagram', 
+                'linkedin': 'used_on_linkedin'
+            }
+            
+            platform_field = platform_field_map.get(platform.lower(), 'used_in_posts')
             
             # Handle both ObjectId and UUID formats
             for content_id in used_content:
                 try:
                     # Try UUID format first (GridFS file_id)
+                    update_fields = {
+                        "used_in_posts": True,  # Keep general flag for backward compatibility
+                        platform_field: True,  # Mark as used on specific platform
+                        "last_used": datetime.utcnow().isoformat(),
+                        "usage_count": {"$inc": 1}
+                    }
+                    
                     result = self.db.media.update_one(
                         {"$or": [
                             {"file_id": content_id},
                             {"id": content_id},
                             {"_id": ObjectId(content_id) if len(content_id) == 24 else None}
                         ]},
-                        {"$set": {
-                            "used_in_posts": True,
-                            "last_used": datetime.utcnow().isoformat(),
-                            "usage_count": {"$inc": 1}
-                        }}
+                        {"$set": update_fields}
                     )
                     
                     if result.matched_count > 0:
-                        logger.info(f"   ✅ Marked content {content_id} as used")
+                        logger.info(f"   ✅ Marked content {content_id} as used on {platform}")
                     else:
-                        logger.warning(f"   ⚠️ Content {content_id} not found for marking as used")
+                        logger.warning(f"   ⚠️ Content {content_id} not found for marking as used on {platform}")
                         
                 except Exception as e:
-                    logger.error(f"   ❌ Error marking content {content_id} as used: {str(e)}")
-                    pass
+                    logger.error(f"   ❌ Error marking content {content_id} as used on {platform}: {str(e)}")
+        
+        logger.info(f"✅ Marking used content completed for {platform}")
     
     def _build_business_context(self, business_profile: Dict, website_analysis: Dict) -> str:
         """Build business context for AI generation"""

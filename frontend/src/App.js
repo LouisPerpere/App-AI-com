@@ -4170,6 +4170,93 @@ function MainApp() {
     }
   };
 
+  // Fonction pour modifier manuellement la date et l'heure d'un post
+  const handleModifyDateTime = async (post) => {
+    // Créer un formulaire simple avec prompt
+    const currentDate = post.scheduled_date ? new Date(post.scheduled_date) : new Date();
+    currentDate.setDate(currentDate.getDate() + 1); // Par défaut: demain
+    
+    const currentDateStr = currentDate.toISOString().split('T')[0]; // YYYY-MM-DD
+    const currentTimeStr = currentDate.toTimeString().split(' ')[0].slice(0, 5); // HH:MM
+
+    const newDate = prompt(
+      `Modifier la date de publication :\n\nDate actuelle: ${post.scheduled_date ? new Date(post.scheduled_date).toLocaleDateString('fr-FR', { 
+        day: '2-digit', 
+        month: 'long', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }) : 'Non définie'}\n\nNouvelle date (AAAA-MM-JJ):`,
+      currentDateStr
+    );
+
+    if (!newDate) return; // Annulé
+
+    const newTime = prompt(
+      `Modifier l'heure de publication :\n\nNouvelle heure (HH:MM):`,
+      currentTimeStr
+    );
+
+    if (!newTime) return; // Annulé
+
+    // Validation
+    const newDateTime = new Date(`${newDate}T${newTime}:00`);
+    const now = new Date();
+
+    if (isNaN(newDateTime.getTime())) {
+      toast.error('Format de date/heure invalide');
+      return;
+    }
+
+    if (newDateTime <= now) {
+      toast.error('La date de programmation doit être dans le futur');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Programmer ce post pour :\n${newDateTime.toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })} ?\n\n"${post.title || post.text || 'Post généré'}"`
+    );
+
+    if (!confirmed) return;
+
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast.error('Vous devez être connecté pour modifier la programmation');
+      return;
+    }
+
+    try {
+      const response = await axios.put(
+        `${API}/posts/${post.id}/schedule`,
+        { scheduled_date: newDateTime.toISOString() },
+        { 
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      if (response.data?.success) {
+        toast.success('✅ Date et heure mises à jour avec succès !');
+        
+        // Recharger les posts pour afficher la nouvelle programmation
+        await loadGeneratedPosts();
+      } else {
+        throw new Error(response.data?.message || 'Erreur lors de la mise à jour');
+      }
+      
+    } catch (error) {
+      console.error('Error updating schedule:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`Erreur lors de la mise à jour: ${errorMessage}`);
+    }
+  };
+
   // Load connected accounts on authentication
   useEffect(() => {
     if (isAuthenticated) {

@@ -2143,24 +2143,33 @@ function MainApp() {
     const carouselGroups = {}; // Track carousel groups
     
     pendingContent.forEach(item => {
-      // TEMPORAIRE: Mettre tous les contenus dans le mois actuel pour test
-      const currentDate = new Date();
-      const currentYear = currentDate.getFullYear();
-      const currentMonth = currentDate.getMonth();
-      const monthNames = [
-        'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
-        'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
-      ];
-      const currentMonthKey = `${monthNames[currentMonth]}_${currentYear}`;
-      const targetMonth = currentMonthKey;
+      // Check if content has explicit month attribution
+      const attributedMonth = item.attributed_month;
+      let targetMonth = null;
       
-      console.log('📅 Item processed:', {
-        id: item.id,
-        filename: item.filename,
-        created_at: item.created_at,
-        attributed_month: item.attributed_month,
-        assigned_to_month: targetMonth
-      });
+      if (attributedMonth && allMonths[attributedMonth]) {
+        targetMonth = attributedMonth;
+      } else {
+        // For existing content without attribution, distribute into archive months
+        const createdDate = new Date(item.created_at || item.uploaded_at);
+        const itemMonth = createdDate.getMonth();
+        const itemYear = createdDate.getFullYear();
+        
+        // Try to match with existing months or default to first archive month
+        const monthNames = [
+          'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+          'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+        ];
+        
+        const itemMonthKey = `${monthNames[itemMonth]}_${itemYear}`;
+        if (allMonths[itemMonthKey]) {
+          targetMonth = itemMonthKey;
+        } else {
+          // Default to first archive month (last month)
+          const firstArchiveKey = Object.keys(archives).sort((a, b) => archives[b].order - archives[a].order)[0];
+          targetMonth = firstArchiveKey;
+        }
+      }
       
       if (!targetMonth) return;
       

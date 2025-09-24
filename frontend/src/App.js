@@ -3120,10 +3120,25 @@ function MainApp() {
     }
 
     try {
-      // Informer l'utilisateur des réseaux pour lesquels les posts seront générés
+      // Calculer les jours restants pour affichage informatif
+      const currentDate = new Date();
+      const [year, month] = (monthKey || `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}`).split('-');
+      const targetDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+      const lastDay = new Date(parseInt(year), parseInt(month), 0).getDate();
+      const lastDateOfMonth = new Date(parseInt(year), parseInt(month) - 1, lastDay);
+      
+      const calculationDate = currentDate > targetDate ? currentDate : targetDate;
+      const tomorrow = new Date(calculationDate);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      const remainingDays = Math.max(Math.ceil((lastDateOfMonth - tomorrow) / (1000 * 60 * 60 * 24)) + 1, 1);
+      
+      // Informer l'utilisateur des réseaux et du calcul proportionnel
       const platformList = connectedPlatforms.join(', ');
-      toast.success(`Génération de posts en cours pour : ${platformList}`, {
-        duration: 3000
+      toast.success(`Génération de posts en cours pour : ${platformList}
+      📅 Jours restants dans le mois : ${remainingDays}
+      🔄 Posts adaptés proportionnellement`, {
+        duration: 4000
       });
 
       const requestBody = monthKey ? { month_key: monthKey } : {};
@@ -3135,7 +3150,10 @@ function MainApp() {
         new Date(monthKey + '-01').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) :
         'ce mois';
       
-      toast.success(`Posts générés avec succès pour ${monthName} sur ${platformList} ! 🎉`);
+      toast.success(`Posts générés avec succès pour ${monthName} sur ${platformList} ! 🎉
+      📋 Programmation à partir de demain`, {
+        duration: 5000
+      });
       
       // Recharger les posts générés
       await loadGeneratedPosts();

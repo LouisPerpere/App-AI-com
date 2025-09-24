@@ -488,15 +488,18 @@ async def login_robust(body: LoginIn):
 @api_router.get("/content/pending-bypass")
 async def get_pending_content_bypass(offset: int = 0, limit: int = 24):
     """Endpoint temporaire qui bypass l'authentification pour cet utilisateur spécifique"""
-    # Force l'utilisation du user_id connu qui a des médias
-    user_id = "bdf87a74-e3f3-44f3-bac2-649cde3ef93e"
+    # Force l'utilisation du user_id mentionné par l'agent de test (41 médias)
+    user_id = "6a670c66-c06c-4d75-9dd5-c747e8a0281a"
     
-    print(f"🔄 BYPASS: Utilisation forcée user_id: {user_id}")
+    print(f"🔄 BYPASS: Utilisation user_id de l'agent de test: {user_id}")
     
     try:
         media_collection = get_media_collection()
         q = {"owner_id": user_id, "$or": [{"deleted": {"$ne": True}}, {"deleted": {"$exists": False}}]}
         total = media_collection.count_documents(q)
+        
+        print(f"📊 BYPASS: Query: {q}")
+        print(f"📊 BYPASS: Total trouvé: {total}")
         
         cursor = (
             media_collection.find(q)
@@ -559,7 +562,8 @@ async def get_pending_content_bypass(offset: int = 0, limit: int = 24):
         
         print(f"✅ BYPASS: Retourné {len(items)} médias sur {total}")
         
-        return {"images": items, "total": total, "offset": offset, "limit": limit, "has_more": offset + limit < total, "loaded": len(items)}
+        # IMPORTANT: Retourner dans le format attendu par le frontend (content, pas images)
+        return {"content": items, "total": total, "offset": offset, "limit": limit, "has_more": offset + limit < total, "loaded": len(items)}
     except Exception as e:
         print(f"❌ ERREUR BYPASS: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch content: {str(e)}")

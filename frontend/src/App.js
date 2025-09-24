@@ -4101,43 +4101,33 @@ function MainApp() {
   const handleValidatePost = async (post) => {
     // Vérifier qu'au moins un réseau social est connecté
     const connectedPlatforms = [];
-    if (connectedAccounts.facebook) connectedPlatforms.push('Facebook');
-    if (connectedAccounts.instagram) connectedPlatforms.push('Instagram');
-    if (connectedAccounts.linkedin) connectedPlatforms.push('LinkedIn');
+    if (connectedAccounts.facebook) connectedPlatforms.push('facebook');
+    if (connectedAccounts.instagram) connectedPlatforms.push('instagram');
+    if (connectedAccounts.linkedin) connectedPlatforms.push('linkedin');
 
     if (connectedPlatforms.length === 0) {
       toast.error('Vous devez connecter au moins un réseau social pour valider un post');
       return;
     }
 
-    // Permettre à l'utilisateur de choisir les réseaux pour ce post
-    const platformChoice = connectedPlatforms.length === 1 ? 
-      connectedPlatforms[0] : 
-      await new Promise((resolve) => {
-        const choice = prompt(
-          `Choisir les réseaux pour ce post :\n\nRéseaux disponibles : ${connectedPlatforms.join(', ')}\n\nTapez les numéros séparés par des virgules :\n${connectedPlatforms.map((p, i) => `${i + 1}. ${p}`).join('\n')}`,
-          connectedPlatforms.map((_, i) => i + 1).join(',')
-        );
-        
-        if (!choice) {
-          resolve(null);
-          return;
-        }
-        
-        const selectedIndices = choice.split(',').map(n => parseInt(n.trim()) - 1).filter(i => i >= 0 && i < connectedPlatforms.length);
-        const selectedPlatforms = selectedIndices.map(i => connectedPlatforms[i]);
-        resolve(selectedPlatforms.length > 0 ? selectedPlatforms : null);
-      });
+    // Utiliser la plateforme du post automatiquement (pas de popup de choix)
+    let targetPlatform = post.platform ? post.platform.toLowerCase() : null;
+    
+    // Si le post n'a pas de plateforme définie, prendre le premier réseau connecté
+    if (!targetPlatform || !connectedPlatforms.includes(targetPlatform)) {
+      targetPlatform = connectedPlatforms[0];
+    }
 
-    if (!platformChoice) {
-      toast.info('Validation annulée');
+    // Vérifier que la plateforme du post est bien connectée
+    if (!connectedPlatforms.includes(targetPlatform)) {
+      toast.error(`Le réseau ${targetPlatform} n'est pas connecté. Connectez-le d'abord dans l'onglet "Réseaux sociaux".`);
       return;
     }
 
-    const selectedPlatforms = Array.isArray(platformChoice) ? platformChoice : [platformChoice];
+    const platformName = targetPlatform.charAt(0).toUpperCase() + targetPlatform.slice(1);
 
     const confirmed = window.confirm(
-      `Envoyer ce post au calendrier pour publication sur ${selectedPlatforms.join(' et ') } ?\n\n"${post.title || post.text || 'Post généré'}"\n\nDate programmée : ${post.scheduled_date ? new Date(post.scheduled_date).toLocaleDateString('fr-FR', { 
+      `Programmer ce post sur ${platformName} ?\n\n"${post.title || post.text || 'Post généré'}"\n\nDate programmée : ${post.scheduled_date ? new Date(post.scheduled_date).toLocaleDateString('fr-FR', { 
         day: '2-digit', 
         month: 'long', 
         year: 'numeric',
@@ -4155,12 +4145,12 @@ function MainApp() {
     }
 
     try {
-      // Envoyer le post au calendrier avec les plateformes sélectionnées
+      // Envoyer le post au calendrier avec la plateforme du post et sa date programmée
       const response = await axios.post(
         `${API}/posts/validate-to-calendar`,
         {
           post_id: post.id,
-          platforms: selectedPlatforms.map(p => p.toLowerCase()),
+          platforms: [targetPlatform],
           scheduled_date: post.scheduled_date
         },
         {
@@ -4168,7 +4158,7 @@ function MainApp() {
         }
       );
 
-      toast.success(`Post envoyé au calendrier pour publication sur ${selectedPlatforms.join(' et ')} ! 📅`);
+      toast.success(`Post programmé sur ${platformName} ! 📅`);
       
       // Recharger les posts pour voir le statut mis à jour
       await loadGeneratedPosts();
@@ -4176,7 +4166,7 @@ function MainApp() {
     } catch (error) {
       console.error('Error validating post to calendar:', error);
       const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
-      toast.error(`Erreur lors de l'envoi au calendrier: ${errorMessage}`);
+      toast.error(`Erreur lors de la programmation: ${errorMessage}`);
     }
   };
 

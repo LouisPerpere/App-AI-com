@@ -542,10 +542,10 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
                 e.stopPropagation();
                 onModifyDateTime && onModifyDateTime(post);
               }}
-              className="w-5 h-5 bg-amber-500 hover:bg-amber-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+              className="w-6 h-6 bg-amber-500 hover:bg-amber-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
               title="Modifier la date et l'heure"
             >
-              <Edit className="w-2.5 h-2.5" />
+              <Clock className="w-3 h-3" />
             </button>
           </div>
         </div>

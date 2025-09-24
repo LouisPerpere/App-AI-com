@@ -2157,40 +2157,7 @@ async def get_media_for_specific_user(user_id: str):
 
 
 
-@api_router.get("/test/debug-media")
-async def debug_media_content():
-    """Test endpoint pour diagnostiquer les problèmes de médias sans authentification"""
-    try:
-        media_collection = get_media_collection()
-        
-        # Compter tous les médias
-        total_count = media_collection.count_documents({})
-        
-        # Récupérer quelques médias pour diagnostic
-        all_media = list(media_collection.find({}).limit(5))
-        
-        # Analyser les médias
-        media_info = []
-        for media in all_media:
-            media_info.append({
-                "id": str(media.get("id", media.get("_id", "NO_ID"))),
-                "filename": media.get("filename", "NO_FILENAME"),
-                "owner_id": media.get("owner_id", "NO_OWNER"),
-                "user_id": media.get("user_id", "NO_USER_ID"),  # Check both fields
-                "file_type": media.get("file_type", "NO_TYPE"),
-                "deleted": media.get("deleted", "NOT_SET"),
-                "created_at": str(media.get("created_at", "NO_DATE")),
-                "url": media.get("url", "NO_URL"),
-                "storage": media.get("storage", "NO_STORAGE_INFO")
-            })
-        
-        return {
-            "total_media_count": total_count,
-            "sample_media": media_info,
-            "note": "Diagnostic des médias en base de données"
-        }
-    except Exception as e:
-        return {"error": f"Erreur diagnostic: {str(e)}"}
+
 
 @api_router.get("/test/debug-user-media/{user_id}")
 async def debug_user_specific_media(user_id: str):

@@ -8075,7 +8075,7 @@ function MainApp() {
                           <CalendarIcon className="w-8 h-8 text-white" />
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 mb-2">
-                          Modifier la programmation
+                          Modifier date et heure du post
                         </h3>
                         <p className="text-gray-600">
                           Choisissez une nouvelle date et heure pour ce post

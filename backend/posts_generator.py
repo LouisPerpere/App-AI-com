@@ -1314,8 +1314,12 @@ CTA: "Apprenez plus", "Essayez", "Suivez le guide"
         return None
     
     def _create_posting_schedule(self, posts: List[PostContent], target_month: str, target_platform: str = "instagram") -> List[PostContent]:
-        """Create intelligent posting schedule"""
+        """Create intelligent posting schedule starting from tomorrow"""
         logger.info("📅 Step 5/6: Creating posting schedule...")
+        
+        from datetime import datetime, timedelta
+        import random
+        import calendar
         
         # Parse target month
         month_name, year = target_month.split('_')
@@ -1329,18 +1333,42 @@ CTA: "Apprenez plus", "Essayez", "Suivez le guide"
         
         month_num = month_map.get(month_name, 10)
         
-        # Create schedule spread across the month
-        start_date = datetime(year, month_num, 1)
+        # Calculate start date: tomorrow or first day of target month (whichever is later)
+        current_date = datetime.now()
+        tomorrow = current_date + timedelta(days=1)
+        first_day_of_month = datetime(year, month_num, 1)
         
-        # Optimal posting times for Instagram (research-based)
+        start_date = max(tomorrow, first_day_of_month)
+        
+        # Calculate end date: last day of target month
+        last_day_of_month = calendar.monthrange(year, month_num)[1]
+        end_date = datetime(year, month_num, last_day_of_month)
+        
+        # Calculate available days for scheduling
+        available_days = (end_date - start_date).days + 1
+        
+        logger.info(f"   📅 Scheduling from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
+        logger.info(f"   📊 Available days: {available_days}")
+        
+        # Optimal posting times for social media (research-based)
         optimal_hours = [9, 11, 13, 17, 19, 21]  # Best engagement hours
         
         for i, post in enumerate(posts):
-            # Distribute posts across the month
-            day_offset = (i * 30) // len(posts) + 1
+            # Distribute posts evenly across available days
+            if available_days > 0:
+                day_offset = (i * available_days) // len(posts)
+            else:
+                day_offset = 0
+                
             hour = random.choice(optimal_hours)
+            minute = random.randint(0, 59)  # Add random minutes for natural scheduling
             
-            scheduled_date = start_date + timedelta(days=day_offset, hours=hour)
+            scheduled_date = start_date + timedelta(days=day_offset, hours=hour, minutes=minute)
+            
+            # Ensure we don't schedule beyond the month
+            if scheduled_date > end_date:
+                scheduled_date = end_date.replace(hour=hour, minute=minute)
+                
             post.scheduled_date = scheduled_date
             
             # Assurer que la plateforme est correcte
@@ -1349,7 +1377,7 @@ CTA: "Apprenez plus", "Essayez", "Suivez le guide"
         # Sort by scheduled date
         posts.sort(key=lambda p: p.scheduled_date)
         
-        logger.info(f"   📅 Scheduled {len(posts)} posts across {target_month}")
+        logger.info(f"   📅 Scheduled {len(posts)} posts for {target_platform} from {start_date.strftime('%d/%m')} to {end_date.strftime('%d/%m')}")
         return posts
     
     def _save_generated_posts(self, user_id: str, posts: List[PostContent]):

@@ -2163,62 +2163,7 @@ async def get_media_for_specific_user(user_id: str):
 
 
 
-@api_router.get("/test/auth-urls-debug")
-async def test_auth_urls_debug():
-    """Test endpoint pour générer les URLs d'authentification sans token"""
-    import os
-    import secrets
-    from urllib.parse import urlencode
-    
-    # Configuration Facebook
-    facebook_config_id = os.environ.get('FACEBOOK_CONFIG_ID_PAGES', os.environ.get('FACEBOOK_CONFIG_ID', '1878388119742903'))
-    facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
-    
-    # Configuration Instagram  
-    instagram_config_id = os.environ.get('INSTAGRAM_CONFIG_ID_PAGES', os.environ.get('INSTAGRAM_CONFIG_ID', '1309694717566880'))
-    
-    # Test des différentes URIs pour diagnostic
-    preview_base = "https://post-genius-13.preview.emergentagent.com"
-    live_base = "https://claire-marcus.com"
-    
-    test_state = secrets.token_urlsafe(16)
-    scopes = "pages_show_list,pages_read_engagement,pages_manage_posts"
-    
-    results = {}
-    
-    # Test 4 configurations possibles
-    for env_name, base_url in [("preview", preview_base), ("live", live_base)]:
-        for platform in ["facebook", "instagram"]:
-            config_id = facebook_config_id if platform == "facebook" else instagram_config_id
-            redirect_uri = f"{base_url}/api/social/{platform}/callback"
-            
-            params = {
-                "client_id": facebook_app_id,
-                "redirect_uri": redirect_uri,
-                "scope": scopes,
-                "response_type": "code",
-                "state": test_state,
-                "config_id": config_id
-            }
-            auth_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(params)}"
-            
-            results[f"{platform}_{env_name}"] = {
-                "config_id": config_id,
-                "auth_url": auth_url,
-                "redirect_uri": redirect_uri,
-                "is_configured_in_facebook": redirect_uri in [
-                    "https://claire-marcus.com/api/social/instagram/callback",
-                    "https://claire-marcus.com/api/social/facebook/callback",
-                    "https://post-genius-13.preview.emergentagent.com/api/social/facebook/callback",
-                    "https://post-genius-13.preview.emergentagent.com/api/social/instagram/callback"
-                ]
-            }
-    
-    return {
-        "current_env": os.environ.get('FRONTEND_URL', 'https://post-genius-13.preview.emergentagent.com'),
-        "test_urls": results,
-        "note": "Test des 4 combinaisons possibles avec vérification Facebook Developer Console"
-    }
+
 
 @api_router.get("/social/instagram/test-auth")
 async def test_instagram_auth():

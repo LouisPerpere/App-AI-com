@@ -1888,91 +1888,45 @@ function MainApp() {
 
   const loadPendingContent = async (append = false) => {
     try {
-      // TEST CONNEXION BACKEND
-      console.log('🔍 Testing backend connection...');
-      console.log('API URL:', API);
-      
-      try {
-        const pingResponse = await axios.get(`${API}/health`);
-        console.log('✅ Backend reachable:', pingResponse.status);
-      } catch (pingError) {
-        console.error('❌ Backend NOT reachable:', pingError.message);
-        console.error('Full error:', pingError);
-      }
-      
       const page = append ? contentPage + 1 : 0;
       const limit = 24; // Charge par batches de 24
       
-      // Récupérer le token de manière sécurisée avec debug complet
+      // Récupérer le token d'authentification
       const token = localStorage.getItem('access_token');
-      console.log('🔍 Debug loadPendingContent:');
-      console.log('  - Token exists:', !!token);
-      console.log('  - Token preview:', token ? token.substring(0, 20) + '...' : 'null');
-      console.log('  - localStorage keys:', Object.keys(localStorage));
-      console.log('  - axios default auth:', axios.defaults.headers.common['Authorization']);
-      
       const headers = {};
       if (token) {
         headers.Authorization = `Bearer ${token}`;
-        console.log('  - Using explicit auth header');
-      } else {
-        console.log('  - No token, relying on axios defaults');
       }
       
-      console.log('🚀 Making request to:', `${API}/content/pending-bypass`);
-      
-      const response = await axios.get(`${API}/content/pending-bypass`, {
+      const response = await axios.get(`${API}/content/pending`, {
         params: { 
           limit,
           offset: page * limit 
-        }
+        },
+        headers
       });
 
-      console.log('📦 Backend response:', {
-        status: response.status,
-        total: response.data?.total,
-        loaded: response.data?.loaded,
-        content_count: response.data?.content?.length,
-        first_content: response.data?.content?.[0]
-      });
-      
       const data = response.data;
       
       if (data && data.content) {
         const content = data.content;
-        console.log('✅ Content received from backend:', content.length);
-        console.log('🔍 Sample content:', content[0]);
         
         // Mettre à jour le total
         setTotalContentCount(data.total || 0);
         
         if (append) {
-          console.log('📎 Appending to existing content...');
           // Ajouter à la liste existante
-          setPendingContent(prev => {
-            const updated = [...prev, ...content];
-            console.log('📋 Updated pendingContent length:', updated.length);
-            return updated;
-          });
+          setPendingContent(prev => [...prev, ...content]);
           setContentPage(page);
         } else {
-          console.log('🔄 Setting new content...');
           // Remplacer la liste
           setPendingContent(content);
           setContentPage(0);
-          console.log('📋 Set pendingContent length:', content.length);
         }
         
         // Update total count for display
         setTotalContentCount(data.total || 0);
-        
-        console.log('🎯 State updated:', {
-          page: append ? page : 0,
-          total: data.total,
-          contentLength: content.length
-        });
       } else {
-        console.error('❌ No content in response:', data);
         setTotalContentCount(0);
       }
       

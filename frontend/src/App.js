@@ -496,6 +496,18 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
                 <Plus className="w-3 h-3" />
               </button>
               
+              {/* Bouton modifier date/heure */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onModifyDateTime && onModifyDateTime(post);
+                }}
+                className="w-7 h-7 bg-amber-500 hover:bg-amber-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+                title="Modifier la date et l'heure"
+              >
+                <Clock className="w-3 h-3" />
+              </button>
+              
               {/* Bouton Valider - Envoyer au calendrier (seulement si pas encore publié) */}
               {!post.published && !post.validated && (
                 <button

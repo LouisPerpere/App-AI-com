@@ -1276,7 +1276,67 @@ function MainApp() {
   const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
 
   // Fonction pour charger les posts du calendrier
-  
+  const loadCalendarPosts = async (filters = {}) => {
+    setIsLoadingCalendar(true);
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        console.warn('No token available for calendar');
+        return;
+      }
+
+      // Build query parameters
+      const params = new URLSearchParams();
+      
+      // Add date range (current month by default)
+      const startOfMonth = new Date(calendarDate.getFullYear(), calendarDate.getMonth(), 1);
+      const endOfMonth = new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 0);
+      
+      params.append('start_date', startOfMonth.toISOString());
+      params.append('end_date', endOfMonth.toISOString());
+      
+      // Add platform filter
+      const platformFilter = filters.platform || calendarFilters.platform;
+      if (platformFilter && platformFilter !== 'all') {
+        params.append('platform', platformFilter);
+      }
+
+      const response = await axios.get(`${API}/posts/calendar?${params}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      let posts = response.data.posts || [];
+      
+      // Apply status filter on frontend (if not handled by backend)
+      const statusFilter = filters.status || calendarFilters.status;
+      if (statusFilter && statusFilter !== 'all') {
+        posts = posts.filter(post => post.status === statusFilter);
+      }
+
+      setCalendarPosts(posts);
+      console.log(`📅 Loaded ${posts.length} calendar posts`);
+      
+    } catch (error) {
+      console.error('Error loading calendar posts:', error);
+      toast.error('Erreur lors du chargement du calendrier');
+    } finally {
+      setIsLoadingCalendar(false);
+    }
+  };
+
+  // Fonction pour mettre à jour les filtres du calendrier
+  const updateCalendarFilters = (newFilters) => {
+    setCalendarFilters(prev => ({ ...prev, ...newFilters }));
+    loadCalendarPosts(newFilters);
+  };
+
+  // Charger le calendrier quand la date change
+  useEffect(() => {
+    if (activeTab === 'calendar') {
+      loadCalendarPosts();
+    }
+  }, [calendarDate, activeTab]);
+
   // Function to get notes specific to a month or always valid
   const getNotesForMonth = (monthKey) => {
     if (!notes || !monthKey) return [];

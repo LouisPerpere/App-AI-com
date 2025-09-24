@@ -1604,6 +1604,42 @@ async def validate_post_to_calendar(
         print(f"❌ Error validating post to calendar: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to validate post to calendar: {str(e)}")
 
+@api_router.get("/posts/calendar-temp")
+async def get_publication_calendar_temp():
+    """Endpoint temporaire pour tester le calendrier sans auth"""
+    try:
+        dbm = get_database()
+        
+        # Utiliser le user_id connu
+        user_id = "6a670c66-c06c-4d75-9dd5-c747e8a0281a"
+        
+        calendar_posts = list(
+            dbm.db.publication_calendar.find({"user_id": user_id})
+            .sort("scheduled_date", 1)
+        )
+        
+        formatted_posts = []
+        for post in calendar_posts:
+            formatted_posts.append({
+                "id": post.get("id"),
+                "original_post_id": post.get("original_post_id"),
+                "platform": post.get("platform"),
+                "title": post.get("title", ""),
+                "text": post.get("text", ""),
+                "visual_url": post.get("visual_url", ""),
+                "scheduled_date": post.get("scheduled_date"),
+                "status": post.get("status", "scheduled"),
+                "validated_at": post.get("validated_at")
+            })
+        
+        return {
+            "posts": formatted_posts,
+            "total": len(formatted_posts)
+        }
+        
+    except Exception as e:
+        return {"error": str(e), "posts": [], "total": 0}
+
 @api_router.get("/posts/calendar")
 async def get_publication_calendar(
     start_date: str = None,

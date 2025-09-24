@@ -8044,23 +8044,215 @@ function MainApp() {
           <TabsContent value="calendar" className="space-y-8">
             <Card className="card-gradient">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-3 text-2xl">
-                  <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center">
-                    <CalendarIcon className="w-6 h-6 text-white" />
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3 text-2xl">
+                    <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center">
+                      <CalendarIcon className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                      Calendrier de publication 📅
+                    </span>
                   </div>
-                  <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                    Calendrier de publication 📅
-                  </span>
+                  
+                  {/* Navigation mois et filtres */}
+                  <div className="flex items-center space-x-4">
+                    {/* Filtre par réseau */}
+                    <select
+                      value={calendarFilters.platform}
+                      onChange={(e) => updateCalendarFilters({ platform: e.target.value })}
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
+                    >
+                      <option value="all">Tous les réseaux</option>
+                      <option value="facebook">Facebook</option>
+                      <option value="instagram">Instagram</option>
+                      <option value="linkedin">LinkedIn</option>
+                    </select>
+                    
+                    {/* Filtre par statut */}
+                    <select
+                      value={calendarFilters.status}
+                      onChange={(e) => updateCalendarFilters({ status: e.target.value })}
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
+                    >
+                      <option value="all">Tous les statuts</option>
+                      <option value="scheduled">📅 Programmé</option>
+                      <option value="published">✅ Publié</option>
+                      <option value="failed">❌ Échec</option>
+                    </select>
+                    
+                    {/* Navigation mois */}
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => {
+                          const newDate = new Date(calendarDate);
+                          newDate.setMonth(newDate.getMonth() - 1);
+                          setCalendarDate(newDate);
+                        }}
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      
+                      <div className="px-4 py-2 bg-white rounded-lg border text-sm font-medium min-w-[140px] text-center">
+                        {calendarDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
+                      </div>
+                      
+                      <button
+                        onClick={() => {
+                          const newDate = new Date(calendarDate);
+                          newDate.setMonth(newDate.getMonth() + 1);
+                          setCalendarDate(newDate);
+                        }}
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
                 </CardTitle>
               </CardHeader>
+              
               <CardContent>
-                <div className="text-center py-20 card-glass rounded-3xl">
-                  <div className="w-24 h-24 bg-gradient-to-r from-orange-500 to-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-float">
-                    <CalendarIcon className="w-12 h-12 text-white" />
+                {isLoadingCalendar ? (
+                  <div className="text-center py-20">
+                    <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-orange-500" />
+                    <p className="text-gray-500">Chargement du calendrier...</p>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-700 mb-4">Calendrier interactif 🎯</h3>
-                  <p className="text-xl text-gray-500">Planification avancée bientôt disponible ! 🚀</p>
-                </div>
+                ) : (
+                  <>
+                    {/* Statistiques rapides */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                      <div className="bg-white p-4 rounded-lg border">
+                        <div className="text-2xl font-bold text-gray-700">{calendarPosts.length}</div>
+                        <div className="text-sm text-gray-500">Posts programmés</div>
+                      </div>
+                      <div className="bg-white p-4 rounded-lg border">
+                        <div className="text-2xl font-bold text-blue-600">
+                          {calendarPosts.filter(p => p.platform === 'facebook').length}
+                        </div>
+                        <div className="text-sm text-gray-500">Facebook</div>
+                      </div>
+                      <div className="bg-white p-4 rounded-lg border">
+                        <div className="text-2xl font-bold text-pink-600">
+                          {calendarPosts.filter(p => p.platform === 'instagram').length}
+                        </div>
+                        <div className="text-sm text-gray-500">Instagram</div>
+                      </div>
+                      <div className="bg-white p-4 rounded-lg border">
+                        <div className="text-2xl font-bold text-blue-700">
+                          {calendarPosts.filter(p => p.platform === 'linkedin').length}
+                        </div>
+                        <div className="text-sm text-gray-500">LinkedIn</div>
+                      </div>
+                    </div>
+                    
+                    {/* Liste des posts du calendrier */}
+                    {calendarPosts.length === 0 ? (
+                      <div className="text-center py-20 card-glass rounded-3xl">
+                        <div className="w-24 h-24 bg-gradient-to-r from-orange-500 to-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                          <CalendarIcon className="w-12 h-12 text-white" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-700 mb-4">Aucun post programmé</h3>
+                        <p className="text-xl text-gray-500 mb-6">
+                          Validez des posts depuis l'onglet "Posts" pour les voir apparaître ici 📅
+                        </p>
+                        <Button 
+                          onClick={() => setActiveTab('posts')}
+                          className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                        >
+                          Aller aux Posts
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {/* Grouper les posts par date */}
+                        {Object.entries(
+                          calendarPosts.reduce((groups, post) => {
+                            const date = new Date(post.scheduled_date).toLocaleDateString('fr-FR', {
+                              weekday: 'long',
+                              day: '2-digit',
+                              month: 'long'
+                            });
+                            if (!groups[date]) groups[date] = [];
+                            groups[date].push(post);
+                            return groups;
+                          }, {})
+                        ).map(([date, posts]) => (
+                          <div key={date} className="bg-white rounded-xl border shadow-sm">
+                            <div className="px-6 py-4 border-b bg-gray-50 rounded-t-xl">
+                              <h3 className="font-semibold text-gray-800 capitalize">{date}</h3>
+                              <p className="text-sm text-gray-600">{posts.length} post{posts.length > 1 ? 's' : ''}</p>
+                            </div>
+                            
+                            <div className="p-6 space-y-4">
+                              {posts.map((post) => (
+                                <div key={post.id} className="flex items-start space-x-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                                  {/* Badge réseau social */}
+                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold ${
+                                    post.platform === 'facebook' ? 'bg-blue-600' :
+                                    post.platform === 'instagram' ? 'bg-gradient-to-r from-pink-500 to-purple-500' :
+                                    post.platform === 'linkedin' ? 'bg-blue-700' : 'bg-gray-400'
+                                  }`}>
+                                    {post.platform === 'facebook' ? 'FB' :
+                                     post.platform === 'instagram' ? 'IG' :
+                                     post.platform === 'linkedin' ? 'LI' : '?'}
+                                  </div>
+                                  
+                                  {/* Contenu du post */}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-start justify-between">
+                                      <div>
+                                        <h4 className="font-medium text-gray-800 truncate">
+                                          {post.title || 'Post sans titre'}
+                                        </h4>
+                                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                          {post.text || 'Aucun texte'}
+                                        </p>
+                                      </div>
+                                      
+                                      {/* Heure et statut */}
+                                      <div className="flex flex-col items-end space-y-1">
+                                        <div className="text-sm text-gray-500">
+                                          {new Date(post.scheduled_date).toLocaleTimeString('fr-FR', {
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                          })}
+                                        </div>
+                                        <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                          post.status === 'scheduled' ? 'bg-orange-100 text-orange-700' :
+                                          post.status === 'published' ? 'bg-green-100 text-green-700' :
+                                          post.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
+                                        }`}>
+                                          {post.status === 'scheduled' ? '📅 Programmé' :
+                                           post.status === 'published' ? '✅ Publié' :
+                                           post.status === 'failed' ? '❌ Échec' : post.status}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Image si disponible */}
+                                  {post.visual_url && (
+                                    <div className="flex-shrink-0">
+                                      <img 
+                                        src={post.visual_url} 
+                                        alt="Post" 
+                                        className="w-16 h-16 object-cover rounded-lg"
+                                        onError={(e) => {
+                                          e.target.style.display = 'none';
+                                        }}
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

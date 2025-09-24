@@ -8116,7 +8116,8 @@ function MainApp() {
                             value={newScheduleDate}
                             onChange={(e) => setNewScheduleDate(e.target.value)}
                             className="w-full"
-                            min={new Date().toISOString().split('T')[0]}
+                            min={getDateLimits().min}
+                            max={getDateLimits().max}
                           />
                         </div>
 

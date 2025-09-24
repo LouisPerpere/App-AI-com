@@ -553,7 +553,10 @@ async def get_pending_content_mongo(offset: int = 0, limit: int = 24, user_id: s
                     "common_title": d.get("common_title", ""),  # Include common_title field for carousel
                     "created_at": created_at_str,
                     "uploaded_at": d.get("uploaded_at") if d.get("uploaded_at") else None,
-                    "used_in_posts": d.get("used_in_posts", False),  # NEW: Add usage status
+                    "used_in_posts": d.get("used_in_posts", False),  # General usage flag
+                    "used_on_facebook": d.get("used_on_facebook", False),  # Facebook-specific usage
+                    "used_on_instagram": d.get("used_on_instagram", False),  # Instagram-specific usage
+                    "used_on_linkedin": d.get("used_on_linkedin", False),  # LinkedIn-specific usage
                     "last_used": d.get("last_used", ""),
                     "usage_count": d.get("usage_count", 0)
                 })

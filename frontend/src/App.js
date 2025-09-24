@@ -4219,6 +4219,27 @@ function MainApp() {
     setShowDateTimeModal(true);
   };
 
+  // Calculer les dates limites pour le calendrier
+  const getDateLimits = () => {
+    const now = new Date();
+    
+    // Date minimum : demain (pour éviter les problèmes de timezone)
+    const minDate = new Date();
+    minDate.setDate(minDate.getDate() + 1);
+    minDate.setHours(0, 0, 0, 0);
+    
+    // Date maximum : dernier jour du mois suivant
+    const maxDate = new Date();
+    maxDate.setMonth(maxDate.getMonth() + 2);
+    maxDate.setDate(0); // Dernier jour du mois suivant
+    maxDate.setHours(23, 59, 59, 999);
+    
+    return {
+      min: minDate.toISOString().split('T')[0], // YYYY-MM-DD format
+      max: maxDate.toISOString().split('T')[0]  // YYYY-MM-DD format
+    };
+  };
+
   // Fonction pour sauvegarder la nouvelle date/heure
   const handleSaveDateTimeChange = async () => {
     if (!newScheduleDate || !newScheduleTime) {
@@ -4237,20 +4258,20 @@ function MainApp() {
       return;
     }
 
-    // Vérification : maximum fin du mois suivant
+    // Vérification : maximum fin du mois suivant (contrôle supplémentaire)
     const maxDate = new Date();
     maxDate.setMonth(maxDate.getMonth() + 2);
     maxDate.setDate(0); // Dernier jour du mois suivant
     maxDate.setHours(23, 59, 59, 999);
     
     if (scheduledDateTime > maxDate) {
-      toast.error('La date de programmation ne peut pas dépasser la fin du mois suivant');
+      toast.error('La date ne peut pas dépasser la fin du mois suivant');
       return;
     }
 
     const token = localStorage.getItem('access_token');
     if (!token) {
-      toast.error('Vous devez être connecté pour modifier la programmation');
+      toast.error('Vous devez être connecté pour modifier la date et l\'heure');
       return;
     }
 

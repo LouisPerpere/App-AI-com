@@ -4156,9 +4156,57 @@ function MainApp() {
       return;
     }
 
+    // Vérifier que la date/heure est valide
+    const scheduledDateTime = new Date(post.scheduled_date);
+    const now = new Date();
+    if (scheduledDateTime <= now) {
+      toast.error('La date de programmation doit être dans le futur.');
+      return;
+    }
+
     const platformName = targetPlatform.charAt(0).toUpperCase() + targetPlatform.slice(1);
 
-    // Plus de popup de confirmation - validation directe
+    // Plus de popup de confirmation - validation directe vers le calendrier
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast.error('Vous devez être connecté pour valider un post');
+      return;
+    }
+
+    try {
+      toast.loading('Validation du post en cours...', { id: 'validate-post' });
+
+      const response = await axios.post(
+        `${API}/posts/validate-to-calendar`,
+        { 
+          post_id: post.id,
+          platforms: [targetPlatform]
+        },
+        { 
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      if (response.data?.success) {
+        toast.success(`✅ Post validé et ajouté au calendrier sur ${platformName} !`, { id: 'validate-post' });
+        
+        // Recharger les posts générés pour mettre à jour le statut
+        await loadGeneratedPosts();
+        
+        // Recharger le calendrier si on est sur l'onglet calendrier
+        if (activeTab === 'calendar') {
+          await loadCalendarPosts();
+        }
+      } else {
+        throw new Error(response.data?.message || 'Erreur lors de la validation');
+      }
+      
+    } catch (error) {
+      console.error('Error validating post:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`Erreur lors de la validation: ${errorMessage}`, { id: 'validate-post' });
+    }
+  };
 
     const token = localStorage.getItem('access_token');
     if (!token) {

@@ -3161,7 +3161,21 @@ function MainApp() {
     } catch (error) {
       console.error('Error generating posts:', error);
       const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
-      toast.error(`Erreur lors de la génération: ${errorMessage}`);
+      
+      // Gestion spéciale pour le blocage de génération le dernier jour du mois
+      if (errorMessage.includes('Génération bloquée : nous sommes le dernier jour')) {
+        toast.error(errorMessage, {
+          duration: 8000,
+          style: {
+            background: '#fef3c7',
+            border: '1px solid #f59e0b',
+            color: '#92400e',
+            maxWidth: '500px',
+          }
+        });
+      } else {
+        toast.error(`Erreur lors de la génération: ${errorMessage}`);
+      }
     } finally {
       // Remove the month from generating set
       if (monthKey) {

@@ -2092,6 +2092,73 @@ RÉPONSE ATTENDUE (JSON exact):
         print(f"❌ Error modifying post: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to modify post: {str(e)}")
 
+class UpdateScheduleRequest(BaseModel):
+    scheduled_date: str
+
+@api_router.put("/posts/{post_id}/schedule")
+async def update_post_schedule(
+    post_id: str,
+    request: UpdateScheduleRequest,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Update the scheduled date and time for a post"""
+    try:
+        print(f"📅 Updating schedule for post {post_id} to {request.scheduled_date}")
+        
+        # Validate the date format
+        try:
+            scheduled_datetime = datetime.fromisoformat(request.scheduled_date.replace('Z', '+00:00'))
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid date format. Use ISO format (YYYY-MM-DDTHH:MM:SS)")
+        
+        # Verify post exists and belongs to user
+        dbm = get_database()
+        existing_post = dbm.db.generated_posts.find_one({
+            "id": post_id,
+            "owner_id": user_id
+        })
+        
+        if not existing_post:
+            raise HTTPException(status_code=404, detail="Post not found or not owned by user")
+        
+        # Update the scheduled date
+        result = dbm.db.generated_posts.update_one(
+            {"id": post_id, "owner_id": user_id},
+            {
+                "$set": {
+                    "scheduled_date": request.scheduled_date,
+                    "modified_at": datetime.now(timezone.utc).isoformat()
+                }
+            }
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Post not found")
+        
+        if result.modified_count == 0:
+            # Post found but not modified (probably same date)
+            return {
+                "success": True,
+                "message": "Aucune modification nécessaire",
+                "post_id": post_id,
+                "scheduled_date": request.scheduled_date
+            }
+        
+        print(f"✅ Successfully updated schedule for post {post_id}")
+        
+        return {
+            "success": True,
+            "message": "Date et heure mises à jour avec succès",
+            "post_id": post_id,
+            "scheduled_date": request.scheduled_date
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error updating post schedule: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to update post schedule: {str(e)}")
+
 # ----------------------------
 # PIXABAY INTEGRATION: /api/pixabay
 # ----------------------------

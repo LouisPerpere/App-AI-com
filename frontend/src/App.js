@@ -531,12 +531,12 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
             </div>
           )}
           
-          {/* Badge date avec lien de modification */}
+          {/* Badge date avec lien de modification - TOUJOURS visible */}
           <div className="absolute bottom-2 right-2 flex items-center space-x-1">
             <span className="bg-black/50 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
               {formatDate(post.scheduled_date)}
             </span>
-            {/* Lien pour modifier date/heure */}
+            {/* Bouton modifier date/heure - TOUJOURS visible */}
             <button
               onClick={(e) => {
                 e.stopPropagation();

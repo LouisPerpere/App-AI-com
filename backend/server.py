@@ -1570,7 +1570,7 @@ async def generate_posts_manual(
         if not business_profile:
             raise HTTPException(status_code=404, detail="Business profile not found. Please complete your business profile first.")
         
-        # Calculate number of posts based on posting frequency (for 4 weeks in a month)
+        # Calculate number of posts based on posting frequency and remaining days in month
         posting_frequency = business_profile.get("posting_frequency", "weekly")
         frequency_to_weekly_posts = {
             "daily": 7,        # 7 posts per week
@@ -1580,13 +1580,64 @@ async def generate_posts_manual(
         }
         
         posts_per_week = frequency_to_weekly_posts.get(posting_frequency, 1)
-        num_posts = posts_per_week * 4  # 4 weeks in a month
+        
+        # Calculate remaining days in the target month
+        from datetime import datetime, timedelta
+        import calendar
+        
+        current_date = datetime.now()
+        year, month = map(int, request.month_key.split('-')) if request.month_key else (current_date.year, current_date.month)
+        
+        # Determine the calculation date (today or first day of target month if future)
+        target_date = datetime(year, month, 1)
+        calculation_date = max(current_date.date(), target_date.date())
+        
+        # Get last day of the target month
+        last_day_of_month = calendar.monthrange(year, month)[1]
+        last_date_of_month = datetime(year, month, last_day_of_month).date()
+        
+        # Block generation if it's the last day of the month
+        if calculation_date == last_date_of_month:
+            # Calculate next month for suggestion
+            if month == 12:
+                next_year, next_month = year + 1, 1
+            else:
+                next_year, next_month = year, month + 1
+                
+            next_month_key = f"{next_year}-{next_month:02d}"
+            next_month_name = {
+                1: "janvier", 2: "février", 3: "mars", 4: "avril", 5: "mai", 6: "juin",
+                7: "juillet", 8: "août", 9: "septembre", 10: "octobre", 11: "novembre", 12: "décembre"
+            }.get(next_month, "")
+            
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Génération bloquée : nous sommes le dernier jour de {target_month_fr}. Veuillez lancer la génération pour {next_month_name} {next_year} (clé: {next_month_key})."
+            )
+        
+        # Calculate remaining days from tomorrow (posts are scheduled starting tomorrow)
+        tomorrow = calculation_date + timedelta(days=1)
+        remaining_days = (last_date_of_month - tomorrow).days + 1
+        
+        # Ensure at least 1 day remaining
+        remaining_days = max(remaining_days, 1)
+        
+        # Calculate proportional number of posts (rounded up)
+        import math
+        full_month_posts = posts_per_week * 4  # 4 weeks in a full month
+        proportional_posts = math.ceil((remaining_days / 30) * full_month_posts)
+        
+        # Ensure at least 1 post per platform
+        num_posts = max(proportional_posts, 1)
         
         print(f"   📊 Posting frequency: {posting_frequency}")
         print(f"   📊 Posts per week: {posts_per_week}")
-        print(f"   📊 Total posts for month: {num_posts}")
-        print(f"   🔍 Business profile owner_id: {business_profile.get('owner_id', 'Not found')}")
-        print(f"   🔍 Business profile name: {business_profile.get('business_name', 'Not found')}")
+        print(f"   📅 Calculation date: {calculation_date}")
+        print(f"   📅 Tomorrow (start scheduling): {tomorrow}")
+        print(f"   📅 Last day of month: {last_date_of_month}")
+        print(f"   📅 Remaining days: {remaining_days}")
+        print(f"   📊 Full month posts: {full_month_posts}")
+        print(f"   📊 Proportional posts per platform: {num_posts}")
         
         # Vérifier les réseaux sociaux connectés
         connected_platforms = []

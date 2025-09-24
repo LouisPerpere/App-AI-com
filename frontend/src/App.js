@@ -4125,11 +4125,15 @@ function MainApp() {
 
   // Fonction pour valider et envoyer un post au calendrier
   const handleValidatePost = async (post) => {
+    console.log('🔥 handleValidatePost called with post:', post);
+    
     // Vérifier qu'au moins un réseau social est connecté
     const connectedPlatforms = [];
     if (connectedAccounts.facebook) connectedPlatforms.push('facebook');
     if (connectedAccounts.instagram) connectedPlatforms.push('instagram');
     if (connectedAccounts.linkedin) connectedPlatforms.push('linkedin');
+
+    console.log('🔍 Connected platforms:', connectedPlatforms);
 
     if (connectedPlatforms.length === 0) {
       toast.error('Vous devez connecter au moins un réseau social pour valider un post');
@@ -4144,6 +4148,8 @@ function MainApp() {
       targetPlatform = connectedPlatforms[0];
     }
 
+    console.log('🎯 Target platform:', targetPlatform);
+
     // Vérifier que la plateforme du post est bien connectée
     if (!connectedPlatforms.includes(targetPlatform)) {
       toast.error(`Le réseau ${targetPlatform} n'est pas connecté. Connectez-le d'abord dans l'onglet "Réseaux sociaux".`);
@@ -4155,6 +4161,8 @@ function MainApp() {
       toast.error('Le post doit avoir une date et heure de programmation. Utilisez le bouton "Modifier date/heure" d\'abord.');
       return;
     }
+
+    console.log('📅 Post scheduled_date:', post.scheduled_date);
 
     // Vérifier que la date/heure est valide
     const scheduledDateTime = new Date(post.scheduled_date);
@@ -4173,19 +4181,27 @@ function MainApp() {
       return;
     }
 
+    console.log('🚀 Sending validation request...');
+
     try {
       toast.loading('Validation du post en cours...', { id: 'validate-post' });
 
+      const requestData = { 
+        post_id: post.id,
+        platforms: [targetPlatform]
+      };
+
+      console.log('📤 Request data:', requestData);
+
       const response = await axios.post(
         `${API}/posts/validate-to-calendar`,
-        { 
-          post_id: post.id,
-          platforms: [targetPlatform]
-        },
+        requestData,
         { 
           headers: { Authorization: `Bearer ${token}` }
         }
       );
+
+      console.log('📥 Response:', response.data);
 
       if (response.data?.success) {
         toast.success(`✅ Post validé et ajouté au calendrier sur ${platformName} !`, { id: 'validate-post' });
@@ -4202,7 +4218,7 @@ function MainApp() {
       }
       
     } catch (error) {
-      console.error('Error validating post:', error);
+      console.error('❌ Error validating post:', error);
       const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
       toast.error(`Erreur lors de la validation: ${errorMessage}`, { id: 'validate-post' });
     }

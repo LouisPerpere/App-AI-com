@@ -1526,6 +1526,26 @@ async def generate_posts_manual(
         print(f"   🔍 Business profile owner_id: {business_profile.get('owner_id', 'Not found')}")
         print(f"   🔍 Business profile name: {business_profile.get('business_name', 'Not found')}")
         
+        # Vérifier les réseaux sociaux connectés
+        connected_platforms = []
+        social_connections = list(dbm.db.social_connections.find({
+            "user_id": user_id,
+            "is_active": True
+        }))
+        
+        for connection in social_connections:
+            platform = connection.get("platform", "").lower()
+            if platform in ["facebook", "instagram", "linkedin"]:
+                connected_platforms.append(platform)
+        
+        print(f"   📱 Connected platforms: {connected_platforms}")
+        
+        if not connected_platforms:
+            raise HTTPException(
+                status_code=400, 
+                detail="Aucun réseau social connecté. Veuillez connecter au moins un compte Facebook, Instagram ou LinkedIn pour générer des posts."
+            )
+        
         # Use the new advanced posts generator
         from posts_generator import PostsGenerator
         generator = PostsGenerator()
@@ -1533,7 +1553,8 @@ async def generate_posts_manual(
         result = await generator.generate_posts_for_month(
             user_id=user_id,
             target_month=target_month,
-            num_posts=num_posts
+            num_posts=num_posts,
+            connected_platforms=connected_platforms  # Passer les plateformes connectées
         )
         
         if result["success"]:

@@ -3682,6 +3682,7 @@ function MainApp() {
                             onModifyImage={(post) => handleAddImageToPost(post, 'modify')}
                             onValidatePost={handleValidatePost}
                             onDeletePost={handleDeletePost}
+                            onModifyDateTime={handleModifyDateTime}
                           />
                         </div>
                       ))}

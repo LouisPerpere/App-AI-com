@@ -8188,7 +8188,7 @@ function MainApp() {
                         <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                           <p className="text-xs text-blue-700">
                             <Info className="w-3 h-3 inline mr-1" />
-                            Limitations : minimum demain, maximum fin du mois suivant
+                            Limitations : minimum aujourd'hui, maximum fin du mois suivant au mois du post
                           </p>
                         </div>
                       </div>

@@ -8421,57 +8421,39 @@ function MainApp() {
           <TabsContent value="calendar" className="space-y-8">
             <Card className="card-gradient">
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3 text-2xl">
+                <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center">
-                      <CalendarIcon className="w-6 h-6 text-white" />
+                      <CalendarIcon className="w-5 h-5 text-white" />
                     </div>
-                    <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                      Calendrier de publication 📅
-                    </span>
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-800">Calendrier</h2>
+                      <div className="flex items-center space-x-4 text-xs text-gray-600 mt-1">
+                        <span>📊 {calendarPosts.length} total</span>
+                        <span>📘 {calendarPosts.filter(p => p.platform === 'facebook').length} FB</span>
+                        <span>📷 {calendarPosts.filter(p => p.platform === 'instagram').length} IG</span>
+                        <span>💼 {calendarPosts.filter(p => p.platform === 'linkedin').length} LI</span>
+                      </div>
+                    </div>
                   </div>
                   
-                  {/* Navigation mois et filtres */}
-                  <div className="flex items-center space-x-4">
-                    {/* Filtre par réseau */}
-                    <select
-                      value={calendarFilters.platform}
-                      onChange={(e) => updateCalendarFilters({ platform: e.target.value })}
-                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
-                    >
-                      <option value="all">Tous les réseaux</option>
-                      <option value="facebook">Facebook</option>
-                      <option value="instagram">Instagram</option>
-                      <option value="linkedin">LinkedIn</option>
-                    </select>
-                    
-                    {/* Filtre par statut */}
-                    <select
-                      value={calendarFilters.status}
-                      onChange={(e) => updateCalendarFilters({ status: e.target.value })}
-                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
-                    >
-                      <option value="all">Tous les statuts</option>
-                      <option value="scheduled">📅 Programmé</option>
-                      <option value="published">✅ Publié</option>
-                      <option value="failed">❌ Échec</option>
-                    </select>
-                    
+                  {/* Contrôles condensés */}
+                  <div className="flex flex-wrap items-center gap-2 text-sm">
                     {/* Navigation mois */}
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center">
                       <button
                         onClick={() => {
                           const newDate = new Date(calendarDate);
                           newDate.setMonth(newDate.getMonth() - 1);
                           setCalendarDate(newDate);
                         }}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-1.5 hover:bg-gray-100 rounded transition-colors"
                       >
                         <ChevronLeft className="w-4 h-4" />
                       </button>
                       
-                      <div className="px-4 py-2 bg-white rounded-lg border text-sm font-medium min-w-[140px] text-center">
-                        {calendarDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
+                      <div className="px-3 py-1.5 bg-white rounded border text-xs font-medium min-w-[100px] text-center">
+                        {calendarDate.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })}
                       </div>
                       
                       <button
@@ -8480,11 +8462,43 @@ function MainApp() {
                           newDate.setMonth(newDate.getMonth() + 1);
                           setCalendarDate(newDate);
                         }}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-1.5 hover:bg-gray-100 rounded transition-colors"
                       >
                         <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>
+                    
+                    {/* Filtres */}
+                    <select
+                      value={calendarFilters.platform}
+                      onChange={(e) => updateCalendarFilters({ platform: e.target.value })}
+                      className="px-2 py-1.5 border border-gray-300 rounded text-xs bg-white"
+                    >
+                      <option value="all">Tous</option>
+                      <option value="facebook">FB</option>
+                      <option value="instagram">IG</option>
+                      <option value="linkedin">LI</option>
+                    </select>
+                    
+                    <select
+                      value={calendarFilters.status}
+                      onChange={(e) => updateCalendarFilters({ status: e.target.value })}
+                      className="px-2 py-1.5 border border-gray-300 rounded text-xs bg-white"
+                    >
+                      <option value="all">Tout</option>
+                      <option value="scheduled">📅</option>
+                      <option value="published">✅</option>
+                      <option value="failed">❌</option>
+                    </select>
+                    
+                    <button
+                      onClick={() => loadCalendarPosts()}
+                      disabled={isLoadingCalendar}
+                      className="p-1.5 hover:bg-gray-100 rounded transition-colors"
+                      title="Actualiser"
+                    >
+                      <RefreshCw className={`w-4 h-4 ${isLoadingCalendar ? 'animate-spin' : ''}`} />
+                    </button>
                   </div>
                 </CardTitle>
               </CardHeader>

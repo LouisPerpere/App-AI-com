@@ -2149,10 +2149,7 @@ async def get_media_for_specific_user(user_id: str):
     except Exception as e:
         return {"error": f"Erreur: {str(e)}"}
 
-@api_router.get("/test/simple-check")  
-async def simple_connectivity_check():
-    """Endpoint ultra simple pour tester que le backend répond"""
-    return {"status": "OK", "message": "Backend fonctionne", "timestamp": datetime.now().isoformat()}
+
 
 @api_router.get("/test/frontend-connection")
 async def test_frontend_connection():

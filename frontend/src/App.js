@@ -3972,44 +3972,86 @@ function MainApp() {
     }
   };
 
-  // Fonction pour valider et publier un post sur Facebook
+  // Fonction pour valider et envoyer un post au calendrier
   const handleValidatePost = async (post) => {
-    if (!connectedAccounts.facebook) {
-      toast.error('Vous devez connecter votre page Facebook pour publier');
+    // Vérifier qu'au moins un réseau social est connecté
+    const connectedPlatforms = [];
+    if (connectedAccounts.facebook) connectedPlatforms.push('Facebook');
+    if (connectedAccounts.instagram) connectedPlatforms.push('Instagram');
+    if (connectedAccounts.linkedin) connectedPlatforms.push('LinkedIn');
+
+    if (connectedPlatforms.length === 0) {
+      toast.error('Vous devez connecter au moins un réseau social pour valider un post');
       return;
     }
 
+    // Permettre à l'utilisateur de choisir les réseaux pour ce post
+    const platformChoice = connectedPlatforms.length === 1 ? 
+      connectedPlatforms[0] : 
+      await new Promise((resolve) => {
+        const choice = prompt(
+          `Choisir les réseaux pour ce post :\n\nRéseaux disponibles : ${connectedPlatforms.join(', ')}\n\nTapez les numéros séparés par des virgules :\n${connectedPlatforms.map((p, i) => `${i + 1}. ${p}`).join('\n')}`,
+          connectedPlatforms.map((_, i) => i + 1).join(',')
+        );
+        
+        if (!choice) {
+          resolve(null);
+          return;
+        }
+        
+        const selectedIndices = choice.split(',').map(n => parseInt(n.trim()) - 1).filter(i => i >= 0 && i < connectedPlatforms.length);
+        const selectedPlatforms = selectedIndices.map(i => connectedPlatforms[i]);
+        resolve(selectedPlatforms.length > 0 ? selectedPlatforms : null);
+      });
+
+    if (!platformChoice) {
+      toast.info('Validation annulée');
+      return;
+    }
+
+    const selectedPlatforms = Array.isArray(platformChoice) ? platformChoice : [platformChoice];
+
     const confirmed = window.confirm(
-      `Êtes-vous sûr de vouloir publier ce post sur Facebook ?\n\n"${post.title || post.text || 'Post généré'}"\n\nCette action est irréversible.`
+      `Envoyer ce post au calendrier pour publication sur ${selectedPlatforms.join(' et ') } ?\n\n"${post.title || post.text || 'Post généré'}"\n\nDate programmée : ${post.scheduled_date ? new Date(post.scheduled_date).toLocaleDateString('fr-FR', { 
+        day: '2-digit', 
+        month: 'long', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }) : 'Non définie'}`
     );
 
     if (!confirmed) return;
 
     const token = localStorage.getItem('access_token');
     if (!token) {
-      toast.error('Vous devez être connecté pour publier');
+      toast.error('Vous devez être connecté pour valider un post');
       return;
     }
 
     try {
-      // Valider le post (le marquer comme publié)
+      // Envoyer le post au calendrier avec les plateformes sélectionnées
       const response = await axios.post(
-        `${API}/posts/validate?post_id=${post.id}`,
-        {},
+        `${API}/posts/validate-to-calendar`,
+        {
+          post_id: post.id,
+          platforms: selectedPlatforms.map(p => p.toLowerCase()),
+          scheduled_date: post.scheduled_date
+        },
         {
           headers: { Authorization: `Bearer ${token}` }
         }
       );
 
-      toast.success(`Post publié avec succès sur Facebook !`);
+      toast.success(`Post envoyé au calendrier pour publication sur ${selectedPlatforms.join(' et ')} ! 📅`);
       
       // Recharger les posts pour voir le statut mis à jour
-      // Vous pouvez ajouter ici une fonction pour recharger les posts si nécessaire
+      await loadGeneratedPosts();
       
     } catch (error) {
-      console.error('Error publishing post:', error);
-      const errorMessage = error.response?.data?.detail || 'Erreur lors de la publication';
-      toast.error(`Erreur: ${errorMessage}`);
+      console.error('Error validating post to calendar:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`Erreur lors de l'envoi au calendrier: ${errorMessage}`);
     }
   };
 

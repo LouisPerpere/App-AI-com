@@ -2161,21 +2161,7 @@ async def get_media_for_specific_user(user_id: str):
 
 
 
-@api_router.get("/test/config-debug")
-async def test_config_debug():
-    """Test endpoint pour vérifier les nouveaux config_id séparés"""
-    import os
-    facebook_config_id = os.environ.get('FACEBOOK_CONFIG_ID_PAGES', os.environ.get('FACEBOOK_CONFIG_ID', 'NOT_SET'))
-    instagram_config_id = os.environ.get('INSTAGRAM_CONFIG_ID_PAGES', os.environ.get('INSTAGRAM_CONFIG_ID', 'NOT_SET'))
-    
-    return {
-        "facebook_config_id": facebook_config_id,
-        "instagram_config_id": instagram_config_id,
-        "facebook_app_id": os.environ.get('FACEBOOK_APP_ID', 'NOT_SET'),
-        "facebook_redirect_uri": os.environ.get('FACEBOOK_REDIRECT_URI', 'NOT_SET'),
-        "instagram_redirect_uri": os.environ.get('INSTAGRAM_REDIRECT_URI', 'NOT_SET'),
-        "note": "Configurations dédiées pour Facebook et Instagram"
-    }
+
 
 @api_router.get("/test/auth-urls-debug")
 async def test_auth_urls_debug():

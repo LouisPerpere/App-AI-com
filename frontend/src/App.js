@@ -8474,10 +8474,10 @@ function MainApp() {
                       onChange={(e) => updateCalendarFilters({ platform: e.target.value })}
                       className="px-2 py-1.5 border border-gray-300 rounded text-xs bg-white"
                     >
-                      <option value="all">Tous</option>
-                      <option value="facebook">FB</option>
-                      <option value="instagram">IG</option>
-                      <option value="linkedin">LI</option>
+                      <option value="all">Tous réseaux</option>
+                      <option value="facebook">Facebook</option>
+                      <option value="instagram">Instagram</option>
+                      <option value="linkedin">LinkedIn</option>
                     </select>
                     
                     <select
@@ -8485,10 +8485,10 @@ function MainApp() {
                       onChange={(e) => updateCalendarFilters({ status: e.target.value })}
                       className="px-2 py-1.5 border border-gray-300 rounded text-xs bg-white"
                     >
-                      <option value="all">Tout</option>
-                      <option value="scheduled">📅</option>
-                      <option value="published">✅</option>
-                      <option value="failed">❌</option>
+                      <option value="all">Tous statuts</option>
+                      <option value="scheduled">Programmés</option>
+                      <option value="published">Publiés</option>
+                      <option value="failed">Échoués</option>
                     </select>
                     
                     <button

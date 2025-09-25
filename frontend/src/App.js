@@ -704,6 +704,7 @@ const PostPreviewModal = ({
   const handleRejectModification = () => {
     setShowModificationPreview(false);
     setModifiedPostData(null);
+    setModificationTextValue(''); // Reset aussi la valeur du textarea
     setShowModificationForm(true); // Retour au formulaire pour une nouvelle demande
   };
 

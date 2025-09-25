@@ -555,6 +555,15 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
               <Clock className="w-3.5 h-3.5" />
             </button>
           </div>
+          
+          {/* Indicateur de statut du post */}
+          {post.validated && (
+            <div className="absolute top-2 right-2">
+              <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                ✅ Validé
+              </span>
+            </div>
+          )}
         </div>
         
         {/* Contenu */}

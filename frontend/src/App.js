@@ -3665,7 +3665,6 @@ function MainApp() {
     }
   };
     // Note: setIsModifyingPost(false) n'est pas appelé en cas de succès car on recharge la page
-  };
 
   // Nouvelle fonction pour modifier les posts du calendrier sans recharger la page
   const handleModifyCalendarPost = async (post, modificationRequestValue, modificationType = 'content') => {

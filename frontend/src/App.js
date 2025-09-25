@@ -789,85 +789,98 @@ const PostPreviewModal = ({
           ) : (
             /* Mode édition normal pour les posts non validés */
             <>
-              <button
-                onClick={() => setShowModificationForm(true)}
-                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
-              >
-                <div className="flex items-center space-x-2">
-                  <Edit className="w-4 h-4" />
-                  <span>Modifier</span>
-                </div>
-              </button>
-              
-              {/* Boutons supplémentaires pour les posts du calendrier */}
-              {isFromCalendar && (
+              {/* Interface spécifique pour les posts du calendrier */}
+              {isFromCalendar ? (
                 <>
                   <button
-                    onClick={() => onMovePost && onMovePost(post)}
-                    className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+                    onClick={() => setShowModificationForm(true)}
+                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl text-sm"
                   >
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-1">
+                      <Edit className="w-4 h-4" />
+                      <span>Modifier</span>
+                    </div>
+                  </button>
+                  
+                  <button
+                    onClick={() => onMovePost && onMovePost(post)}
+                    className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl text-sm"
+                  >
+                    <div className="flex items-center space-x-1">
                       <Clock className="w-4 h-4" />
                       <span>Déplacer</span>
                     </div>
                   </button>
                   
                   <button
-                    onClick={() => onCancelPost && onCancelPost(post)}
-                    className="px-6 py-3 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+                    onClick={() => setShowDeleteConfirmation(true)}
+                    className="px-4 py-2 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl text-sm"
+                  >
+                    <div className="flex items-center space-x-1">
+                      <Trash2 className="w-4 h-4" />
+                      <span>Supprimer</span>
+                    </div>
+                  </button>
+                </>
+              ) : (
+                /* Interface pour les posts normaux (onglet Posts) */
+                <>
+                  <button
+                    onClick={() => setShowModificationForm(true)}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
                   >
                     <div className="flex items-center space-x-2">
-                      <X className="w-4 h-4" />
-                      <span>Annuler</span>
+                      <Edit className="w-4 h-4" />
+                      <span>Modifier</span>
+                    </div>
+                  </button>
+                  
+                  <button
+                    onClick={async () => {
+                      if (isValidating) return;
+                      
+                      setIsValidating(true);
+                      try {
+                        const success = await onValidate(post);
+                        if (success) {
+                          // Pas besoin de setIsValidated car on utilise post.validated maintenant
+                        }
+                      } catch (error) {
+                        console.error('Validation error:', error);
+                      } finally {
+                        setIsValidating(false);
+                      }
+                    }}
+                    disabled={isValidating || post.validated}
+                    className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl ${
+                      post.validated
+                        ? 'bg-green-600 text-white cursor-not-allowed' 
+                        : isValidating 
+                          ? 'bg-gray-400 text-white cursor-not-allowed'
+                          : 'bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      {isValidating ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Validation...</span>
+                        </>
+                      ) : post.validated ? (
+                        <>
+                          <Check className="w-4 h-4" />
+                          <span>Validé !</span>
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-4 h-4" />
+                          <span>Valider</span>
+                        </>
+                      )}
                     </div>
                   </button>
                 </>
               )}
-              
-              <button
-                onClick={async () => {
-                  if (isValidating) return;
-                  
-                  setIsValidating(true);
-                  try {
-                    const success = await onValidate(post);
-                    if (success) {
-                      // Pas besoin de setIsValidated car on utilise post.validated maintenant
-                    }
-                  } catch (error) {
-                    console.error('Validation error:', error);
-                  } finally {
-                    setIsValidating(false);
-                  }
-                }}
-                disabled={isValidating || post.validated}
-                className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl ${
-                  post.validated
-                    ? 'bg-green-600 text-white cursor-not-allowed' 
-                    : isValidating 
-                      ? 'bg-gray-400 text-white cursor-not-allowed'
-                      : 'bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white'
-                }`}
-              >
-                <div className="flex items-center space-x-2">
-                  {isValidating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Validation...</span>
-                    </>
-                  ) : post.validated ? (
-                    <>
-                      <Check className="w-4 h-4" />
-                      <span>Validé !</span>
-                    </>
-                  ) : (
-                    <>
-                      <Check className="w-4 h-4" />
-                      <span>Valider</span>
-                    </>
-                  )}
-                </div>
-              </button>
             </>
           )}
         </div>

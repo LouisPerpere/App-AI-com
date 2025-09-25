@@ -371,15 +371,6 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
 
   const needsImage = post.status === 'needs_image' || !post.visual_url || post.visual_url === '';
   const hasImage = !needsImage;
-  
-  // Log pour déboguer l'état du post
-  console.log('📊 PostThumbnail render:', { 
-    postId: post.id, 
-    published: post.published, 
-    validated: post.validated,
-    onValidatePost: typeof onValidatePost,
-    scheduledDate: post.scheduled_date 
-  });
 
   const handleClick = () => {
     if (needsImage && onAddImage) {

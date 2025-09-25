@@ -8625,7 +8625,11 @@ function MainApp() {
                               <h4 className="font-medium text-gray-700 capitalize">{date}</h4>
                               <div className="space-y-2 pl-4">
                                 {posts.map((post, index) => (
-                                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                  <div 
+                                    key={index} 
+                                    onClick={() => setSelectedCalendarPost(post)}
+                                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                                  >
                                     <div className="flex items-center space-x-3">
                                       <div className={`
                                         w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm

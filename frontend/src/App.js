@@ -8294,35 +8294,17 @@ function MainApp() {
 
                 {/* Modal d'aperçu de post depuis le calendrier */}
                 {selectedCalendarPost && (
-                  <>
-                    {/* DEBUG : Modal très visible pour tester */}
-                    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[9999]">
-                      <div className="bg-red-500 text-white p-8 rounded-xl max-w-md">
-                        <h2 className="text-xl font-bold mb-4">🔥 DEBUG MODAL</h2>
-                        <p>Post sélectionné : {selectedCalendarPost.platform}</p>
-                        <p>ID : {selectedCalendarPost.id}</p>
-                        <button 
-                          onClick={() => setSelectedCalendarPost(null)}
-                          className="mt-4 bg-white text-red-500 px-4 py-2 rounded"
-                        >
-                          Fermer
-                        </button>
-                      </div>
-                    </div>
-                    
-                    {/* Modal normale */}
-                    <PostPreviewModal
-                      post={selectedCalendarPost}
-                      onClose={() => setSelectedCalendarPost(null)}
-                      onModify={handleModifyPost}
-                      onValidate={handleValidatePost}
-                      isModifying={isModifyingPost}
-                      modificationRequestRef={modificationRequestRef}
-                      isFromCalendar={true}
-                      onMovePost={handleMoveCalendarPost}
-                      onCancelPost={handleCancelCalendarPost}
-                    />
-                  </>
+                  <PostPreviewModal
+                    post={selectedCalendarPost}
+                    onClose={() => setSelectedCalendarPost(null)}
+                    onModify={handleModifyPost}
+                    onValidate={handleValidatePost}
+                    isModifying={isModifyingPost}
+                    modificationRequestRef={modificationRequestRef}
+                    isFromCalendar={true}
+                    onMovePost={handleMoveCalendarPost}
+                    onCancelPost={handleCancelCalendarPost}
+                  />
                 )}
 
                 {/* Modal de modification date/heure */}

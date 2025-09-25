@@ -3659,7 +3659,11 @@ function MainApp() {
       
       toast.error(errorMessage);
       setIsModifyingPost(false);
+      return false;
+    } finally {
+      setIsModifyingPost(false);
     }
+  };
     // Note: setIsModifyingPost(false) n'est pas appelé en cas de succès car on recharge la page
   };
 

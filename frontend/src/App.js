@@ -776,16 +776,45 @@ const PostPreviewModal = ({
           {!showModificationForm ? (
             <>
               <button
-                onClick={() => {
-                  if (onValidate) {
-                    onValidate(post);
+                onClick={async () => {
+                  if (isValidating || isValidated) return;
+                  
+                  setIsValidating(true);
+                  try {
+                    await onValidate(post);
+                    setIsValidated(true);
+                  } catch (error) {
+                    console.error('Validation error:', error);
+                  } finally {
+                    setIsValidating(false);
                   }
                 }}
-                className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+                disabled={isValidating || isValidated}
+                className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl ${
+                  isValidated 
+                    ? 'bg-green-600 text-white cursor-not-allowed' 
+                    : isValidating 
+                      ? 'bg-gray-400 text-white cursor-not-allowed'
+                      : 'bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white'
+                }`}
               >
                 <div className="flex items-center space-x-2">
-                  <Check className="w-4 h-4" />
-                  <span>Valider</span>
+                  {isValidating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Validation...</span>
+                    </>
+                  ) : isValidated ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>Validé !</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>Valider</span>
+                    </>
+                  )}
                 </div>
               </button>
               <button

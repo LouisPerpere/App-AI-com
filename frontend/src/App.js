@@ -3876,8 +3876,8 @@ function MainApp() {
         }
 
         // Appel API pour persister définitivement les changements en base de données
-        const token = localStorage.getItem('access_token');
-        if (!token) {
+        const authToken = localStorage.getItem('access_token');
+        if (!authToken) {
           toast.error('Session expirée, veuillez vous reconnecter');
           return false;
         }
@@ -3893,7 +3893,7 @@ function MainApp() {
               modified_at: new Date().toISOString()
             },
             { 
-              headers: { Authorization: `Bearer ${token}` },
+              headers: { Authorization: `Bearer ${authToken}` },
               timeout: 10000
             }
           );

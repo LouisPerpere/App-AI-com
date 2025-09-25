@@ -4677,7 +4677,7 @@ function MainApp() {
 
   // Fonction pour vérifier si une date/heure est valide
   const isDateTimeValid = (post, dateStr, timeStr) => {
-    if (!dateStr || !timeStr || !post) return { dateValid: true, timeValid: true };
+    if (!dateStr || !timeStr || !post) return { dateValid: false, timeValid: false, valid: false };
     
     try {
       const limits = getDateLimitsForPost(post);
@@ -4686,12 +4686,24 @@ function MainApp() {
       const selectedDateTime = new Date(`${dateStr}T${timeStr}:00`);
       const now = new Date();
       
-      const dateValid = selectedDateTime >= now && selectedDateTime >= minDate && selectedDateTime <= maxDate;
-      const timeValid = dateValid; // Si la date est valide, l'heure l'est aussi dans ce contexte
+      // Ajouter 10 minutes de marge minimum
+      const minAllowedTime = new Date(now.getTime() + 10 * 60 * 1000);
       
-      return { dateValid, timeValid };
+      const dateValid = selectedDateTime >= minAllowedTime && selectedDateTime >= minDate && selectedDateTime <= maxDate;
+      const timeValid = dateValid; // Si la date est valide, l'heure l'est aussi dans ce contexte
+      const valid = dateValid && timeValid; // Propriété combinée pour le bouton
+      
+      console.log('🔥 DEBUG: isDateTimeValid', {
+        dateStr, timeStr, 
+        selectedDateTime: selectedDateTime.toISOString(),
+        minAllowedTime: minAllowedTime.toISOString(),
+        dateValid, timeValid, valid
+      });
+      
+      return { dateValid, timeValid, valid };
     } catch (error) {
-      return { dateValid: false, timeValid: false };
+      console.error('🔥 DEBUG: Erreur isDateTimeValid', error);
+      return { dateValid: false, timeValid: false, valid: false };
     }
   };
 

@@ -8268,6 +8268,9 @@ function MainApp() {
                     onValidate={handleValidatePost}
                     isModifying={isModifyingPost}
                     modificationRequestRef={modificationRequestRef}
+                    isFromCalendar={true}
+                    onMovePost={handleMoveCalendarPost}
+                    onCancelPost={handleCancelCalendarPost}
                   />
                 )}
 

@@ -130,11 +130,11 @@ class UrgentCalendarTester:
             
             # Test modification request
             modification_request = {
-                "modification_text": "Rends ce texte plus dynamique et engageant pour les réseaux sociaux"
+                "modification_request": "Rends ce texte plus dynamique et engageant pour les réseaux sociaux"
             }
             
             print(f"   🔍 Sending modification request...")
-            print(f"   Modification text: {modification_request['modification_text']}")
+            print(f"   Modification text: {modification_request['modification_request']}")
             
             response = self.session.put(
                 f"{self.base_url}/posts/{post_id}/modify",

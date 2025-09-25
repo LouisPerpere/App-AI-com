@@ -9426,7 +9426,7 @@ function MainApp() {
                 </button>
                 
                 <button
-                  onClick={handleDateTimeSubmit}
+                  onClick={handleSaveDateTimeChange}
                   disabled={!isDateTimeValid(selectedPostForDateTime, newScheduleDate, newScheduleTime).valid}
                   className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl disabled:transform-none"
                 >

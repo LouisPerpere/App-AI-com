@@ -4232,6 +4232,64 @@ function MainApp() {
   const [newScheduleDate, setNewScheduleDate] = useState('');
   const [newScheduleTime, setNewScheduleTime] = useState('');
 
+  // Fonction pour déplacer un post du calendrier à une autre date/heure
+  const handleMoveCalendarPost = async (post) => {
+    setSelectedPostForDateTime(post);
+    
+    if (post.scheduled_date) {
+      const date = new Date(post.scheduled_date);
+      setNewScheduleDate(date.toISOString().split('T')[0]);
+      setNewScheduleTime(date.toTimeString().slice(0, 5));
+    } else {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(10, 0, 0, 0);
+      setNewScheduleDate(tomorrow.toISOString().split('T')[0]);
+      setNewScheduleTime('10:00');
+    }
+    
+    setShowDateTimeModal(true);
+  };
+
+  // Fonction pour annuler la programmation d'un post
+  const handleCancelCalendarPost = async (post) => {
+    if (!window.confirm('Annuler la programmation de ce post ?\n\nIl sera retiré du calendrier et pourra être validé à nouveau.')) {
+      return;
+    }
+
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast.error('Vous devez être connecté');
+      return;
+    }
+
+    try {
+      toast.loading('Annulation en cours...', { id: 'cancel-post' });
+
+      const response = await axios.delete(
+        `${API}/posts/cancel-calendar-post/${post.id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data?.success) {
+        toast.success('🗑️ Post retiré du calendrier !', { id: 'cancel-post' });
+        
+        // Fermer la modal
+        setSelectedCalendarPost(null);
+        
+        // Recharger les données
+        await loadCalendarPosts();
+        await loadGeneratedPosts(); // Pour que le bouton redevienne "Valider"
+      } else {
+        toast.error('Erreur lors de l\'annulation', { id: 'cancel-post' });
+      }
+    } catch (error) {
+      console.error('Error canceling post:', error);
+      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      toast.error(`❌ ${errorMessage}`, { id: 'cancel-post' });
+    }
+  };
+
   // Fonction pour vérifier si une date/heure est valide
   const isDateTimeValid = (post, dateStr, timeStr) => {
     if (!dateStr || !timeStr || !post) return { dateValid: true, timeValid: true };

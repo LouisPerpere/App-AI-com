@@ -884,7 +884,7 @@ const PostPreviewModal = ({
             </>
           )}
         </div>
-        <div className="flex items-center justify-center space-x-3 p-6 border-t border-gray-200 flex-shrink-0 bg-white">
+        <div className="px-6 py-4 border-t border-gray-200 bg-white">
           {!showModificationForm ? (
             <></>
           ) : (
@@ -905,11 +905,11 @@ const PostPreviewModal = ({
               </div>
 
               {/* Boutons d'action - modernisés et centrés */}
-              <div className="flex items-center justify-center space-x-4">
+              <div className="flex items-center justify-center space-x-3">
                 <button
                   onClick={handleCancel}
                   disabled={isModifying}
-                  className="px-6 py-3 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
                 >
                   <div className="flex items-center space-x-2">
                     <X className="w-4 h-4" />
@@ -920,7 +920,7 @@ const PostPreviewModal = ({
                 <button
                   onClick={handleModifySubmit}
                   disabled={isModifying}
-                  className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+                  className="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
                 >
                   <div className="flex items-center space-x-2">
                     {isModifying ? (

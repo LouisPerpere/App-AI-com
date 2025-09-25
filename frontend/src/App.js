@@ -8684,7 +8684,12 @@ function MainApp() {
                                     {dayPosts.slice(0, 3).map((post, idx) => (
                                       <div
                                         key={idx}
-                                        onClick={() => setSelectedCalendarPost(post)}
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          console.log('🔥 Calendar post clicked:', post);
+                                          setSelectedCalendarPost(post);
+                                        }}
                                         className={`
                                           text-xs p-1 rounded truncate cursor-pointer hover:opacity-80 transition-opacity
                                           ${post.platform === 'facebook' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : ''}

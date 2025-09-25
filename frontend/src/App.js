@@ -784,17 +784,19 @@ const PostPreviewModal = ({
                   
                   setIsValidating(true);
                   try {
-                    await onValidate(post);
-                    setIsValidated(true);
+                    const success = await onValidate(post);
+                    if (success) {
+                      setIsValidated(true);
+                    }
                   } catch (error) {
                     console.error('Validation error:', error);
                   } finally {
                     setIsValidating(false);
                   }
                 }}
-                disabled={isValidating || isValidated}
+                disabled={isValidating || isValidated || post.validated}
                 className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl ${
-                  isValidated 
+                  (isValidated || post.validated)
                     ? 'bg-green-600 text-white cursor-not-allowed' 
                     : isValidating 
                       ? 'bg-gray-400 text-white cursor-not-allowed'
@@ -807,7 +809,7 @@ const PostPreviewModal = ({
                       <Loader2 className="w-4 h-4 animate-spin" />
                       <span>Validation...</span>
                     </>
-                  ) : isValidated ? (
+                  ) : (isValidated || post.validated) ? (
                     <>
                       <Check className="w-4 h-4" />
                       <span>Validé !</span>

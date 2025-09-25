@@ -2104,14 +2104,47 @@ async def modify_post_with_ai(
         dbm = get_database()
         db = dbm.db
         
-        # Get current post
-        current_post = db.generated_posts.find_one({
-            "id": post_id,
-            "owner_id": user_id
-        })
+        # Debug: Check different possible ID fields
+        print(f"🔍 DEBUG: Searching for post with id={post_id}, owner_id={user_id}")
+        
+        # Try different search patterns to debug the issue
+        search_patterns = [
+            {"id": post_id, "owner_id": user_id},
+            {"_id": post_id, "owner_id": user_id},
+            {"id": post_id, "user_id": user_id},
+            {"post_id": post_id, "owner_id": user_id}
+        ]
+        
+        current_post = None
+        found_pattern = None
+        
+        for i, pattern in enumerate(search_patterns):
+            print(f"🔍 DEBUG: Trying search pattern {i+1}: {pattern}")
+            current_post = db.generated_posts.find_one(pattern)
+            if current_post:
+                found_pattern = pattern
+                print(f"✅ DEBUG: Found post with pattern {i+1}: {pattern}")
+                break
+            else:
+                print(f"❌ DEBUG: No post found with pattern {i+1}")
+        
+        # If still not found, let's see what posts exist for this user
+        if not current_post:
+            print(f"🔍 DEBUG: Listing all posts for user {user_id}:")
+            all_user_posts = list(db.generated_posts.find({"owner_id": user_id}, {"id": 1, "_id": 1, "title": 1}).limit(5))
+            for post in all_user_posts:
+                print(f"   Post: {post}")
+            
+            # Also try with user_id field
+            all_user_posts_v2 = list(db.generated_posts.find({"user_id": user_id}, {"id": 1, "_id": 1, "title": 1}).limit(5))
+            for post in all_user_posts_v2:
+                print(f"   Post (user_id): {post}")
         
         if not current_post:
+            print(f"❌ DEBUG: Post {post_id} not found for user {user_id}")
             raise HTTPException(status_code=404, detail="Post not found")
+        
+        print(f"✅ DEBUG: Post found successfully: {current_post.get('title', 'No title')}")
         
         # Use OpenAI to modify the post
         from openai import OpenAI

@@ -661,7 +661,7 @@ const PostPreviewModal = ({
     }
 
     // Désactiver le bouton pendant le traitement
-    setIsModifying ? setIsModifying(true) : null;
+    // Note: isModifying est géré par le parent
     
     try {
       console.log('🔥 DEBUG: Appel onModify avec post.id =', post.id);
@@ -694,8 +694,6 @@ const PostPreviewModal = ({
     } catch (error) {
       console.error('🔥 DEBUG: Exception dans handleModifySubmit:', error);
       toast.error('Erreur lors de la modification: ' + error.message);
-    } finally {
-      setIsModifying ? setIsModifying(false) : null;
     }
   };
 

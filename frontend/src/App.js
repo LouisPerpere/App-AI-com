@@ -623,10 +623,14 @@ const PostPreviewModal = ({
     });
   };
 
-  const handleModifySubmit = () => {
+  const handleModifySubmit = async () => {
     const modificationValue = modificationRequestRef.current?.value || '';
-    onModify(post, modificationValue, 'content'); // Ajout du type de modification
-    setShowModificationForm(false);
+    const success = await onModify(post, modificationValue, 'content'); // Ajout du type de modification
+    
+    // Fermer le formulaire seulement en cas de succès
+    if (success !== false) {
+      setShowModificationForm(false);
+    }
   };
 
   const handleScheduleSubmit = () => {

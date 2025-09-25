@@ -4856,11 +4856,26 @@ function MainApp() {
       if (response.data?.success) {
         toast.success('✅ Date et heure mises à jour avec succès !');
         
+        // Mettre à jour l'objet post local avec la nouvelle date
+        const updatedScheduledDate = scheduledDateTime.toISOString();
+        
+        // Si c'est le post actuellement affiché dans le modal calendrier, le mettre à jour
+        if (selectedCalendarPost && selectedPostForDateTime.id === selectedCalendarPost.id) {
+          const updatedPost = {
+            ...selectedCalendarPost,
+            scheduled_date: updatedScheduledDate,
+            modified_at: new Date().toISOString()
+          };
+          setSelectedCalendarPost(updatedPost);
+        }
+        
         // Recharger les posts appropriés
         if (isCalendarPost) {
           await loadCalendarPosts();
+          await loadGeneratedPosts(); // Recharger aussi les posts générés pour synchroniser
         } else {
           await loadGeneratedPosts();
+          await loadCalendarPosts(); // Recharger aussi le calendrier pour synchroniser
         }
         
         // Fermer le modal

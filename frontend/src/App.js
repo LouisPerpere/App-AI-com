@@ -8791,26 +8791,62 @@ function MainApp() {
                                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
                                   >
                                     <div className="flex items-center space-x-3">
-                                      <div className={`
-                                        w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm
-                                        ${post.platform === 'facebook' ? 'bg-blue-600' : ''}
-                                        ${post.platform === 'instagram' ? 'bg-pink-600' : ''}
-                                        ${post.platform === 'linkedin' ? 'bg-blue-700' : ''}
-                                      `}>
-                                        {post.platform === 'facebook' && '📘'}
-                                        {post.platform === 'instagram' && '📷'}
-                                        {post.platform === 'linkedin' && '💼'}
+                                      {/* Vignette image du post */}
+                                      <div className="relative flex-shrink-0">
+                                        {post.visual_url ? (
+                                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
+                                            <img 
+                                              src={post.visual_url.startsWith('http') 
+                                                ? post.visual_url 
+                                                : `${process.env.REACT_APP_BACKEND_URL}${post.visual_url}?token=${localStorage.getItem('access_token')}&t=${Date.now()}`
+                                              }
+                                              alt={post.title || 'Post image'}
+                                              className="w-full h-full object-cover"
+                                              onError={(e) => {
+                                                e.target.style.display = 'none';
+                                                e.target.nextSibling.style.display = 'flex';
+                                              }}
+                                            />
+                                            {/* Fallback pour les erreurs d'image */}
+                                            <div className="hidden w-full h-full bg-gray-200 flex items-center justify-center">
+                                              <ImageIcon className="w-4 h-4 text-gray-400" />
+                                            </div>
+                                          </div>
+                                        ) : (
+                                          <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center">
+                                            <ImageIcon className="w-4 h-4 text-gray-400" />
+                                          </div>
+                                        )}
+                                        {/* Badge plateforme sur l'image */}
+                                        <div className={`
+                                          absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs text-white
+                                          ${post.platform === 'facebook' ? 'bg-blue-600' : ''}
+                                          ${post.platform === 'instagram' ? 'bg-pink-600' : ''}
+                                          ${post.platform === 'linkedin' ? 'bg-blue-700' : ''}
+                                        `}>
+                                          {post.platform === 'facebook' && '📘'}
+                                          {post.platform === 'instagram' && '📷'}
+                                          {post.platform === 'linkedin' && '💼'}
+                                        </div>
                                       </div>
-                                      <div>
+                                      
+                                      {/* Contenu texte */}
+                                      <div className="flex-1 min-w-0">
                                         <div className="font-medium text-sm text-gray-900">
                                           {new Date(post.scheduled_date).toLocaleTimeString('fr-FR', { 
                                             hour: '2-digit', 
                                             minute: '2-digit' 
                                           })}
                                         </div>
-                                        <div className="text-xs text-gray-500 truncate max-w-md">
+                                        <div className="text-xs text-gray-500 truncate">
                                           {post.text?.slice(0, 100) || 'Post sans texte'}...
                                         </div>
+                                        {/* Titre si présent */}
+                                        {post.title && (
+                                          <div className="text-xs font-medium text-gray-700 truncate mt-1">
+                                            {post.title}
+                                          </div>
+                                        )}
                                       </div>
                                     </div>
                                     <div className={`

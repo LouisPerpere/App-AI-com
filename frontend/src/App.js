@@ -951,7 +951,10 @@ const PostPreviewModal = ({
               {isFromCalendar ? (
                 <div className="flex items-center justify-center space-x-2">
                   <button
-                    onClick={() => setShowModificationForm(true)}
+                    onClick={() => {
+                      setModificationTextValue(''); // Reset la valeur avant d'ouvrir
+                      setShowModificationForm(true);
+                    }}
                     className="flex-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg text-sm"
                   >
                     <div className="flex items-center justify-center space-x-1">

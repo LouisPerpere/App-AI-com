@@ -8758,7 +8758,10 @@ function MainApp() {
                                       e.preventDefault();
                                       e.stopPropagation();
                                       console.log('🔥 Calendar list post clicked:', post);
-                                      setSelectedCalendarPost(post);
+                                      // Force update immédiatement
+                                      setTimeout(() => {
+                                        setSelectedCalendarPost(post);
+                                      }, 0);
                                     }}
                                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
                                   >

@@ -590,6 +590,9 @@ const PostPreviewModal = ({
   modificationRequestRef  // Changé de state à ref
 }) => {
   const [showModificationForm, setShowModificationForm] = useState(false);
+  const [modificationRequest, setModificationRequest] = useState('');
+  const [isValidating, setIsValidating] = useState(false);
+  const [isValidated, setIsValidated] = useState(post?.validated || false);
   const [showScheduleForm, setShowScheduleForm] = useState(false);
   const [newScheduledDate, setNewScheduledDate] = useState('');
   const [newScheduledTime, setNewScheduledTime] = useState('');

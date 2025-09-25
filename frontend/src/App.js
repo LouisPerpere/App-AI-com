@@ -827,6 +827,31 @@ const PostPreviewModal = ({
                   <span>Modifier</span>
                 </div>
               </button>
+              
+              {/* Boutons supplémentaires pour les posts du calendrier */}
+              {isFromCalendar && (
+                <>
+                  <button
+                    onClick={() => onMovePost && onMovePost(post)}
+                    className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Clock className="w-4 h-4" />
+                      <span>Déplacer</span>
+                    </div>
+                  </button>
+                  
+                  <button
+                    onClick={() => onCancelPost && onCancelPost(post)}
+                    className="px-6 py-3 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <X className="w-4 h-4" />
+                      <span>Annuler</span>
+                    </div>
+                  </button>
+                </>
+              )}
             </>
           ) : (
             <div className="w-full">

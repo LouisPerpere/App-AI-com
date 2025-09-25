@@ -4241,7 +4241,14 @@ function MainApp() {
         // Marquer explicitement le post comme validé dans l'interface
         post.validated = true;
         
-        // Recharger les données
+        // Mettre à jour aussi dans la liste des posts générés
+        setGeneratedPosts(prevPosts => {
+          return prevPosts.map(p => 
+            p.id === post.id ? { ...p, validated: true } : p
+          );
+        });
+        
+        // Recharger les données pour s'assurer de la cohérence
         await loadGeneratedPosts();
         if (activeTab === 'calendar') {
           await loadCalendarPosts();

@@ -4238,18 +4238,26 @@ function MainApp() {
       if (response.data?.success) {
         toast.success(`🎉 Post validé et ajouté au calendrier !`, { id: 'validate-post' });
         
+        // Marquer explicitement le post comme validé dans l'interface
+        post.validated = true;
+        
         // Recharger les données
         await loadGeneratedPosts();
         if (activeTab === 'calendar') {
           await loadCalendarPosts();
         }
+        
+        // Retourner true pour indiquer le succès
+        return true;
       } else {
         toast.error('Erreur lors de la validation', { id: 'validate-post' });
+        return false;
       }
       
     } catch (error) {
       const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
       toast.error(`❌ ${errorMessage}`, { id: 'validate-post' });
+      return false;
     }
   };
 

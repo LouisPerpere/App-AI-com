@@ -8692,7 +8692,10 @@ function MainApp() {
                                           e.preventDefault();
                                           e.stopPropagation();
                                           console.log('🔥 Calendar post clicked:', post);
-                                          setSelectedCalendarPost(post);
+                                          // Force update immédiatement
+                                          setTimeout(() => {
+                                            setSelectedCalendarPost(post);
+                                          }, 0);
                                         }}
                                         className={`
                                           text-xs p-1 rounded truncate cursor-pointer hover:opacity-80 transition-opacity

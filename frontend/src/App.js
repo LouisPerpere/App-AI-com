@@ -631,12 +631,79 @@ const PostPreviewModal = ({
 
   const handleModifySubmit = async () => {
     const modificationValue = modificationRequestRef.current?.value || '';
-    const success = await onModify(post, modificationValue, 'content'); // Ajout du type de modification
     
-    // Fermer le formulaire seulement en cas de succès
-    if (success !== false) {
-      setShowModificationForm(false);
+    if (!modificationValue?.trim()) {
+      toast.error('Veuillez saisir une demande de modification');
+      return;
     }
+
+    // Appeler l'IA pour obtenir le nouveau contenu
+    try {
+      const result = await onModify(post, modificationValue, 'content');
+      
+      if (result && result.success && result.modifiedPost) {
+        // Stocker le nouveau contenu et montrer l'aperçu
+        setModifiedPostData(result.modifiedPost);
+        setShowModificationForm(false);
+        setShowModificationPreview(true);
+      } else {
+        // Si pas de result.modifiedPost, c'est l'ancien système (pour les posts normaux)
+        if (result !== false) {
+          setShowModificationForm(false);
+        }
+      }
+    } catch (error) {
+      console.error('Erreur modification:', error);
+      toast.error('Erreur lors de la modification');
+    }
+  };
+
+  const handleAcceptModification = async () => {
+    if (!modifiedPostData) return;
+    
+    setIsApplyingModification(true);
+    
+    try {
+      // Appliquer la modification définitivement
+      // Pour l'instant, on met juste à jour localement
+      // Plus tard, on ajoutera l'appel pour mettre à jour sur les réseaux sociaux
+      
+      // Mettre à jour le post actuel
+      const updatedPost = {
+        ...post,
+        ...modifiedPostData,
+        modified_at: new Date().toISOString()
+      };
+
+      // Mettre à jour selectedCalendarPost si c'est le post actuel
+      if (selectedCalendarPost?.id === post.id) {
+        setSelectedCalendarPost(updatedPost);
+      }
+      
+      // Recharger les données du calendrier et des posts
+      if (typeof window !== 'undefined' && window.loadCalendarPosts) {
+        await window.loadCalendarPosts();
+      }
+      if (typeof window !== 'undefined' && window.loadGeneratedPosts) {
+        await window.loadGeneratedPosts();
+      }
+      
+      toast.success('✅ Modification appliquée avec succès !');
+      setShowModificationPreview(false);
+      setModifiedPostData(null);
+      
+    } catch (error) {
+      console.error('Erreur application modification:', error);
+      toast.error('Erreur lors de l\'application de la modification');
+    } finally {
+      setIsApplyingModification(false);
+    }
+  };
+
+  const handleRejectModification = () => {
+    setShowModificationPreview(false);
+    setModifiedPostData(null);
+    setShowModificationForm(true); // Retour au formulaire pour une nouvelle demande
   };
 
   const handleScheduleSubmit = () => {

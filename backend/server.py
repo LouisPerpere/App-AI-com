@@ -1600,6 +1600,8 @@ async def validate_post_to_calendar(
             "scheduled_date": scheduled_date
         }
         
+    except HTTPException:
+        raise  # Re-raise HTTPExceptions to preserve status codes
     except Exception as e:
         print(f"❌ Error validating post to calendar: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to validate post to calendar: {str(e)}")

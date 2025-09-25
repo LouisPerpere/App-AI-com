@@ -508,15 +508,22 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
                 <Clock className="w-3 h-3" />
               </button>
               
-              {/* Bouton Valider - Envoyer au calendrier - TOUJOURS VISIBLE POUR DEBUG */}
+              {/* Bouton Valider - Envoyer au calendrier - AVEC ALERTES DEBUG */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  console.log('🔥 Validate button clicked!', { post, onValidatePost: typeof onValidatePost });
+                  alert('🔥 Bouton cliqué !'); // Debug 1
+                  
                   if (onValidatePost) {
-                    onValidatePost(post);
+                    alert('✅ Fonction onValidatePost trouvée'); // Debug 2
+                    try {
+                      onValidatePost(post);
+                      alert('✅ Fonction appelée avec succès'); // Debug 3
+                    } catch (error) {
+                      alert('❌ Erreur: ' + error.message); // Debug 4
+                    }
                   } else {
-                    console.error('❌ onValidatePost is not defined!');
+                    alert('❌ onValidatePost non défini !'); // Debug 5
                   }
                 }}
                 className={`w-7 h-7 text-white rounded-full flex items-center justify-center transition-colors shadow-md ${

@@ -8549,6 +8549,12 @@ function MainApp() {
                         <span>📘 {calendarPosts.filter(p => p.platform === 'facebook').length} FB</span>
                         <span>📷 {calendarPosts.filter(p => p.platform === 'instagram').length} IG</span>
                         <span>💼 {calendarPosts.filter(p => p.platform === 'linkedin').length} LI</span>
+                        {/* DEBUG : Indicateur de post sélectionné */}
+                        {selectedCalendarPost && (
+                          <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">
+                            📌 Post sélectionné: {selectedCalendarPost.platform}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>

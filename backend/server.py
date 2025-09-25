@@ -1521,6 +1521,10 @@ class PostGenerationRequest(BaseModel):
     month_key: Optional[str] = None  # Format: "2025-01" pour janvier 2025
     target_month: Optional[str] = None  # Legacy field, keep for compatibility
 
+class ValidateToCalendarRequest(BaseModel):
+    post_id: str
+    scheduled_date: Optional[str] = None
+
 @api_router.post("/posts/validate-to-calendar")
 async def validate_post_to_calendar(
     request: dict,

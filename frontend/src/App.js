@@ -512,15 +512,18 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  onValidatePost && onValidatePost(post);
+                  console.log('🔥 Button click - Post object:', post);
+                  if (onValidatePost) {
+                    onValidatePost(post);  // S'assurer que c'est bien le post qui est passé
+                  }
                 }}
                 className={`w-7 h-7 text-white rounded-full flex items-center justify-center transition-colors shadow-md ${
                   post.validated ? 'bg-green-500 hover:bg-green-600' : 
-                  post.scheduled_date ? 'bg-orange-500 hover:bg-orange-600' : 'bg-gray-400'
+                  (post.scheduled_date || post.date) ? 'bg-orange-500 hover:bg-orange-600' : 'bg-gray-400'
                 }`}
                 title={post.validated ? "Déjà validé" : 
-                       post.scheduled_date ? "Valider et envoyer au calendrier" : "Programmer une date d'abord"}
-                disabled={post.validated || !post.scheduled_date}
+                       (post.scheduled_date || post.date) ? "Valider et envoyer au calendrier" : "Aucune date programmée"}
+                disabled={post.validated || !(post.scheduled_date || post.date)}
               >
                 {post.validated ? <CheckCircleIcon className="w-3 h-3" /> : <Calendar className="w-3 h-3" />}
               </button>

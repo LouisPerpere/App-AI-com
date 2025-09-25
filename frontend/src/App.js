@@ -632,10 +632,36 @@ const PostPreviewModal = ({
 
   const handleModifySubmit = async () => {
     console.log('🔥 DEBUG: handleModifySubmit appelée');
-    const modificationValue = modificationTextValue || modificationRequestRef.current?.value || '';
-    console.log('🔥 DEBUG: modificationValue =', modificationValue);
     
-    if (!modificationValue?.trim()) {
+    // Essayer plusieurs méthodes pour récupérer la valeur
+    let modificationValue = '';
+    
+    // Méthode 1: État React
+    if (modificationTextValue && modificationTextValue.trim()) {
+      modificationValue = modificationTextValue.trim();
+      console.log('🔥 DEBUG: Valeur récupérée via état React:', modificationValue);
+    }
+    
+    // Méthode 2: Référence directe
+    else if (modificationRequestRef.current && modificationRequestRef.current.value && modificationRequestRef.current.value.trim()) {
+      modificationValue = modificationRequestRef.current.value.trim();
+      console.log('🔥 DEBUG: Valeur récupérée via ref:', modificationValue);
+    }
+    
+    // Méthode 3: Sélecteur DOM direct en dernier recours
+    else {
+      const textarea = document.querySelector('textarea[placeholder*="modifier ce post"]');
+      if (textarea && textarea.value && textarea.value.trim()) {
+        modificationValue = textarea.value.trim();
+        console.log('🔥 DEBUG: Valeur récupérée via DOM:', modificationValue);
+      }
+    }
+    
+    console.log('🔥 DEBUG: modificationValue final =', modificationValue);
+    console.log('🔥 DEBUG: modificationTextValue état =', modificationTextValue);
+    console.log('🔥 DEBUG: ref.current.value =', modificationRequestRef.current?.value);
+    
+    if (!modificationValue) {
       console.log('🔥 DEBUG: Pas de valeur de modification');
       toast.error('Veuillez saisir une demande de modification');
       return;
@@ -653,6 +679,11 @@ const PostPreviewModal = ({
         setModifiedPostData(result.modifiedPost);
         setShowModificationForm(false);
         setShowModificationPreview(true);
+        // Vider le textarea après succès
+        setModificationTextValue('');
+        if (modificationRequestRef.current) {
+          modificationRequestRef.current.value = '';
+        }
       } else {
         console.log('🔥 DEBUG: Ancien système ou échec');
         // Si pas de result.modifiedPost, c'est l'ancien système (pour les posts normaux)

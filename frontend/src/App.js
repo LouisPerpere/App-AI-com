@@ -785,9 +785,7 @@ const PostPreviewModal = ({
                   setIsValidating(true);
                   try {
                     const success = await onValidate(post);
-                    if (success) {
-                      setIsValidated(true);
-                    }
+                    // Success handled by parent component
                   } catch (error) {
                     console.error('Validation error:', error);
                   } finally {

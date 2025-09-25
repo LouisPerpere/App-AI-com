@@ -987,7 +987,10 @@ const PostPreviewModal = ({
                 /* Interface pour les posts normaux (onglet Posts) */
                 <div className="flex items-center justify-center space-x-4">
                   <button
-                    onClick={() => setShowModificationForm(true)}
+                    onClick={() => {
+                      setModificationTextValue(''); // Reset la valeur avant d'ouvrir
+                      setShowModificationForm(true);
+                    }}
                     className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
                   >
                     <div className="flex items-center space-x-2">

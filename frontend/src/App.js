@@ -4606,6 +4606,7 @@ function MainApp() {
 
   // Fonction pour déplacer un post du calendrier à une autre date/heure
   const handleMoveCalendarPost = async (post) => {
+    console.log('🔥 DEBUG: handleMoveCalendarPost appelée avec post:', post.id);
     setSelectedPostForDateTime(post);
     
     if (post.scheduled_date) {
@@ -4620,6 +4621,7 @@ function MainApp() {
       setNewScheduleTime('10:00');
     }
     
+    console.log('🔥 DEBUG: Ouverture modal date/heure');
     setShowDateTimeModal(true);
   };
 

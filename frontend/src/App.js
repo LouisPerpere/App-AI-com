@@ -588,7 +588,9 @@ const PostPreviewModal = ({
   onValidate, 
   isModifying, 
   modificationRequestRef,  // Changé de state à ref
-  isFromCalendar = false // Nouveau prop pour savoir si c'est depuis le calendrier
+  isFromCalendar = false, // Nouveau prop pour savoir si c'est depuis le calendrier
+  onMovePost, // Fonction pour déplacer le post
+  onCancelPost // Fonction pour annuler la programmation
 }) => {
   const [showModificationForm, setShowModificationForm] = useState(false);
   const [modificationRequest, setModificationRequest] = useState('');

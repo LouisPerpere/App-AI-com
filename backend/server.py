@@ -1606,6 +1606,113 @@ async def validate_post_to_calendar(
         print(f"❌ Error validating post to calendar: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to validate post to calendar: {str(e)}")
 
+class MovePostRequest(BaseModel):
+    scheduled_date: str
+
+@api_router.put("/posts/move-calendar-post/{post_id}")
+async def move_calendar_post(
+    post_id: str,
+    request: MovePostRequest,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Déplacer un post du calendrier à une nouvelle date/heure"""
+    try:
+        print(f"📅 Moving calendar post {post_id} to {request.scheduled_date}")
+        
+        # Valider le format de date
+        try:
+            scheduled_datetime = datetime.fromisoformat(request.scheduled_date.replace('Z', '+00:00'))
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Format de date invalide. Utilisez le format ISO.")
+        
+        dbm = get_database()
+        
+        # Mettre à jour la date dans le calendrier
+        result = dbm.db.publication_calendar.update_one(
+            {"id": post_id, "user_id": user_id},
+            {
+                "$set": {
+                    "scheduled_date": request.scheduled_date,
+                    "modified_at": datetime.now(timezone.utc).isoformat()
+                }
+            }
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Post non trouvé dans le calendrier")
+        
+        print(f"✅ Calendar post {post_id} moved successfully")
+        
+        return {
+            "success": True,
+            "message": "Post déplacé avec succès",
+            "post_id": post_id,
+            "new_date": request.scheduled_date
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error moving calendar post: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to move calendar post: {str(e)}")
+
+@api_router.delete("/posts/cancel-calendar-post/{post_id}")
+async def cancel_calendar_post(
+    post_id: str,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Annuler la programmation d'un post (retirer du calendrier et remettre en état non-validé)"""
+    try:
+        print(f"🗑️ Canceling calendar post {post_id}")
+        
+        dbm = get_database()
+        
+        # Récupérer les infos du post du calendrier
+        calendar_post = dbm.db.publication_calendar.find_one({
+            "id": post_id,
+            "user_id": user_id
+        })
+        
+        if not calendar_post:
+            raise HTTPException(status_code=404, detail="Post non trouvé dans le calendrier")
+        
+        # Supprimer du calendrier
+        delete_result = dbm.db.publication_calendar.delete_one({
+            "id": post_id,
+            "user_id": user_id
+        })
+        
+        if delete_result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Impossible de supprimer le post du calendrier")
+        
+        # Remettre le post original en état non-validé (si il existe)
+        original_post_id = calendar_post.get("original_post_id")
+        if original_post_id:
+            dbm.db.generated_posts.update_one(
+                {"id": original_post_id, "owner_id": user_id},
+                {
+                    "$set": {
+                        "validated": False,
+                        "modified_at": datetime.now(timezone.utc).isoformat()
+                    }
+                }
+            )
+        
+        print(f"✅ Calendar post {post_id} canceled and original post reset")
+        
+        return {
+            "success": True,
+            "message": "Programmation annulée avec succès",
+            "post_id": post_id,
+            "original_post_id": original_post_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error canceling calendar post: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to cancel calendar post: {str(e)}")
+
 @api_router.get("/posts/calendar-temp")
 async def get_publication_calendar_temp():
     """Endpoint temporaire pour tester le calendrier sans auth"""

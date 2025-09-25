@@ -1580,7 +1580,7 @@ async def validate_post_to_calendar(
         
         # Update original post status to indicate it's been validated
         update_result = dbm.db.generated_posts.update_one(
-            {"id": post_id, "user_id": user_id},
+            {"id": post_id, "owner_id": user_id},
             {
                 "$set": {
                     "validated": True,

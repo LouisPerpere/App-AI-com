@@ -595,7 +595,7 @@ const PostPreviewModal = ({
   const [showModificationForm, setShowModificationForm] = useState(false);
   const [modificationRequest, setModificationRequest] = useState('');
   const [isValidating, setIsValidating] = useState(false);
-  const [isValidated, setIsValidated] = useState(post?.validated || false);
+  // Supprimer isValidated - on utilise directement post.validated
   const [showScheduleForm, setShowScheduleForm] = useState(false);
   const [newScheduledDate, setNewScheduledDate] = useState('');
   const [newScheduledTime, setNewScheduledTime] = useState('');

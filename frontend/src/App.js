@@ -4389,22 +4389,18 @@ function MainApp() {
       return;
     }
 
-    // Créer la date programmée
     const scheduledDateTime = new Date(`${newScheduleDate}T${newScheduleTime}:00`);
     const now = new Date();
     
-    // Obtenir les limites pour ce post spécifique
-    const limits = getDateLimitsForPost(selectedPostForDateTime);
-    const minDate = new Date(limits.min);
-    const maxDate = new Date(limits.max);
-    
-    // Vérification : pas avant aujourd'hui
     if (scheduledDateTime < now) {
       toast.error('La date ne peut pas être dans le passé');
       return;
     }
 
-    // Vérification : pas après la fin du mois suivant au mois du post
+    // Obtenir les limites pour ce post spécifique
+    const limits = getDateLimitsForPost(selectedPostForDateTime);
+    const maxDate = new Date(limits.max);
+    
     if (scheduledDateTime > maxDate) {
       toast.error('La date ne peut pas dépasser la fin du mois suivant au mois du post');
       return;
@@ -4417,19 +4413,27 @@ function MainApp() {
     }
 
     try {
+      // Utiliser un endpoint différent selon si c'est un post du calendrier ou non
+      const isCalendarPost = selectedCalendarPost && selectedPostForDateTime.id === selectedCalendarPost.id;
+      const endpoint = isCalendarPost 
+        ? `/posts/move-calendar-post/${selectedPostForDateTime.id}`
+        : `/posts/${selectedPostForDateTime.id}/schedule`;
+
       const response = await axios.put(
-        `${API}/posts/${selectedPostForDateTime.id}/schedule`,
+        `${API}${endpoint}`,
         { scheduled_date: scheduledDateTime.toISOString() },
-        { 
-          headers: { Authorization: `Bearer ${token}` }
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.data?.success) {
         toast.success('✅ Date et heure mises à jour avec succès !');
         
-        // Recharger les posts pour afficher la nouvelle programmation
-        await loadGeneratedPosts();
+        // Recharger les posts appropriés
+        if (isCalendarPost) {
+          await loadCalendarPosts();
+        } else {
+          await loadGeneratedPosts();
+        }
         
         // Fermer le modal
         setShowDateTimeModal(false);

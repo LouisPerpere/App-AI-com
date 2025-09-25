@@ -1053,6 +1053,8 @@ const PostPreviewModal = ({
                 
                 <textarea
                   ref={modificationRequestRef}
+                  value={modificationTextValue}
+                  onChange={(e) => setModificationTextValue(e.target.value)}
                   placeholder="Décrivez comment vous souhaitez modifier ce post..."
                   className="w-full p-3 border border-yellow-300 rounded-lg resize-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                   rows="3"

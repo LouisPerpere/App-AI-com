@@ -9282,7 +9282,7 @@ function MainApp() {
           <PostPreviewModal
             post={selectedCalendarPost}
             onClose={() => setSelectedCalendarPost(null)}
-            onModify={handleModifyPost}
+            onModify={handleModifyCalendarPost}
             onValidate={handleValidatePost}
             isModifying={isModifyingPost}
             modificationRequestRef={modificationRequestRef}

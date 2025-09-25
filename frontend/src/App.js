@@ -630,30 +630,37 @@ const PostPreviewModal = ({
   };
 
   const handleModifySubmit = async () => {
+    console.log('🔥 DEBUG: handleModifySubmit appelée');
     const modificationValue = modificationRequestRef.current?.value || '';
+    console.log('🔥 DEBUG: modificationValue =', modificationValue);
     
     if (!modificationValue?.trim()) {
+      console.log('🔥 DEBUG: Pas de valeur de modification');
       toast.error('Veuillez saisir une demande de modification');
       return;
     }
 
     // Appeler l'IA pour obtenir le nouveau contenu
     try {
+      console.log('🔥 DEBUG: Appel onModify avec', { post: post.id, modificationValue });
       const result = await onModify(post, modificationValue, 'content');
+      console.log('🔥 DEBUG: Résultat onModify =', result);
       
       if (result && result.success && result.modifiedPost) {
+        console.log('🔥 DEBUG: Affichage aperçu modification');
         // Stocker le nouveau contenu et montrer l'aperçu
         setModifiedPostData(result.modifiedPost);
         setShowModificationForm(false);
         setShowModificationPreview(true);
       } else {
+        console.log('🔥 DEBUG: Ancien système ou échec');
         // Si pas de result.modifiedPost, c'est l'ancien système (pour les posts normaux)
         if (result !== false) {
           setShowModificationForm(false);
         }
       }
     } catch (error) {
-      console.error('Erreur modification:', error);
+      console.error('🔥 DEBUG: Erreur modification:', error);
       toast.error('Erreur lors de la modification');
     }
   };

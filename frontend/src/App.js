@@ -4867,15 +4867,41 @@ function MainApp() {
             modified_at: new Date().toISOString()
           };
           setSelectedCalendarPost(updatedPost);
+          console.log('🔄 DEBUG: selectedCalendarPost mis à jour avec nouvelle date:', updatedScheduledDate);
         }
         
-        // Recharger les posts appropriés
-        if (isCalendarPost) {
-          await loadCalendarPosts();
-          await loadGeneratedPosts(); // Recharger aussi les posts générés pour synchroniser
-        } else {
+        // FORCER le rechargement complet des deux onglets avec logs détaillés
+        console.log('🔄 DEBUG: Force reload des posts après déplacement...');
+        
+        try {
+          // Attendre un délai pour que le backend ait le temps de persister
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Recharger d'abord les posts générés (onglet Posts) avec force refresh
+          console.log('🔄 DEBUG: Rechargement forcé generatePosts...');
           await loadGeneratedPosts();
-          await loadCalendarPosts(); // Recharger aussi le calendrier pour synchroniser
+          console.log('✅ DEBUG: generatePosts rechargé');
+          
+          // Puis recharger le calendrier avec force refresh
+          console.log('🔄 DEBUG: Rechargement forcé calendarPosts...');  
+          await loadCalendarPosts();
+          console.log('✅ DEBUG: calendarPosts rechargé');
+          
+          // Vérifier si la synchronisation a fonctionné
+          setTimeout(() => {
+            const postAfterReload = generatedPosts.find(p => p.id === selectedPostForDateTime.id);
+            if (postAfterReload) {
+              console.log('🔍 DEBUG: Post après reload:', {
+                id: postAfterReload.id,
+                old_date: selectedPostForDateTime.scheduled_date,
+                new_date: postAfterReload.scheduled_date,
+                synchronized: postAfterReload.scheduled_date === updatedScheduledDate
+              });
+            }
+          }, 1000);
+          
+        } catch (reloadError) {
+          console.error('❌ DEBUG: Erreur lors du rechargement:', reloadError);
         }
         
         // Fermer le modal

@@ -8169,6 +8169,18 @@ function MainApp() {
                   />
                 )}
 
+                {/* Modal d'aperçu de post depuis le calendrier */}
+                {selectedCalendarPost && (
+                  <PostPreviewModal
+                    post={selectedCalendarPost}
+                    onClose={() => setSelectedCalendarPost(null)}
+                    onModify={handleModifyPost}
+                    onValidate={handleValidatePost}
+                    isModifying={isModifyingPost}
+                    modificationRequestRef={modificationRequestRef}
+                  />
+                )}
+
                 {/* Modal de modification date/heure */}
                 {showDateTimeModal && selectedPostForDateTime && (
                   <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">

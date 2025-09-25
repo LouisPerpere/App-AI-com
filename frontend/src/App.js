@@ -4122,21 +4122,14 @@ function MainApp() {
 
   // Fonction pour valider et envoyer un post au calendrier
   const handleValidatePost = async (post) => {
-    console.log('🚀 handleValidatePost called with:', post);
+    alert('🚀 handleValidatePost appelée !'); // Debug 1
     
-    // Vérification que nous avons bien reçu un post et pas un événement
     if (!post || !post.id) {
-      toast.error('❌ Erreur: objet post invalide');
+      alert('❌ Post invalide !');
       return;
     }
     
-    // DEBUG : Voir les champs de date du post
-    console.log('📅 Date fields:', {
-      scheduled_date: post.scheduled_date,
-      date: post.date,
-      time: post.time,
-      publication_date: post.publication_date
-    });
+    alert('✅ Post valide : ' + post.id); // Debug 2
     
     // Vérifier qu'au moins un réseau social est connecté
     const connectedPlatforms = [];
@@ -4145,62 +4138,48 @@ function MainApp() {
     if (connectedAccounts.linkedin) connectedPlatforms.push('linkedin');
 
     if (connectedPlatforms.length === 0) {
-      toast.error('Connectez au moins un réseau social dans l\'onglet "Réseaux sociaux" d\'abord !');
+      alert('❌ Aucun réseau connecté !'); // Debug 3
+      toast.error('Connectez au moins un réseau social d\'abord !');
       return;
     }
 
-    // Utiliser la plateforme du post automatiquement
-    let targetPlatform = post.platform ? post.platform.toLowerCase() : null;
+    alert('✅ Réseaux connectés : ' + connectedPlatforms.join(', ')); // Debug 4
+
+    // Utiliser la plateforme du post ou le premier réseau connecté
+    let targetPlatform = post.platform ? post.platform.toLowerCase() : connectedPlatforms[0];
     
-    // Si le post n'a pas de plateforme définie, prendre le premier réseau connecté
-    if (!targetPlatform || !connectedPlatforms.includes(targetPlatform)) {
+    if (!connectedPlatforms.includes(targetPlatform)) {
       targetPlatform = connectedPlatforms[0];
     }
 
-    // Vérifier que la plateforme du post est bien connectée
-    if (!connectedPlatforms.includes(targetPlatform)) {
-      toast.error(`Le réseau ${targetPlatform} n'est pas connecté. Connectez-le d'abord dans l'onglet "Réseaux sociaux".`);
-      return;
-    }
+    alert('✅ Plateforme cible : ' + targetPlatform); // Debug 5
 
-    // Vérifier les différents champs de date possibles
+    // Vérifier la date
     const dateField = post.scheduled_date || post.publication_date || post.date;
     
     if (!dateField) {
-      toast.error('📅 Aucune date de programmation trouvée sur ce post !');
+      alert('❌ Aucune date trouvée !'); // Debug 6
+      toast.error('Aucune date de programmation trouvée sur ce post !');
       return;
     }
 
-    // Vérifier que la date/heure est valide
-    let scheduledDateTime;
-    try {
-      scheduledDateTime = new Date(dateField);
-      if (isNaN(scheduledDateTime.getTime())) {
-        throw new Error('Date invalide');
-      }
-    } catch (error) {
-      toast.error('📅 Format de date invalide : ' + dateField);
-      return;
-    }
-
-    const platformName = targetPlatform.charAt(0).toUpperCase() + targetPlatform.slice(1);
+    alert('✅ Date trouvée : ' + dateField); // Debug 7
 
     const token = localStorage.getItem('access_token');
     if (!token) {
-      toast.error('Vous devez être connecté pour valider un post');
+      alert('❌ Pas de token !'); // Debug 8
+      toast.error('Vous devez être connecté !');
       return;
     }
 
-    try {
-      toast.loading('Validation en cours...', { id: 'validate-post' });
+    alert('🚀 Envoi au serveur...'); // Debug 9
 
+    try {
       const requestData = { 
         post_id: post.id,
         platforms: [targetPlatform],
         scheduled_date: dateField
       };
-
-      console.log('📤 Sending to server:', requestData);
 
       const response = await axios.post(
         `${API}/posts/validate-to-calendar`,
@@ -4210,26 +4189,25 @@ function MainApp() {
         }
       );
 
-      console.log('📥 Server response:', response.data);
+      alert('📥 Réponse serveur : ' + JSON.stringify(response.data)); // Debug 10
 
       if (response.data?.success) {
-        toast.success(`🎉 Post validé et ajouté au calendrier ${platformName} !`, { id: 'validate-post' });
+        alert('🎉 SUCCÈS !'); // Debug 11
+        toast.success(`🎉 Post validé et ajouté au calendrier !`);
         
-        // Recharger les posts générés pour mettre à jour le statut
+        // Recharger les données
         await loadGeneratedPosts();
-        
-        // Recharger le calendrier si on est sur l'onglet calendrier
         if (activeTab === 'calendar') {
           await loadCalendarPosts();
         }
       } else {
-        throw new Error(response.data?.message || 'Erreur lors de la validation');
+        alert('❌ Échec serveur : ' + (response.data?.message || 'Erreur inconnue')); // Debug 12
+        toast.error('Erreur lors de la validation');
       }
       
     } catch (error) {
-      console.error('❌ Error validating post:', error);
-      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
-      toast.error(`❌ Erreur: ${errorMessage}`, { id: 'validate-post' });
+      alert('❌ Erreur réseau : ' + error.message); // Debug 13
+      toast.error('Erreur réseau : ' + error.message);
     }
   };
 

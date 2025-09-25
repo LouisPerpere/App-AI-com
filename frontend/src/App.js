@@ -4147,7 +4147,7 @@ function MainApp() {
 
   // Fonction pour valider et envoyer un post au calendrier
   const handleValidatePost = async (post) => {
-    console.log('🔥 handleValidatePost called with post:', post);
+    alert('🚀 handleValidatePost démarrée !'); // Debug principal
     
     // Vérifier qu'au moins un réseau social est connecté
     const connectedPlatforms = [];
@@ -4158,6 +4158,7 @@ function MainApp() {
     console.log('🔍 Connected platforms:', connectedPlatforms);
 
     if (connectedPlatforms.length === 0) {
+      alert('❌ Aucun réseau social connecté !');
       toast.error('Vous devez connecter au moins un réseau social pour valider un post');
       return;
     }
@@ -4174,12 +4175,14 @@ function MainApp() {
 
     // Vérifier que la plateforme du post est bien connectée
     if (!connectedPlatforms.includes(targetPlatform)) {
+      alert('❌ Réseau ' + targetPlatform + ' non connecté !');
       toast.error(`Le réseau ${targetPlatform} n'est pas connecté. Connectez-le d'abord dans l'onglet "Réseaux sociaux".`);
       return;
     }
 
     // Vérifier que le post a une date/heure programmée
     if (!post.scheduled_date) {
+      alert('❌ Pas de date programmée !');
       toast.error('Le post doit avoir une date et heure de programmation. Utilisez le bouton "Modifier date/heure" d\'abord.');
       return;
     }
@@ -4190,6 +4193,7 @@ function MainApp() {
     const scheduledDateTime = new Date(post.scheduled_date);
     const now = new Date();
     if (scheduledDateTime <= now) {
+      alert('❌ Date dans le passé !');
       toast.error('La date de programmation doit être dans le futur.');
       return;
     }
@@ -4199,11 +4203,12 @@ function MainApp() {
     // Plus de popup de confirmation - validation directe vers le calendrier
     const token = localStorage.getItem('access_token');
     if (!token) {
+      alert('❌ Pas de token !');
       toast.error('Vous devez être connecté pour valider un post');
       return;
     }
 
-    console.log('🚀 Sending validation request...');
+    alert('✅ Toutes les vérifications passées ! Envoi au serveur...'); 
 
     try {
       toast.loading('Validation du post en cours...', { id: 'validate-post' });
@@ -4226,6 +4231,7 @@ function MainApp() {
       console.log('📥 Response:', response.data);
 
       if (response.data?.success) {
+        alert('🎉 Succès ! Post validé !');
         toast.success(`✅ Post validé et ajouté au calendrier sur ${platformName} !`, { id: 'validate-post' });
         
         // Recharger les posts générés pour mettre à jour le statut
@@ -4236,12 +4242,14 @@ function MainApp() {
           await loadCalendarPosts();
         }
       } else {
+        alert('❌ Échec serveur : ' + (response.data?.message || 'Erreur inconnue'));
         throw new Error(response.data?.message || 'Erreur lors de la validation');
       }
       
     } catch (error) {
       console.error('❌ Error validating post:', error);
       const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      alert('❌ Erreur réseau : ' + errorMessage);
       toast.error(`Erreur lors de la validation: ${errorMessage}`, { id: 'validate-post' });
     }
   };

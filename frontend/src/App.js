@@ -434,30 +434,32 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
           
           {/* Badge plateforme */}
           <div className="absolute top-2 left-2 flex flex-col space-y-1">
-            {/* Bouton supprimer - TOUJOURS visible */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDeletePost && onDeletePost(post);
-              }}
-              className="w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
-              title="Supprimer ce post"
-            >
-              <Trash2 className="w-3 h-3" />
-            </button>
+            {/* Badge "Programmé" pour les posts validés */}
+            {post.validated ? (
+              <span className="bg-green-500 text-white text-xs px-3 py-2 rounded-full font-medium flex items-center space-x-1">
+                <Check className="w-3 h-3" />
+                <span>Programmé</span>
+              </span>
+            ) : (
+              <>
+                {/* Bouton supprimer - SEULEMENT si pas validé */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeletePost && onDeletePost(post);
+                  }}
+                  className="w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+                  title="Supprimer ce post"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </>
+            )}
             
             {/* Badge de plateforme */}
             <span className="bg-emerald-500 text-white text-xs px-2 py-1 rounded-full font-medium">
               {post.platform || 'Instagram'}
             </span>
-            
-            {/* Badge "Publié" - affiché seulement si le post a été publié */}
-            {post.published && (
-              <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium flex items-center space-x-1">
-                <Check className="w-2 h-2" />
-                <span>Publié</span>
-              </span>
-            )}
           </div>
           
           {/* Badge statut image */}

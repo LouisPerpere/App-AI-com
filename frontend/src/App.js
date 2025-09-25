@@ -1384,6 +1384,7 @@ function MainApp() {
   });
   const [calendarDate, setCalendarDate] = useState(new Date());
   const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
+  const [selectedCalendarPost, setSelectedCalendarPost] = useState(null);
 
   // Fonction pour charger les posts du calendrier
   const loadCalendarPosts = async (filters = {}) => {

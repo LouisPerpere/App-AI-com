@@ -774,13 +774,8 @@ const PostPreviewModal = ({
             <>
               <button
                 onClick={() => {
-                  alert('🔥 BOUTON CLIQUÉ !'); // Test 1 : le clic fonctionne-t-il ?
-                  alert('🔍 onValidate type: ' + typeof onValidate); // Test 2 : la fonction existe-t-elle ?
-                  if (typeof onValidate === 'function') {
-                    alert('✅ Appel de onValidate avec post'); // Test 3 : on va appeler la fonction
+                  if (onValidate) {
                     onValidate(post);
-                  } else {
-                    alert('❌ onValidate n\'est pas une fonction !'); // Test 4 : erreur
                   }
                 }}
                 className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"

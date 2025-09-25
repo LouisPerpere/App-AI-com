@@ -508,33 +508,21 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
                 <Clock className="w-3 h-3" />
               </button>
               
-              {/* Bouton Valider - Envoyer au calendrier - LOGS AGRESSIFS */}
+              {/* Bouton Valider - Envoyer au calendrier - FONCTIONNEL */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  
-                  // Logs agressifs pour debug
-                  alert('🔥 CLICK ! onValidatePost type: ' + typeof onValidatePost);
-                  
-                  if (typeof onValidatePost === 'function') {
-                    alert('✅ Function exists, calling with post ID: ' + post.id);
-                    try {
-                      const result = onValidatePost(post);
-                      alert('✅ Function called, result: ' + typeof result);
-                      if (result && typeof result.then === 'function') {
-                        result.catch(error => alert('❌ Promise error: ' + error.message));
-                      }
-                    } catch (error) {
-                      alert('❌ Sync error: ' + error.message);
-                    }
-                  } else {
-                    alert('❌ onValidatePost is not a function! Type: ' + typeof onValidatePost);
+                  if (onValidatePost) {
+                    onValidatePost(post);
                   }
                 }}
-                className="w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
-                title="DEBUG - Bouton de test"
+                className={`w-8 h-8 text-white rounded-full flex items-center justify-center transition-colors shadow-lg border-2 border-white ${
+                  post.validated ? 'bg-green-500 hover:bg-green-600' : 'bg-orange-500 hover:bg-orange-600'
+                }`}
+                title={post.validated ? "✅ Déjà validé" : "🚀 Valider et envoyer au calendrier"}
+                disabled={post.validated}
               >
-                <Calendar className="w-3 h-3" />
+                {post.validated ? <CheckCircleIcon className="w-4 h-4" /> : <Calendar className="w-4 h-4" />}
               </button>
               
               {/* Indicateur si déjà validé */}

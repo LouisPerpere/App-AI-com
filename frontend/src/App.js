@@ -9458,6 +9458,94 @@ function MainApp() {
           />
         )}
         
+        {/* Modal de modification date/heure - maintenant global */}
+        {showDateTimeModal && selectedPostForDateTime && (
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl max-w-md w-full p-6">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CalendarIcon className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Modifier date et heure du post
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Choisissez la nouvelle date et heure pour ce post.
+                </p>
+              </div>
+
+              {/* Sélection date */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Date :
+                </label>
+                <input
+                  type="date"
+                  value={newScheduleDate}
+                  onChange={(e) => setNewScheduleDate(e.target.value)}
+                  className={`w-full ${!isDateTimeValid(selectedPostForDateTime, newScheduleDate, newScheduleTime).dateValid 
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
+                    : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'} 
+                    p-3 rounded-lg transition-colors`}
+                  min={getDateLimitsForPost(selectedPostForDateTime).min}
+                  max={getDateLimitsForPost(selectedPostForDateTime).max}
+                />
+                {!isDateTimeValid(selectedPostForDateTime, newScheduleDate, newScheduleTime).dateValid && newScheduleDate && (
+                  <p className="text-red-500 text-xs mt-1">
+                    La date doit être entre le {
+                      new Date(getDateLimitsForPost(selectedPostForDateTime).min).toLocaleDateString('fr-FR')
+                    } et le {
+                      new Date(getDateLimitsForPost(selectedPostForDateTime).max).toLocaleDateString('fr-FR')
+                    }
+                  </p>
+                )}
+              </div>
+
+              {/* Sélection heure */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Heure :
+                </label>
+                <input
+                  type="time"
+                  value={newScheduleTime}
+                  onChange={(e) => setNewScheduleTime(e.target.value)}
+                  className={`w-full ${!isDateTimeValid(selectedPostForDateTime, newScheduleDate, newScheduleTime).timeValid 
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
+                    : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'} 
+                    p-3 rounded-lg transition-colors`}
+                />
+                {!isDateTimeValid(selectedPostForDateTime, newScheduleDate, newScheduleTime).timeValid && newScheduleTime && (
+                  <p className="text-red-500 text-xs mt-1">
+                    L'heure doit être dans le futur (minimum 10 minutes)
+                  </p>
+                )}
+              </div>
+
+              {/* Boutons */}
+              <div className="flex items-center justify-center space-x-3">
+                <button
+                  onClick={() => {
+                    setShowDateTimeModal(false);
+                    setSelectedPostForDateTime(null);
+                  }}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
+                >
+                  Annuler
+                </button>
+                
+                <button
+                  onClick={handleDateTimeSubmit}
+                  disabled={!isDateTimeValid(selectedPostForDateTime, newScheduleDate, newScheduleTime).valid}
+                  className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl disabled:transform-none"
+                >
+                  Confirmer
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {/* Modal de choix pour sauvegarder Pixabay */}
         {showPixabaySaveModal && selectedPixabayImage && (
           <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">

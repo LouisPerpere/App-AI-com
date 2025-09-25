@@ -512,33 +512,28 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
             </div>
           )}
           
-          {/* Badge date avec lien de modification - TOUJOURS visible */}
+          {/* Badge date - TOUJOURS visible */}
           <div className="absolute bottom-2 right-2 flex items-center space-x-1">
             <span className="bg-black/50 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
               {formatDate(post.scheduled_date)}
             </span>
-            {/* Bouton modifier date/heure - TOUJOURS visible */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onModifyDateTime && onModifyDateTime(post);
-              }}
-              className="w-7 h-7 bg-amber-500 hover:bg-amber-600 text-white rounded-full flex items-center justify-center transition-colors shadow-lg border border-white"
-              title="Modifier la date et l'heure"
-              style={{ zIndex: 10 }}
-            >
-              <Clock className="w-3.5 h-3.5" />
-            </button>
+            {/* Bouton modifier date/heure - SEULEMENT si pas validé */}
+            {!post.validated && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onModifyDateTime && onModifyDateTime(post);
+                }}
+                className="w-7 h-7 bg-amber-500 hover:bg-amber-600 text-white rounded-full flex items-center justify-center transition-colors shadow-lg border border-white"
+                title="Modifier la date et l'heure"
+                style={{ zIndex: 10 }}
+              >
+                <Clock className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
           
-          {/* Indicateur de statut du post */}
-          {post.validated && (
-            <div className="absolute top-2 right-2">
-              <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                ✅ Validé
-              </span>
-            </div>
-          )}
+          {/* Supprimer l'ancien indicateur de statut validé - remplacé par le badge "Programmé" */}
         </div>
         
         {/* Contenu */}

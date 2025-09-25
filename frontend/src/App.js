@@ -807,7 +807,7 @@ const PostPreviewModal = ({
                       <Loader2 className="w-4 h-4 animate-spin" />
                       <span>Validation...</span>
                     </>
-                  ) : (isValidated || post.validated) ? (
+                  ) : post.validated ? (
                     <>
                       <Check className="w-4 h-4" />
                       <span>Validé !</span>

@@ -2019,6 +2019,9 @@ async def get_generated_posts(user_id: str = Depends(get_current_user_id_robust)
                 "scheduled_date": post.get("scheduled_date", ""),
                 "status": post.get("status", "draft"),
                 "published": post.get("published", False),
+                "validated": post.get("validated", False),  # Include validated field
+                "validated_at": post.get("validated_at", ""),  # Include validated_at field
+                "carousel_images": post.get("carousel_images", []),  # Include carousel images
                 "created_at": post.get("created_at", ""),
                 "modified_at": post.get("modified_at", "")  # Include modified_at field
             })

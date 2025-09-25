@@ -3738,6 +3738,20 @@ function MainApp() {
       if (error.code === 'ECONNABORTED') {
         errorMessage = 'Timeout: La requête a pris trop de temps';
       } else if (error.response?.status === 401) {
+        errorMessage = 'Session expirée, veuillez vous reconnecter';
+      } else if (error.response?.status === 404) {
+        errorMessage = 'Post non trouvé';
+      } else if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
+      setIsModifyingPost(false);
+      return false;
+    }
+  };
 
   // Générer la liste des mois organisée comme la bibliothèque
   const generateMonthsList = () => {

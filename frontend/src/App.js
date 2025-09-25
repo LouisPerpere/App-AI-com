@@ -508,22 +508,7 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
                 <Clock className="w-3 h-3" />
               </button>
               
-              {/* Bouton Valider - Envoyer au calendrier - FONCTIONNEL */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (onValidatePost) {
-                    onValidatePost(post);
-                  }
-                }}
-                className={`w-8 h-8 text-white rounded-full flex items-center justify-center transition-colors shadow-lg border-2 border-white ${
-                  post.validated ? 'bg-green-500 hover:bg-green-600' : 'bg-orange-500 hover:bg-orange-600'
-                }`}
-                title={post.validated ? "✅ Déjà validé" : "🚀 Valider et envoyer au calendrier"}
-                disabled={post.validated}
-              >
-                {post.validated ? <CheckCircleIcon className="w-4 h-4" /> : <Calendar className="w-4 h-4" />}
-              </button>
+              {/* Bouton Valider supprimé - maintenant uniquement dans la modal */}
               
               {/* Indicateur si déjà validé */}
               {post.validated && (

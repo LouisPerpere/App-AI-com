@@ -4,7 +4,7 @@ DIAGNOSTIC MODULE ANALYSE DE SITE WEB - Backend Testing
 Testing the website analysis system that "mouline dans le vide" (spins endlessly)
 
 Focus: Identify where the website analysis gets stuck and why it never completes
-URL: https://instamanager-1.preview.emergentagent.com/api
+URL: https://post-validator.preview.emergentagent.com/api
 Credentials: lperpere@yahoo.fr / L@Reunion974!
 """
 
@@ -15,7 +15,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://instamanager-1.preview.emergentagent.com/api"
+BASE_URL = "https://post-validator.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

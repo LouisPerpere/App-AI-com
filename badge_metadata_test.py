@@ -13,7 +13,7 @@ Test 2: Vérifier upload avec métadonnées post
 Test 3: Vérifier endpoint attach-image pour uploads
 Test 4: Vérifier cohérence GET /api/posts/generated
 
-Backend URL: https://instamanager-1.preview.emergentagent.com/api
+Backend URL: https://post-validator.preview.emergentagent.com/api
 Credentials: lperpere@yahoo.fr / L@Reunion974!
 """
 
@@ -24,7 +24,7 @@ from datetime import datetime
 import uuid
 
 # Configuration
-BASE_URL = "https://instamanager-1.preview.emergentagent.com/api"
+BASE_URL = "https://post-validator.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

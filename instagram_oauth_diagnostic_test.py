@@ -5,7 +5,7 @@ Instagram OAuth Configuration Diagnostic Test
 
 Test la configuration Instagram OAuth pour identifier le problème "Invalid platform app"
 Credentials: lperpere@yahoo.fr / L@Reunion974!
-Backend: https://instamanager-1.preview.emergentagent.com/api
+Backend: https://post-validator.preview.emergentagent.com/api
 
 PROBLÈME IDENTIFIÉ: L'erreur "Invalid platform app" suggère que l'application Facebook 
 (ID: 1115451684022643) n'est pas configurée correctement pour Instagram Basic Display API 
@@ -19,7 +19,7 @@ from urllib.parse import urlparse, parse_qs
 import os
 
 # Configuration
-BACKEND_URL = "https://instamanager-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://post-validator.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 
@@ -145,7 +145,7 @@ class InstagramOAuthDiagnostic:
                 print(f"         Reçu: {client_id}")
             
             # 2. Vérifier l'URL de redirection
-            expected_redirect = "https://instamanager-1.preview.emergentagent.com/api/social/instagram/callback"
+            expected_redirect = "https://post-validator.preview.emergentagent.com/api/social/instagram/callback"
             if redirect_uri == expected_redirect:
                 print(f"      ✅ Redirect URI correct")
             else:
@@ -200,8 +200,8 @@ class InstagramOAuthDiagnostic:
         # Informations sur la configuration Facebook
         print(f"\n   📋 CONFIGURATION FACEBOOK DÉTECTÉE:")
         print(f"      🆔 FACEBOOK_APP_ID: 1115451684022643")
-        print(f"      🔄 FACEBOOK_REDIRECT_URI: https://instamanager-1.preview.emergentagent.com/auth/facebook/callback")
-        print(f"      🎯 Instagram Redirect URI: https://instamanager-1.preview.emergentagent.com/api/social/instagram/callback")
+        print(f"      🔄 FACEBOOK_REDIRECT_URI: https://post-validator.preview.emergentagent.com/auth/facebook/callback")
+        print(f"      🎯 Instagram Redirect URI: https://post-validator.preview.emergentagent.com/api/social/instagram/callback")
         
         print(f"\n   ⚠️ PROBLÈMES POTENTIELS IDENTIFIÉS:")
         print(f"      1. L'application Facebook (1115451684022643) doit être configurée pour Instagram Basic Display API")
@@ -253,7 +253,7 @@ class InstagramOAuthDiagnostic:
         print(f"      2. Sélectionner l'application ID: 1115451684022643")
         print(f"      3. Ajouter le produit 'Instagram Basic Display'")
         print(f"      4. Configurer les URLs de redirection Instagram:")
-        print(f"         - https://instamanager-1.preview.emergentagent.com/api/social/instagram/callback")
+        print(f"         - https://post-validator.preview.emergentagent.com/api/social/instagram/callback")
         print(f"      5. Vérifier que les permissions sont activées:")
         print(f"         - instagram_graph_user_profile")
         print(f"         - instagram_graph_user_media")

@@ -9,7 +9,7 @@ CONTEXTE:
 - Conversion automatique month_key → target_month ("janvier_2025")
 - Compatibilité backward maintenue
 
-URL DE TEST: https://instamanager-1.preview.emergentagent.com/api
+URL DE TEST: https://post-validator.preview.emergentagent.com/api
 CREDENTIALS: lperpere@yahoo.fr / L@Reunion974!
 """
 
@@ -19,7 +19,7 @@ import time
 from datetime import datetime
 
 # Configuration from review request
-BACKEND_URL = "https://instamanager-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://post-validator.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"
@@ -361,7 +361,7 @@ This script tests the post generation system as requested:
 6. Business profile + notes integration
 
 Using credentials: lperpere@yahoo.fr / L@Reunion974!
-Backend URL: https://instamanager-1.preview.emergentagent.com/api
+Backend URL: https://post-validator.preview.emergentagent.com/api
 """
 
 import requests
@@ -371,7 +371,7 @@ from datetime import datetime
 from typing import Dict, List, Any
 
 # Configuration
-BACKEND_URL = "https://instamanager-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://post-validator.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 

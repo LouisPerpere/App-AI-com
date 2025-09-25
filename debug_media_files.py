@@ -8,7 +8,7 @@ import requests
 from database import get_database
 
 # Configuration
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://instamanager-1.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://post-validator.preview.emergentagent.com')
 API_BASE = f"{BACKEND_URL}/api"
 UPLOADS_DIR = "/app/backend/uploads"
 

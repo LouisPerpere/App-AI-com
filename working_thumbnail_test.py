@@ -13,7 +13,7 @@ from io import BytesIO
 from PIL import Image
 
 # Configuration
-BACKEND_URL = "https://instamanager-1.preview.emergentagent.com"
+BACKEND_URL = "https://post-validator.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request

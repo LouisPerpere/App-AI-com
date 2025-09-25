@@ -2520,7 +2520,7 @@ async def get_facebook_auth_url(user_id: str = Depends(get_current_user_id_robus
         if not facebook_app_id:
             raise HTTPException(status_code=500, detail="FACEBOOK_APP_ID non configuré")
         
-        redirect_uri = os.environ.get('FACEBOOK_REDIRECT_URI', 'https://instamanager-1.preview.emergentagent.com/api/social/facebook/callback')
+        redirect_uri = os.environ.get('FACEBOOK_REDIRECT_URI', 'https://post-validator.preview.emergentagent.com/api/social/facebook/callback')
         
         # Générer un état sécurisé pour CSRF protection
         import secrets
@@ -2567,7 +2567,7 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         if not facebook_app_id:
             raise HTTPException(status_code=500, detail="FACEBOOK_APP_ID non configuré")
         
-        redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://instamanager-1.preview.emergentagent.com/api/social/instagram/callback')
+        redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://post-validator.preview.emergentagent.com/api/social/instagram/callback')
         
         # Générer un état sécurisé pour CSRF protection
         import secrets

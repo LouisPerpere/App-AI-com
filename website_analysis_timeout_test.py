@@ -10,7 +10,7 @@ CORRECTIONS APPLIQUÉES:
 4. Meilleure gestion d'erreurs avec codes HTTP appropriés
 5. Indicateurs de progression améliorés
 
-URL: https://instamanager-1.preview.emergentagent.com/api
+URL: https://post-validator.preview.emergentagent.com/api
 Credentials: lperpere@yahoo.fr / L@Reunion974!
 """
 
@@ -21,7 +21,7 @@ import sys
 from datetime import datetime
 
 # Configuration from review request
-BASE_URL = "https://instamanager-1.preview.emergentagent.com/api"
+BASE_URL = "https://post-validator.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

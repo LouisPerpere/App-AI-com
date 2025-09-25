@@ -1,79 +1,71 @@
 <analysis>
-The AI engineer's work primarily focused on stabilizing core application functionalities like social media integrations and content management, while iteratively implementing new features. Initial efforts resolved Facebook/Instagram OAuth conflicts, persistent URL bloquée errors, and phantom posts through dedicated s, correct redirect URIs, and persistent connection saving. A major effort addressed the 0/22 items displayed in the media library, diagnosing and fixing obsolete media URLs, authentication issues (missing bearer tokens), and critical React timing errors. Post-generation logic was enhanced with proportional calculation and platform-specific usage marking. An attempt to implement a full calendar UI and manual scheduling led to compilation errors, prompting a rollback to a stable state. The trajectory concludes with the AI re-addressing the Valider button's behavior and the manual date/time modification feature, focusing on a more modular implementation without the full calendar.
+The previous AI engineer's work involved an iterative process of feature implementation, debugging, and refinement. Key achievements included establishing initial social media integrations, fixing persistent authentication and content display issues, and enhancing post generation logic. A significant portion of the trajectory focused on developing a manual date/time modification feature for posts, including a modern UI and backend endpoint, followed by extensive debugging of button functionality and state management. The Valider button's behavior was a recurring challenge, evolving from simple validation to requiring full integration with a calendar, visual feedback, and persistent state. Backend issues (e.g.,  vs ) were diagnosed and resolved by a sub-agent. The work culminated in the user requesting a read-only mode for validated posts, leading to the removal of modification options and introduction of status badges. The engineer meticulously used debug alerts and screenshots, adapting to user feedback for a stable and intuitive application.
 </analysis>
 
 <product_requirements>
-The Claire et Marcus PWA aims to automate social media content, generating Instagram calendars with AI visuals/text using business profiles, website analysis, user uploads, and notes. Key features include post modification, diverse visuals, carousel support, and monthly content sections. Initial fixes addressed Instagram integration, migration to Facebook Login for Business, photo management, and OpenAI/Claude LLM integration. Subsequent requests involved fixing connecté undefined, phantom posts, incorrect generation month, adding a post delete button, resolving image display issues (grey placeholder), and debugging Facebook/Instagram authentication errors (Invalid Scopes, URL bloquée). The user provided dedicated Facebook and Instagram Config IDs. Later, requests included refining post generation (proportional, next-day scheduling, last-day blocking, per-network generation), an intelligent calendar UI with post validation and filters, and manual date/time modification for posts.
+The Claire et Marcus PWA automates social media content generation using AI visuals/text, business profiles, website analysis, user uploads, and notes. Initially, the core problem involved stabilizing Instagram integration, migrating to Facebook Login for Business, fixing content management issues (e.g., 0/22 items displayed, URL bloquée, phantom posts), and integrating LLMs. Subsequent requirements focused on:
+- Refining post generation (proportional, next-day scheduling, per-network generation).
+- Implementing manual date/time modification for posts via a popup with a calendar and spinners, with specific limits (min 10 min after now, max end of next month), later clarified to be based on the post's attributed month.
+- Enhancing the Valider button: remove social network selection popup, use post's date/time, provide visual validation feedback (red for invalid, spinner, Validé! state).
+- Improving the calendar UI: clear filter labels, condensed statistics, correct layout, and the ability to view, move, and cancel scheduled posts directly from the calendar.
+- Forcing a read-only mode for validated posts: all modification functions/buttons (in both the post thumbnail and preview modal) should be disabled or removed and replaced by a Programmé badge.
 </product_requirements>
 
 <key_technical_concepts>
 - **Full-stack Development**: React.js (Frontend), FastAPI (Backend), MongoDB (Database).
-- **LLM Integration**: OpenAI GPT-4o, Anthropic Claude Sonnet 4.
-- **Authentication/Authorization**: OAuth 2.0 (Facebook Login for Business, Instagram Graph API), JWT tokens.
-- **Data Management**: MongoDB collections (social_connections, publication_calendar), GridFS, environment variables ().
-- **Deployment**: Kubernetes Ingress rules, supervisor, , .
+- **Authentication**: OAuth 2.0 (Facebook/Instagram Graph API), JWT tokens.
+- **State Management**: React , , .
+- **UI Components**: Modals, , , toast notifications.
+- **API Interaction**: Fetching and posting data to FastAPI endpoints.
+- **Deployment**: Supervisor (for service control), Kubernetes Ingress rules.
 </key_technical_concepts>
 
 <code_architecture>
 
--   ****: Main FastAPI application.
-    -   **Importance**: Orchestrates all backend interactions, API routes, authentication, and social media callbacks.
-    -   **Changes Made**:
-        -   Facebook/Instagram OAuth logic: Separated  usage, updated to dedicated  and .
-        -   Facebook callback: Modified to persist user social connections in MongoDB.
-        -   Media handling:  endpoint updated to fix obsolete image URLs ( to ) and include platform-specific usage data.
-        -   Post generation:  modified to accept connected platforms, calculate proportional posts based on remaining days, and schedule posts from the day after generation.
-        -   Debug endpoints: Added , , , , , . Most were temporary and later removed.
-        -   Temporal  added for frontend debugging.
--   ****: Manages AI-driven social media post generation.
-    -   **Importance**: Generates tailored posts using LLMs.
-    -   **Changes Made**:
-        -   : Updated to accept  and use them in post generation logic.
-        -   : Modified to mark media usage per social media platform.
-        -   : Modified to schedule posts from the day *after* generation, instead of the 1st of the month.
--   ****: Stores backend environment variables.
-    -   **Importance**: Critical for configuration (DB URL, API keys, redirect URIs).
-    -   **Changes Made**:  and  were introduced.  was temporarily switched between  and  to align with Facebook Developer Console.
--   ****: Main React component.
-    -   **Importance**: Manages UI state, renders posts, handles user interactions like social connection and image upload.
-    -   **Changes Made**:
-        -   Image display:  updated to ensure authentication token is sent correctly, and  variable is correctly populated.
-        -   Critical bug fix:  calling  moved after function definition to resolve  error.
-        -   Post generation:  modified to check for connected networks and display popups.
-        -   Media display: Replaced general used check with platform-specific badges.
-        -    in  was adjusted to match backend's expectations for different environments.
-        -   *Temporary changes for calendar and manual scheduling were rolled back.*
-        -    modified to add a button for manual date/time modification.
--   ****: Stores frontend environment variables.
-    -   **Importance**: Critical for backend URL configuration.
-    -   **Changes Made**:  was modified multiple times to address connectivity issues and align with Facebook's domain restrictions, eventually pointing to , then temporarily to , and finally back to  (as of the last consistent state).
-
+- ****: Main FastAPI application.
+    - **Importance**: Handles all backend logic, API routes, and database interactions.
+    - **Changes Made**:
+        - Added  to update post's scheduled date/time.
+        - Created  to move a post in the calendar.
+        - Created  to remove a post from the calendar and revert its status.
+        - Corrected a bug in  where it was querying by  instead of  in MongoDB.
+        - The  endpoint now updates the original post's  status in the database.
+- ****: Main React component.
+    - **Importance**: Manages frontend UI, state, and user interactions. Contains  and  components.
+    - **Changes Made**:
+        - : Modified to remove popup for social network selection, ensure correct  object is passed, and update post's  state locally. Added spinner and  status.
+        - : Updated to use a modern modal with  and , replacing . Integrated  for month-based date range validation.
+        -  component: Added a button (initially amber, later green/orange based on validation) for manual date/time modification, which dynamically calculates date limits based on . Logic to hide/show buttons based on  state was continuously refined, eventually leading to full removal/replacement for validated posts.
+        -  component: Modified to pass the correct  object to  handler. Conditioned buttons (Valider, Déplacer, Annuler) based on  and  states. Updated to a read-only view for validated posts.
+        - Calendar UI: Redesigned the calendar tab to condense statistics, clarify filter labels (Tous réseaux, Tous statuts), and organize controls.
+        - Calendar posts: Made clickable to open , passed  prop.
+        - Added various temporary debug alerts and visual indicators (red buttons, red badges, debug modals) throughout the development process to diagnose issues.
 </code_architecture>
 
 <pending_tasks>
-- Fully implement the scheduling system for automated publications (after rollback).
-- Implement the analytics dashboard for published posts.
+- Fully implement the analytics dashboard for published posts.
 - Diagnose and fix carousel deletion (if still present).
 - Diagnose and fix recurring photo modification issue (blue question mark).
 - Work with infrastructure team to resolve any remaining external proxy/cache issues.
 - Finalize carousel display logic (grey placeholder instead of first image).
 - Continue to apply and verify all corrections on the LIVE environment.
-- Re-implement the manual date/time modification feature for posts in a stable manner.
+- Ensure the Valider button's state persists correctly (it reverts to Valider when modal is closed/reopened).
+- Ensure calendar posts are consistently clickable to open the modal without needing to click other tabs first.
 </pending_tasks>
 
 <current_work>
-Immediately prior to this summary, the AI engineer had successfully restored the application to a stable state after encountering critical compilation errors () during the implementation of a comprehensive calendar UI and manual scheduling feature. The problematic code for the calendar UI and manual scheduling was reverted using a HEAD is now at 85fd8f79 auto-commit for e4ee7228-3fbd-4396-a763-54357d8a3eae to a previously stable commit ().
+Immediately prior to this summary, the AI engineer was addressing a user request for a read-only mode for validated posts. The user reported issues with the Valider button's state not persisting and calendar posts not being consistently clickable to open the preview modal.
 
-The user confirmed that the application was working well again, with Facebook and Instagram connections functional, the media library displaying content, and post generation logic (proportional, next-day scheduling) operational.
+The AI engineer's current work involves:
+1.  **Implementing Read-Only Mode for Validated Posts**: This involves modifying frontend components to disable or remove all modification functionalities for posts that have been marked as .
+    *   ****:
+        *   ****: The engineer is in the process of removing all action buttons (edit image, edit text, delete) and date modification buttons when  is true. These are being replaced with a simple Programmé badge. (Chat Message 362-374)
+        *   ****: The engineer has replaced the entire Actions section in the modal with a simplified read-only view, displaying only the title, text, image, scheduled date/time, and a Programmé label when  is true. (Chat Message 375-376)
+2.  **Addressing Persistent Issues**: While implementing the read-only mode, the engineer noted that the previous issues of the Valider button reverting state and calendar posts not opening the modal were still present. The engineer added a very visible  to diagnose these persistent modal rendering issues for calendar posts. (Chat Message 353-355, 359)
 
-The user's most recent request was to refine the Valider button behavior, specifically:
-1.  Remove the popup that asks to choose a social network, as the post already specifies the network.
-2.  Ensure the Valider function considers the post's date and time for scheduling.
-3.  Re-add a function to manually modify the publication date and time on each post, without involving AI.
-
-The AI engineer's current actions involve addressing these three points. The last action taken was to begin adding a button for manual date/time modification within the  component in .
+The trajectory ends with the implementation of the read-only mode in progress, specifically the removal of buttons and adjustment of the modal's content for validated posts.
 </current_work>
 
 <optional_next_step>
-Complete the implementation of the button for manual date/time modification in the  component in .
+Remove the temporary  and confirm the complete implementation of the read-only mode for validated posts.
 </optional_next_step>

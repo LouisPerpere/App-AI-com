@@ -8,7 +8,7 @@ URGENT DATA MIGRATION: Migrate ALL user data from preview database to production
 MISSION: Complete data migration from preview to production environment.
 
 **Source Environment (Preview):**
-- URL: https://instamanager-1.preview.emergentagent.com/api
+- URL: https://post-validator.preview.emergentagent.com/api
 - User ID: bdf87a74-e3f3-44f3-bac2-649cde3ef93e
 - Contains: Complete "My Own Watch" business profile, 19 content items, 2 notes, 4 posts
 
@@ -44,7 +44,7 @@ import time
 
 class DataMigrationTester:
     def __init__(self):
-        self.preview_base_url = "https://instamanager-1.preview.emergentagent.com/api"
+        self.preview_base_url = "https://post-validator.preview.emergentagent.com/api"
         self.production_base_url = "https://claire-marcus-pwa-1.emergent.host/api"
         self.email = "lperpere@yahoo.fr"
         self.password = "L@Reunion974!"

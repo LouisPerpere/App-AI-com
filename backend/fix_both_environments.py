@@ -21,7 +21,7 @@ class EnvironmentFixer:
         # Configuration des environnements
         self.environments = {
             'preview': {
-                'url': 'https://instamanager-1.preview.emergentagent.com',
+                'url': 'https://post-validator.preview.emergentagent.com',
                 'mongo_url': 'mongodb://localhost:27017/claire_marcus'  # Local MongoDB pour preview
             },
             'live': {

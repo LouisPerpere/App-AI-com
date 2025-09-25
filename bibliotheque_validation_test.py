@@ -25,7 +25,7 @@ import uuid
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://instamanager-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://post-validator.preview.emergentagent.com/api"
 TEST_USER_EMAIL = "lperpere@yahoo.fr"
 TEST_USER_PASSWORD = "L@Reunion974!"
 EXPECTED_FILE_COUNT = 40  # After cleanup (actual current state)

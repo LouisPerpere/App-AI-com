@@ -11,7 +11,7 @@ Ce script teste:
 4. Pixabay Integration avec save_type et attributed_month
 
 Credentials: lperpere@yahoo.fr / L@Reunion974!
-Backend: https://instamanager-1.preview.emergentagent.com/api
+Backend: https://post-validator.preview.emergentagent.com/api
 """
 
 import requests
@@ -22,7 +22,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://instamanager-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://post-validator.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 

@@ -8,7 +8,7 @@ CRITICAL FIXES TO VALIDATE:
 2. ✅ Date calculation: 7 days → 30 days (1 month)
 3. ✅ Missing dates: Added created_at, updated_at, next_analysis_due
 
-URL: https://instamanager-1.preview.emergentagent.com/api
+URL: https://post-validator.preview.emergentagent.com/api
 Credentials: lperpere@yahoo.fr / L@Reunion974!
 """
 
@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 from dateutil import parser
 
 # Configuration
-BASE_URL = "https://instamanager-1.preview.emergentagent.com/api"
+BASE_URL = "https://post-validator.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 TEST_URL = "https://myownwatch.fr"

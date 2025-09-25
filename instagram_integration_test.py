@@ -28,7 +28,7 @@ ACCESS_TOKEN = "EAAP2f1Vj6XMBPbsv5Dqs3aeN4vIVuAkFPcuqDqN0CrZBeszwhHaAmU83xLMEddv
 GRAPH_API_BASE = "https://graph.facebook.com/v21.0"
 
 # Configuration backend
-BACKEND_URL = os.getenv('REACT_APP_BACKEND_URL', 'https://instamanager-1.preview.emergentagent.com')
+BACKEND_URL = os.getenv('REACT_APP_BACKEND_URL', 'https://post-validator.preview.emergentagent.com')
 BACKEND_API_URL = f"{BACKEND_URL}/api"
 
 # Configuration Facebook depuis .env

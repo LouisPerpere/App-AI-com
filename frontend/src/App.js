@@ -8569,13 +8569,14 @@ function MainApp() {
                                     {dayPosts.slice(0, 3).map((post, idx) => (
                                       <div
                                         key={idx}
+                                        onClick={() => setSelectedCalendarPost(post)}
                                         className={`
-                                          text-xs p-1 rounded truncate cursor-pointer
-                                          ${post.platform === 'facebook' ? 'bg-blue-100 text-blue-800' : ''}
-                                          ${post.platform === 'instagram' ? 'bg-pink-100 text-pink-800' : ''}
-                                          ${post.platform === 'linkedin' ? 'bg-blue-100 text-blue-900' : ''}
+                                          text-xs p-1 rounded truncate cursor-pointer hover:opacity-80 transition-opacity
+                                          ${post.platform === 'facebook' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : ''}
+                                          ${post.platform === 'instagram' ? 'bg-pink-100 text-pink-800 hover:bg-pink-200' : ''}
+                                          ${post.platform === 'linkedin' ? 'bg-blue-100 text-blue-900 hover:bg-blue-200' : ''}
                                         `}
-                                        title={`${post.platform}: ${post.text?.slice(0, 50) || 'Post'}...`}
+                                        title={`Cliquer pour voir : ${post.platform}: ${post.text?.slice(0, 50) || 'Post'}...`}
                                       >
                                         {post.platform === 'facebook' && '📘'}
                                         {post.platform === 'instagram' && '📷'}

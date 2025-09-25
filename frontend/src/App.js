@@ -792,7 +792,7 @@ const PostPreviewModal = ({
                     setIsValidating(false);
                   }
                 }}
-                disabled={isValidating || isValidated || post.validated}
+                disabled={isValidating || post.validated}
                 className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl ${
                   (isValidated || post.validated)
                     ? 'bg-green-600 text-white cursor-not-allowed' 

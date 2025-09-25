@@ -583,6 +583,7 @@ const PostPreviewModal = ({
   const [showModificationForm, setShowModificationForm] = useState(false);
   const [modificationRequest, setModificationRequest] = useState('');
   const [isValidating, setIsValidating] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false); // Nouvel état pour confirmation suppression
   // Supprimer isValidated - on utilise directement post.validated
   const [showScheduleForm, setShowScheduleForm] = useState(false);
   const [newScheduledDate, setNewScheduledDate] = useState('');

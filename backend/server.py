@@ -1543,7 +1543,7 @@ async def validate_post_to_calendar(
         # Find the original post
         original_post = dbm.db.generated_posts.find_one({
             "id": post_id,
-            "user_id": user_id
+            "owner_id": user_id
         })
         
         if not original_post:

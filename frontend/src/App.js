@@ -1713,7 +1713,7 @@ function MainApp() {
         params.append('platform', platformFilter);
       }
 
-      const response = await axios.get(`${API}/posts/calendar?${params}`, {
+      const response = await axios.get(`${API}/calendar/posts?${params}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

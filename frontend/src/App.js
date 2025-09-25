@@ -764,7 +764,7 @@ const PostPreviewModal = ({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-center space-x-4">
+        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
           {post.validated ? (
             /* Mode lecture seule pour les posts validés */
             <div className="text-center">
@@ -791,12 +791,12 @@ const PostPreviewModal = ({
             <>
               {/* Interface spécifique pour les posts du calendrier */}
               {isFromCalendar ? (
-                <>
+                <div className="flex items-center justify-center space-x-2">
                   <button
                     onClick={() => setShowModificationForm(true)}
-                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl text-sm"
+                    className="flex-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg text-sm"
                   >
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center justify-center space-x-1">
                       <Edit className="w-4 h-4" />
                       <span>Modifier</span>
                     </div>
@@ -804,9 +804,9 @@ const PostPreviewModal = ({
                   
                   <button
                     onClick={() => onMovePost && onMovePost(post)}
-                    className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl text-sm"
+                    className="flex-1 px-3 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg text-sm"
                   >
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center justify-center space-x-1">
                       <Clock className="w-4 h-4" />
                       <span>Déplacer</span>
                     </div>
@@ -814,17 +814,17 @@ const PostPreviewModal = ({
                   
                   <button
                     onClick={() => setShowDeleteConfirmation(true)}
-                    className="px-4 py-2 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl text-sm"
+                    className="flex-1 px-3 py-2 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg text-sm"
                   >
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center justify-center space-x-1">
                       <Trash2 className="w-4 h-4" />
                       <span>Supprimer</span>
                     </div>
                   </button>
-                </>
+                </div>
               ) : (
                 /* Interface pour les posts normaux (onglet Posts) */
-                <>
+                <div className="flex items-center justify-center space-x-4">
                   <button
                     onClick={() => setShowModificationForm(true)}
                     className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
@@ -879,7 +879,7 @@ const PostPreviewModal = ({
                       )}
                     </div>
                   </button>
-                </>
+                </div>
               )}
             </>
           )}

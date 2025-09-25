@@ -3663,6 +3663,82 @@ function MainApp() {
     // Note: setIsModifyingPost(false) n'est pas appelé en cas de succès car on recharge la page
   };
 
+  // Nouvelle fonction pour modifier les posts du calendrier sans recharger la page
+  const handleModifyCalendarPost = async (post, modificationRequestValue, modificationType = 'content') => {
+    if (!modificationRequestValue?.trim()) {
+      toast.error('Veuillez saisir une demande de modification');
+      return;
+    }
+
+    if (!post?.id) {
+      toast.error('Erreur: ID du post manquant');
+      return;
+    }
+
+    setIsModifyingPost(true);
+    const token = localStorage.getItem('access_token');
+
+    if (!token) {
+      toast.error('Session expirée, veuillez vous reconnecter');
+      setIsModifyingPost(false);
+      return;
+    }
+
+    try {
+      console.log(`🔄 Modification du post calendrier ${post.id}:`, modificationRequestValue.trim());
+      
+      const response = await axios.put(
+        `${API}/posts/${post.id}/modify`,
+        { modification_request: modificationRequestValue.trim() },
+        { 
+          headers: { Authorization: `Bearer ${token}` },
+          timeout: 30000
+        }
+      );
+
+      console.log('📡 Réponse du serveur:', response.data);
+
+      if (response.data?.success) {
+        toast.success('✅ Post modifié avec succès !');
+        
+        // Mettre à jour le post local avec les nouvelles données
+        const updatedPost = {
+          ...post,
+          text: response.data.post?.text || post.text,
+          title: response.data.post?.title || post.title,
+          hashtags: response.data.post?.hashtags || post.hashtags,
+          modified_at: new Date().toISOString()
+        };
+
+        // Mettre à jour selectedCalendarPost si c'est le post actuel
+        if (selectedCalendarPost?.id === post.id) {
+          setSelectedCalendarPost(updatedPost);
+        }
+        
+        // Recharger les données du calendrier et des posts
+        await loadCalendarPosts();
+        await loadGeneratedPosts();
+        
+        // Fermer le formulaire de modification
+        if (modificationRequestRef.current) {
+          modificationRequestRef.current.value = '';
+        }
+        
+        return true;
+      } else {
+        toast.error('❌ Erreur: Réponse invalide du serveur');
+        return false;
+      }
+      
+    } catch (error) {
+      console.error('❌ Erreur lors de la modification du post calendrier:', error);
+      
+      let errorMessage = 'Erreur lors de la modification du post';
+      
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = 'Timeout: La requête a pris trop de temps';
+      } else if (error.response?.status === 401) {
+
   // Générer la liste des mois organisée comme la bibliothèque
   const generateMonthsList = () => {
     const currentDate = new Date();

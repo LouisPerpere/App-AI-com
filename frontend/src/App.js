@@ -780,7 +780,7 @@ const PostPreviewModal = ({
             <>
               <button
                 onClick={async () => {
-                  if (isValidating || isValidated) return;
+                  if (isValidating || post.validated) return;
                   
                   setIsValidating(true);
                   try {

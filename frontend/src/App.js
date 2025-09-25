@@ -471,8 +471,8 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
             </div>
           )}
           
-          {/* Boutons d'action pour posts avec images */}
-          {hasImage && (
+          {/* Boutons d'action - SEULEMENT si pas validé */}
+          {hasImage && !post.validated && (
             <div className="absolute top-2 right-2 flex space-x-1">
               {/* Bouton modifier image */}
               <button
@@ -509,15 +509,6 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
               >
                 <Clock className="w-3 h-3" />
               </button>
-              
-              {/* Bouton Valider supprimé - maintenant uniquement dans la modal */}
-              
-              {/* Indicateur si déjà validé */}
-              {post.validated && (
-                <div className="w-7 h-7 bg-green-500 text-white rounded-full flex items-center justify-center shadow-md" title="Envoyé au calendrier">
-                  <Check className="w-3 h-3" />
-                </div>
-              )}
             </div>
           )}
           

@@ -633,67 +633,69 @@ const PostPreviewModal = ({
   const handleModifySubmit = async () => {
     console.log('🔥 DEBUG: handleModifySubmit appelée');
     
-    // Essayer plusieurs méthodes pour récupérer la valeur
+    // Approche complètement différente : récupérer directement la valeur du textarea actuel
     let modificationValue = '';
     
-    // Méthode 1: État React
-    if (modificationTextValue && modificationTextValue.trim()) {
-      modificationValue = modificationTextValue.trim();
-      console.log('🔥 DEBUG: Valeur récupérée via état React:', modificationValue);
+    // Trouver le textarea dans le DOM
+    const textareas = document.querySelectorAll('textarea');
+    const modificationTextarea = Array.from(textareas).find(textarea => 
+      textarea.placeholder && textarea.placeholder.includes('modifier ce post')
+    );
+    
+    if (modificationTextarea && modificationTextarea.value && modificationTextarea.value.trim()) {
+      modificationValue = modificationTextarea.value.trim();
+      console.log('🔥 DEBUG: Valeur trouvée dans DOM textarea:', modificationValue);
+    } else {
+      // Fallback sur les méthodes précédentes
+      modificationValue = modificationTextValue || modificationRequestRef.current?.value || '';
+      console.log('🔥 DEBUG: Fallback sur état/ref:', modificationValue);
     }
     
-    // Méthode 2: Référence directe
-    else if (modificationRequestRef.current && modificationRequestRef.current.value && modificationRequestRef.current.value.trim()) {
-      modificationValue = modificationRequestRef.current.value.trim();
-      console.log('🔥 DEBUG: Valeur récupérée via ref:', modificationValue);
-    }
+    console.log('🔥 DEBUG: modificationValue final =', `"${modificationValue}"`);
+    console.log('🔥 DEBUG: longueur =', modificationValue.length);
     
-    // Méthode 3: Sélecteur DOM direct en dernier recours
-    else {
-      const textarea = document.querySelector('textarea[placeholder*="modifier ce post"]');
-      if (textarea && textarea.value && textarea.value.trim()) {
-        modificationValue = textarea.value.trim();
-        console.log('🔥 DEBUG: Valeur récupérée via DOM:', modificationValue);
-      }
-    }
-    
-    console.log('🔥 DEBUG: modificationValue final =', modificationValue);
-    console.log('🔥 DEBUG: modificationTextValue état =', modificationTextValue);
-    console.log('🔥 DEBUG: ref.current.value =', modificationRequestRef.current?.value);
-    
-    if (!modificationValue) {
-      console.log('🔥 DEBUG: Pas de valeur de modification');
+    if (!modificationValue || modificationValue.length === 0) {
+      console.log('🔥 DEBUG: Aucune valeur trouvée - abandon');
       toast.error('Veuillez saisir une demande de modification');
       return;
     }
 
-    // Appeler l'IA pour obtenir le nouveau contenu
+    // Désactiver le bouton pendant le traitement
+    setIsModifying ? setIsModifying(true) : null;
+    
     try {
-      console.log('🔥 DEBUG: Appel onModify avec', { post: post.id, modificationValue });
+      console.log('🔥 DEBUG: Appel onModify avec post.id =', post.id);
+      console.log('🔥 DEBUG: Valeur envoyée =', `"${modificationValue}"`);
+      
       const result = await onModify(post, modificationValue, 'content');
       console.log('🔥 DEBUG: Résultat onModify =', result);
       
       if (result && result.success && result.modifiedPost) {
-        console.log('🔥 DEBUG: Affichage aperçu modification');
+        console.log('🔥 DEBUG: Succès - affichage aperçu modification');
+        console.log('🔥 DEBUG: Nouveau contenu reçu =', result.modifiedPost);
+        
         // Stocker le nouveau contenu et montrer l'aperçu
         setModifiedPostData(result.modifiedPost);
         setShowModificationForm(false);
         setShowModificationPreview(true);
+        
         // Vider le textarea après succès
+        if (modificationTextarea) {
+          modificationTextarea.value = '';
+        }
         setModificationTextValue('');
         if (modificationRequestRef.current) {
           modificationRequestRef.current.value = '';
         }
       } else {
-        console.log('🔥 DEBUG: Ancien système ou échec');
-        // Si pas de result.modifiedPost, c'est l'ancien système (pour les posts normaux)
-        if (result !== false) {
-          setShowModificationForm(false);
-        }
+        console.log('🔥 DEBUG: Pas de succès - résultat =', result);
+        toast.error('Erreur: Aucune modification générée par l\'IA');
       }
     } catch (error) {
-      console.error('🔥 DEBUG: Erreur modification:', error);
-      toast.error('Erreur lors de la modification');
+      console.error('🔥 DEBUG: Exception dans handleModifySubmit:', error);
+      toast.error('Erreur lors de la modification: ' + error.message);
+    } finally {
+      setIsModifying ? setIsModifying(false) : null;
     }
   };
 

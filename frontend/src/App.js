@@ -4140,16 +4140,21 @@ function MainApp() {
 
   // Fonction pour valider et envoyer un post au calendrier
   const handleValidatePost = async (post) => {
-    // DEBUG : Voir le contenu exact du post
-    alert('DEBUG Post: ' + JSON.stringify({
-      id: post.id,
+    console.log('🚀 handleValidatePost called with:', post);
+    
+    // Vérification que nous avons bien reçu un post et pas un événement
+    if (!post || !post.id) {
+      toast.error('❌ Erreur: objet post invalide');
+      return;
+    }
+    
+    // DEBUG : Voir les champs de date du post
+    console.log('📅 Date fields:', {
       scheduled_date: post.scheduled_date,
       date: post.date,
       time: post.time,
-      scheduled_time: post.scheduled_time,
-      publication_date: post.publication_date,
-      keys: Object.keys(post)
-    }));
+      publication_date: post.publication_date
+    });
     
     // Vérifier qu'au moins un réseau social est connecté
     const connectedPlatforms = [];
@@ -4180,21 +4185,19 @@ function MainApp() {
     const dateField = post.scheduled_date || post.publication_date || post.date;
     
     if (!dateField) {
-      toast.error('📅 Aucune date trouvée sur ce post !');
+      toast.error('📅 Aucune date de programmation trouvée sur ce post !');
       return;
     }
 
     // Vérifier que la date/heure est valide
-    const scheduledDateTime = new Date(dateField);
-    const now = new Date();
-    
-    if (isNaN(scheduledDateTime.getTime())) {
+    let scheduledDateTime;
+    try {
+      scheduledDateTime = new Date(dateField);
+      if (isNaN(scheduledDateTime.getTime())) {
+        throw new Error('Date invalide');
+      }
+    } catch (error) {
       toast.error('📅 Format de date invalide : ' + dateField);
-      return;
-    }
-    
-    if (scheduledDateTime <= now) {
-      toast.error('📅 La date de programmation doit être dans le futur !');
       return;
     }
 
@@ -4212,8 +4215,10 @@ function MainApp() {
       const requestData = { 
         post_id: post.id,
         platforms: [targetPlatform],
-        scheduled_date: dateField  // Utiliser le bon champ de date
+        scheduled_date: dateField
       };
+
+      console.log('📤 Sending to server:', requestData);
 
       const response = await axios.post(
         `${API}/posts/validate-to-calendar`,
@@ -4222,6 +4227,8 @@ function MainApp() {
           headers: { Authorization: `Bearer ${token}` }
         }
       );
+
+      console.log('📥 Server response:', response.data);
 
       if (response.data?.success) {
         toast.success(`🎉 Post validé et ajouté au calendrier ${platformName} !`, { id: 'validate-post' });
@@ -4238,7 +4245,7 @@ function MainApp() {
       }
       
     } catch (error) {
-      console.error('Error validating post:', error);
+      console.error('❌ Error validating post:', error);
       const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
       toast.error(`❌ Erreur: ${errorMessage}`, { id: 'validate-post' });
     }

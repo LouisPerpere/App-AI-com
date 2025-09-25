@@ -632,7 +632,7 @@ const PostPreviewModal = ({
 
   const handleModifySubmit = async () => {
     console.log('🔥 DEBUG: handleModifySubmit appelée');
-    const modificationValue = modificationRequestRef.current?.value || '';
+    const modificationValue = modificationTextValue || modificationRequestRef.current?.value || '';
     console.log('🔥 DEBUG: modificationValue =', modificationValue);
     
     if (!modificationValue?.trim()) {

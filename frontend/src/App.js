@@ -3738,14 +3738,36 @@ function MainApp() {
 
   // Nouvelle fonction pour modifier les posts du calendrier sans recharger la page
   const handleModifyCalendarPost = async (post, modificationRequestValue, modificationType = 'content') => {
+    // Cas spécial : si c'est une application finale de modification
+    if (modificationType === 'final_update') {
+      try {
+        // Mettre à jour dans la base de données le post modifié
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          toast.error('Session expirée, veuillez vous reconnecter');
+          return false;
+        }
+
+        // Ici on pourrait ajouter un appel pour persister définitivement les changements
+        // Pour l'instant on recharge juste les données
+        await loadCalendarPosts();
+        await loadGeneratedPosts();
+        
+        return true;
+      } catch (error) {
+        console.error('Erreur mise à jour finale:', error);
+        return false;
+      }
+    }
+
     if (!modificationRequestValue?.trim()) {
       toast.error('Veuillez saisir une demande de modification');
-      return;
+      return false;
     }
 
     if (!post?.id) {
       toast.error('Erreur: ID du post manquant');
-      return;
+      return false;
     }
 
     setIsModifyingPost(true);
@@ -3754,7 +3776,7 @@ function MainApp() {
     if (!token) {
       toast.error('Session expirée, veuillez vous reconnecter');
       setIsModifyingPost(false);
-      return;
+      return false;
     }
 
     try {
@@ -3771,33 +3793,16 @@ function MainApp() {
 
       console.log('📡 Réponse du serveur:', response.data);
 
-      if (response.data?.success) {
-        toast.success('✅ Post modifié avec succès !');
-        
-        // Mettre à jour le post local avec les nouvelles données
-        const updatedPost = {
-          ...post,
-          text: response.data.post?.text || post.text,
-          title: response.data.post?.title || post.title,
-          hashtags: response.data.post?.hashtags || post.hashtags,
-          modified_at: new Date().toISOString()
+      if (response.data?.success && response.data?.post) {
+        // Retourner les données pour validation utilisateur au lieu d'appliquer directement
+        return {
+          success: true,
+          modifiedPost: {
+            text: response.data.post.text,
+            title: response.data.post.title,
+            hashtags: response.data.post.hashtags || []
+          }
         };
-
-        // Mettre à jour selectedCalendarPost si c'est le post actuel
-        if (selectedCalendarPost?.id === post.id) {
-          setSelectedCalendarPost(updatedPost);
-        }
-        
-        // Recharger les données du calendrier et des posts
-        await loadCalendarPosts();
-        await loadGeneratedPosts();
-        
-        // Fermer le formulaire de modification
-        if (modificationRequestRef.current) {
-          modificationRequestRef.current.value = '';
-        }
-        
-        return true;
       } else {
         toast.error('❌ Erreur: Réponse invalide du serveur');
         return false;
@@ -3821,8 +3826,9 @@ function MainApp() {
       }
       
       toast.error(errorMessage);
-      setIsModifyingPost(false);
       return false;
+    } finally {
+      setIsModifyingPost(false);
     }
   };
 

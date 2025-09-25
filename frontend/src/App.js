@@ -3889,14 +3889,14 @@ function MainApp() {
 
       console.log('📡 Réponse du serveur:', response.data);
 
-      if (response.data?.success && response.data?.post) {
+      if (response.data?.success && response.data?.modified_post) {
         // Retourner les données pour validation utilisateur au lieu d'appliquer directement
         return {
           success: true,
           modifiedPost: {
-            text: response.data.post.text,
-            title: response.data.post.title,
-            hashtags: response.data.post.hashtags || []
+            text: response.data.modified_post.text,
+            title: response.data.modified_post.title,
+            hashtags: response.data.modified_post.hashtags || []
           }
         };
       } else {

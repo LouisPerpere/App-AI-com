@@ -675,17 +675,10 @@ const PostPreviewModal = ({
         modified_at: new Date().toISOString()
       };
 
-      // Mettre à jour selectedCalendarPost si c'est le post actuel
-      if (selectedCalendarPost?.id === post.id) {
-        setSelectedCalendarPost(updatedPost);
-      }
-      
-      // Recharger les données du calendrier et des posts
-      if (typeof window !== 'undefined' && window.loadCalendarPosts) {
-        await window.loadCalendarPosts();
-      }
-      if (typeof window !== 'undefined' && window.loadGeneratedPosts) {
-        await window.loadGeneratedPosts();
+      // Si c'est un post du calendrier, notifier le parent
+      if (isFromCalendar && onModify) {
+        // Utiliser onModify pour notifier le parent de la mise à jour
+        await onModify(updatedPost, 'apply_modification', 'final_update');
       }
       
       toast.success('✅ Modification appliquée avec succès !');

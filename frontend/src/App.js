@@ -517,24 +517,25 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
                 <Clock className="w-3 h-3" />
               </button>
               
-              {/* Bouton Valider - Envoyer au calendrier (seulement si pas encore publié) */}
-              {!post.published && !post.validated && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log('🔥 Validate button clicked!', { post, onValidatePost: typeof onValidatePost });
-                    if (onValidatePost) {
-                      onValidatePost(post);
-                    } else {
-                      console.error('❌ onValidatePost is not defined!');
-                    }
-                  }}
-                  className="w-7 h-7 bg-orange-500 hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
-                  title="Valider et envoyer au calendrier"
-                >
-                  <Calendar className="w-3 h-3" />
-                </button>
-              )}
+              {/* Bouton Valider - Envoyer au calendrier - TOUJOURS VISIBLE POUR DEBUG */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log('🔥 Validate button clicked!', { post, onValidatePost: typeof onValidatePost });
+                  if (onValidatePost) {
+                    onValidatePost(post);
+                  } else {
+                    console.error('❌ onValidatePost is not defined!');
+                  }
+                }}
+                className={`w-7 h-7 text-white rounded-full flex items-center justify-center transition-colors shadow-md ${
+                  post.validated ? 'bg-green-500 hover:bg-green-600' : 'bg-orange-500 hover:bg-orange-600'
+                }`}
+                title={post.validated ? "Déjà validé" : "Valider et envoyer au calendrier"}
+                disabled={post.validated}
+              >
+                {post.validated ? <CheckCircleIcon className="w-3 h-3" /> : <Calendar className="w-3 h-3" />}
+              </button>
               
               {/* Indicateur si déjà validé */}
               {post.validated && (

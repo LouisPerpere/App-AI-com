@@ -831,6 +831,84 @@ const PostPreviewModal = ({
               />
             </div>
           )}
+
+          {/* Aperçu des modifications */}
+          {showModificationPreview && modifiedPostData && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <h4 className="text-sm font-medium text-green-800 mb-3 flex items-center">
+                <CheckCircleIcon className="w-4 h-4 mr-2" />
+                Nouveau contenu généré par l'IA
+              </h4>
+              
+              {/* Nouveau titre */}
+              {modifiedPostData.title && (
+                <div className="mb-3">
+                  <p className="text-xs text-gray-600 mb-1">Nouveau titre :</p>
+                  <p className="text-sm font-semibold text-gray-800 bg-white p-2 rounded border">
+                    {modifiedPostData.title}
+                  </p>
+                </div>
+              )}
+              
+              {/* Nouveau texte */}
+              <div className="mb-3">
+                <p className="text-xs text-gray-600 mb-1">Nouveau texte :</p>
+                <div className="bg-white p-3 rounded border">
+                  <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
+                    {modifiedPostData.text}
+                  </p>
+                </div>
+              </div>
+              
+              {/* Nouveaux hashtags */}
+              {modifiedPostData.hashtags && modifiedPostData.hashtags.length > 0 && (
+                <div className="mb-3">
+                  <p className="text-xs text-gray-600 mb-2">Nouveaux hashtags :</p>
+                  <div className="flex flex-wrap gap-1">
+                    {modifiedPostData.hashtags.map((hashtag, idx) => (
+                      <span key={idx} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                        {hashtag.startsWith('#') ? hashtag : `#${hashtag}`}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Boutons de validation */}
+              <div className="flex items-center justify-center space-x-3 pt-3 border-t border-green-200">
+                <button
+                  onClick={handleRejectModification}
+                  disabled={isApplyingModification}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors disabled:opacity-50"
+                >
+                  <div className="flex items-center space-x-2">
+                    <X className="w-4 h-4" />
+                    <span>Nouvelle correction</span>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={handleAcceptModification}
+                  disabled={isApplyingModification}
+                  className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl disabled:opacity-50"
+                >
+                  <div className="flex items-center space-x-2">
+                    {isApplyingModification ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Application...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircleIcon className="w-4 h-4" />
+                        <span>Valider et appliquer</span>
+                      </>
+                    )}
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Actions */}

@@ -763,51 +763,31 @@ const PostPreviewModal = ({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-center space-x-3 p-6 border-t border-gray-200 flex-shrink-0 bg-white">
-          {!showModificationForm ? (
+        <div className="flex items-center justify-center space-x-4">
+          {post.validated ? (
+            /* Mode lecture seule pour les posts validés */
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Calendar className="w-8 h-8 text-green-600" />
+              </div>
+              <p className="text-lg font-semibold text-green-800 mb-1">Post programmé</p>
+              <p className="text-sm text-gray-600">
+                Programmé pour le {new Date(post.scheduled_date || post.date).toLocaleDateString('fr-FR', {
+                  weekday: 'long',
+                  day: '2-digit',
+                  month: 'long',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </p>
+              <p className="text-xs text-gray-500 mt-2">
+                Ce post est maintenant dans le calendrier et ne peut plus être modifié depuis cet onglet.
+              </p>
+            </div>
+          ) : (
+            /* Mode édition normal pour les posts non validés */
             <>
-              <button
-                onClick={async () => {
-                  if (isValidating || post.validated) return;
-                  
-                  setIsValidating(true);
-                  try {
-                    const success = await onValidate(post);
-                    // Success handled by parent component
-                  } catch (error) {
-                    console.error('Validation error:', error);
-                  } finally {
-                    setIsValidating(false);
-                  }
-                }}
-                disabled={isValidating || post.validated}
-                className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl ${
-                  post.validated
-                    ? 'bg-green-600 text-white cursor-not-allowed' 
-                    : isValidating 
-                      ? 'bg-gray-400 text-white cursor-not-allowed'
-                      : 'bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white'
-                }`}
-              >
-                <div className="flex items-center space-x-2">
-                  {isValidating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Validation...</span>
-                    </>
-                  ) : post.validated ? (
-                    <>
-                      <Check className="w-4 h-4" />
-                      <span>Validé !</span>
-                    </>
-                  ) : (
-                    <>
-                      <Check className="w-4 h-4" />
-                      <span>Valider</span>
-                    </>
-                  )}
-                </div>
-              </button>
               <button
                 onClick={() => setShowModificationForm(true)}
                 className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
@@ -842,7 +822,57 @@ const PostPreviewModal = ({
                   </button>
                 </>
               )}
+              
+              <button
+                onClick={async () => {
+                  if (isValidating) return;
+                  
+                  setIsValidating(true);
+                  try {
+                    const success = await onValidate(post);
+                    if (success) {
+                      // Pas besoin de setIsValidated car on utilise post.validated maintenant
+                    }
+                  } catch (error) {
+                    console.error('Validation error:', error);
+                  } finally {
+                    setIsValidating(false);
+                  }
+                }}
+                disabled={isValidating || post.validated}
+                className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl ${
+                  post.validated
+                    ? 'bg-green-600 text-white cursor-not-allowed' 
+                    : isValidating 
+                      ? 'bg-gray-400 text-white cursor-not-allowed'
+                      : 'bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  {isValidating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Validation...</span>
+                    </>
+                  ) : post.validated ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>Validé !</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>Valider</span>
+                    </>
+                  )}
+                </div>
+              </button>
             </>
+          )}
+        </div>
+        <div className="flex items-center justify-center space-x-3 p-6 border-t border-gray-200 flex-shrink-0 bg-white">
+          {!showModificationForm ? (
+            <></>
           ) : (
             <div className="w-full">
               {/* Formulaire de modification */}

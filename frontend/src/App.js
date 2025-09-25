@@ -8703,22 +8703,49 @@ function MainApp() {
                                           e.stopPropagation();
                                           console.log('🔥 Calendar post clicked:', post);
                                           // Force update immédiatement
-                                          setTimeout(() => {
-                                            setSelectedCalendarPost(post);
-                                          }, 0);
+                                          setSelectedCalendarPost(post);
                                         }}
                                         className={`
-                                          text-xs p-1 rounded truncate cursor-pointer hover:opacity-80 transition-opacity
+                                          flex items-center space-x-1 text-xs p-1 rounded cursor-pointer hover:opacity-80 transition-all hover:scale-105
                                           ${post.platform === 'facebook' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : ''}
                                           ${post.platform === 'instagram' ? 'bg-pink-100 text-pink-800 hover:bg-pink-200' : ''}
                                           ${post.platform === 'linkedin' ? 'bg-blue-100 text-blue-900 hover:bg-blue-200' : ''}
                                         `}
                                         title={`Cliquer pour voir : ${post.platform}: ${post.text?.slice(0, 50) || 'Post'}...`}
                                       >
-                                        {post.platform === 'facebook' && '📘'}
-                                        {post.platform === 'instagram' && '📷'}
-                                        {post.platform === 'linkedin' && '💼'}
-                                        {' '}{new Date(post.scheduled_date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                                        {/* Mini vignette image */}
+                                        {post.visual_url ? (
+                                          <div className="w-4 h-4 rounded overflow-hidden bg-gray-200 flex-shrink-0">
+                                            <img 
+                                              src={post.visual_url.startsWith('http') 
+                                                ? post.visual_url 
+                                                : `${process.env.REACT_APP_BACKEND_URL}${post.visual_url}?token=${localStorage.getItem('access_token')}&t=${Date.now()}`
+                                              }
+                                              alt=""
+                                              className="w-full h-full object-cover"
+                                              onError={(e) => {
+                                                e.target.style.display = 'none';
+                                                e.target.parentNode.innerHTML = `<div class="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500 text-xs">📷</div>`;
+                                              }}
+                                            />
+                                          </div>
+                                        ) : (
+                                          <div className="w-4 h-4 rounded bg-gray-300 flex items-center justify-center flex-shrink-0">
+                                            <span className="text-gray-500 text-xs">📷</span>
+                                          </div>
+                                        )}
+                                        
+                                        {/* Badge plateforme */}
+                                        <span className="flex-shrink-0">
+                                          {post.platform === 'facebook' && '📘'}
+                                          {post.platform === 'instagram' && '📷'}
+                                          {post.platform === 'linkedin' && '💼'}
+                                        </span>
+                                        
+                                        {/* Heure */}
+                                        <span className="font-medium truncate">
+                                          {new Date(post.scheduled_date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                                        </span>
                                       </div>
                                     ))}
                                     {dayPosts.length > 3 && (

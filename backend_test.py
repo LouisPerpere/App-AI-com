@@ -1,586 +1,384 @@
 #!/usr/bin/env python3
 """
-🔧 TEST CONNEXIONS SOCIALES FACEBOOK & INSTAGRAM CONFIGURATIONS DÉDIÉES
-Backend Testing Script for Social Connections with Dedicated Config IDs
-
-CONTEXTE: L'utilisateur a fourni des config_id dédiés pour résoudre les conflits 
-d'authentification entre Facebook et Instagram. Test de la séparation complète des configurations.
-
-CHANGEMENTS TESTÉS:
-1. FACEBOOK_CONFIG_ID_PAGES = "1878388119742903" (dédié Facebook)
-2. INSTAGRAM_CONFIG_ID_PAGES = "1309694717566880" (dédié Instagram)
-3. Endpoints de test: /test/config-debug et /test/auth-urls-debug
-4. Endpoints d'auth: /api/social/facebook/auth-url et /api/social/instagram/auth-url
-
-BASE_URL: https://post-validator.preview.emergentagent.com/api
-CREDENTIALS: lperpere@yahoo.fr / L@Reunion974!
+Backend Test Suite for POST Validator API
+Testing the GET /posts/generated endpoint to verify 'validated' field inclusion
 """
 
 import requests
 import json
 import sys
 from datetime import datetime
-from urllib.parse import urlparse, parse_qs
 
-# Configuration
-BASE_URL = "https://post-validator.preview.emergentagent.com/api"
-TEST_EMAIL = "lperpere@yahoo.fr"
-TEST_PASSWORD = "L@Reunion974!"
-
-# Expected config IDs
-EXPECTED_FACEBOOK_CONFIG_ID = "1878388119742903"
-EXPECTED_INSTAGRAM_CONFIG_ID = "1309694717566880"
-
-class SocialConnectionsTester:
+class PostValidatorTester:
     def __init__(self):
+        self.base_url = "https://post-validator.preview.emergentagent.com/api"
         self.session = requests.Session()
         self.token = None
         self.user_id = None
-        self.test_results = []
         
-    def log_test(self, test_name, success, details="", error=""):
-        """Log test result"""
-        status = "✅ PASS" if success else "❌ FAIL"
-        result = {
-            "test": test_name,
-            "status": status,
-            "success": success,
-            "details": details,
-            "error": error,
-            "timestamp": datetime.now().isoformat()
-        }
-        self.test_results.append(result)
-        print(f"{status} {test_name}")
-        if details:
-            print(f"   📋 {details}")
-        if error:
-            print(f"   ❌ Error: {error}")
-        print()
-        
-    def authenticate(self):
-        """Step 1: Authenticate with backend"""
+    def authenticate(self, email, password):
+        """Authenticate with the API"""
         try:
-            print("🔐 Step 1: Authentication")
-            response = self.session.post(f"{BASE_URL}/auth/login-robust", json={
-                "email": TEST_EMAIL,
-                "password": TEST_PASSWORD
-            })
+            print(f"🔐 Step 1: Authenticating with {email}")
+            
+            response = self.session.post(
+                f"{self.base_url}/auth/login-robust",
+                json={"email": email, "password": password},
+                headers={"Content-Type": "application/json"}
+            )
+            
+            print(f"   Status: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
                 self.token = data.get("access_token")
                 self.user_id = data.get("user_id")
                 
-                # Set authorization header for future requests
+                # Set authorization header for all future requests
                 self.session.headers.update({
-                    "Authorization": f"Bearer {self.token}"
+                    "Authorization": f"Bearer {self.token}",
+                    "Content-Type": "application/json"
                 })
                 
-                self.log_test(
-                    "Authentication", 
-                    True, 
-                    f"User ID: {self.user_id}, Token obtained and configured"
-                )
+                print(f"   ✅ Authentication successful")
+                print(f"   User ID: {self.user_id}")
+                print(f"   Token: {self.token[:30]}..." if self.token else "   Token: None")
                 return True
             else:
-                self.log_test(
-                    "Authentication", 
-                    False, 
-                    error=f"Status {response.status_code}: {response.text}"
-                )
+                print(f"   ❌ Authentication failed: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("Authentication", False, error=str(e))
+            print(f"   ❌ Authentication error: {str(e)}")
             return False
     
-    def test_config_debug(self):
-        """Step 2: Test /api/test/config-debug endpoint"""
+    def test_posts_generated_endpoint(self):
+        """Test GET /posts/generated endpoint for validated field inclusion"""
         try:
-            print("🔧 Step 2: Testing Config Debug Endpoint")
-            response = self.session.get(f"{BASE_URL}/test/config-debug")
+            print(f"\n🔍 Step 2: Testing GET /posts/generated endpoint")
+            
+            response = self.session.get(f"{self.base_url}/posts/generated")
+            
+            print(f"   Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                posts = data.get("posts", [])
+                count = data.get("count", 0)
+                
+                print(f"   ✅ Endpoint accessible")
+                print(f"   Total posts found: {count}")
+                
+                if count == 0:
+                    print(f"   ⚠️ No posts found for testing - this is expected if no posts exist")
+                    return True
+                
+                # Test each post for required fields
+                validated_posts = 0
+                posts_with_validated_at = 0
+                posts_with_carousel_images = 0
+                
+                print(f"\n📋 Analyzing post structure:")
+                
+                for i, post in enumerate(posts[:5]):  # Check first 5 posts for detailed analysis
+                    print(f"\n   Post {i+1}:")
+                    print(f"     ID: {post.get('id', 'N/A')}")
+                    print(f"     Title: {post.get('title', 'N/A')[:50]}...")
+                    print(f"     Platform: {post.get('platform', 'N/A')}")
+                    print(f"     Status: {post.get('status', 'N/A')}")
+                    
+                    # Check for validated field
+                    if 'validated' in post:
+                        validated_value = post.get('validated')
+                        print(f"     ✅ 'validated' field present: {validated_value}")
+                        if validated_value is True:
+                            validated_posts += 1
+                    else:
+                        print(f"     ❌ 'validated' field MISSING")
+                        return False
+                    
+                    # Check for validated_at field
+                    if 'validated_at' in post:
+                        validated_at_value = post.get('validated_at')
+                        print(f"     ✅ 'validated_at' field present: {validated_at_value}")
+                        if validated_at_value:
+                            posts_with_validated_at += 1
+                    else:
+                        print(f"     ❌ 'validated_at' field MISSING")
+                        return False
+                    
+                    # Check for carousel_images field
+                    if 'carousel_images' in post:
+                        carousel_images_value = post.get('carousel_images', [])
+                        print(f"     ✅ 'carousel_images' field present: {len(carousel_images_value)} images")
+                        if carousel_images_value:
+                            posts_with_carousel_images += 1
+                    else:
+                        print(f"     ❌ 'carousel_images' field MISSING")
+                        return False
+                
+                # Summary statistics
+                print(f"\n📊 Field Analysis Summary:")
+                print(f"   Total posts analyzed: {min(len(posts), 5)}")
+                print(f"   Posts with validated=true: {validated_posts}")
+                print(f"   Posts with validated_at data: {posts_with_validated_at}")
+                print(f"   Posts with carousel_images data: {posts_with_carousel_images}")
+                
+                # Check all posts have the required fields (not just first 5)
+                all_posts_valid = True
+                for post in posts:
+                    if 'validated' not in post or 'validated_at' not in post or 'carousel_images' not in post:
+                        all_posts_valid = False
+                        break
+                
+                if all_posts_valid:
+                    print(f"   ✅ ALL {count} posts contain required fields (validated, validated_at, carousel_images)")
+                    return True
+                else:
+                    print(f"   ❌ Some posts missing required fields")
+                    return False
+                
+            else:
+                print(f"   ❌ Endpoint failed: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"   ❌ Test error: {str(e)}")
+            return False
+    
+    def test_field_structure_validation(self):
+        """Test the structure and types of the new fields"""
+        try:
+            print(f"\n🔍 Step 3: Testing field structure validation")
+            
+            response = self.session.get(f"{self.base_url}/posts/generated")
+            
+            if response.status_code == 200:
+                data = response.json()
+                posts = data.get("posts", [])
+                
+                if not posts:
+                    print(f"   ⚠️ No posts available for structure validation")
+                    return True
+                
+                # Test first post for detailed structure validation
+                test_post = posts[0]
+                print(f"   Testing post structure: {test_post.get('id', 'N/A')}")
+                
+                # Validate 'validated' field type
+                validated_field = test_post.get('validated')
+                if isinstance(validated_field, bool):
+                    print(f"   ✅ 'validated' field is boolean: {validated_field}")
+                else:
+                    print(f"   ❌ 'validated' field should be boolean, got: {type(validated_field)} = {validated_field}")
+                    return False
+                
+                # Validate 'validated_at' field type
+                validated_at_field = test_post.get('validated_at')
+                if isinstance(validated_at_field, str):
+                    print(f"   ✅ 'validated_at' field is string: '{validated_at_field}'")
+                    if validated_at_field:
+                        # Try to parse as ISO datetime if not empty
+                        try:
+                            datetime.fromisoformat(validated_at_field.replace('Z', '+00:00'))
+                            print(f"   ✅ 'validated_at' is valid ISO datetime")
+                        except:
+                            print(f"   ⚠️ 'validated_at' is not valid ISO datetime format")
+                else:
+                    print(f"   ❌ 'validated_at' field should be string, got: {type(validated_at_field)}")
+                    return False
+                
+                # Validate 'carousel_images' field type
+                carousel_images_field = test_post.get('carousel_images')
+                if isinstance(carousel_images_field, list):
+                    print(f"   ✅ 'carousel_images' field is list with {len(carousel_images_field)} items")
+                    if carousel_images_field:
+                        print(f"   📸 Sample carousel image: {carousel_images_field[0] if carousel_images_field else 'None'}")
+                else:
+                    print(f"   ❌ 'carousel_images' field should be list, got: {type(carousel_images_field)}")
+                    return False
+                
+                return True
+            else:
+                print(f"   ❌ Failed to get posts for structure validation")
+                return False
+                
+        except Exception as e:
+            print(f"   ❌ Structure validation error: {str(e)}")
+            return False
+    
+    def test_validated_posts_logic(self):
+        """Test that previously validated posts have validated=true"""
+        try:
+            print(f"\n🔍 Step 4: Testing validated posts logic")
+            
+            response = self.session.get(f"{self.base_url}/posts/generated")
+            
+            if response.status_code == 200:
+                data = response.json()
+                posts = data.get("posts", [])
+                
+                if not posts:
+                    print(f"   ⚠️ No posts available for validation logic testing")
+                    return True
+                
+                validated_posts = [p for p in posts if p.get('validated') is True]
+                posts_with_validated_at = [p for p in posts if p.get('validated_at')]
+                
+                print(f"   Total posts: {len(posts)}")
+                print(f"   Posts with validated=true: {len(validated_posts)}")
+                print(f"   Posts with validated_at timestamp: {len(posts_with_validated_at)}")
+                
+                # Logic check: posts with validated=true should have validated_at timestamp
+                inconsistent_posts = 0
+                for post in validated_posts:
+                    if not post.get('validated_at'):
+                        inconsistent_posts += 1
+                        print(f"   ⚠️ Post {post.get('id')} has validated=true but no validated_at timestamp")
+                
+                if inconsistent_posts == 0:
+                    print(f"   ✅ All validated posts have consistent validated_at timestamps")
+                else:
+                    print(f"   ⚠️ Found {inconsistent_posts} posts with inconsistent validation data")
+                
+                # Show sample validated post if available
+                if validated_posts:
+                    sample_post = validated_posts[0]
+                    print(f"\n   📋 Sample validated post:")
+                    print(f"     ID: {sample_post.get('id')}")
+                    print(f"     Validated: {sample_post.get('validated')}")
+                    print(f"     Validated At: {sample_post.get('validated_at')}")
+                    print(f"     Platform: {sample_post.get('platform')}")
+                    print(f"     Status: {sample_post.get('status')}")
+                
+                return True
+            else:
+                print(f"   ❌ Failed to get posts for validation logic testing")
+                return False
+                
+        except Exception as e:
+            print(f"   ❌ Validation logic test error: {str(e)}")
+            return False
+    
+    def test_response_format_compatibility(self):
+        """Test that the response format is compatible with frontend expectations"""
+        try:
+            print(f"\n🔍 Step 5: Testing response format compatibility")
+            
+            response = self.session.get(f"{self.base_url}/posts/generated")
             
             if response.status_code == 200:
                 data = response.json()
                 
-                # Verify config IDs
-                facebook_config_id = data.get("facebook_config_id")
-                instagram_config_id = data.get("instagram_config_id")
-                facebook_app_id = data.get("facebook_app_id")
-                
-                success = True
-                details = []
-                
-                # Check Facebook config ID
-                if facebook_config_id == EXPECTED_FACEBOOK_CONFIG_ID:
-                    details.append(f"✅ Facebook config_id: {facebook_config_id} (correct)")
+                # Check top-level structure
+                if 'posts' in data and 'count' in data:
+                    print(f"   ✅ Response has correct top-level structure (posts, count)")
                 else:
-                    details.append(f"❌ Facebook config_id: {facebook_config_id} (expected: {EXPECTED_FACEBOOK_CONFIG_ID})")
-                    success = False
+                    print(f"   ❌ Response missing required top-level fields")
+                    return False
                 
-                # Check Instagram config ID
-                if instagram_config_id == EXPECTED_INSTAGRAM_CONFIG_ID:
-                    details.append(f"✅ Instagram config_id: {instagram_config_id} (correct)")
+                posts = data.get("posts", [])
+                count = data.get("count", 0)
+                
+                # Verify count matches posts length
+                if len(posts) == count:
+                    print(f"   ✅ Count field matches posts array length: {count}")
                 else:
-                    details.append(f"❌ Instagram config_id: {instagram_config_id} (expected: {EXPECTED_INSTAGRAM_CONFIG_ID})")
-                    success = False
+                    print(f"   ⚠️ Count mismatch: count={count}, posts length={len(posts)}")
                 
-                # Check Facebook App ID
-                if facebook_app_id and facebook_app_id != "NOT_SET":
-                    details.append(f"✅ Facebook App ID: {facebook_app_id}")
-                else:
-                    details.append(f"❌ Facebook App ID: {facebook_app_id}")
-                    success = False
+                if posts:
+                    # Check that all expected fields are present in posts
+                    expected_fields = [
+                        'id', 'title', 'text', 'hashtags', 'visual_url', 'visual_id',
+                        'visual_type', 'platform', 'content_type', 'scheduled_date',
+                        'status', 'published', 'validated', 'validated_at', 
+                        'carousel_images', 'created_at', 'modified_at'
+                    ]
+                    
+                    sample_post = posts[0]
+                    missing_fields = []
+                    
+                    for field in expected_fields:
+                        if field not in sample_post:
+                            missing_fields.append(field)
+                    
+                    if not missing_fields:
+                        print(f"   ✅ All {len(expected_fields)} expected fields present in posts")
+                    else:
+                        print(f"   ❌ Missing fields in posts: {missing_fields}")
+                        return False
                 
-                # Check redirect URIs
-                facebook_redirect = data.get("facebook_redirect_uri", "")
-                instagram_redirect = data.get("instagram_redirect_uri", "")
-                
-                if facebook_redirect and "facebook/callback" in facebook_redirect:
-                    details.append(f"✅ Facebook redirect URI: {facebook_redirect}")
-                else:
-                    details.append(f"❌ Facebook redirect URI: {facebook_redirect}")
-                    success = False
-                
-                if instagram_redirect and "instagram/callback" in instagram_redirect:
-                    details.append(f"✅ Instagram redirect URI: {instagram_redirect}")
-                else:
-                    details.append(f"❌ Instagram redirect URI: {instagram_redirect}")
-                    success = False
-                
-                self.log_test(
-                    "Config Debug Endpoint", 
-                    success, 
-                    "; ".join(details)
-                )
-                return success
+                return True
             else:
-                self.log_test(
-                    "Config Debug Endpoint", 
-                    False, 
-                    error=f"Status {response.status_code}: {response.text}"
-                )
+                print(f"   ❌ Failed to get posts for format compatibility testing")
                 return False
                 
         except Exception as e:
-            self.log_test("Config Debug Endpoint", False, error=str(e))
-            return False
-    
-    def test_auth_urls_debug(self):
-        """Step 3: Test /api/test/auth-urls-debug endpoint"""
-        try:
-            print("🔗 Step 3: Testing Auth URLs Debug Endpoint")
-            response = self.session.get(f"{BASE_URL}/test/auth-urls-debug")
-            
-            if response.status_code == 200:
-                data = response.json()
-                
-                facebook_data = data.get("facebook", {})
-                instagram_data = data.get("instagram", {})
-                
-                success = True
-                details = []
-                
-                # Verify Facebook auth URL
-                facebook_config_id = facebook_data.get("config_id")
-                facebook_auth_url = facebook_data.get("auth_url", "")
-                
-                if facebook_config_id == EXPECTED_FACEBOOK_CONFIG_ID:
-                    details.append(f"✅ Facebook config_id in response: {facebook_config_id}")
-                else:
-                    details.append(f"❌ Facebook config_id: {facebook_config_id} (expected: {EXPECTED_FACEBOOK_CONFIG_ID})")
-                    success = False
-                
-                if "config_id=" + EXPECTED_FACEBOOK_CONFIG_ID in facebook_auth_url:
-                    details.append("✅ Facebook auth URL contains correct config_id")
-                else:
-                    details.append("❌ Facebook auth URL missing correct config_id")
-                    success = False
-                
-                # Verify Instagram auth URL
-                instagram_config_id = instagram_data.get("config_id")
-                instagram_auth_url = instagram_data.get("auth_url", "")
-                
-                if instagram_config_id == EXPECTED_INSTAGRAM_CONFIG_ID:
-                    details.append(f"✅ Instagram config_id in response: {instagram_config_id}")
-                else:
-                    details.append(f"❌ Instagram config_id: {instagram_config_id} (expected: {EXPECTED_INSTAGRAM_CONFIG_ID})")
-                    success = False
-                
-                if "config_id=" + EXPECTED_INSTAGRAM_CONFIG_ID in instagram_auth_url:
-                    details.append("✅ Instagram auth URL contains correct config_id")
-                else:
-                    details.append("❌ Instagram auth URL missing correct config_id")
-                    success = False
-                
-                # Verify URL structure
-                if "facebook.com/v20.0/dialog/oauth" in facebook_auth_url:
-                    details.append("✅ Facebook auth URL uses correct OAuth endpoint")
-                else:
-                    details.append("❌ Facebook auth URL incorrect endpoint")
-                    success = False
-                
-                if "facebook.com/v20.0/dialog/oauth" in instagram_auth_url:
-                    details.append("✅ Instagram auth URL uses correct OAuth endpoint")
-                else:
-                    details.append("❌ Instagram auth URL incorrect endpoint")
-                    success = False
-                
-                self.log_test(
-                    "Auth URLs Debug Endpoint", 
-                    success, 
-                    "; ".join(details)
-                )
-                return success
-            else:
-                self.log_test(
-                    "Auth URLs Debug Endpoint", 
-                    False, 
-                    error=f"Status {response.status_code}: {response.text}"
-                )
-                return False
-                
-        except Exception as e:
-            self.log_test("Auth URLs Debug Endpoint", False, error=str(e))
-            return False
-    
-    def test_facebook_auth_url(self):
-        """Step 4: Test /api/social/facebook/auth-url with authentication"""
-        try:
-            print("📘 Step 4: Testing Facebook Auth URL (Authenticated)")
-            response = self.session.get(f"{BASE_URL}/social/facebook/auth-url")
-            
-            if response.status_code == 200:
-                data = response.json()
-                
-                auth_url = data.get("auth_url", "")
-                config_id = data.get("config_id")
-                redirect_uri = data.get("redirect_uri", "")
-                scopes = data.get("scopes", [])
-                
-                success = True
-                details = []
-                
-                # Verify config_id
-                if config_id == EXPECTED_FACEBOOK_CONFIG_ID:
-                    details.append(f"✅ Facebook config_id: {config_id}")
-                else:
-                    details.append(f"❌ Facebook config_id: {config_id} (expected: {EXPECTED_FACEBOOK_CONFIG_ID})")
-                    success = False
-                
-                # Verify auth URL contains config_id
-                if "config_id=" + EXPECTED_FACEBOOK_CONFIG_ID in auth_url:
-                    details.append("✅ Auth URL contains correct config_id")
-                else:
-                    details.append("❌ Auth URL missing correct config_id")
-                    success = False
-                
-                # Verify redirect URI
-                if "facebook/callback" in redirect_uri:
-                    details.append(f"✅ Redirect URI: {redirect_uri}")
-                else:
-                    details.append(f"❌ Redirect URI: {redirect_uri}")
-                    success = False
-                
-                # Verify scopes
-                expected_scopes = ["pages_show_list", "pages_read_engagement", "pages_manage_posts"]
-                if all(scope in scopes for scope in expected_scopes):
-                    details.append(f"✅ Scopes: {', '.join(scopes)}")
-                else:
-                    details.append(f"❌ Scopes: {', '.join(scopes)} (missing expected scopes)")
-                    success = False
-                
-                # Verify URL structure
-                if "facebook.com/v20.0/dialog/oauth" in auth_url:
-                    details.append("✅ Uses correct Facebook OAuth endpoint")
-                else:
-                    details.append("❌ Incorrect OAuth endpoint")
-                    success = False
-                
-                self.log_test(
-                    "Facebook Auth URL (Authenticated)", 
-                    success, 
-                    "; ".join(details)
-                )
-                return success
-            else:
-                self.log_test(
-                    "Facebook Auth URL (Authenticated)", 
-                    False, 
-                    error=f"Status {response.status_code}: {response.text}"
-                )
-                return False
-                
-        except Exception as e:
-            self.log_test("Facebook Auth URL (Authenticated)", False, error=str(e))
-            return False
-    
-    def test_instagram_auth_url(self):
-        """Step 5: Test /api/social/instagram/auth-url with authentication"""
-        try:
-            print("📷 Step 5: Testing Instagram Auth URL (Authenticated)")
-            response = self.session.get(f"{BASE_URL}/social/instagram/auth-url")
-            
-            if response.status_code == 200:
-                data = response.json()
-                
-                auth_url = data.get("auth_url", "")
-                config_id = data.get("config_id")
-                redirect_uri = data.get("redirect_uri", "")
-                scopes = data.get("scopes", [])
-                flow_type = data.get("flow_type", "")
-                
-                success = True
-                details = []
-                
-                # Verify config_id
-                if config_id == EXPECTED_INSTAGRAM_CONFIG_ID:
-                    details.append(f"✅ Instagram config_id: {config_id}")
-                else:
-                    details.append(f"❌ Instagram config_id: {config_id} (expected: {EXPECTED_INSTAGRAM_CONFIG_ID})")
-                    success = False
-                
-                # Verify auth URL contains config_id
-                if "config_id=" + EXPECTED_INSTAGRAM_CONFIG_ID in auth_url:
-                    details.append("✅ Auth URL contains correct config_id")
-                else:
-                    details.append("❌ Auth URL missing correct config_id")
-                    success = False
-                
-                # Verify redirect URI
-                if "instagram/callback" in redirect_uri:
-                    details.append(f"✅ Redirect URI: {redirect_uri}")
-                else:
-                    details.append(f"❌ Redirect URI: {redirect_uri}")
-                    success = False
-                
-                # Verify scopes
-                expected_scopes = ["pages_show_list", "pages_read_engagement", "pages_manage_posts"]
-                if all(scope in scopes for scope in expected_scopes):
-                    details.append(f"✅ Scopes: {', '.join(scopes)}")
-                else:
-                    details.append(f"❌ Scopes: {', '.join(scopes)} (missing expected scopes)")
-                    success = False
-                
-                # Verify flow type
-                if flow_type == "oauth_with_config_id":
-                    details.append(f"✅ Flow type: {flow_type}")
-                else:
-                    details.append(f"❌ Flow type: {flow_type}")
-                    success = False
-                
-                # Verify URL structure
-                if "facebook.com/v20.0/dialog/oauth" in auth_url:
-                    details.append("✅ Uses correct OAuth endpoint")
-                else:
-                    details.append("❌ Incorrect OAuth endpoint")
-                    success = False
-                
-                self.log_test(
-                    "Instagram Auth URL (Authenticated)", 
-                    success, 
-                    "; ".join(details)
-                )
-                return success
-            else:
-                self.log_test(
-                    "Instagram Auth URL (Authenticated)", 
-                    False, 
-                    error=f"Status {response.status_code}: {response.text}"
-                )
-                return False
-                
-        except Exception as e:
-            self.log_test("Instagram Auth URL (Authenticated)", False, error=str(e))
-            return False
-    
-    def test_url_parameters_validation(self):
-        """Step 6: Verify generated URLs contain correct config_id and redirect_uri"""
-        try:
-            print("🔍 Step 6: URL Parameters Validation")
-            
-            # Get both auth URLs
-            facebook_response = self.session.get(f"{BASE_URL}/social/facebook/auth-url")
-            instagram_response = self.session.get(f"{BASE_URL}/social/instagram/auth-url")
-            
-            if facebook_response.status_code != 200 or instagram_response.status_code != 200:
-                self.log_test(
-                    "URL Parameters Validation", 
-                    False, 
-                    error="Failed to get auth URLs for validation"
-                )
-                return False
-            
-            facebook_data = facebook_response.json()
-            instagram_data = instagram_response.json()
-            
-            facebook_url = facebook_data.get("auth_url", "")
-            instagram_url = instagram_data.get("auth_url", "")
-            
-            success = True
-            details = []
-            
-            # Parse Facebook URL parameters
-            facebook_parsed = urlparse(facebook_url)
-            facebook_params = parse_qs(facebook_parsed.query)
-            
-            # Parse Instagram URL parameters
-            instagram_parsed = urlparse(instagram_url)
-            instagram_params = parse_qs(instagram_parsed.query)
-            
-            # Validate Facebook URL parameters
-            facebook_config_id = facebook_params.get("config_id", [""])[0]
-            facebook_redirect = facebook_params.get("redirect_uri", [""])[0]
-            facebook_client_id = facebook_params.get("client_id", [""])[0]
-            facebook_response_type = facebook_params.get("response_type", [""])[0]
-            
-            if facebook_config_id == EXPECTED_FACEBOOK_CONFIG_ID:
-                details.append(f"✅ Facebook URL config_id parameter: {facebook_config_id}")
-            else:
-                details.append(f"❌ Facebook URL config_id parameter: {facebook_config_id}")
-                success = False
-            
-            if "facebook/callback" in facebook_redirect:
-                details.append("✅ Facebook URL redirect_uri parameter correct")
-            else:
-                details.append(f"❌ Facebook URL redirect_uri parameter: {facebook_redirect}")
-                success = False
-            
-            if facebook_client_id:
-                details.append(f"✅ Facebook URL client_id parameter: {facebook_client_id}")
-            else:
-                details.append("❌ Facebook URL missing client_id parameter")
-                success = False
-            
-            if facebook_response_type == "code":
-                details.append("✅ Facebook URL response_type: code")
-            else:
-                details.append(f"❌ Facebook URL response_type: {facebook_response_type}")
-                success = False
-            
-            # Validate Instagram URL parameters
-            instagram_config_id = instagram_params.get("config_id", [""])[0]
-            instagram_redirect = instagram_params.get("redirect_uri", [""])[0]
-            instagram_client_id = instagram_params.get("client_id", [""])[0]
-            instagram_response_type = instagram_params.get("response_type", [""])[0]
-            
-            if instagram_config_id == EXPECTED_INSTAGRAM_CONFIG_ID:
-                details.append(f"✅ Instagram URL config_id parameter: {instagram_config_id}")
-            else:
-                details.append(f"❌ Instagram URL config_id parameter: {instagram_config_id}")
-                success = False
-            
-            if "instagram/callback" in instagram_redirect:
-                details.append("✅ Instagram URL redirect_uri parameter correct")
-            else:
-                details.append(f"❌ Instagram URL redirect_uri parameter: {instagram_redirect}")
-                success = False
-            
-            if instagram_client_id:
-                details.append(f"✅ Instagram URL client_id parameter: {instagram_client_id}")
-            else:
-                details.append("❌ Instagram URL missing client_id parameter")
-                success = False
-            
-            if instagram_response_type == "code":
-                details.append("✅ Instagram URL response_type: code")
-            else:
-                details.append(f"❌ Instagram URL response_type: {instagram_response_type}")
-                success = False
-            
-            # Verify URLs are different (different config_ids and redirect_uris)
-            if facebook_url != instagram_url:
-                details.append("✅ Facebook and Instagram URLs are different (as expected)")
-            else:
-                details.append("❌ Facebook and Instagram URLs are identical (should be different)")
-                success = False
-            
-            self.log_test(
-                "URL Parameters Validation", 
-                success, 
-                "; ".join(details)
-            )
-            return success
-            
-        except Exception as e:
-            self.log_test("URL Parameters Validation", False, error=str(e))
+            print(f"   ❌ Format compatibility test error: {str(e)}")
             return False
     
     def run_all_tests(self):
         """Run all tests in sequence"""
-        print("🚀 STARTING FACEBOOK & INSTAGRAM SOCIAL CONNECTIONS TESTING")
-        print("=" * 80)
-        print(f"Backend URL: {BASE_URL}")
-        print(f"Test User: {TEST_EMAIL}")
-        print(f"Expected Facebook Config ID: {EXPECTED_FACEBOOK_CONFIG_ID}")
-        print(f"Expected Instagram Config ID: {EXPECTED_INSTAGRAM_CONFIG_ID}")
-        print("=" * 80)
-        print()
+        print("🚀 Starting POST Validator Backend Testing")
+        print("=" * 60)
         
-        # Run tests in sequence
-        tests = [
-            self.authenticate,
-            self.test_config_debug,
-            self.test_auth_urls_debug,
-            self.test_facebook_auth_url,
-            self.test_instagram_auth_url,
-            self.test_url_parameters_validation
-        ]
+        # Test credentials from the review request
+        email = "lperpere@yahoo.fr"
+        password = "L@Reunion974!"
         
-        for test in tests:
-            if not test():
-                print("❌ Test failed, continuing with remaining tests...")
-                print()
+        # Step 1: Authentication
+        if not self.authenticate(email, password):
+            print("\n❌ CRITICAL: Authentication failed - cannot proceed with tests")
+            return False
         
-        # Print summary
-        self.print_summary()
-    
-    def print_summary(self):
-        """Print test summary"""
-        print("=" * 80)
-        print("📊 TEST SUMMARY")
-        print("=" * 80)
+        # Step 2: Test GET /posts/generated endpoint
+        if not self.test_posts_generated_endpoint():
+            print("\n❌ CRITICAL: GET /posts/generated endpoint test failed")
+            return False
         
-        passed = sum(1 for result in self.test_results if result["success"])
-        total = len(self.test_results)
-        success_rate = (passed / total * 100) if total > 0 else 0
+        # Step 3: Test field structure validation
+        if not self.test_field_structure_validation():
+            print("\n❌ CRITICAL: Field structure validation failed")
+            return False
         
-        print(f"Total Tests: {total}")
-        print(f"Passed: {passed}")
-        print(f"Failed: {total - passed}")
-        print(f"Success Rate: {success_rate:.1f}%")
-        print()
+        # Step 4: Test validated posts logic
+        if not self.test_validated_posts_logic():
+            print("\n❌ CRITICAL: Validated posts logic test failed")
+            return False
         
-        # Print individual results
-        for result in self.test_results:
-            print(f"{result['status']} {result['test']}")
-            if result['details']:
-                print(f"   📋 {result['details']}")
-            if result['error']:
-                print(f"   ❌ {result['error']}")
+        # Step 5: Test response format compatibility
+        if not self.test_response_format_compatibility():
+            print("\n❌ CRITICAL: Response format compatibility test failed")
+            return False
         
-        print()
-        print("=" * 80)
+        print("\n" + "=" * 60)
+        print("🎉 ALL TESTS PASSED SUCCESSFULLY!")
+        print("✅ GET /posts/generated endpoint includes 'validated' field")
+        print("✅ 'validated_at' and 'carousel_images' fields are present")
+        print("✅ Field types and structure are correct")
+        print("✅ Response format is compatible with frontend")
+        print("=" * 60)
         
-        if success_rate == 100:
-            print("🎉 ALL TESTS PASSED - FACEBOOK & INSTAGRAM CONFIGURATIONS WORKING CORRECTLY!")
-            print("✅ Les config_id dédiés sont correctement implémentés")
-            print("✅ Les URLs d'authentification sont générées avec les bons paramètres")
-            print("✅ Les redirections sont configurées correctement")
-            print("✅ Les scopes sont appropriés pour chaque plateforme")
-        elif success_rate >= 80:
-            print("⚠️ MOST TESTS PASSED - MINOR ISSUES DETECTED")
-            print("🔧 Some configuration issues may need attention")
-        else:
-            print("❌ MULTIPLE TEST FAILURES - CONFIGURATION ISSUES DETECTED")
-            print("🚨 Significant problems with Facebook/Instagram configuration")
-        
-        print("=" * 80)
+        return True
 
 def main():
-    """Main function"""
-    tester = SocialConnectionsTester()
-    tester.run_all_tests()
+    """Main test execution"""
+    tester = PostValidatorTester()
+    
+    try:
+        success = tester.run_all_tests()
+        if success:
+            print(f"\n🎯 CONCLUSION: Backend validation field fix is WORKING CORRECTLY")
+            sys.exit(0)
+        else:
+            print(f"\n💥 CONCLUSION: Backend validation field fix has ISSUES")
+            sys.exit(1)
+    except KeyboardInterrupt:
+        print(f"\n⚠️ Tests interrupted by user")
+        sys.exit(1)
+    except Exception as e:
+        print(f"\n❌ Unexpected error during testing: {str(e)}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

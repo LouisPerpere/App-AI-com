@@ -732,6 +732,7 @@ const PostPreviewModal = ({
   const handleCancel = () => {
     setShowModificationForm(false);
     setShowScheduleForm(false);
+    setModificationTextValue(''); // Reset la valeur du textarea
     if (modificationRequestRef.current) {
       modificationRequestRef.current.value = '';
     }

@@ -4137,6 +4137,17 @@ function MainApp() {
 
   // Fonction pour valider et envoyer un post au calendrier
   const handleValidatePost = async (post) => {
+    // DEBUG : Voir le contenu exact du post
+    alert('DEBUG Post: ' + JSON.stringify({
+      id: post.id,
+      scheduled_date: post.scheduled_date,
+      date: post.date,
+      time: post.time,
+      scheduled_time: post.scheduled_time,
+      publication_date: post.publication_date,
+      keys: Object.keys(post)
+    }));
+    
     // Vérifier qu'au moins un réseau social est connecté
     const connectedPlatforms = [];
     if (connectedAccounts.facebook) connectedPlatforms.push('facebook');
@@ -4162,15 +4173,23 @@ function MainApp() {
       return;
     }
 
-    // Vérifier que le post a une date/heure programmée
-    if (!post.scheduled_date) {
-      toast.error('📅 Programmez une date et heure avec le bouton horloge (🕐) d\'abord !');
+    // Vérifier les différents champs de date possibles
+    const dateField = post.scheduled_date || post.publication_date || post.date;
+    
+    if (!dateField) {
+      toast.error('📅 Aucune date trouvée sur ce post !');
       return;
     }
 
     // Vérifier que la date/heure est valide
-    const scheduledDateTime = new Date(post.scheduled_date);
+    const scheduledDateTime = new Date(dateField);
     const now = new Date();
+    
+    if (isNaN(scheduledDateTime.getTime())) {
+      toast.error('📅 Format de date invalide : ' + dateField);
+      return;
+    }
+    
     if (scheduledDateTime <= now) {
       toast.error('📅 La date de programmation doit être dans le futur !');
       return;
@@ -4189,7 +4208,8 @@ function MainApp() {
 
       const requestData = { 
         post_id: post.id,
-        platforms: [targetPlatform]
+        platforms: [targetPlatform],
+        scheduled_date: dateField  // Utiliser le bon champ de date
       };
 
       const response = await axios.post(

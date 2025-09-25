@@ -3875,8 +3875,38 @@ function MainApp() {
           return false;
         }
 
-        // Ici on pourrait ajouter un appel pour persister définitivement les changements
-        // Pour l'instant on recharge juste les données
+        // Appel API pour persister définitivement les changements en base de données
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          toast.error('Session expirée, veuillez vous reconnecter');
+          return false;
+        }
+
+        try {
+          // Sauvegarder les modifications finales dans la base
+          const updateResponse = await axios.put(
+            `${API}/posts/${post.id}`,
+            {
+              title: post.title,
+              text: post.text,
+              hashtags: post.hashtags,
+              modified_at: new Date().toISOString()
+            },
+            { 
+              headers: { Authorization: `Bearer ${token}` },
+              timeout: 10000
+            }
+          );
+
+          if (updateResponse.data?.success) {
+            console.log('✅ Modifications sauvegardées avec succès en base');
+          }
+        } catch (saveError) {
+          console.error('❌ Erreur sauvegarde finale:', saveError);
+          // Continuer même si la sauvegarde échoue pour ne pas bloquer l'UX
+        }
+        
+        // Recharger les données pour synchroniser les vues
         await loadCalendarPosts();
         await loadGeneratedPosts();
         

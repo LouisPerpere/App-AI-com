@@ -1527,88 +1527,117 @@ class ValidateToCalendarRequest(BaseModel):
 
 @api_router.post("/posts/validate-to-calendar")
 async def validate_post_to_calendar(
-    request: dict,
+    request: ValidateToCalendarRequest,
     user_id: str = Depends(get_current_user_id_robust)
 ):
-    """Validate a post and add it to the publication calendar"""
+    """Validate a post to the calendar by updating its validated status and ensuring it's scheduled"""
     try:
-        post_id = request.get('post_id')
-        platforms = request.get('platforms', [])
-        scheduled_date = request.get('scheduled_date')
-        
-        if not post_id:
-            raise HTTPException(status_code=400, detail="post_id is required")
-        
-        if not platforms:
-            raise HTTPException(status_code=400, detail="At least one platform must be selected")
+        print(f"📅 Validating post {request.post_id} to calendar for user {user_id}")
         
         dbm = get_database()
+        db = dbm.db
         
-        # Find the original post
-        original_post = dbm.db.generated_posts.find_one({
-            "id": post_id,
-            "owner_id": user_id
+        # Get current post
+        current_post = db.generated_posts.find_one({
+            "id": request.post_id,
+            "owner_id": user_id  # Correction ici
         })
         
-        if not original_post:
+        if not current_post:
             raise HTTPException(status_code=404, detail="Post not found")
         
-        print(f"📅 Validating post {post_id} to calendar for platforms: {platforms}")
+        # Update post as validated with validation timestamp
+        validation_time = datetime.utcnow().isoformat()
         
-        # Create calendar entries for each selected platform
-        calendar_entries = []
-        for platform in platforms:
-            calendar_entry = {
-                "id": str(uuid.uuid4()),
-                "user_id": user_id,
-                "original_post_id": post_id,
-                "platform": platform.lower(),
-                "title": original_post.get('title', ''),
-                "text": original_post.get('text', ''),
-                "visual_url": original_post.get('visual_url', ''),
-                "visual_id": original_post.get('visual_id', ''),
-                "carousel_images": original_post.get('carousel_images', []),
-                "scheduled_date": scheduled_date,
-                "status": "scheduled",  # scheduled, published, failed
-                "validated_at": datetime.now(timezone.utc).isoformat(),
-                "created_at": datetime.now(timezone.utc).isoformat(),
-                "published_at": None,
-                "error_message": None
-            }
-            calendar_entries.append(calendar_entry)
+        update_data = {
+            "validated": True,
+            "validated_at": validation_time,
+            "status": "scheduled"  # Ensure status is set to scheduled
+        }
         
-        # Insert calendar entries
-        if calendar_entries:
-            result = dbm.db.publication_calendar.insert_many(calendar_entries)
-            print(f"✅ Created {len(result.inserted_ids)} calendar entries")
+        # If no scheduled_date is set, use the provided date/time
+        if not current_post.get("scheduled_date"):
+            if request.scheduled_date:
+                update_data["scheduled_date"] = request.scheduled_date
+            else:
+                # Default to tomorrow at 9 AM
+                tomorrow = datetime.utcnow() + timedelta(days=1)
+                tomorrow = tomorrow.replace(hour=9, minute=0, second=0, microsecond=0)
+                update_data["scheduled_date"] = tomorrow.isoformat()
         
-        # Update original post status to indicate it's been validated
-        update_result = dbm.db.generated_posts.update_one(
-            {"id": post_id, "owner_id": user_id},
-            {
-                "$set": {
-                    "validated": True,
-                    "validated_at": datetime.now(timezone.utc).isoformat(),
-                    "calendar_platforms": platforms
-                }
-            }
+        result = db.generated_posts.update_one(
+            {"id": request.post_id, "owner_id": user_id},
+            {"$set": update_data}
         )
         
-        if update_result.matched_count == 0:
-            print(f"⚠️ Could not update original post {post_id}")
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Post not found or not authorized")
+        
+        print(f"✅ Post {request.post_id} validated to calendar successfully")
         
         return {
             "success": True,
-            "message": f"Post validated and scheduled for {', '.join(platforms)}",
-            "calendar_entries": len(calendar_entries),
-            "scheduled_date": scheduled_date
+            "message": "Post validé au calendrier avec succès",
+            "validated_at": validation_time
         }
         
     except HTTPException:
-        raise  # Re-raise HTTPExceptions to preserve status codes
+        raise
     except Exception as e:
         print(f"❌ Error validating post to calendar: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to validate post to calendar: {str(e)}")
+
+@api_router.get("/calendar/posts")
+async def get_calendar_posts(user_id: str = Depends(get_current_user_id_robust)):
+    """Get all validated posts for calendar display"""
+    try:
+        print(f"📅 Loading calendar posts for user {user_id}")
+        
+        dbm = get_database()
+        db = dbm.db
+        
+        # Get all validated/scheduled posts for this user
+        posts = list(db.generated_posts.find({
+            "owner_id": user_id,
+            "$or": [
+                {"validated": True},
+                {"status": "scheduled"}
+            ]
+        }))
+        
+        print(f"📅 Found {len(posts)} calendar posts for user {user_id}")
+        
+        # Format posts for frontend display (same format as generated posts)
+        formatted_posts = []
+        for post in posts:
+            formatted_posts.append({
+                "id": post.get("id", ""),
+                "title": post.get("title", ""),
+                "text": post.get("text", ""),
+                "hashtags": post.get("hashtags", []),
+                "visual_url": post.get("visual_url", ""),
+                "visual_id": post.get("visual_id", ""),
+                "visual_type": post.get("visual_type", "image"),
+                "platform": post.get("platform", "instagram"),
+                "content_type": post.get("content_type", "product"),
+                "scheduled_date": post.get("scheduled_date", ""),
+                "status": post.get("status", "scheduled"),
+                "published": post.get("published", False),
+                "validated": post.get("validated", False),
+                "validated_at": post.get("validated_at", ""),
+                "carousel_images": post.get("carousel_images", []),
+                "created_at": post.get("created_at", ""),
+                "modified_at": post.get("modified_at", "")
+            })
+        
+        return {
+            "posts": formatted_posts,
+            "count": len(formatted_posts)
+        }
+        
+    except Exception as e:
+        print(f"❌ Error loading calendar posts: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to load calendar posts: {str(e)}")
 
 class MovePostRequest(BaseModel):
     scheduled_date: str

@@ -788,7 +788,7 @@ const PostPreviewModal = ({
           {!showModificationForm ? (
             <>
               <button
-                onClick={onValidate}
+                onClick={() => onValidate && onValidate(post)}
                 className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
               >
                 <div className="flex items-center space-x-2">

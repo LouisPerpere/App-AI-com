@@ -1221,7 +1221,12 @@ const PostPreviewModal = ({
                       setModificationTextValue(''); // Reset la valeur avant d'ouvrir
                       setShowModificationForm(true);
                     }}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+                    disabled={showModificationForm || showModificationPreview || isModifying}
+                    className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform shadow-lg ${
+                      showModificationForm || showModificationPreview || isModifying
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
+                        : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white hover:scale-105 active:scale-95 hover:shadow-xl'
+                    }`}
                   >
                     <div className="flex items-center space-x-2">
                       <Edit className="w-4 h-4" />
@@ -1247,7 +1252,7 @@ const PostPreviewModal = ({
                           setIsValidating(false);
                         }
                       }}
-                      disabled={isValidating || post.validated}
+                      disabled={isValidating || post.validated || showModificationForm || showModificationPreview || isModifying}
                       className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl ${
                         post.validated
                           ? 'bg-green-600 text-white cursor-not-allowed' 

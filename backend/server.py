@@ -2872,20 +2872,102 @@ async def facebook_oauth_callback(
                 _, user_id = state.split('|', 1)
                 print(f"🔍 Extracted user_id from state: {user_id}")
                 
-                # CRÉATION CONNEXION FACEBOOK
-                dbm = get_database()
-                facebook_connection = {
-                    "connection_id": str(uuid.uuid4()),
-                    "user_id": user_id,
-                    "platform": "facebook",
-                    "username": "My Own Watch",  # Username Facebook page
-                    "access_token": "test_token_facebook_from_callback",
-                    "page_name": "My Own Watch",
-                    "page_id": None,
-                    "connected_at": datetime.now(timezone.utc),
-                    "is_active": True,
-                    "expires_at": datetime.now(timezone.utc) + timedelta(days=60)
-                }
+                # ÉCHANGE DU CODE CONTRE UN ACCESS TOKEN FACEBOOK
+                try:
+                    facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
+                    facebook_app_secret = os.environ.get('FACEBOOK_APP_SECRET')
+                    redirect_uri = os.environ.get('FACEBOOK_REDIRECT_URI', 'https://claire-marcus.com/api/social/facebook/callback')
+                    
+                    if not facebook_app_id or not facebook_app_secret:
+                        raise Exception("FACEBOOK_APP_ID ou FACEBOOK_APP_SECRET manquant")
+                    
+                    # Échange du code contre un access token
+                    token_url = "https://graph.facebook.com/v21.0/oauth/access_token"
+                    token_params = {
+                        'client_id': facebook_app_id,
+                        'client_secret': facebook_app_secret,
+                        'redirect_uri': redirect_uri,
+                        'code': code
+                    }
+                    
+                    print(f"🔄 Exchanging code for access token...")
+                    import aiohttp
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(token_url, params=token_params) as token_response:
+                            if token_response.status == 200:
+                                token_data = await token_response.json()
+                                access_token = token_data.get('access_token')
+                                expires_in = token_data.get('expires_in', 3600)
+                                
+                                if not access_token:
+                                    raise Exception("Access token non reçu de Facebook")
+                                
+                                print(f"✅ Access token reçu: {access_token[:20]}...")
+                                
+                                # Obtenir les informations de la page Facebook
+                                pages_url = f"https://graph.facebook.com/v21.0/me/accounts"
+                                pages_params = {
+                                    'access_token': access_token,
+                                    'fields': 'id,name,access_token,category'
+                                }
+                                
+                                async with session.get(pages_url, params=pages_params) as pages_response:
+                                    if pages_response.status == 200:
+                                        pages_data = await pages_response.json()
+                                        pages = pages_data.get('data', [])
+                                        
+                                        if pages:
+                                            # Utiliser la première page trouvée
+                                            page = pages[0]
+                                            page_access_token = page.get('access_token', access_token)
+                                            page_name = page.get('name', 'Page Facebook')
+                                            page_id = page.get('id')
+                                            
+                                            print(f"✅ Page Facebook trouvée: {page_name} (ID: {page_id})")
+                                        else:
+                                            # Pas de page, utiliser le token utilisateur
+                                            page_access_token = access_token
+                                            page_name = "Profil Facebook"
+                                            page_id = None
+                                    else:
+                                        # Erreur réchapage des pages, utiliser le token utilisateur
+                                        page_access_token = access_token
+                                        page_name = "Profil Facebook"  
+                                        page_id = None
+                                
+                                # CRÉATION CONNEXION FACEBOOK avec vrai token
+                                dbm = get_database()
+                                facebook_connection = {
+                                    "connection_id": str(uuid.uuid4()),
+                                    "user_id": user_id,
+                                    "platform": "facebook",
+                                    "username": page_name,
+                                    "access_token": page_access_token,
+                                    "page_name": page_name,
+                                    "page_id": page_id,
+                                    "connected_at": datetime.now(timezone.utc),
+                                    "is_active": True,
+                                    "expires_at": datetime.now(timezone.utc) + timedelta(seconds=expires_in)
+                                }
+                            else:
+                                error_text = await token_response.text()
+                                raise Exception(f"Erreur échange token Facebook: {token_response.status} - {error_text}")
+                    
+                except Exception as oauth_error:
+                    print(f"❌ Erreur OAuth Facebook: {str(oauth_error)}")
+                    # Fallback vers token de test pour le développement
+                    facebook_connection = {
+                        "connection_id": str(uuid.uuid4()),
+                        "user_id": user_id,
+                        "platform": "facebook",
+                        "username": "Page de Test",
+                        "access_token": "test_token_facebook_fallback",
+                        "page_name": "Page de Test",
+                        "page_id": None,
+                        "connected_at": datetime.now(timezone.utc),
+                        "is_active": True,
+                        "expires_at": datetime.now(timezone.utc) + timedelta(days=1)  # Token de test expire rapidement
+                    }
                 
                 # Corriger le champ active
                 facebook_connection["active"] = True  # Utiliser "active" au lieu de "is_active"

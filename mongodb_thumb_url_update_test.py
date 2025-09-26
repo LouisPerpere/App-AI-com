@@ -12,7 +12,7 @@ from pymongo import MongoClient
 from urllib.parse import urlparse
 
 # Configuration
-BACKEND_URL = "https://post-validator.preview.emergentagent.com"
+BACKEND_URL = "https://social-ai-planner-2.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request
@@ -131,7 +131,7 @@ class MongoDBThumbUrlUpdater:
             old_url_count = media_collection.count_documents(old_url_pattern)
             
             # Count documents with new libfusion URLs
-            new_url_pattern = {"thumb_url": {"$regex": "^https://post-validator.preview.emergentagent.com/uploads/thumbs/"}}
+            new_url_pattern = {"thumb_url": {"$regex": "^https://social-ai-planner-2.preview.emergentagent.com/uploads/thumbs/"}}
             new_url_count = media_collection.count_documents(new_url_pattern)
             
             # Sample some old URLs
@@ -173,7 +173,7 @@ class MongoDBThumbUrlUpdater:
                                 "$replaceOne": {
                                     "input": "$thumb_url",
                                     "find": "https://claire-marcus.com",
-                                    "replacement": "https://post-validator.preview.emergentagent.com"
+                                    "replacement": "https://social-ai-planner-2.preview.emergentagent.com"
                                 }
                             }
                         }
@@ -209,7 +209,7 @@ class MongoDBThumbUrlUpdater:
             remaining_old_urls = media_collection.count_documents(old_url_pattern)
             
             # Count documents with new URLs
-            new_url_pattern = {"thumb_url": {"$regex": "^https://post-validator.preview.emergentagent.com/uploads/thumbs/"}}
+            new_url_pattern = {"thumb_url": {"$regex": "^https://social-ai-planner-2.preview.emergentagent.com/uploads/thumbs/"}}
             new_url_count = media_collection.count_documents(new_url_pattern)
             
             # Sample some new URLs

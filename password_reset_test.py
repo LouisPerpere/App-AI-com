@@ -123,7 +123,7 @@ def test_authentication():
         print("=" * 60)
         
         # API endpoint
-        base_url = "https://post-validator.preview.emergentagent.com"
+        base_url = "https://social-ai-planner-2.preview.emergentagent.com"
         login_url = f"{base_url}/api/auth/login"
         
         # Login credentials
@@ -238,7 +238,7 @@ def test_subscription_status():
         print("=" * 60)
         
         # First login to get token
-        base_url = "https://post-validator.preview.emergentagent.com"
+        base_url = "https://social-ai-planner-2.preview.emergentagent.com"
         login_url = f"{base_url}/api/auth/login"
         
         login_data = {

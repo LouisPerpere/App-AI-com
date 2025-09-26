@@ -21,7 +21,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://post-validator.preview.emergentagent.com/api"
+BACKEND_URL = "https://social-ai-planner-2.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

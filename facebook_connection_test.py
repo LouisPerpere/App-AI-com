@@ -21,7 +21,7 @@ from datetime import datetime
 import uuid
 
 # Configuration
-BASE_URL = "https://post-validator.preview.emergentagent.com/api"
+BASE_URL = "https://social-ai-planner-2.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 EXPECTED_USER_ID = "bdf87a74-e3f3-44f3-bac2-649cde3ef93e"

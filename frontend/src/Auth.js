@@ -25,12 +25,12 @@ const getBackendURL = () => {
   if (typeof window !== 'undefined') {
     const currentUrl = window.location.origin;
     if (currentUrl.includes('insta-automate-2.preview.emergentagent.com')) {
-      return 'https://post-validator.preview.emergentagent.com';
+      return 'https://social-ai-planner-2.preview.emergentagent.com';
     }
   }
   
   // Fallback final: URL hardcodée pour garantir fonctionnement
-  return 'https://post-validator.preview.emergentagent.com';
+  return 'https://social-ai-planner-2.preview.emergentagent.com';
 };
 
 const BACKEND_URL = getBackendURL();

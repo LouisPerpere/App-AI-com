@@ -313,7 +313,7 @@ class EmailService:
                 </div>
                 
                 <div style="text-align: center; margin: 30px 0;">
-                    <a href="https://post-validator.preview.emergentagent.com" 
+                    <a href="https://social-ai-planner-2.preview.emergentagent.com" 
                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                               color: white; padding: 15px 30px; text-decoration: none; 
                               border-radius: 8px; font-weight: bold; display: inline-block;">
@@ -368,7 +368,7 @@ class EmailService:
                 </div>
                 
                 <div style="text-align: center; margin: 30px 0;">
-                    <a href="https://post-validator.preview.emergentagent.com" 
+                    <a href="https://social-ai-planner-2.preview.emergentagent.com" 
                        style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); 
                               color: white; padding: 15px 30px; text-decoration: none; 
                               border-radius: 8px; font-weight: bold; display: inline-block;">

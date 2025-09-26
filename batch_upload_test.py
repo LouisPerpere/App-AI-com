@@ -11,7 +11,7 @@ This script tests the batch upload functionality with different upload types:
 5. Verify no conflicts between different upload modes
 
 Using credentials: lperpere@yahoo.fr / L@Reunion974!
-Backend URL: https://post-validator.preview.emergentagent.com/api
+Backend URL: https://social-ai-planner-2.preview.emergentagent.com/api
 """
 
 import requests
@@ -22,7 +22,7 @@ import time
 import uuid
 
 # Configuration
-BACKEND_URL = "https://post-validator.preview.emergentagent.com/api"
+BACKEND_URL = "https://social-ai-planner-2.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 

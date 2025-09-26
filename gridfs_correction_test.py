@@ -11,7 +11,7 @@ CORRECTION À TESTER:
 - PAS le MongoDB _id du document
 - URLs fonctionnelles avec les nouveaux IDs
 
-Backend URL: https://post-validator.preview.emergentagent.com/api
+Backend URL: https://social-ai-planner-2.preview.emergentagent.com/api
 """
 
 import requests
@@ -21,7 +21,7 @@ import re
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://post-validator.preview.emergentagent.com/api"
+BASE_URL = "https://social-ai-planner-2.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 TARGET_MONTH = "septembre_2025"

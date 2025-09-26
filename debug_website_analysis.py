@@ -7,7 +7,7 @@ import requests
 import json
 
 def debug_website_analysis():
-    base_url = "https://post-validator.preview.emergentagent.com"
+    base_url = "https://social-ai-planner-2.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     # Login first

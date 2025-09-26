@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for POST Validator API
-Testing the GET /posts/generated endpoint to verify 'validated' field inclusion
+Backend Test Suite for Facebook Connection and Publication Issues
+Testing social connections state and publication functionality
 """
 
 import requests
@@ -9,7 +9,7 @@ import json
 import sys
 from datetime import datetime
 
-class PostValidatorTester:
+class FacebookConnectionTester:
     def __init__(self):
         self.base_url = "https://social-ai-planner-2.preview.emergentagent.com/api"
         self.session = requests.Session()

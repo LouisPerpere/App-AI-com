@@ -1660,9 +1660,9 @@ async def move_calendar_post(
         
         dbm = get_database()
         
-        # Mettre à jour la date dans le calendrier
-        result = dbm.db.publication_calendar.update_one(
-            {"id": post_id, "user_id": user_id},
+        # Mettre à jour la date dans le calendrier (generated_posts collection)
+        result = dbm.db.generated_posts.update_one(
+            {"id": post_id, "owner_id": user_id},
             {
                 "$set": {
                     "scheduled_date": request.scheduled_date,

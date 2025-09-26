@@ -306,16 +306,32 @@ class SocialConnectionsDiagnosticTester:
                 print(f"     Fields: {list(sample_old.keys())}")
                 
                 # Check for Facebook connections
-                if sample_old.get('platform') == 'facebook' or 'facebook' in str(sample_old).lower():
-                    print(f"     ✅ Contains Facebook connection data")
+                facebook_connections = [conn for conn in old_connections if conn.get('platform') == 'facebook']
+                instagram_connections = [conn for conn in old_connections if conn.get('platform') == 'instagram']
+                
+                print(f"     🎯 PLATFORM BREAKDOWN:")
+                print(f"       Facebook connections: {len(facebook_connections)}")
+                print(f"       Instagram connections: {len(instagram_connections)}")
                 
                 # Check for active status
-                if 'active' in sample_old:
-                    print(f"     Active status: {sample_old.get('active')}")
-                elif 'status' in sample_old:
-                    print(f"     Status: {sample_old.get('status')}")
-                elif 'is_active' in sample_old:
-                    print(f"     Is Active: {sample_old.get('is_active')}")
+                active_connections = [conn for conn in old_connections if conn.get('is_active') is True]
+                inactive_connections = [conn for conn in old_connections if conn.get('is_active') is False]
+                
+                print(f"     📊 ACTIVITY STATUS:")
+                print(f"       Active connections: {len(active_connections)}")
+                print(f"       Inactive connections: {len(inactive_connections)}")
+                
+                if len(active_connections) == 0:
+                    print(f"     ❌ CRITICAL: NO ACTIVE CONNECTIONS - This explains the publish error!")
+                    print(f"     🔧 SOLUTION: User needs to reconnect or reactivate social accounts")
+                
+                # Show sample connection details
+                if sample_old.get('platform'):
+                    print(f"     Sample connection platform: {sample_old.get('platform')}")
+                if 'is_active' in sample_old:
+                    print(f"     Sample is_active: {sample_old.get('is_active')}")
+                if 'connected_at' in sample_old:
+                    print(f"     Sample connected_at: {sample_old.get('connected_at')}")
             
             if new_count > 0:
                 print(f"\n   🔍 New collection structure analysis:")

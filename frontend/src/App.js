@@ -592,6 +592,7 @@ const PostPreviewModal = ({
   const [isValidating, setIsValidating] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false); // Nouvel état pour confirmation suppression
   
+  const [isApplyingModification, setIsApplyingModification] = useState(false);
   const [modificationTextValue, setModificationTextValue] = useState(''); // Nouvel état pour la valeur du textarea
   const [secondaryModificationText, setSecondaryModificationText] = useState('');
   

@@ -466,6 +466,8 @@ class SocialConnectionsDiagnosticTester:
             
             print(f"   📊 Based on diagnostic findings:")
             print(f"     Old collection: {old_count} connections")
+            if old_alt_count > 0:
+                print(f"     Old collection alt: {old_alt_count} connections")
             print(f"     New collection: {new_count} connections")
             
             print(f"\n   🔧 SPECIFIC RECOMMENDATIONS:")

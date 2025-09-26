@@ -452,10 +452,17 @@ class SocialConnectionsDiagnosticTester:
         
         try:
             old_connections = diagnostic_data.get('social_connections', [])
+            old_connections_alt = diagnostic_data.get('social_connections_old', [])
             new_connections = diagnostic_data.get('social_media_connections', [])
             
             old_count = len(old_connections) if isinstance(old_connections, list) else 0
+            old_alt_count = len(old_connections_alt) if isinstance(old_connections_alt, list) else 0
             new_count = len(new_connections) if isinstance(new_connections, list) else 0
+            
+            # Use the alternative field if main field is empty
+            if old_count == 0 and old_alt_count > 0:
+                old_connections = old_connections_alt
+                old_count = old_alt_count
             
             print(f"   📊 Based on diagnostic findings:")
             print(f"     Old collection: {old_count} connections")

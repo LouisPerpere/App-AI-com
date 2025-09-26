@@ -235,65 +235,82 @@ class SocialConnectionsDiagnosticTester:
             print(f"   ❌ Publish endpoint test error: {str(e)}")
             return False
     
-    def test_facebook_callback_simulation(self):
-        """Step 4: Test Facebook callback simulation to verify save functionality"""
-        print("\n📞 Step 4: Facebook callback save functionality test")
+    def analyze_connection_mismatch(self, diagnostic_data):
+        """Step 4: Analyze why the publish endpoint can't find connections that exist in diagnostic"""
+        print("\n🔍 Step 4: Analyzing connection storage mismatch")
         
-        print("   🧪 Simulating Facebook callback with test data...")
-        
-        # Test the callback endpoint with realistic parameters
-        test_callback_params = {
-            'code': 'test_facebook_auth_code_12345',
-            'state': f'facebook_auth_state|{self.user_id}',  # Include user_id in state
-        }
+        if not diagnostic_data:
+            print("   ⚠️ No diagnostic data available for analysis")
+            return True
         
         try:
-            response = self.session.get(
-                f"{BACKEND_URL}/social/facebook/callback",
-                params=test_callback_params,
-                timeout=10,
-                allow_redirects=False
-            )
+            # Count connections in each collection
+            old_connections = diagnostic_data.get('social_connections', [])
+            new_connections = diagnostic_data.get('social_media_connections', [])
             
-            print(f"   📡 Callback request sent with parameters:")
-            print(f"      Code: {test_callback_params['code']}")
-            print(f"      State: {test_callback_params['state']}")
-            print(f"   📡 Response status: {response.status_code}")
+            old_count = len(old_connections) if isinstance(old_connections, list) else 0
+            new_count = len(new_connections) if isinstance(new_connections, list) else 0
             
-            if response.status_code == 302:
-                print(f"   ✅ Callback endpoint responds (redirect expected)")
+            print(f"   📊 Connection Analysis:")
+            print(f"     Old collection (social_connections): {old_count} connections")
+            print(f"     New collection (social_media_connections): {new_count} connections")
+            
+            # Analyze field structures
+            if old_count > 0:
+                print(f"\n   🔍 Old collection structure analysis:")
+                sample_old = old_connections[0]
+                print(f"     Fields: {list(sample_old.keys())}")
                 
-                # Check redirect location for clues
-                location = response.headers.get('Location', '')
-                print(f"   🔗 Redirect location: {location}")
+                # Check for Facebook connections
+                if sample_old.get('platform') == 'facebook' or 'facebook' in str(sample_old).lower():
+                    print(f"     ✅ Contains Facebook connection data")
                 
-                # Look for success/error indicators in redirect
-                if 'facebook_success=true' in location:
-                    print(f"   ✅ Callback indicates success")
-                elif 'facebook_error=' in location:
-                    print(f"   ⚠️ Callback indicates error (expected for test data)")
-                    
-                    # Extract error message
-                    if 'facebook_error=' in location:
-                        error_part = location.split('facebook_error=')[1].split('&')[0]
-                        print(f"      Error: {error_part}")
-                else:
-                    print(f"   ⚠️ Redirect format unclear")
+                # Check for active status
+                if 'active' in sample_old:
+                    print(f"     Active status: {sample_old.get('active')}")
+                elif 'status' in sample_old:
+                    print(f"     Status: {sample_old.get('status')}")
+                elif 'is_active' in sample_old:
+                    print(f"     Is Active: {sample_old.get('is_active')}")
+            
+            if new_count > 0:
+                print(f"\n   🔍 New collection structure analysis:")
+                sample_new = new_connections[0]
+                print(f"     Fields: {list(sample_new.keys())}")
                 
-                return True
+                # Check for Facebook connections
+                if sample_new.get('platform') == 'facebook' or 'facebook' in str(sample_new).lower():
+                    print(f"     ✅ Contains Facebook connection data")
                 
-            elif response.status_code == 404:
-                print(f"   ❌ Facebook callback endpoint not found")
-                print(f"   🔍 /api/social/facebook/callback may not be implemented")
-                return False
-                
+                # Check for active status
+                if 'active' in sample_new:
+                    print(f"     Active status: {sample_new.get('active')}")
+                elif 'status' in sample_new:
+                    print(f"     Status: {sample_new.get('status')}")
+                elif 'is_active' in sample_new:
+                    print(f"     Is Active: {sample_new.get('is_active')}")
+            
+            # Provide analysis conclusion
+            print(f"\n   💡 Analysis Conclusion:")
+            if old_count > 0 and new_count == 0:
+                print(f"     🎯 ISSUE IDENTIFIED: Connections exist in OLD collection but NEW collection is empty")
+                print(f"     🔧 SOLUTION: The publish endpoint likely queries the NEW collection")
+                print(f"     📋 RECOMMENDATION: Migrate connections from old to new collection")
+            elif old_count == 0 and new_count > 0:
+                print(f"     🎯 ISSUE IDENTIFIED: Connections exist in NEW collection but OLD collection is empty")
+                print(f"     🔧 SOLUTION: The publish endpoint likely queries the OLD collection")
+                print(f"     📋 RECOMMENDATION: Update publish endpoint to use new collection")
+            elif old_count > 0 and new_count > 0:
+                print(f"     🎯 CONNECTIONS EXIST IN BOTH: Need to check which one publish endpoint uses")
+                print(f"     📋 RECOMMENDATION: Verify publish endpoint collection query")
             else:
-                print(f"   ❌ Callback failed: {response.status_code}")
-                print(f"   Response: {response.text}")
-                return False
-                
+                print(f"     🎯 NO CONNECTIONS FOUND: Both collections are empty")
+                print(f"     📋 RECOMMENDATION: User needs to reconnect social accounts")
+            
+            return True
+            
         except Exception as e:
-            print(f"   ❌ Callback simulation error: {str(e)}")
+            print(f"   ❌ Connection analysis error: {str(e)}")
             return False
     
     def test_instagram_callback_user_id_extraction(self):

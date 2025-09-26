@@ -85,81 +85,86 @@ class SocialConnectionsDiagnosticTester:
             print(f"   ❌ Authentication error: {str(e)}")
             return False
     
-    def test_social_connections_endpoint(self):
-        """Step 2: Test GET /api/social/connections endpoint"""
-        print("\n🔗 Step 2: Test GET /api/social/connections endpoint")
+    def test_diagnostic_endpoint(self):
+        """Step 2: Test GET /api/debug/social-connections diagnostic endpoint"""
+        print("\n🔍 Step 2: Test GET /api/debug/social-connections diagnostic endpoint")
         
         if not self.access_token:
             print("   ❌ No access token available")
-            return False
+            return False, None
         
         try:
-            response = self.session.get(f"{BACKEND_URL}/social/connections", timeout=10)
+            response = self.session.get(f"{BACKEND_URL}/debug/social-connections", timeout=10)
             
-            print(f"   📡 Request sent to: {BACKEND_URL}/social/connections")
+            print(f"   📡 Request sent to: {BACKEND_URL}/debug/social-connections")
             print(f"   📡 Status code: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
-                print(f"   ✅ Endpoint accessible")
+                print(f"   ✅ Diagnostic endpoint accessible")
                 
-                # Analyze response structure
-                connections = data.get("connections", [])
-                print(f"   📊 Response analysis:")
-                print(f"      Total connections found: {len(connections)}")
+                # Analyze the response structure
+                print(f"\n📋 Diagnostic Response Analysis:")
+                print(f"   Response keys: {list(data.keys())}")
                 
-                if connections:
-                    print(f"   📋 Connection details:")
-                    for i, conn in enumerate(connections, 1):
-                        print(f"      Connection {i}:")
-                        print(f"         Platform: {conn.get('platform', 'Not specified')}")
-                        print(f"         Page Name: {conn.get('page_name', 'Not specified')}")
-                        print(f"         Username: {conn.get('username', 'Not specified')}")
-                        print(f"         Is Active: {conn.get('is_active', 'Not specified')}")
-                        print(f"         Connected At: {conn.get('connected_at', 'Not specified')}")
-                        print(f"         User ID: {conn.get('user_id', 'Not specified')}")
-                        
-                        # Check if this is a Facebook connection
-                        if conn.get('platform') == 'facebook':
-                            print(f"         🎯 FACEBOOK CONNECTION FOUND")
-                            
-                            # Verify required fields for frontend display
-                            required_fields = ['platform', 'page_name', 'is_active', 'user_id']
-                            missing_fields = []
-                            
-                            for field in required_fields:
-                                if not conn.get(field):
-                                    missing_fields.append(field)
-                            
-                            if missing_fields:
-                                print(f"         ❌ Missing required fields: {', '.join(missing_fields)}")
+                # Check for social_connections (old collection)
+                if 'social_connections' in data:
+                    old_connections = data['social_connections']
+                    print(f"\n   📊 OLD COLLECTION (social_connections):")
+                    print(f"     Count: {len(old_connections) if isinstance(old_connections, list) else 'N/A'}")
+                    
+                    if isinstance(old_connections, list) and old_connections:
+                        print(f"     Sample connection:")
+                        sample = old_connections[0]
+                        for key, value in sample.items():
+                            if key == 'access_token':
+                                print(f"       {key}: {str(value)[:20]}..." if value else f"       {key}: None")
                             else:
-                                print(f"         ✅ All required fields present")
-                                
-                                # Check if connection should show as "Connected"
-                                if conn.get('is_active') and conn.get('page_name'):
-                                    print(f"         ✅ Should display as 'Connecté : {conn.get('page_name')}'")
-                                else:
-                                    print(f"         ❌ Should NOT display as connected (inactive or no page name)")
-                else:
-                    print(f"   ⚠️ No connections found for user {self.user_id}")
-                    print(f"   🔍 This explains why 'Connecter' button still shows")
+                                print(f"       {key}: {value}")
+                    elif isinstance(old_connections, list):
+                        print(f"     ⚠️ Collection exists but is empty")
+                    else:
+                        print(f"     Structure: {type(old_connections)} = {old_connections}")
                 
-                return True
+                # Check for social_media_connections (new collection)
+                if 'social_media_connections' in data:
+                    new_connections = data['social_media_connections']
+                    print(f"\n   📊 NEW COLLECTION (social_media_connections):")
+                    print(f"     Count: {len(new_connections) if isinstance(new_connections, list) else 'N/A'}")
+                    
+                    if isinstance(new_connections, list) and new_connections:
+                        print(f"     Sample connection:")
+                        sample = new_connections[0]
+                        for key, value in sample.items():
+                            if key == 'access_token':
+                                print(f"       {key}: {str(value)[:20]}..." if value else f"       {key}: None")
+                            else:
+                                print(f"       {key}: {value}")
+                    elif isinstance(new_connections, list):
+                        print(f"     ⚠️ Collection exists but is empty")
+                    else:
+                        print(f"     Structure: {type(new_connections)} = {new_connections}")
+                
+                # Check for any other relevant fields
+                for key, value in data.items():
+                    if key not in ['social_connections', 'social_media_connections']:
+                        print(f"\n   📋 Additional field '{key}': {type(value)} = {value}")
+                
+                return True, data
                 
             elif response.status_code == 404:
-                print(f"   ❌ Endpoint not found (404)")
-                print(f"   🔍 GET /api/social/connections endpoint may not be implemented")
-                return False
+                print(f"   ❌ Diagnostic endpoint not found (404)")
+                print(f"   🔍 GET /api/debug/social-connections endpoint may not be implemented")
+                return False, None
                 
             else:
-                print(f"   ❌ Endpoint failed: {response.status_code}")
+                print(f"   ❌ Diagnostic endpoint failed: {response.status_code}")
                 print(f"   Response: {response.text}")
-                return False
+                return False, None
                 
         except Exception as e:
-            print(f"   ❌ Social connections endpoint error: {str(e)}")
-            return False
+            print(f"   ❌ Diagnostic endpoint error: {str(e)}")
+            return False, None
     
     def test_database_social_connections_collection(self):
         """Step 3: Test database social_connections collection indirectly"""

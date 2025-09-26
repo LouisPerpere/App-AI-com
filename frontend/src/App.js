@@ -3951,7 +3951,6 @@ function MainApp() {
       }
       
       toast.error(errorMessage);
-      setIsModifyingPost(false);
       return false;
     } finally {
       setIsModifyingPost(false);

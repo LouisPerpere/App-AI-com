@@ -473,15 +473,33 @@ class SocialConnectionsDiagnosticTester:
             print(f"\n   🔧 SPECIFIC RECOMMENDATIONS:")
             
             if old_count > 0 and new_count == 0:
-                print(f"     1. 🎯 PRIMARY ISSUE: Data migration needed")
-                print(f"        - Connections exist in 'social_connections' collection")
-                print(f"        - Publish endpoint likely queries 'social_media_connections'")
-                print(f"        - SOLUTION: Migrate data or update endpoint query")
+                # Check if connections are active
+                active_connections = [conn for conn in old_connections if conn.get('is_active') is True]
+                facebook_active = [conn for conn in active_connections if conn.get('platform') == 'facebook']
                 
-                print(f"\n     2. 🔧 IMMEDIATE FIX OPTIONS:")
-                print(f"        Option A: Update /api/posts/publish to query 'social_connections'")
-                print(f"        Option B: Migrate data from 'social_connections' to 'social_media_connections'")
-                print(f"        Option C: Update publish endpoint to check both collections")
+                if len(active_connections) == 0:
+                    print(f"     1. 🎯 PRIMARY ISSUE: Connections exist but are INACTIVE")
+                    print(f"        - Found {old_count} connections in database")
+                    print(f"        - ALL connections have is_active = False")
+                    print(f"        - Publish endpoint correctly filters for active connections")
+                    print(f"        - SOLUTION: User needs to reconnect Facebook")
+                    
+                    print(f"\n     2. 🔧 IMMEDIATE FIX OPTIONS:")
+                    print(f"        Option A: User reconnects Facebook account (RECOMMENDED)")
+                    print(f"        Option B: Reactivate existing connections if tokens are still valid")
+                    print(f"        Option C: Check why connections became inactive")
+                    
+                elif len(facebook_active) == 0:
+                    print(f"     1. 🎯 PRIMARY ISSUE: No active Facebook connections")
+                    print(f"        - Found {len(active_connections)} active connections")
+                    print(f"        - But none are Facebook connections")
+                    print(f"        - SOLUTION: User needs to connect Facebook")
+                    
+                else:
+                    print(f"     1. 🎯 UNEXPECTED: Active Facebook connections exist")
+                    print(f"        - Found {len(facebook_active)} active Facebook connections")
+                    print(f"        - But publish endpoint still can't find them")
+                    print(f"        - SOLUTION: Check publish endpoint query logic")
                 
             elif old_count == 0 and new_count > 0:
                 print(f"     1. 🎯 PRIMARY ISSUE: Endpoint query mismatch")

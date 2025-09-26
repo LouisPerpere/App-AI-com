@@ -824,8 +824,23 @@ const PostPreviewModal = ({
   };
 
   const handleCancelSecondaryModification = () => {
+    // Annuler SEULEMENT la modification secondaire, garder l'aperçu principal
     setShowSecondaryModification(false);
     setSecondaryModificationText('');
+  };
+
+  const handleCancelMainModification = () => {
+    // Annuler TOUT le workflow de modification
+    setShowModificationPreview(false);
+    setModifiedPostData(null);
+    setShowSecondaryModification(false);
+    setSecondaryModificationText('');
+    setModificationTextValue('');
+    
+    // Nettoyer le textarea principal
+    if (modificationRequestRef && modificationRequestRef.current) {
+      modificationRequestRef.current.value = '';
+    }
   };
 
   const handleSubmitSecondaryModification = async () => {

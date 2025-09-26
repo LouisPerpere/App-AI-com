@@ -678,10 +678,20 @@ const PostPreviewModal = ({
         console.log('🔥 DEBUG: Succès - affichage aperçu modification');
         console.log('🔥 DEBUG: Nouveau contenu reçu =', result.modifiedPost);
         
+        // Debug des états React
+        console.log('🔥 DEBUG: État avant mise à jour:', {
+          showModificationPreview: showModificationPreview,
+          modifiedPostData: modifiedPostData,
+          showModificationForm: showModificationForm
+        });
+        
         // Stocker le nouveau contenu et montrer l'aperçu
         setModifiedPostData(result.modifiedPost);
         setShowModificationForm(false);
         setShowModificationPreview(true);
+        
+        // Debug après mise à jour (sera visible au prochain render)
+        console.log('🔥 DEBUG: Commandes setState exécutées');
         
         // Vider le textarea après succès
         if (modificationTextarea) {

@@ -592,14 +592,9 @@ const PostPreviewModal = ({
   const [isValidating, setIsValidating] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false); // Nouvel état pour confirmation suppression
   
-  // Nouveaux états pour le workflow de modification avec validation
-  const [showModificationPreview, setShowModificationPreview] = useState(false);
-  const [modifiedPostData, setModifiedPostData] = useState(null);
+  // États locaux restants
   const [isApplyingModification, setIsApplyingModification] = useState(false);
   const [modificationTextValue, setModificationTextValue] = useState(''); // Nouvel état pour la valeur du textarea
-  
-  // Nouveaux états pour le workflow amélioré de modification
-  const [showSecondaryModification, setShowSecondaryModification] = useState(false);
   const [secondaryModificationText, setSecondaryModificationText] = useState('');
   
   // Debug: Effect pour surveiller les changements d'état de modification

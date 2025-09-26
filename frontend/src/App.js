@@ -595,6 +595,19 @@ const PostPreviewModal = ({
   const [showSecondaryModification, setShowSecondaryModification] = useState(false);
   const [secondaryModificationText, setSecondaryModificationText] = useState('');
   
+  // Debug: Effect pour surveiller les changements d'état de modification
+  useEffect(() => {
+    console.log('🔍 DEBUG useEffect: État modification changé:', {
+      showModificationPreview,
+      hasModifiedPostData: !!modifiedPostData,
+      showModificationForm
+    });
+    
+    if (showModificationPreview && modifiedPostData) {
+      console.log('🔍 DEBUG: Conditions remplies pour afficher aperçu:', modifiedPostData);
+    }
+  }, [showModificationPreview, modifiedPostData, showModificationForm]);
+  
   // Supprimer isValidated - on utilise directement post.validated
   const [showScheduleForm, setShowScheduleForm] = useState(false);
   const [newScheduledDate, setNewScheduledDate] = useState('');

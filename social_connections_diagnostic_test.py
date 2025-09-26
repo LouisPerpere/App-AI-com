@@ -352,20 +352,34 @@ class SocialConnectionsDiagnosticTester:
             
             # Provide analysis conclusion
             print(f"\n   💡 Analysis Conclusion:")
-            if old_count > 0 and new_count == 0:
-                print(f"     🎯 ISSUE IDENTIFIED: Connections exist in OLD collection but NEW collection is empty")
-                print(f"     🔧 SOLUTION: The publish endpoint likely queries the NEW collection")
-                print(f"     📋 RECOMMENDATION: Migrate connections from old to new collection")
-            elif old_count == 0 and new_count > 0:
+            if old_count > 0:
+                # Check if connections exist but are inactive
+                active_connections = [conn for conn in old_connections if conn.get('is_active') is True]
+                facebook_active = [conn for conn in active_connections if conn.get('platform') == 'facebook']
+                
+                if len(active_connections) == 0:
+                    print(f"     🎯 ROOT CAUSE IDENTIFIED: Connections exist but ALL are INACTIVE")
+                    print(f"     🔧 SOLUTION: The publish endpoint correctly filters for active connections")
+                    print(f"     📋 RECOMMENDATION: User needs to reconnect Facebook to reactivate connection")
+                    print(f"     ⚠️ Current connections are expired or deactivated")
+                elif len(facebook_active) == 0:
+                    print(f"     🎯 ISSUE IDENTIFIED: No ACTIVE Facebook connections found")
+                    print(f"     🔧 SOLUTION: User has Instagram connections but no Facebook")
+                    print(f"     📋 RECOMMENDATION: User needs to connect Facebook account")
+                else:
+                    print(f"     ✅ ACTIVE FACEBOOK CONNECTIONS FOUND: {len(facebook_active)}")
+                    print(f"     🔧 ISSUE: Publish endpoint may have different query logic")
+                    print(f"     📋 RECOMMENDATION: Check publish endpoint collection and field matching")
+                    
+                if new_count == 0:
+                    print(f"     📋 ADDITIONAL: NEW collection is empty - publish endpoint may query wrong collection")
+            elif new_count > 0:
                 print(f"     🎯 ISSUE IDENTIFIED: Connections exist in NEW collection but OLD collection is empty")
                 print(f"     🔧 SOLUTION: The publish endpoint likely queries the OLD collection")
                 print(f"     📋 RECOMMENDATION: Update publish endpoint to use new collection")
-            elif old_count > 0 and new_count > 0:
-                print(f"     🎯 CONNECTIONS EXIST IN BOTH: Need to check which one publish endpoint uses")
-                print(f"     📋 RECOMMENDATION: Verify publish endpoint collection query")
             else:
                 print(f"     🎯 NO CONNECTIONS FOUND: Both collections are empty")
-                print(f"     📋 RECOMMENDATION: User needs to reconnect social accounts")
+                print(f"     📋 RECOMMENDATION: User needs to connect social accounts")
             
             return True
             

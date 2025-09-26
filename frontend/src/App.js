@@ -8841,6 +8841,12 @@ function MainApp() {
                     onValidate={handleValidatePost}
                     isModifying={isModifyingPost}
                     modificationRequestRef={modificationRequestRef}
+                    showModificationPreview={showModificationPreview}
+                    setShowModificationPreview={setShowModificationPreview}
+                    modifiedPostData={modifiedPostData}
+                    setModifiedPostData={setModifiedPostData}
+                    showSecondaryModification={showSecondaryModification}
+                    setShowSecondaryModification={setShowSecondaryModification}
                   />
                 )}
 

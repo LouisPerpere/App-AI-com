@@ -4884,7 +4884,11 @@ function MainApp() {
       }
       
     } catch (error) {
-      const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
+      console.error('Publication error details:', error);
+      console.error('Error response:', error.response);
+      console.error('Error response data:', error.response?.data);
+      
+      const errorMessage = error.response?.data?.detail || error.response?.data?.message || error.message || 'Erreur inconnue';
       toast.error(`❌ ${errorMessage}`, { id: 'publish-post' });
       console.error('Publication error:', error);
       return false;

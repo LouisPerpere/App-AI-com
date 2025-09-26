@@ -743,6 +743,41 @@ const PostPreviewModal = ({
     setShowModificationForm(true); // Retour au formulaire pour une nouvelle demande
   };
 
+  const handleSecondaryModification = () => {
+    setShowSecondaryModification(true);
+    setSecondaryModificationText('');
+  };
+
+  const handleCancelSecondaryModification = () => {
+    setShowSecondaryModification(false);
+    setSecondaryModificationText('');
+  };
+
+  const handleSubmitSecondaryModification = async () => {
+    if (!secondaryModificationText?.trim()) {
+      toast.error('Veuillez saisir une demande de modification');
+      return;
+    }
+
+    try {
+      // Appeler l'IA avec la nouvelle demande
+      const result = await onModify(post, secondaryModificationText, 'content');
+      
+      if (result && result.success && result.modifiedPost) {
+        // Mettre à jour le contenu modifié
+        setModifiedPostData(result.modifiedPost);
+        setShowSecondaryModification(false);
+        setSecondaryModificationText('');
+        // Rester dans l'aperçu de modification
+      } else {
+        toast.error('Erreur: Aucune modification générée par l\'IA');
+      }
+    } catch (error) {
+      console.error('Erreur modification secondaire:', error);
+      toast.error('Erreur lors de la modification: ' + error.message);
+    }
+  };
+
   const handleScheduleSubmit = () => {
     if (!newScheduledDate || !newScheduledTime) {
       toast.error('Veuillez sélectionner une date et une heure');

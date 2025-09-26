@@ -2887,21 +2887,25 @@ async def facebook_oauth_callback(
                     "expires_at": datetime.now(timezone.utc) + timedelta(days=60)
                 }
                 
-                # Sauvegarder ou mettre à jour la connexion Facebook existante
-                existing_connection = dbm.db.social_connections.find_one({
+                # Corriger le champ active
+                facebook_connection["active"] = True  # Utiliser "active" au lieu de "is_active"
+                facebook_connection["id"] = facebook_connection["connection_id"]  # Ajouter un champ id
+                
+                # Sauvegarder ou mettre à jour la connexion Facebook existante dans la bonne collection
+                existing_connection = dbm.db.social_media_connections.find_one({
                     "user_id": user_id,
                     "platform": "facebook"
                 })
                 
                 if existing_connection:
-                    result = dbm.db.social_connections.update_one(
+                    result = dbm.db.social_media_connections.update_one(
                         {"user_id": user_id, "platform": "facebook"},
                         {"$set": facebook_connection}
                     )
-                    print(f"✅ Updated Facebook connection for user {user_id}")
+                    print(f"✅ Updated Facebook connection for user {user_id} in social_media_connections")
                 else:
-                    result = dbm.db.social_connections.insert_one(facebook_connection)
-                    print(f"✅ Created Facebook connection for user {user_id}")
+                    result = dbm.db.social_media_connections.insert_one(facebook_connection)
+                    print(f"✅ Created Facebook connection for user {user_id} in social_media_connections")
                 
                 # Rediriger vers le frontend avec succès Facebook
                 frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')

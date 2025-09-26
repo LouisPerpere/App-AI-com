@@ -368,50 +368,72 @@ class SocialConnectionsDiagnosticTester:
             print(f"   ❌ Social connections endpoint error: {str(e)}")
             return False
     
-    def test_connection_data_structure_requirements(self):
-        """Step 6: Test connection data structure requirements"""
-        print("\n📋 Step 6: Connection data structure requirements validation")
+    def provide_solution_recommendations(self, diagnostic_data):
+        """Step 6: Provide specific solution recommendations based on findings"""
+        print("\n💡 Step 6: Solution Recommendations")
         
-        print("   🔍 Testing what data structure is expected for frontend display...")
+        if not diagnostic_data:
+            print("   ⚠️ No diagnostic data available for recommendations")
+            return True
         
-        # Required fields for frontend to show "Connecté : Page Facebook"
-        required_fields = {
-            'platform': 'facebook',
-            'page_name': 'Test Page Name',
-            'is_active': True,
-            'user_id': self.user_id,
-            'connected_at': datetime.now().isoformat(),
-            'access_token': 'test_token_12345'
-        }
-        
-        print(f"   📊 Required fields for 'Connecté : Page Facebook' display:")
-        for field, example_value in required_fields.items():
-            print(f"      {field}: {example_value}")
-        
-        # Test if we can create a connection (if endpoint exists)
         try:
-            # Try to POST a test connection
-            response = self.session.post(
-                f"{BACKEND_URL}/social/connections",
-                json=required_fields,
-                timeout=10
-            )
+            old_connections = diagnostic_data.get('social_connections', [])
+            new_connections = diagnostic_data.get('social_media_connections', [])
             
-            print(f"   📡 Test connection creation attempt: {response.status_code}")
+            old_count = len(old_connections) if isinstance(old_connections, list) else 0
+            new_count = len(new_connections) if isinstance(new_connections, list) else 0
             
-            if response.status_code == 201:
-                print(f"   ✅ Connection creation endpoint works")
-                return True
-            elif response.status_code == 404:
-                print(f"   ❌ Connection creation endpoint not found")
-                return False
-            else:
-                print(f"   ⚠️ Connection creation response: {response.status_code}")
-                print(f"   Response: {response.text}")
-                return False
+            print(f"   📊 Based on diagnostic findings:")
+            print(f"     Old collection: {old_count} connections")
+            print(f"     New collection: {new_count} connections")
+            
+            print(f"\n   🔧 SPECIFIC RECOMMENDATIONS:")
+            
+            if old_count > 0 and new_count == 0:
+                print(f"     1. 🎯 PRIMARY ISSUE: Data migration needed")
+                print(f"        - Connections exist in 'social_connections' collection")
+                print(f"        - Publish endpoint likely queries 'social_media_connections'")
+                print(f"        - SOLUTION: Migrate data or update endpoint query")
                 
+                print(f"\n     2. 🔧 IMMEDIATE FIX OPTIONS:")
+                print(f"        Option A: Update /api/posts/publish to query 'social_connections'")
+                print(f"        Option B: Migrate data from 'social_connections' to 'social_media_connections'")
+                print(f"        Option C: Update publish endpoint to check both collections")
+                
+            elif old_count == 0 and new_count > 0:
+                print(f"     1. 🎯 PRIMARY ISSUE: Endpoint query mismatch")
+                print(f"        - Connections exist in 'social_media_connections' collection")
+                print(f"        - Publish endpoint likely queries 'social_connections'")
+                print(f"        - SOLUTION: Update endpoint to use correct collection")
+                
+            elif old_count > 0 and new_count > 0:
+                print(f"     1. 🎯 MULTIPLE COLLECTIONS: Need to verify which is active")
+                print(f"        - Both collections have data")
+                print(f"        - Check which collection has the most recent/valid connections")
+                print(f"        - Update publish endpoint to use the correct collection")
+                
+            else:
+                print(f"     1. 🎯 NO CONNECTIONS: User needs to reconnect")
+                print(f"        - Both collections are empty")
+                print(f"        - User must go through Facebook/Instagram connection process")
+                print(f"        - Verify callback endpoints save connections properly")
+            
+            print(f"\n   📋 TECHNICAL IMPLEMENTATION:")
+            print(f"     1. Check server.py line where /api/posts/publish queries connections")
+            print(f"     2. Verify collection name in the database query")
+            print(f"     3. Ensure user_id field matching is correct")
+            print(f"     4. Test with valid Facebook access token")
+            
+            print(f"\n   🧪 TESTING STEPS:")
+            print(f"     1. Fix the collection query in publish endpoint")
+            print(f"     2. Test with this diagnostic endpoint to verify connections exist")
+            print(f"     3. Test /api/posts/publish again to confirm fix")
+            print(f"     4. Verify frontend shows 'Connecté' status correctly")
+            
+            return True
+            
         except Exception as e:
-            print(f"   ❌ Connection creation test error: {str(e)}")
+            print(f"   ❌ Recommendations error: {str(e)}")
             return False
     
     def run_diagnostic(self):

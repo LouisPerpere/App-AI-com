@@ -496,48 +496,55 @@ class SocialConnectionsDiagnosticTester:
         
         # Check specific failure patterns
         auth_passed = test_results[0][1] if len(test_results) > 0 else False
-        connections_endpoint_passed = test_results[1][1] if len(test_results) > 1 else False
+        diagnostic_passed = test_results[1][1] if len(test_results) > 1 else False
+        publish_test_passed = test_results[2][1] if len(test_results) > 2 else False
         
         if not auth_passed:
             print("❌ AUTHENTICATION ISSUE: Cannot authenticate with provided credentials")
             print("   → Verify credentials are correct")
             
-        elif not connections_endpoint_passed:
-            print("❌ BACKEND ISSUE: GET /api/social/connections endpoint not working")
-            print("   → Social connections functionality may not be implemented")
-            print("   → This explains why frontend shows 'Connecter' instead of 'Connecté'")
+        elif not diagnostic_passed:
+            print("❌ DIAGNOSTIC ENDPOINT ISSUE: GET /api/debug/social-connections not accessible")
+            print("   → Diagnostic endpoint may not be implemented")
+            print("   → Cannot analyze connection storage without diagnostic data")
+            
+        elif not publish_test_passed:
+            print("❌ PUBLISH ENDPOINT ISSUE: Cannot reproduce the error")
+            print("   → POST /api/posts/publish may not be accessible")
             
         else:
-            print("✅ BACKEND ENDPOINTS ACCESSIBLE: Issue may be in data persistence or frontend")
+            print("✅ DIAGNOSTIC SUCCESSFUL: Connection storage analysis completed")
+            print("   → Check the analysis above for specific recommendations")
             
         # Provide specific recommendations
-        print("\n💡 RECOMMENDATIONS:")
+        print("\n💡 FINAL RECOMMENDATIONS:")
         
         if success_rate < 50:
-            print("🚨 CRITICAL: Social connections system appears to be missing or broken")
-            print("   1. Implement GET /api/social/connections endpoint")
-            print("   2. Implement social_connections database collection")
-            print("   3. Ensure Facebook/Instagram callbacks save connections with user_id")
+            print("🚨 CRITICAL: Cannot complete diagnostic due to endpoint issues")
+            print("   1. Verify GET /api/debug/social-connections endpoint exists")
+            print("   2. Check authentication and authorization")
+            print("   3. Ensure diagnostic endpoint returns both collections")
             
         elif success_rate < 80:
-            print("⚠️ PARTIAL IMPLEMENTATION: Some social connections functionality exists")
-            print("   1. Check database for existing connections")
-            print("   2. Verify callback endpoints save connections properly")
-            print("   3. Ensure frontend reloads connections after successful auth")
+            print("⚠️ PARTIAL SUCCESS: Some diagnostic data available")
+            print("   1. Review connection storage analysis above")
+            print("   2. Fix collection query mismatch in publish endpoint")
+            print("   3. Test again after implementing fixes")
             
         else:
-            print("✅ SYSTEM APPEARS FUNCTIONAL: Issue may be specific to user or timing")
-            print("   1. Check if connections exist but frontend doesn't reload them")
-            print("   2. Verify frontend calls GET /api/social/connections after auth")
-            print("   3. Check browser cache or state management issues")
+            print("✅ DIAGNOSTIC COMPLETE: Issue identified and solutions provided")
+            print("   1. Follow the specific recommendations above")
+            print("   2. Fix the collection query in /api/posts/publish endpoint")
+            print("   3. Test the fix with this diagnostic tool")
         
         print("\n🎯 CONCLUSION:")
-        if connections_endpoint_passed:
-            print("✅ BACKEND READY: Social connections endpoint accessible")
-            print("   → Issue likely in frontend state management or data persistence")
+        if diagnostic_passed:
+            print("✅ DIAGNOSTIC ENDPOINT WORKING: Connection data analyzed")
+            print("   → Issue is likely a collection query mismatch in publish endpoint")
+            print("   → Follow the specific technical recommendations above")
         else:
-            print("❌ BACKEND ISSUE: Social connections system not properly implemented")
-            print("   → This is the root cause of the 'Connecter' button issue")
+            print("❌ DIAGNOSTIC ENDPOINT ISSUE: Cannot analyze connection storage")
+            print("   → Implement GET /api/debug/social-connections endpoint first")
         
         print("=" * 80)
         return success_rate >= 50

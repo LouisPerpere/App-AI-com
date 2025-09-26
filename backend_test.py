@@ -257,61 +257,82 @@ class FacebookConnectionTester:
             print(f"   ❌ Test error: {str(e)}")
             return False
     
-    def test_response_format_compatibility(self):
-        """Test that the response format is compatible with frontend expectations"""
+    def test_publication_workflow_analysis(self):
+        """Analyze the complete publication workflow to understand UI issues"""
         try:
-            print(f"\n🔍 Step 5: Testing response format compatibility")
+            print(f"\n🔍 Step 5: Analyzing publication workflow for UI issues")
             
-            response = self.session.get(f"{self.base_url}/posts/generated")
+            # Get posts to understand the current state
+            posts_response = self.session.get(f"{self.base_url}/posts/generated")
             
-            if response.status_code == 200:
-                data = response.json()
+            if posts_response.status_code != 200:
+                print(f"   ❌ Cannot get posts: {posts_response.status_code}")
+                return False
+            
+            posts_data = posts_response.json()
+            posts = posts_data.get("posts", [])
+            
+            print(f"   Total posts available: {len(posts)}")
+            
+            # Analyze post statuses
+            facebook_posts = [p for p in posts if p.get("platform", "").lower() == "facebook"]
+            published_posts = [p for p in posts if p.get("published", False)]
+            
+            print(f"   Facebook posts: {len(facebook_posts)}")
+            print(f"   Published posts: {len(published_posts)}")
+            
+            # Check if any posts have been published recently
+            if facebook_posts:
+                sample_fb_post = facebook_posts[0]
+                print(f"\n   📋 Sample Facebook post analysis:")
+                print(f"     ID: {sample_fb_post.get('id')}")
+                print(f"     Status: {sample_fb_post.get('status')}")
+                print(f"     Published: {sample_fb_post.get('published', False)}")
+                print(f"     Has image: {'Yes' if sample_fb_post.get('visual_url') else 'No'}")
+                print(f"     Visual URL: {sample_fb_post.get('visual_url', 'None')}")
                 
-                # Check top-level structure
-                if 'posts' in data and 'count' in data:
-                    print(f"   ✅ Response has correct top-level structure (posts, count)")
+                # This helps understand why images might not be published
+                if not sample_fb_post.get('visual_url'):
+                    print(f"   ⚠️ Post has no image - this could explain image publication issues")
+                
+                # Check if post status indicates successful publication
+                status = sample_fb_post.get('status', '')
+                if status == 'published':
+                    print(f"   ✅ Post status indicates successful publication")
                 else:
-                    print(f"   ❌ Response missing required top-level fields")
+                    print(f"   ❌ Post status '{status}' does not indicate publication")
+            
+            # Test the social connections to understand the root cause
+            connections_response = self.session.get(f"{self.base_url}/social/connections")
+            
+            if connections_response.status_code == 200:
+                connections_data = connections_response.json()
+                active_connections = connections_data.get("connections", [])
+                
+                print(f"\n   🔗 Active connections analysis:")
+                print(f"     Active connections count: {len(active_connections)}")
+                
+                if not active_connections:
+                    print(f"   🎯 ROOT CAUSE IDENTIFIED:")
+                    print(f"     - No active social connections found")
+                    print(f"     - This explains why UI shows 'Connecter' instead of 'Connecté'")
+                    print(f"     - This explains why publication fails")
+                    print(f"     - User needs to reconnect Facebook account")
                     return False
-                
-                posts = data.get("posts", [])
-                count = data.get("count", 0)
-                
-                # Verify count matches posts length
-                if len(posts) == count:
-                    print(f"   ✅ Count field matches posts array length: {count}")
                 else:
-                    print(f"   ⚠️ Count mismatch: count={count}, posts length={len(posts)}")
-                
-                if posts:
-                    # Check that all expected fields are present in posts
-                    expected_fields = [
-                        'id', 'title', 'text', 'hashtags', 'visual_url', 'visual_id',
-                        'visual_type', 'platform', 'content_type', 'scheduled_date',
-                        'status', 'published', 'validated', 'validated_at', 
-                        'carousel_images', 'created_at', 'modified_at'
-                    ]
-                    
-                    sample_post = posts[0]
-                    missing_fields = []
-                    
-                    for field in expected_fields:
-                        if field not in sample_post:
-                            missing_fields.append(field)
-                    
-                    if not missing_fields:
-                        print(f"   ✅ All {len(expected_fields)} expected fields present in posts")
+                    facebook_connected = any(c.get("platform", "").lower() == "facebook" for c in active_connections)
+                    if facebook_connected:
+                        print(f"   ✅ Facebook connection is active")
+                        return True
                     else:
-                        print(f"   ❌ Missing fields in posts: {missing_fields}")
+                        print(f"   ❌ Facebook connection not found in active connections")
                         return False
-                
-                return True
             else:
-                print(f"   ❌ Failed to get posts for format compatibility testing")
+                print(f"   ❌ Cannot check active connections: {connections_response.status_code}")
                 return False
                 
         except Exception as e:
-            print(f"   ❌ Format compatibility test error: {str(e)}")
+            print(f"   ❌ Workflow analysis error: {str(e)}")
             return False
     
     def run_all_tests(self):

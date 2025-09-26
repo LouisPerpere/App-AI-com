@@ -464,8 +464,12 @@ class SocialConnectionsDiagnosticTester:
         
         for test_name, test_func in tests:
             try:
-                result = test_func()
-                test_results.append((test_name, result))
+                if test_name == "GET /api/debug/social-connections Diagnostic":
+                    result, diagnostic_data = test_func()
+                    test_results.append((test_name, result))
+                else:
+                    result = test_func()
+                    test_results.append((test_name, result))
             except Exception as e:
                 print(f"   ❌ Test '{test_name}' crashed: {str(e)}")
                 test_results.append((test_name, False))

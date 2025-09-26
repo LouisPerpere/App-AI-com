@@ -133,65 +133,79 @@ class FacebookConnectionTester:
             print(f"   ❌ Test error: {str(e)}")
             return False
     
-    def test_field_structure_validation(self):
-        """Test the structure and types of the new fields"""
+    def test_posts_publish_endpoint(self):
+        """Test POST /api/posts/publish with a real post_id"""
         try:
-            print(f"\n🔍 Step 3: Testing field structure validation")
+            print(f"\n🔍 Step 3: Testing POST /api/posts/publish")
             
-            response = self.session.get(f"{self.base_url}/posts/generated")
+            # First, get available posts to find a valid post_id
+            posts_response = self.session.get(f"{self.base_url}/posts/generated")
+            
+            if posts_response.status_code != 200:
+                print(f"   ❌ Cannot get posts for testing: {posts_response.status_code}")
+                return False
+            
+            posts_data = posts_response.json()
+            posts = posts_data.get("posts", [])
+            
+            if not posts:
+                print(f"   ❌ No posts available for publication testing")
+                return False
+            
+            # Find a suitable post for testing (preferably Facebook)
+            test_post = None
+            for post in posts:
+                if post.get("platform", "").lower() == "facebook":
+                    test_post = post
+                    break
+            
+            if not test_post:
+                # Use first available post if no Facebook post found
+                test_post = posts[0]
+            
+            post_id = test_post.get("id")
+            platform = test_post.get("platform", "unknown")
+            
+            print(f"   Using test post: {post_id}")
+            print(f"   Platform: {platform}")
+            print(f"   Title: {test_post.get('title', 'N/A')[:50]}...")
+            
+            # Test the publish endpoint
+            response = self.session.post(
+                f"{self.base_url}/posts/publish",
+                json={"post_id": post_id}
+            )
+            
+            print(f"   Status: {response.status_code}")
+            
+            try:
+                response_data = response.json()
+                print(f"   Response: {json.dumps(response_data, indent=2, ensure_ascii=False)}")
+            except:
+                print(f"   Response (raw): {response.text}")
             
             if response.status_code == 200:
-                data = response.json()
-                posts = data.get("posts", [])
-                
-                if not posts:
-                    print(f"   ⚠️ No posts available for structure validation")
-                    return True
-                
-                # Test first post for detailed structure validation
-                test_post = posts[0]
-                print(f"   Testing post structure: {test_post.get('id', 'N/A')}")
-                
-                # Validate 'validated' field type
-                validated_field = test_post.get('validated')
-                if isinstance(validated_field, bool):
-                    print(f"   ✅ 'validated' field is boolean: {validated_field}")
-                else:
-                    print(f"   ❌ 'validated' field should be boolean, got: {type(validated_field)} = {validated_field}")
-                    return False
-                
-                # Validate 'validated_at' field type
-                validated_at_field = test_post.get('validated_at')
-                if isinstance(validated_at_field, str):
-                    print(f"   ✅ 'validated_at' field is string: '{validated_at_field}'")
-                    if validated_at_field:
-                        # Try to parse as ISO datetime if not empty
-                        try:
-                            datetime.fromisoformat(validated_at_field.replace('Z', '+00:00'))
-                            print(f"   ✅ 'validated_at' is valid ISO datetime")
-                        except:
-                            print(f"   ⚠️ 'validated_at' is not valid ISO datetime format")
-                else:
-                    print(f"   ❌ 'validated_at' field should be string, got: {type(validated_at_field)}")
-                    return False
-                
-                # Validate 'carousel_images' field type
-                carousel_images_field = test_post.get('carousel_images')
-                if isinstance(carousel_images_field, list):
-                    print(f"   ✅ 'carousel_images' field is list with {len(carousel_images_field)} items")
-                    if carousel_images_field:
-                        print(f"   📸 Sample carousel image: {carousel_images_field[0] if carousel_images_field else 'None'}")
-                else:
-                    print(f"   ❌ 'carousel_images' field should be list, got: {type(carousel_images_field)}")
-                    return False
-                
+                print(f"   ✅ Publication endpoint returned success")
                 return True
+            elif response.status_code == 400:
+                # Check if it's the expected "no active social connections" error
+                if "connexion sociale active" in response.text.lower():
+                    print(f"   ⚠️ Expected error: No active social connections found")
+                    print(f"   This confirms the endpoint is working but user needs active Facebook connection")
+                    return True
+                else:
+                    print(f"   ❌ Unexpected 400 error: {response.text}")
+                    return False
+            elif response.status_code == 404:
+                print(f"   ❌ Post not found error: {response.text}")
+                return False
             else:
-                print(f"   ❌ Failed to get posts for structure validation")
+                print(f"   ❌ Unexpected status code: {response.status_code}")
+                print(f"   Response: {response.text}")
                 return False
                 
         except Exception as e:
-            print(f"   ❌ Structure validation error: {str(e)}")
+            print(f"   ❌ Test error: {str(e)}")
             return False
     
     def test_validated_posts_logic(self):

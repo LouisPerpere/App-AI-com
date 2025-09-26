@@ -2685,7 +2685,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Enhanced Modification Workflow - New Button Layout Implementation"
+    - "Posts Tab Button Disabling During Modification Workflow"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

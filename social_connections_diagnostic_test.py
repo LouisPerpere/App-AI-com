@@ -126,6 +126,41 @@ class SocialConnectionsDiagnosticTester:
                     else:
                         print(f"     Structure: {type(old_connections)} = {old_connections}")
                 
+                # Check for social_connections_old (alternative field name)
+                if 'social_connections_old' in data:
+                    old_connections_alt = data['social_connections_old']
+                    print(f"\n   📊 OLD COLLECTION ALT (social_connections_old):")
+                    print(f"     Count: {len(old_connections_alt) if isinstance(old_connections_alt, list) else 'N/A'}")
+                    
+                    if isinstance(old_connections_alt, list) and old_connections_alt:
+                        print(f"     Sample connection:")
+                        sample = old_connections_alt[0]
+                        for key, value in sample.items():
+                            if key == 'access_token':
+                                print(f"       {key}: {str(value)[:20]}..." if value else f"       {key}: None")
+                            else:
+                                print(f"       {key}: {value}")
+                        
+                        # Check for Facebook connections specifically
+                        facebook_connections = [conn for conn in old_connections_alt if conn.get('platform') == 'facebook']
+                        instagram_connections = [conn for conn in old_connections_alt if conn.get('platform') == 'instagram']
+                        
+                        print(f"     🎯 PLATFORM BREAKDOWN:")
+                        print(f"       Facebook connections: {len(facebook_connections)}")
+                        print(f"       Instagram connections: {len(instagram_connections)}")
+                        
+                        # Check active status
+                        active_connections = [conn for conn in old_connections_alt if conn.get('is_active') is True]
+                        print(f"       Active connections: {len(active_connections)}")
+                        
+                        if not active_connections:
+                            print(f"       ⚠️ NO ACTIVE CONNECTIONS FOUND - This explains the error!")
+                            
+                    elif isinstance(old_connections_alt, list):
+                        print(f"     ⚠️ Collection exists but is empty")
+                    else:
+                        print(f"     Structure: {type(old_connections_alt)} = {old_connections_alt}")
+                
                 # Check for social_media_connections (new collection)
                 if 'social_media_connections' in data:
                     new_connections = data['social_media_connections']

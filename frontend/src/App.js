@@ -605,6 +605,30 @@ const PostPreviewModal = ({
   const [newScheduledDate, setNewScheduledDate] = useState('');
   const [newScheduledTime, setNewScheduledTime] = useState('');
 
+  // Effet pour scrolling automatique vers l'aperçu de modification
+  useEffect(() => {
+    if (showModificationPreview && modificationPreviewRef.current) {
+      setTimeout(() => {
+        modificationPreviewRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 200); // Petit délai pour que l'élément soit rendu
+    }
+  }, [showModificationPreview]);
+
+  // Effet pour scrolling automatique vers la zone de modification secondaire
+  useEffect(() => {
+    if (showSecondaryModification && secondaryModificationRef.current) {
+      setTimeout(() => {
+        secondaryModificationRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 200);
+    }
+  }, [showSecondaryModification]);
+
   // Initialiser les champs de date et heure avec les valeurs actuelles
   useEffect(() => {
     if (post.scheduled_date) {

@@ -954,39 +954,107 @@ const PostPreviewModal = ({
                 </div>
               )}
               
-              {/* Boutons de validation */}
-              <div className="flex items-center justify-center space-x-3 pt-3 border-t border-green-200">
-                <button
-                  onClick={handleRejectModification}
-                  disabled={isApplyingModification}
-                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors disabled:opacity-50"
-                >
-                  <div className="flex items-center space-x-2">
-                    <X className="w-4 h-4" />
-                    <span>Nouvelle correction</span>
-                  </div>
-                </button>
+              {/* Boutons de validation - Layout amélioré */}
+              <div className="pt-3 border-t border-green-200">
+                {/* Première ligne : Confirmer et Annuler */}
+                <div className="flex items-center justify-center space-x-3 mb-3">
+                  <button
+                    onClick={handleAcceptModification}
+                    disabled={isApplyingModification}
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl disabled:opacity-50"
+                  >
+                    <div className="flex items-center justify-center space-x-2">
+                      {isApplyingModification ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Application...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircleIcon className="w-4 h-4" />
+                          <span>Confirmer</span>
+                        </>
+                      )}
+                    </div>
+                  </button>
+                  
+                  <button
+                    onClick={() => {
+                      setShowModificationPreview(false);
+                      setModifiedPostData(null);
+                      setModificationTextValue('');
+                    }}
+                    disabled={isApplyingModification}
+                    className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors disabled:opacity-50"
+                  >
+                    <div className="flex items-center justify-center space-x-2">
+                      <X className="w-4 h-4" />
+                      <span>Annuler</span>
+                    </div>
+                  </button>
+                </div>
                 
+                {/* Deuxième ligne : Modifier à nouveau sur toute la largeur */}
                 <button
-                  onClick={handleAcceptModification}
+                  onClick={handleSecondaryModification}
                   disabled={isApplyingModification}
-                  className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl disabled:opacity-50"
+                  className="w-full px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl disabled:opacity-50"
                 >
-                  <div className="flex items-center space-x-2">
-                    {isApplyingModification ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Application...</span>
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircleIcon className="w-4 h-4" />
-                        <span>Valider et appliquer</span>
-                      </>
-                    )}
+                  <div className="flex items-center justify-center space-x-2">
+                    <Edit className="w-4 h-4" />
+                    <span>Modifier à nouveau</span>
                   </div>
                 </button>
               </div>
+              
+              {/* Zone de modification secondaire */}
+              {showSecondaryModification && (
+                <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <h5 className="text-sm font-semibold text-yellow-800 mb-3">
+                    ✏️ Nouvelle demande de modification
+                  </h5>
+                  
+                  <textarea
+                    value={secondaryModificationText}
+                    onChange={(e) => setSecondaryModificationText(e.target.value)}
+                    placeholder="Décrivez comment vous souhaitez modifier davantage ce post..."
+                    className="w-full p-3 border border-yellow-300 rounded-lg resize-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                    rows="3"
+                    disabled={isModifying}
+                  />
+                  
+                  {/* Boutons de la zone secondaire */}
+                  <div className="flex items-center justify-center space-x-3 mt-3">
+                    <button
+                      onClick={handleCancelSecondaryModification}
+                      disabled={isModifying}
+                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors disabled:opacity-50"
+                    >
+                      Annuler
+                    </button>
+                    
+                    <button
+                      onClick={handleSubmitSecondaryModification}
+                      disabled={isModifying || !secondaryModificationText?.trim()}
+                      className="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl disabled:transform-none"
+                    >
+                      <div className="flex items-center space-x-2">
+                        {isModifying ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Envoi...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4" />
+                            <span>Envoyer</span>
+                          </>
+                        )}
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

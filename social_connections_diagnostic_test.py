@@ -313,55 +313,59 @@ class SocialConnectionsDiagnosticTester:
             print(f"   ❌ Connection analysis error: {str(e)}")
             return False
     
-    def test_instagram_callback_user_id_extraction(self):
-        """Step 5: Test Instagram callback user_id extraction from state"""
-        print("\n🔍 Step 5: Instagram callback user_id extraction test")
+    def test_social_connections_endpoint(self):
+        """Step 5: Test GET /api/social/connections endpoint for comparison"""
+        print("\n🔗 Step 5: Test GET /api/social/connections endpoint for comparison")
         
-        print("   🧪 Testing state format: 'state|user_id'")
-        
-        # Test Instagram callback with state containing user_id
-        test_state = f"instagram_auth_state|{self.user_id}"
-        test_callback_params = {
-            'code': 'test_instagram_auth_code_67890',
-            'state': test_state
-        }
+        if not self.access_token:
+            print("   ❌ No access token available")
+            return False
         
         try:
-            response = self.session.get(
-                f"{BACKEND_URL}/social/instagram/callback",
-                params=test_callback_params,
-                timeout=10,
-                allow_redirects=False
-            )
+            response = self.session.get(f"{BACKEND_URL}/social/connections", timeout=10)
             
-            print(f"   📡 Instagram callback request sent:")
-            print(f"      Code: {test_callback_params['code']}")
-            print(f"      State: {test_state}")
-            print(f"   📡 Response status: {response.status_code}")
+            print(f"   📡 Request sent to: {BACKEND_URL}/social/connections")
+            print(f"   📡 Status code: {response.status_code}")
             
-            if response.status_code == 302:
-                print(f"   ✅ Instagram callback endpoint responds")
+            if response.status_code == 200:
+                data = response.json()
+                print(f"   ✅ Social connections endpoint accessible")
                 
-                location = response.headers.get('Location', '')
-                print(f"   🔗 Redirect location: {location}")
+                # Analyze response structure
+                connections = data.get("connections", [])
+                print(f"   📊 Response analysis:")
+                print(f"      Total connections found: {len(connections)}")
                 
-                # Check for success/error patterns
-                if 'instagram_success=true' in location:
-                    print(f"   ✅ Callback processed successfully")
-                elif 'instagram_error=' in location:
-                    print(f"   ⚠️ Callback shows error (expected for test data)")
-                    
-                    # This is actually good - it means the callback is processing the request
-                    print(f"   ✅ Callback is processing requests (error expected for test code)")
+                if connections:
+                    print(f"   📋 Connection details:")
+                    for i, conn in enumerate(connections, 1):
+                        print(f"      Connection {i}:")
+                        print(f"         Platform: {conn.get('platform', 'Not specified')}")
+                        print(f"         Page Name: {conn.get('page_name', 'Not specified')}")
+                        print(f"         Is Active: {conn.get('is_active', 'Not specified')}")
+                        print(f"         User ID: {conn.get('user_id', 'Not specified')}")
+                        
+                        # Check if this is a Facebook connection
+                        if conn.get('platform') == 'facebook':
+                            print(f"         🎯 FACEBOOK CONNECTION FOUND")
+                else:
+                    print(f"   ⚠️ No connections found for user {self.user_id}")
+                    print(f"   🔍 This matches the publish endpoint error")
                 
                 return True
                 
+            elif response.status_code == 404:
+                print(f"   ❌ Endpoint not found (404)")
+                print(f"   🔍 GET /api/social/connections endpoint may not be implemented")
+                return False
+                
             else:
-                print(f"   ❌ Instagram callback failed: {response.status_code}")
+                print(f"   ❌ Endpoint failed: {response.status_code}")
+                print(f"   Response: {response.text}")
                 return False
                 
         except Exception as e:
-            print(f"   ❌ Instagram callback test error: {str(e)}")
+            print(f"   ❌ Social connections endpoint error: {str(e)}")
             return False
     
     def test_connection_data_structure_requirements(self):

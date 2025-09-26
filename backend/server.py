@@ -3719,6 +3719,41 @@ async def publish_post_to_social_media(
         print(f"❌ Error publishing post: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erreur lors de la publication: {str(e)}")
 
+@api_router.get("/debug/social-connections")
+async def debug_social_connections(user_id: str = Depends(get_current_user_id_robust)):
+    """Debug endpoint pour vérifier les connexions sociales"""
+    try:
+        dbm = get_database()
+        db = dbm.db
+        
+        # Vérifier dans les deux collections
+        social_connections_old = list(db.social_connections.find({"user_id": user_id}))
+        social_media_connections = list(db.social_media_connections.find({"user_id": user_id}))
+        
+        return {
+            "user_id": user_id,
+            "social_connections_count": len(social_connections_old),
+            "social_media_connections_count": len(social_media_connections),
+            "social_connections_old": [
+                {
+                    "platform": conn.get("platform"),
+                    "is_active": conn.get("is_active"),
+                    "active": conn.get("active"),
+                    "connected_at": conn.get("connected_at")
+                } for conn in social_connections_old
+            ],
+            "social_media_connections": [
+                {
+                    "platform": conn.get("platform"),
+                    "is_active": conn.get("is_active"),
+                    "active": conn.get("active"),
+                    "connected_at": conn.get("connected_at")
+                } for conn in social_media_connections
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur debug: {str(e)}")
+
 # Include the API router (auth endpoints need to stay without prefix)
 app.include_router(api_router)
 

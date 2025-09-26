@@ -1148,21 +1148,21 @@ const PostPreviewModal = ({
         </div>
       </div>
       
-      {/* Modal de confirmation de suppression */}
+      {/* Modal de confirmation de déprogrammation */}
       {showDeleteConfirmation && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-60 p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6">
             <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="w-8 h-8 text-red-600" />
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <ArrowLeftCircle className="w-8 h-8 text-orange-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Supprimer ce post du calendrier ?
+                Déprogrammer ce post ?
               </h3>
               <p className="text-gray-600 text-sm leading-relaxed">
                 Ce post sera retiré du calendrier et repassera en <strong>brouillon</strong> dans l'onglet "Posts".
                 <br/><br/>
-                Vous pourrez le modifier et le reprogrammer plus tard.
+                Vous pourrez alors le modifier et le reprogrammer plus tard.
               </p>
             </div>
             
@@ -1180,11 +1180,11 @@ const PostPreviewModal = ({
                   setShowDeleteConfirmation(false);
                   onCancelPost && onCancelPost(post);
                 }}
-                className="px-4 py-2 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+                className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
               >
                 <div className="flex items-center space-x-2">
-                  <Trash2 className="w-4 h-4" />
-                  <span>Confirmer la suppression</span>
+                  <ArrowLeftCircle className="w-4 h-4" />
+                  <span>Confirmer la déprogrammation</span>
                 </div>
               </button>
             </div>

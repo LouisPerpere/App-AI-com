@@ -295,6 +295,8 @@ class SocialConnectionsDiagnosticTester:
             
             print(f"   📊 Connection Analysis:")
             print(f"     Old collection (social_connections): {old_count} connections")
+            if old_alt_count > 0:
+                print(f"     Old collection alt (social_connections_old): {old_alt_count} connections")
             print(f"     New collection (social_media_connections): {new_count} connections")
             
             # Analyze field structures

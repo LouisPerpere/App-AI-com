@@ -596,6 +596,10 @@ const PostPreviewModal = ({
   const [modificationTextValue, setModificationTextValue] = useState(''); // Nouvel état pour la valeur du textarea
   const [secondaryModificationText, setSecondaryModificationText] = useState('');
   
+  // Refs pour le scrolling automatique
+  const modificationPreviewRef = useRef(null);
+  const secondaryModificationRef = useRef(null);
+  
   // Supprimer isValidated - on utilise directement post.validated
   const [showScheduleForm, setShowScheduleForm] = useState(false);
   const [newScheduledDate, setNewScheduledDate] = useState('');

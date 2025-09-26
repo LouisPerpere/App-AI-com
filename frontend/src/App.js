@@ -1030,50 +1030,53 @@ const PostPreviewModal = ({
                     </div>
                   </button>
                   
-                  <button
-                    onClick={async () => {
-                      if (isValidating) return;
-                      
-                      setIsValidating(true);
-                      try {
-                        const success = await onValidate(post);
-                        if (success) {
-                          // Pas besoin de setIsValidated car on utilise post.validated maintenant
+                  {/* Bouton Valider seulement dans l'onglet Posts */}
+                  {!isFromCalendar && (
+                    <button
+                      onClick={async () => {
+                        if (isValidating) return;
+                        
+                        setIsValidating(true);
+                        try {
+                          const success = await onValidate(post);
+                          if (success) {
+                            // Pas besoin de setIsValidated car on utilise post.validated maintenant
+                          }
+                        } catch (error) {
+                          console.error('Validation error:', error);
+                        } finally {
+                          setIsValidating(false);
                         }
-                      } catch (error) {
-                        console.error('Validation error:', error);
-                      } finally {
-                        setIsValidating(false);
-                      }
-                    }}
-                    disabled={isValidating || post.validated}
-                    className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl ${
-                      post.validated
-                        ? 'bg-green-600 text-white cursor-not-allowed' 
-                        : isValidating 
-                          ? 'bg-gray-400 text-white cursor-not-allowed'
-                          : 'bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-2">
-                      {isValidating ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Validation...</span>
-                        </>
-                      ) : post.validated ? (
-                        <>
-                          <Check className="w-4 h-4" />
-                          <span>Validé !</span>
-                        </>
-                      ) : (
-                        <>
-                          <Check className="w-4 h-4" />
-                          <span>Valider</span>
-                        </>
-                      )}
-                    </div>
-                  </button>
+                      }}
+                      disabled={isValidating || post.validated}
+                      className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl ${
+                        post.validated
+                          ? 'bg-green-600 text-white cursor-not-allowed' 
+                          : isValidating 
+                            ? 'bg-gray-400 text-white cursor-not-allowed'
+                            : 'bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-2">
+                        {isValidating ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Validation...</span>
+                          </>
+                        ) : post.validated ? (
+                          <>
+                            <Check className="w-4 h-4" />
+                            <span>Validé !</span>
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-4 h-4" />
+                            <span>Valider</span>
+                          </>
+                        )}
+                      </div>
+                    </button>
+                  )}
                 </div>
               )}
             </>

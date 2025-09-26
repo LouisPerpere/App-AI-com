@@ -985,7 +985,7 @@ const PostPreviewModal = ({
                   <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <div className="flex items-start space-x-3">
                       <div className="flex-shrink-0">
-                        <InfoIcon className="w-5 h-5 text-blue-600 mt-0.5" />
+                        <Info className="w-5 h-5 text-blue-600 mt-0.5" />
                       </div>
                       <div>
                         <p className="text-sm text-blue-800 font-medium mb-1">

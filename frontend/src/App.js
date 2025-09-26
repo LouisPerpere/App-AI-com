@@ -698,22 +698,24 @@ const PostPreviewModal = ({
           showModificationForm: showModificationForm
         });
         
-        // Stocker le nouveau contenu et montrer l'aperçu
-        setModifiedPostData(result.modifiedPost);
-        setShowModificationForm(false);
-        setShowModificationPreview(true);
+        // Forcer la mise à jour des états avec un timeout pour s'assurer que React traite tout
+        setTimeout(() => {
+          console.log('🔥 DEBUG: Mise à jour forcée avec timeout');
+          setModifiedPostData(result.modifiedPost);
+          setShowModificationForm(false);
+          setShowModificationPreview(true);
+          
+          // Vider le textarea après succès
+          if (modificationTextarea) {
+            modificationTextarea.value = '';
+          }
+          setModificationTextValue('');
+          if (modificationRequestRef.current) {
+            modificationRequestRef.current.value = '';
+          }
+        }, 100);
         
-        // Debug après mise à jour (sera visible au prochain render)
-        console.log('🔥 DEBUG: Commandes setState exécutées');
-        
-        // Vider le textarea après succès
-        if (modificationTextarea) {
-          modificationTextarea.value = '';
-        }
-        setModificationTextValue('');
-        if (modificationRequestRef.current) {
-          modificationRequestRef.current.value = '';
-        }
+        console.log('🔥 DEBUG: Timeout de mise à jour programmé');
       } else {
         console.log('🔥 DEBUG: Pas de succès - résultat =', result);
         toast.error('Erreur: Aucune modification générée par l\'IA');

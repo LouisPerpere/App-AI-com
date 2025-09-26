@@ -3586,6 +3586,135 @@ async def disconnect_social_platform(
         print(f"❌ Error disconnecting {platform}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to disconnect {platform}: {str(e)}")
 
+@api_router.post("/posts/publish")
+async def publish_post_to_social_media(
+    request: dict,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Publier un post directement sur les réseaux sociaux connectés"""
+    try:
+        post_id = request.get("post_id")
+        if not post_id:
+            raise HTTPException(status_code=400, detail="post_id requis")
+        
+        print(f"🚀 Publishing post {post_id} to social media for user {user_id}")
+        
+        dbm = get_database()
+        db = dbm.db
+        
+        # Récupérer le post
+        post = db.generated_posts.find_one({
+            "id": post_id,
+            "owner_id": user_id
+        })
+        
+        if not post:
+            raise HTTPException(status_code=404, detail="Post non trouvé")
+        
+        # Récupérer les connexions sociales actives
+        social_connections = list(db.social_media_connections.find({
+            "user_id": user_id,
+            "active": True
+        }))
+        
+        if not social_connections:
+            raise HTTPException(status_code=400, detail="Aucune connexion sociale active trouvée")
+        
+        # Déterminer sur quelle plateforme publier
+        target_platform = post.get("platform", "facebook").lower()
+        print(f"📱 Target platform: {target_platform}")
+        
+        # Trouver la connexion pour cette plateforme
+        target_connection = None
+        for conn in social_connections:
+            if conn["platform"] == target_platform:
+                target_connection = conn
+                break
+        
+        if not target_connection:
+            # Utiliser Facebook par défaut si disponible
+            for conn in social_connections:
+                if conn["platform"] == "facebook":
+                    target_connection = conn
+                    target_platform = "facebook"
+                    break
+        
+        if not target_connection:
+            raise HTTPException(status_code=400, detail=f"Aucune connexion {target_platform} trouvée")
+        
+        print(f"📱 Using connection: {target_connection['platform']} - {target_connection.get('page_name', 'Unknown')}")
+        
+        # Préparer le contenu du post
+        content = post.get("text", "")
+        if post.get("hashtags"):
+            hashtags = " ".join([f"#{tag.strip('#')}" for tag in post["hashtags"][:10]])  # Limiter à 10 hashtags
+            content = f"{content}\n\n{hashtags}"
+        
+        # Récupérer l'URL de l'image si disponible
+        image_url = None
+        if post.get("image_url"):
+            image_url = post["image_url"]
+        elif post.get("images") and len(post["images"]) > 0:
+            # Prendre la première image du carrousel
+            image_url = post["images"][0].get("url")
+        
+        print(f"📝 Content: {content[:100]}...")
+        print(f"🖼️ Image URL: {image_url}")
+        
+        # Publier sur Facebook
+        if target_platform == "facebook" and SOCIAL_MEDIA_AVAILABLE:
+            try:
+                fb_client = FacebookAPIClient(target_connection["access_token"])
+                
+                result = await fb_client.post_to_page(
+                    target_connection["page_id"],
+                    target_connection["access_token"],
+                    content,
+                    image_url
+                )
+                
+                print(f"✅ Successfully published to Facebook: {result}")
+                
+                # Marquer le post comme publié
+                update_result = db.generated_posts.update_one(
+                    {"id": post_id, "owner_id": user_id},
+                    {
+                        "$set": {
+                            "status": "published",
+                            "published": True,
+                            "published_at": datetime.utcnow().isoformat(),
+                            "platform_post_id": result.get("id"),
+                            "publication_platform": "facebook",
+                            "publication_page": target_connection.get("page_name", "")
+                        }
+                    }
+                )
+                
+                if update_result.matched_count == 0:
+                    print("⚠️ Warning: Could not update post status in database")
+                
+                return {
+                    "success": True,
+                    "message": f"Post publié avec succès sur {target_connection.get('page_name', 'Facebook')} !",
+                    "platform": "facebook",
+                    "page_name": target_connection.get("page_name", ""),
+                    "post_id": result.get("id"),
+                    "published_at": datetime.utcnow().isoformat()
+                }
+                
+            except Exception as fb_error:
+                print(f"❌ Facebook publishing error: {str(fb_error)}")
+                raise HTTPException(status_code=500, detail=f"Erreur de publication Facebook: {str(fb_error)}")
+        
+        else:
+            raise HTTPException(status_code=400, detail=f"Publication sur {target_platform} non supportée pour le moment")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error publishing post: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la publication: {str(e)}")
+
 # Include the API router (auth endpoints need to stay without prefix)
 app.include_router(api_router)
 

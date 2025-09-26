@@ -592,23 +592,8 @@ const PostPreviewModal = ({
   const [isValidating, setIsValidating] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false); // Nouvel état pour confirmation suppression
   
-  // États locaux restants
-  const [isApplyingModification, setIsApplyingModification] = useState(false);
   const [modificationTextValue, setModificationTextValue] = useState(''); // Nouvel état pour la valeur du textarea
   const [secondaryModificationText, setSecondaryModificationText] = useState('');
-  
-  // Debug: Effect pour surveiller les changements d'état de modification
-  useEffect(() => {
-    console.log('🔍 DEBUG useEffect: État modification changé:', {
-      showModificationPreview,
-      hasModifiedPostData: !!modifiedPostData,
-      showModificationForm
-    });
-    
-    if (showModificationPreview && modifiedPostData) {
-      console.log('🔍 DEBUG: Conditions remplies pour afficher aperçu:', modifiedPostData);
-    }
-  }, [showModificationPreview, modifiedPostData, showModificationForm]);
   
   // Supprimer isValidated - on utilise directement post.validated
   const [showScheduleForm, setShowScheduleForm] = useState(false);

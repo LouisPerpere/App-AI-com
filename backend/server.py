@@ -96,6 +96,14 @@ except ImportError as e:
     print(f"⚠️ Uploads module not available: {e}")
     UPLOADS_AVAILABLE = False
 
+try:
+    from social_media import social_router, FacebookAPIClient
+    SOCIAL_MEDIA_AVAILABLE = True
+    print("✅ Social media module loaded")
+except ImportError as e:
+    print(f"⚠️ Social media module not available: {e}")
+    SOCIAL_MEDIA_AVAILABLE = False
+
 app = FastAPI(title="Claire et Marcus API", version="1.0.0")
 
 # Enable CORS for external frontends (Netlify, etc.)

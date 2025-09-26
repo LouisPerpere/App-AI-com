@@ -1282,32 +1282,39 @@ const PostPreviewModal = ({
                           setIsValidating(false);
                         }
                       }}
-                      disabled={isValidating || post.validated || showModificationForm || showModificationPreview || isModifying}
+                      disabled={isValidating || post.validated || post.published || post.status === 'published' || showModificationForm || showModificationPreview || isModifying}
                       className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform shadow-lg ${
                         post.validated
                           ? 'bg-green-600 text-white cursor-not-allowed' 
-                          : isValidating 
-                            ? 'bg-gray-400 text-white cursor-not-allowed'
-                            : showModificationForm || showModificationPreview || isModifying
-                              ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
-                              : 'bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white hover:scale-105 active:scale-95 hover:shadow-xl'
+                          : post.published || post.status === 'published'
+                            ? 'bg-blue-600 text-white cursor-not-allowed'
+                            : isValidating 
+                              ? 'bg-gray-400 text-white cursor-not-allowed'
+                              : showModificationForm || showModificationPreview || isModifying
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
+                                : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white hover:scale-105 active:scale-95 hover:shadow-xl'
                       }`}
                     >
                       <div className="flex items-center space-x-2">
                         {isValidating ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Validation...</span>
+                            <span>Publication...</span>
+                          </>
+                        ) : post.published || post.status === 'published' ? (
+                          <>
+                            <CheckCircleIcon className="w-4 h-4" />
+                            <span>Publié !</span>
                           </>
                         ) : post.validated ? (
                           <>
                             <Check className="w-4 h-4" />
-                            <span>Validé !</span>
+                            <span>Programmé !</span>
                           </>
                         ) : (
                           <>
-                            <Check className="w-4 h-4" />
-                            <span>Valider</span>
+                            <Send className="w-4 h-4" />
+                            <span>Publier</span>
                           </>
                         )}
                       </div>

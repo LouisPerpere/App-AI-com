@@ -1,21 +1,24 @@
 #!/usr/bin/env python3
 """
 Social Connections Diagnostic Test Suite
-Testing Facebook connection state management after successful login
+Testing the GET /api/debug/social-connections endpoint to identify where social connections are stored
+and why the /api/posts/publish endpoint cannot find them.
 
-French Review Request Translation:
-"Diagnostic des connexions sociales après connexion Facebook
-Après une connexion Facebook réussie, le bouton 'Connecter' s'affiche toujours au lieu de 'Connecté : Page Facebook'. 
-Il faut vérifier si le problème vient du callback backend ou du chargement frontend."
+French Review Request:
+"J'ai créé un endpoint de diagnostic pour vérifier l'état des connexions sociales dans la base de données. 
+L'utilisateur a encore l'erreur 'Aucune connexion sociale active trouvée' malgré mes corrections."
 
 Test Requirements:
-1. Database - Verify if Facebook connections are saved in social_connections collection
-2. GET /api/social/connections endpoint - Test if it returns connections for user
-3. Data structure - Verify required fields (platform, page_name, is_active, etc.)
-4. Callback save - Verify if Instagram callback saves connections with user_id
+1. Authentication: lperpere@yahoo.fr / L@Reunion974!
+2. Diagnostic endpoint: GET /api/debug/social-connections
+   - Shows connections in both collections:
+   - social_connections (old collection)
+   - social_media_connections (new collection)
+
+Objective: Identify exactly where Facebook connections are stored and with what fields,
+to understand why the /api/posts/publish endpoint cannot find them.
 
 Credentials: lperpere@yahoo.fr / L@Reunion974!
-User ID: bdf87a74-e3f3-44f3-bac2-649cde3ef93e
 """
 
 import requests

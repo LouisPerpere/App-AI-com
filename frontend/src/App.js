@@ -591,6 +591,10 @@ const PostPreviewModal = ({
   const [isApplyingModification, setIsApplyingModification] = useState(false);
   const [modificationTextValue, setModificationTextValue] = useState(''); // Nouvel état pour la valeur du textarea
   
+  // Nouveaux états pour le workflow amélioré de modification
+  const [showSecondaryModification, setShowSecondaryModification] = useState(false);
+  const [secondaryModificationText, setSecondaryModificationText] = useState('');
+  
   // Supprimer isValidated - on utilise directement post.validated
   const [showScheduleForm, setShowScheduleForm] = useState(false);
   const [newScheduledDate, setNewScheduledDate] = useState('');

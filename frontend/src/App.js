@@ -4798,19 +4798,6 @@ function MainApp() {
       return;
     }
 
-    // Déterminer la plateforme
-    let targetPlatform = post.platform ? post.platform.toLowerCase() : connectedPlatforms[0];
-    if (!connectedPlatforms.includes(targetPlatform)) {
-      targetPlatform = connectedPlatforms[0];
-    }
-
-    // Vérifier la date
-    const dateField = post.scheduled_date || post.publication_date || post.date;
-    if (!dateField) {
-      toast.error('Aucune date de programmation trouvée sur ce post !');
-      return;
-    }
-
     const token = localStorage.getItem('access_token');
     if (!token) {
       toast.error('Vous devez être connecté !');
@@ -4818,47 +4805,51 @@ function MainApp() {
     }
 
     try {
-      toast.loading('Validation en cours...', { id: 'validate-post' });
+      toast.loading('📡 Publication en cours...', { id: 'publish-post' });
 
       const response = await axios.post(
-        `${API}/posts/validate-to-calendar`,
+        `${API}/posts/publish`,
         { 
-          post_id: post.id,
-          platforms: [targetPlatform],
-          scheduled_date: dateField
+          post_id: post.id
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.data?.success) {
-        toast.success(`🎉 Post validé et ajouté au calendrier !`, { id: 'validate-post' });
+        toast.success(`🎉 ${response.data.message}`, { id: 'publish-post' });
         
-        // Marquer explicitement le post comme validé dans l'interface
-        post.validated = true;
+        // Marquer le post comme publié dans l'interface
+        post.published = true;
+        post.status = "published";
         
-        // Mettre à jour aussi dans la liste des posts générés
+        // Mettre à jour dans la liste des posts générés
         setGeneratedPosts(prevPosts => {
           return prevPosts.map(p => 
-            p.id === post.id ? { ...p, validated: true } : p
+            p.id === post.id ? { 
+              ...p, 
+              published: true, 
+              status: "published",
+              published_at: response.data.published_at,
+              platform_post_id: response.data.post_id,
+              publication_platform: response.data.platform
+            } : p
           );
         });
         
         // Recharger les données pour s'assurer de la cohérence
         await loadGeneratedPosts();
-        if (activeTab === 'calendar') {
-          await loadCalendarPosts();
-        }
         
         // Retourner true pour indiquer le succès
         return true;
       } else {
-        toast.error('Erreur lors de la validation', { id: 'validate-post' });
+        toast.error('Erreur lors de la publication', { id: 'publish-post' });
         return false;
       }
       
     } catch (error) {
       const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
-      toast.error(`❌ ${errorMessage}`, { id: 'validate-post' });
+      toast.error(`❌ ${errorMessage}`, { id: 'publish-post' });
+      console.error('Publication error:', error);
       return false;
     }
   };

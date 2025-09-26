@@ -980,40 +980,46 @@ const PostPreviewModal = ({
             <>
               {/* Interface spécifique pour les posts du calendrier */}
               {isFromCalendar ? (
-                <div className="flex items-center justify-center space-x-2">
-                  <button
-                    onClick={() => {
-                      setModificationTextValue(''); // Reset la valeur avant d'ouvrir
-                      setShowModificationForm(true);
-                    }}
-                    className="flex-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg text-sm"
-                  >
-                    <div className="flex items-center justify-center space-x-1">
-                      <Edit className="w-4 h-4" />
-                      <span>Modifier</span>
+                <>
+                  {/* Message explicatif pour la modification */}
+                  <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0">
+                        <InfoIcon className="w-5 h-5 text-blue-600 mt-0.5" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-blue-800 font-medium mb-1">
+                          Pour modifier ce post
+                        </p>
+                        <p className="text-sm text-blue-700">
+                          Vous devez d'abord le déprogrammer. Vous pourrez ensuite le modifier depuis l'onglet Posts.
+                        </p>
+                      </div>
                     </div>
-                  </button>
-                  
-                  <button
-                    onClick={() => onMovePost && onMovePost(post)}
-                    className="flex-1 px-3 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg text-sm"
-                  >
-                    <div className="flex items-center justify-center space-x-1">
-                      <Clock className="w-4 h-4" />
-                      <span>Déplacer</span>
-                    </div>
-                  </button>
-                  
-                  <button
-                    onClick={() => setShowDeleteConfirmation(true)}
-                    className="flex-1 px-3 py-2 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg text-sm"
-                  >
-                    <div className="flex items-center justify-center space-x-1">
-                      <Trash2 className="w-4 h-4" />
-                      <span>Supprimer</span>
-                    </div>
-                  </button>
-                </div>
+                  </div>
+
+                  <div className="flex items-center justify-center space-x-2">
+                    <button
+                      onClick={() => onMovePost && onMovePost(post)}
+                      className="flex-1 px-3 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg text-sm"
+                    >
+                      <div className="flex items-center justify-center space-x-1">
+                        <Clock className="w-4 h-4" />
+                        <span>Déplacer</span>
+                      </div>
+                    </button>
+                    
+                    <button
+                      onClick={() => setShowDeleteConfirmation(true)}
+                      className="flex-1 px-3 py-2 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg text-sm"
+                    >
+                      <div className="flex items-center justify-center space-x-1">
+                        <ArrowLeftCircle className="w-4 h-4" />
+                        <span>Déprogrammer</span>
+                      </div>
+                    </button>
+                  </div>
+                </>
               ) : (
                 /* Interface pour les posts normaux (onglet Posts) */
                 <div className="flex items-center justify-center space-x-4">

@@ -3941,3 +3941,8 @@ if UPLOADS_AVAILABLE:
 if PAYMENTS_V2_AVAILABLE:
     app.include_router(payments_router)
     print("✅ Modern Stripe payments endpoints added")
+
+# Include social media router
+if SOCIAL_MEDIA_AVAILABLE:
+    app.include_router(social_router, prefix="/api")
+    print("✅ Social media router included")

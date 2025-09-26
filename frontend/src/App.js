@@ -9071,6 +9071,10 @@ function MainApp() {
                                                 }
                                               }}
                                             />
+                                            {/* Fallback pour les erreurs d'image - caché par défaut */}
+                                            <div className="hidden w-full h-full bg-gray-300 flex items-center justify-center text-gray-500 text-xs">
+                                              📷
+                                            </div>
                                           </div>
                                         ) : (
                                           <div className="w-4 h-4 rounded bg-gray-300 flex items-center justify-center flex-shrink-0">

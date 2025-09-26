@@ -440,12 +440,12 @@ class SocialConnectionsDiagnosticTester:
         """Run complete social connections diagnostic"""
         print("🔍 SOCIAL CONNECTIONS DIAGNOSTIC TEST SUITE")
         print("=" * 80)
-        print("French Issue: Bouton 'Connecter' s'affiche au lieu de 'Connecté : Page Facebook'")
-        print("Objective: Determine if issue is backend (no save) or frontend (no reload)")
+        print("French Issue: 'Aucune connexion sociale active trouvée' error persists")
+        print("Objective: Identify where Facebook connections are stored and why publish endpoint can't find them")
         print("=" * 80)
         print(f"Backend URL: {BACKEND_URL}")
         print(f"Test credentials: {TEST_EMAIL}")
-        print(f"Expected User ID: {EXPECTED_USER_ID}")
+        print(f"Diagnostic endpoint: GET /api/debug/social-connections")
         print("=" * 80)
         
         test_results = []

@@ -9063,8 +9063,12 @@ function MainApp() {
                                               alt=""
                                               className="w-full h-full object-cover"
                                               onError={(e) => {
+                                                // Approach React-compatible : cacher l'image et montrer le fallback
                                                 e.target.style.display = 'none';
-                                                e.target.parentNode.innerHTML = `<div class="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500 text-xs">📷</div>`;
+                                                const fallbackDiv = e.target.nextElementSibling;
+                                                if (fallbackDiv) {
+                                                  fallbackDiv.style.display = 'flex';
+                                                }
                                               }}
                                             />
                                           </div>

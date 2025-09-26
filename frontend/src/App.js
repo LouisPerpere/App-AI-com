@@ -717,14 +717,10 @@ const PostPreviewModal = ({
   const handleAcceptModification = async () => {
     if (!modifiedPostData) return;
     
-    setIsApplyingModification(true);
+    // Pas d'état isApplyingModification pour l'instant, on utilisera isModifying
     
     try {
-      // Appliquer la modification définitivement
-      // Pour l'instant, on met juste à jour localement
-      // Plus tard, on ajoutera l'appel pour mettre à jour sur les réseaux sociaux
-      
-      // Mettre à jour le post actuel
+      // Mettre à jour le post actuel avec les nouvelles données
       const updatedPost = {
         ...post,
         ...modifiedPostData,
@@ -733,19 +729,47 @@ const PostPreviewModal = ({
 
       // Si c'est un post du calendrier, notifier le parent
       if (isFromCalendar && onModify) {
-        // Utiliser onModify pour notifier le parent de la mise à jour
         await onModify(updatedPost, 'apply_modification', 'final_update');
+      } else {
+        // Pour l'onglet Posts, sauvegarder en base de données
+        const token = localStorage.getItem('access_token');
+        if (token) {
+          try {
+            await axios.put(
+              `${process.env.REACT_APP_BACKEND_URL}/api/posts/${post.id}`,
+              {
+                title: modifiedPostData.title || post.title,
+                text: modifiedPostData.text || post.text,
+                hashtags: modifiedPostData.hashtags || post.hashtags,
+                modified_at: new Date().toISOString()
+              },
+              { 
+                headers: { Authorization: `Bearer ${token}` },
+                timeout: 10000
+              }
+            );
+            console.log('✅ Modifications sauvegardées en base de données');
+          } catch (saveError) {
+            console.error('❌ Erreur sauvegarde:', saveError);
+          }
+        }
       }
+      
+      // Mettre à jour l'objet post local pour affichage immédiat
+      Object.assign(post, updatedPost);
       
       toast.success('✅ Modification appliquée avec succès !');
       setShowModificationPreview(false);
       setModifiedPostData(null);
       
+      // Recharger les données pour synchroniser
+      if (typeof window !== 'undefined' && window.loadGeneratedPosts) {
+        setTimeout(() => window.loadGeneratedPosts(), 500);
+      }
+      
     } catch (error) {
       console.error('Erreur application modification:', error);
       toast.error('Erreur lors de l\'application de la modification');
-    } finally {
-      setIsApplyingModification(false);
     }
   };
 

@@ -337,8 +337,8 @@ class FacebookConnectionTester:
     
     def run_all_tests(self):
         """Run all tests in sequence"""
-        print("🚀 Starting POST Validator Backend Testing")
-        print("=" * 60)
+        print("🚀 Starting Facebook Connection and Publication Testing")
+        print("=" * 70)
         
         # Test credentials from the review request
         email = "lperpere@yahoo.fr"
@@ -349,35 +349,47 @@ class FacebookConnectionTester:
             print("\n❌ CRITICAL: Authentication failed - cannot proceed with tests")
             return False
         
-        # Step 2: Test GET /posts/generated endpoint
-        if not self.test_posts_generated_endpoint():
-            print("\n❌ CRITICAL: GET /posts/generated endpoint test failed")
-            return False
+        # Step 2: Test social connections debug endpoint
+        debug_result = self.test_social_connections_debug()
         
-        # Step 3: Test field structure validation
-        if not self.test_field_structure_validation():
-            print("\n❌ CRITICAL: Field structure validation failed")
-            return False
+        # Step 3: Test publication endpoint
+        publish_result = self.test_posts_publish_endpoint()
         
-        # Step 4: Test validated posts logic
-        if not self.test_validated_posts_logic():
-            print("\n❌ CRITICAL: Validated posts logic test failed")
-            return False
+        # Step 4: Test regular social connections endpoint (used by frontend)
+        frontend_result = self.test_social_connections_regular_endpoint()
         
-        # Step 5: Test response format compatibility
-        if not self.test_response_format_compatibility():
-            print("\n❌ CRITICAL: Response format compatibility test failed")
-            return False
+        # Step 5: Analyze complete workflow
+        workflow_result = self.test_publication_workflow_analysis()
         
-        print("\n" + "=" * 60)
-        print("🎉 ALL TESTS PASSED SUCCESSFULLY!")
-        print("✅ GET /posts/generated endpoint includes 'validated' field")
-        print("✅ 'validated_at' and 'carousel_images' fields are present")
-        print("✅ Field types and structure are correct")
-        print("✅ Response format is compatible with frontend")
-        print("=" * 60)
+        print("\n" + "=" * 70)
+        print("📊 FACEBOOK CONNECTION & PUBLICATION TEST RESULTS:")
+        print("=" * 70)
         
-        return True
+        print(f"✅ Authentication: PASSED")
+        print(f"{'✅' if debug_result else '❌'} Social Connections Debug: {'PASSED' if debug_result else 'FAILED'}")
+        print(f"{'✅' if publish_result else '❌'} Publication Endpoint: {'PASSED' if publish_result else 'FAILED'}")
+        print(f"{'✅' if frontend_result else '❌'} Frontend Connections: {'PASSED' if frontend_result else 'FAILED'}")
+        print(f"{'✅' if workflow_result else '❌'} Workflow Analysis: {'PASSED' if workflow_result else 'FAILED'}")
+        
+        # Determine overall result
+        all_passed = debug_result and publish_result and frontend_result and workflow_result
+        
+        if all_passed:
+            print(f"\n🎉 ALL TESTS PASSED - Facebook connection is working correctly!")
+        else:
+            print(f"\n⚠️ ISSUES IDENTIFIED - Facebook connection needs attention")
+            print(f"\n🎯 LIKELY ROOT CAUSE:")
+            if not frontend_result:
+                print(f"   - No active Facebook connection found in frontend endpoint")
+                print(f"   - This explains why UI shows 'Connecter' instead of 'Connecté'")
+            if not publish_result:
+                print(f"   - Publication endpoint cannot find active social connections")
+                print(f"   - This explains why publication fails")
+            print(f"\n💡 SOLUTION: User needs to reconnect Facebook account properly")
+        
+        print("=" * 70)
+        
+        return all_passed
 
 def main():
     """Main test execution"""

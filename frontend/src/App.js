@@ -979,7 +979,7 @@ const PostPreviewModal = ({
 
           {/* Aperçu des modifications */}
           {showModificationPreview && modifiedPostData && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div ref={modificationPreviewRef} className="bg-green-50 border border-green-200 rounded-lg p-4">
               <h4 className="text-sm font-medium text-green-800 mb-3 flex items-center">
                 <CheckCircleIcon className="w-4 h-4 mr-2" />
                 Nouveau contenu généré par l'IA

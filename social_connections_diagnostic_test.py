@@ -166,40 +166,73 @@ class SocialConnectionsDiagnosticTester:
             print(f"   ❌ Diagnostic endpoint error: {str(e)}")
             return False, None
     
-    def test_database_social_connections_collection(self):
-        """Step 3: Test database social_connections collection indirectly"""
-        print("\n🗄️ Step 3: Database social_connections collection diagnostic")
+    def test_posts_publish_endpoint(self):
+        """Step 3: Test POST /api/posts/publish to reproduce the exact error"""
+        print("\n🚀 Step 3: Test POST /api/posts/publish to reproduce the error")
         
-        # Since we can't access MongoDB directly, we'll use available endpoints
-        # to infer database state
+        if not self.access_token:
+            print("   ❌ No access token available")
+            return False
         
-        print("   📊 Attempting to infer database state through available endpoints...")
-        
-        # Try to find any social-related endpoints
-        social_endpoints_to_test = [
-            "/social/connections",
-            "/social/facebook/connections", 
-            "/social/instagram/connections",
-            "/social/status"
-        ]
-        
-        found_endpoints = []
-        
-        for endpoint in social_endpoints_to_test:
-            try:
-                response = self.session.get(f"{BACKEND_URL}{endpoint}", timeout=5)
-                if response.status_code != 404:
-                    found_endpoints.append((endpoint, response.status_code))
-                    print(f"   ✅ Found endpoint: {endpoint} (Status: {response.status_code})")
-            except:
-                pass
-        
-        if found_endpoints:
-            print(f"   📋 Available social endpoints: {len(found_endpoints)}")
-            return True
-        else:
-            print(f"   ❌ No social endpoints found")
-            print(f"   🔍 This suggests social connections functionality may not be implemented")
+        try:
+            # First, get a valid post_id
+            posts_response = self.session.get(f"{BACKEND_URL}/posts/generated", timeout=10)
+            
+            if posts_response.status_code != 200:
+                print(f"   ❌ Cannot get posts for testing: {posts_response.status_code}")
+                return False
+            
+            posts_data = posts_response.json()
+            posts = posts_data.get("posts", [])
+            
+            if not posts:
+                print(f"   ⚠️ No posts available for testing publish endpoint")
+                return True
+            
+            # Use the first post for testing
+            test_post = posts[0]
+            post_id = test_post.get("id")
+            
+            print(f"   Using test post: {post_id}")
+            print(f"   Post title: {test_post.get('title', 'N/A')[:50]}...")
+            print(f"   Post platform: {test_post.get('platform', 'N/A')}")
+            
+            # Test the publish endpoint
+            response = self.session.post(
+                f"{BACKEND_URL}/posts/publish",
+                json={"post_id": post_id},
+                timeout=10
+            )
+            
+            print(f"   📡 Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                print(f"   ✅ Publish endpoint successful: {data}")
+                return True
+            else:
+                # This is expected - we want to see the exact error
+                try:
+                    error_data = response.json()
+                    print(f"   📋 Expected error response:")
+                    print(f"     Status: {response.status_code}")
+                    print(f"     Error: {error_data}")
+                    
+                    # Check if it's the expected "Aucune connexion sociale active trouvée" error
+                    error_message = error_data.get('error', '') if isinstance(error_data, dict) else str(error_data)
+                    if "Aucune connexion sociale active trouvée" in error_message:
+                        print(f"   ✅ CONFIRMED: This is the exact error the user is experiencing")
+                        print(f"   🎯 ERROR REPRODUCED: 'Aucune connexion sociale active trouvée'")
+                    else:
+                        print(f"   ⚠️ Different error than expected")
+                    
+                    return True
+                except:
+                    print(f"   ❌ Non-JSON error response: {response.text}")
+                    return False
+                
+        except Exception as e:
+            print(f"   ❌ Publish endpoint test error: {str(e)}")
             return False
     
     def test_facebook_callback_simulation(self):

@@ -1829,6 +1829,11 @@ function MainApp() {
   const [calendarDate, setCalendarDate] = useState(new Date());
   const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
   const [selectedCalendarPost, setSelectedCalendarPost] = useState(null);
+  
+  // États pour le workflow de modification amélioré (globaux)
+  const [showModificationPreview, setShowModificationPreview] = useState(false);
+  const [modifiedPostData, setModifiedPostData] = useState(null);
+  const [showSecondaryModification, setShowSecondaryModification] = useState(false);
 
   // Fonction pour charger les posts du calendrier
   const loadCalendarPosts = async (filters = {}) => {

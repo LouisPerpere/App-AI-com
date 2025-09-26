@@ -787,8 +787,18 @@ const PostPreviewModal = ({
       Object.assign(post, updatedPost);
       
       toast.success('✅ Modification appliquée avec succès !');
+      
+      // FERMER TOUTES les sous-fenêtres de modification
       setShowModificationPreview(false);
       setModifiedPostData(null);
+      setShowSecondaryModification(false);
+      setSecondaryModificationText('');
+      setModificationTextValue('');
+      
+      // Nettoyer aussi le textarea principal si présent
+      if (modificationRequestRef && modificationRequestRef.current) {
+        modificationRequestRef.current.value = '';
+      }
       
       // Recharger les données pour synchroniser
       if (typeof window !== 'undefined' && window.loadGeneratedPosts) {

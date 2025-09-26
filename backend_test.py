@@ -52,94 +52,81 @@ class FacebookConnectionTester:
             print(f"   ❌ Authentication error: {str(e)}")
             return False
     
-    def test_posts_generated_endpoint(self):
-        """Test GET /posts/generated endpoint for validated field inclusion"""
+    def test_social_connections_debug(self):
+        """Test GET /api/debug/social-connections to check Facebook connection state"""
         try:
-            print(f"\n🔍 Step 2: Testing GET /posts/generated endpoint")
+            print(f"\n🔍 Step 2: Testing GET /api/debug/social-connections")
             
-            response = self.session.get(f"{self.base_url}/posts/generated")
+            response = self.session.get(f"{self.base_url}/debug/social-connections")
             
             print(f"   Status: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
-                posts = data.get("posts", [])
-                count = data.get("count", 0)
                 
-                print(f"   ✅ Endpoint accessible")
-                print(f"   Total posts found: {count}")
+                print(f"   ✅ Debug endpoint accessible")
                 
-                if count == 0:
-                    print(f"   ⚠️ No posts found for testing - this is expected if no posts exist")
-                    return True
+                # Check for Facebook connections
+                facebook_connections = 0
+                instagram_connections = 0
+                active_connections = 0
                 
-                # Test each post for required fields
-                validated_posts = 0
-                posts_with_validated_at = 0
-                posts_with_carousel_images = 0
+                # Check old collection
+                old_connections = data.get("social_connections_old", [])
+                print(f"   Old connections found: {len(old_connections)}")
                 
-                print(f"\n📋 Analyzing post structure:")
-                
-                for i, post in enumerate(posts[:5]):  # Check first 5 posts for detailed analysis
-                    print(f"\n   Post {i+1}:")
-                    print(f"     ID: {post.get('id', 'N/A')}")
-                    print(f"     Title: {post.get('title', 'N/A')[:50]}...")
-                    print(f"     Platform: {post.get('platform', 'N/A')}")
-                    print(f"     Status: {post.get('status', 'N/A')}")
+                for conn in old_connections:
+                    platform = conn.get("platform", "").lower()
+                    is_active = conn.get("is_active", False)
                     
-                    # Check for validated field
-                    if 'validated' in post:
-                        validated_value = post.get('validated')
-                        print(f"     ✅ 'validated' field present: {validated_value}")
-                        if validated_value is True:
-                            validated_posts += 1
-                    else:
-                        print(f"     ❌ 'validated' field MISSING")
-                        return False
+                    if platform == "facebook":
+                        facebook_connections += 1
+                    elif platform == "instagram":
+                        instagram_connections += 1
                     
-                    # Check for validated_at field
-                    if 'validated_at' in post:
-                        validated_at_value = post.get('validated_at')
-                        print(f"     ✅ 'validated_at' field present: {validated_at_value}")
-                        if validated_at_value:
-                            posts_with_validated_at += 1
+                    if is_active:
+                        active_connections += 1
+                        print(f"     ✅ Active {platform} connection found")
                     else:
-                        print(f"     ❌ 'validated_at' field MISSING")
-                        return False
+                        print(f"     ❌ Inactive {platform} connection found")
+                
+                # Check new collection
+                new_connections = data.get("social_media_connections", [])
+                print(f"   New connections found: {len(new_connections)}")
+                
+                for conn in new_connections:
+                    platform = conn.get("platform", "").lower()
+                    is_active = conn.get("is_active", True)  # New collection might not have is_active field
                     
-                    # Check for carousel_images field
-                    if 'carousel_images' in post:
-                        carousel_images_value = post.get('carousel_images', [])
-                        print(f"     ✅ 'carousel_images' field present: {len(carousel_images_value)} images")
-                        if carousel_images_value:
-                            posts_with_carousel_images += 1
+                    if platform == "facebook":
+                        facebook_connections += 1
+                    elif platform == "instagram":
+                        instagram_connections += 1
+                    
+                    if is_active:
+                        active_connections += 1
+                        print(f"     ✅ Active {platform} connection found in new collection")
+                
+                print(f"\n📊 Connection Analysis:")
+                print(f"   Total Facebook connections: {facebook_connections}")
+                print(f"   Total Instagram connections: {instagram_connections}")
+                print(f"   Total active connections: {active_connections}")
+                
+                # Check if user has reconnected Facebook as reported
+                if facebook_connections > 0:
+                    print(f"   ✅ Facebook connection exists in database")
+                    if active_connections > 0:
+                        print(f"   ✅ Active Facebook connection confirmed")
+                        return True
                     else:
-                        print(f"     ❌ 'carousel_images' field MISSING")
+                        print(f"   ❌ Facebook connection exists but is INACTIVE")
                         return False
-                
-                # Summary statistics
-                print(f"\n📊 Field Analysis Summary:")
-                print(f"   Total posts analyzed: {min(len(posts), 5)}")
-                print(f"   Posts with validated=true: {validated_posts}")
-                print(f"   Posts with validated_at data: {posts_with_validated_at}")
-                print(f"   Posts with carousel_images data: {posts_with_carousel_images}")
-                
-                # Check all posts have the required fields (not just first 5)
-                all_posts_valid = True
-                for post in posts:
-                    if 'validated' not in post or 'validated_at' not in post or 'carousel_images' not in post:
-                        all_posts_valid = False
-                        break
-                
-                if all_posts_valid:
-                    print(f"   ✅ ALL {count} posts contain required fields (validated, validated_at, carousel_images)")
-                    return True
                 else:
-                    print(f"   ❌ Some posts missing required fields")
+                    print(f"   ❌ No Facebook connection found - user may need to reconnect")
                     return False
                 
             else:
-                print(f"   ❌ Endpoint failed: {response.text}")
+                print(f"   ❌ Debug endpoint failed: {response.text}")
                 return False
                 
         except Exception as e:

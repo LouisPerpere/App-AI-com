@@ -954,8 +954,8 @@ const PostPreviewModal = ({
 
         {/* Actions */}
         <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-          {post.validated ? (
-            /* Mode lecture seule pour les posts validés */
+          {post.validated && !isFromCalendar ? (
+            /* Mode lecture seule pour les posts validés SEULEMENT dans l'onglet Posts */
             <div className="text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <Calendar className="w-8 h-8 text-green-600" />
@@ -976,7 +976,7 @@ const PostPreviewModal = ({
               </p>
             </div>
           ) : (
-            /* Mode édition normal pour les posts non validés */
+            /* Mode édition normal pour les posts non validés OU pour tous les posts dans le calendrier */
             <>
               {/* Interface spécifique pour les posts du calendrier */}
               {isFromCalendar ? (

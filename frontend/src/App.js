@@ -1074,7 +1074,7 @@ const PostPreviewModal = ({
               
               {/* Zone de modification secondaire */}
               {showSecondaryModification && (
-                <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div ref={secondaryModificationRef} className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <h5 className="text-sm font-semibold text-yellow-800 mb-3">
                     ✏️ Nouvelle demande de modification
                   </h5>

@@ -9595,6 +9595,12 @@ function MainApp() {
             isFromCalendar={true}
             onMovePost={handleMoveCalendarPost}
             onCancelPost={handleCancelCalendarPost}
+            showModificationPreview={showModificationPreview}
+            setShowModificationPreview={setShowModificationPreview}
+            modifiedPostData={modifiedPostData}
+            setModifiedPostData={setModifiedPostData}
+            showSecondaryModification={showSecondaryModification}
+            setShowSecondaryModification={setShowSecondaryModification}
           />
         )}
         

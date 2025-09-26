@@ -1147,25 +1147,55 @@ const PostPreviewModal = ({
 
         {/* Actions */}
         <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-          {post.validated && !isFromCalendar ? (
-            /* Mode lecture seule pour les posts validés SEULEMENT dans l'onglet Posts */
+          {(post.validated || post.published || post.status === 'published') && !isFromCalendar ? (
+            /* Mode lecture seule pour les posts validés/publiés SEULEMENT dans l'onglet Posts */
             <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Calendar className="w-8 h-8 text-green-600" />
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 ${
+                post.published || post.status === 'published' 
+                  ? 'bg-blue-100' 
+                  : 'bg-green-100'
+              }`}>
+                {post.published || post.status === 'published' ? (
+                  <CheckCircleIcon className="w-8 h-8 text-blue-600" />
+                ) : (
+                  <Calendar className="w-8 h-8 text-green-600" />
+                )}
               </div>
-              <p className="text-lg font-semibold text-green-800 mb-1">Post programmé</p>
+              <p className={`text-lg font-semibold mb-1 ${
+                post.published || post.status === 'published' 
+                  ? 'text-blue-800' 
+                  : 'text-green-800'
+              }`}>
+                {post.published || post.status === 'published' ? 'Post publié' : 'Post programmé'}
+              </p>
               <p className="text-sm text-gray-600">
-                Programmé pour le {new Date(post.scheduled_date || post.date).toLocaleDateString('fr-FR', {
-                  weekday: 'long',
-                  day: '2-digit',
-                  month: 'long',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
+                {post.published || post.status === 'published' ? (
+                  post.published_at ? (
+                    `Publié le ${new Date(post.published_at).toLocaleDateString('fr-FR', {
+                      weekday: 'long',
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}`
+                  ) : 'Publié avec succès'
+                ) : (
+                  `Programmé pour le ${new Date(post.scheduled_date || post.date).toLocaleDateString('fr-FR', {
+                    weekday: 'long',
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}`
+                )}
               </p>
               <p className="text-xs text-gray-500 mt-2">
-                Ce post est maintenant dans le calendrier et ne peut plus être modifié depuis cet onglet.
+                {post.published || post.status === 'published' 
+                  ? 'Ce post a été publié sur les réseaux sociaux.'
+                  : 'Ce post est maintenant dans le calendrier et ne peut plus être modifié depuis cet onglet.'
+                }
               </p>
             </div>
           ) : (

@@ -451,13 +451,15 @@ class SocialConnectionsDiagnosticTester:
         test_results = []
         
         # Run diagnostic tests
+        diagnostic_data = None
+        
         tests = [
             ("Authentication and User ID Verification", self.authenticate),
-            ("GET /api/social/connections Endpoint", self.test_social_connections_endpoint),
-            ("Database Social Connections Collection", self.test_database_social_connections_collection),
-            ("Facebook Callback Save Functionality", self.test_facebook_callback_simulation),
-            ("Instagram Callback User ID Extraction", self.test_instagram_callback_user_id_extraction),
-            ("Connection Data Structure Requirements", self.test_connection_data_structure_requirements)
+            ("GET /api/debug/social-connections Diagnostic", lambda: self.test_diagnostic_endpoint()),
+            ("POST /api/posts/publish Error Reproduction", self.test_posts_publish_endpoint),
+            ("Connection Storage Mismatch Analysis", lambda: self.analyze_connection_mismatch(diagnostic_data)),
+            ("GET /api/social/connections Comparison", self.test_social_connections_endpoint),
+            ("Solution Recommendations", lambda: self.provide_solution_recommendations(diagnostic_data))
         ]
         
         for test_name, test_func in tests:

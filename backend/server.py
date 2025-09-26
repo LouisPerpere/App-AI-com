@@ -1700,44 +1700,40 @@ async def cancel_calendar_post(
         
         dbm = get_database()
         
-        # Récupérer les infos du post du calendrier
-        calendar_post = dbm.db.publication_calendar.find_one({
+        # Récupérer les infos du post du calendrier (dans generated_posts collection)
+        calendar_post = dbm.db.generated_posts.find_one({
             "id": post_id,
-            "user_id": user_id
+            "owner_id": user_id,
+            "validated": True
         })
         
         if not calendar_post:
             raise HTTPException(status_code=404, detail="Post non trouvé dans le calendrier")
         
-        # Supprimer du calendrier
-        delete_result = dbm.db.publication_calendar.delete_one({
-            "id": post_id,
-            "user_id": user_id
-        })
-        
-        if delete_result.deleted_count == 0:
-            raise HTTPException(status_code=404, detail="Impossible de supprimer le post du calendrier")
-        
-        # Remettre le post original en état non-validé (si il existe)
-        original_post_id = calendar_post.get("original_post_id")
-        if original_post_id:
-            dbm.db.generated_posts.update_one(
-                {"id": original_post_id, "owner_id": user_id},
-                {
-                    "$set": {
-                        "validated": False,
-                        "modified_at": datetime.now(timezone.utc).isoformat()
-                    }
+        # Remettre le post en état non-validé (draft)
+        update_result = dbm.db.generated_posts.update_one(
+            {"id": post_id, "owner_id": user_id},
+            {
+                "$set": {
+                    "validated": False,
+                    "status": "draft",
+                    "modified_at": datetime.now(timezone.utc).isoformat()
+                },
+                "$unset": {
+                    "validated_at": ""
                 }
-            )
+            }
+        )
         
-        print(f"✅ Calendar post {post_id} canceled and original post reset")
+        if update_result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Impossible de déprogrammer le post")
+        
+        print(f"✅ Calendar post {post_id} canceled and returned to draft state")
         
         return {
             "success": True,
             "message": "Programmation annulée avec succès",
-            "post_id": post_id,
-            "original_post_id": original_post_id
+            "post_id": post_id
         }
         
     except HTTPException:

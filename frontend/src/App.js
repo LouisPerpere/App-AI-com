@@ -578,7 +578,14 @@ const PostPreviewModal = ({
   modificationRequestRef,  // Changé de state à ref
   isFromCalendar = false, // Nouveau prop pour savoir si c'est depuis le calendrier
   onMovePost, // Fonction pour déplacer le post
-  onCancelPost // Fonction pour annuler la programmation
+  onCancelPost, // Fonction pour annuler/déprogrammer le post
+  // Nouveaux props pour la gestion d'état globale
+  showModificationPreview,
+  setShowModificationPreview, 
+  modifiedPostData,
+  setModifiedPostData,
+  showSecondaryModification,
+  setShowSecondaryModification
 }) => {
   const [showModificationForm, setShowModificationForm] = useState(false);
   const [modificationRequest, setModificationRequest] = useState('');

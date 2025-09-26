@@ -393,15 +393,15 @@ class FacebookConnectionTester:
 
 def main():
     """Main test execution"""
-    tester = PostValidatorTester()
+    tester = FacebookConnectionTester()
     
     try:
         success = tester.run_all_tests()
         if success:
-            print(f"\n🎯 CONCLUSION: Backend validation field fix is WORKING CORRECTLY")
+            print(f"\n🎯 CONCLUSION: Facebook connection and publication system is WORKING CORRECTLY")
             sys.exit(0)
         else:
-            print(f"\n💥 CONCLUSION: Backend validation field fix has ISSUES")
+            print(f"\n💥 CONCLUSION: Facebook connection system has ISSUES that need to be resolved")
             sys.exit(1)
     except KeyboardInterrupt:
         print(f"\n⚠️ Tests interrupted by user")

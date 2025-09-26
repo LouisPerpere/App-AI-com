@@ -3697,8 +3697,8 @@ async def publish_post_to_social_media(
                     "success": True,
                     "message": f"Post publié avec succès sur {target_connection.get('page_name', 'Facebook')} !",
                     "platform": "facebook",
-                    "page_name": target_connection.get("page_name", ""),
-                    "post_id": result.get("id"),
+                    "page_name": str(target_connection.get("page_name", "")),
+                    "post_id": str(result.get("id", "")),
                     "published_at": datetime.utcnow().isoformat()
                 }
                 

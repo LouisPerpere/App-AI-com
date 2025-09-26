@@ -208,57 +208,53 @@ class FacebookConnectionTester:
             print(f"   ❌ Test error: {str(e)}")
             return False
     
-    def test_validated_posts_logic(self):
-        """Test that previously validated posts have validated=true"""
+    def test_social_connections_regular_endpoint(self):
+        """Test GET /api/social/connections (regular endpoint used by frontend)"""
         try:
-            print(f"\n🔍 Step 4: Testing validated posts logic")
+            print(f"\n🔍 Step 4: Testing GET /api/social/connections (frontend endpoint)")
             
-            response = self.session.get(f"{self.base_url}/posts/generated")
+            response = self.session.get(f"{self.base_url}/social/connections")
+            
+            print(f"   Status: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
-                posts = data.get("posts", [])
+                connections = data.get("connections", [])
                 
-                if not posts:
-                    print(f"   ⚠️ No posts available for validation logic testing")
+                print(f"   ✅ Regular connections endpoint accessible")
+                print(f"   Active connections returned: {len(connections)}")
+                
+                facebook_active = False
+                instagram_active = False
+                
+                for conn in connections:
+                    platform = conn.get("platform", "").lower()
+                    print(f"     - {platform.title()} connection found")
+                    
+                    if platform == "facebook":
+                        facebook_active = True
+                    elif platform == "instagram":
+                        instagram_active = True
+                
+                print(f"\n📊 Frontend Connection State:")
+                print(f"   Facebook active: {facebook_active}")
+                print(f"   Instagram active: {instagram_active}")
+                
+                # This explains the UI issue - if no active connections are returned,
+                # the frontend will show "Connecter" instead of "Connecté"
+                if not facebook_active:
+                    print(f"   ❌ No active Facebook connection - explains 'Connecter' button issue")
+                    return False
+                else:
+                    print(f"   ✅ Active Facebook connection found - UI should show 'Connecté'")
                     return True
                 
-                validated_posts = [p for p in posts if p.get('validated') is True]
-                posts_with_validated_at = [p for p in posts if p.get('validated_at')]
-                
-                print(f"   Total posts: {len(posts)}")
-                print(f"   Posts with validated=true: {len(validated_posts)}")
-                print(f"   Posts with validated_at timestamp: {len(posts_with_validated_at)}")
-                
-                # Logic check: posts with validated=true should have validated_at timestamp
-                inconsistent_posts = 0
-                for post in validated_posts:
-                    if not post.get('validated_at'):
-                        inconsistent_posts += 1
-                        print(f"   ⚠️ Post {post.get('id')} has validated=true but no validated_at timestamp")
-                
-                if inconsistent_posts == 0:
-                    print(f"   ✅ All validated posts have consistent validated_at timestamps")
-                else:
-                    print(f"   ⚠️ Found {inconsistent_posts} posts with inconsistent validation data")
-                
-                # Show sample validated post if available
-                if validated_posts:
-                    sample_post = validated_posts[0]
-                    print(f"\n   📋 Sample validated post:")
-                    print(f"     ID: {sample_post.get('id')}")
-                    print(f"     Validated: {sample_post.get('validated')}")
-                    print(f"     Validated At: {sample_post.get('validated_at')}")
-                    print(f"     Platform: {sample_post.get('platform')}")
-                    print(f"     Status: {sample_post.get('status')}")
-                
-                return True
             else:
-                print(f"   ❌ Failed to get posts for validation logic testing")
+                print(f"   ❌ Regular connections endpoint failed: {response.text}")
                 return False
                 
         except Exception as e:
-            print(f"   ❌ Validation logic test error: {str(e)}")
+            print(f"   ❌ Test error: {str(e)}")
             return False
     
     def test_response_format_compatibility(self):

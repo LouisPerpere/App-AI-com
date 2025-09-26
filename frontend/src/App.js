@@ -3914,42 +3914,22 @@ function MainApp() {
 
       console.log('📡 Réponse du serveur:', response.data);
 
-      if (response.data?.success) {
-        console.log('✅ Modification réussie, préparation du rechargement...');
-        toast.success('✅ Post modifié avec succès ! Actualisation en cours...');
+      if (response.data?.success && response.data?.modified_post) {
+        console.log('✅ Modification réussie, retour des données pour aperçu');
         
-        // Stocker l'ID du post modifié pour repositionnement sécurisé
-        try {
-          localStorage.setItem('modifiedPostId', post.id);
-          localStorage.setItem('returnToPostsTab', 'true');
-          console.log(`💾 Post ID sauvegardé pour auto-scroll: ${post.id}`);
-        } catch (storageError) {
-          console.warn('⚠️ Erreur localStorage, scroll automatique désactivé:', storageError);
-        }
-        
-        // Fermer la modal et nettoyer les refs
-        setSelectedPost(null);
-        if (modificationRequestRef.current) {
-          modificationRequestRef.current.value = '';
-        }
-        
-        // Attendre un peu pour que l'utilisateur voie le toast, puis recharger
-        console.log('⏳ Rechargement programmé dans 1.5 secondes...');
-        setTimeout(() => {
-          try {
-            console.log('🔄 Rechargement de la page en cours...');
-            window.location.reload();
-          } catch (reloadError) {
-            console.error('❌ Erreur lors du rechargement:', reloadError);
-            // Fallback: recharger les posts manuellement
-            loadGeneratedPosts();
-            setActiveTab('posts');
+        // Retourner les données pour l'aperçu au lieu de recharger la page
+        return {
+          success: true,
+          modifiedPost: {
+            text: response.data.modified_post.text,
+            title: response.data.modified_post.title,
+            hashtags: response.data.modified_post.hashtags || []
           }
-        }, 1500);
+        };
       } else {
         console.log('❌ Échec de la modification, response.data:', response.data);
         toast.error('❌ Erreur: Réponse invalide du serveur');
-        setIsModifyingPost(false);
+        return false;
       }
       
     } catch (error) {

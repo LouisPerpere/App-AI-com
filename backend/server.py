@@ -3578,14 +3578,14 @@ async def debug_social_connections(user_id: str = Depends(get_current_user_id_ro
         dbm = get_database()
         
         # Get ALL connections for this user (active and inactive)
-        all_connections = list(dbm.db.social_connections.find({
+        all_connections = list(dbm.db.social_media_connections.find({
             "user_id": user_id
         }))
         
         # Get only active connections
-        active_connections = list(dbm.db.social_connections.find({
+        active_connections = list(dbm.db.social_media_connections.find({
             "user_id": user_id,
-            "is_active": True
+            "active": True
         }))
         
         # Debug info

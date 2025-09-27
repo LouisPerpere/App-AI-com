@@ -3069,6 +3069,9 @@ async def instagram_oauth_callback(
             if state and '|' in state:
                 _, user_id = state.split('|', 1)
                 print(f"🔍 Extracted user_id from state: {user_id}")
+            else:
+                print(f"❌ ERREUR: State invalide ou manquant: {state}")
+                return RedirectResponse(url=f"{frontend_url}?auth_error=invalid_state")
                 
                 # CRÉATION CONNEXION INSTAGRAM TEST DIRECTE
                 dbm = get_database()

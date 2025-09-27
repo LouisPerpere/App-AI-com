@@ -3070,7 +3070,7 @@ async def instagram_oauth_callback(
             
             # CRÉATION CONNEXION INSTAGRAM TEST DIRECTE
             dbm = get_database()
-                test_connection = {
+            test_connection = {
                     "connection_id": str(uuid.uuid4()),
                     "user_id": user_id,
                     "platform": "instagram",  # Corriger : instagram au lieu de facebook

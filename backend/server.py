@@ -3538,9 +3538,9 @@ async def connect_instagram_account(
         dbm = get_database()
         
         # Remove any existing Instagram connection for this user
-        dbm.db.social_connections.delete_many({
+        dbm.db.social_media_connections.delete_many({
             "user_id": user_id,
-            "platform": "instagram"
+            "platform": "instagram"  
         })
         
         # Save new connection
@@ -3551,10 +3551,10 @@ async def connect_instagram_account(
             "username": username,
             "access_token": access_token,
             "connected_at": datetime.now(timezone.utc),
-            "is_active": True
+            "active": True  # Utiliser "active" pour cohérence
         }
         
-        dbm.db.social_connections.insert_one(connection_data)
+        dbm.db.social_media_connections.insert_one(connection_data)
         
         print(f"✅ Instagram account @{username} connected successfully")
         

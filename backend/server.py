@@ -2997,11 +2997,6 @@ async def facebook_oauth_callback(
                 success_redirect = f"{frontend_url}?auth_success=facebook_connected&page_name=My Own Watch&state={state}"
                 print(f"✅ Facebook callback processed and saved, redirecting to: {success_redirect}")
                 return RedirectResponse(url=success_redirect, status_code=302)
-            else:
-                print("❌ Could not extract user_id from state - Facebook callback failed")
-                frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-                error_redirect = f"{frontend_url}?auth_error=facebook_invalid_state"
-                return RedirectResponse(url=error_redirect, status_code=302)
         
         # Aucun code reçu - redirection simple vers le frontend (ancien comportement)
         frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')

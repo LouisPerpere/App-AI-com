@@ -59,77 +59,64 @@ class SocialConnectionsDiagnostic:
             print(f"   ❌ Authentication error: {str(e)}")
             return False
     
-    def get_instagram_posts_september(self):
-        """Get Instagram posts from September 2025 and look for 'Personnalisation du Cadran'"""
+    def test_debug_social_connections(self):
+        """Test the corrected GET /api/debug/social-connections endpoint"""
         try:
-            print(f"\n📋 Step 2: Finding Instagram posts from September 2025")
-            print(f"   🎯 Looking specifically for 'Personnalisation du Cadran' post")
+            print(f"\n🔍 Step 2: Testing corrected social connections diagnostic")
+            print(f"   Endpoint: GET /api/debug/social-connections")
             
-            response = self.session.get(f"{self.base_url}/posts/generated")
+            response = self.session.get(f"{self.base_url}/debug/social-connections")
             
             print(f"   Status: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
-                posts = data.get("posts", [])
                 
-                print(f"   ✅ Retrieved {len(posts)} total posts")
+                print(f"   ✅ Diagnostic endpoint accessible")
+                print(f"   📊 Diagnostic Results:")
                 
-                # Filter Instagram posts from September 2025 and look for the specific post
-                instagram_posts_september = []
-                target_post = None
-                
-                for post in posts:
-                    platform = post.get("platform", "").lower()
-                    scheduled_date = post.get("scheduled_date", "")
-                    title = post.get("title", "")
-                    text = post.get("text", "")
+                # Check if the response has the expected structure
+                if "social_media_connections" in data:
+                    connections = data["social_media_connections"]
+                    print(f"     📋 social_media_connections collection:")
+                    print(f"       Total connections: {len(connections)}")
                     
-                    # Check if it's Instagram and from September or October 2025 (expand search)
-                    if platform == "instagram" and ("2025-09" in scheduled_date or "2025-10" in scheduled_date):
-                        instagram_posts_september.append(post)
-                        
-                        # Check if this is the target post "Personnalisation du Cadran"
-                        if "personnalisation" in title.lower() and "cadran" in title.lower():
-                            target_post = post
-                            print(f"   🎯 FOUND TARGET POST: 'Personnalisation du Cadran'")
-                        elif "personnalisation" in text.lower() and "cadran" in text.lower():
-                            target_post = post
-                            print(f"   🎯 FOUND TARGET POST: 'Personnalisation du Cadran' (in text)")
-                
-                print(f"   🔍 Found {len(instagram_posts_september)} Instagram posts from September/October 2025")
-                
-                # Show details of found posts
-                for i, post in enumerate(instagram_posts_september):
-                    validated = post.get("validated", False)
-                    published = post.get("published", False)
-                    status = "Published" if validated or published else "Draft"
-                    is_target = post == target_post
+                    facebook_connections = [c for c in connections if c.get("platform") == "facebook"]
+                    instagram_connections = [c for c in connections if c.get("platform") == "instagram"]
+                    active_connections = [c for c in connections if c.get("active") == True]
                     
-                    print(f"     {i+1}. {'🎯 TARGET: ' if is_target else ''}ID: {post.get('id')}")
-                    print(f"        Title: {post.get('title', 'No title')[:50]}...")
-                    print(f"        Date: {post.get('scheduled_date')}")
-                    print(f"        Status: {status}")
-                    print(f"        Validated: {validated}")
-                    if is_target:
-                        print(f"        ⭐ THIS IS THE TARGET POST FOR CONVERSION")
-                    print()
+                    print(f"       Facebook connections: {len(facebook_connections)}")
+                    print(f"       Instagram connections: {len(instagram_connections)}")
+                    print(f"       Active connections: {len(active_connections)}")
+                    
+                    # Show details of each connection
+                    for i, conn in enumerate(connections):
+                        platform = conn.get("platform", "unknown")
+                        active = conn.get("active", False)
+                        created_at = conn.get("created_at", "unknown")
+                        print(f"         {i+1}. Platform: {platform}, Active: {active}, Created: {created_at}")
                 
-                # If we found the target post, prioritize it
-                if target_post:
-                    # Move target post to the front of the list
-                    instagram_posts_september.remove(target_post)
-                    instagram_posts_september.insert(0, target_post)
-                    print(f"   ✅ Target post 'Personnalisation du Cadran' prioritized for conversion")
+                # Check for old collection data if present
+                if "social_connections_old" in data:
+                    old_connections = data["social_connections_old"]
+                    print(f"     📋 social_connections_old collection:")
+                    print(f"       Total old connections: {len(old_connections)}")
                 
-                return instagram_posts_september
+                # Check summary
+                if "summary" in data:
+                    summary = data["summary"]
+                    print(f"     📊 Summary:")
+                    for key, value in summary.items():
+                        print(f"       {key}: {value}")
+                
+                return data
             else:
-                print(f"   ❌ Failed to get posts: {response.text}")
-                return []
+                print(f"   ❌ Failed to access diagnostic endpoint: {response.text}")
+                return None
                 
         except Exception as e:
-            print(f"   ❌ Error getting posts: {str(e)}")
-            return []
+            print(f"   ❌ Error testing diagnostic endpoint: {str(e)}")
+            return None
     
     def modify_post_to_facebook_direct(self, post_id, post_title):
         """Modify Instagram post to Facebook using direct MongoDB access"""

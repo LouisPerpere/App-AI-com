@@ -206,11 +206,32 @@ class SocialConnectionsDiagnostic:
             print(f"   ❌ Error testing post generation: {str(e)}")
             return None
     
-    def test_facebook_publish_endpoint(self, post_id):
-        """Test the Facebook publish endpoint with the converted post"""
+    def test_publish_endpoint_with_facebook_post(self):
+        """Test the publish endpoint to see if it detects Facebook connections"""
         try:
-            print(f"\n🚀 Step 5: Testing Facebook publish endpoint")
-            print(f"   Testing with converted post ID: {post_id}")
+            print(f"\n🚀 Step 5: Testing publish endpoint for Facebook connection detection")
+            
+            # First, get a Facebook post to test with
+            response = self.session.get(f"{self.base_url}/posts/generated")
+            
+            if response.status_code != 200:
+                print(f"   ❌ Failed to get posts for testing")
+                return False
+            
+            data = response.json()
+            posts = data.get("posts", [])
+            facebook_posts = [p for p in posts if p.get("platform") == "facebook"]
+            
+            if not facebook_posts:
+                print(f"   ⚠️ No Facebook posts found for testing")
+                return False
+            
+            # Test with the first Facebook post
+            test_post = facebook_posts[0]
+            post_id = test_post.get("id")
+            
+            print(f"   Testing with Facebook post: {post_id}")
+            print(f"   Post title: {test_post.get('title', 'No title')[:50]}...")
             
             response = self.session.post(
                 f"{self.base_url}/posts/publish",
@@ -223,21 +244,27 @@ class SocialConnectionsDiagnostic:
             try:
                 response_data = response.json()
                 print(f"     Response: {json.dumps(response_data, indent=2, ensure_ascii=False)}")
+                
+                # Check if the response indicates connection issues
+                message = response_data.get("message", "").lower()
+                error = response_data.get("error", "").lower()
+                
+                if "aucune connexion sociale active" in message or "aucune connexion sociale active" in error:
+                    print(f"   ✅ Expected response: No active social connections found")
+                    print(f"   ✅ This confirms the endpoint is working correctly")
+                    return True
+                elif "connexion" in message or "connection" in message:
+                    print(f"   ✅ Connection-related response detected")
+                    return True
+                else:
+                    print(f"   ⚠️ Unexpected response format")
+                    return False
+                    
             except:
                 print(f"     Response (raw): {response.text}")
-            
-            if response.status_code == 200:
-                print(f"   ✅ Publish endpoint returned success")
-                return True
-            elif "connexion sociale" in response.text.lower() or "social connection" in response.text.lower():
-                print(f"   ✅ Publish endpoint working (expected social connection error in preview)")
-                print(f"   ✅ This confirms the Facebook post is ready for publication")
-                return True
-            elif response.status_code == 404:
-                print(f"   ❌ Post not found error - conversion may have failed")
-                return False
-            else:
-                print(f"   ⚠️ Unexpected response - endpoint may need investigation")
+                if "connexion sociale" in response.text.lower():
+                    print(f"   ✅ Expected social connection error detected")
+                    return True
                 return False
                 
         except Exception as e:

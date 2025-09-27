@@ -3852,7 +3852,7 @@ async def debug_social_connections(user_id: str = Depends(get_current_user_id_ro
         db = dbm.db
         
         # Vérifier dans les deux collections
-        social_connections_old = list(db.social_connections.find({"user_id": user_id}))
+        social_connections_old = list(db.social_media_connections.find({"user_id": user_id}))
         social_media_connections = list(db.social_media_connections.find({"user_id": user_id}))
         
         return {

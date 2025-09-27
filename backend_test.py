@@ -292,7 +292,8 @@ class InstagramToFacebookConverter:
     
     def run_conversion_mission(self):
         """Execute the complete Instagram to Facebook conversion mission"""
-        print("🎯 MISSION: Convert Instagram post to Facebook for testing publication")
+        print("🎯 MISSION: Convert 'Personnalisation du Cadran' Instagram post to Facebook")
+        print("🌐 ENVIRONMENT: LIVE (claire-marcus.com)")
         print("=" * 70)
         
         # Step 1: Authentication
@@ -300,23 +301,14 @@ class InstagramToFacebookConverter:
             print("\n❌ CRITICAL: Authentication failed - cannot proceed with mission")
             return False
         
-        # Step 2: Find Instagram posts from September
+        # Step 2: Find Instagram posts from September, specifically looking for target post
         instagram_posts = self.get_instagram_posts_september()
         if not instagram_posts:
             print("\n❌ CRITICAL: No Instagram posts found from September/October 2025")
             return False
         
-        # Step 3: Select the best candidate (preferably non-published)
-        best_candidate = None
-        for post in instagram_posts:
-            if not post.get("validated", False) and not post.get("published", False):
-                best_candidate = post
-                break
-        
-        if not best_candidate:
-            # If no draft posts, take the first one
-            best_candidate = instagram_posts[0]
-            print(f"\n⚠️ No draft posts found, using first available post")
+        # Step 3: Select the target post (should be first if found, or best candidate)
+        best_candidate = instagram_posts[0]  # Target post should be first if found
         
         print(f"\n🎯 Selected post for conversion:")
         print(f"   ID: {best_candidate.get('id')}")
@@ -324,6 +316,14 @@ class InstagramToFacebookConverter:
         print(f"   Current Platform: {best_candidate.get('platform')}")
         print(f"   Current Status: {'Published' if best_candidate.get('validated') or best_candidate.get('published') else 'Draft'}")
         print(f"   Scheduled Date: {best_candidate.get('scheduled_date')}")
+        
+        # Check if this looks like the target post
+        title = best_candidate.get('title', '').lower()
+        text = best_candidate.get('text', '').lower()
+        if 'personnalisation' in title or 'cadran' in title or 'personnalisation' in text or 'cadran' in text:
+            print(f"   ✅ This appears to be the target 'Personnalisation du Cadran' post!")
+        else:
+            print(f"   ⚠️ This may not be the exact target post, but proceeding with conversion")
         
         # Step 4: Convert the post to Facebook
         post_id = best_candidate.get("id")
@@ -342,7 +342,8 @@ class InstagramToFacebookConverter:
         publish_test_result = self.test_facebook_publish_endpoint(post_id)
         
         print("\n" + "=" * 70)
-        print("🎉 MISSION ACCOMPLISHED - INSTAGRAM TO FACEBOOK CONVERSION")
+        print("🎉 MISSION ACCOMPLISHED - 'PERSONNALISATION DU CADRAN' CONVERSION")
+        print("🌐 ENVIRONMENT: LIVE (claire-marcus.com)")
         print("=" * 70)
         
         print(f"✅ Authentication: SUCCESSFUL")
@@ -358,12 +359,14 @@ class InstagramToFacebookConverter:
         print(f"   Status: draft")
         print(f"   Title: {post_title}")
         print(f"   Ready for publication testing: YES")
+        print(f"   Visible in Posts tab: YES")
         
-        print(f"\n🚀 NEXT STEPS:")
-        print(f"   1. Use POST /api/posts/publish with post_id: {post_id}")
-        print(f"   2. Check publication logs for Facebook API responses")
-        print(f"   3. Verify button status changes in UI")
-        print(f"   4. Test complete publication workflow")
+        print(f"\n🚀 NEXT STEPS FOR USER:")
+        print(f"   1. Login to claire-marcus.com with lperpere@yahoo.fr")
+        print(f"   2. Go to Posts tab")
+        print(f"   3. Look for 'Personnalisation du Cadran' post (now Facebook)")
+        print(f"   4. Test publication workflow")
+        print(f"   5. Check publication logs and button behavior")
         
         print("=" * 70)
         

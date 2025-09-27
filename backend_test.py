@@ -364,23 +364,23 @@ class SocialConnectionsDiagnostic:
 
 def main():
     """Main execution function"""
-    converter = InstagramToFacebookConverter()
+    diagnostic = SocialConnectionsDiagnostic()
     
     try:
-        success = converter.run_conversion_mission()
+        success = diagnostic.run_social_connections_diagnostic()
         if success:
-            print(f"\n🎯 CONCLUSION: Instagram to Facebook conversion COMPLETED SUCCESSFULLY")
-            print(f"   Facebook post is ready for publication testing")
+            print(f"\n🎯 CONCLUSION: Social connections diagnostic COMPLETED SUCCESSFULLY")
+            print(f"   Collection consistency has been verified")
             sys.exit(0)
         else:
-            print(f"\n💥 CONCLUSION: Instagram to Facebook conversion FAILED")
+            print(f"\n💥 CONCLUSION: Social connections diagnostic FAILED")
             print(f"   Please check the error messages above")
             sys.exit(1)
     except KeyboardInterrupt:
-        print(f"\n⚠️ Mission interrupted by user")
+        print(f"\n⚠️ Diagnostic interrupted by user")
         sys.exit(1)
     except Exception as e:
-        print(f"\n❌ Unexpected error during mission: {str(e)}")
+        print(f"\n❌ Unexpected error during diagnostic: {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":

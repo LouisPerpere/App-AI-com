@@ -118,75 +118,43 @@ class SocialConnectionsDiagnostic:
             print(f"   ❌ Error testing diagnostic endpoint: {str(e)}")
             return None
     
-    def modify_post_to_facebook_direct(self, post_id, post_title):
-        """Modify Instagram post to Facebook using direct MongoDB access"""
+    def test_social_connections_endpoint(self):
+        """Test the regular social connections endpoint"""
         try:
-            print(f"\n🔄 Step 3: Converting Instagram post to Facebook via MongoDB")
-            print(f"   Post ID: {post_id}")
-            print(f"   Title: {post_title}")
+            print(f"\n🔗 Step 3: Testing regular social connections endpoint")
+            print(f"   Endpoint: GET /api/social/connections")
             
-            # Connect to MongoDB directly
-            mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017/claire_marcus')
-            print(f"   MongoDB URL: {mongo_url}")
+            response = self.session.get(f"{self.base_url}/social/connections")
             
-            client = MongoClient(mongo_url)
-            db = client.claire_marcus
-            collection = db.generated_posts
+            print(f"   Status: {response.status_code}")
             
-            # Find the post first
-            post = collection.find_one({
-                "id": post_id,
-                "owner_id": self.user_id
-            })
-            
-            if not post:
-                print(f"   ❌ Post not found in database")
-                return False
-            
-            print(f"   ✅ Post found in database")
-            print(f"   Current platform: {post.get('platform')}")
-            print(f"   Current validated: {post.get('validated', False)}")
-            
-            # Update the post
-            update_result = collection.update_one(
-                {"id": post_id, "owner_id": self.user_id},
-                {"$set": {
-                    "platform": "facebook",
-                    "status": "draft",
-                    "validated": False,
-                    "published": False,
-                    "modified_at": datetime.utcnow().isoformat(),
-                    "conversion_note": "Converted from Instagram to Facebook for testing"
-                }}
-            )
-            
-            if update_result.modified_count > 0:
-                print(f"   ✅ Post successfully converted to Facebook!")
-                print(f"   Modified count: {update_result.modified_count}")
+            if response.status_code == 200:
+                data = response.json()
+                connections = data.get("connections", [])
                 
-                # Verify the change
-                updated_post = collection.find_one({
-                    "id": post_id,
-                    "owner_id": self.user_id
-                })
+                print(f"   ✅ Social connections endpoint accessible")
+                print(f"   📊 Active connections found: {len(connections)}")
                 
-                if updated_post:
-                    print(f"   ✅ Verification successful:")
-                    print(f"     Platform: {updated_post.get('platform')}")
-                    print(f"     Status: {updated_post.get('status')}")
-                    print(f"     Validated: {updated_post.get('validated', False)}")
-                    print(f"     Published: {updated_post.get('published', False)}")
+                facebook_active = [c for c in connections if c.get("platform") == "facebook"]
+                instagram_active = [c for c in connections if c.get("platform") == "instagram"]
                 
-                client.close()
-                return True
+                print(f"     Active Facebook connections: {len(facebook_active)}")
+                print(f"     Active Instagram connections: {len(instagram_active)}")
+                
+                # Show details of active connections
+                for i, conn in enumerate(connections):
+                    platform = conn.get("platform", "unknown")
+                    page_name = conn.get("page_name", "unknown")
+                    print(f"       {i+1}. Platform: {platform}, Page: {page_name}")
+                
+                return connections
             else:
-                print(f"   ❌ No documents were modified")
-                client.close()
-                return False
+                print(f"   ❌ Failed to access social connections endpoint: {response.text}")
+                return []
                 
         except Exception as e:
-            print(f"   ❌ Error modifying post: {str(e)}")
-            return False
+            print(f"   ❌ Error testing social connections endpoint: {str(e)}")
+            return []
     
     def verify_facebook_post_conversion(self, post_id):
         """Verify the post has been successfully converted to Facebook"""

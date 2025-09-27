@@ -3104,11 +3104,6 @@ async def instagram_oauth_callback(
                 frontend_url = f"{frontend_base_url}/?facebook_success=true&page_name=My Own Watch&state={state}"
                 print(f"🔄 Redirecting to: {frontend_url}")
                 return RedirectResponse(url=frontend_url)
-            else:
-                print("❌ Could not extract user_id from state - redirecting with error")
-                frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-                frontend_url = f"{frontend_base_url}/?facebook_error=invalid_state"
-                return RedirectResponse(url=frontend_url)
         
         # Aucun code ni token reçu
         print("❌ No authorization code or access tokens received")

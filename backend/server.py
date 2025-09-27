@@ -2876,7 +2876,7 @@ async def facebook_oauth_callback(
                 return RedirectResponse(url=f"{frontend_url}?auth_error=invalid_state")
             
             # ÉCHANGE DU CODE CONTRE UN ACCESS TOKEN FACEBOOK
-                try:
+            try:
                     facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
                     facebook_app_secret = os.environ.get('FACEBOOK_APP_SECRET')
                     redirect_uri = os.environ.get('FACEBOOK_REDIRECT_URI', 'https://claire-marcus.com/api/social/facebook/callback')

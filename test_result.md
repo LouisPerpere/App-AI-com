@@ -2784,8 +2784,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Instagram to Facebook Post Conversion - LIVE Environment"
-    - "Posts Tab Button Disabling During Modification Workflow"
+    - "Social Connections Display vs Generation Inconsistency Diagnostic"
   stuck_tasks: 
     - "Instagram to Facebook Post Conversion - LIVE Environment"
   test_all: false

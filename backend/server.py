@@ -2943,7 +2943,6 @@ async def facebook_oauth_callback(
                                         page_id = None
                                 
                                 # CRÉATION CONNEXION FACEBOOK avec vrai token
-                                dbm = get_database()
                                 facebook_connection = {
                                     "connection_id": str(uuid.uuid4()),
                                     "user_id": user_id,

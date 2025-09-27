@@ -2550,17 +2550,17 @@ async def get_social_connections(user_id: str = Depends(get_current_user_id_robu
     dbm = get_database()
     
     # Get Facebook connections
-    fb_connections = list(dbm.db.social_connections.find({
+    fb_connections = list(dbm.db.social_media_connections.find({
         "user_id": user_id,
         "platform": "facebook",
-        "is_active": True
+        "active": True
     }))
     
     # Get Instagram connections
-    ig_connections = list(dbm.db.social_connections.find({
+    ig_connections = list(dbm.db.social_media_connections.find({
         "user_id": user_id,
         "platform": "instagram",
-        "is_active": True
+        "active": True
     }))
     
     connections = {}

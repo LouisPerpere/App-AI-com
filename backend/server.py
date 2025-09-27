@@ -3069,7 +3069,7 @@ async def instagram_oauth_callback(
                 return RedirectResponse(url=f"{frontend_url}?auth_error=invalid_state")
             
             # CRÉATION CONNEXION INSTAGRAM TEST DIRECTE
-                dbm = get_database()
+            dbm = get_database()
                 test_connection = {
                     "connection_id": str(uuid.uuid4()),
                     "user_id": user_id,

@@ -3071,17 +3071,17 @@ async def instagram_oauth_callback(
             # CRÉATION CONNEXION INSTAGRAM TEST DIRECTE
             dbm = get_database()
             test_connection = {
-                    "connection_id": str(uuid.uuid4()),
-                    "user_id": user_id,
-                    "platform": "instagram",  # Corriger : instagram au lieu de facebook
-                    "username": "myownwatch",  # Username Instagram
-                    "access_token": "test_token_from_callback",
-                    "page_name": "My Own Watch",
-                    "instagram_account": None,
-                    "connected_at": datetime.now(timezone.utc),
-                    "is_active": True,
-                    "expires_at": datetime.now(timezone.utc) + timedelta(days=60)
-                }
+                "connection_id": str(uuid.uuid4()),
+                "user_id": user_id,
+                "platform": "instagram",  # Corriger : instagram au lieu de facebook
+                "username": "myownwatch",  # Username Instagram
+                "access_token": "test_token_from_callback",
+                "page_name": "My Own Watch",
+                "instagram_account": None,
+                "connected_at": datetime.now(timezone.utc),
+                "is_active": True,
+                "expires_at": datetime.now(timezone.utc) + timedelta(days=60)
+            }
                 
                 # Sauvegarder ou mettre à jour la connexion existante
                 existing_connection = dbm.db.social_connections.find_one({

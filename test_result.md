@@ -136,7 +136,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "SYSTÈME DE GÉNÉRATION DE POSTS INSTAGRAM : Implémentation du système complet de génération automatique de posts Instagram basé sur l'analyse du profil business, contenu uploadé, notes utilisateur et analyse de site web. Le système doit créer un calendrier de publication équilibré selon le type de business, avec des posts optimisés par ChatGPT 4o. Focus Instagram uniquement pour l'instant."
+user_problem_statement: "L'utilisateur a fait un rollback pour restaurer le service. Je dois maintenant simplement modifier un post Instagram existant en post Facebook pour permettre les tests de publication. MISSION SIMPLE : Identifiants : lperpere@yahoo.fr / L@Reunion974! - Trouver un post Instagram de septembre (de préférence non publié) - Le modifier pour changer sa plateforme de 'instagram' à 'facebook' - Le remettre en statut 'draft' pour qu'il soit publiable. OBJECTIF : Avoir un post Facebook testable pour voir les logs de publication et comprendre pourquoi le bouton ne passe pas à 'Publié'."
 
 
 # Added by main agent for Phase A testing

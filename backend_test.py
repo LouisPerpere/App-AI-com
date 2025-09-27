@@ -22,14 +22,14 @@ class InstagramToFacebookConverter:
             "password": "L@Reunion974!"
         }
         
-    def authenticate(self, email, password):
+    def authenticate(self):
         """Authenticate with the API"""
         try:
-            print(f"🔐 Step 1: Authenticating with {email}")
+            print(f"🔐 Step 1: Authenticating with {self.credentials['email']}")
             
             response = self.session.post(
                 f"{self.base_url}/auth/login-robust",
-                json={"email": email, "password": password},
+                json=self.credentials,
                 headers={"Content-Type": "application/json"}
             )
             

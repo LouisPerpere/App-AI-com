@@ -3396,10 +3396,10 @@ async def publish_facebook_post(
             raise HTTPException(status_code=404, detail="Post non trouvé")
         
         # 2. Récupérer la connexion Facebook de l'utilisateur
-        facebook_connection = dbm.db.social_connections.find_one({
+        facebook_connection = dbm.db.social_media_connections.find_one({
             "user_id": user_id,
             "platform": "facebook",
-            "is_active": True
+            "active": True
         })
         
         if not facebook_connection:

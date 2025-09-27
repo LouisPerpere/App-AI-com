@@ -3644,14 +3644,14 @@ async def disconnect_social_platform(
         dbm = get_database()
         
         # Set all connections for this platform as inactive (soft delete)
-        result = dbm.db.social_connections.update_many(
+        result = dbm.db.social_media_connections.update_many(
             {
                 "user_id": user_id,
                 "platform": platform
             },
             {
                 "$set": {
-                    "is_active": False,
+                    "active": False,
                     "disconnected_at": datetime.now(timezone.utc)
                 }
             }

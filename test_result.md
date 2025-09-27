@@ -2801,8 +2801,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Social Connections Display vs Generation Inconsistency Diagnostic"
+    - "OAuth Callback Persistence Diagnostic - Facebook/Instagram Connection Issues"
   stuck_tasks: 
+    - "OAuth Callback Persistence Diagnostic - Facebook/Instagram Connection Issues"
     - "Instagram to Facebook Post Conversion - LIVE Environment"
   test_all: false
   test_priority: "high_first"

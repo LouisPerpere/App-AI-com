@@ -58,86 +58,54 @@ class InstagramToFacebookConverter:
             print(f"   ❌ Authentication error: {str(e)}")
             return False
     
-    def test_social_connections_debug(self):
-        """Test GET /api/debug/social-connections to check Facebook connection state"""
+    def get_instagram_posts_september(self):
+        """Get Instagram posts from September 2025"""
         try:
-            print(f"\n🔍 Step 2: Testing GET /api/debug/social-connections")
+            print(f"\n📋 Step 2: Finding Instagram posts from September 2025")
             
-            response = self.session.get(f"{self.base_url}/debug/social-connections")
+            response = self.session.get(f"{self.base_url}/posts/generated")
             
             print(f"   Status: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
+                posts = data.get("posts", [])
                 
-                print(f"   ✅ Debug endpoint accessible")
+                print(f"   ✅ Retrieved {len(posts)} total posts")
                 
-                # Check for Facebook connections
-                facebook_connections = 0
-                instagram_connections = 0
-                active_connections = 0
-                
-                # Check old collection
-                old_connections = data.get("social_connections_old", [])
-                print(f"   Old connections found: {len(old_connections)}")
-                
-                for conn in old_connections:
-                    platform = conn.get("platform", "").lower()
-                    is_active = conn.get("is_active", False)
+                # Filter Instagram posts from September 2025
+                instagram_posts_september = []
+                for post in posts:
+                    platform = post.get("platform", "").lower()
+                    scheduled_date = post.get("scheduled_date", "")
                     
-                    if platform == "facebook":
-                        facebook_connections += 1
-                    elif platform == "instagram":
-                        instagram_connections += 1
+                    # Check if it's Instagram and from September 2025
+                    if platform == "instagram" and "2025-09" in scheduled_date:
+                        instagram_posts_september.append(post)
+                
+                print(f"   🔍 Found {len(instagram_posts_september)} Instagram posts from September 2025")
+                
+                # Show details of found posts
+                for i, post in enumerate(instagram_posts_september):
+                    validated = post.get("validated", False)
+                    published = post.get("published", False)
+                    status = "Published" if validated or published else "Draft"
                     
-                    if is_active:
-                        active_connections += 1
-                        print(f"     ✅ Active {platform} connection found")
-                    else:
-                        print(f"     ❌ Inactive {platform} connection found")
+                    print(f"     {i+1}. ID: {post.get('id')}")
+                    print(f"        Title: {post.get('title', 'No title')[:50]}...")
+                    print(f"        Date: {post.get('scheduled_date')}")
+                    print(f"        Status: {status}")
+                    print(f"        Validated: {validated}")
+                    print()
                 
-                # Check new collection
-                new_connections = data.get("social_media_connections", [])
-                print(f"   New connections found: {len(new_connections)}")
-                
-                for conn in new_connections:
-                    platform = conn.get("platform", "").lower()
-                    is_active = conn.get("is_active", True)  # New collection might not have is_active field
-                    
-                    if platform == "facebook":
-                        facebook_connections += 1
-                    elif platform == "instagram":
-                        instagram_connections += 1
-                    
-                    if is_active:
-                        active_connections += 1
-                        print(f"     ✅ Active {platform} connection found in new collection")
-                
-                print(f"\n📊 Connection Analysis:")
-                print(f"   Total Facebook connections: {facebook_connections}")
-                print(f"   Total Instagram connections: {instagram_connections}")
-                print(f"   Total active connections: {active_connections}")
-                
-                # Check if user has reconnected Facebook as reported
-                if facebook_connections > 0:
-                    print(f"   ✅ Facebook connection exists in database")
-                    if active_connections > 0:
-                        print(f"   ✅ Active Facebook connection confirmed")
-                        return True
-                    else:
-                        print(f"   ❌ Facebook connection exists but is INACTIVE")
-                        return False
-                else:
-                    print(f"   ❌ No Facebook connection found - user may need to reconnect")
-                    return False
-                
+                return instagram_posts_september
             else:
-                print(f"   ❌ Debug endpoint failed: {response.text}")
-                return False
+                print(f"   ❌ Failed to get posts: {response.text}")
+                return []
                 
         except Exception as e:
-            print(f"   ❌ Test error: {str(e)}")
-            return False
+            print(f"   ❌ Error getting posts: {str(e)}")
+            return []
     
     def test_posts_publish_endpoint(self):
         """Test POST /api/posts/publish with a real post_id"""

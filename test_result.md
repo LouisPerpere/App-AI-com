@@ -142,6 +142,18 @@ user_problem_statement: "L'utilisateur a fait un rollback pour restaurer le serv
 # Added by main agent for Phase A testing
 
 backend:
+  - task: "Instagram to Facebook Post Conversion - LIVE Environment"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "🚨 CRITICAL ISSUE IDENTIFIED - DATABASE SYNCHRONIZATION PROBLEM: Comprehensive testing of Instagram to Facebook post conversion completed for LIVE environment (claire-marcus.com) with credentials lperpere@yahoo.fr / L@Reunion974!. AUTHENTICATION & API ACCESS: ✅ Authentication successful (User ID: 6a670c66-c06c-4d75-9dd5-c747e8a0281a), ✅ LIVE API accessible and returning posts, ✅ Target post 'Personnalisation du Cadran' found via API (post_6a670c66-c06c-4d75-9dd5-c747e8a0281a_1758987230_0). CRITICAL DATABASE ISSUE DISCOVERED: ❌ LIVE environment API returns 7 posts including target 'Personnalisation du Cadran', ❌ Local MongoDB database contains only 8 different posts (none matching API results), ❌ Database synchronization issue: LIVE API data ≠ Local database data, ❌ Cannot modify post via direct MongoDB access due to data mismatch. TECHNICAL FINDINGS: LIVE API shows: 'Montage en Atelier', 'Focus sur le Mouvement', 'L'Importance du Sur-Mesure', 'Le Processus de Création', 'La montre qui vous ressemble', 'Fermeture exceptionnelle le 30 septembre', 'Personnalisation du Cadran' (all Instagram). Local DB shows: 'Votre montre, votre aventure', 'Guide pour bien choisir sa montre', 'Dans les coulisses de nos ateliers', 'Préservez votre montre dans le temps', 'Nouvelle Collection', 'Dans Nos Ateliers', 'Choisir l'Unicité', 'Avis de Nos Clients' (mixed platforms). ROOT CAUSE: LIVE environment (claire-marcus.com) uses different database/data source than local MongoDB instance. SOLUTION REQUIRED: Need database synchronization or direct LIVE database access to complete the mission. MISSION STATUS: Target post identified but conversion blocked by database access issue."
+
   - task: "POST /posts/validate-to-calendar Endpoint Testing"
     implemented: true
     working: true

@@ -3099,9 +3099,9 @@ async def instagram_oauth_callback(
                 result = dbm.db.social_media_connections.insert_one(test_connection)
                 print(f"✅ Created Instagram connection for user {user_id}")
             
-            # Rediriger vers le frontend avec succès
+            # Rediriger vers le frontend avec succès (Instagram)
             frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-            frontend_url = f"{frontend_base_url}/?facebook_success=true&page_name=My Own Watch&state={state}"
+            frontend_url = f"{frontend_base_url}/?auth_success=instagram_connected&page_name=My Own Watch&state={state}"
             print(f"🔄 Redirecting to: {frontend_url}")
             return RedirectResponse(url=frontend_url)
         

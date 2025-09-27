@@ -17,6 +17,10 @@ class InstagramToFacebookConverter:
         self.session = requests.Session()
         self.token = None
         self.user_id = None
+        self.credentials = {
+            "email": "lperpere@yahoo.fr",
+            "password": "L@Reunion974!"
+        }
         
     def authenticate(self, email, password):
         """Authenticate with the API"""

@@ -60,9 +60,10 @@ class InstagramToFacebookConverter:
             return False
     
     def get_instagram_posts_september(self):
-        """Get Instagram posts from September 2025"""
+        """Get Instagram posts from September 2025 and look for 'Personnalisation du Cadran'"""
         try:
             print(f"\n📋 Step 2: Finding Instagram posts from September 2025")
+            print(f"   🎯 Looking specifically for 'Personnalisation du Cadran' post")
             
             response = self.session.get(f"{self.base_url}/posts/generated")
             
@@ -74,15 +75,27 @@ class InstagramToFacebookConverter:
                 
                 print(f"   ✅ Retrieved {len(posts)} total posts")
                 
-                # Filter Instagram posts from September 2025
+                # Filter Instagram posts from September 2025 and look for the specific post
                 instagram_posts_september = []
+                target_post = None
+                
                 for post in posts:
                     platform = post.get("platform", "").lower()
                     scheduled_date = post.get("scheduled_date", "")
+                    title = post.get("title", "")
+                    text = post.get("text", "")
                     
                     # Check if it's Instagram and from September or October 2025 (expand search)
                     if platform == "instagram" and ("2025-09" in scheduled_date or "2025-10" in scheduled_date):
                         instagram_posts_september.append(post)
+                        
+                        # Check if this is the target post "Personnalisation du Cadran"
+                        if "personnalisation" in title.lower() and "cadran" in title.lower():
+                            target_post = post
+                            print(f"   🎯 FOUND TARGET POST: 'Personnalisation du Cadran'")
+                        elif "personnalisation" in text.lower() and "cadran" in text.lower():
+                            target_post = post
+                            print(f"   🎯 FOUND TARGET POST: 'Personnalisation du Cadran' (in text)")
                 
                 print(f"   🔍 Found {len(instagram_posts_september)} Instagram posts from September/October 2025")
                 
@@ -91,13 +104,23 @@ class InstagramToFacebookConverter:
                     validated = post.get("validated", False)
                     published = post.get("published", False)
                     status = "Published" if validated or published else "Draft"
+                    is_target = post == target_post
                     
-                    print(f"     {i+1}. ID: {post.get('id')}")
+                    print(f"     {i+1}. {'🎯 TARGET: ' if is_target else ''}ID: {post.get('id')}")
                     print(f"        Title: {post.get('title', 'No title')[:50]}...")
                     print(f"        Date: {post.get('scheduled_date')}")
                     print(f"        Status: {status}")
                     print(f"        Validated: {validated}")
+                    if is_target:
+                        print(f"        ⭐ THIS IS THE TARGET POST FOR CONVERSION")
                     print()
+                
+                # If we found the target post, prioritize it
+                if target_post:
+                    # Move target post to the front of the list
+                    instagram_posts_september.remove(target_post)
+                    instagram_posts_september.insert(0, target_post)
+                    print(f"   ✅ Target post 'Personnalisation du Cadran' prioritized for conversion")
                 
                 return instagram_posts_september
             else:

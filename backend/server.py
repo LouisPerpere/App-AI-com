@@ -3073,13 +3073,13 @@ async def instagram_oauth_callback(
             test_connection = {
                 "connection_id": str(uuid.uuid4()),
                 "user_id": user_id,
-                "platform": "instagram",  # Corriger : instagram au lieu de facebook
-                "username": "myownwatch",  # Username Instagram
+                "platform": "instagram",
+                "username": "myownwatch",
                 "access_token": "test_token_from_callback",
                 "page_name": "My Own Watch",
                 "instagram_account": None,
                 "connected_at": datetime.now(timezone.utc),
-                "is_active": True,
+                "active": True,  # Utiliser "active" comme partout ailleurs
                 "expires_at": datetime.now(timezone.utc) + timedelta(days=60)
             }
             

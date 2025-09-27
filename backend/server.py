@@ -3082,9 +3082,9 @@ async def instagram_oauth_callback(
                 "is_active": True,
                 "expires_at": datetime.now(timezone.utc) + timedelta(days=60)
             }
-                
-                # Sauvegarder ou mettre à jour la connexion existante
-                existing_connection = dbm.db.social_connections.find_one({
+            
+            # Sauvegarder ou mettre à jour la connexion existante
+            existing_connection = dbm.db.social_connections.find_one({
                     "user_id": user_id,
                     "platform": "instagram"  # Corriger : chercher instagram
                 })

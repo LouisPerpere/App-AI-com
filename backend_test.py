@@ -13,8 +13,8 @@ import os
 
 class SocialConnectionsDiagnostic:
     def __init__(self):
-        # CRITICAL: Use LIVE environment as specified in the mission
-        self.base_url = "https://claire-marcus.com/api"
+        # Use the frontend environment URL from .env
+        self.base_url = "https://social-ai-planner-2.preview.emergentagent.com/api"
         self.session = requests.Session()
         self.token = None
         self.user_id = None

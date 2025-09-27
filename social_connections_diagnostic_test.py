@@ -1,24 +1,20 @@
 #!/usr/bin/env python3
 """
-Social Connections Diagnostic Test Suite
-Testing the GET /api/debug/social-connections endpoint to identify where social connections are stored
-and why the /api/posts/publish endpoint cannot find them.
+Social Connections Diagnostic Test Suite - CRITICAL INCONSISTENCY ANALYSIS
 
-French Review Request:
-"J'ai créé un endpoint de diagnostic pour vérifier l'état des connexions sociales dans la base de données. 
-L'utilisateur a encore l'erreur 'Aucune connexion sociale active trouvée' malgré mes corrections."
+PROBLÈME RAPPORTÉ PAR L'UTILISATEUR:
+- Page sociale : Facebook connecté, Instagram déconnecté  
+- Génération posts : 0 posts Facebook, que des posts Instagram
+- Reconnexion Instagram : Bouton reste "Connecter"
 
-Test Requirements:
-1. Authentication: lperpere@yahoo.fr / L@Reunion974!
-2. Diagnostic endpoint: GET /api/debug/social-connections
-   - Shows connections in both collections:
-   - social_connections (old collection)
-   - social_media_connections (new collection)
+DIAGNOSTIC URGENT REQUIS:
+1. État réel base de données via GET /api/debug/social-connections
+2. Source données page sociale via GET /api/social/connections  
+3. Logique génération posts - pourquoi génère Instagram si affiché déconnecté ?
 
-Objective: Identify exactly where Facebook connections are stored and with what fields,
-to understand why the /api/posts/publish endpoint cannot find them.
+IDENTIFIANTS: lperpere@yahoo.fr / L@Reunion974!
 
-Credentials: lperpere@yahoo.fr / L@Reunion974!
+OBJECTIF: Identifier les incohérences entre affichage frontend, génération posts, et réalité base de données.
 """
 
 import requests

@@ -2955,8 +2955,8 @@ async def facebook_oauth_callback(
                             else:
                                 error_text = await token_response.text()
                                 raise Exception(f"Erreur échange token Facebook: {token_response.status} - {error_text}")
-                    
-                except Exception as oauth_error:
+                
+            except Exception as oauth_error:
                     print(f"❌ Erreur OAuth Facebook: {str(oauth_error)}")
                     # Fallback vers token de test pour le développement
                     facebook_connection = {

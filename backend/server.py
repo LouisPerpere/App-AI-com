@@ -2957,20 +2957,20 @@ async def facebook_oauth_callback(
                                 raise Exception(f"Erreur échange token Facebook: {token_response.status} - {error_text}")
                 
             except Exception as oauth_error:
-                    print(f"❌ Erreur OAuth Facebook: {str(oauth_error)}")
-                    # Fallback vers token de test pour le développement
-                    facebook_connection = {
-                        "connection_id": str(uuid.uuid4()),
-                        "user_id": user_id,
-                        "platform": "facebook",
-                        "username": "Page de Test",
-                        "access_token": "test_token_facebook_fallback",
-                        "page_name": "Page de Test",
-                        "page_id": None,
-                        "connected_at": datetime.now(timezone.utc),
-                        "is_active": True,
-                        "expires_at": datetime.now(timezone.utc) + timedelta(days=1)  # Token de test expire rapidement
-                    }
+                print(f"❌ Erreur OAuth Facebook: {str(oauth_error)}")
+                # Fallback vers token de test pour le développement
+                facebook_connection = {
+                    "connection_id": str(uuid.uuid4()),
+                    "user_id": user_id,
+                    "platform": "facebook",
+                    "username": "Page de Test",
+                    "access_token": "test_token_facebook_fallback",
+                    "page_name": "Page de Test",
+                    "page_id": None,
+                    "connected_at": datetime.now(timezone.utc),
+                    "is_active": True,
+                    "expires_at": datetime.now(timezone.utc) + timedelta(days=1)  # Token de test expire rapidement
+                }
                 
                 # Corriger le champ active
                 facebook_connection["active"] = True  # Utiliser "active" au lieu de "is_active"

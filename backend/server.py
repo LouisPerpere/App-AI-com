@@ -3797,6 +3797,53 @@ async def publish_post_to_social_media(
         print(f"❌ Error publishing post: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erreur lors de la publication: {str(e)}")
 
+@api_router.post("/debug/convert-post-platform")
+async def convert_post_platform(
+    request: dict,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Convertir la plateforme d'un post (Instagram → Facebook) pour les tests"""
+    try:
+        post_id = request.get("post_id")
+        new_platform = request.get("platform", "facebook")
+        
+        if not post_id:
+            raise HTTPException(status_code=400, detail="post_id requis")
+        
+        dbm = get_database()
+        db = dbm.db
+        
+        # Modifier le post
+        result = db.generated_posts.update_one(
+            {"id": post_id, "owner_id": user_id},
+            {
+                "$set": {
+                    "platform": new_platform,
+                    "status": "draft",
+                    "validated": False,
+                    "published": False,
+                    "updated_at": datetime.utcnow().isoformat(),
+                    "converted_for_testing": True
+                }
+            }
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Post non trouvé")
+        
+        return {
+            "success": True,
+            "message": f"Post converti vers {new_platform}",
+            "post_id": post_id,
+            "platform": new_platform,
+            "modified_count": result.modified_count
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
 @api_router.get("/debug/social-connections")
 async def debug_social_connections(user_id: str = Depends(get_current_user_id_robust)):
     """Debug endpoint pour vérifier les connexions sociales"""

@@ -3084,20 +3084,20 @@ async def instagram_oauth_callback(
             }
             
             # Sauvegarder ou mettre à jour la connexion existante
-            existing_connection = dbm.db.social_connections.find_one({
+            existing_connection = dbm.db.social_media_connections.find_one({
                 "user_id": user_id,
-                "platform": "instagram"  # Corriger : chercher instagram
+                "platform": "instagram"
             })
             
             if existing_connection:
-                result = dbm.db.social_connections.update_one(
-                    {"user_id": user_id, "platform": "facebook"},
+                result = dbm.db.social_media_connections.update_one(
+                    {"user_id": user_id, "platform": "instagram"},
                     {"$set": test_connection}
                 )
-                print(f"✅ Updated Facebook connection for user {user_id}")
+                print(f"✅ Updated Instagram connection for user {user_id}")
             else:
-                result = dbm.db.social_connections.insert_one(test_connection)
-                print(f"✅ Created Facebook connection for user {user_id}")
+                result = dbm.db.social_media_connections.insert_one(test_connection)
+                print(f"✅ Created Instagram connection for user {user_id}")
             
             # Rediriger vers le frontend avec succès
             frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')

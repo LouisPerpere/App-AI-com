@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for Facebook Connection and Publication Issues
-Testing social connections state and publication functionality
+Backend Test Suite for Instagram to Facebook Post Conversion
+Mission: Convert an Instagram post from September to Facebook for testing publication
 """
 
 import requests
 import json
 import sys
 from datetime import datetime
+from pymongo import MongoClient
+import os
 
-class FacebookConnectionTester:
+class InstagramToFacebookConverter:
     def __init__(self):
         self.base_url = "https://social-ai-planner-2.preview.emergentagent.com/api"
         self.session = requests.Session()

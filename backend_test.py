@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for Instagram to Facebook Post Conversion
-Mission: Convert an Instagram post from September to Facebook for testing publication
+Backend Test Suite for Social Connections Diagnostic
+Mission: Test the corrected social connections diagnostic endpoint and verify collection consistency
 """
 
 import requests
@@ -11,7 +11,7 @@ from datetime import datetime
 from pymongo import MongoClient
 import os
 
-class InstagramToFacebookConverter:
+class SocialConnectionsDiagnostic:
     def __init__(self):
         # CRITICAL: Use LIVE environment as specified in the mission
         self.base_url = "https://claire-marcus.com/api"

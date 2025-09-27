@@ -177,53 +177,55 @@ class InstagramToFacebookConverter:
             print(f"   ❌ Error modifying post: {str(e)}")
             return False
     
-    def test_social_connections_regular_endpoint(self):
-        """Test GET /api/social/connections (regular endpoint used by frontend)"""
+    def verify_facebook_post_conversion(self, post_id):
+        """Verify the post has been successfully converted to Facebook"""
         try:
-            print(f"\n🔍 Step 4: Testing GET /api/social/connections (frontend endpoint)")
+            print(f"\n✅ Step 4: Verifying Facebook post conversion")
             
-            response = self.session.get(f"{self.base_url}/social/connections")
-            
-            print(f"   Status: {response.status_code}")
+            response = self.session.get(f"{self.base_url}/posts/generated")
             
             if response.status_code == 200:
                 data = response.json()
-                connections = data.get("connections", [])
+                posts = data.get("posts", [])
                 
-                print(f"   ✅ Regular connections endpoint accessible")
-                print(f"   Active connections returned: {len(connections)}")
+                # Find the converted post
+                for post in posts:
+                    if post.get("id") == post_id:
+                        platform = post.get("platform", "")
+                        status = post.get("status", "")
+                        validated = post.get("validated", False)
+                        published = post.get("published", False)
+                        
+                        print(f"   📋 Post verification results:")
+                        print(f"     ID: {post_id}")
+                        print(f"     Platform: {platform}")
+                        print(f"     Status: {status}")
+                        print(f"     Validated: {validated}")
+                        print(f"     Published: {published}")
+                        print(f"     Title: {post.get('title', 'No title')}")
+                        print(f"     Scheduled Date: {post.get('scheduled_date')}")
+                        
+                        if platform.lower() == "facebook" and not validated and not published:
+                            print(f"   ✅ Post successfully converted to Facebook!")
+                            print(f"   ✅ Post is in draft status (not validated/published)")
+                            print(f"   ✅ Ready for Facebook publication testing")
+                            return True
+                        else:
+                            print(f"   ❌ Post conversion verification failed")
+                            if platform.lower() != "facebook":
+                                print(f"     - Platform is still '{platform}', expected 'facebook'")
+                            if validated or published:
+                                print(f"     - Post is still validated/published, expected draft")
+                            return False
                 
-                facebook_active = False
-                instagram_active = False
-                
-                for conn in connections:
-                    platform = conn.get("platform", "").lower()
-                    print(f"     - {platform.title()} connection found")
-                    
-                    if platform == "facebook":
-                        facebook_active = True
-                    elif platform == "instagram":
-                        instagram_active = True
-                
-                print(f"\n📊 Frontend Connection State:")
-                print(f"   Facebook active: {facebook_active}")
-                print(f"   Instagram active: {instagram_active}")
-                
-                # This explains the UI issue - if no active connections are returned,
-                # the frontend will show "Connecter" instead of "Connecté"
-                if not facebook_active:
-                    print(f"   ❌ No active Facebook connection - explains 'Connecter' button issue")
-                    return False
-                else:
-                    print(f"   ✅ Active Facebook connection found - UI should show 'Connecté'")
-                    return True
-                
+                print(f"   ❌ Post not found after conversion")
+                return False
             else:
-                print(f"   ❌ Regular connections endpoint failed: {response.text}")
+                print(f"   ❌ Failed to verify post: {response.status_code}")
                 return False
                 
         except Exception as e:
-            print(f"   ❌ Test error: {str(e)}")
+            print(f"   ❌ Error verifying post: {str(e)}")
             return False
     
     def test_publication_workflow_analysis(self):

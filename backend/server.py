@@ -2844,6 +2844,10 @@ async def facebook_oauth_callback(
 ):
     """Traiter le callback Facebook OAuth pour pages Facebook"""
     try:
+        # Définir les variables nécessaires au début
+        frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
+        dbm = get_database()
+        
         print(f"🔄 Facebook OAuth callback received")
         print(f"   Code: {'✅ Present' if code else '❌ Missing'}")
         print(f"   Access token: {'✅ Present' if access_token else '❌ Missing'}")

@@ -156,10 +156,11 @@ class SocialConnectionsDiagnostic:
             print(f"   ❌ Error testing social connections endpoint: {str(e)}")
             return []
     
-    def verify_facebook_post_conversion(self, post_id):
-        """Verify the post has been successfully converted to Facebook"""
+    def test_post_generation_logic(self):
+        """Test post generation to see if Facebook connections are detected"""
         try:
-            print(f"\n✅ Step 4: Verifying Facebook post conversion")
+            print(f"\n📝 Step 4: Testing post generation logic")
+            print(f"   Checking generated posts for platform distribution")
             
             response = self.session.get(f"{self.base_url}/posts/generated")
             
@@ -167,45 +168,43 @@ class SocialConnectionsDiagnostic:
                 data = response.json()
                 posts = data.get("posts", [])
                 
-                # Find the converted post
-                for post in posts:
-                    if post.get("id") == post_id:
-                        platform = post.get("platform", "")
-                        status = post.get("status", "")
-                        validated = post.get("validated", False)
-                        published = post.get("published", False)
-                        
-                        print(f"   📋 Post verification results:")
-                        print(f"     ID: {post_id}")
-                        print(f"     Platform: {platform}")
-                        print(f"     Status: {status}")
-                        print(f"     Validated: {validated}")
-                        print(f"     Published: {published}")
-                        print(f"     Title: {post.get('title', 'No title')}")
-                        print(f"     Scheduled Date: {post.get('scheduled_date')}")
-                        
-                        if platform.lower() == "facebook" and not validated and not published:
-                            print(f"   ✅ Post successfully converted to Facebook!")
-                            print(f"   ✅ Post is in draft status (not validated/published)")
-                            print(f"   ✅ Ready for Facebook publication testing")
-                            return True
-                        else:
-                            print(f"   ❌ Post conversion verification failed")
-                            if platform.lower() != "facebook":
-                                print(f"     - Platform is still '{platform}', expected 'facebook'")
-                            if validated or published:
-                                print(f"     - Post is still validated/published, expected draft")
-                            return False
+                print(f"   ✅ Retrieved {len(posts)} generated posts")
                 
-                print(f"   ❌ Post not found after conversion")
-                return False
+                # Analyze platform distribution
+                facebook_posts = [p for p in posts if p.get("platform") == "facebook"]
+                instagram_posts = [p for p in posts if p.get("platform") == "instagram"]
+                
+                print(f"   📊 Platform Distribution:")
+                print(f"     Facebook posts: {len(facebook_posts)}")
+                print(f"     Instagram posts: {len(instagram_posts)}")
+                
+                # Show recent posts by platform
+                if facebook_posts:
+                    print(f"   📋 Recent Facebook posts:")
+                    for i, post in enumerate(facebook_posts[:3]):
+                        title = post.get("title", "No title")[:50]
+                        date = post.get("scheduled_date", "No date")
+                        print(f"     {i+1}. {title}... ({date})")
+                
+                if instagram_posts:
+                    print(f"   📋 Recent Instagram posts:")
+                    for i, post in enumerate(instagram_posts[:3]):
+                        title = post.get("title", "No title")[:50]
+                        date = post.get("scheduled_date", "No date")
+                        print(f"     {i+1}. {title}... ({date})")
+                
+                return {
+                    "total_posts": len(posts),
+                    "facebook_posts": len(facebook_posts),
+                    "instagram_posts": len(instagram_posts)
+                }
             else:
-                print(f"   ❌ Failed to verify post: {response.status_code}")
-                return False
+                print(f"   ❌ Failed to get generated posts: {response.text}")
+                return None
                 
         except Exception as e:
-            print(f"   ❌ Error verifying post: {str(e)}")
-            return False
+            print(f"   ❌ Error testing post generation: {str(e)}")
+            return None
     
     def test_facebook_publish_endpoint(self, post_id):
         """Test the Facebook publish endpoint with the converted post"""

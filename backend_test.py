@@ -107,79 +107,74 @@ class InstagramToFacebookConverter:
             print(f"   ❌ Error getting posts: {str(e)}")
             return []
     
-    def test_posts_publish_endpoint(self):
-        """Test POST /api/posts/publish with a real post_id"""
+    def modify_post_to_facebook_direct(self, post_id, post_title):
+        """Modify Instagram post to Facebook using direct MongoDB access"""
         try:
-            print(f"\n🔍 Step 3: Testing POST /api/posts/publish")
+            print(f"\n🔄 Step 3: Converting Instagram post to Facebook via MongoDB")
+            print(f"   Post ID: {post_id}")
+            print(f"   Title: {post_title}")
             
-            # First, get available posts to find a valid post_id
-            posts_response = self.session.get(f"{self.base_url}/posts/generated")
+            # Connect to MongoDB directly
+            mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017/claire_marcus')
+            print(f"   MongoDB URL: {mongo_url}")
             
-            if posts_response.status_code != 200:
-                print(f"   ❌ Cannot get posts for testing: {posts_response.status_code}")
+            client = MongoClient(mongo_url)
+            db = client.claire_marcus
+            collection = db.generated_posts
+            
+            # Find the post first
+            post = collection.find_one({
+                "id": post_id,
+                "owner_id": self.user_id
+            })
+            
+            if not post:
+                print(f"   ❌ Post not found in database")
                 return False
             
-            posts_data = posts_response.json()
-            posts = posts_data.get("posts", [])
+            print(f"   ✅ Post found in database")
+            print(f"   Current platform: {post.get('platform')}")
+            print(f"   Current validated: {post.get('validated', False)}")
             
-            if not posts:
-                print(f"   ❌ No posts available for publication testing")
-                return False
-            
-            # Find a suitable post for testing (preferably Facebook)
-            test_post = None
-            for post in posts:
-                if post.get("platform", "").lower() == "facebook":
-                    test_post = post
-                    break
-            
-            if not test_post:
-                # Use first available post if no Facebook post found
-                test_post = posts[0]
-            
-            post_id = test_post.get("id")
-            platform = test_post.get("platform", "unknown")
-            
-            print(f"   Using test post: {post_id}")
-            print(f"   Platform: {platform}")
-            print(f"   Title: {test_post.get('title', 'N/A')[:50]}...")
-            
-            # Test the publish endpoint
-            response = self.session.post(
-                f"{self.base_url}/posts/publish",
-                json={"post_id": post_id}
+            # Update the post
+            update_result = collection.update_one(
+                {"id": post_id, "owner_id": self.user_id},
+                {"$set": {
+                    "platform": "facebook",
+                    "status": "draft",
+                    "validated": False,
+                    "published": False,
+                    "modified_at": datetime.utcnow().isoformat(),
+                    "conversion_note": "Converted from Instagram to Facebook for testing"
+                }}
             )
             
-            print(f"   Status: {response.status_code}")
-            
-            try:
-                response_data = response.json()
-                print(f"   Response: {json.dumps(response_data, indent=2, ensure_ascii=False)}")
-            except:
-                print(f"   Response (raw): {response.text}")
-            
-            if response.status_code == 200:
-                print(f"   ✅ Publication endpoint returned success")
+            if update_result.modified_count > 0:
+                print(f"   ✅ Post successfully converted to Facebook!")
+                print(f"   Modified count: {update_result.modified_count}")
+                
+                # Verify the change
+                updated_post = collection.find_one({
+                    "id": post_id,
+                    "owner_id": self.user_id
+                })
+                
+                if updated_post:
+                    print(f"   ✅ Verification successful:")
+                    print(f"     Platform: {updated_post.get('platform')}")
+                    print(f"     Status: {updated_post.get('status')}")
+                    print(f"     Validated: {updated_post.get('validated', False)}")
+                    print(f"     Published: {updated_post.get('published', False)}")
+                
+                client.close()
                 return True
-            elif response.status_code == 400:
-                # Check if it's the expected "no active social connections" error
-                if "connexion sociale active" in response.text.lower():
-                    print(f"   ⚠️ Expected error: No active social connections found")
-                    print(f"   This confirms the endpoint is working but user needs active Facebook connection")
-                    return True
-                else:
-                    print(f"   ❌ Unexpected 400 error: {response.text}")
-                    return False
-            elif response.status_code == 404:
-                print(f"   ❌ Post not found error: {response.text}")
-                return False
             else:
-                print(f"   ❌ Unexpected status code: {response.status_code}")
-                print(f"   Response: {response.text}")
+                print(f"   ❌ No documents were modified")
+                client.close()
                 return False
                 
         except Exception as e:
-            print(f"   ❌ Test error: {str(e)}")
+            print(f"   ❌ Error modifying post: {str(e)}")
             return False
     
     def test_social_connections_regular_endpoint(self):

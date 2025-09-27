@@ -279,7 +279,7 @@ class InstagramToFacebookConverter:
         # Step 2: Find Instagram posts from September
         instagram_posts = self.get_instagram_posts_september()
         if not instagram_posts:
-            print("\n❌ CRITICAL: No Instagram posts found from September 2025")
+            print("\n❌ CRITICAL: No Instagram posts found from September/October 2025")
             return False
         
         # Step 3: Select the best candidate (preferably non-published)

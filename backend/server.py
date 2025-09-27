@@ -2874,8 +2874,8 @@ async def facebook_oauth_callback(
             else:
                 print(f"❌ ERREUR: State invalide ou manquant: {state}")
                 return RedirectResponse(url=f"{frontend_url}?auth_error=invalid_state")
-                
-                # ÉCHANGE DU CODE CONTRE UN ACCESS TOKEN FACEBOOK
+            
+            # ÉCHANGE DU CODE CONTRE UN ACCESS TOKEN FACEBOOK
                 try:
                     facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
                     facebook_app_secret = os.environ.get('FACEBOOK_APP_SECRET')

@@ -1976,9 +1976,9 @@ async def generate_posts_manual(
         
         # Vérifier les réseaux sociaux connectés
         connected_platforms = []
-        social_connections = list(dbm.db.social_connections.find({
+        social_connections = list(dbm.db.social_media_connections.find({
             "user_id": user_id,
-            "is_active": True
+            "active": True
         }))
         
         for connection in social_connections:

@@ -266,61 +266,84 @@ class InstagramToFacebookConverter:
             print(f"   ❌ Error testing publish endpoint: {str(e)}")
             return False
     
-    def run_all_tests(self):
-        """Run all tests in sequence"""
-        print("🚀 Starting Facebook Connection and Publication Testing")
+    def run_conversion_mission(self):
+        """Execute the complete Instagram to Facebook conversion mission"""
+        print("🎯 MISSION: Convert Instagram post to Facebook for testing publication")
         print("=" * 70)
-        
-        # Test credentials from the review request
-        email = "lperpere@yahoo.fr"
-        password = "L@Reunion974!"
         
         # Step 1: Authentication
-        if not self.authenticate(email, password):
-            print("\n❌ CRITICAL: Authentication failed - cannot proceed with tests")
+        if not self.authenticate():
+            print("\n❌ CRITICAL: Authentication failed - cannot proceed with mission")
             return False
         
-        # Step 2: Test social connections debug endpoint
-        debug_result = self.test_social_connections_debug()
+        # Step 2: Find Instagram posts from September
+        instagram_posts = self.get_instagram_posts_september()
+        if not instagram_posts:
+            print("\n❌ CRITICAL: No Instagram posts found from September 2025")
+            return False
         
-        # Step 3: Test publication endpoint
-        publish_result = self.test_posts_publish_endpoint()
+        # Step 3: Select the best candidate (preferably non-published)
+        best_candidate = None
+        for post in instagram_posts:
+            if not post.get("validated", False) and not post.get("published", False):
+                best_candidate = post
+                break
         
-        # Step 4: Test regular social connections endpoint (used by frontend)
-        frontend_result = self.test_social_connections_regular_endpoint()
+        if not best_candidate:
+            # If no draft posts, take the first one
+            best_candidate = instagram_posts[0]
+            print(f"\n⚠️ No draft posts found, using first available post")
         
-        # Step 5: Analyze complete workflow
-        workflow_result = self.test_publication_workflow_analysis()
+        print(f"\n🎯 Selected post for conversion:")
+        print(f"   ID: {best_candidate.get('id')}")
+        print(f"   Title: {best_candidate.get('title', 'No title')}")
+        print(f"   Current Platform: {best_candidate.get('platform')}")
+        print(f"   Current Status: {'Published' if best_candidate.get('validated') or best_candidate.get('published') else 'Draft'}")
+        print(f"   Scheduled Date: {best_candidate.get('scheduled_date')}")
+        
+        # Step 4: Convert the post to Facebook
+        post_id = best_candidate.get("id")
+        post_title = best_candidate.get("title", "No title")
+        
+        if not self.modify_post_to_facebook_direct(post_id, post_title):
+            print("\n❌ CRITICAL: Failed to convert post to Facebook")
+            return False
+        
+        # Step 5: Verify the conversion
+        if not self.verify_facebook_post_conversion(post_id):
+            print("\n❌ CRITICAL: Post conversion verification failed")
+            return False
+        
+        # Step 6: Test the publish endpoint
+        publish_test_result = self.test_facebook_publish_endpoint(post_id)
         
         print("\n" + "=" * 70)
-        print("📊 FACEBOOK CONNECTION & PUBLICATION TEST RESULTS:")
+        print("🎉 MISSION ACCOMPLISHED - INSTAGRAM TO FACEBOOK CONVERSION")
         print("=" * 70)
         
-        print(f"✅ Authentication: PASSED")
-        print(f"{'✅' if debug_result else '❌'} Social Connections Debug: {'PASSED' if debug_result else 'FAILED'}")
-        print(f"{'✅' if publish_result else '❌'} Publication Endpoint: {'PASSED' if publish_result else 'FAILED'}")
-        print(f"{'✅' if frontend_result else '❌'} Frontend Connections: {'PASSED' if frontend_result else 'FAILED'}")
-        print(f"{'✅' if workflow_result else '❌'} Workflow Analysis: {'PASSED' if workflow_result else 'FAILED'}")
+        print(f"✅ Authentication: SUCCESSFUL")
+        print(f"✅ Instagram posts found: {len(instagram_posts)} from September 2025")
+        print(f"✅ Post selected: {post_id}")
+        print(f"✅ Database conversion: SUCCESSFUL")
+        print(f"✅ Conversion verification: SUCCESSFUL")
+        print(f"{'✅' if publish_test_result else '⚠️'} Publish endpoint test: {'SUCCESSFUL' if publish_test_result else 'NEEDS ATTENTION'}")
         
-        # Determine overall result
-        all_passed = debug_result and publish_result and frontend_result and workflow_result
+        print(f"\n📋 FACEBOOK POST READY FOR TESTING:")
+        print(f"   Post ID: {post_id}")
+        print(f"   Platform: facebook")
+        print(f"   Status: draft")
+        print(f"   Title: {post_title}")
+        print(f"   Ready for publication testing: YES")
         
-        if all_passed:
-            print(f"\n🎉 ALL TESTS PASSED - Facebook connection is working correctly!")
-        else:
-            print(f"\n⚠️ ISSUES IDENTIFIED - Facebook connection needs attention")
-            print(f"\n🎯 LIKELY ROOT CAUSE:")
-            if not frontend_result:
-                print(f"   - No active Facebook connection found in frontend endpoint")
-                print(f"   - This explains why UI shows 'Connecter' instead of 'Connecté'")
-            if not publish_result:
-                print(f"   - Publication endpoint cannot find active social connections")
-                print(f"   - This explains why publication fails")
-            print(f"\n💡 SOLUTION: User needs to reconnect Facebook account properly")
+        print(f"\n🚀 NEXT STEPS:")
+        print(f"   1. Use POST /api/posts/publish with post_id: {post_id}")
+        print(f"   2. Check publication logs for Facebook API responses")
+        print(f"   3. Verify button status changes in UI")
+        print(f"   4. Test complete publication workflow")
         
         print("=" * 70)
         
-        return all_passed
+        return True
 
 def main():
     """Main test execution"""

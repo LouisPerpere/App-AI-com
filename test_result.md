@@ -146,12 +146,24 @@ user_problem_statement: "L'utilisateur a fait un rollback pour restaurer le serv
 # Added by main agent for Phase A testing
 
 backend:
+  - task: "OAuth Callback Persistence Diagnostic - Facebook/Instagram Connection Issues"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 2
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "🚨 CRITICAL OAUTH CALLBACK BUGS IDENTIFIED - ROOT CAUSE FOUND: Comprehensive diagnostic testing of OAuth callback persistence issues completed with credentials lperpere@yahoo.fr / L@Reunion974! on https://social-ai-planner-2.preview.emergentagent.com/api. USER REPORTED ISSUE CONFIRMED: Buttons remain 'Connecter' instead of changing to 'Connecté' after OAuth flow because callbacks are not properly saving connections. CRITICAL BUGS DISCOVERED: ❌ BUG 1 - Instagram Collection Inconsistency: Instagram callback saves to 'social_connections' collection but diagnostic/frontend reads from 'social_media_connections', making connections invisible. ❌ BUG 2 - Instagram Platform Mismatch: Line 3089 searches for platform 'instagram' but Line 3094 updates platform 'facebook' (wrong platform), causing update failures. ❌ BUG 3 - Instagram Redirect Confusion: Line 3104 uses 'facebook_success=true' for Instagram instead of proper Instagram success parameter. ❌ BUG 4 - Facebook Token Exchange Failure: Facebook callback fails during OAuth token exchange with test codes, causing 'facebook_callback_error' redirects. DATABASE EVIDENCE: ✅ Found 2 old Instagram connections in 'social_connections' collection (both inactive from 2025-09-23), ✅ 0 connections in 'social_media_connections' collection (where frontend looks), ✅ This explains why frontend shows 'Connecter' - no connections visible in correct collection. CALLBACK TESTING RESULTS: ❌ Facebook callback: Failed with proper state format due to token exchange errors, ✅ Instagram callback: Shows success redirect but creates no visible connections due to collection bug. ROOT CAUSE CONFIRMED: OAuth callbacks have multiple implementation bugs preventing proper connection persistence, causing user's reported symptom of buttons remaining 'Connecter'."
+
   - task: "Instagram to Facebook Post Conversion - LIVE Environment"
     implemented: true
     working: false
     file: "/app/backend/server.py"
     stuck_count: 1
-    priority: "high"
+    priority: "medium"
     needs_retesting: false
     status_history:
       - working: false

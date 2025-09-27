@@ -3287,10 +3287,10 @@ async def force_generate_facebook_posts(user_id: str = Depends(get_current_user_
         
         # Vérifier la connexion Facebook
         dbm = get_database()
-        fb_connection = dbm.db.social_connections.find_one({
+        fb_connection = dbm.db.social_media_connections.find_one({
             "user_id": user_id,
             "platform": "facebook",
-            "is_active": True
+            "active": True
         })
         
         if not fb_connection:

@@ -322,7 +322,7 @@ class InstagramToFacebookConverter:
         print("=" * 70)
         
         print(f"✅ Authentication: SUCCESSFUL")
-        print(f"✅ Instagram posts found: {len(instagram_posts)} from September 2025")
+        print(f"✅ Instagram posts found: {len(instagram_posts)} from September/October 2025")
         print(f"✅ Post selected: {post_id}")
         print(f"✅ Database conversion: SUCCESSFUL")
         print(f"✅ Conversion verification: SUCCESSFUL")

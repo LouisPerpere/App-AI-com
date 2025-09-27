@@ -83,7 +83,7 @@ class InstagramToFacebookConverter:
                     if platform == "instagram" and ("2025-09" in scheduled_date or "2025-10" in scheduled_date):
                         instagram_posts_september.append(post)
                 
-                print(f"   🔍 Found {len(instagram_posts_september)} Instagram posts from September 2025")
+                print(f"   🔍 Found {len(instagram_posts_september)} Instagram posts from September/October 2025")
                 
                 # Show details of found posts
                 for i, post in enumerate(instagram_posts_september):

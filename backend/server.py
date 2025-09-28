@@ -2976,9 +2976,15 @@ async def facebook_oauth_callback(
             async with session.get(token_url, params=token_params) as token_response:
                 if token_response.status != 200:
                     error_text = await token_response.text()
+                    print(f"❌ Facebook Token Exchange Error Details:")
+                    print(f"   Status: {token_response.status}")
+                    print(f"   Response: {error_text}")
+                    print(f"   Request URL: {token_url}")
+                    print(f"   Request Params: {token_params}")
                     raise Exception(f"Token exchange failed: {token_response.status} - {error_text}")
                 
                 token_data = await token_response.json()
+                print(f"✅ Token response: {token_data}")
                 user_access_token = token_data.get('access_token')
                 
                 if not user_access_token:

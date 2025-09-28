@@ -3358,8 +3358,8 @@ async def publish_instagram_simple(
                     
                     print(f"✅ Media container créé: {media_id}")
                     
-                    # ÉTAPE 2: Publier le media
-                    publish_url = f"https://graph.facebook.com/v21.0/{instagram_user_id}/media_publish"
+                    # ÉTAPE 2: Publier le media (API v20.0 selon GPT-4o)
+                    publish_url = f"https://graph.facebook.com/v20.0/{instagram_user_id}/media_publish"
                     publish_data = {
                         "creation_id": media_id,
                         "access_token": access_token

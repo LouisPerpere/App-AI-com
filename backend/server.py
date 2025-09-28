@@ -3340,8 +3340,8 @@ async def publish_instagram_simple(
         # Publication Instagram en 2 étapes (approche ChatGPT)
         import aiohttp
         async with aiohttp.ClientSession() as session:
-            # ÉTAPE 1: Créer le media container
-            create_url = f"https://graph.facebook.com/v21.0/{instagram_user_id}/media"
+            # ÉTAPE 1: Créer le media container (API v20.0 selon GPT-4o)
+            create_url = f"https://graph.facebook.com/v20.0/{instagram_user_id}/media"
             create_data = {
                 "caption": text,
                 "image_url": image_url,

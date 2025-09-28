@@ -3072,6 +3072,37 @@ async def instagram_oauth_callback(
 class PublishPostRequest(BaseModel):
     post_id: str
 
+@api_router.get("/public/image/{file_id}")
+async def get_public_image(file_id: str):
+    """ENDPOINT PUBLIC pour images - accessible sans auth pour Facebook"""
+    try:
+        # Récupérer l'image directement sans authentification
+        media_collection = get_media_collection()
+        query = parse_any_id(file_id)
+        
+        media_item = media_collection.find_one(query)
+        if not media_item:
+            raise HTTPException(status_code=404, detail="Image not found")
+        
+        # Retourner l'URL publique ou rediriger vers le fichier
+        url = media_item.get("url", "")
+        if url and url.startswith("http"):
+            # Redirection vers URL externe (Pixabay, etc.)
+            return RedirectResponse(url=url, status_code=302)
+        
+        # Pour les fichiers locaux, servir directement
+        file_path = media_item.get("file_path", "")
+        if file_path and os.path.exists(file_path):
+            from fastapi.responses import FileResponse
+            return FileResponse(file_path)
+        
+        # Fallback vers l'endpoint protégé
+        return RedirectResponse(url=f"/api/content/{file_id}/file", status_code=302)
+        
+    except Exception as e:
+        print(f"❌ Error serving public image: {str(e)}")
+        raise HTTPException(status_code=500, detail="Image unavailable")
+
 @api_router.get("/social/connections/status")
 async def get_social_connections_status(user_id: str = Depends(get_current_user_id_robust)):
     """STATUS SIMPLE - Voir les connexions comme ChatGPT"""

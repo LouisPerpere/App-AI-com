@@ -2992,8 +2992,8 @@ async def facebook_oauth_callback(
                 
                 print(f"✅ User token obtained: {user_access_token[:20]}...")
                 
-                # Récupérer les pages Facebook
-                pages_url = f"https://graph.facebook.com/v21.0/me/accounts"
+                # Récupérer les pages Facebook (API v20.0 selon GPT-4o)
+                pages_url = f"https://graph.facebook.com/v20.0/me/accounts"
                 pages_params = {
                     'access_token': user_access_token,
                     'fields': 'id,name,access_token,category,instagram_business_account'

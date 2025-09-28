@@ -3235,7 +3235,7 @@ async def publish_facebook_simple(
             }
             
             if image_url:
-                # Publication avec image
+                # Publication avec image (selon GPT-4o : url + caption + published)
                 publish_data.update({
                     "url": image_url,
                     "caption": text,

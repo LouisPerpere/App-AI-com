@@ -3944,13 +3944,17 @@ async def publish_post_to_social_media(
             hashtags = " ".join([f"#{tag.strip('#')}" for tag in post["hashtags"][:10]])  # Limiter à 10 hashtags
             content = f"{content}\n\n{hashtags}"
         
-        # Récupérer l'URL de l'image si disponible
+        # Récupérer l'URL de l'image et la convertir en URL publique
         image_url = None
         if post.get("image_url"):
             image_url = post["image_url"]
         elif post.get("images") and len(post["images"]) > 0:
             # Prendre la première image du carrousel
             image_url = post["images"][0].get("url")
+        
+        # CONVERTIR URL PROTÉGÉE EN URL PUBLIQUE pour Facebook
+        if image_url:
+            image_url = convert_to_public_image_url(image_url)
         
         print(f"📝 Content: {content[:100]}...")
         print(f"🖼️ Image URL: {image_url}")

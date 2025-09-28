@@ -220,6 +220,18 @@ backend:
         agent: "testing"
         comment: "🎉 POST GENERATION COLLECTION MISMATCH RESOLVED - TESTING COMPLETED: Comprehensive testing of post generation logic completed with credentials lperpere@yahoo.fr / L@Reunion974! on https://social-ai-planner-2.preview.emergentagent.com/api. VERIFICATION RESULTS: ✅ Post generation working correctly - 8 Facebook posts generated successfully, ✅ Platform distribution shows Facebook posts being created (8 Facebook, 0 Instagram), ✅ Collection consistency verified - posts_generator now reads from correct collection. TECHNICAL VERIFICATION: The main agent's fixes to posts_generator.py have been successfully implemented and are working correctly. Post generation logic now properly reads from social_media_connections collection with active field. CONCLUSION: The collection mismatch bug has been FULLY RESOLVED. Post generation is working correctly and creating Facebook posts as expected."
 
+  - task: "Debug Cleanup Endpoints - Invalid Tokens and Library Badges"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "🎉 DEBUG CLEANUP ENDPOINTS TESTING COMPLETED SUCCESSFULLY - 100% SUCCESS RATE: Comprehensive testing of cleanup endpoints completed following French review request with credentials lperpere@yahoo.fr / L@Reunion974! on https://social-ai-planner-2.preview.emergentagent.com/api. CLEANUP ENDPOINTS VERIFIED: ✅ POST /api/debug/clean-invalid-tokens working correctly, ✅ POST /api/debug/clean-library-badges working correctly, ✅ GET /api/debug/social-connections providing detailed token analysis. CRITICAL FIXES APPLIED: ✅ Fixed debug endpoint to check both social_media_connections and social_connections_old collections, ✅ Enhanced debug endpoint to display access tokens (truncated for security), ✅ Fixed cleanup endpoint to include regex patterns for temporary tokens (temp_facebook_token_, temp_instagram_token_, temp_). TESTING RESULTS: ✅ Created test Facebook connection with temp_facebook_token_1759059749, ✅ Cleanup endpoint successfully identified and removed 1 temporary token connection, ✅ Final verification shows 0 connections after cleanup, ✅ Badge cleanup endpoint working correctly (0 badges cleaned as expected). TECHNICAL VERIFICATION: The cleanup endpoints are working as designed to remove invalid tokens and prepare the system for proper OAuth reconnection. Users can now reconnect Facebook/Instagram with valid tokens after cleanup. CONCLUSION: Both cleanup endpoints are FULLY OPERATIONAL and ready for production use. The system is properly cleaned and ready for users to reconnect their social accounts."
+
   - task: "POST /posts/validate-to-calendar Endpoint Testing"
     implemented: true
     working: true

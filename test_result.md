@@ -148,7 +148,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "L'utilisateur a fait un rollback pour restaurer le service. Je dois maintenant simplement modifier un post Instagram existant en post Facebook pour permettre les tests de publication. MISSION SIMPLE : Identifiants : lperpere@yahoo.fr / L@Reunion974! - Trouver un post Instagram de septembre (de préférence non publié) - Le modifier pour changer sa plateforme de 'instagram' à 'facebook' - Le remettre en statut 'draft' pour qu'il soit publiable. OBJECTIF : Avoir un post Facebook testable pour voir les logs de publication et comprendre pourquoi le bouton ne passe pas à 'Publié'."
+user_problem_statement: "Je viens de corriger deux problèmes majeurs : **1. TOKENS INVALIDES :** Supprimé le fallback OAuth qui créait des connexions avec tokens NULL **2. BADGES ORPHELINS :** Créé endpoints de nettoyage pour badges bibliothèque **NETTOYAGE REQUIS :** 1. **Identifiants :** lperpere@yahoo.fr / L@Reunion974! 2. **Nettoyer tokens invalides :** - `POST /api/debug/clean-invalid-tokens` - Supprimer les connexions avec tokens de test/NULL 3. **Nettoyer badges orphelins :** - `POST /api/debug/clean-library-badges` - Retirer badges Facebook/Instagram des contenus non utilisés 4. **Vérifier après nettoyage :** - `GET /api/debug/social-connections` - Confirmer 0 connexions actives (tokens invalides supprimés) **OBJECTIF :** Nettoyer les données incohérentes pour que l'utilisateur puisse reconnecter proprement Facebook/Instagram avec de vrais tokens."
 
 
 # Added by main agent for Phase A testing

@@ -25,7 +25,7 @@ db = client[os.environ['DB_NAME']]
 # Facebook App credentials from environment
 FACEBOOK_CLIENT_ID = os.environ.get('FACEBOOK_APP_ID', '')
 FACEBOOK_CLIENT_SECRET = os.environ.get('FACEBOOK_APP_SECRET', '')
-FACEBOOK_REDIRECT_URI = os.environ.get('FACEBOOK_REDIRECT_URI', 'http://localhost:3000/auth/facebook/callback')
+FACEBOOK_REDIRECT_URI = os.environ.get('FACEBOOK_REDIRECT_URI', 'https://claire-marcus.com/api/social/facebook/callback')
 
 # Base URLs
 FACEBOOK_AUTH_URL = "https://www.facebook.com/v19.0/dialog/oauth"

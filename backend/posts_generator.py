@@ -211,9 +211,9 @@ Tu réponds EXCLUSIVEMENT au format JSON exact demandé."""
         """Récupérer toutes les plateformes connectées pour l'utilisateur"""
         try:
             # Récupérer les connexions sociales actives
-            social_connections = list(self.db.social_connections.find({
+            social_connections = list(self.db.social_media_connections.find({
                 "user_id": user_id,
-                "is_active": True
+                "active": True
             }))
             
             connected_platforms = [conn.get("platform") for conn in social_connections if conn.get("platform")]

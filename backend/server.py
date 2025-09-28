@@ -2964,44 +2964,48 @@ async def facebook_oauth_callback(
                         async with session.post(token_url, data=token_params) as token_response:
                             if token_response.status == 200:
                                 token_data = await token_response.json()
-                                access_token = token_data.get('access_token')
+                                user_access_token = token_data.get('access_token')
                                 expires_in = token_data.get('expires_in', 3600)
                                 
-                                if not access_token:
-                                    raise Exception("Access token non reçu de Facebook")
+                                if not user_access_token:
+                                    raise Exception("User access token non reçu de Facebook")
                                 
-                                print(f"✅ Access token reçu: {access_token[:20]}...")
+                                print(f"✅ User access token reçu: {user_access_token[:20]}...")
                                 
-                                # Obtenir les informations de la page Facebook
+                                # CRITIQUE: Obtenir le PAGE ACCESS TOKEN (pas user token)
                                 pages_url = f"https://graph.facebook.com/v21.0/me/accounts"
                                 pages_params = {
-                                    'access_token': access_token,
-                                    'fields': 'id,name,access_token,category'
+                                    'access_token': user_access_token,
+                                    'fields': 'id,name,access_token,category,instagram_business_account'
                                 }
                                 
+                                print(f"🔄 Fetching Facebook pages with user token...")
                                 async with session.get(pages_url, params=pages_params) as pages_response:
                                     if pages_response.status == 200:
                                         pages_data = await pages_response.json()
                                         pages = pages_data.get('data', [])
                                         
+                                        print(f"📄 Found {len(pages)} pages")
+                                        for i, page in enumerate(pages):
+                                            print(f"   Page {i+1}: {page.get('name')} (ID: {page.get('id')})")
+                                        
                                         if pages:
-                                            # Utiliser la première page trouvée
+                                            # Utiliser la première page trouvée avec son PAGE TOKEN
                                             page = pages[0]
-                                            page_access_token = page.get('access_token', access_token)
+                                            page_access_token = page.get('access_token')  # CRITIQUE: Page token
                                             page_name = page.get('name', 'Page Facebook')
                                             page_id = page.get('id')
                                             
+                                            if not page_access_token:
+                                                raise Exception("Page access token manquant dans la réponse")
+                                            
                                             print(f"✅ Page Facebook trouvée: {page_name} (ID: {page_id})")
+                                            print(f"✅ Page access token obtenu: {page_access_token[:20]}...")
                                         else:
-                                            # Pas de page, utiliser le token utilisateur
-                                            page_access_token = access_token
-                                            page_name = "Profil Facebook"
-                                            page_id = None
+                                            raise Exception("Aucune page Facebook trouvée pour cet utilisateur")
                                     else:
-                                        # Erreur réchapage des pages, utiliser le token utilisateur
-                                        page_access_token = access_token
-                                        page_name = "Profil Facebook"  
-                                        page_id = None
+                                        error_text = await pages_response.text()
+                                        raise Exception(f"Erreur récupération pages Facebook: {pages_response.status} - {error_text}")
                                 
                                 # CRÉATION CONNEXION FACEBOOK avec vrai token
                                 facebook_connection = {

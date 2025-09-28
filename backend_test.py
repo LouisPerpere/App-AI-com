@@ -364,8 +364,8 @@ class BackendTester:
             return False
     
     def run_all_tests(self):
-        """Run all OAuth state parameter correction tests"""
-        print("🎯 TESTING OAUTH STATE PARAMETER CORRECTIONS")
+        """Run all simplified ChatGPT OAuth approach tests"""
+        print("🎯 TESTING SIMPLIFIED CHATGPT OAUTH APPROACH")
         print("=" * 70)
         print(f"Backend URL: {BASE_URL}")
         print(f"Test User: {TEST_CREDENTIALS['email']}")
@@ -378,24 +378,30 @@ class BackendTester:
             print("❌ Authentication failed - cannot continue tests")
             return False
         
-        # Step 2: Test clean initial state
+        # Test 1: Validate clean database (0 connections)
         self.test_clean_initial_state()
         
-        # Step 3: Test Facebook auth URL state format
+        # Test 2: Test Facebook OAuth URL with corrected state
         self.test_facebook_auth_url_state_format()
         
-        # Step 4: Test Instagram auth URL state format  
+        # Test 3: Test Instagram OAuth URL with corrected state
         self.test_instagram_auth_url_state_format()
         
-        # Step 5: Test Facebook callback state validation
-        self.test_facebook_callback_state_validation()
+        # Test 4: Test simplified status endpoint
+        self.test_simplified_status_endpoint()
         
-        # Step 6: Test social connections consistency
-        self.test_social_connections_consistency()
+        # Test 5: Test simplified Facebook publication endpoint
+        self.test_simplified_facebook_publish_endpoint()
+        
+        # Test 6: Test simplified Instagram publication endpoint
+        self.test_simplified_instagram_publish_endpoint()
+        
+        # Test 7: Test consistency with current state
+        self.test_consistency_with_current_state()
         
         # Summary
         print("\n" + "=" * 70)
-        print("📊 TEST SUMMARY")
+        print("📊 TEST SUMMARY - SIMPLIFIED CHATGPT APPROACH")
         print("=" * 70)
         
         passed = sum(1 for result in self.test_results if result["success"])
@@ -410,13 +416,15 @@ class BackendTester:
         print(f"\n🎯 RESULTS: {passed}/{total} tests passed ({(passed/total*100):.1f}%)")
         
         if passed == total:
-            print("\n🎉 ALL TESTS PASSED - OAuth state parameter corrections are working!")
-            print("✅ URLs OAuth avec state format {random}|{user_id}")
-            print("✅ Callbacks qui acceptent ce format")
-            print("✅ Plus d'erreur de validation state")
+            print("\n🎉 ALL TESTS PASSED - Simplified ChatGPT approach is working!")
+            print("✅ URLs OAuth avec correction state {random}|{user_id}")
+            print("✅ Endpoint de status simplifié fonctionnel")
+            print("✅ Endpoints de publication simplifiés opérationnels")
+            print("✅ Base de données propre (0 connexions)")
+            print("✅ Système prêt pour test utilisateur avec domaine vérifié")
             return True
         else:
-            print(f"\n🚨 {total - passed} TESTS FAILED - OAuth state parameter corrections need attention")
+            print(f"\n🚨 {total - passed} TESTS FAILED - Simplified approach needs attention")
             failed_tests = [r['test'] for r in self.test_results if not r['success']]
             print(f"Failed tests: {', '.join(failed_tests)}")
             return False

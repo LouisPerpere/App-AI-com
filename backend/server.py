@@ -2643,19 +2643,16 @@ async def get_facebook_auth_url(user_id: str = Depends(get_current_user_id_robus
         # Scopes Facebook pour pages uniquement
         scopes = "pages_show_list,pages_read_engagement,pages_manage_posts"
         
-        # Utiliser le config_id dédié pour Facebook
-        config_id = os.environ.get('FACEBOOK_CONFIG_ID_PAGES', os.environ.get('FACEBOOK_CONFIG_ID', '1878388119742903'))
-        
-        # Construire l'URL d'autorisation Facebook avec config_id
+        # Construire l'URL d'autorisation Facebook
         from urllib.parse import urlencode
         
         params = {
-            "client_id": facebook_app_id,
+            "client_id": facebook_app_id,  # Utiliser le même App ID partout
             "redirect_uri": redirect_uri,
             "scope": scopes,
             "response_type": "code",
-            "state": state,
-            "config_id": config_id  # Ajouter config_id comme Instagram
+            "state": state
+            # Supprimer config_id - utiliser seulement client_id cohérent
         }
         
         auth_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(params)}"

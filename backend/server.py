@@ -3084,7 +3084,7 @@ async def test_facebook_publication(
         dbm = get_database()
         
         # Récupérer UNIQUEMENT les connexions avec vrais tokens
-        facebook_connections = list(dbm.social_media_connections.find({
+        facebook_connections = list(dbm.db.social_media_connections.find({
             "user_id": user_id,
             "platform": "facebook",
             "active": True,

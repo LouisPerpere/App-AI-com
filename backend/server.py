@@ -3897,6 +3897,38 @@ async def convert_post_platform(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
 
+@api_router.post("/debug/clean-invalid-tokens")
+async def clean_invalid_social_tokens(user_id: str = Depends(get_current_user_id_robust)):
+    """Supprimer les connexions avec tokens invalides"""
+    try:
+        dbm = get_database()
+        db = dbm.db
+        
+        # Supprimer les connexions avec tokens de test ou NULL
+        invalid_patterns = [
+            "test_token_facebook_fallback",
+            "test_token_from_callback", 
+            None,
+            ""
+        ]
+        
+        result = db.social_media_connections.delete_many({
+            "user_id": user_id,
+            "$or": [
+                {"access_token": {"$in": invalid_patterns}},
+                {"access_token": {"$exists": False}}
+            ]
+        })
+        
+        return {
+            "success": True,
+            "message": f"Supprimé {result.deleted_count} connexions avec tokens invalides",
+            "deleted_count": result.deleted_count
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur nettoyage: {str(e)}")
+
 @api_router.get("/debug/social-connections")
 async def debug_social_connections(user_id: str = Depends(get_current_user_id_robust)):
     """Debug endpoint pour vérifier les connexions sociales"""

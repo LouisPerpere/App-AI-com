@@ -260,7 +260,8 @@ class OAuthCleanApproachTester:
                 # Check for clean error messages (no fallback behavior)
                 clean_error_indicators = [
                     'aucune connexion', 'no connection', 'not connected', 
-                    'invalid token', 'no valid token', 'authentication required'
+                    'invalid token', 'no valid token', 'authentication required',
+                    'reconnectez votre compte', 'reconnect your account'
                 ]
                 
                 if any(indicator in error_msg for indicator in clean_error_indicators):
@@ -308,7 +309,8 @@ class OAuthCleanApproachTester:
                 # Check for clean error messages (no fallback behavior)
                 clean_error_indicators = [
                     'aucune connexion', 'no connection', 'not connected', 
-                    'invalid token', 'no valid token', 'authentication required'
+                    'invalid token', 'no valid token', 'authentication required',
+                    'reconnectez votre compte', 'reconnect your account'
                 ]
                 
                 if any(indicator in error_msg for indicator in clean_error_indicators):

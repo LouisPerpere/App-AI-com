@@ -65,6 +65,34 @@ def parse_any_id(file_id: str) -> dict:
         print(f"⚠️ Using UUID fallback for file_id: {file_id}")
         return {"id": file_id}
 
+def convert_to_public_image_url(image_url: str) -> str:
+    """Convertir URL protégée en URL publique accessible par Facebook"""
+    if not image_url:
+        return None
+    
+    # Si c'est déjà une URL publique externe, la garder
+    if image_url.startswith("http") and not "/api/" in image_url:
+        return image_url
+    
+    # Si c'est une URL protégée /api/content/{id}/file, convertir
+    if "/api/content/" in image_url and "/file" in image_url:
+        # Extraire l'ID du fichier
+        import re
+        match = re.search(r'/api/content/([^/]+)/file', image_url)
+        if match:
+            file_id = match.group(1)
+            # Retourner l'URL publique
+            backend_url = os.environ.get('REACT_APP_BACKEND_URL', 'https://claire-marcus.com')
+            return f"{backend_url}/api/public/image/{file_id}"
+    
+    # Si c'est une URL relative, la convertir en absolue
+    if image_url.startswith("/"):
+        backend_url = os.environ.get('REACT_APP_BACKEND_URL', 'https://claire-marcus.com')
+        return f"{backend_url}{image_url}"
+    
+    # Sinon, retourner telle quelle
+    return image_url
+
 try:
     from website_analyzer_gpt5 import website_router
     WEBSITE_ANALYZER_AVAILABLE = True

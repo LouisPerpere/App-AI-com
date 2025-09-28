@@ -3045,116 +3045,32 @@ async def facebook_oauth_callback(
 @api_router.get("/social/instagram/callback")
 async def instagram_oauth_callback(
     code: str = None,
-    access_token: str = None,
-    long_lived_token: str = None,
     state: str = None,
     error: str = None,
-    error_description: str = None,
-    expires_in: str = None,
-    data_access_expiration_time: str = None
+    error_description: str = None
 ):
-    """Traiter le callback Facebook Login for Business pour Instagram"""
-    try:
-        print(f"🔄 Instagram OAuth callback received")
-        print(f"   Code: {'✅ Present' if code else '❌ Missing'}")
-        print(f"   Access token: {'✅ Present' if access_token else '❌ Missing'}")
-        print(f"   Long lived token: {'✅ Present' if long_lived_token else '❌ Missing'}")
-        print(f"   State: {state}")
-        print(f"   Error: {error}")
-        
-        # CRITIQUE: Log détaillé pour diagnostic
-        if state:
-            print(f"🔍 STATE RECEIVED: '{state}' (length: {len(state)})")
-            if '|' in state:
-                parts = state.split('|', 1)
-                print(f"🔍 STATE PARTS: random='{parts[0]}', user_id='{parts[1] if len(parts) > 1 else 'MISSING'}'")
-            else:
-                print(f"❌ STATE FORMAT ERROR: No '|' separator found in state")
-        else:
-            print(f"❌ STATE MISSING COMPLETELY")
-        
-        # Vérifier les erreurs OAuth
-        if error:
-            error_msg = f"Instagram OAuth error: {error}"
-            if error_description:
-                error_msg += f" - {error_description}"
-            print(f"❌ {error_msg}")
-            
-            # Rediriger vers le frontend avec erreur
-            frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-            frontend_url = f"{frontend_base_url}/?instagram_error=" + error
-            return RedirectResponse(url=frontend_url)
-        
-        # Facebook OAuth envoie un code d'autorisation
-        if code:
-            print(f"✅ Authorization code received: {code[:10]}...")
-            
-            # ✅ CORRECTION TEMPORAIRE: Créer une connexion test pour voir si le problème vient du callback ou de l'échange token
-            # Extraire user_id du state (format: "random_state|user_id" ou juste state)
-            user_id = None
-            if state and '|' in state:
-                _, user_id = state.split('|', 1)
-                print(f"🔍 Extracted user_id from state: {user_id}")
-            elif state:
-                # State sans user_id - essayer de récupérer depuis la session ou le token
-                print(f"🔍 State présent mais sans user_id: {state}")
-                # TODO: Récupérer user_id via autre moyen (session, JWT, etc.)
-                # Pour l'instant, utiliser un user_id par défaut ou générique
-                print("⚠️ Warning: Using fallback user_id extraction method")
-                # Retourner erreur pour forcer reconnexion avec state correct
-                return RedirectResponse(url=f"{frontend_url}?auth_warning=state_format_incorrect&retry=true")
-            else:
-                print(f"❌ ERREUR: State manquant complètement")
-                return RedirectResponse(url=f"{frontend_url}?auth_error=missing_state")
-            
-            # CRÉATION CONNEXION INSTAGRAM TEST DIRECTE
-            dbm = get_database()
-            test_connection = {
-                "connection_id": str(uuid.uuid4()),
-                "user_id": user_id,
-                "platform": "instagram",
-                "username": "myownwatch",
-                "access_token": "test_token_from_callback",
-                "page_name": "My Own Watch",
-                "instagram_account": None,
-                "connected_at": datetime.now(timezone.utc),
-                "active": True,  # Utiliser "active" comme partout ailleurs
-                "expires_at": datetime.now(timezone.utc) + timedelta(days=60)
-            }
-            
-            # Sauvegarder ou mettre à jour la connexion existante
-            existing_connection = dbm.db.social_media_connections.find_one({
-                "user_id": user_id,
-                "platform": "instagram"
-            })
-            
-            if existing_connection:
-                result = dbm.db.social_media_connections.update_one(
-                    {"user_id": user_id, "platform": "instagram"},
-                    {"$set": test_connection}
-                )
-                print(f"✅ Updated Instagram connection for user {user_id}")
-            else:
-                result = dbm.db.social_media_connections.insert_one(test_connection)
-                print(f"✅ Created Instagram connection for user {user_id}")
-            
-            # Rediriger vers le frontend avec succès (Instagram)
-            frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-            frontend_url = f"{frontend_base_url}/?auth_success=instagram_connected&page_name=My Own Watch&state={state}"
-            print(f"🔄 Redirecting to: {frontend_url}")
-            return RedirectResponse(url=frontend_url)
-        
-        # Aucun code ni token reçu
-        print("❌ No authorization code or access tokens received")
-        frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-        frontend_url = f"{frontend_base_url}/?instagram_error=missing_authorization"
-        return RedirectResponse(url=frontend_url)
-        
-    except Exception as e:
-        print(f"❌ Error in Instagram OAuth callback: {str(e)}")
-        frontend_base_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-        frontend_url = f"{frontend_base_url}/?instagram_error=callback_error"
-        return RedirectResponse(url=frontend_url)
+    """CALLBACK INSTAGRAM PROPRE - Instagram est traité via Facebook OAuth"""
+    frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
+    
+    print(f"🔄 Instagram OAuth callback - REDIRECTION VERS FACEBOOK")
+    print(f"   Code: {'✅ Present' if code else '❌ Missing'}")
+    print(f"   State: {state}")
+    print(f"   Error: {error}")
+    
+    # Instagram Business se connecte via Facebook OAuth
+    # Rediriger vers le callback Facebook qui traite aussi Instagram
+    if code and state:
+        facebook_callback_url = f"/api/social/facebook/callback?code={code}&state={state}"
+        print(f"🔄 Redirecting Instagram OAuth to Facebook callback: {facebook_callback_url}")
+        return RedirectResponse(url=facebook_callback_url, status_code=302)
+    
+    # Erreur ou paramètres manquants
+    if error:
+        print(f"❌ Instagram OAuth error: {error}")
+        return RedirectResponse(url=f"{frontend_url}?auth_error=instagram_oauth_error", status_code=302)
+    
+    print(f"❌ Instagram OAuth - Missing parameters")
+    return RedirectResponse(url=f"{frontend_url}?auth_error=instagram_missing_params", status_code=302)
 
 class PublishPostRequest(BaseModel):
     post_id: str

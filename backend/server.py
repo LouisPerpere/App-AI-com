@@ -2946,9 +2946,34 @@ async def facebook_oauth_callback(
                                     "page_name": page_name,
                                     "page_id": page_id,
                                     "connected_at": datetime.now(timezone.utc),
-                                    "is_active": True,
+                                    "active": True,  # Utiliser "active" pour cohérence
                                     "expires_at": datetime.now(timezone.utc) + timedelta(seconds=expires_in)
                                 }
+                                
+                                # SAUVEGARDER LA CONNEXION FACEBOOK (MANQUAIT !)
+                                # Corriger le champ active
+                                facebook_connection["id"] = facebook_connection["connection_id"]  # Ajouter un champ id
+                                
+                                # Sauvegarder ou mettre à jour la connexion Facebook existante dans la bonne collection
+                                existing_connection = dbm.social_media_connections.find_one({
+                                    "user_id": user_id,
+                                    "platform": "facebook"
+                                })
+                                
+                                if existing_connection:
+                                    result = dbm.social_media_connections.update_one(
+                                        {"user_id": user_id, "platform": "facebook"},
+                                        {"$set": facebook_connection}
+                                    )
+                                    print(f"✅ Updated Facebook connection for user {user_id} in social_media_connections")
+                                else:
+                                    result = dbm.social_media_connections.insert_one(facebook_connection)
+                                    print(f"✅ Created Facebook connection for user {user_id} in social_media_connections")
+                                
+                                # Redirection de succès  
+                                success_redirect = f"{frontend_url}?auth_success=facebook_connected&page_name={page_name}&state={state}"
+                                print(f"✅ Facebook OAuth successful and saved, redirecting to: {success_redirect}")
+                                return RedirectResponse(url=success_redirect, status_code=302)
                             else:
                                 error_text = await token_response.text()
                                 raise Exception(f"Erreur échange token Facebook: {token_response.status} - {error_text}")

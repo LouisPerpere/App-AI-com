@@ -3072,6 +3072,44 @@ async def instagram_oauth_callback(
 class PublishPostRequest(BaseModel):
     post_id: str
 
+@api_router.get("/social/connections/status")
+async def get_social_connections_status(user_id: str = Depends(get_current_user_id_robust)):
+    """STATUS SIMPLE - Voir les connexions comme ChatGPT"""
+    try:
+        dbm = get_database()
+        
+        # Récupérer toutes les connexions actives (simple)
+        connections = list(dbm.db.social_media_connections.find({
+            "user_id": user_id,
+            "active": True
+        }))
+        
+        status = {
+            "facebook_connected": False,
+            "instagram_connected": False,
+            "facebook_page": None,
+            "instagram_username": None,
+            "total_connections": len(connections)
+        }
+        
+        for conn in connections:
+            if conn["platform"] == "facebook":
+                status["facebook_connected"] = True
+                status["facebook_page"] = conn.get("page_name")
+            elif conn["platform"] == "instagram":
+                status["instagram_connected"] = True
+                status["instagram_username"] = conn.get("username")
+        
+        return status
+        
+    except Exception as e:
+        print(f"❌ Error getting social status: {str(e)}")
+        return {
+            "facebook_connected": False,
+            "instagram_connected": False,
+            "error": str(e)
+        }
+
 @api_router.post("/social/facebook/publish-simple")
 async def publish_facebook_simple(
     request: dict,

@@ -2665,9 +2665,10 @@ async def get_facebook_auth_url(user_id: str = Depends(get_current_user_id_robus
             "state": state,
             "redirect_uri": redirect_uri,
             "scopes": scopes.split(","),
-            "api_version": "Facebook Graph API v20.0",
+            "api_version": "Facebook Login for Business v20.0",
             "client_id": facebook_app_id,
-            "note": f"Facebook OAuth with consistent App ID: {facebook_app_id}"
+            "config_id": facebook_config_id,
+            "note": f"Facebook Login for Business - App ID: {facebook_app_id}, Config ID: {facebook_config_id}"
         }
         
     except Exception as e:

@@ -187,7 +187,7 @@ backend:
 backend:
   - task: "OAuth Callback Persistence Diagnostic - Facebook/Instagram Connection Issues"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/server.py"
     stuck_count: 2
     priority: "high"

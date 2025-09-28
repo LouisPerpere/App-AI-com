@@ -2922,15 +2922,26 @@ async def facebook_oauth_callback(
             
             # ÉCHANGE DU CODE CONTRE UN ACCESS TOKEN FACEBOOK
             try:
-                    facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
+                    facebook_app_id = os.environ.get('FACEBOOK_CONFIG_ID')  # Utiliser la bonne variable
                     facebook_app_secret = os.environ.get('FACEBOOK_APP_SECRET')
                     redirect_uri = os.environ.get('FACEBOOK_REDIRECT_URI', 'https://claire-marcus.com/api/social/facebook/callback')
                     
-                    if not facebook_app_id or not facebook_app_secret:
-                        raise Exception("FACEBOOK_APP_ID ou FACEBOOK_APP_SECRET manquant")
+                    print(f"🔧 OAuth Config:")
+                    print(f"   App ID: {facebook_app_id}")
+                    print(f"   Redirect URI: {redirect_uri}")
+                    print(f"   Code: {code[:20]}...")
                     
-                    # Échange du code contre un access token
-                    token_url = f"https://graph.facebook.com/v21.0/oauth/access_token?client_id={facebook_app_id}&client_secret={facebook_app_secret}&redirect_uri={redirect_uri}&code={code}"
+                    if not facebook_app_id or not facebook_app_secret:
+                        raise Exception("FACEBOOK_CONFIG_ID ou FACEBOOK_APP_SECRET manquant")
+                    
+                    # Échange du code contre un access token - Format correct
+                    token_url = "https://graph.facebook.com/v21.0/oauth/access_token"
+                    token_params = {
+                        'client_id': facebook_app_id,
+                        'client_secret': facebook_app_secret,
+                        'redirect_uri': redirect_uri,
+                        'code': code
+                    }
                     
                     print(f"🔄 Exchanging code for access token...")
                     import aiohttp

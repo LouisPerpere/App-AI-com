@@ -3179,6 +3179,10 @@ async def publish_facebook_simple(
         text = request.get("text", "Test de publication Facebook")
         image_url = request.get("image_url")  # Optionnel
         
+        # Convertir URL protégée en URL publique pour Facebook
+        if image_url:
+            image_url = convert_to_public_image_url(image_url)
+        
         dbm = get_database()
         
         # Récupérer la connexion Facebook (approche simple)

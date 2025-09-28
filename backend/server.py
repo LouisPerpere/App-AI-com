@@ -3897,6 +3897,81 @@ async def convert_post_platform(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
 
+@api_router.post("/debug/clean-library-badges")
+async def clean_library_badges(user_id: str = Depends(get_current_user_id_robust)):
+    """Nettoyer les badges orphelins dans la bibliothèque"""
+    try:
+        dbm = get_database()
+        db = dbm.db
+        
+        print(f"🧹 Nettoyage badges bibliothèque pour user {user_id}")
+        
+        # Récupérer tous les contenus avec badges
+        contents_with_badges = list(db.fs.files.find({
+            "metadata.user_id": user_id,
+            "$or": [
+                {"metadata.used_on_facebook": True},
+                {"metadata.used_on_instagram": True},
+                {"metadata.used_on_linkedin": True}
+            ]
+        }))
+        
+        cleaned_count = 0
+        
+        for content in contents_with_badges:
+            content_id = str(content["_id"])
+            updates = {}
+            
+            # Vérifier Facebook
+            if content.get("metadata", {}).get("used_on_facebook"):
+                facebook_posts = db.generated_posts.count_documents({
+                    "visual_id": content_id,
+                    "platform": "facebook", 
+                    "owner_id": user_id
+                })
+                if facebook_posts == 0:
+                    updates["metadata.used_on_facebook"] = False
+                    print(f"  📘 Retrait badge Facebook pour {content_id}")
+            
+            # Vérifier Instagram
+            if content.get("metadata", {}).get("used_on_instagram"):
+                instagram_posts = db.generated_posts.count_documents({
+                    "visual_id": content_id,
+                    "platform": "instagram",
+                    "owner_id": user_id
+                })
+                if instagram_posts == 0:
+                    updates["metadata.used_on_instagram"] = False
+                    print(f"  📷 Retrait badge Instagram pour {content_id}")
+            
+            # Vérifier LinkedIn  
+            if content.get("metadata", {}).get("used_on_linkedin"):
+                linkedin_posts = db.generated_posts.count_documents({
+                    "visual_id": content_id,
+                    "platform": "linkedin",
+                    "owner_id": user_id
+                })
+                if linkedin_posts == 0:
+                    updates["metadata.used_on_linkedin"] = False
+                    print(f"  💼 Retrait badge LinkedIn pour {content_id}")
+            
+            # Appliquer les mises à jour
+            if updates:
+                db.fs.files.update_one(
+                    {"_id": content["_id"]},
+                    {"$set": updates}
+                )
+                cleaned_count += 1
+        
+        return {
+            "success": True,
+            "message": f"Nettoyé les badges de {cleaned_count} contenus",
+            "updated_contents": cleaned_count
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur nettoyage badges: {str(e)}")
+
 @api_router.post("/debug/clean-invalid-tokens")
 async def clean_invalid_social_tokens(user_id: str = Depends(get_current_user_id_robust)):
     """Supprimer les connexions avec tokens invalides"""

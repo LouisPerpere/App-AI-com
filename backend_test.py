@@ -317,15 +317,20 @@ class BackendTester:
                 timeout=30
             )
             
-            # Should fail with no connections, but endpoint should exist and respond properly
-            if response.status_code in [400, 401, 403]:
+            # Should return 200 with success: false and proper error message
+            if response.status_code == 200:
                 data = response.json()
+                success = data.get("success", True)  # Default True to catch unexpected success
                 error_message = data.get("error", "").lower()
                 
-                if "connexion" in error_message or "token" in error_message or "instagram" in error_message:
+                if not success and ("connexion" in error_message or "instagram" in error_message):
                     self.log_test("Simplified Instagram Publication Endpoint", True, 
                                 f"✅ Endpoint exists and properly rejects: {data.get('error', 'No connection error')}")
                     return True
+                elif success:
+                    self.log_test("Simplified Instagram Publication Endpoint", False, 
+                                f"Unexpected success with no connections: {data}")
+                    return False
                 else:
                     self.log_test("Simplified Instagram Publication Endpoint", False, 
                                 f"Unexpected error message: {data.get('error', 'Unknown error')}")

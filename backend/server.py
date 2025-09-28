@@ -3075,10 +3075,164 @@ async def instagram_oauth_callback(
 class PublishPostRequest(BaseModel):
     post_id: str
 
-@api_router.get("/test/facebook-publish")
-async def test_facebook_publish_endpoint():
-    """Test endpoint pour vérifier si les nouvelles routes fonctionnent"""
-    return {"message": "Facebook publish endpoint is working", "timestamp": datetime.now().isoformat()}
+@api_router.post("/test/facebook-post")
+async def test_facebook_publication(
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """TEST ENDPOINT PROPRE - Publication Facebook avec vrais tokens seulement"""
+    try:
+        dbm = get_database()
+        
+        # Récupérer UNIQUEMENT les connexions avec vrais tokens
+        facebook_connections = list(dbm.social_media_connections.find({
+            "user_id": user_id,
+            "platform": "facebook",
+            "active": True,
+            "access_token": {"$regex": "^(?!temp_|test_).*"}  # Exclure les tokens temporaires/test
+        }))
+        
+        if not facebook_connections:
+            return {
+                "success": False,
+                "error": "Aucune connexion Facebook avec token valide trouvée",
+                "message": "Reconnectez votre compte Facebook pour obtenir un vrai token"
+            }
+        
+        connection = facebook_connections[0]
+        access_token = connection.get("access_token")
+        page_id = connection.get("page_id")
+        
+        print(f"🧪 Testing Facebook publication with REAL token")
+        print(f"   Token: {access_token[:20]}...")
+        print(f"   Page ID: {page_id}")
+        
+        # Test de publication avec contenu simple
+        test_content = "🧪 Test de publication depuis l'API Claire et Marcus - " + datetime.now().strftime("%H:%M:%S")
+        
+        if SOCIAL_MEDIA_AVAILABLE:
+            fb_client = FacebookAPIClient(access_token)
+            
+            result = await fb_client.post_to_page(
+                page_id,
+                access_token,
+                test_content,
+                None  # Pas d'image pour le test
+            )
+            
+            return {
+                "success": True,
+                "message": "Publication Facebook réussie avec vrai token !",
+                "facebook_post_id": result.get("id"),
+                "page_name": connection.get("page_name"),
+                "content": test_content,
+                "published_at": datetime.now().isoformat()
+            }
+        else:
+            return {
+                "success": False,
+                "error": "Module social media non disponible",
+                "message": "social_media.py n'est pas chargé"
+            }
+        
+    except Exception as e:
+        print(f"❌ Test Facebook publication error: {str(e)}")
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Test de publication Facebook échoué"
+        }
+
+@api_router.post("/test/instagram-post")
+async def test_instagram_publication(
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """TEST ENDPOINT PROPRE - Publication Instagram avec vrais tokens seulement"""
+    try:
+        dbm = get_database()
+        
+        # Récupérer UNIQUEMENT les connexions avec vrais tokens
+        instagram_connections = list(dbm.social_media_connections.find({
+            "user_id": user_id,
+            "platform": "instagram",
+            "active": True,
+            "access_token": {"$regex": "^(?!temp_|test_).*"}  # Exclure les tokens temporaires/test
+        }))
+        
+        if not instagram_connections:
+            return {
+                "success": False,
+                "error": "Aucune connexion Instagram avec token valide trouvée",
+                "message": "Reconnectez votre compte Instagram pour obtenir un vrai token"
+            }
+        
+        connection = instagram_connections[0]
+        access_token = connection.get("access_token")
+        instagram_user_id = connection.get("instagram_user_id")
+        
+        print(f"🧪 Testing Instagram publication with REAL token")
+        print(f"   Token: {access_token[:20]}...")
+        print(f"   Instagram User ID: {instagram_user_id}")
+        
+        # Test de publication avec contenu simple et image obligatoire
+        test_content = "🧪 Test Instagram depuis l'API Claire et Marcus - " + datetime.now().strftime("%H:%M:%S")
+        test_image_url = "https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_960_720.jpg"  # Image test
+        
+        import aiohttp
+        async with aiohttp.ClientSession() as session:
+            # Étape 1: Créer le media container
+            create_url = f"https://graph.facebook.com/v21.0/{instagram_user_id}/media"
+            create_data = {
+                "caption": test_content,
+                "image_url": test_image_url,
+                "access_token": access_token
+            }
+            
+            async with session.post(create_url, data=create_data) as create_response:
+                if create_response.status == 200:
+                    create_result = await create_response.json()
+                    media_id = create_result.get("id")
+                    
+                    if not media_id:
+                        raise Exception("Media ID non reçu d'Instagram")
+                    
+                    print(f"✅ Media container créé: {media_id}")
+                    
+                    # Étape 2: Publier le media
+                    publish_url = f"https://graph.facebook.com/v21.0/{instagram_user_id}/media_publish"
+                    publish_data = {
+                        "creation_id": media_id,
+                        "access_token": access_token
+                    }
+                    
+                    async with session.post(publish_url, data=publish_data) as publish_response:
+                        if publish_response.status == 200:
+                            publish_result = await publish_response.json()
+                            instagram_post_id = publish_result.get("id")
+                            
+                            return {
+                                "success": True,
+                                "message": "Publication Instagram réussie avec vrai token !",
+                                "instagram_post_id": instagram_post_id,
+                                "media_id": media_id,
+                                "username": connection.get("username"),
+                                "content": test_content,
+                                "image_url": test_image_url,
+                                "published_at": datetime.now().isoformat()
+                            }
+                        else:
+                            error_text = await publish_response.text()
+                            raise Exception(f"Erreur publication Instagram: {publish_response.status} - {error_text}")
+                else:
+                    error_text = await create_response.text()
+                    raise Exception(f"Erreur création media Instagram: {create_response.status} - {error_text}")
+        
+    except Exception as e:
+        print(f"❌ Test Instagram publication error: {str(e)}")
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Test de publication Instagram échoué"
+        }
 
 @api_router.get("/posts/real-data")
 async def get_real_posts(user_id: str = Depends(get_current_user_id_robust)):

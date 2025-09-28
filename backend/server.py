@@ -3277,6 +3277,9 @@ async def publish_instagram_simple(
                 "message": "Instagram nécessite toujours une image"
             }
         
+        # Convertir URL protégée en URL publique pour Instagram
+        image_url = convert_to_public_image_url(image_url)
+        
         dbm = get_database()
         
         # Récupérer la connexion Instagram (approche simple)

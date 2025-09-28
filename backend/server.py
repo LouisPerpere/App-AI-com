@@ -3164,44 +3164,50 @@ async def publish_instagram_simple(
     request: dict,
     user_id: str = Depends(get_current_user_id_robust)
 ):
-    """TEST ENDPOINT PROPRE - Publication Instagram avec vrais tokens seulement"""
+    """PUBLICATION INSTAGRAM SIMPLE - Approche ChatGPT (2 étapes)"""
     try:
-        dbm = get_database()
+        text = request.get("text", "Test de publication Instagram")
+        image_url = request.get("image_url")
         
-        # Récupérer UNIQUEMENT les connexions avec vrais tokens
-        instagram_connections = list(dbm.db.social_media_connections.find({
-            "user_id": user_id,
-            "platform": "instagram",
-            "active": True,
-            "access_token": {"$regex": "^(?!temp_|test_).*"}  # Exclure les tokens temporaires/test
-        }))
-        
-        if not instagram_connections:
+        if not image_url:
             return {
                 "success": False,
-                "error": "Aucune connexion Instagram avec token valide trouvée",
-                "message": "Reconnectez votre compte Instagram pour obtenir un vrai token"
+                "error": "Image requise pour Instagram",
+                "message": "Instagram nécessite toujours une image"
             }
         
-        connection = instagram_connections[0]
+        dbm = get_database()
+        
+        # Récupérer la connexion Instagram (approche simple)
+        connection = dbm.db.social_media_connections.find_one({
+            "user_id": user_id,
+            "platform": "instagram",
+            "active": True
+        })
+        
+        if not connection:
+            return {
+                "success": False,
+                "error": "Aucune connexion Instagram trouvée",
+                "message": "Connectez votre compte Instagram d'abord"
+            }
+        
         access_token = connection.get("access_token")
         instagram_user_id = connection.get("instagram_user_id")
+        username = connection.get("username", "Instagram")
         
-        print(f"🧪 Testing Instagram publication with REAL token")
-        print(f"   Token: {access_token[:20]}...")
-        print(f"   Instagram User ID: {instagram_user_id}")
+        print(f"📷 Publishing to Instagram: @{username}")
+        print(f"   Content: {text[:50]}...")
+        print(f"   Image: {image_url}")
         
-        # Test de publication avec contenu simple et image obligatoire
-        test_content = "🧪 Test Instagram depuis l'API Claire et Marcus - " + datetime.now().strftime("%H:%M:%S")
-        test_image_url = "https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_960_720.jpg"  # Image test
-        
+        # Publication Instagram en 2 étapes (approche ChatGPT)
         import aiohttp
         async with aiohttp.ClientSession() as session:
-            # Étape 1: Créer le media container
+            # ÉTAPE 1: Créer le media container
             create_url = f"https://graph.facebook.com/v21.0/{instagram_user_id}/media"
             create_data = {
-                "caption": test_content,
-                "image_url": test_image_url,
+                "caption": text,
+                "image_url": image_url,
                 "access_token": access_token
             }
             
@@ -3215,7 +3221,7 @@ async def publish_instagram_simple(
                     
                     print(f"✅ Media container créé: {media_id}")
                     
-                    # Étape 2: Publier le media
+                    # ÉTAPE 2: Publier le media
                     publish_url = f"https://graph.facebook.com/v21.0/{instagram_user_id}/media_publish"
                     publish_data = {
                         "creation_id": media_id,
@@ -3229,27 +3235,37 @@ async def publish_instagram_simple(
                             
                             return {
                                 "success": True,
-                                "message": "Publication Instagram réussie avec vrai token !",
+                                "message": f"✅ Publication réussie sur @{username}",
                                 "instagram_post_id": instagram_post_id,
                                 "media_id": media_id,
-                                "username": connection.get("username"),
-                                "content": test_content,
-                                "image_url": test_image_url,
+                                "username": username,
+                                "content": text,
+                                "image_url": image_url,
                                 "published_at": datetime.now().isoformat()
                             }
                         else:
                             error_text = await publish_response.text()
-                            raise Exception(f"Erreur publication Instagram: {publish_response.status} - {error_text}")
+                            print(f"❌ Instagram Publish Error: {publish_response.status} - {error_text}")
+                            return {
+                                "success": False,
+                                "error": f"Erreur publication Instagram: {publish_response.status}",
+                                "details": error_text
+                            }
                 else:
                     error_text = await create_response.text()
-                    raise Exception(f"Erreur création media Instagram: {create_response.status} - {error_text}")
+                    print(f"❌ Instagram Create Error: {create_response.status} - {error_text}")
+                    return {
+                        "success": False,
+                        "error": f"Erreur création media Instagram: {create_response.status}",
+                        "details": error_text
+                    }
         
     except Exception as e:
-        print(f"❌ Test Instagram publication error: {str(e)}")
+        print(f"❌ Instagram publication error: {str(e)}")
         return {
             "success": False,
             "error": str(e),
-            "message": "Test de publication Instagram échoué"
+            "message": "Erreur lors de la publication Instagram"
         }
 
 @api_router.get("/posts/real-data")

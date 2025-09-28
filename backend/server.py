@@ -3072,71 +3072,91 @@ async def instagram_oauth_callback(
 class PublishPostRequest(BaseModel):
     post_id: str
 
-@api_router.post("/test/facebook-post")
-async def test_facebook_publication(
+@api_router.post("/social/facebook/publish-simple")
+async def publish_facebook_simple(
+    request: dict,
     user_id: str = Depends(get_current_user_id_robust)
 ):
-    """TEST ENDPOINT PROPRE - Publication Facebook avec vrais tokens seulement"""
+    """PUBLICATION FACEBOOK SIMPLE - Approche ChatGPT"""
     try:
+        text = request.get("text", "Test de publication Facebook")
+        image_url = request.get("image_url")  # Optionnel
+        
         dbm = get_database()
         
-        # Récupérer UNIQUEMENT les connexions avec vrais tokens
-        facebook_connections = list(dbm.db.social_media_connections.find({
+        # Récupérer la connexion Facebook (approche simple)
+        connection = dbm.db.social_media_connections.find_one({
             "user_id": user_id,
             "platform": "facebook",
-            "active": True,
-            "access_token": {"$regex": "^(?!temp_|test_).*"}  # Exclure les tokens temporaires/test
-        }))
+            "active": True
+        })
         
-        if not facebook_connections:
+        if not connection:
             return {
                 "success": False,
-                "error": "Aucune connexion Facebook avec token valide trouvée",
-                "message": "Reconnectez votre compte Facebook pour obtenir un vrai token"
+                "error": "Aucune connexion Facebook trouvée",
+                "message": "Connectez votre page Facebook d'abord"
             }
         
-        connection = facebook_connections[0]
         access_token = connection.get("access_token")
         page_id = connection.get("page_id")
+        page_name = connection.get("page_name", "Page Facebook")
         
-        print(f"🧪 Testing Facebook publication with REAL token")
-        print(f"   Token: {access_token[:20]}...")
-        print(f"   Page ID: {page_id}")
+        print(f"📘 Publishing to Facebook: {page_name}")
+        print(f"   Content: {text[:50]}...")
+        print(f"   Image: {'✅' if image_url else '❌'}")
         
-        # Test de publication avec contenu simple
-        test_content = "🧪 Test de publication depuis l'API Claire et Marcus - " + datetime.now().strftime("%H:%M:%S")
-        
-        if SOCIAL_MEDIA_AVAILABLE:
-            fb_client = FacebookAPIClient(access_token)
+        # Publication directe via Facebook Graph API (approche ChatGPT)
+        import aiohttp
+        async with aiohttp.ClientSession() as session:
+            # URL de publication Facebook
+            publish_url = f"https://graph.facebook.com/v21.0/{page_id}/photos" if image_url else f"https://graph.facebook.com/v21.0/{page_id}/feed"
             
-            result = await fb_client.post_to_page(
-                page_id,
-                access_token,
-                test_content,
-                None  # Pas d'image pour le test
-            )
+            # Données de publication
+            publish_data = {
+                "access_token": access_token
+            }
             
-            return {
-                "success": True,
-                "message": "Publication Facebook réussie avec vrai token !",
-                "facebook_post_id": result.get("id"),
-                "page_name": connection.get("page_name"),
-                "content": test_content,
-                "published_at": datetime.now().isoformat()
-            }
-        else:
-            return {
-                "success": False,
-                "error": "Module social media non disponible",
-                "message": "social_media.py n'est pas chargé"
-            }
+            if image_url:
+                # Publication avec image
+                publish_data.update({
+                    "url": image_url,
+                    "caption": text,
+                    "published": True
+                })
+            else:
+                # Publication texte seulement
+                publish_data["message"] = text
+            
+            async with session.post(publish_url, data=publish_data) as response:
+                if response.status == 200:
+                    result = await response.json()
+                    post_id = result.get("id") or result.get("post_id")
+                    
+                    return {
+                        "success": True,
+                        "message": f"✅ Publication réussie sur {page_name}",
+                        "facebook_post_id": post_id,
+                        "page_name": page_name,
+                        "content": text,
+                        "has_image": bool(image_url),
+                        "published_at": datetime.now().isoformat()
+                    }
+                else:
+                    error_text = await response.text()
+                    print(f"❌ Facebook API Error: {response.status} - {error_text}")
+                    return {
+                        "success": False,
+                        "error": f"Erreur Facebook API: {response.status}",
+                        "details": error_text
+                    }
         
     except Exception as e:
-        print(f"❌ Test Facebook publication error: {str(e)}")
+        print(f"❌ Facebook publication error: {str(e)}")
         return {
             "success": False,
             "error": str(e),
-            "message": "Test de publication Facebook échoué"
+            "message": "Erreur lors de la publication Facebook"
         }
 
 @api_router.post("/test/instagram-post")

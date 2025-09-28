@@ -3015,7 +3015,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Post Generation Logic - Collection Mismatch Bug"
+    - "Facebook Image Publication Diagnostic - URL Accessibility Testing"
   stuck_tasks: 
     - "OAuth Callback Persistence Diagnostic - Facebook/Instagram Connection Issues"
     - "Instagram to Facebook Post Conversion - LIVE Environment"

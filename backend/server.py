@@ -2980,31 +2980,28 @@ async def facebook_oauth_callback(
                     
                     print(f"✅ Page found: {page_name} - Token: {page_access_token[:20]}...")
                     
-                    # SAUVEGARDER LA CONNEXION RÉELLE
+                    # SAUVEGARDER LA CONNEXION SIMPLE (Approche ChatGPT)
                     dbm = get_database()
                     facebook_connection = {
-                        "connection_id": str(uuid.uuid4()),
                         "id": str(uuid.uuid4()),
                         "user_id": user_id,
-                        "platform": "facebook", 
-                        "username": page_name,
-                        "access_token": page_access_token,  # VRAI PAGE TOKEN
-                        "page_name": page_name,
+                        "platform": "facebook",
+                        "access_token": page_access_token,  # PAGE TOKEN DIRECT
                         "page_id": page_id,
-                        "connected_at": datetime.now(timezone.utc),
+                        "page_name": page_name,
+                        "connected_at": datetime.now(timezone.utc).isoformat(),
                         "active": True,
-                        "token_type": "page_token",
-                        "expires_at": datetime.now(timezone.utc) + timedelta(days=60)
+                        "expires_at": (datetime.now(timezone.utc) + timedelta(days=60)).isoformat()
                     }
                     
-                    # Remplacer toute connexion existante
-                    dbm.social_media_connections.delete_many({
+                    # Remplacer toute connexion Facebook existante (clean)
+                    dbm.db.social_media_connections.delete_many({
                         "user_id": user_id,
                         "platform": "facebook"
                     })
                     
-                    dbm.social_media_connections.insert_one(facebook_connection)
-                    print(f"✅ Facebook connection saved with REAL page token")
+                    dbm.db.social_media_connections.insert_one(facebook_connection)
+                    print(f"✅ SIMPLE Facebook connection saved: {page_name} (ID: {page_id})")
                     
                     # Traiter Instagram si disponible
                     if page.get('instagram_business_account'):

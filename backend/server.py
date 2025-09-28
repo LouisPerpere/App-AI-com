@@ -3043,39 +3043,12 @@ async def facebook_oauth_callback(
                 
             except Exception as oauth_error:
                 print(f"❌ Erreur OAuth Facebook: {str(oauth_error)}")
-                # Fallback - créer connexion temporaire pour les tests
-                facebook_connection = {
-                    "connection_id": str(uuid.uuid4()),
-                    "user_id": user_id,
-                    "platform": "facebook",
-                    "username": "Page Facebook",
-                    "access_token": f"temp_facebook_token_{int(time.time())}",  # Token temporaire unique
-                    "page_name": "Page Facebook",
-                    "page_id": None,
-                    "connected_at": datetime.now(timezone.utc),
-                    "active": True,
-                    "expires_at": datetime.now(timezone.utc) + timedelta(days=30)
-                }
+                print(f"❌ OAuth exchange failed - not creating invalid connection")
                 
-                # Sauvegarder la connexion de fallback
-                existing_connection = dbm.db.social_media_connections.find_one({
-                    "user_id": user_id,
-                    "platform": "facebook"
-                })
-                
-                if existing_connection:
-                    result = dbm.db.social_media_connections.update_one(
-                        {"user_id": user_id, "platform": "facebook"},
-                        {"$set": facebook_connection}
-                    )
-                    print(f"✅ Updated Facebook fallback connection for user {user_id}")
-                else:
-                    result = dbm.db.social_media_connections.insert_one(facebook_connection)
-                    print(f"✅ Created Facebook fallback connection for user {user_id}")
-                
-                redirect = f"{frontend_url}?auth_success=facebook_connected"
-                print(f"🔄 Redirecting to: {redirect}")
-                return RedirectResponse(url=redirect)
+                # Ne PAS créer de connexion avec token invalide
+                error_redirect = f"{frontend_url}?auth_error=facebook_oauth_failed&error={str(oauth_error)}"
+                print(f"🔄 Redirecting to error page: {error_redirect}")
+                return RedirectResponse(url=error_redirect)
         
         # Aucun code reçu - redirection simple vers le frontend (ancien comportement)
         frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')

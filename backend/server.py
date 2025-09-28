@@ -4020,6 +4020,81 @@ async def convert_post_platform(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
 
+@api_router.post("/test/instagram-post")
+async def test_instagram_post(user_id: str = Depends(get_current_user_id_robust)):
+    """Test de publication Instagram directe pour debugging"""
+    try:
+        dbm = get_database()
+        db = dbm.db
+        
+        # Récupérer connexion Instagram
+        conn = db.social_media_connections.find_one({
+            "user_id": user_id,
+            "platform": "instagram",
+            "active": True
+        })
+        
+        if not conn:
+            raise HTTPException(status_code=400, detail="Aucune connexion Instagram active")
+        
+        print(f"🧪 Test publication Instagram")
+        print(f"   Page: {conn.get('page_name')}")
+        print(f"   Page ID: {conn.get('page_id')}")
+        print(f"   Token: {conn.get('access_token', '')[:20]}...")
+        
+        # Test publication simple
+        import aiohttp
+        async with aiohttp.ClientSession() as session:
+            # Étape 1: Créer media container
+            create_url = f"https://graph.facebook.com/v21.0/{conn['page_id']}/media"
+            create_data = {
+                "caption": f"Test automatique depuis Claire & Marcus - {datetime.now().strftime('%H:%M:%S')}",
+                "image_url": "https://picsum.photos/1080/1080",  # Image test
+                "access_token": conn['access_token']
+            }
+            
+            async with session.post(create_url, data=create_data) as create_response:
+                if create_response.status == 200:
+                    create_result = await create_response.json()
+                    media_id = create_result.get("id")
+                    
+                    # Étape 2: Publier
+                    publish_url = f"https://graph.facebook.com/v21.0/{conn['page_id']}/media_publish"
+                    publish_data = {
+                        "creation_id": media_id,
+                        "access_token": conn['access_token']
+                    }
+                    
+                    async with session.post(publish_url, data=publish_data) as publish_response:
+                        if publish_response.status == 200:
+                            result = await publish_response.json()
+                            print(f"✅ Publication test Instagram réussie: {result}")
+                            return {
+                                "success": True,
+                                "message": "Test publication Instagram réussie !",
+                                "instagram_post_id": result.get("id"),
+                                "media_id": media_id,
+                                "page_name": conn.get('page_name')
+                            }
+                        else:
+                            error_text = await publish_response.text()
+                            raise HTTPException(
+                                status_code=500,
+                                detail=f"Erreur publication Instagram: {publish_response.status} - {error_text}"
+                            )
+                else:
+                    error_text = await create_response.text()
+                    raise HTTPException(
+                        status_code=500,
+                        detail=f"Erreur création media Instagram: {create_response.status} - {error_text}"
+                    )
+                    
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Erreur test publication Instagram: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur test: {str(e)}")
+
 @api_router.post("/test/facebook-post")
 async def test_facebook_post(user_id: str = Depends(get_current_user_id_robust)):
     """Test de publication Facebook directe pour debugging"""

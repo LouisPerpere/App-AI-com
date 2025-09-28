@@ -2889,13 +2889,7 @@ async def facebook_oauth_callback(
                         raise Exception("FACEBOOK_APP_ID ou FACEBOOK_APP_SECRET manquant")
                     
                     # Échange du code contre un access token
-                    token_url = "https://graph.facebook.com/v21.0/oauth/access_token"
-                    token_params = {
-                        'client_id': facebook_app_id,
-                        'client_secret': facebook_app_secret,
-                        'redirect_uri': redirect_uri,
-                        'code': code
-                    }
+                    token_url = f"https://graph.facebook.com/v21.0/oauth/access_token?client_id={facebook_app_id}&client_secret={facebook_app_secret}&redirect_uri={redirect_uri}&code={code}"
                     
                     print(f"🔄 Exchanging code for access token...")
                     import aiohttp

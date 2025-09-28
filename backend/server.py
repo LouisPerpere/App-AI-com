@@ -2972,7 +2972,8 @@ async def facebook_oauth_callback(
         
         import aiohttp
         async with aiohttp.ClientSession() as session:
-            async with session.post(token_url, data=token_params) as token_response:
+            # Utiliser GET au lieu de POST pour l'échange OAuth Facebook (recommandation docs)
+            async with session.get(token_url, params=token_params) as token_response:
                 if token_response.status != 200:
                     error_text = await token_response.text()
                     raise Exception(f"Token exchange failed: {token_response.status} - {error_text}")

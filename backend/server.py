@@ -3125,34 +3125,87 @@ class PublishPostRequest(BaseModel):
 
 @api_router.get("/public/image/{file_id}")
 async def get_public_image(file_id: str):
-    """ENDPOINT PUBLIC pour images - accessible sans auth pour Facebook"""
+    """ENDPOINT PUBLIC VRAIMENT ACCESSIBLE - Pas d'auth pour Facebook"""
     try:
-        # Récupérer l'image directement sans authentification
-        media_collection = get_media_collection()
-        query = parse_any_id(file_id)
+        print(f"🌐 Serving public image: {file_id}")
         
-        media_item = media_collection.find_one(query)
+        # Récupérer l'image directement de GridFS
+        from database import get_database
+        dbm = get_database()
+        
+        # Récupérer depuis la collection media
+        query = parse_any_id(file_id)
+        media_item = dbm.db.media.find_one(query)
+        
         if not media_item:
+            print(f"❌ Image not found: {file_id}")
             raise HTTPException(status_code=404, detail="Image not found")
         
-        # Retourner l'URL publique ou rediriger vers le fichier
+        # URL externe (Pixabay, WikiMedia, etc.)
         url = media_item.get("url", "")
         if url and url.startswith("http"):
-            # Redirection vers URL externe (Pixabay, etc.)
+            print(f"✅ Redirecting to external URL: {url}")
             return RedirectResponse(url=url, status_code=302)
         
-        # Pour les fichiers locaux, servir directement
+        # Fichier GridFS - servir directement
+        grid_file_id = media_item.get("grid_file_id")
+        if grid_file_id:
+            print(f"✅ Serving from GridFS: {grid_file_id}")
+            
+            try:
+                import gridfs
+                from bson import ObjectId
+                
+                # Connexion GridFS
+                fs = gridfs.GridFS(dbm.db)
+                
+                # Récupérer le fichier
+                if isinstance(grid_file_id, str):
+                    grid_file_id = ObjectId(grid_file_id)
+                
+                grid_file = fs.get(grid_file_id)
+                
+                # Déterminer le content-type
+                content_type = media_item.get("content_type", "image/jpeg")
+                filename = media_item.get("filename", f"image_{file_id}")
+                
+                # Retourner le fichier directement
+                from fastapi.responses import Response
+                return Response(
+                    content=grid_file.read(),
+                    media_type=content_type,
+                    headers={
+                        "Content-Disposition": f"inline; filename={filename}",
+                        "Cache-Control": "public, max-age=86400",
+                        "Access-Control-Allow-Origin": "*"
+                    }
+                )
+                
+            except Exception as grid_error:
+                print(f"❌ GridFS error: {str(grid_error)}")
+        
+        # Fallback : essayer avec le fichier local si disponible
         file_path = media_item.get("file_path", "")
         if file_path and os.path.exists(file_path):
+            print(f"✅ Serving local file: {file_path}")
             from fastapi.responses import FileResponse
-            return FileResponse(file_path)
+            return FileResponse(
+                file_path,
+                headers={
+                    "Cache-Control": "public, max-age=86400",
+                    "Access-Control-Allow-Origin": "*"
+                }
+            )
         
-        # Fallback vers l'endpoint protégé
-        return RedirectResponse(url=f"/api/content/{file_id}/file", status_code=302)
+        # Pas de fichier disponible
+        print(f"❌ No file data available for: {file_id}")
+        raise HTTPException(status_code=404, detail="Image file not found")
         
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"❌ Error serving public image: {str(e)}")
-        raise HTTPException(status_code=500, detail="Image unavailable")
+        raise HTTPException(status_code=500, detail="Image service error")
 
 @api_router.get("/social/connections/status")
 async def get_social_connections_status(user_id: str = Depends(get_current_user_id_robust)):

@@ -160,7 +160,7 @@ user_problem_statement: "Je viens de corriger deux problèmes majeurs : **1. TOK
 backend:
   - task: "OAuth Callback Persistence Diagnostic - Facebook/Instagram Connection Issues"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 2
     priority: "high"

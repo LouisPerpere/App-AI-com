@@ -2911,14 +2911,22 @@ async def facebook_oauth_callback(
         if code:
             print(f"✅ Authorization code received: {code[:10]}...")
             
-            # Extraire user_id du state (format: "random_state|user_id")
+            # Extraire user_id du state (format: "random_state|user_id" ou juste state)
             user_id = None
             if state and '|' in state:
                 _, user_id = state.split('|', 1)
                 print(f"🔍 Extracted user_id from state: {user_id}")
+            elif state:
+                # State sans user_id - essayer de récupérer depuis la session ou le token
+                print(f"🔍 State présent mais sans user_id: {state}")
+                # TODO: Récupérer user_id via autre moyen (session, JWT, etc.)
+                # Pour l'instant, utiliser un user_id par défaut ou générique
+                print("⚠️ Warning: Using fallback user_id extraction method")
+                # Retourner erreur pour forcer reconnexion avec state correct
+                return RedirectResponse(url=f"{frontend_url}?auth_warning=state_format_incorrect&retry=true")
             else:
-                print(f"❌ ERREUR: State invalide ou manquant: {state}")
-                return RedirectResponse(url=f"{frontend_url}?auth_error=invalid_state")
+                print(f"❌ ERREUR: State manquant complètement")
+                return RedirectResponse(url=f"{frontend_url}?auth_error=missing_state")
             
             # ÉCHANGE DU CODE CONTRE UN ACCESS TOKEN FACEBOOK
             try:
@@ -3130,14 +3138,22 @@ async def instagram_oauth_callback(
             print(f"✅ Authorization code received: {code[:10]}...")
             
             # ✅ CORRECTION TEMPORAIRE: Créer une connexion test pour voir si le problème vient du callback ou de l'échange token
-            # Extraire user_id du state (format: "random_state|user_id")
+            # Extraire user_id du state (format: "random_state|user_id" ou juste state)
             user_id = None
             if state and '|' in state:
                 _, user_id = state.split('|', 1)
                 print(f"🔍 Extracted user_id from state: {user_id}")
+            elif state:
+                # State sans user_id - essayer de récupérer depuis la session ou le token
+                print(f"🔍 State présent mais sans user_id: {state}")
+                # TODO: Récupérer user_id via autre moyen (session, JWT, etc.)
+                # Pour l'instant, utiliser un user_id par défaut ou générique
+                print("⚠️ Warning: Using fallback user_id extraction method")
+                # Retourner erreur pour forcer reconnexion avec state correct
+                return RedirectResponse(url=f"{frontend_url}?auth_warning=state_format_incorrect&retry=true")
             else:
-                print(f"❌ ERREUR: State invalide ou manquant: {state}")
-                return RedirectResponse(url=f"{frontend_url}?auth_error=invalid_state")
+                print(f"❌ ERREUR: State manquant complètement")
+                return RedirectResponse(url=f"{frontend_url}?auth_error=missing_state")
             
             # CRÉATION CONNEXION INSTAGRAM TEST DIRECTE
             dbm = get_database()

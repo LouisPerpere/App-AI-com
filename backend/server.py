@@ -4062,7 +4062,7 @@ async def debug_social_connections(user_id: str = Depends(get_current_user_id_ro
         db = dbm.db
         
         # Vérifier dans les deux collections
-        social_connections_old = list(db.social_media_connections.find({"user_id": user_id}))
+        social_connections_old = list(db.social_connections_old.find({"user_id": user_id}))
         social_media_connections = list(db.social_media_connections.find({"user_id": user_id}))
         
         return {
@@ -4074,7 +4074,10 @@ async def debug_social_connections(user_id: str = Depends(get_current_user_id_ro
                     "platform": conn.get("platform"),
                     "is_active": conn.get("is_active"),
                     "active": conn.get("active"),
-                    "connected_at": conn.get("connected_at")
+                    "access_token": conn.get("access_token", "")[:50] + "..." if conn.get("access_token") and len(conn.get("access_token", "")) > 50 else conn.get("access_token", ""),
+                    "page_name": conn.get("page_name"),
+                    "connected_at": conn.get("connected_at"),
+                    "created_at": conn.get("created_at")
                 } for conn in social_connections_old
             ],
             "social_media_connections": [
@@ -4082,7 +4085,10 @@ async def debug_social_connections(user_id: str = Depends(get_current_user_id_ro
                     "platform": conn.get("platform"),
                     "is_active": conn.get("is_active"),
                     "active": conn.get("active"),
-                    "connected_at": conn.get("connected_at")
+                    "access_token": conn.get("access_token", "")[:50] + "..." if conn.get("access_token") and len(conn.get("access_token", "")) > 50 else conn.get("access_token", ""),
+                    "page_name": conn.get("page_name"),
+                    "connected_at": conn.get("connected_at"),
+                    "created_at": conn.get("created_at")
                 } for conn in social_media_connections
             ]
         }

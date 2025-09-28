@@ -164,9 +164,9 @@ class BackendTester:
             return False
     
     def test_instagram_auth_url_state_format(self):
-        """Test 3: Test Instagram auth URL generation with new state format"""
+        """Test 3: Test Instagram OAuth URL with corrected state format"""
         try:
-            print("📷 Test 3: Instagram Auth URL State Format")
+            print("📷 Test 3: Instagram OAuth URL with State Correction")
             response = self.session.get(f"{BASE_URL}/social/instagram/auth-url", timeout=30)
             
             if response.status_code == 200:
@@ -174,7 +174,7 @@ class BackendTester:
                 auth_url = data.get("auth_url", "")
                 
                 if not auth_url:
-                    self.log_test("Instagram Auth URL State Format", False, 
+                    self.log_test("Instagram OAuth URL State Correction", False, 
                                 "No auth_url in response")
                     return False
                 
@@ -184,33 +184,33 @@ class BackendTester:
                 state_param = query_params.get('state', [None])[0]
                 
                 if not state_param:
-                    self.log_test("Instagram Auth URL State Format", False, 
+                    self.log_test("Instagram OAuth URL State Correction", False, 
                                 "No state parameter in URL")
                     return False
                 
-                # Check if state has the new format: {random}|{user_id}
+                # Check if state has the corrected format: {random}|{user_id}
                 if '|' in state_param:
                     random_part, user_id_part = state_param.split('|', 1)
                     if user_id_part == self.user_id and len(random_part) > 10:
-                        self.log_test("Instagram Auth URL State Format", True, 
-                                    f"Correct state format: {random_part[:8]}...{user_id_part}")
+                        self.log_test("Instagram OAuth URL State Correction", True, 
+                                    f"✅ Corrected state format verified: {random_part[:8]}...{user_id_part}")
                         return True
                     else:
-                        self.log_test("Instagram Auth URL State Format", False, 
+                        self.log_test("Instagram OAuth URL State Correction", False, 
                                     f"Invalid user_id in state: expected {self.user_id}, got {user_id_part}")
                         return False
                 else:
-                    self.log_test("Instagram Auth URL State Format", False, 
+                    self.log_test("Instagram OAuth URL State Correction", False, 
                                 f"State missing pipe separator: {state_param}")
                     return False
                     
             else:
-                self.log_test("Instagram Auth URL State Format", False, 
+                self.log_test("Instagram OAuth URL State Correction", False, 
                             f"Status: {response.status_code}", response.text[:200])
                 return False
                 
         except Exception as e:
-            self.log_test("Instagram Auth URL State Format", False, error=str(e))
+            self.log_test("Instagram OAuth URL State Correction", False, error=str(e))
             return False
     
     def test_facebook_callback_state_validation(self):

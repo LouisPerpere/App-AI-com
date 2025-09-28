@@ -4043,6 +4043,31 @@ async def clean_library_badges(user_id: str = Depends(get_current_user_id_robust
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur nettoyage badges: {str(e)}")
 
+@api_router.post("/debug/force-real-facebook-oauth")
+async def force_real_facebook_oauth(user_id: str = Depends(get_current_user_id_robust)):
+    """Forcer une vraie reconnexion Facebook OAuth"""
+    try:
+        dbm = get_database()
+        db = dbm.db
+        
+        # Supprimer toutes les connexions Facebook existantes (temp + invalides)
+        result = db.social_media_connections.delete_many({
+            "user_id": user_id,
+            "platform": "facebook"
+        })
+        
+        print(f"🧹 Supprimé {result.deleted_count} connexions Facebook pour forcer reconnexion")
+        
+        return {
+            "success": True,
+            "message": f"Supprimé {result.deleted_count} connexions Facebook. Reconnectez maintenant pour obtenir un vrai token.",
+            "deleted_count": result.deleted_count,
+            "next_step": "Cliquez sur 'Connecter' Facebook pour obtenir un vrai token OAuth"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
 @api_router.post("/debug/clean-invalid-tokens")
 async def clean_invalid_social_tokens(user_id: str = Depends(get_current_user_id_robust)):
     """Supprimer les connexions avec tokens invalides"""

@@ -872,10 +872,10 @@ backend:
 
 test_plan:
   current_focus:
-    - "Cleanup Invalid Tokens and Orphaned Badges - Complete Testing - COMPLETED"
-    - "Instagram Integration - Page Liée ClaireEtMarcus Testing - COMPLETED"
-    - "Website Analysis Auto-Loading Upon Login - COMPLETED"
-  stuck_tasks: []
+    - "Facebook Image Publication Diagnostic - Image Accessibility Issue"
+    - "OAuth Callback Persistence Diagnostic - Facebook/Instagram Connection Issues"
+  stuck_tasks: 
+    - "OAuth Callback Persistence Diagnostic - Facebook/Instagram Connection Issues"
   test_all: false
   test_priority: "high_first"
 

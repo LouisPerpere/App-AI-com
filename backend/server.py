@@ -2879,198 +2879,167 @@ async def test_instagram_callback():
 async def facebook_oauth_callback(
     request: Request,
     code: str = None,
-    access_token: str = None,
     state: str = None,
     error: str = None,
-    error_description: str = None,
-    expires_in: str = None
+    error_description: str = None
 ):
-    """Traiter le callback Facebook OAuth pour pages Facebook"""
+    """NOUVEAU CALLBACK FACEBOOK PROPRE - AUCUN FALLBACK, AUCUNE SIMULATION"""
+    frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
+    
+    print(f"🔄 Facebook OAuth callback - APPROCHE PROPRE")
+    print(f"   Code: {'✅ Present' if code else '❌ Missing'}")
+    print(f"   State: {state}")
+    print(f"   Error: {error}")
+    
+    # Vérifier les erreurs OAuth - redirection immédiate sans créer de connexion
+    if error:
+        print(f"❌ Facebook OAuth error: {error} - {error_description}")
+        return RedirectResponse(url=f"{frontend_url}?auth_error=facebook_oauth_error", status_code=302)
+    
+    # Pas de code = pas de connexion possible
+    if not code:
+        print(f"❌ No authorization code - Facebook OAuth failed")
+        return RedirectResponse(url=f"{frontend_url}?auth_error=facebook_no_code", status_code=302)
+    
+    # Pas de state = pas de connexion possible
+    if not state or '|' not in state:
+        print(f"❌ Invalid state format - Facebook OAuth failed")
+        return RedirectResponse(url=f"{frontend_url}?auth_error=facebook_invalid_state", status_code=302)
+    
+    # Extraire user_id du state
     try:
-        # Définir les variables nécessaires au début
-        frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-        dbm = get_database()
+        _, user_id = state.split('|', 1)
+        print(f"🔍 User ID extracted: {user_id}")
+    except:
+        print(f"❌ Failed to extract user_id from state")
+        return RedirectResponse(url=f"{frontend_url}?auth_error=facebook_state_parse_error", status_code=302)
+    
+    # ÉCHANGE OAUTH PROPRE - SI ÇA ÉCHOUE, ON ÉCHOUE (PAS DE FALLBACK)
+    try:
+        facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
+        facebook_app_secret = os.environ.get('FACEBOOK_APP_SECRET')
+        redirect_uri = os.environ.get('FACEBOOK_REDIRECT_URI', 'https://claire-marcus.com/api/social/facebook/callback')
         
-        print(f"🔄 Facebook OAuth callback received")
-        print(f"   Code: {'✅ Present (' + code[:20] + '...)' if code else '❌ Missing'}")
-        print(f"   Access token: {'✅ Present' if access_token else '❌ Missing'}")
-        print(f"   State: {state}")
-        print(f"   Error: {error}")
-        print(f"   Full request URL: {request.url}")
-        print(f"   Query params: {dict(request.query_params)}")
+        if not facebook_app_id or not facebook_app_secret:
+            raise Exception("Facebook App ID ou Secret manquant")
         
-        # Vérifier les erreurs OAuth
-        if error:
-            error_msg = f"Facebook OAuth error: {error}"
-            if error_description:
-                error_msg += f" - {error_description}"
-            print(f"❌ {error_msg}")
-            
-            # Rediriger vers le frontend avec l'erreur
-            frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-            error_redirect = f"{frontend_url}?auth_error=facebook_oauth_failed&error_detail={error}"
-            return RedirectResponse(url=error_redirect, status_code=302)
+        print(f"🔄 Token exchange - App ID: {facebook_app_id}")
         
-        # Facebook OAuth envoie un code d'autorisation
-        if code:
-            print(f"✅ Authorization code received: {code[:10]}...")
-            
-            # Extraire user_id du state (format: "random_state|user_id" ou juste state)
-            user_id = None
-            if state and '|' in state:
-                _, user_id = state.split('|', 1)
-                print(f"🔍 Extracted user_id from state: {user_id}")
-            elif state:
-                # State sans user_id - essayer de récupérer depuis la session ou le token
-                print(f"🔍 State présent mais sans user_id: {state}")
-                # TODO: Récupérer user_id via autre moyen (session, JWT, etc.)
-                # Pour l'instant, utiliser un user_id par défaut ou générique
-                print("⚠️ Warning: Using fallback user_id extraction method")
-                # Retourner erreur pour forcer reconnexion avec state correct
-                return RedirectResponse(url=f"{frontend_url}?auth_warning=state_format_incorrect&retry=true")
-            else:
-                print(f"❌ ERREUR: State manquant complètement")
-                return RedirectResponse(url=f"{frontend_url}?auth_error=missing_state")
-            
-            # ÉCHANGE DU CODE CONTRE UN ACCESS TOKEN FACEBOOK
-            try:
-                    facebook_app_id = os.environ.get('FACEBOOK_APP_ID')  # DOIT correspondre à l'URL d'auth frontend
-                    facebook_app_secret = os.environ.get('FACEBOOK_APP_SECRET')
-                    redirect_uri = os.environ.get('FACEBOOK_REDIRECT_URI', 'https://claire-marcus.com/api/social/facebook/callback')
+        # Échange du code contre access token
+        token_url = "https://graph.facebook.com/v21.0/oauth/access_token"
+        token_params = {
+            'client_id': facebook_app_id,
+            'client_secret': facebook_app_secret,
+            'redirect_uri': redirect_uri,
+            'code': code
+        }
+        
+        import aiohttp
+        async with aiohttp.ClientSession() as session:
+            async with session.post(token_url, data=token_params) as token_response:
+                if token_response.status != 200:
+                    error_text = await token_response.text()
+                    raise Exception(f"Token exchange failed: {token_response.status} - {error_text}")
+                
+                token_data = await token_response.json()
+                user_access_token = token_data.get('access_token')
+                
+                if not user_access_token:
+                    raise Exception("No access token in Facebook response")
+                
+                print(f"✅ User token obtained: {user_access_token[:20]}...")
+                
+                # Récupérer les pages Facebook
+                pages_url = f"https://graph.facebook.com/v21.0/me/accounts"
+                pages_params = {
+                    'access_token': user_access_token,
+                    'fields': 'id,name,access_token,category,instagram_business_account'
+                }
+                
+                async with session.get(pages_url, params=pages_params) as pages_response:
+                    if pages_response.status != 200:
+                        error_text = await pages_response.text()
+                        raise Exception(f"Pages fetch failed: {pages_response.status} - {error_text}")
                     
-                    print(f"🔧 OAuth Config:")
-                    print(f"   App ID: {facebook_app_id}")
-                    print(f"   Redirect URI: {redirect_uri}")
-                    print(f"   Code: {code[:20]}...")
+                    pages_data = await pages_response.json()
+                    pages = pages_data.get('data', [])
                     
-                    if not facebook_app_id or not facebook_app_secret:
-                        raise Exception("FACEBOOK_CONFIG_ID ou FACEBOOK_APP_SECRET manquant")
+                    if not pages:
+                        raise Exception("Aucune page Facebook trouvée")
                     
-                    # Échange du code contre un access token - Format correct
-                    token_url = "https://graph.facebook.com/v21.0/oauth/access_token"
-                    token_params = {
-                        'client_id': facebook_app_id,
-                        'client_secret': facebook_app_secret,
-                        'redirect_uri': redirect_uri,
-                        'code': code
+                    # Utiliser la première page avec son PAGE TOKEN
+                    page = pages[0]
+                    page_access_token = page.get('access_token')
+                    page_name = page.get('name', 'Page Facebook')
+                    page_id = page.get('id')
+                    
+                    if not page_access_token:
+                        raise Exception("Page access token manquant")
+                    
+                    print(f"✅ Page found: {page_name} - Token: {page_access_token[:20]}...")
+                    
+                    # SAUVEGARDER LA CONNEXION RÉELLE
+                    dbm = get_database()
+                    facebook_connection = {
+                        "connection_id": str(uuid.uuid4()),
+                        "id": str(uuid.uuid4()),
+                        "user_id": user_id,
+                        "platform": "facebook", 
+                        "username": page_name,
+                        "access_token": page_access_token,  # VRAI PAGE TOKEN
+                        "page_name": page_name,
+                        "page_id": page_id,
+                        "connected_at": datetime.now(timezone.utc),
+                        "active": True,
+                        "token_type": "page_token",
+                        "expires_at": datetime.now(timezone.utc) + timedelta(days=60)
                     }
                     
-                    print(f"🔄 Exchanging code for access token...")
-                    print(f"   URL: {token_url}")
-                    print(f"   Params: {token_params}")
+                    # Remplacer toute connexion existante
+                    dbm.social_media_connections.delete_many({
+                        "user_id": user_id,
+                        "platform": "facebook"
+                    })
                     
-                    import aiohttp
-                    async with aiohttp.ClientSession() as session:
-                        async with session.post(token_url, data=token_params) as token_response:
-                            if token_response.status == 200:
-                                token_data = await token_response.json()
-                                user_access_token = token_data.get('access_token')
-                                expires_in = token_data.get('expires_in', 3600)
-                                
-                                if not user_access_token:
-                                    raise Exception("User access token non reçu de Facebook")
-                                
-                                print(f"✅ User access token reçu: {user_access_token[:20]}...")
-                                
-                                # CRITIQUE: Obtenir le PAGE ACCESS TOKEN (pas user token)
-                                pages_url = f"https://graph.facebook.com/v21.0/me/accounts"
-                                pages_params = {
-                                    'access_token': user_access_token,
-                                    'fields': 'id,name,access_token,category,instagram_business_account'
-                                }
-                                
-                                print(f"🔄 Fetching Facebook pages with user token...")
-                                async with session.get(pages_url, params=pages_params) as pages_response:
-                                    if pages_response.status == 200:
-                                        pages_data = await pages_response.json()
-                                        pages = pages_data.get('data', [])
-                                        
-                                        print(f"📄 Found {len(pages)} pages")
-                                        for i, page in enumerate(pages):
-                                            print(f"   Page {i+1}: {page.get('name')} (ID: {page.get('id')})")
-                                        
-                                        if pages:
-                                            # Utiliser la première page trouvée avec son PAGE TOKEN
-                                            page = pages[0]
-                                            page_access_token = page.get('access_token')  # CRITIQUE: Page token
-                                            page_name = page.get('name', 'Page Facebook')
-                                            page_id = page.get('id')
-                                            
-                                            if not page_access_token:
-                                                raise Exception("Page access token manquant dans la réponse")
-                                            
-                                            print(f"✅ Page Facebook trouvée: {page_name} (ID: {page_id})")
-                                            print(f"✅ Page access token obtenu: {page_access_token[:20]}...")
-                                        else:
-                                            raise Exception("Aucune page Facebook trouvée pour cet utilisateur")
-                                    else:
-                                        error_text = await pages_response.text()
-                                        raise Exception(f"Erreur récupération pages Facebook: {pages_response.status} - {error_text}")
-                                
-                                # CRÉATION CONNEXION FACEBOOK avec PAGE TOKEN (critique)
-                                facebook_connection = {
-                                    "connection_id": str(uuid.uuid4()),
-                                    "user_id": user_id,
-                                    "platform": "facebook",
-                                    "username": page_name,
-                                    "access_token": page_access_token,  # PAGE TOKEN (pas user token)
-                                    "page_name": page_name,
-                                    "page_id": page_id,
-                                    "connected_at": datetime.now(timezone.utc),
-                                    "active": True,
-                                    "token_type": "page_token",  # Marquer le type de token
-                                    "expires_at": datetime.now(timezone.utc) + timedelta(days=60),  # Page tokens longue durée
-                                    "user_access_token": user_access_token[:50] + "..." if user_access_token else None  # Garder trace
-                                }
-                                
-                                # SAUVEGARDER LA CONNEXION FACEBOOK (MANQUAIT !)
-                                # Corriger le champ active
-                                facebook_connection["id"] = facebook_connection["connection_id"]  # Ajouter un champ id
-                                
-                                # Sauvegarder ou mettre à jour la connexion Facebook existante dans la bonne collection
-                                existing_connection = dbm.social_media_connections.find_one({
-                                    "user_id": user_id,
-                                    "platform": "facebook"
-                                })
-                                
-                                if existing_connection:
-                                    result = dbm.social_media_connections.update_one(
-                                        {"user_id": user_id, "platform": "facebook"},
-                                        {"$set": facebook_connection}
-                                    )
-                                    print(f"✅ Updated Facebook connection for user {user_id} in social_media_connections")
-                                else:
-                                    result = dbm.social_media_connections.insert_one(facebook_connection)
-                                    print(f"✅ Created Facebook connection for user {user_id} in social_media_connections")
-                                
-                                # Redirection de succès  
-                                success_redirect = f"{frontend_url}?auth_success=facebook_connected&page_name={page_name}&state={state}"
-                                print(f"✅ Facebook OAuth successful and saved, redirecting to: {success_redirect}")
-                                return RedirectResponse(url=success_redirect, status_code=302)
-                            else:
-                                error_text = await token_response.text()
-                                raise Exception(f"Erreur échange token Facebook: {token_response.status} - {error_text}")
-                
-            except Exception as oauth_error:
-                print(f"❌ Erreur OAuth Facebook: {str(oauth_error)}")
-                print(f"❌ OAuth exchange failed - not creating invalid connection")
-                
-                # Ne PAS créer de connexion avec token invalide
-                error_redirect = f"{frontend_url}?auth_error=facebook_oauth_failed&error={str(oauth_error)}"
-                print(f"🔄 Redirecting to error page: {error_redirect}")
-                return RedirectResponse(url=error_redirect)
+                    dbm.social_media_connections.insert_one(facebook_connection)
+                    print(f"✅ Facebook connection saved with REAL page token")
+                    
+                    # Traiter Instagram si disponible
+                    if page.get('instagram_business_account'):
+                        ig_account = page['instagram_business_account']
+                        instagram_connection = {
+                            "connection_id": str(uuid.uuid4()),
+                            "id": str(uuid.uuid4()),
+                            "user_id": user_id,
+                            "platform": "instagram",
+                            "username": ig_account.get('username', 'Instagram'),
+                            "access_token": page_access_token,  # Même token que la page Facebook
+                            "instagram_user_id": ig_account['id'],
+                            "page_id": page_id,
+                            "connected_at": datetime.now(timezone.utc),
+                            "active": True,
+                            "token_type": "page_token",
+                            "expires_at": datetime.now(timezone.utc) + timedelta(days=60)
+                        }
+                        
+                        # Remplacer toute connexion Instagram existante
+                        dbm.social_media_connections.delete_many({
+                            "user_id": user_id,
+                            "platform": "instagram"
+                        })
+                        
+                        dbm.social_media_connections.insert_one(instagram_connection)
+                        print(f"✅ Instagram connection also saved")
+                    
+                    # Succès - redirection avec vraie connexion
+                    success_redirect = f"{frontend_url}?auth_success=facebook_connected&page_name={page_name}"
+                    print(f"✅ Real Facebook OAuth successful - redirecting to: {success_redirect}")
+                    return RedirectResponse(url=success_redirect, status_code=302)
         
-        # Aucun code reçu - redirection simple vers le frontend (ancien comportement)
-        frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-        success_redirect = f"{frontend_url}?auth_success=facebook_connected"
-        
-        print(f"✅ Facebook callback processed, redirecting to: {success_redirect}")
-        return RedirectResponse(url=success_redirect, status_code=302)
-        
-    except Exception as e:
-        print(f"❌ Error in Facebook callback: {str(e)}")
-        frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
-        error_redirect = f"{frontend_url}?auth_error=facebook_callback_error"
+    except Exception as oauth_error:
+        print(f"❌ Facebook OAuth failed: {str(oauth_error)}")
+        # AUCUN FALLBACK - Si OAuth échoue, on échoue proprement
+        error_redirect = f"{frontend_url}?auth_error=facebook_oauth_failed&detail={str(oauth_error)}"
         return RedirectResponse(url=error_redirect, status_code=302)
 
 @api_router.get("/social/instagram/callback")

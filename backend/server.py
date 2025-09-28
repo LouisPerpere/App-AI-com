@@ -3814,38 +3814,26 @@ async def publish_post_to_social_media(
         print(f"📝 Content: {content[:100]}...")
         print(f"🖼️ Image URL: {image_url}")
         
-        # Publier sur Facebook (simulation pour éviter erreurs tokens temporaires)
+        # Publier sur Facebook (vraie publication)
         if target_platform == "facebook" and SOCIAL_MEDIA_AVAILABLE:
             try:
-                # Vérifier si le token est temporaire
                 access_token = target_connection.get("access_token", "")
-                is_temp_token = access_token.startswith("temp_facebook_token_")
+                page_id = target_connection.get("page_id")
                 
-                if is_temp_token:
-                    # Simulation pour tokens temporaires
-                    print(f"📘 Publishing to Facebook (simulated - temp token): {content[:100]}...")
-                    
-                    simulated_result = {
-                        "id": f"facebook_sim_{int(time.time())}",
-                        "status": "published",
-                        "message": content
-                    }
-                    
-                    print(f"✅ Successfully published to Facebook (simulated): {simulated_result}")
-                    
-                else:
-                    # Vraie publication pour tokens valides
-                    fb_client = FacebookAPIClient(access_token)
-                    
-                    result = await fb_client.post_to_page(
-                        target_connection["page_id"],
-                        access_token,
-                        content,
-                        image_url
-                    )
-                    
-                    print(f"✅ Successfully published to Facebook: {result}")
-                    simulated_result = result
+                print(f"📘 Publishing to Facebook: {content[:100]}...")
+                print(f"   Page ID: {page_id}")
+                print(f"   Token: {access_token[:20]}..." if access_token else "No token")
+                
+                fb_client = FacebookAPIClient(access_token)
+                
+                result = await fb_client.post_to_page(
+                    page_id,
+                    access_token,
+                    content,
+                    image_url
+                )
+                
+                print(f"✅ Successfully published to Facebook: {result}")
                 
                 # Marquer le post comme publié
                 update_result = db.generated_posts.update_one(

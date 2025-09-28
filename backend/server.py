@@ -3007,18 +3007,20 @@ async def facebook_oauth_callback(
                                         error_text = await pages_response.text()
                                         raise Exception(f"Erreur récupération pages Facebook: {pages_response.status} - {error_text}")
                                 
-                                # CRÉATION CONNEXION FACEBOOK avec vrai token
+                                # CRÉATION CONNEXION FACEBOOK avec PAGE TOKEN (critique)
                                 facebook_connection = {
                                     "connection_id": str(uuid.uuid4()),
                                     "user_id": user_id,
                                     "platform": "facebook",
                                     "username": page_name,
-                                    "access_token": page_access_token,
+                                    "access_token": page_access_token,  # PAGE TOKEN (pas user token)
                                     "page_name": page_name,
                                     "page_id": page_id,
                                     "connected_at": datetime.now(timezone.utc),
-                                    "active": True,  # Utiliser "active" pour cohérence
-                                    "expires_at": datetime.now(timezone.utc) + timedelta(seconds=expires_in)
+                                    "active": True,
+                                    "token_type": "page_token",  # Marquer le type de token
+                                    "expires_at": datetime.now(timezone.utc) + timedelta(days=60),  # Page tokens longue durée
+                                    "user_access_token": user_access_token[:50] + "..." if user_access_token else None  # Garder trace
                                 }
                                 
                                 # SAUVEGARDER LA CONNEXION FACEBOOK (MANQUAIT !)

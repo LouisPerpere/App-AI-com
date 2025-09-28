@@ -4036,6 +4036,38 @@ async def clean_library_badges(user_id: str = Depends(get_current_user_id_robust
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur nettoyage badges: {str(e)}")
 
+@api_router.post("/debug/clean-fake-tokens")
+async def clean_fake_facebook_tokens(user_id: str = Depends(get_current_user_id_robust)):
+    """Supprimer TOUS les faux tokens Facebook temporaires"""
+    try:
+        dbm = get_database()
+        db = dbm.db
+        
+        # Supprimer toutes les connexions avec faux tokens
+        fake_token_patterns = [
+            {"access_token": {"$regex": "^temp_facebook_token_"}},
+            {"access_token": {"$regex": "^temp_"}},
+            {"access_token": {"$in": [None, "", "test_token_facebook_fallback", "test_token_from_callback"]}},
+            {"access_token": {"$exists": False}}
+        ]
+        
+        deleted_count = 0
+        for pattern in fake_token_patterns:
+            pattern["user_id"] = user_id
+            result = db.social_media_connections.delete_many(pattern)
+            deleted_count += result.deleted_count
+            print(f"🧹 Supprimé {result.deleted_count} connexions avec pattern: {pattern}")
+        
+        return {
+            "success": True,
+            "message": f"Supprimé {deleted_count} connexions avec faux tokens",
+            "deleted_count": deleted_count,
+            "next_step": "Maintenant reconnectez Facebook pour obtenir un vrai token OAuth"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur nettoyage: {str(e)}")
+
 @api_router.post("/debug/force-real-facebook-oauth")
 async def force_real_facebook_oauth(user_id: str = Depends(get_current_user_id_robust)):
     """Forcer une vraie reconnexion Facebook OAuth"""

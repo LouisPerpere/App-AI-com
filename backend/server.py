@@ -3316,6 +3316,13 @@ async def publish_instagram_simple(
         instagram_user_id = connection.get("instagram_user_id")
         username = connection.get("username", "Instagram")
         
+        if not instagram_user_id:
+            return {
+                "success": False,
+                "error": "Instagram User ID manquant",
+                "message": "Reconnectez Instagram pour obtenir l'ID utilisateur"
+            }
+        
         print(f"📷 Publishing to Instagram: @{username}")
         print(f"   Content: {text[:50]}...")
         print(f"   Image: {image_url}")

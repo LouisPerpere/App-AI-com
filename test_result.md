@@ -761,6 +761,7 @@ backend:
 
 test_plan:
   current_focus:
+    - "Cleanup Invalid Tokens and Orphaned Badges - Complete Testing - COMPLETED"
     - "Instagram Integration - Page Liée ClaireEtMarcus Testing - COMPLETED"
     - "Website Analysis Auto-Loading Upon Login - COMPLETED"
   stuck_tasks: []

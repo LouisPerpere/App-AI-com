@@ -2636,9 +2636,10 @@ async def get_facebook_auth_url(user_id: str = Depends(get_current_user_id_robus
         
         redirect_uri = os.environ.get('FACEBOOK_REDIRECT_URI', 'https://claire-marcus.com/api/social/facebook/callback')
         
-        # Générer un état sécurisé pour CSRF protection
+        # Générer un état sécurisé AVEC user_id pour le callback
         import secrets
-        state = secrets.token_urlsafe(32)
+        random_token = secrets.token_urlsafe(16)
+        state = f"{random_token}|{user_id}"  # Format attendu par le callback
         
         # Scopes Facebook pour pages uniquement
         scopes = "pages_show_list,pages_read_engagement,pages_manage_posts"

@@ -2822,7 +2822,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "OAuth Callback Persistence Diagnostic - Facebook/Instagram Connection Issues"
+    - "Post Generation Logic - Collection Mismatch Bug"
   stuck_tasks: 
     - "OAuth Callback Persistence Diagnostic - Facebook/Instagram Connection Issues"
     - "Instagram to Facebook Post Conversion - LIVE Environment"

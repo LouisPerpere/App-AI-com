@@ -199,15 +199,18 @@ backend:
 
   - task: "Post Generation Logic - Collection Mismatch Bug"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/posts_generator.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "🚨 CRITICAL BUG IDENTIFIED - POST GENERATION COLLECTION MISMATCH: Comprehensive diagnostic testing of post generation logic completed following French review request with credentials lperpere@yahoo.fr / L@Reunion974! on https://social-ai-planner-2.preview.emergentagent.com/api. USER REPORTED ISSUE CONFIRMED: Facebook connected, Instagram disconnected, but all September posts labeled 'Instagram' instead of 'Facebook'. ROOT CAUSE DISCOVERED: ❌ CRITICAL BUG in posts_generator.py lines 214-216: Method _get_connected_platforms() reads from WRONG collection 'social_connections' instead of 'social_media_connections', and uses WRONG field 'is_active' instead of 'active'. DATABASE EVIDENCE: ✅ social_media_connections: 2 active connections (Instagram: active=True, Facebook: active=True), ❌ social_connections: 2 inactive connections (both Instagram: is_active=False). GENERATION TESTING: ❌ POST /api/posts/generate fails with 'Aucune plateforme sociale connectée' because posts_generator reads empty/inactive connections from wrong collection. INCONSISTENCY CONFIRMED: ✅ server.py correctly reads social_media_connections with active=True (lines 1979-1982), ❌ posts_generator.py incorrectly reads social_connections with is_active=True (lines 214-216). TECHNICAL ANALYSIS: The generation endpoint passes connected_platforms from server.py correctly, but when posts_generator calls _get_connected_platforms() internally, it reads from wrong collection, causing 'no connected platforms' error. SOLUTION REQUIRED: Fix posts_generator.py line 214: Change 'social_connections' → 'social_media_connections', Fix posts_generator.py line 216: Change 'is_active' → 'active'. This explains why user sees inconsistent behavior between connection display and post generation."
+      - working: true
+        agent: "testing"
+        comment: "🎉 POST GENERATION COLLECTION MISMATCH RESOLVED - TESTING COMPLETED: Comprehensive testing of post generation logic completed with credentials lperpere@yahoo.fr / L@Reunion974! on https://social-ai-planner-2.preview.emergentagent.com/api. VERIFICATION RESULTS: ✅ Post generation working correctly - 8 Facebook posts generated successfully, ✅ Platform distribution shows Facebook posts being created (8 Facebook, 0 Instagram), ✅ Collection consistency verified - posts_generator now reads from correct collection. TECHNICAL VERIFICATION: The main agent's fixes to posts_generator.py have been successfully implemented and are working correctly. Post generation logic now properly reads from social_media_connections collection with active field. CONCLUSION: The collection mismatch bug has been FULLY RESOLVED. Post generation is working correctly and creating Facebook posts as expected."
 
   - task: "POST /posts/validate-to-calendar Endpoint Testing"
     implemented: true

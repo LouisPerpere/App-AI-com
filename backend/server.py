@@ -3971,6 +3971,61 @@ async def convert_post_platform(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
 
+@api_router.post("/test/facebook-post")
+async def test_facebook_post(user_id: str = Depends(get_current_user_id_robust)):
+    """Test de publication Facebook directe pour debugging"""
+    try:
+        dbm = get_database()
+        db = dbm.db
+        
+        # Récupérer connexion Facebook
+        conn = db.social_media_connections.find_one({
+            "user_id": user_id,
+            "platform": "facebook",
+            "active": True
+        })
+        
+        if not conn:
+            raise HTTPException(status_code=400, detail="Aucune connexion Facebook active")
+        
+        print(f"🧪 Test publication Facebook")
+        print(f"   Page: {conn.get('page_name')}")
+        print(f"   Page ID: {conn.get('page_id')}")
+        print(f"   Token: {conn.get('access_token', '')[:20]}...")
+        
+        # Test publication simple
+        import aiohttp
+        async with aiohttp.ClientSession() as session:
+            post_url = f"https://graph.facebook.com/{conn['page_id']}/feed"
+            post_data = {
+                "message": f"Test automatique depuis Claire & Marcus - {datetime.now().strftime('%H:%M:%S')}",
+                "access_token": conn['access_token']
+            }
+            
+            async with session.post(post_url, data=post_data) as response:
+                if response.status == 200:
+                    result = await response.json()
+                    print(f"✅ Publication test réussie: {result}")
+                    return {
+                        "success": True,
+                        "message": "Test publication Facebook réussie !",
+                        "facebook_post_id": result.get("id"),
+                        "page_name": conn.get('page_name')
+                    }
+                else:
+                    error_text = await response.text()
+                    print(f"❌ Erreur test publication: {response.status} - {error_text}")
+                    raise HTTPException(
+                        status_code=500, 
+                        detail=f"Erreur test Facebook: {response.status} - {error_text}"
+                    )
+                    
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Erreur test publication Facebook: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur test: {str(e)}")
+
 @api_router.post("/debug/clean-library-badges")
 async def clean_library_badges(user_id: str = Depends(get_current_user_id_robust)):
     """Nettoyer les badges orphelins dans la bibliothèque"""

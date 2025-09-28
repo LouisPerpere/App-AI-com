@@ -222,21 +222,24 @@ class BackendTester:
             if response.status_code == 200:
                 data = response.json()
                 
-                # Check for simplified response format
-                expected_fields = ["facebook", "instagram"]
+                # Check for actual simplified response format from implementation
+                expected_fields = ["facebook_connected", "instagram_connected", "total_connections"]
                 has_all_fields = all(field in data for field in expected_fields)
                 
                 if has_all_fields:
-                    facebook_status = data.get("facebook", {})
-                    instagram_status = data.get("instagram", {})
+                    facebook_connected = data.get("facebook_connected", False)
+                    instagram_connected = data.get("instagram_connected", False)
+                    total_connections = data.get("total_connections", 0)
                     
-                    # Verify simple format structure
-                    facebook_connected = facebook_status.get("connected", False)
-                    instagram_connected = instagram_status.get("connected", False)
-                    
-                    self.log_test("Simplified Status Endpoint", True, 
-                                f"✅ Simple format verified - Facebook: {facebook_connected}, Instagram: {instagram_connected}")
-                    return True
+                    # Should be 0 connections since database is clean
+                    if total_connections == 0 and not facebook_connected and not instagram_connected:
+                        self.log_test("Simplified Status Endpoint", True, 
+                                    f"✅ Simple format verified - Facebook: {facebook_connected}, Instagram: {instagram_connected}, Total: {total_connections}")
+                        return True
+                    else:
+                        self.log_test("Simplified Status Endpoint", False, 
+                                    f"Unexpected connection state - Facebook: {facebook_connected}, Instagram: {instagram_connected}, Total: {total_connections}")
+                        return False
                 else:
                     self.log_test("Simplified Status Endpoint", False, 
                                 f"Missing expected fields. Got: {list(data.keys())}")

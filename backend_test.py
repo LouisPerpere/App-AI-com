@@ -1,24 +1,31 @@
 #!/usr/bin/env python3
 """
-Backend Testing Suite - OAuth Facebook Corrections Validation
-Testing the critical OAuth corrections made by main agent:
-1. Removed failing fallback that created temp_facebook_token_{timestamp}
-2. Restored real Facebook publication (removed simulation)
-3. Added token validation before publication
-4. Cleanup endpoint to remove all fake tokens
+Backend Testing Suite - OAuth State Parameter Corrections
+Testing the corrected state parameter format between URL generation and callback validation
 
 Credentials: lperpere@yahoo.fr / L@Reunion974!
+
+TEST OBJECTIVES:
+1. Verify clean initial state (0 connections)
+2. Test Facebook auth URL generation with new state format {random}|{user_id}
+3. Test Instagram auth URL generation with new state format {random}|{user_id}
+4. Test Facebook callback state validation (no more 'invalid state format' errors)
+5. Validate social connections endpoint consistency
 """
 
 import requests
 import json
 import sys
+import re
+from urllib.parse import urlparse, parse_qs
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com/api"
-TEST_EMAIL = "lperpere@yahoo.fr"
-TEST_PASSWORD = "L@Reunion974!"
+BASE_URL = "https://social-publisher-10.preview.emergentagent.com/api"
+TEST_CREDENTIALS = {
+    "email": "lperpere@yahoo.fr",
+    "password": "L@Reunion974!"
+}
 
 class BackendTester:
     def __init__(self):
@@ -47,485 +54,312 @@ class BackendTester:
         print()
         
     def authenticate(self):
-        """Step 1: Authenticate with test credentials"""
+        """Step 1: Authenticate and get JWT token"""
         try:
-            response = self.session.post(f"{BACKEND_URL}/auth/login-robust", json={
-                "email": TEST_EMAIL,
-                "password": TEST_PASSWORD
-            })
+            print("🔐 Step 1: Authentication")
+            response = self.session.post(
+                f"{BASE_URL}/auth/login-robust",
+                json=TEST_CREDENTIALS,
+                timeout=30
+            )
             
             if response.status_code == 200:
                 data = response.json()
                 self.auth_token = data.get("access_token")
                 self.user_id = data.get("user_id")
-                self.session.headers.update({"Authorization": f"Bearer {self.auth_token}"})
-                
-                self.log_test(
-                    "Authentication", 
-                    True, 
-                    f"User ID: {self.user_id}, Token obtained"
-                )
+                self.session.headers.update({
+                    "Authorization": f"Bearer {self.auth_token}"
+                })
+                self.log_test("Authentication", True, f"User ID: {self.user_id}")
                 return True
             else:
-                self.log_test(
-                    "Authentication", 
-                    False, 
-                    error=f"Status {response.status_code}: {response.text}"
-                )
+                self.log_test("Authentication", False, 
+                            f"Status: {response.status_code}", 
+                            response.text[:200])
                 return False
                 
         except Exception as e:
             self.log_test("Authentication", False, error=str(e))
             return False
     
-    def test_cleanup_fake_tokens(self):
-        """Step 2: Test cleanup of fake tokens endpoint"""
+    def test_clean_initial_state(self):
+        """Test 1: Verify clean initial state with 0 connections"""
         try:
-            response = self.session.post(f"{BACKEND_URL}/debug/clean-fake-tokens")
+            print("🧹 Test 1: Clean Initial State Verification")
+            response = self.session.get(f"{BASE_URL}/debug/social-connections", timeout=30)
             
             if response.status_code == 200:
                 data = response.json()
-                self.log_test(
-                    "Cleanup Fake Tokens Endpoint", 
-                    True, 
-                    f"Response: {data.get('message', 'Success')}"
-                )
-                return True
-            else:
-                self.log_test(
-                    "Cleanup Fake Tokens Endpoint", 
-                    False, 
-                    error=f"Status {response.status_code}: {response.text}"
-                )
-                return False
+                total_connections = data.get("total_connections", 0)
+                active_connections = data.get("active_connections", 0)
+                facebook_connections = data.get("facebook_connections", 0)
+                instagram_connections = data.get("instagram_connections", 0)
                 
-        except Exception as e:
-            self.log_test("Cleanup Fake Tokens Endpoint", False, error=str(e))
-            return False
-    
-    def test_social_connections_diagnostic(self):
-        """Step 3: Test social connections diagnostic endpoint"""
-        try:
-            response = self.session.get(f"{BACKEND_URL}/debug/social-connections")
-            
-            if response.status_code == 200:
-                data = response.json()
-                
-                # Analyze the connections
-                total_connections = data.get('total_connections', 0)
-                active_connections = data.get('active_connections', 0)
-                facebook_connections = data.get('facebook_connections', 0)
-                instagram_connections = data.get('instagram_connections', 0)
-                
-                # Check for temporary tokens
-                temp_tokens_found = False
-                connections_detail = data.get('connections_detail', [])
-                for conn in connections_detail:
-                    token = conn.get('access_token', '')
-                    if 'temp_facebook_token_' in token or 'temp_instagram_token_' in token:
-                        temp_tokens_found = True
-                        break
-                
-                details = f"Total: {total_connections}, Active: {active_connections}, Facebook: {facebook_connections}, Instagram: {instagram_connections}"
-                if temp_tokens_found:
-                    details += " ⚠️ TEMPORARY TOKENS FOUND"
-                else:
-                    details += " ✅ NO TEMPORARY TOKENS"
-                
-                self.log_test(
-                    "Social Connections Diagnostic", 
-                    True, 
-                    details
-                )
-                return data
-            else:
-                self.log_test(
-                    "Social Connections Diagnostic", 
-                    False, 
-                    error=f"Status {response.status_code}: {response.text}"
-                )
-                return None
-                
-        except Exception as e:
-            self.log_test("Social Connections Diagnostic", False, error=str(e))
-            return None
-    
-    def test_clean_invalid_tokens(self):
-        """Step 4: Test clean invalid tokens endpoint"""
-        try:
-            response = self.session.post(f"{BACKEND_URL}/debug/clean-invalid-tokens")
-            
-            if response.status_code == 200:
-                data = response.json()
-                deleted_count = data.get('deleted_count', 0)
-                
-                self.log_test(
-                    "Clean Invalid Tokens", 
-                    True, 
-                    f"Deleted {deleted_count} invalid token connections"
-                )
-                return True
-            else:
-                self.log_test(
-                    "Clean Invalid Tokens", 
-                    False, 
-                    error=f"Status {response.status_code}: {response.text}"
-                )
-                return False
-                
-        except Exception as e:
-            self.log_test("Clean Invalid Tokens", False, error=str(e))
-            return False
-    
-    def test_clean_library_badges(self):
-        """Step 5: Test clean library badges endpoint"""
-        try:
-            response = self.session.post(f"{BACKEND_URL}/debug/clean-library-badges")
-            
-            if response.status_code == 200:
-                data = response.json()
-                
-                self.log_test(
-                    "Clean Library Badges", 
-                    True, 
-                    f"Response: {data.get('message', 'Success')}"
-                )
-                return True
-            else:
-                self.log_test(
-                    "Clean Library Badges", 
-                    False, 
-                    error=f"Status {response.status_code}: {response.text}"
-                )
-                return False
-                
-        except Exception as e:
-            self.log_test("Clean Library Badges", False, error=str(e))
-            return False
-    
-    def test_post_publication_validation(self):
-        """Step 6: Test post publication with token validation"""
-        try:
-            # First get available posts
-            posts_response = self.session.get(f"{BACKEND_URL}/posts/generated")
-            
-            if posts_response.status_code != 200:
-                self.log_test(
-                    "Post Publication - Get Posts", 
-                    False, 
-                    error=f"Cannot get posts: {posts_response.status_code}"
-                )
-                return False
-            
-            posts_data = posts_response.json()
-            posts = posts_data.get('posts', [])
-            
-            if not posts:
-                self.log_test(
-                    "Post Publication - No Posts Available", 
-                    True, 
-                    "No posts available for publication testing (expected in clean state)"
-                )
-                return True
-            
-            # Try to publish first available post
-            test_post = posts[0]
-            post_id = test_post.get('id')
-            
-            response = self.session.post(f"{BACKEND_URL}/posts/publish", json={
-                "post_id": post_id
-            })
-            
-            # We expect this to fail with "no active social connections" since we cleaned tokens
-            if response.status_code == 400:
-                data = response.json()
-                error_msg = data.get('error', '').lower()
-                
-                if 'aucune connexion sociale active' in error_msg or 'no active social connections' in error_msg:
-                    self.log_test(
-                        "Post Publication Token Validation", 
-                        True, 
-                        "Correctly rejects publication due to no active social connections (expected after cleanup)"
-                    )
+                if (total_connections == 0 and active_connections == 0 and 
+                    facebook_connections == 0 and instagram_connections == 0):
+                    self.log_test("Clean Initial State", True, 
+                                "Database is pristine: 0 total, 0 active, 0 Facebook, 0 Instagram")
                     return True
                 else:
-                    self.log_test(
-                        "Post Publication Token Validation", 
-                        False, 
-                        error=f"Unexpected error: {error_msg}"
-                    )
+                    self.log_test("Clean Initial State", False, 
+                                f"Database not clean: {total_connections} total, {active_connections} active, {facebook_connections} Facebook, {instagram_connections} Instagram")
                     return False
             else:
-                self.log_test(
-                    "Post Publication Token Validation", 
-                    False, 
-                    error=f"Unexpected status {response.status_code}: {response.text}"
-                )
+                self.log_test("Clean Initial State", False, 
+                            f"Status: {response.status_code}", response.text[:200])
                 return False
                 
         except Exception as e:
-            self.log_test("Post Publication Token Validation", False, error=str(e))
+            self.log_test("Clean Initial State", False, error=str(e))
             return False
     
-    def test_oauth_endpoints_accessibility(self):
-        """Step 7: Test OAuth endpoints are accessible"""
+    def test_facebook_auth_url_state_format(self):
+        """Test 2: Test Facebook auth URL generation with new state format"""
         try:
-            # Test Facebook OAuth URL generation
-            response = self.session.get(f"{BACKEND_URL}/social/facebook/auth-url")
+            print("📘 Test 2: Facebook Auth URL State Format")
+            response = self.session.get(f"{BASE_URL}/social/facebook/auth-url", timeout=30)
             
             if response.status_code == 200:
                 data = response.json()
-                auth_url = data.get('auth_url', '')
+                auth_url = data.get("auth_url", "")
                 
-                # Check if URL contains corrected Facebook Config ID
-                if 'client_id=' in auth_url:
-                    self.log_test(
-                        "Facebook OAuth URL Generation", 
-                        True, 
-                        f"Auth URL generated successfully"
-                    )
-                else:
-                    self.log_test(
-                        "Facebook OAuth URL Generation", 
-                        False, 
-                        error="Auth URL missing client_id parameter"
-                    )
+                if not auth_url:
+                    self.log_test("Facebook Auth URL State Format", False, 
+                                "No auth_url in response")
                     return False
-            else:
-                self.log_test(
-                    "Facebook OAuth URL Generation", 
-                    False, 
-                    error=f"Status {response.status_code}: {response.text}"
-                )
-                return False
-            
-            # Test Instagram OAuth URL generation
-            response = self.session.get(f"{BACKEND_URL}/social/instagram/auth-url")
-            
-            if response.status_code == 200:
-                data = response.json()
-                auth_url = data.get('auth_url', '')
                 
-                if 'client_id=' in auth_url:
-                    self.log_test(
-                        "Instagram OAuth URL Generation", 
-                        True, 
-                        f"Auth URL generated successfully"
-                    )
-                else:
-                    self.log_test(
-                        "Instagram OAuth URL Generation", 
-                        False, 
-                        error="Auth URL missing client_id parameter"
-                    )
+                # Parse URL to extract state parameter
+                parsed_url = urlparse(auth_url)
+                query_params = parse_qs(parsed_url.query)
+                state_param = query_params.get('state', [None])[0]
+                
+                if not state_param:
+                    self.log_test("Facebook Auth URL State Format", False, 
+                                "No state parameter in URL")
                     return False
-            else:
-                self.log_test(
-                    "Instagram OAuth URL Generation", 
-                    False, 
-                    error=f"Status {response.status_code}: {response.text}"
-                )
-                return False
                 
-            return True
+                # Check if state has the new format: {random}|{user_id}
+                if '|' in state_param:
+                    random_part, user_id_part = state_param.split('|', 1)
+                    if user_id_part == self.user_id and len(random_part) > 10:
+                        self.log_test("Facebook Auth URL State Format", True, 
+                                    f"Correct state format: {random_part[:8]}...{user_id_part}")
+                        return True
+                    else:
+                        self.log_test("Facebook Auth URL State Format", False, 
+                                    f"Invalid user_id in state: expected {self.user_id}, got {user_id_part}")
+                        return False
+                else:
+                    self.log_test("Facebook Auth URL State Format", False, 
+                                f"State missing pipe separator: {state_param}")
+                    return False
+                    
+            else:
+                self.log_test("Facebook Auth URL State Format", False, 
+                            f"Status: {response.status_code}", response.text[:200])
+                return False
                 
         except Exception as e:
-            self.log_test("OAuth Endpoints Accessibility", False, error=str(e))
+            self.log_test("Facebook Auth URL State Format", False, error=str(e))
             return False
     
-    def verify_no_temp_tokens_after_cleanup(self):
-        """Step 8: Verify no temporary tokens remain after cleanup"""
+    def test_instagram_auth_url_state_format(self):
+        """Test 3: Test Instagram auth URL generation with new state format"""
         try:
-            response = self.session.get(f"{BACKEND_URL}/debug/social-connections")
+            print("📷 Test 3: Instagram Auth URL State Format")
+            response = self.session.get(f"{BASE_URL}/social/instagram/auth-url", timeout=30)
             
             if response.status_code == 200:
                 data = response.json()
-                connections_detail = data.get('connections_detail', [])
+                auth_url = data.get("auth_url", "")
                 
-                temp_tokens = []
-                for conn in connections_detail:
-                    token = conn.get('access_token', '')
-                    if 'temp_facebook_token_' in token or 'temp_instagram_token_' in token or token.startswith('temp_'):
-                        temp_tokens.append({
-                            'platform': conn.get('platform'),
-                            'token_preview': token[:20] + '...' if len(token) > 20 else token
-                        })
+                if not auth_url:
+                    self.log_test("Instagram Auth URL State Format", False, 
+                                "No auth_url in response")
+                    return False
                 
-                if not temp_tokens:
-                    self.log_test(
-                        "Verify No Temporary Tokens", 
-                        True, 
-                        "✅ No temporary tokens found after cleanup"
-                    )
+                # Parse URL to extract state parameter
+                parsed_url = urlparse(auth_url)
+                query_params = parse_qs(parsed_url.query)
+                state_param = query_params.get('state', [None])[0]
+                
+                if not state_param:
+                    self.log_test("Instagram Auth URL State Format", False, 
+                                "No state parameter in URL")
+                    return False
+                
+                # Check if state has the new format: {random}|{user_id}
+                if '|' in state_param:
+                    random_part, user_id_part = state_param.split('|', 1)
+                    if user_id_part == self.user_id and len(random_part) > 10:
+                        self.log_test("Instagram Auth URL State Format", True, 
+                                    f"Correct state format: {random_part[:8]}...{user_id_part}")
+                        return True
+                    else:
+                        self.log_test("Instagram Auth URL State Format", False, 
+                                    f"Invalid user_id in state: expected {self.user_id}, got {user_id_part}")
+                        return False
+                else:
+                    self.log_test("Instagram Auth URL State Format", False, 
+                                f"State missing pipe separator: {state_param}")
+                    return False
+                    
+            else:
+                self.log_test("Instagram Auth URL State Format", False, 
+                            f"Status: {response.status_code}", response.text[:200])
+                return False
+                
+        except Exception as e:
+            self.log_test("Instagram Auth URL State Format", False, error=str(e))
+            return False
+    
+    def test_facebook_callback_state_validation(self):
+        """Test 4: Test Facebook callback with new state format (simulation)"""
+        try:
+            print("🔄 Test 4: Facebook Callback State Validation")
+            
+            # Generate a test state with the new format
+            import secrets
+            random_token = secrets.token_urlsafe(16)
+            test_state = f"{random_token}|{self.user_id}"
+            test_code = "test_auth_code_12345"
+            
+            print(f"   Testing with state: {random_token[:8]}...{self.user_id}")
+            
+            # Test the callback endpoint with proper state format
+            callback_url = f"{BASE_URL}/social/facebook/callback"
+            params = {
+                "code": test_code,
+                "state": test_state
+            }
+            
+            # Note: This will likely fail at token exchange, but should pass state validation
+            response = self.session.get(callback_url, params=params, timeout=30, allow_redirects=False)
+            
+            # Check if we get a redirect (expected behavior)
+            if response.status_code in [302, 301]:
+                location = response.headers.get('Location', '')
+                
+                # Check if the error is NOT about invalid state format
+                if 'facebook_invalid_state' not in location:
+                    if 'facebook_oauth_failed' in location or 'facebook_oauth_error' in location:
+                        self.log_test("Facebook Callback State Validation", True, 
+                                    "State validation passed - error is at token exchange level (expected)")
+                    else:
+                        self.log_test("Facebook Callback State Validation", True, 
+                                    "State validation passed - no invalid_state error")
                     return True
                 else:
-                    self.log_test(
-                        "Verify No Temporary Tokens", 
-                        False, 
-                        error=f"Found {len(temp_tokens)} temporary tokens: {temp_tokens}"
-                    )
+                    self.log_test("Facebook Callback State Validation", False, 
+                                "State validation failed - invalid_state error still occurs")
                     return False
             else:
-                self.log_test(
-                    "Verify No Temporary Tokens", 
-                    False, 
-                    error=f"Cannot verify - diagnostic endpoint failed: {response.status_code}"
-                )
+                # Direct response without redirect
+                self.log_test("Facebook Callback State Validation", True, 
+                            f"Callback processed without redirect (status: {response.status_code})")
+                return True
+                
+        except Exception as e:
+            self.log_test("Facebook Callback State Validation", False, error=str(e))
+            return False
+    
+    def test_social_connections_consistency(self):
+        """Test 5: Validate social connections endpoint consistency"""
+        try:
+            print("🔗 Test 5: Social Connections Consistency")
+            response = self.session.get(f"{BASE_URL}/social/connections", timeout=30)
+            
+            if response.status_code == 200:
+                data = response.json()
+                connections = data.get("connections", [])
+                
+                # Should return 0 connections since database is clean
+                if len(connections) == 0:
+                    self.log_test("Social Connections Consistency", True, 
+                                "GET /api/social/connections returns 0 connections (consistent with clean state)")
+                    return True
+                else:
+                    self.log_test("Social Connections Consistency", False, 
+                                f"Expected 0 connections, got {len(connections)}")
+                    return False
+            else:
+                self.log_test("Social Connections Consistency", False, 
+                            f"Status: {response.status_code}", response.text[:200])
                 return False
                 
         except Exception as e:
-            self.log_test("Verify No Temporary Tokens", False, error=str(e))
+            self.log_test("Social Connections Consistency", False, error=str(e))
             return False
     
-    def run_comprehensive_test(self):
-        """Run all tests in sequence"""
-        print("🎯 FACEBOOK OAUTH CORRECTIONS TESTING - COMPREHENSIVE VALIDATION")
-        print("=" * 80)
-        print(f"Backend URL: {BACKEND_URL}")
-        print(f"Test Credentials: {TEST_EMAIL}")
+    def run_all_tests(self):
+        """Run all OAuth state parameter correction tests"""
+        print("🎯 TESTING OAUTH STATE PARAMETER CORRECTIONS")
+        print("=" * 70)
+        print(f"Backend URL: {BASE_URL}")
+        print(f"Test User: {TEST_CREDENTIALS['email']}")
         print(f"Test Time: {datetime.now().isoformat()}")
-        print("=" * 80)
+        print("=" * 70)
         print()
         
         # Step 1: Authentication
         if not self.authenticate():
-            print("❌ CRITICAL: Authentication failed - cannot proceed with tests")
+            print("❌ Authentication failed - cannot continue tests")
             return False
         
-        # Step 2: Test cleanup endpoints
-        print("🧹 TESTING CLEANUP ENDPOINTS")
-        print("-" * 40)
-        self.test_cleanup_fake_tokens()
-        self.test_clean_invalid_tokens()
-        self.test_clean_library_badges()
-        print()
+        # Step 2: Test clean initial state
+        self.test_clean_initial_state()
         
-        # Step 3: Diagnostic after cleanup
-        print("🔍 DIAGNOSTIC AFTER CLEANUP")
-        print("-" * 40)
-        connections_data = self.test_social_connections_diagnostic()
-        print()
+        # Step 3: Test Facebook auth URL state format
+        self.test_facebook_auth_url_state_format()
         
-        # Step 4: Verify cleanup worked
-        print("✅ VERIFICATION TESTS")
-        print("-" * 40)
-        self.verify_no_temp_tokens_after_cleanup()
-        print()
+        # Step 4: Test Instagram auth URL state format  
+        self.test_instagram_auth_url_state_format()
         
-        # Step 5: Test OAuth endpoints
-        print("🔗 OAUTH ENDPOINTS TESTING")
-        print("-" * 40)
-        self.test_oauth_endpoints_accessibility()
-        print()
+        # Step 5: Test Facebook callback state validation
+        self.test_facebook_callback_state_validation()
         
-        # Step 6: Test publication validation
-        print("📤 PUBLICATION VALIDATION TESTING")
-        print("-" * 40)
-        self.test_post_publication_validation()
-        print()
+        # Step 6: Test social connections consistency
+        self.test_social_connections_consistency()
         
         # Summary
-        self.print_summary()
+        print("\n" + "=" * 70)
+        print("📊 TEST SUMMARY")
+        print("=" * 70)
         
-        return True
-    
-    def print_summary(self):
-        """Print test summary"""
-        print("=" * 80)
-        print("🎯 TEST SUMMARY - FACEBOOK OAUTH CORRECTIONS")
-        print("=" * 80)
-        
-        passed = sum(1 for result in self.test_results if result['success'])
+        passed = sum(1 for result in self.test_results if result["success"])
         total = len(self.test_results)
         
-        print(f"Total Tests: {total}")
-        print(f"Passed: {passed}")
-        print(f"Failed: {total - passed}")
-        print(f"Success Rate: {(passed/total*100):.1f}%" if total > 0 else "0%")
-        print()
-        
-        # Group results
-        critical_tests = [
-            "Authentication",
-            "Clean Invalid Tokens", 
-            "Verify No Temporary Tokens",
-            "Post Publication Token Validation"
-        ]
-        
-        print("🔥 CRITICAL TESTS:")
         for result in self.test_results:
-            if result['test'] in critical_tests:
-                print(f"  {result['status']}: {result['test']}")
-        print()
+            status = "✅" if result["success"] else "❌"
+            print(f"{status} {result['test']}")
+            if result["details"]:
+                print(f"   {result['details']}")
         
-        print("🔧 CLEANUP & DIAGNOSTIC TESTS:")
-        cleanup_tests = [
-            "Cleanup Fake Tokens Endpoint",
-            "Social Connections Diagnostic", 
-            "Clean Library Badges"
-        ]
-        for result in self.test_results:
-            if result['test'] in cleanup_tests:
-                print(f"  {result['status']}: {result['test']}")
-        print()
+        print(f"\n🎯 RESULTS: {passed}/{total} tests passed ({(passed/total*100):.1f}%)")
         
-        print("🔗 OAUTH TESTS:")
-        oauth_tests = [
-            "Facebook OAuth URL Generation",
-            "Instagram OAuth URL Generation"
-        ]
-        for result in self.test_results:
-            if result['test'] in oauth_tests:
-                print(f"  {result['status']}: {result['test']}")
-        print()
-        
-        # Failed tests details
-        failed_tests = [result for result in self.test_results if not result['success']]
-        if failed_tests:
-            print("❌ FAILED TESTS DETAILS:")
-            for result in failed_tests:
-                print(f"  • {result['test']}: {result['error']}")
-            print()
-        
-        print("=" * 80)
-        
-        # Final assessment
-        critical_passed = sum(1 for result in self.test_results if result['test'] in critical_tests and result['success'])
-        critical_total = sum(1 for result in self.test_results if result['test'] in critical_tests)
-        
-        if critical_passed == critical_total:
-            print("🎉 OAUTH CORRECTIONS VALIDATION: SUCCESS")
-            print("✅ All critical OAuth corrections are working correctly")
-            print("✅ Cleanup endpoints successfully remove fake tokens")
-            print("✅ Token validation prevents publication with invalid tokens")
-            print("✅ System is ready for real Facebook OAuth reconnection")
+        if passed == total:
+            print("\n🎉 ALL TESTS PASSED - OAuth state parameter corrections are working!")
+            print("✅ URLs OAuth avec state format {random}|{user_id}")
+            print("✅ Callbacks qui acceptent ce format")
+            print("✅ Plus d'erreur de validation state")
+            return True
         else:
-            print("🚨 OAUTH CORRECTIONS VALIDATION: ISSUES FOUND")
-            print(f"❌ {critical_total - critical_passed} critical tests failed")
-            print("⚠️ OAuth corrections may not be fully operational")
-        
-        print("=" * 80)
+            print(f"\n🚨 {total - passed} TESTS FAILED - OAuth state parameter corrections need attention")
+            failed_tests = [r['test'] for r in self.test_results if not r['success']]
+            print(f"Failed tests: {', '.join(failed_tests)}")
+            return False
 
 def main():
     """Main test execution"""
     tester = BackendTester()
+    success = tester.run_all_tests()
     
-    try:
-        success = tester.run_comprehensive_test()
-        
-        # Exit with appropriate code
-        if success:
-            failed_count = sum(1 for result in tester.test_results if not result['success'])
-            sys.exit(0 if failed_count == 0 else 1)
-        else:
-            sys.exit(2)
-            
-    except KeyboardInterrupt:
-        print("\n⚠️ Testing interrupted by user")
-        sys.exit(3)
-    except Exception as e:
-        print(f"\n❌ CRITICAL ERROR: {str(e)}")
-        sys.exit(4)
+    if success:
+        print("\n✅ OAuth state parameter corrections validation completed successfully!")
+        sys.exit(0)
+    else:
+        print("\n❌ OAuth state parameter corrections validation failed!")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

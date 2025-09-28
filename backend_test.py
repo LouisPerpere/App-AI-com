@@ -251,10 +251,94 @@ class BackendTester:
             self.log_test("Simplified Status Endpoint", False, error=str(e))
             return False
     
-    def test_social_connections_consistency(self):
-        """Test 5: Validate social connections endpoint consistency"""
+    def test_simplified_facebook_publish_endpoint(self):
+        """Test 5: Test simplified Facebook publication endpoint"""
         try:
-            print("🔗 Test 5: Social Connections Consistency")
+            print("📘 Test 5: Simplified Facebook Publication Endpoint")
+            
+            test_data = {
+                "text": "Test publication Facebook - Approche simplifiée",
+                "image_url": "https://example.com/test-image.jpg"
+            }
+            
+            response = self.session.post(
+                f"{BASE_URL}/social/facebook/publish-simple", 
+                json=test_data, 
+                timeout=30
+            )
+            
+            # Should fail with no connections, but endpoint should exist and respond properly
+            if response.status_code in [400, 401, 403]:
+                data = response.json()
+                error_message = data.get("error", "").lower()
+                
+                if "connexion" in error_message or "token" in error_message or "facebook" in error_message:
+                    self.log_test("Simplified Facebook Publication Endpoint", True, 
+                                f"✅ Endpoint exists and properly rejects: {data.get('error', 'No connection error')}")
+                    return True
+                else:
+                    self.log_test("Simplified Facebook Publication Endpoint", False, 
+                                f"Unexpected error message: {data.get('error', 'Unknown error')}")
+                    return False
+            elif response.status_code == 404:
+                self.log_test("Simplified Facebook Publication Endpoint", False, 
+                            "Endpoint not found - simplified publication not implemented")
+                return False
+            else:
+                self.log_test("Simplified Facebook Publication Endpoint", False, 
+                            f"Unexpected status: {response.status_code}, Response: {response.text[:200]}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Simplified Facebook Publication Endpoint", False, error=str(e))
+            return False
+    
+    def test_simplified_instagram_publish_endpoint(self):
+        """Test 6: Test simplified Instagram publication endpoint"""
+        try:
+            print("📷 Test 6: Simplified Instagram Publication Endpoint")
+            
+            test_data = {
+                "text": "Test publication Instagram - Approche simplifiée",
+                "image_url": "https://example.com/test-image.jpg"
+            }
+            
+            response = self.session.post(
+                f"{BASE_URL}/social/instagram/publish-simple", 
+                json=test_data, 
+                timeout=30
+            )
+            
+            # Should fail with no connections, but endpoint should exist and respond properly
+            if response.status_code in [400, 401, 403]:
+                data = response.json()
+                error_message = data.get("error", "").lower()
+                
+                if "connexion" in error_message or "token" in error_message or "instagram" in error_message:
+                    self.log_test("Simplified Instagram Publication Endpoint", True, 
+                                f"✅ Endpoint exists and properly rejects: {data.get('error', 'No connection error')}")
+                    return True
+                else:
+                    self.log_test("Simplified Instagram Publication Endpoint", False, 
+                                f"Unexpected error message: {data.get('error', 'Unknown error')}")
+                    return False
+            elif response.status_code == 404:
+                self.log_test("Simplified Instagram Publication Endpoint", False, 
+                            "Endpoint not found - simplified publication not implemented")
+                return False
+            else:
+                self.log_test("Simplified Instagram Publication Endpoint", False, 
+                            f"Unexpected status: {response.status_code}, Response: {response.text[:200]}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Simplified Instagram Publication Endpoint", False, error=str(e))
+            return False
+    
+    def test_consistency_with_current_state(self):
+        """Test 7: Test consistency with current state and ensure corrections are still active"""
+        try:
+            print("🔗 Test 7: Consistency with Current State")
             response = self.session.get(f"{BASE_URL}/social/connections", timeout=30)
             
             if response.status_code == 200:
@@ -263,20 +347,20 @@ class BackendTester:
                 
                 # Should return 0 connections since database is clean
                 if len(connections) == 0:
-                    self.log_test("Social Connections Consistency", True, 
-                                "GET /api/social/connections returns 0 connections (consistent with clean state)")
+                    self.log_test("Consistency with Current State", True, 
+                                "✅ System consistent: 0 connections, ready for user reconnection with corrected state")
                     return True
                 else:
-                    self.log_test("Social Connections Consistency", False, 
-                                f"Expected 0 connections, got {len(connections)}")
+                    self.log_test("Consistency with Current State", False, 
+                                f"Expected 0 connections, got {len(connections)} - may interfere with user testing")
                     return False
             else:
-                self.log_test("Social Connections Consistency", False, 
+                self.log_test("Consistency with Current State", False, 
                             f"Status: {response.status_code}", response.text[:200])
                 return False
                 
         except Exception as e:
-            self.log_test("Social Connections Consistency", False, error=str(e))
+            self.log_test("Consistency with Current State", False, error=str(e))
             return False
     
     def run_all_tests(self):

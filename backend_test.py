@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for Social Connections Diagnostic
-Mission: Test the corrected social connections diagnostic endpoint and verify collection consistency
+🎯 DIAGNOSTIC CALLBACK FACEBOOK EN TEMPS RÉEL
+Test complet pour diagnostiquer pourquoi le callback Facebook ne fonctionne pas
+alors qu'Instagram fonctionne.
+
+Identifiants: lperpere@yahoo.fr / L@Reunion974!
 """
 
 import requests
 import json
 import sys
+import time
+import urllib.parse
 from datetime import datetime
 from pymongo import MongoClient
 import os
 
-class SocialConnectionsDiagnostic:
+class FacebookCallbackDiagnostic:
     def __init__(self):
         # Use the frontend environment URL from .env
         self.base_url = "https://social-ai-planner-2.preview.emergentagent.com/api"

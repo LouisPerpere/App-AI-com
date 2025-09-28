@@ -2894,7 +2894,7 @@ async def facebook_oauth_callback(
                     print(f"🔄 Exchanging code for access token...")
                     import aiohttp
                     async with aiohttp.ClientSession() as session:
-                        async with session.get(token_url, params=token_params) as token_response:
+                        async with session.get(token_url) as token_response:
                             if token_response.status == 200:
                                 token_data = await token_response.json()
                                 access_token = token_data.get('access_token')

@@ -3843,7 +3843,7 @@ async def publish_post_to_social_media(
                             "status": "published",
                             "published": True,
                             "published_at": datetime.utcnow().isoformat(),
-                            "platform_post_id": simulated_result.get("id"),
+                            "platform_post_id": result.get("id"),
                             "publication_platform": "facebook",
                             "publication_page": target_connection.get("page_name", "")
                         }
@@ -3855,10 +3855,10 @@ async def publish_post_to_social_media(
                 
                 return {
                     "success": True,
-                    "message": f"Post publié avec succès sur {target_connection.get('page_name', 'Facebook')} ! {'(simulation)' if is_temp_token else ''}",
+                    "message": f"Post publié avec succès sur {target_connection.get('page_name', 'Facebook')} !",
                     "platform": "facebook",
                     "page_name": str(target_connection.get("page_name", "")),
-                    "post_id": str(simulated_result.get("id", "")),
+                    "post_id": str(result.get("id", "")),
                     "published_at": datetime.utcnow().isoformat()
                 }
                 

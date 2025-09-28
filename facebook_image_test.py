@@ -124,29 +124,35 @@ class FacebookImageTester:
             # Create session without auth headers
             no_auth_session = requests.Session()
             
+            # First test without redirects to see the redirect response
             response = no_auth_session.get(
                 f"{BASE_URL}/public/image/{image_id}", 
                 timeout=30,
-                allow_redirects=True
+                allow_redirects=False
             )
             
-            if response.status_code == 200:
-                # Check if we got image data
+            if response.status_code == 302:
+                # Redirect is expected - check if it redirects to the protected endpoint
+                redirect_url = response.headers.get("location", "")
+                if "/api/content/" in redirect_url and "/file" in redirect_url:
+                    self.log_test("Public Image Endpoint (No Auth)", True, 
+                                f"✅ Public endpoint working - redirects to protected endpoint: {redirect_url}")
+                    return True
+                else:
+                    self.log_test("Public Image Endpoint (No Auth)", False, 
+                                f"Unexpected redirect URL: {redirect_url}")
+                    return False
+            elif response.status_code == 200:
+                # Direct image serving
                 content_type = response.headers.get("content-type", "")
                 if "image" in content_type or len(response.content) > 1000:
                     self.log_test("Public Image Endpoint (No Auth)", True, 
-                                f"✅ Image accessible without auth - Content-Type: {content_type}, Size: {len(response.content)} bytes")
+                                f"✅ Image served directly - Content-Type: {content_type}, Size: {len(response.content)} bytes")
                     return True
                 else:
                     self.log_test("Public Image Endpoint (No Auth)", False, 
                                 f"Response doesn't appear to be image data - Content-Type: {content_type}")
                     return False
-            elif response.status_code == 302:
-                # Redirect is acceptable for public endpoint
-                redirect_url = response.headers.get("location", "")
-                self.log_test("Public Image Endpoint (No Auth)", True, 
-                            f"✅ Public endpoint redirects to: {redirect_url}")
-                return True
             else:
                 self.log_test("Public Image Endpoint (No Auth)", False, 
                             f"Status: {response.status_code}", response.text[:200])

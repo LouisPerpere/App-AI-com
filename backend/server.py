@@ -3151,7 +3151,7 @@ async def test_instagram_publication(
         dbm = get_database()
         
         # Récupérer UNIQUEMENT les connexions avec vrais tokens
-        instagram_connections = list(dbm.social_media_connections.find({
+        instagram_connections = list(dbm.db.social_media_connections.find({
             "user_id": user_id,
             "platform": "instagram",
             "active": True,

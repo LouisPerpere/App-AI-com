@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
 """
-🎯 DIAGNOSTIC CALLBACK FACEBOOK EN TEMPS RÉEL
-Test complet pour diagnostiquer pourquoi le callback Facebook ne fonctionne pas
-alors qu'Instagram fonctionne.
+Backend Testing Suite - OAuth Facebook Corrections Validation
+Testing the critical OAuth corrections made by main agent:
+1. Removed failing fallback that created temp_facebook_token_{timestamp}
+2. Restored real Facebook publication (removed simulation)
+3. Added token validation before publication
+4. Cleanup endpoint to remove all fake tokens
 
-Identifiants: lperpere@yahoo.fr / L@Reunion974!
+Credentials: lperpere@yahoo.fr / L@Reunion974!
 """
 
 import requests
 import json
 import sys
-import time
-import urllib.parse
 from datetime import datetime
-from pymongo import MongoClient
-import os
 
 class FacebookCallbackDiagnostic:
     def __init__(self):

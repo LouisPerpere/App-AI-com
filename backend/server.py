@@ -3223,8 +3223,11 @@ async def publish_facebook_simple(
         # Publication directe via Facebook Graph API (approche ChatGPT)
         import aiohttp
         async with aiohttp.ClientSession() as session:
-            # URL de publication Facebook
-            publish_url = f"https://graph.facebook.com/v21.0/{page_id}/photos" if image_url else f"https://graph.facebook.com/v21.0/{page_id}/feed"
+            # URL de publication Facebook (selon GPT-4o : TOUJOURS /photos pour images)
+            if image_url:
+                publish_url = f"https://graph.facebook.com/v20.0/{page_id}/photos"
+            else:
+                publish_url = f"https://graph.facebook.com/v20.0/{page_id}/feed"
             
             # Données de publication
             publish_data = {

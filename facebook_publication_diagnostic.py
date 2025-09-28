@@ -80,18 +80,25 @@ class FacebookPublicationDiagnostic:
                 
                 # Analyze connections in social_media_connections
                 connections = data.get("social_media_connections", [])
+                old_connections = data.get("social_connections_old", [])
+                
                 print(f"   📊 Found {len(connections)} connections in social_media_connections")
+                print(f"   📊 Found {len(old_connections)} connections in social_connections_old")
                 
                 facebook_connections = []
                 instagram_connections = []
                 
-                for i, conn in enumerate(connections):
+                # Check both collections
+                all_connections = connections + old_connections
+                
+                for i, conn in enumerate(all_connections):
                     platform = conn.get("platform", "unknown")
-                    active = conn.get("active", False)
+                    active = conn.get("active", conn.get("is_active", False))
                     created_at = conn.get("created_at", "unknown")
                     access_token = conn.get("access_token", "")
+                    collection = "social_media_connections" if i < len(connections) else "social_connections_old"
                     
-                    print(f"     Connection {i+1}:")
+                    print(f"     Connection {i+1} ({collection}):")
                     print(f"       Platform: {platform}")
                     print(f"       Active: {active}")
                     print(f"       Created: {created_at}")
@@ -125,7 +132,7 @@ class FacebookPublicationDiagnostic:
                     for i, fb_conn in enumerate(facebook_connections):
                         access_token = fb_conn.get("access_token", "")
                         page_name = fb_conn.get("page_name", "Unknown")
-                        active = fb_conn.get("active", False)
+                        active = fb_conn.get("active", fb_conn.get("is_active", False))
                         
                         print(f"     Facebook Connection {i+1}:")
                         print(f"       Page Name: {page_name}")
@@ -136,7 +143,7 @@ class FacebookPublicationDiagnostic:
                             print(f"       ❌ CRITICAL ISSUE: This temporary token will cause Facebook API to return 'Invalid OAuth access token'")
                 
                 return {
-                    "total_connections": len(connections),
+                    "total_connections": len(all_connections),
                     "facebook_connections": facebook_connections,
                     "instagram_connections": instagram_connections
                 }

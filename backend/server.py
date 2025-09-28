@@ -2922,7 +2922,7 @@ async def facebook_oauth_callback(
             
             # ÉCHANGE DU CODE CONTRE UN ACCESS TOKEN FACEBOOK
             try:
-                    facebook_app_id = os.environ.get('FACEBOOK_CONFIG_ID')  # Utiliser la bonne variable
+                    facebook_app_id = os.environ.get('FACEBOOK_APP_ID')  # DOIT correspondre à l'URL d'auth frontend
                     facebook_app_secret = os.environ.get('FACEBOOK_APP_SECRET')
                     redirect_uri = os.environ.get('FACEBOOK_REDIRECT_URI', 'https://claire-marcus.com/api/social/facebook/callback')
                     

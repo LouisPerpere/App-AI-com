@@ -3044,21 +3044,29 @@ async def facebook_oauth_callback(
                     dbm.db.social_media_connections.insert_one(facebook_connection)
                     print(f"✅ SIMPLE Facebook connection saved: {page_name} (ID: {page_id})")
                     
-                    # Traiter Instagram si connecté à la page Facebook (approche ChatGPT)
+                    # Traiter Instagram si connecté à la page Facebook (selon GPT-4o)
                     if page.get('instagram_business_account'):
                         ig_account = page['instagram_business_account']
-                        instagram_connection = {
-                            "id": str(uuid.uuid4()),
-                            "user_id": user_id,
-                            "platform": "instagram",
-                            "access_token": page_access_token,  # MÊME TOKEN que Facebook
-                            "instagram_user_id": ig_account['id'],
-                            "username": ig_account.get('username', 'Instagram'),
-                            "page_id": page_id,  # Lié à la page Facebook
-                            "connected_at": datetime.now(timezone.utc).isoformat(),
-                            "active": True,
-                            "expires_at": (datetime.now(timezone.utc) + timedelta(days=60)).isoformat()
-                        }
+                        ig_user_id = ig_account.get('id')
+                        ig_username = ig_account.get('username', 'Instagram')
+                        
+                        print(f"✅ Instagram Business Account détecté:")
+                        print(f"   Instagram User ID: {ig_user_id}")
+                        print(f"   Username: @{ig_username}")
+                        
+                        if ig_user_id:  # Validation selon GPT-4o
+                            instagram_connection = {
+                                "id": str(uuid.uuid4()),
+                                "user_id": user_id,
+                                "platform": "instagram",
+                                "access_token": page_access_token,  # MÊME TOKEN que Facebook
+                                "instagram_user_id": ig_user_id,  # CRITIQUE selon GPT-4o
+                                "username": ig_username,
+                                "page_id": page_id,  # Lié à la page Facebook
+                                "connected_at": datetime.now(timezone.utc).isoformat(),
+                                "active": True,
+                                "expires_at": (datetime.now(timezone.utc) + timedelta(days=60)).isoformat()
+                            }
                         
                         # Remplacer toute connexion Instagram existante (clean)
                         dbm.db.social_media_connections.delete_many({

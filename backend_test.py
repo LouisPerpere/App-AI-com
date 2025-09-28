@@ -15,38 +15,68 @@ import json
 import sys
 from datetime import datetime
 
-class FacebookCallbackDiagnostic:
+# Configuration
+BACKEND_URL = "https://social-ai-planner-2.preview.emergentagent.com/api"
+TEST_EMAIL = "lperpere@yahoo.fr"
+TEST_PASSWORD = "L@Reunion974!"
+
+class BackendTester:
     def __init__(self):
-        # Use the frontend environment URL from .env
-        self.base_url = "https://social-ai-planner-2.preview.emergentagent.com/api"
         self.session = requests.Session()
-        self.token = None
+        self.auth_token = None
         self.user_id = None
-        self.credentials = {
-            "email": "lperpere@yahoo.fr",
-            "password": "L@Reunion974!"
+        self.test_results = []
+        
+    def log_test(self, test_name, success, details="", error=""):
+        """Log test results"""
+        status = "✅ PASS" if success else "❌ FAIL"
+        result = {
+            "test": test_name,
+            "status": status,
+            "success": success,
+            "details": details,
+            "error": error,
+            "timestamp": datetime.now().isoformat()
         }
+        self.test_results.append(result)
+        print(f"{status}: {test_name}")
+        if details:
+            print(f"   Details: {details}")
+        if error:
+            print(f"   Error: {error}")
+        print()
         
     def authenticate(self):
-        """Authenticate with the API"""
+        """Step 1: Authenticate with test credentials"""
         try:
-            print(f"🔐 Step 1: Authenticating with {self.credentials['email']}")
-            
-            response = self.session.post(
-                f"{self.base_url}/auth/login-robust",
-                json=self.credentials,
-                headers={"Content-Type": "application/json"}
-            )
-            
-            print(f"   Status: {response.status_code}")
+            response = self.session.post(f"{BACKEND_URL}/auth/login-robust", json={
+                "email": TEST_EMAIL,
+                "password": TEST_PASSWORD
+            })
             
             if response.status_code == 200:
                 data = response.json()
-                self.token = data.get("access_token")
+                self.auth_token = data.get("access_token")
                 self.user_id = data.get("user_id")
+                self.session.headers.update({"Authorization": f"Bearer {self.auth_token}"})
                 
-                # Set authorization header for all future requests
-                self.session.headers.update({
+                self.log_test(
+                    "Authentication", 
+                    True, 
+                    f"User ID: {self.user_id}, Token obtained"
+                )
+                return True
+            else:
+                self.log_test(
+                    "Authentication", 
+                    False, 
+                    error=f"Status {response.status_code}: {response.text}"
+                )
+                return False
+                
+        except Exception as e:
+            self.log_test("Authentication", False, error=str(e))
+            return False
                     "Authorization": f"Bearer {self.token}",
                     "Content-Type": "application/json"
                 })

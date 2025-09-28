@@ -3869,20 +3869,69 @@ async def publish_post_to_social_media(
                 print(f"❌ Facebook publishing error: {str(fb_error)}")
                 raise HTTPException(status_code=500, detail=f"Erreur de publication Facebook: {str(fb_error)}")
         
-        # Publier sur Instagram
+        # Publier sur Instagram (VRAIE publication)
         elif target_platform == "instagram" and SOCIAL_MEDIA_AVAILABLE:
             try:
-                # Pour Instagram, utiliser une publication simulée pour le moment
-                print(f"📷 Publishing to Instagram (simulated): {content[:100]}...")
+                access_token = target_connection.get("access_token", "")
+                page_id = target_connection.get("page_id")
                 
-                # Simulation de publication Instagram réussie
-                simulated_result = {
-                    "id": f"instagram_sim_{int(time.time())}",
-                    "status": "published",
-                    "caption": content
-                }
+                print(f"📷 Publishing to Instagram: {content[:100]}...")
+                print(f"   Page ID: {page_id}")
+                print(f"   Token: {access_token[:20]}..." if access_token else "No token")
                 
-                print(f"✅ Successfully published to Instagram (simulated): {simulated_result}")
+                # Validation du token avant publication  
+                if not access_token or access_token.startswith("temp_"):
+                    raise Exception("Token Instagram invalide ou temporaire détecté")
+                
+                # Publication Instagram via Facebook Graph API
+                import aiohttp
+                async with aiohttp.ClientSession() as session:
+                    # Étape 1: Créer le media container
+                    create_url = f"https://graph.facebook.com/v21.0/{page_id}/media"
+                    create_data = {
+                        "caption": content,
+                        "access_token": access_token
+                    }
+                    
+                    # Ajouter image si disponible
+                    if image_url:
+                        create_data["image_url"] = image_url
+                    
+                    async with session.post(create_url, data=create_data) as create_response:
+                        if create_response.status == 200:
+                            create_result = await create_response.json()
+                            media_id = create_result.get("id")
+                            
+                            if not media_id:
+                                raise Exception("Media ID non reçu d'Instagram")
+                            
+                            print(f"✅ Media container créé: {media_id}")
+                            
+                            # Étape 2: Publier le media
+                            publish_url = f"https://graph.facebook.com/v21.0/{page_id}/media_publish"
+                            publish_data = {
+                                "creation_id": media_id,
+                                "access_token": access_token
+                            }
+                            
+                            async with session.post(publish_url, data=publish_data) as publish_response:
+                                if publish_response.status == 200:
+                                    publish_result = await publish_response.json()
+                                    instagram_post_id = publish_result.get("id")
+                                    
+                                    print(f"✅ Successfully published to Instagram: {instagram_post_id}")
+                                    
+                                    result = {
+                                        "id": instagram_post_id,
+                                        "media_id": media_id,
+                                        "status": "published"
+                                    }
+                                else:
+                                    error_text = await publish_response.text()
+                                    raise Exception(f"Erreur publication Instagram: {publish_response.status} - {error_text}")
+                        else:
+                            error_text = await create_response.text()
+                            raise Exception(f"Erreur création media Instagram: {create_response.status} - {error_text}")
                 
                 # Marquer le post comme publié
                 update_result = db.generated_posts.update_one(
@@ -3892,7 +3941,7 @@ async def publish_post_to_social_media(
                             "status": "published", 
                             "published": True,
                             "published_at": datetime.utcnow().isoformat(),
-                            "platform_post_id": simulated_result.get("id"),
+                            "platform_post_id": result.get("id"),
                             "publication_platform": "instagram",
                             "publication_page": target_connection.get("username", "")
                         }
@@ -3907,7 +3956,7 @@ async def publish_post_to_social_media(
                     "message": f"Post publié avec succès sur Instagram (@{target_connection.get('username', 'instagram')}) !",
                     "platform": "instagram",
                     "page_name": target_connection.get("username", ""),
-                    "post_id": simulated_result.get("id"),
+                    "post_id": result.get("id"),
                     "published_at": datetime.utcnow().isoformat()
                 }
                 

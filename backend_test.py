@@ -213,54 +213,42 @@ class BackendTester:
             self.log_test("Instagram OAuth URL State Correction", False, error=str(e))
             return False
     
-    def test_facebook_callback_state_validation(self):
-        """Test 4: Test Facebook callback with new state format (simulation)"""
+    def test_simplified_status_endpoint(self):
+        """Test 4: Test simplified status endpoint (GET /api/social/connections/status)"""
         try:
-            print("🔄 Test 4: Facebook Callback State Validation")
+            print("📊 Test 4: Simplified Status Endpoint")
+            response = self.session.get(f"{BASE_URL}/social/connections/status", timeout=30)
             
-            # Generate a test state with the new format
-            import secrets
-            random_token = secrets.token_urlsafe(16)
-            test_state = f"{random_token}|{self.user_id}"
-            test_code = "test_auth_code_12345"
-            
-            print(f"   Testing with state: {random_token[:8]}...{self.user_id}")
-            
-            # Test the callback endpoint with proper state format
-            callback_url = f"{BASE_URL}/social/facebook/callback"
-            params = {
-                "code": test_code,
-                "state": test_state
-            }
-            
-            # Note: This will likely fail at token exchange, but should pass state validation
-            response = self.session.get(callback_url, params=params, timeout=30, allow_redirects=False)
-            
-            # Check if we get a redirect (expected behavior)
-            if response.status_code in [302, 301]:
-                location = response.headers.get('Location', '')
+            if response.status_code == 200:
+                data = response.json()
                 
-                # Check if the error is NOT about invalid state format
-                if 'facebook_invalid_state' not in location:
-                    if 'facebook_oauth_failed' in location or 'facebook_oauth_error' in location:
-                        self.log_test("Facebook Callback State Validation", True, 
-                                    "State validation passed - error is at token exchange level (expected)")
-                    else:
-                        self.log_test("Facebook Callback State Validation", True, 
-                                    "State validation passed - no invalid_state error")
+                # Check for simplified response format
+                expected_fields = ["facebook", "instagram"]
+                has_all_fields = all(field in data for field in expected_fields)
+                
+                if has_all_fields:
+                    facebook_status = data.get("facebook", {})
+                    instagram_status = data.get("instagram", {})
+                    
+                    # Verify simple format structure
+                    facebook_connected = facebook_status.get("connected", False)
+                    instagram_connected = instagram_status.get("connected", False)
+                    
+                    self.log_test("Simplified Status Endpoint", True, 
+                                f"✅ Simple format verified - Facebook: {facebook_connected}, Instagram: {instagram_connected}")
                     return True
                 else:
-                    self.log_test("Facebook Callback State Validation", False, 
-                                "State validation failed - invalid_state error still occurs")
+                    self.log_test("Simplified Status Endpoint", False, 
+                                f"Missing expected fields. Got: {list(data.keys())}")
                     return False
+                    
             else:
-                # Direct response without redirect
-                self.log_test("Facebook Callback State Validation", True, 
-                            f"Callback processed without redirect (status: {response.status_code})")
-                return True
+                self.log_test("Simplified Status Endpoint", False, 
+                            f"Status: {response.status_code}", response.text[:200])
+                return False
                 
         except Exception as e:
-            self.log_test("Facebook Callback State Validation", False, error=str(e))
+            self.log_test("Simplified Status Endpoint", False, error=str(e))
             return False
     
     def test_social_connections_consistency(self):

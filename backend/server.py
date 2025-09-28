@@ -2877,6 +2877,7 @@ async def test_instagram_callback():
 
 @api_router.get("/social/facebook/callback")
 async def facebook_oauth_callback(
+    request: Request,
     code: str = None,
     access_token: str = None,
     state: str = None,

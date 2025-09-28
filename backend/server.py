@@ -3159,8 +3159,9 @@ async def publish_facebook_simple(
             "message": "Erreur lors de la publication Facebook"
         }
 
-@api_router.post("/test/instagram-post")
-async def test_instagram_publication(
+@api_router.post("/social/instagram/publish-simple")
+async def publish_instagram_simple(
+    request: dict,
     user_id: str = Depends(get_current_user_id_robust)
 ):
     """TEST ENDPOINT PROPRE - Publication Instagram avec vrais tokens seulement"""

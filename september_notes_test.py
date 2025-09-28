@@ -13,7 +13,7 @@ TESTS CRITIQUES REQUIS:
 4. Vérification contenu septembre vs octobre
 
 Credentials: lperpere@yahoo.fr / L@Reunion974!
-Backend URL: https://social-ai-planner-2.preview.emergentagent.com/api
+Backend URL: https://social-publisher-10.preview.emergentagent.com/api
 """
 
 import requests
@@ -22,7 +22,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://social-ai-planner-2.preview.emergentagent.com/api"
+BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

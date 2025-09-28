@@ -1,62 +1,58 @@
 <analysis>
-The AI engineer's work on the Claire et Marcus PWA involved a detailed, iterative process of feature implementation, bug fixing, and UI/UX refinement. Key achievements include the initial setup and stabilization of social media integrations, fixing persistent content display issues, and enhancing post generation logic. A significant effort was dedicated to developing a manual date/time modification feature, requiring a modern UI and robust backend endpoints. Extensive debugging focused on button functionality, state persistence, and synchronizing data across Posts and Calendar views. Recurring challenges included Valider button behavior, / inconsistencies, and React rendering issues. The engineer meticulously used debugging tools, , and adapted to user feedback, culminating in a complex multi-step modification workflow and a simplified, yet powerful, calendar interface. The trajectory ends with the user requesting to hide certain buttons during the modification process to enhance clarity.
+The AI engineer's trajectory showcases an extensive, iterative process to implement and stabilize social media publishing for the Claire et Marcus PWA, primarily focusing on Facebook and Instagram. The initial task involved refining the post modification workflow and hiding UI elements, which was quickly completed. The core of the work then shifted to implementing actual publishing via a Publier button. This led to a prolonged debugging cycle centered on persistent OAuth issues, particularly with Facebook. Key challenges included: identifying and resolving mismatches in database collection names ( vs. ), incorrect field names ( vs. ), hardcoded preview URLs in production code, faulty fallback token mechanisms, and misconfigurations in Facebook App IDs and Config IDs during the OAuth flow. The engineer employed  and  extensively to diagnose root causes. The trajectory concludes with the engineer in the process of applying a user-provided audit, specifically implementing real Instagram publication and setting up a test endpoint.
 </analysis>
 
 <product_requirements>
-The Claire et Marcus PWA automates social media content generation using AI. The initial problem involved stabilizing Instagram integration, migrating to Facebook Login for Business, fixing content management issues (e.g., 0/22 items displayed, URL bloquée, phantom posts), and integrating LLMs. Subsequent requirements focused on:
-- Refining post generation (proportional, next-day scheduling, per-network generation).
-- Implementing manual date/time modification for posts via a popup with a calendar and spinners, with specific limits, later clarified to be based on the post's attributed month.
-- Enhancing the Valider button: remove social network selection popup, use post's date/time, provide visual validation feedback.
-- Improving the calendar UI: clear filter labels, condensed statistics, correct layout, and the ability to view, move, and cancel scheduled posts directly from the calendar. This evolved to requiring modification capabilities for validated posts *only* within the calendar, while they remain read-only in the Posts tab.
-- Forcing a read-only mode for validated posts in the Posts tab, replacing modification options with a Programmé badge.
-- Refining the post modification workflow to include an AI rephrasing step, presenting a modified text preview with Confirmer, Annuler, Modifier à nouveau options, with auto-scrolling.
-- Simplifying calendar post actions: remove Modifier button, rename Annuler to Déprogrammer, add explanatory text for modifications.
-- Address UX issues like immediate post text updates post-confirmation and auto-scrolling.
-- The latest request is to hide the Valider and original Modifier buttons when the modification workflow is active, to avoid confusion.
+The Claire et Marcus PWA aims to automate social media content generation using AI. Initial requirements focused on stabilizing social media integrations (Instagram, Facebook Login for Business), fixing content display bugs (0/22 items), and integrating LLMs for post refinement. Subsequent features included manual date/time modification for posts via a calendar popup, enhancing the Valider button to use the post's date/time and provide visual feedback, and improving the calendar UI to view, move, and cancel scheduled posts. Validated posts in the Posts tab needed to be read-only, displaying a Programmé badge. The post modification workflow was enhanced with AI rephrasing and a preview with Confirmer, Annuler, Modifier à nouveau options. Recent UX refinements included simplifying calendar post actions and hiding Valider and Modifier buttons during the advanced modification process. The current overarching goal is to implement actual social media publishing (starting with Facebook, then Instagram) when the Valider (now Publier) button is clicked, transitioning posts to a published status.
 </product_requirements>
 
 <key_technical_concepts>
 - **Full-stack Development**: React.js (Frontend), FastAPI (Backend), MongoDB (Database).
 - **Authentication**: OAuth 2.0 (Facebook/Instagram Graph API), JWT tokens.
-- **State Management**: React , , , .
-- **UI Components**: Modals (, ), toast notifications.
-- **API Interaction**:  for fetching and posting data to FastAPI endpoints.
+- **State Management**: React , , .
+- **API Interaction**:  for FastAPI endpoints.
 - **Error Handling & Debugging**: Console logs, , , .
-- **Deployment**: Supervisor (for service control), Kubernetes Ingress rules.
+- **Deployment**: Supervisor, Kubernetes Ingress rules.
+- **MongoDB Serialization**: Handling  and  objects.
 </key_technical_concepts>
 
 <code_architecture>
 
-- ****: Main FastAPI application handling all backend logic, API routes, and database interactions.
-    - **Importance**: Central for all data operations (CRUD for posts, auth, payments, etc.).
+- ****: Main FastAPI application.
+    - **Importance**: Handles all backend logic, API routes, and database interactions (CRUD for posts, auth, social media, etc.).
     - **Changes Made**:
-        - : Modified to include the  field in the response (Chat 63).
-        - Added : Endpoint to retrieve calendar posts (Chat 325).
-        - : Debug logs added (Chat 327). Corrected  usage for post retrieval (Chat 319-320 context, fixed by sub-agent).
-        - : Corrected to query  collection using  (Chat 416).
-        - : Corrected to query  collection using , and to set , , and remove  (Chat 427).
+        - : Modified to include  field.
+        - : Debug logs added.
+        - New : Created for real social media publication, handles Facebook and Instagram API calls, updates post status to published. Initially had  serialization issues, fixed.
+        - , : Modified to use  (and ) and  (and ) consistently.
+        - , : Heavily refactored. Corrected collection name ( to ), field name ( to ), fixed variable scope issues, removed hardcoded preview URLs, ensured proper OAuth token exchange logic (page token vs. user token), and ensured successful connections are saved to DB.
+        - : Modified to update  and  counters for associated content to manage library badges.
+        - : Corrected to use  collection.
+        - Debug endpoints: , , ,  were added for diagnostic and cleanup purposes.
+        - Added  import and inclusion.
 
-- ****: Main React component managing frontend UI, state, and user interactions. Contains  and  components.
-    - **Importance**: Renders the entire application, handling post display, modification, and calendar views.
+- ****: Contains FacebookAPIClient for social media interactions.
+    - **Importance**: Encapsulates external API calls for social media.
     - **Changes Made**:
-        - ****: Logic refined for read-only mode for  posts in the Posts tab, displaying a Programmé badge and hiding action buttons (Chat 358, 362).
-        - ****:
-            - Moved globally (outside tabs) for universal access (Chat 108, 110).
-            - Updated to include image thumbnails for calendar posts (Chat 82).
-            - Buttons redesigned: Valider removed, Annuler renamed to Supprimer (later Déprogrammer), with confirmation modal (Chat 131, 133, 137, 369, 371).
-            - Modification workflow enhanced: New states added for preview (, , ), and functions (, , ) (Chat 180, 433, 435, 522).
-            - UI for modification preview added, with Confirmer, Annuler, Modifier à nouveau buttons (Chat 196, 439).
-            - Auto-scrolling implemented for modification preview and secondary modification area using  and  (Chat 524, 526, 534, 540).
-            - Logic for closing modification sub-windows: Confirmer closes all, Annuler closes last (Chat 548, 550, 556).
-        - ****: Backend  field included in response (Chat 63), frontend logic improved for synchronization.
-        - ****: Created to handle modifications from calendar without page reload; returns modified data for preview (Chat 153, 155, 190). Corrected to extract  correctly from backend response (Chat 266). Includes API call to save modifications (Chat 343, 345).
-        - ****: Modified to return modified data instead of reloading, to integrate with the new preview workflow (Chat 451, 453).
-        - ****: Updated to refresh  and  for synchronization across tabs (Chat 289).
-        - ****: Implemented more aggressive cache-busting and debug logs for synchronization (Chat 308).
-        - ****: Corrected to use the new  endpoint (Chat 339).
-        - Icon imports and references (, ) fixed to resolve blank page issue (Chat 386, 388).
-        - React event listener issue in calendar rendering () fixed by using  and a fallback div (Chat 400, 402).
-        - State management for modification workflow (, , etc.) moved from  to  component to resolve scope issues and ensure re-renders (Chat 475, 497, 505, 511).
+        -  and  fallbacks changed from  to environment variables.
+        - Updated  to use correct  for OAuth exchange.
+        - Implemented real Instagram publishing logic.
+
+- ****: Logic for generating posts.
+    - **Importance**: Determines which platforms to generate posts for based on active connections.
+    - **Changes Made**:
+        - : Corrected to query  collection and use the  field for identifying connected platforms, ensuring accurate post generation.
+
+- ****: Main React component, state, UI.
+    - **Importance**: Renders application, handles user interactions, displays posts/calendar, manages modification workflows.
+    - **Changes Made**:
+        - **Post modification UI**: Logic added to hide/gray out Valider and Modifier buttons when modification workflow is active.
+        - : Modified to call the new  endpoint.
+        - Button text Valider changed to Publier.
+        - UI for published posts: Displays Publié status.
+        - Error handling: Improved toast notifications for backend errors.
+        - Platform display: Replaced text labels (e.g., Facebook, Instagram) with their respective logos in the posts display and modal.
+        - , : Ensured dynamic URL generation for OAuth uses correct parameters.
 </code_architecture>
 
 <pending_tasks>
@@ -67,14 +63,29 @@ The Claire et Marcus PWA automates social media content generation using AI. The
 - Finalize carousel display logic (grey placeholder instead of first image).
 - Continue to apply and verify all corrections on the LIVE environment.
 - The minor issue where the secondary modification area disappears after the second AI processing, preventing full testing of differentiated cancellation, could be revisited.
+- The user's request for a complete skeleton of the OAuth flow for Facebook and Instagram in Python FastAPI.
 </pending_tasks>
 
 <current_work>
-Immediately prior to this summary, the AI engineer was finalizing the enhanced modification workflow. The user had confirmed that the multi-step modification process was working, including immediate text updates and auto-scrolling, and that confirming a modification correctly closed all sub-windows.
+Immediately prior to this summary, the AI engineer was deep into resolving persistent Facebook and Instagram OAuth and publication issues. Despite numerous fixes to database collection names, field names, token exchange logic, hardcoded URLs, and configuration IDs, Facebook connections were not persisting, and actual publication (for both Facebook and Instagram) was not occurring. The AI engineer had just provided a comprehensive status report to the user, outlining what was working, partially working, and completely broken, along with detailed diagnostics.
 
-The current work involves addressing the user's latest request to improve the user experience during the modification process. Specifically, the AI engineer is tasked with hiding the primary Valider and Modifier buttons of a post when the advanced modification workflow is actively being used (i.e., when the modification function is open). This is intended to prevent confusion between the Confirmer button within the modification workflow and the Valider or Modifier buttons related to the post itself. The AI engineer has just acknowledged this request and stated a plan to implement this logic immediately.
+The user then provided a comprehensive audit of the code, reinforcing many of the AI's recent findings and suggesting specific code changes for:
+1.  **OAuth Flow**: Ensuring  and  are received, and  are exchanged.
+2.  **Storage**: Correctly saving page tokens to .
+3.  **Publication**: Using the correct  for Facebook  and Instagram  endpoints (un-mocking Instagram publication).
+4.  **Frontend**: Visually marking successful connections.
+5.  **Tests**: Creating an isolated test endpoint.
+
+The AI engineer has begun implementing these suggestions. Specifically, the following actions have just been completed:
+-   Adding detailed logging for  and  in the Facebook callback.
+-   Correcting the Facebook  to  exchange to use the *page access token*.
+-   Ensuring the acquired Facebook page access token is correctly saved to .
+-   Creating a dedicated test endpoint  for isolated Facebook publication testing.
+-   Replacing the simulated Instagram publication logic with actual calls to the Instagram Graph API.
+
+The very last action taken was preparing to create a test endpoint for Instagram publication.
 </current_work>
 
 <optional_next_step>
-Hide the main Valider and Modifier buttons when the modification workflow is active to avoid confusion.
+Create a dedicated test endpoint for isolated Instagram publication testing.
 </optional_next_step>

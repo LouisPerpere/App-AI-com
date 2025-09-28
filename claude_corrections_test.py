@@ -7,7 +7,7 @@ Testing the 3 specific corrections applied to the website analysis system:
 2. ✅ Section produits/services vide → Ajout gestion array vide avec message approprié  
 3. ✅ Claude trop "IA" → Prompt revu pour ton naturel sans superlatifs/étoiles
 
-URL: https://social-ai-planner-2.preview.emergentagent.com/api
+URL: https://social-publisher-10.preview.emergentagent.com/api
 Credentials: lperpere@yahoo.fr / L@Reunion974!
 Test Website: https://myownwatch.fr
 """
@@ -19,7 +19,7 @@ import re
 from datetime import datetime
 
 # Configuration from review request
-BACKEND_URL = "https://social-ai-planner-2.preview.emergentagent.com/api"
+BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"

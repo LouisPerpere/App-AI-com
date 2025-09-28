@@ -20,7 +20,7 @@ def debug_thumbnail_generation():
     }
     
     print("🔐 Authenticating...")
-    response = requests.post("https://social-ai-planner-2.preview.emergentagent.com/api/auth/login", json=login_data)
+    response = requests.post("https://social-publisher-10.preview.emergentagent.com/api/auth/login", json=login_data)
     if response.status_code != 200:
         print(f"❌ Authentication failed: {response.status_code}")
         return
@@ -30,7 +30,7 @@ def debug_thumbnail_generation():
     
     print("📄 Getting content with thumbnails...")
     response = requests.get(
-        "https://social-ai-planner-2.preview.emergentagent.com/api/content/pending",
+        "https://social-publisher-10.preview.emergentagent.com/api/content/pending",
         params={'limit': 3},
         headers=headers
     )

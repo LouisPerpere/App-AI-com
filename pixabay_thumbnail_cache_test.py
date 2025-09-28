@@ -16,7 +16,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://social-ai-planner-2.preview.emergentagent.com/api"
+BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"

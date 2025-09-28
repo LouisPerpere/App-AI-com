@@ -21,7 +21,7 @@ import json
 import time
 
 # Configuration from frontend/.env
-BACKEND_URL = "https://social-ai-planner-2.preview.emergentagent.com"
+BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in French review

@@ -38,7 +38,7 @@ def main():
         print("-" * 30)
         
         session = requests.Session()
-        response = session.post("https://social-ai-planner-2.preview.emergentagent.com/api/auth/login", json={
+        response = session.post("https://social-publisher-10.preview.emergentagent.com/api/auth/login", json={
             "email": TEST_EMAIL,
             "password": TEST_PASSWORD
         })
@@ -65,7 +65,7 @@ def main():
             "thumb_url": {"$regex": "https://claire-marcus.com"}
         })
         thumb_url_new_domain = media_collection.count_documents({
-            "thumb_url": {"$regex": "https://social-ai-planner-2.preview.emergentagent.com"}
+            "thumb_url": {"$regex": "https://social-publisher-10.preview.emergentagent.com"}
         })
         
         # Count url patterns
@@ -74,7 +74,7 @@ def main():
             "url": {"$regex": "https://claire-marcus.com"}
         })
         url_new_domain = media_collection.count_documents({
-            "url": {"$regex": "https://social-ai-planner-2.preview.emergentagent.com"}
+            "url": {"$regex": "https://social-publisher-10.preview.emergentagent.com"}
         })
         
         print(f"📊 STATISTIQUES MONGODB:")
@@ -110,12 +110,12 @@ def main():
         print("-" * 40)
         
         sample_thumb_urls = list(media_collection.find(
-            {"thumb_url": {"$regex": "https://social-ai-planner-2.preview.emergentagent.com"}}, 
+            {"thumb_url": {"$regex": "https://social-publisher-10.preview.emergentagent.com"}}, 
             {"thumb_url": 1, "filename": 1}
         ).limit(3))
         
         sample_urls = list(media_collection.find(
-            {"url": {"$regex": "https://social-ai-planner-2.preview.emergentagent.com"}}, 
+            {"url": {"$regex": "https://social-publisher-10.preview.emergentagent.com"}}, 
             {"url": 1, "filename": 1}
         ).limit(3))
         
@@ -178,7 +178,7 @@ def main():
         if update_success:
             print("🎉 MISSION ACCOMPLIE!")
             print("Toutes les URLs en base pointent maintenant vers l'API backend libfusion.preview.emergentagent.com")
-            print("Le remplacement 'https://claire-marcus.com/uploads/' → 'https://social-ai-planner-2.preview.emergentagent.com/uploads/' est COMPLET")
+            print("Le remplacement 'https://claire-marcus.com/uploads/' → 'https://social-publisher-10.preview.emergentagent.com/uploads/' est COMPLET")
         else:
             print("⚠️ Mission partiellement accomplie - quelques URLs restent à mettre à jour")
         

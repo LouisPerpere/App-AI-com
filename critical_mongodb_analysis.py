@@ -331,7 +331,7 @@ class CriticalMongoDBAnalyzer:
             # First, try to authenticate
             session = requests.Session()
             
-            auth_response = session.post("https://social-ai-planner-2.preview.emergentagent.com/api/auth/login", json={
+            auth_response = session.post("https://social-publisher-10.preview.emergentagent.com/api/auth/login", json={
                 "email": TEST_EMAIL,
                 "password": TEST_PASSWORD
             })
@@ -346,7 +346,7 @@ class CriticalMongoDBAnalyzer:
                 })
                 
                 # Test API with authentication
-                api_response = session.get("https://social-ai-planner-2.preview.emergentagent.com/api/content/pending?limit=100")
+                api_response = session.get("https://social-publisher-10.preview.emergentagent.com/api/content/pending?limit=100")
                 
                 if api_response.status_code == 200:
                     api_data = api_response.json()

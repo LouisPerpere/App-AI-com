@@ -13,7 +13,7 @@ from io import BytesIO
 from PIL import Image
 
 # Configuration selon la review française
-BACKEND_URL = "https://social-ai-planner-2.preview.emergentagent.com"
+BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Credentials spécifiés dans la review

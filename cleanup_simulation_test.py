@@ -17,7 +17,7 @@ This test validates that the cleanup system correctly identifies:
 - Notes that would be preserved: Monthly notes, other months
 
 AUTHENTICATION: lperpere@yahoo.fr / L@Reunion974!
-BACKEND URL: https://social-ai-planner-2.preview.emergentagent.com/api
+BACKEND URL: https://social-publisher-10.preview.emergentagent.com/api
 """
 
 import requests
@@ -27,7 +27,7 @@ from datetime import datetime, date
 
 class CleanupSimulationTester:
     def __init__(self):
-        self.base_url = "https://social-ai-planner-2.preview.emergentagent.com/api"
+        self.base_url = "https://social-publisher-10.preview.emergentagent.com/api"
         self.session = requests.Session()
         self.access_token = None
         self.user_id = None

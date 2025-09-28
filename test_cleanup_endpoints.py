@@ -9,7 +9,7 @@ import json
 def test_cleanup_endpoints():
     """Test the cleanup endpoints"""
     
-    base_url = "https://social-ai-planner-2.preview.emergentagent.com/api"
+    base_url = "https://social-publisher-10.preview.emergentagent.com/api"
     credentials = {
         "email": "lperpere@yahoo.fr",
         "password": "L@Reunion974!"

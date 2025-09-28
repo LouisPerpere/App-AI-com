@@ -10,7 +10,7 @@ INVESTIGATION FOCUS:
 4. Test the post generation logic to see where the visual assignment is failing
 
 Credentials: lperpere@yahoo.fr / L@Reunion974!
-Backend URL: https://social-ai-planner-2.preview.emergentagent.com/api
+Backend URL: https://social-publisher-10.preview.emergentagent.com/api
 """
 
 import requests
@@ -20,7 +20,7 @@ from datetime import datetime
 import time
 
 # Configuration
-BACKEND_URL = "https://social-ai-planner-2.preview.emergentagent.com/api"
+BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

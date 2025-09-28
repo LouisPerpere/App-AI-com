@@ -11,7 +11,7 @@ import time
 def create_test_facebook_connection():
     """Create a test Facebook connection with temporary token"""
     
-    base_url = "https://social-ai-planner-2.preview.emergentagent.com/api"
+    base_url = "https://social-publisher-10.preview.emergentagent.com/api"
     credentials = {
         "email": "lperpere@yahoo.fr",
         "password": "L@Reunion974!"

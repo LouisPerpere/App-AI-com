@@ -4041,7 +4041,10 @@ async def clean_invalid_social_tokens(user_id: str = Depends(get_current_user_id
             "user_id": user_id,
             "$or": [
                 {"access_token": {"$in": invalid_patterns}},
-                {"access_token": {"$exists": False}}
+                {"access_token": {"$exists": False}},
+                {"access_token": {"$regex": "^temp_facebook_token_"}},
+                {"access_token": {"$regex": "^temp_instagram_token_"}},
+                {"access_token": {"$regex": "^temp_"}}
             ]
         })
         

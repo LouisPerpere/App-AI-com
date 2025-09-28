@@ -3068,14 +3068,16 @@ async def facebook_oauth_callback(
                                 "expires_at": (datetime.now(timezone.utc) + timedelta(days=60)).isoformat()
                             }
                         
-                        # Remplacer toute connexion Instagram existante (clean)
-                        dbm.db.social_media_connections.delete_many({
-                            "user_id": user_id,
-                            "platform": "instagram"
-                        })
-                        
-                        dbm.db.social_media_connections.insert_one(instagram_connection)
-                        print(f"✅ SIMPLE Instagram connection saved: @{ig_account.get('username')} (ID: {ig_account['id']})")
+                            # Remplacer toute connexion Instagram existante (clean)
+                            dbm.db.social_media_connections.delete_many({
+                                "user_id": user_id,
+                                "platform": "instagram"
+                            })
+                            
+                            dbm.db.social_media_connections.insert_one(instagram_connection)
+                            print(f"✅ Instagram connection saved: @{ig_username} (User ID: {ig_user_id})")
+                        else:
+                            print(f"⚠️ Instagram Business Account sans User ID - ignoré")
                     
                     # Succès - redirection avec vraie connexion
                     success_redirect = f"{frontend_url}?auth_success=facebook_connected&page_name={page_name}"

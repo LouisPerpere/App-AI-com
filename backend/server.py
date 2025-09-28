@@ -1164,14 +1164,54 @@ async def delete_single_generated_post(
         
         dbm = get_database()
         
-        # Delete the specific post (ensure ownership)
+        # D'abord récupérer le post pour connaître son contenu et sa plateforme
+        post_to_delete = dbm.db.generated_posts.find_one({
+            "id": post_id,
+            "owner_id": user_id
+        })
+        
+        if not post_to_delete:
+            raise HTTPException(status_code=404, detail="Post not found or not owned by user")
+        
+        # Supprimer le post
         result = dbm.db.generated_posts.delete_one({
             "id": post_id,
             "owner_id": user_id
         })
         
-        if result.deleted_count == 0:
-            raise HTTPException(status_code=404, detail="Post not found or not owned by user")
+        # Mettre à jour les badges des contenus utilisés dans ce post
+        if post_to_delete.get("visual_id") and post_to_delete.get("platform"):
+            platform = post_to_delete["platform"].lower()
+            visual_id = post_to_delete["visual_id"]
+            
+            # Map platform to field name
+            platform_field_map = {
+                'facebook': 'used_on_facebook',
+                'instagram': 'used_on_instagram', 
+                'linkedin': 'used_on_linkedin'
+            }
+            
+            platform_field = platform_field_map.get(platform)
+            if platform_field:
+                print(f"🔄 Updating badge for content {visual_id}, removing {platform} usage")
+                
+                # Vérifier s'il y a d'autres posts utilisant ce contenu sur cette plateforme
+                other_posts_using_content = dbm.db.generated_posts.count_documents({
+                    "visual_id": visual_id,
+                    "platform": post_to_delete["platform"],
+                    "owner_id": user_id,
+                    "id": {"$ne": post_id}  # Exclure le post qu'on vient de supprimer
+                })
+                
+                if other_posts_using_content == 0:
+                    # Aucun autre post n'utilise ce contenu sur cette plateforme, retirer le badge
+                    badge_update_result = dbm.db.fs.files.update_one(
+                        {"_id": visual_id},
+                        {"$set": {platform_field: False}}
+                    )
+                    print(f"✅ Badge {platform} retiré du contenu {visual_id}")
+                else:
+                    print(f"📝 Badge {platform} conservé - {other_posts_using_content} autres posts utilisent ce contenu")
         
         print(f"✅ Successfully deleted post {post_id}")
         

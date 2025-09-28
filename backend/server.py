@@ -3003,32 +3003,30 @@ async def facebook_oauth_callback(
                     dbm.db.social_media_connections.insert_one(facebook_connection)
                     print(f"✅ SIMPLE Facebook connection saved: {page_name} (ID: {page_id})")
                     
-                    # Traiter Instagram si disponible
+                    # Traiter Instagram si connecté à la page Facebook (approche ChatGPT)
                     if page.get('instagram_business_account'):
                         ig_account = page['instagram_business_account']
                         instagram_connection = {
-                            "connection_id": str(uuid.uuid4()),
                             "id": str(uuid.uuid4()),
                             "user_id": user_id,
                             "platform": "instagram",
-                            "username": ig_account.get('username', 'Instagram'),
-                            "access_token": page_access_token,  # Même token que la page Facebook
+                            "access_token": page_access_token,  # MÊME TOKEN que Facebook
                             "instagram_user_id": ig_account['id'],
-                            "page_id": page_id,
-                            "connected_at": datetime.now(timezone.utc),
+                            "username": ig_account.get('username', 'Instagram'),
+                            "page_id": page_id,  # Lié à la page Facebook
+                            "connected_at": datetime.now(timezone.utc).isoformat(),
                             "active": True,
-                            "token_type": "page_token",
-                            "expires_at": datetime.now(timezone.utc) + timedelta(days=60)
+                            "expires_at": (datetime.now(timezone.utc) + timedelta(days=60)).isoformat()
                         }
                         
-                        # Remplacer toute connexion Instagram existante
-                        dbm.social_media_connections.delete_many({
+                        # Remplacer toute connexion Instagram existante (clean)
+                        dbm.db.social_media_connections.delete_many({
                             "user_id": user_id,
                             "platform": "instagram"
                         })
                         
-                        dbm.social_media_connections.insert_one(instagram_connection)
-                        print(f"✅ Instagram connection also saved")
+                        dbm.db.social_media_connections.insert_one(instagram_connection)
+                        print(f"✅ SIMPLE Instagram connection saved: @{ig_account.get('username')} (ID: {ig_account['id']})")
                     
                     # Succès - redirection avec vraie connexion
                     success_redirect = f"{frontend_url}?auth_success=facebook_connected&page_name={page_name}"

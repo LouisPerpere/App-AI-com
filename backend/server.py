@@ -2955,14 +2955,20 @@ async def facebook_oauth_callback(
         
         print(f"🔄 Token exchange - App ID: {facebook_app_id}")
         
-        # Échange du code contre access token
-        token_url = "https://graph.facebook.com/v21.0/oauth/access_token"
+        # Échange du code contre access token (correction format)
+        token_url = "https://graph.facebook.com/v20.0/oauth/access_token"  # Utiliser v20.0 pour compatibilité
         token_params = {
             'client_id': facebook_app_id,
             'client_secret': facebook_app_secret,
             'redirect_uri': redirect_uri,
-            'code': code
+            'code': code.strip()  # Supprimer espaces/caractères parasites
         }
+        
+        print(f"🔧 OAuth Token Exchange Debug:")
+        print(f"   Code reçu: '{code}' (length: {len(code)})")
+        print(f"   Code nettoyé: '{code.strip()}' (length: {len(code.strip())})")
+        print(f"   Client ID: {facebook_app_id}")
+        print(f"   Redirect URI: {redirect_uri}")
         
         import aiohttp
         async with aiohttp.ClientSession() as session:

@@ -2891,10 +2891,12 @@ async def facebook_oauth_callback(
         dbm = get_database()
         
         print(f"🔄 Facebook OAuth callback received")
-        print(f"   Code: {'✅ Present' if code else '❌ Missing'}")
+        print(f"   Code: {'✅ Present (' + code[:20] + '...)' if code else '❌ Missing'}")
         print(f"   Access token: {'✅ Present' if access_token else '❌ Missing'}")
         print(f"   State: {state}")
         print(f"   Error: {error}")
+        print(f"   Full request URL: {request.url}")
+        print(f"   Query params: {dict(request.query_params)}")
         
         # Vérifier les erreurs OAuth
         if error:

@@ -4251,9 +4251,13 @@ async def publish_post_to_social_media(
                 print(f"   Page ID: {page_id}")
                 print(f"   Token: {access_token[:20]}..." if access_token else "No token")
                 
-                # Validation du token avant publication
-                if not access_token or access_token.startswith("temp_"):
-                    raise Exception("Token Facebook invalide ou temporaire détecté")
+                # Validation du token avant publication (selon ChatGPT)
+                if not access_token:
+                    raise Exception("Aucun token Facebook trouvé - Reconnectez votre compte")
+                if access_token.startswith("temp_"):
+                    raise Exception("Token Facebook temporaire détecté - Reconnectez votre compte pour obtenir un vrai token OAuth")
+                if not access_token.startswith("EAAG") and not access_token.startswith("EAA"):
+                    raise Exception(f"Format de token Facebook invalide - Token reçu: {access_token[:20]}...")
                 
                 fb_client = FacebookAPIClient(access_token)
                 

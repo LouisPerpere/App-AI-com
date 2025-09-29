@@ -29,41 +29,36 @@ class FacebookTokenDiagnostic:
         self.user_id = None
         
     def authenticate(self):
-        print("🔐 AUTHENTICATION")
-        print("=" * 50)
+        """Authentification avec les identifiants de test"""
+        print("🔐 ÉTAPE 1: Authentification...")
         
         try:
-            response = self.session.post(f"{BACKEND_URL}/auth/login-robust", json={
-                "email": TEST_EMAIL,
-                "password": TEST_PASSWORD
-            })
+            response = self.session.post(
+                f"{BACKEND_URL}/auth/login-robust",
+                json=TEST_CREDENTIALS,
+                timeout=30
+            )
             
             if response.status_code == 200:
                 data = response.json()
-                self.access_token = data.get("access_token")
+                self.auth_token = data.get("access_token")
                 self.user_id = data.get("user_id")
                 
                 # Set authorization header for future requests
                 self.session.headers.update({
-                    "Authorization": f"Bearer {self.access_token}"
+                    "Authorization": f"Bearer {self.auth_token}"
                 })
                 
-                self.log_test(
-                    "Authentication", 
-                    True, 
-                    f"User ID: {self.user_id}, Token: {self.access_token[:20]}..."
-                )
+                print(f"   ✅ Authentification réussie")
+                print(f"   👤 User ID: {self.user_id}")
                 return True
             else:
-                self.log_test(
-                    "Authentication", 
-                    False, 
-                    error=f"Status {response.status_code}: {response.text}"
-                )
+                print(f"   ❌ Échec authentification: {response.status_code}")
+                print(f"   📄 Réponse: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("Authentication", False, error=str(e))
+            print(f"   ❌ Erreur authentification: {e}")
             return False
     
     def test_carousel_url_conversion(self):

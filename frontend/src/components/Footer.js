@@ -23,35 +23,27 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Quick Links */}
+          {/* Mentions légales intégrées */}
           <div className="col-span-1">
-            <h3 className="font-semibold text-gray-900 mb-4">Liens utiles</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link 
-                  to="/mentions-legales" 
-                  className="text-gray-600 hover:text-pink-600 transition-colors"
-                >
-                  Mentions légales
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/politique-confidentialite" 
-                  className="text-gray-600 hover:text-pink-600 transition-colors"
-                >
-                  Politique de confidentialité
-                </Link>
-              </li>
-              <li>
+            <h3 className="font-semibold text-gray-900 mb-4">Mentions légales</h3>
+            <div className="space-y-2 text-xs text-gray-600 leading-relaxed">
+              <p><strong>Éditeur :</strong> EI Fou De Vanille</p>
+              <p><strong>SIRET :</strong> 952 513 661 00019</p>
+              <p><strong>Adresse :</strong> 44 Rue De Lorraine, 94700 Maisons Alfort</p>
+              <p><strong>RCS :</strong> Créteil</p>
+              <p><strong>Responsable publication :</strong> Alexandra Perpere</p>
+              <p><strong>Hébergeur :</strong> 
                 <a 
-                  href="mailto:contact@claire-marcus.com"
-                  className="text-gray-600 hover:text-pink-600 transition-colors"
+                  href="https://emergentagent.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-pink-600 transition-colors ml-1"
                 >
-                  Contact
+                  Emergent
                 </a>
-              </li>
-            </ul>
+                <br />115 Rue Réaumur, 75002 Paris, France
+              </p>
+            </div>
           </div>
 
           {/* Contact Info */}

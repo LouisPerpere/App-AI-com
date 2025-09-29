@@ -1,0 +1,16 @@
+{
+  "connections": {
+    "facebook_tokens": [],
+    "analysis": "no_tokens"
+  },
+  "publication": {
+    "test_result": "other_error",
+    "error": "{\"error\":\"Erreur de publication Facebook: Token Facebook temporaire d\u00e9tect\u00e9 - Reconnectez votre compte pour obtenir un vrai token OAuth\"}"
+  },
+  "flow": {
+    "flow_analysis": "completed"
+  },
+  "carousel": {
+    "carousel_conversion": "analyzed"
+  }
+}

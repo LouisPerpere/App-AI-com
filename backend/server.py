@@ -3240,8 +3240,10 @@ async def get_public_image_webp(file_id: str):
             from fastapi.responses import FileResponse
             return FileResponse(
                 file_path,
+                media_type="image/webp",  # Force webp pour Facebook
+                filename=f"{file_id}.webp",
                 headers={
-                    "Cache-Control": "public, max-age=86400",
+                    "Cache-Control": "public, max-age=31536000",  # 1 an selon ChatGPT
                     "Access-Control-Allow-Origin": "*"
                 }
             )

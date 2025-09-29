@@ -66,7 +66,7 @@ def parse_any_id(file_id: str) -> dict:
         return {"id": file_id}
 
 def convert_to_public_image_url(image_url: str) -> str:
-    """Convertir URL protégée en URL publique accessible par Facebook"""
+    """Convertir URL protégée en URL publique accessible par Facebook (avec support carousel)"""
     if not image_url:
         return None
     
@@ -74,20 +74,40 @@ def convert_to_public_image_url(image_url: str) -> str:
     if image_url.startswith("http") and not "/api/" in image_url:
         return image_url
     
-    # Si c'est une URL protégée /api/content/{id}/file, convertir (selon ChatGPT: ajouter extension)
+    backend_url = os.environ.get('REACT_APP_BACKEND_URL', 'https://claire-marcus.com')
+    
+    # CORRECTION CHATGPT: Support des carousels
+    if "carousel_" in image_url:
+        # Exemple : /api/content/carousel/carousel_90e5d8c2... ➜ id = 90e5d8c2...
+        import re
+        match = re.search(r'carousel_([^/.]+)', image_url)
+        if match:
+            file_id = match.group(1)
+            print(f"🔄 Converting carousel URL: {image_url} → /api/public/image/{file_id}.webp")
+            return f"{backend_url}/api/public/image/{file_id}.webp"
+    
+    # Si c'est une URL protégée /api/content/{id}/file, convertir
     if "/api/content/" in image_url and "/file" in image_url:
         # Extraire l'ID du fichier
         import re
         match = re.search(r'/api/content/([^/]+)/file', image_url)
         if match:
             file_id = match.group(1)
-            # Retourner l'URL publique avec extension .webp pour Facebook
-            backend_url = os.environ.get('REACT_APP_BACKEND_URL', 'https://claire-marcus.com')
+            print(f"🔄 Converting content URL: {image_url} → /api/public/image/{file_id}.webp")
+            return f"{backend_url}/api/public/image/{file_id}.webp"
+    
+    # Support uploads/ (selon ChatGPT)
+    if "uploads/" in image_url:
+        # Extraire l'ID du fichier uploads
+        import re
+        match = re.search(r'uploads/[^/]+/([^/.]+)', image_url)
+        if match:
+            file_id = match.group(1)
+            print(f"🔄 Converting uploads URL: {image_url} → /api/public/image/{file_id}.webp")
             return f"{backend_url}/api/public/image/{file_id}.webp"
     
     # Si c'est une URL relative, la convertir en absolue
     if image_url.startswith("/"):
-        backend_url = os.environ.get('REACT_APP_BACKEND_URL', 'https://claire-marcus.com')
         return f"{backend_url}{image_url}"
     
     # Sinon, retourner telle quelle

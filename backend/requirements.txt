@@ -22,3 +22,4 @@ aiofiles
 pillow-heif
 emergent-plugins @ file:///wheelhouse/emergent_plugins-1.0.0-py3-none-any.whl#sha256=c0f704b1f3e22b0bfa65048252154d4524b82184a05034acfd677391e1d02c6e
 emergentintegrations==0.1.0
+Pillow

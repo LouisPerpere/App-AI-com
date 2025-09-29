@@ -4276,44 +4276,97 @@ async def publish_post_to_social_media(
                 if not access_token.startswith("EAAG") and not access_token.startswith("EAA"):
                     raise Exception(f"Format de token Facebook invalide - Token reçu: {access_token[:20]}...")
                 
-                # MÉTHODE BINAIRE selon ChatGPT (au lieu de fb_client.post_to_page)
+                # MÉTHODE BINAIRE + CONVERSION JPG selon analyse ChatGPT
                 if image_url:
-                    print(f"🔄 Facebook Binary Upload: Downloading image from {image_url}")
+                    print(f"🔄 Facebook JPG Upload: Downloading and converting image from {image_url}")
                     
                     import aiohttp
+                    from PIL import Image
+                    import io
+                    
                     async with aiohttp.ClientSession() as session:
                         # Télécharger l'image
                         async with session.get(image_url) as img_response:
                             if img_response.status != 200:
                                 raise Exception(f"Impossible de télécharger l'image: {img_response.status} - {image_url}")
                             
-                            image_bytes = await img_response.read()
-                            content_type = img_response.headers.get('Content-Type', 'image/webp')
+                            original_image_bytes = await img_response.read()
+                            original_content_type = img_response.headers.get('Content-Type', 'image/webp')
                             
-                            print(f"✅ Image téléchargée: {len(image_bytes)} bytes, {content_type}")
+                            print(f"✅ Image téléchargée: {len(original_image_bytes)} bytes, {original_content_type}")
                             
-                            # Upload binaire à Facebook (solution ChatGPT)
+                            # CONVERSION EN JPG AUTOMATIQUE pour Facebook
+                            try:
+                                # Ouvrir l'image avec Pillow
+                                image = Image.open(io.BytesIO(original_image_bytes))
+                                
+                                # Convertir en RGB si nécessaire (pour JPG)
+                                if image.mode in ('RGBA', 'LA', 'P'):
+                                    # Créer un fond blanc pour les images avec transparence
+                                    background = Image.new('RGB', image.size, (255, 255, 255))
+                                    if image.mode == 'P':
+                                        image = image.convert('RGBA')
+                                    background.paste(image, mask=image.split()[-1] if image.mode == 'RGBA' else None)
+                                    image = background
+                                elif image.mode != 'RGB':
+                                    image = image.convert('RGB')
+                                
+                                # Convertir en JPG (format supporté par Facebook)
+                                jpg_buffer = io.BytesIO()
+                                image.save(jpg_buffer, format='JPEG', quality=85, optimize=True)
+                                jpg_bytes = jpg_buffer.getvalue()
+                                
+                                print(f"✅ Conversion JPG réussie: {len(original_image_bytes)} bytes → {len(jpg_bytes)} bytes JPG")
+                                
+                            except Exception as conversion_error:
+                                print(f"❌ Erreur conversion JPG: {conversion_error}")
+                                # Fallback : utiliser l'image originale
+                                jpg_bytes = original_image_bytes
+                                print(f"⚠️ Utilisation image originale sans conversion")
+                            
+                            # Upload binaire JPG à Facebook (solution ChatGPT)
                             fb_url = f"https://graph.facebook.com/v20.0/{page_id}/photos"
                             
                             form_data = aiohttp.FormData()
-                            form_data.add_field('source', image_bytes, filename='post_image.webp', content_type=content_type)
+                            form_data.add_field('source', jpg_bytes, filename='post_image.jpg', content_type='image/jpeg')
                             form_data.add_field('caption', content)
                             form_data.add_field('access_token', access_token)
-                            form_data.add_field('published', 'true')
+                            form_data.add_field('published', 'true')  # Critique selon analyse
+                            
+                            print(f"🔄 Envoi à Facebook: {len(jpg_bytes)} bytes JPG, caption: {content[:50]}...")
                             
                             async with session.post(fb_url, data=form_data, timeout=30) as fb_response:
+                                fb_response_text = await fb_response.text()
+                                
                                 if fb_response.status == 200:
-                                    result = await fb_response.json()
-                                    facebook_post_id = result.get('id')
-                                    
-                                    if facebook_post_id:
-                                        print(f"✅ Facebook binary upload successful: {facebook_post_id}")
-                                        result = {"id": facebook_post_id, "platform": "facebook"}
-                                    else:
-                                        raise Exception(f"Pas d'ID post dans la réponse Facebook: {result}")
+                                    try:
+                                        result = await fb_response.json()
+                                        facebook_post_id = result.get('id')
+                                        
+                                        if facebook_post_id:
+                                            print(f"🎉 Facebook JPG publication successful: {facebook_post_id}")
+                                            result = {
+                                                "id": facebook_post_id, 
+                                                "platform": "facebook",
+                                                "method": "binary_jpg_upload",
+                                                "image_size": len(jpg_bytes)
+                                            }
+                                        else:
+                                            print(f"❌ Pas d'ID post dans la réponse Facebook: {result}")
+                                            raise Exception(f"Pas d'ID post dans la réponse Facebook: {result}")
+                                    except Exception as parse_error:
+                                        print(f"❌ Erreur parsing réponse Facebook: {parse_error}")
+                                        print(f"   Réponse brute: {fb_response_text}")
+                                        raise Exception(f"Erreur parsing réponse Facebook: {fb_response_text}")
                                 else:
-                                    error_response = await fb_response.json()
-                                    raise Exception(f"Facebook binary upload failed: {fb_response.status} - {error_response}")
+                                    print(f"❌ Facebook API error: {fb_response.status}")
+                                    print(f"   Réponse: {fb_response_text}")
+                                    try:
+                                        error_response = await fb_response.json()
+                                        error_msg = error_response.get('error', {}).get('message', 'Upload failed')
+                                        raise Exception(f"Facebook JPG upload failed: {fb_response.status} - {error_msg}")
+                                    except:
+                                        raise Exception(f"Facebook JPG upload failed: {fb_response.status} - {fb_response_text}")
                 else:
                     # Publication texte seul (sans image)
                     import aiohttp
@@ -4326,7 +4379,7 @@ async def publish_post_to_social_media(
                         async with session.post(fb_url, data=form_data) as fb_response:
                             if fb_response.status == 200:
                                 result = await fb_response.json()
-                                result = {"id": result.get('id'), "platform": "facebook"}
+                                result = {"id": result.get('id'), "platform": "facebook", "method": "text_only"}
                                 print(f"✅ Facebook text post successful: {result['id']}")
                             else:
                                 error_response = await fb_response.json()

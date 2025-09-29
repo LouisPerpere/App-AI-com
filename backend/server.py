@@ -3172,8 +3172,8 @@ async def instagram_oauth_callback(
 class PublishPostRequest(BaseModel):
     post_id: str
 
-@api_router.get("/public/image/{file_id}")
-async def get_public_image(file_id: str):
+@api_router.get("/public/image/{file_id}.webp")
+async def get_public_image_webp(file_id: str):
     """ENDPOINT PUBLIC VRAIMENT ACCESSIBLE - Pas d'auth pour Facebook"""
     try:
         print(f"🌐 Serving public image: {file_id}")

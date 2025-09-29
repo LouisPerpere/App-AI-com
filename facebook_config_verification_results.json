@@ -1,0 +1,9 @@
+{
+  "authentication": true,
+  "test_1_app_id_config_id": false,
+  "test_2_frontend_button": false,
+  "test_3_temp_tokens_diagnostic": false,
+  "test_4_callback_verification": true,
+  "test_5_token_cleanup": true,
+  "configuration_complete": false
+}

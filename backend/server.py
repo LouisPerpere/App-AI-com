@@ -2980,7 +2980,8 @@ async def facebook_oauth_callback(
     code: str = None,
     state: str = None,
     error: str = None,
-    error_description: str = None
+    error_description: str = None,
+    id_token: str = None  # Support nouveau format Facebook
 ):
     """NOUVEAU CALLBACK FACEBOOK PROPRE - AUCUN FALLBACK, AUCUNE SIMULATION"""
     frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')

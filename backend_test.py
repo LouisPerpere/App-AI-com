@@ -96,6 +96,9 @@ class FacebookImagePublicationTester:
                 )
                 return False
                 
+        except Exception as e:
+            self.log_result("Authentication", False, f"Exception: {str(e)}")
+            return False
     
     def get_facebook_posts_with_images(self):
         """ÉTAPE 2: Récupérer posts Facebook avec images"""

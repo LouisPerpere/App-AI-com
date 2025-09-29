@@ -13,13 +13,13 @@ import os
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://social-publisher-10.preview.emergentagent.com/api"
-TEST_CREDENTIALS = {
+BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com/api"
+CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"
 }
 
-class BackendTester:
+class FacebookBinaryTester:
     def __init__(self):
         self.session = requests.Session()
         self.auth_token = None

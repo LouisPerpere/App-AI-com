@@ -1,29 +1,33 @@
 #!/usr/bin/env python3
 """
-TRACER OAUTH FACEBOOK EN TEMPS RÉEL - IDENTIFIER ÉCHEC TOKENS EAA
-Backend testing script for Facebook OAuth callback diagnostic
-
-Objectif: Identifier exactement à quel moment échoue l'enregistrement des tokens EAA 
-lors du flow OAuth Facebook avec surveillance en temps réel des logs.
+🎯 FACEBOOK IMAGES LIVE ENVIRONMENT TESTING
+Test environnement LIVE déployé (claire-marcus.com) au lieu de PREVIEW
 
 Identifiants: lperpere@yahoo.fr / L@Reunion974!
+Environnement LIVE: https://claire-marcus-pwa-1.emergent.host/api (ou claire-marcus.com)
+
+TESTS CRITIQUES SUR LIVE:
+1. Test authentification sur LIVE
+2. Test génération URL OAuth Facebook sur LIVE  
+3. Test état des connexions sociales sur LIVE
+4. Test endpoints de publication sur LIVE
+5. Test images publiques sur LIVE
 """
 
 import requests
 import json
-import time
-import os
+import sys
 from datetime import datetime
 
-# Configuration
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://social-publisher-10.preview.emergentagent.com')
-API_BASE = f"{BACKEND_URL}/api"
+# Configuration LIVE
+LIVE_BACKEND_URL = "https://claire-marcus-pwa-1.emergent.host/api"
+ALTERNATIVE_LIVE_URL = "https://claire-marcus.com/api"
+CREDENTIALS = {
+    "email": "lperpere@yahoo.fr",
+    "password": "L@Reunion974!"
+}
 
-# Test credentials
-TEST_EMAIL = "lperpere@yahoo.fr"
-TEST_PASSWORD = "L@Reunion974!"
-
-class FacebookOAuthDiagnostic:
+class LiveEnvironmentTester:
     def __init__(self):
         self.session = requests.Session()
         self.user_id = None

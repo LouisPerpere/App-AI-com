@@ -139,14 +139,122 @@ class FacebookTokenDiagnostic:
             print(f"   ❌ Erreur récupération connexions: {e}")
             return {"facebook_tokens": [], "analysis": "exception"}
     
-    def test_facebook_token_validation(self):
-        """Test 2: Validation stricte tokens Facebook (doit commencer par EAAG/EAA)"""
-        print("🔒 TEST 2: FACEBOOK TOKEN VALIDATION")
-        print("=" * 50)
+    def analyze_token_format(self, token):
+        """Analyser le format d'un token Facebook"""
+        if not token:
+            return {"type": "empty", "length": 0, "prefix": ""}
+        
+        length = len(token)
+        
+        # Vérifier les préfixes de tokens permanents Facebook
+        if token.startswith("EAAG") or token.startswith("EAA"):
+            return {
+                "type": "permanent",
+                "length": length,
+                "prefix": token[:4],
+                "expected_length": "200+ caractères pour tokens permanents"
+            }
+        
+        # Vérifier les tokens temporaires (pattern temp_)
+        if token.startswith("temp_"):
+            return {
+                "type": "temporary", 
+                "length": length,
+                "prefix": token[:10],
+                "expected_length": "Variable pour tokens temporaires"
+            }
+        
+        # Vérifier autres patterns temporaires
+        if "temp" in token.lower() or "test" in token.lower():
+            return {
+                "type": "temporary",
+                "length": length, 
+                "prefix": token[:10],
+                "expected_length": "Variable pour tokens temporaires"
+            }
+        
+        # Token format inconnu mais analyser la longueur
+        if length > 200:
+            return {
+                "type": "possibly_permanent",
+                "length": length,
+                "prefix": token[:10],
+                "expected_length": "200+ caractères suggèrent token permanent"
+            }
+        else:
+            return {
+                "type": "unknown_short",
+                "length": length,
+                "prefix": token[:10],
+                "expected_length": "< 200 caractères, possiblement temporaire"
+            }
+    
+    def test_publication_with_validation(self):
+        """Test validation token avec nouveaux critères"""
+        print("\n🧪 ÉTAPE 3: Test validation token avec publication...")
         
         try:
-            # Get a post to test publication with
-            response = self.session.get(f"{BACKEND_URL}/posts/generated")
+            # D'abord, récupérer un post Facebook pour tester
+            posts_response = self.session.get(
+                f"{BACKEND_URL}/posts/generated",
+                timeout=30
+            )
+            
+            if posts_response.status_code != 200:
+                print(f"   ❌ Impossible de récupérer les posts: {posts_response.status_code}")
+                return {"test_result": "no_posts"}
+            
+            posts_data = posts_response.json()
+            posts = posts_data.get("posts", [])
+            
+            # Chercher un post Facebook avec image
+            facebook_post = None
+            for post in posts:
+                if post.get("platform") == "facebook" and post.get("visual_url"):
+                    facebook_post = post
+                    break
+            
+            if not facebook_post:
+                print("   ⚠️  Aucun post Facebook avec image trouvé")
+                # Créer un post de test si nécessaire
+                return {"test_result": "no_facebook_posts"}
+            
+            post_id = facebook_post.get("id")
+            print(f"   📝 Post de test trouvé: {post_id}")
+            print(f"   🖼️  Image: {facebook_post.get('visual_url', 'N/A')}")
+            
+            # Tenter la publication
+            publish_response = self.session.post(
+                f"{BACKEND_URL}/posts/publish",
+                json={"post_id": post_id},
+                timeout=30
+            )
+            
+            print(f"   📤 Statut publication: {publish_response.status_code}")
+            
+            if publish_response.status_code == 200:
+                result = publish_response.json()
+                print(f"   ✅ Publication réussie!")
+                print(f"   📄 Réponse: {json.dumps(result, indent=2)}")
+                return {"test_result": "success", "response": result}
+            else:
+                error_text = publish_response.text
+                print(f"   ❌ Publication échouée")
+                print(f"   📄 Erreur: {error_text}")
+                
+                # Analyser le type d'erreur
+                if "connexion sociale active" in error_text.lower():
+                    return {"test_result": "no_active_connections", "error": error_text}
+                elif "invalid oauth" in error_text.lower():
+                    return {"test_result": "invalid_token", "error": error_text}
+                elif "cannot parse access token" in error_text.lower():
+                    return {"test_result": "unparseable_token", "error": error_text}
+                else:
+                    return {"test_result": "other_error", "error": error_text}
+                    
+        except Exception as e:
+            print(f"   ❌ Erreur test publication: {e}")
+            return {"test_result": "exception", "error": str(e)}
             
             if response.status_code == 200:
                 posts = response.json().get("posts", [])

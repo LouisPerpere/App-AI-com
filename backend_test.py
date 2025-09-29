@@ -1,53 +1,74 @@
 #!/usr/bin/env python3
 """
-TEST FLOW TOKENS PERMANENTS CHATGPT - IMPLEMENTATION COMPLÈTE
+TRACER OAUTH FACEBOOK EN TEMPS RÉEL - IDENTIFIER ÉCHEC TOKENS EAA
+Backend testing script for Facebook OAuth callback diagnostic
+
+Objectif: Identifier exactement à quel moment échoue l'enregistrement des tokens EAA 
+lors du flow OAuth Facebook avec surveillance en temps réel des logs.
 
 Identifiants: lperpere@yahoo.fr / L@Reunion974!
-
-FLOW CHATGPT IMPLÉMENTÉ:
-- ÉTAPE 1: Code → Short-lived token  
-- ÉTAPE 2: Short-lived → Long-lived token (60 jours)
-- ÉTAPE 3: Long-lived → Page access token (permanent)
-
-TESTS CRITIQUES:
-1. Vérifier état tokens après reconnexion (GET /api/debug/social-connections)
-2. Test publication avec tokens permanents (POST /api/posts/publish)
-3. Validation format tokens sauvegardés
-4. Test flow publication complet
-5. Vérification Instagram avec même token
-
-OBJECTIF: Confirmer que le flow 3-étapes produit des tokens permanents EAA utilisables.
-HYPOTHÈSE: Avec vrais tokens permanents (EAA), Facebook acceptera maintenant les publications avec images.
 """
 
 import requests
 import json
-import os
-import sys
-from datetime import datetime, timedelta
-import re
 import time
+import os
+from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com/api"
-TEST_CREDENTIALS = {
-    "email": "lperpere@yahoo.fr",
-    "password": "L@Reunion974!"
-}
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://social-publisher-10.preview.emergentagent.com')
+API_BASE = f"{BACKEND_URL}/api"
 
-class ChatGPTTokenFlowTester:
+# Test credentials
+TEST_EMAIL = "lperpere@yahoo.fr"
+TEST_PASSWORD = "L@Reunion974!"
+
+class FacebookOAuthDiagnostic:
     def __init__(self):
         self.session = requests.Session()
-        self.auth_token = None
         self.user_id = None
+        self.access_token = None
+        self.test_results = []
+        
+    def log_test(self, test_name, success, details=""):
+        """Log test results"""
+        status = "✅ PASS" if success else "❌ FAIL"
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        result = f"[{timestamp}] {status} {test_name}"
+        if details:
+            result += f" - {details}"
+        print(result)
+        self.test_results.append({
+            'test': test_name,
+            'success': success,
+            'details': details,
+            'timestamp': timestamp
+        })
         
     def authenticate(self):
-        """ÉTAPE 1: Authentification avec les identifiants de test"""
-        print("🔐 ÉTAPE 1: Authentification...")
+        """Step 1: Authenticate user"""
+        print("\n🔐 ÉTAPE PRÉLIMINAIRE: Authentification utilisateur")
         
         try:
-            response = self.session.post(
-                f"{BACKEND_URL}/auth/login-robust",
+            response = self.session.post(f"{API_BASE}/auth/login-robust", 
+                json={"email": TEST_EMAIL, "password": TEST_PASSWORD})
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.access_token = data.get('access_token')
+                self.user_id = data.get('user_id')
+                self.session.headers.update({
+                    'Authorization': f'Bearer {self.access_token}'
+                })
+                self.log_test("Authentication", True, f"User ID: {self.user_id}")
+                return True
+            else:
+                self.log_test("Authentication", False, f"Status: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Authentication", False, f"Error: {str(e)}")
+            return False
                 json=TEST_CREDENTIALS,
                 timeout=30
             )

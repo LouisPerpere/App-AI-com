@@ -187,6 +187,18 @@ user_problem_statement: "**DIAGNOSTIC PUBLICATION IMAGES FACEBOOK** Identifiants
         agent: "testing"
         comment: "🎯 COMPREHENSIVE IMAGE DATABASE DIAGNOSTIC COMPLETED - ROOT CAUSE IDENTIFIED: Complete diagnostic of image database state completed following French review request with credentials lperpere@yahoo.fr / L@Reunion974! on https://social-publisher-10.preview.emergentagent.com/api. **CRITICAL FINDINGS:** ❌ GRIDFS COMPLETELY EMPTY: 0 files in GridFS (fs.files collection), no GridFS storage being used, ❌ MASSIVE DATA INCONSISTENCY: 41 media items in database but only 3 accessible via API, 38 items return 503 errors, ❌ STORAGE MECHANISM BREAKDOWN: 38 items use obsolete 'claire-marcus-api.onrender.com' URLs (broken), 2 items use 'uploads/' file system storage (working), 1 item has no storage info. **DIAGNOSTIC RESULTS (7/8 TESTS - 87.5% SUCCESS):** ✅ Database Analysis: 41 total media items, 0 GridFS files, 2 file_path items, 38 URL-only items, ✅ Accessibility Testing: Only 3/41 images accessible (5f5f0f72-ec37-4796-a68b-033af26b9644, 76f629ab-63d4-45ce-acf1-2aaf7203bf2b, 0cc81793-2d60-485d-8643-32ef25720d23), ✅ Public Endpoint Testing: 2/3 images work via public endpoint (Pixabay files), 1 returns 404, ✅ Facebook Publication Testing: All images fail with 'Erreur Facebook API: 400' (expected - no valid OAuth tokens), but image URLs are processed correctly. **STORAGE ANALYSIS:** File system storage (uploads/ directory): 2 working images, External URLs (obsolete onrender.com): 38 broken images, Unknown storage: 1 image. **FACEBOOK-READY IMAGES IDENTIFIED:** ✅ 5f5f0f72-ec37-4796-a68b-033af26b9644 (pixabay_2277292_8c65b88c.jpg) - Public accessible, ✅ 76f629ab-63d4-45ce-acf1-2aaf7203bf2b (pixabay_2277292_6fdf9e6f.jpg) - Public accessible, ⚠️ 0cc81793-2d60-485d-8643-32ef25720d23 (test_file.jpg) - Protected only. **SOLUTION REQUIRED:** Fix /api/content/pending to filter out 38 inaccessible images and return only the 3 working ones. The system is not using GridFS at all - images are stored in file system uploads/ directory."
 
+  - task: "Content Pending API Fix - Filter Inaccessible Images"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "🚨 CRITICAL API INCONSISTENCY IDENTIFIED - IMMEDIATE FIX REQUIRED: Comprehensive diagnostic revealed that /api/content/pending returns 41 media items but only 3 are actually accessible. The API should filter out the 38 inaccessible images that return 503 errors. ROOT CAUSE: API returns all media items from database without checking if files actually exist. SOLUTION NEEDED: Modify /api/content/pending endpoint (lines 525-597 in server.py) to validate file accessibility before including items in response. This will fix Facebook publication issues by ensuring only working image IDs are returned to the frontend."
+
 backend:
   - task: "OAuth Clean Approach Implementation Testing"
     implemented: true

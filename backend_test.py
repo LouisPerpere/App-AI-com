@@ -1,53 +1,37 @@
 #!/usr/bin/env python3
 """
-FACEBOOK IMAGE PUBLICATION DIAGNOSTIC - BACKEND TESTING
-Comprehensive testing for Facebook publication with real image verification
-Following French review request: lperpere@yahoo.fr / L@Reunion974!
+VALIDATION FINALE DES CORRECTIONS AVANT REDÉPLOIEMENT
+Backend Testing for Facebook JPG Corrections
 
-OBJECTIFS:
-1. Test real Facebook publication with image via API
-2. Capture complete backend logs to see JPG conversion
-3. Verify if image actually appears on Facebook
-4. Check Facebook Graph API to see if post contains image
-5. Diagnose exact Facebook HTTP request
-6. Test specific system image with manual JPG conversion
-7. Compare with working posts
+Testing the 5 critical corrections:
+1. Endpoint public JPG fonctionnel
+2. Conversion URL automatique vers JPG  
+3. Publication Facebook avec conversion JPG intégrée
+4. Flow OAuth 3-étapes Facebook
+5. Cohérence système complète
 
-ENVIRONNEMENT: LIVE (claire-marcus.com)
-QUESTION CENTRALE: Quand tu publies depuis l'interface, l'image apparaît-elle vraiment sur Facebook ou seulement le texte ?
+Credentials: lperpere@yahoo.fr / L@Reunion974!
 """
 
 import requests
 import json
-import sys
 import time
-import re
-from datetime import datetime
+import sys
+import os
+from urllib.parse import urlparse
 
 # Configuration
 BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com/api"
-LIVE_BACKEND_URL = "https://claire-marcus.com/api"
-CREDENTIALS = {
+TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"
 }
 
-class FacebookImagePublicationTester:
+class FacebookJPGValidator:
     def __init__(self):
         self.session = requests.Session()
-        self.session.headers.update({
-            'Content-Type': 'application/json',
-            'User-Agent': 'Facebook-Image-Diagnostic/1.0'
-        })
-        self.access_token = None
+        self.auth_token = None
         self.user_id = None
-        self.backend_url = BACKEND_URL
-        self.test_results = []
-        
-    def log(self, message, level="INFO"):
-        """Enhanced logging with timestamp"""
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        print(f"[{timestamp}] {level}: {message}")
         
     def log_result(self, test_name, success, details):
         """Log test results with structured format"""

@@ -192,19 +192,20 @@ class FacebookImageWebPTester:
                 data = response.json()
                 facebook_compatible = data.get("facebook_compatible", False)
                 headers_info = data.get("headers", {})
-                response_time = data.get("response_time_ms", 0)
+                status_code = data.get("status_code", 0)
+                redirected = data.get("redirected", True)
+                content_type = data.get("content_type", "")
                 
-                # Vérifier facebook_compatible: true et temps de réponse < 5s
-                if facebook_compatible and response_time < 5000:
+                # Vérifier facebook_compatible: true (pas de redirection et status 200)
+                if facebook_compatible and status_code == 200 and not redirected:
                     cache_control = headers_info.get("Cache-Control", "")
-                    content_type = headers_info.get("Content-Type", "")
                     
                     self.log_test("Facebook Headers Test", True, 
-                                f"✅ facebook_compatible: {facebook_compatible}, Response time: {response_time}ms, Content-Type: {content_type}")
+                                f"✅ facebook_compatible: {facebook_compatible}, Status: {status_code}, No redirects, Content-Type: {content_type}")
                     return True
                 else:
                     self.log_test("Facebook Headers Test", False, 
-                                f"facebook_compatible: {facebook_compatible}, Response time: {response_time}ms (should be < 5000ms)")
+                                f"facebook_compatible: {facebook_compatible}, Status: {status_code}, Redirected: {redirected}")
                     return False
             elif response.status_code == 404:
                 self.log_test("Facebook Headers Test", False, 

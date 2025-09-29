@@ -415,53 +415,32 @@ class LiveEnvironmentTester:
         except Exception as e:
             self.log(f"   ❌ Content retrieval ERROR: {str(e)}", "ERROR")
             return False
-    
-    def test_current_social_connections(self):
-        """Test 4: Analyser connexions sociales actuelles"""
-        print("\n📊 TEST 4: Analyse connexions sociales actuelles")
-        
-        try:
-            # Test endpoint de diagnostic
-            response = self.session.get(f"{API_BASE}/debug/social-connections")
             
-            if response.status_code == 200:
-                data = response.json()
+    def compare_with_preview(self):
+        """Compare LIVE vs PREVIEW environment differences"""
+        self.log("🔄 COMPARISON: LIVE vs PREVIEW differences")
+        
+        preview_url = "https://social-publisher-10.preview.emergentagent.com/api"
+        
+        # Test health endpoints
+        try:
+            live_health = self.session.get(f"{self.backend_url}/health", timeout=5)
+            preview_health = self.session.get(f"{preview_url}/health", timeout=5)
+            
+            if live_health.status_code == 200 and preview_health.status_code == 200:
+                live_data = live_health.json()
+                preview_data = preview_health.json()
                 
-                # Analyser les connexions
-                total_connections = data.get('total_connections', 0)
-                active_connections = data.get('active_connections', 0)
-                facebook_connections = data.get('facebook_connections', 0)
+                self.log(f"   LIVE service: {live_data.get('service', 'unknown')}")
+                self.log(f"   PREVIEW service: {preview_data.get('service', 'unknown')}")
                 
-                print(f"   📈 Connexions totales: {total_connections}")
-                print(f"   ✅ Connexions actives: {active_connections}")
-                print(f"   📘 Connexions Facebook: {facebook_connections}")
-                
-                # Vérifier les tokens
-                connections_detail = data.get('connections_detail', [])
-                temp_tokens = [c for c in connections_detail if 'temp_' in str(c.get('access_token', ''))]
-                
-                if temp_tokens:
-                    print(f"   ⚠️ Tokens temporaires détectés: {len(temp_tokens)}")
-                    for token_info in temp_tokens:
-                        print(f"      - {token_info.get('platform')}: {token_info.get('access_token', '')[:30]}...")
-                
-                self.log_test("Current Social Connections Analysis", True, 
-                            f"Total: {total_connections}, Actives: {active_connections}, Facebook: {facebook_connections}")
-                
-                return {
-                    'total': total_connections,
-                    'active': active_connections,
-                    'facebook': facebook_connections,
-                    'temp_tokens': len(temp_tokens)
-                }
-            else:
-                self.log_test("Current Social Connections Analysis", False, 
-                            f"Status: {response.status_code}")
-                return None
-                
+                if live_data.get('service') == preview_data.get('service'):
+                    self.log(f"   ✅ Same service name")
+                else:
+                    self.log(f"   ⚠️ Different service names")
+                    
         except Exception as e:
-            self.log_test("Current Social Connections Analysis", False, f"Error: {str(e)}")
-            return None
+            self.log(f"   ❌ Comparison ERROR: {str(e)}", "ERROR")
     
     def simulate_callback_flow_steps(self):
         """Test 5: Simuler les étapes du callback OAuth"""

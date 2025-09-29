@@ -3077,11 +3077,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Facebook Token Diagnostic - ChatGPT 3-Step Flow Implementation"
+    - "Facebook Images LIVE Environment Testing - Critical Differences Analysis"
   stuck_tasks: 
     - "OAuth Callback Persistence Diagnostic - Facebook/Instagram Connection Issues"
-    - "Instagram to Facebook Post Conversion - LIVE Environment"
-    - "Facebook Token Diagnostic - ChatGPT 3-Step Flow Implementation"
   test_all: false
   test_priority: "high_first"
 

@@ -3262,26 +3262,31 @@ async def get_public_image_webp(file_id: str):
 async def test_image_headers(file_id: str):
     """Test endpoint pour vérifier les headers d'image (selon ChatGPT)"""
     try:
-        # Simuler un appel curl -I
+        # Simuler un appel curl -I mais avec GET car HEAD n'est pas supporté
         import aiohttp
+        import time
         backend_url = os.environ.get('REACT_APP_BACKEND_URL', 'https://claire-marcus.com')
         image_url = f"{backend_url}/api/public/image/{file_id}.webp"
         
+        start_time = time.time()
         async with aiohttp.ClientSession() as session:
-            async with session.head(image_url) as response:
+            async with session.get(image_url) as response:
+                response_time_ms = int((time.time() - start_time) * 1000)
                 return {
                     "url": image_url,
                     "status_code": response.status,
                     "headers": dict(response.headers),
                     "redirected": response.status in [301, 302, 307, 308],
                     "facebook_compatible": response.status == 200 and not response.status in [301, 302, 307, 308],
-                    "content_type": response.headers.get("Content-Type", "unknown")
+                    "content_type": response.headers.get("Content-Type", "unknown"),
+                    "response_time_ms": response_time_ms
                 }
     except Exception as e:
         return {
             "url": image_url,
             "error": str(e),
-            "facebook_compatible": False
+            "facebook_compatible": False,
+            "response_time_ms": 0
         }
 
 @api_router.get("/social/connections/status")

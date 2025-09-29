@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-BACKEND TESTING - CHATGPT BINARY APPROACH FOR FACEBOOK PUBLICATION
-Test des nouveaux endpoints binaires selon l'approche ChatGPT 100% fiable
+BACKEND TESTING - TRACER LE FLOW EXACT POST /api/posts/publish
+Test diagnostic complet du flow de publication depuis Claire et Marcus
 
+OBJECTIF CRITIQUE: Tracer exactement ce qui se passe quand l'utilisateur clique sur "Publier"
 Identifiants: lperpere@yahoo.fr / L@Reunion974!
 """
 

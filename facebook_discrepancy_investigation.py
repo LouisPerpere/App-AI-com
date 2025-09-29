@@ -81,12 +81,20 @@ def investigate_facebook_connection_discrepancy():
     response = session.get(f"{LIVE_BACKEND_URL}/social/connections", timeout=30)
     if response.status_code == 200:
         connections_data = response.json()
-        print(f"   Connexions retournées: {len(connections_data)}")
-        for i, conn in enumerate(connections_data):
-            platform = conn.get('platform', 'unknown')
-            active = conn.get('active', False)
-            connected_at = conn.get('connected_at', 'unknown')
-            print(f"     [{i+1}] {platform} - Active: {active} - Date: {connected_at}")
+        if isinstance(connections_data, list):
+            print(f"   Connexions retournées: {len(connections_data)}")
+            for i, conn in enumerate(connections_data):
+                if isinstance(conn, dict):
+                    platform = conn.get('platform', 'unknown')
+                    active = conn.get('active', False)
+                    connected_at = conn.get('connected_at', 'unknown')
+                    print(f"     [{i+1}] {platform} - Active: {active} - Date: {connected_at}")
+                else:
+                    print(f"     [{i+1}] Connexion non-dict: {conn}")
+        else:
+            print(f"   Réponse non-liste: {connections_data}")
+    else:
+        print(f"   Erreur: {response.status_code} - {response.text[:100]}")
     print()
     
     # TEST 4: Test publication pour vérifier la connexion réelle

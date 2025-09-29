@@ -3368,7 +3368,7 @@ async def get_public_image_webp(file_id: str):
                 return FileResponse(
                     file_path,
                     media_type="image/jpeg",  # Force JPG même en fallback
-                    filename=f"{file_id}.jpg",
+                    filename=f"{clean_file_id}.jpg",
                     headers={
                         "Cache-Control": "public, max-age=31536000",
                         "Access-Control-Allow-Origin": "*"

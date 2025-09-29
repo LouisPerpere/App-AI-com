@@ -268,15 +268,15 @@ class LiveEnvironmentTester:
             self.log(f"   ❌ Regular endpoint ERROR: {str(e)}", "ERROR")
             return False
             
-    def test_publication_endpoints_live(self):
-        """4. Test endpoints de publication sur LIVE"""
-        self.log("📤 TEST 4: Publication endpoints sur LIVE")
+    def test_facebook_image_publication_live(self):
+        """4. Test publication avec image sur LIVE - logs détaillés"""
+        self.log("🖼️ TEST 4: Facebook image publication sur LIVE")
         
         if not self.access_token:
             self.log("❌ No access token available", "ERROR")
             return False
             
-        # First, get available posts
+        # First, get available posts with images
         try:
             response = self.session.get(
                 f"{self.backend_url}/posts/generated",
@@ -288,21 +288,33 @@ class LiveEnvironmentTester:
                 posts = data.get('posts', [])
                 self.log(f"   Available posts: {len(posts)}")
                 
-                # Find a Facebook post for testing
-                facebook_posts = [p for p in posts if p.get('platform') == 'facebook']
-                self.log(f"   Facebook posts: {len(facebook_posts)}")
+                # Find Facebook posts with images
+                facebook_posts_with_images = []
+                for p in posts:
+                    if (p.get('platform') == 'facebook' and 
+                        (p.get('visual_url') or p.get('visual_id'))):
+                        facebook_posts_with_images.append(p)
                 
-                if facebook_posts:
-                    test_post = facebook_posts[0]
+                self.log(f"   Facebook posts with images: {len(facebook_posts_with_images)}")
+                
+                if facebook_posts_with_images:
+                    test_post = facebook_posts_with_images[0]
                     post_id = test_post.get('id')
-                    self.log(f"   Testing with post: {post_id}")
+                    visual_url = test_post.get('visual_url', '')
+                    visual_id = test_post.get('visual_id', '')
                     
-                    # Test publication endpoint
+                    self.log(f"   Testing Facebook post with image:")
+                    self.log(f"      Post ID: {post_id}")
+                    self.log(f"      Visual URL: {visual_url}")
+                    self.log(f"      Visual ID: {visual_id}")
+                    
+                    # Test publication endpoint with detailed logging
                     try:
+                        self.log("   🚀 Attempting Facebook image publication...")
                         pub_response = self.session.post(
                             f"{self.backend_url}/posts/publish",
                             json={"post_id": post_id},
-                            timeout=15
+                            timeout=30  # Longer timeout for image processing
                         )
                         
                         self.log(f"   Publication Status: {pub_response.status_code}")
@@ -310,21 +322,39 @@ class LiveEnvironmentTester:
                         if pub_response.status_code in [200, 400, 500]:
                             try:
                                 pub_data = pub_response.json()
-                                self.log(f"   ✅ Publication endpoint ACCESSIBLE on LIVE")
-                                self.log(f"      Response: {pub_data}")
+                                self.log(f"   📡 Publication response received:")
                                 
-                                # Check for specific error messages
+                                # Detailed error analysis
                                 error_msg = pub_data.get('error', '')
-                                if 'connexion sociale' in error_msg.lower():
-                                    self.log(f"      ✅ Expected social connection error (normal)")
-                                elif 'token' in error_msg.lower():
-                                    self.log(f"      ✅ Token-related error (expected)")
-                                else:
-                                    self.log(f"      ⚠️ Unexpected error: {error_msg}")
+                                message = pub_data.get('message', '')
+                                
+                                if error_msg:
+                                    self.log(f"      Error: {error_msg}")
+                                    
+                                    # Check for specific Facebook image issues
+                                    if 'image' in error_msg.lower():
+                                        self.log(f"      🔍 IMAGE-RELATED ERROR DETECTED")
+                                    elif 'jpg' in error_msg.lower() or 'jpeg' in error_msg.lower():
+                                        self.log(f"      🔍 JPG CONVERSION ERROR DETECTED")
+                                    elif 'facebook' in error_msg.lower():
+                                        self.log(f"      🔍 FACEBOOK API ERROR DETECTED")
+                                    elif 'token' in error_msg.lower():
+                                        self.log(f"      🔍 TOKEN ERROR (expected on LIVE)")
+                                    elif 'connexion' in error_msg.lower():
+                                        self.log(f"      🔍 CONNECTION ERROR (expected on LIVE)")
+                                
+                                if message:
+                                    self.log(f"      Message: {message}")
+                                
+                                # Look for conversion logs
+                                if 'conversion' in str(pub_data).lower():
+                                    self.log(f"      ✅ JPG conversion mentioned in response")
+                                if 'binary' in str(pub_data).lower():
+                                    self.log(f"      ✅ Binary method mentioned in response")
                                     
                                 return True
                             except:
-                                self.log(f"      Raw response: {pub_response.text[:200]}")
+                                self.log(f"      Raw response: {pub_response.text[:500]}")
                                 return True
                         else:
                             self.log(f"   ❌ Publication endpoint FAILED: {pub_response.status_code}")
@@ -334,8 +364,15 @@ class LiveEnvironmentTester:
                         self.log(f"   ❌ Publication test ERROR: {str(e)}", "ERROR")
                         return False
                 else:
-                    self.log(f"   ⚠️ No Facebook posts available for testing")
-                    return True
+                    self.log(f"   ⚠️ No Facebook posts with images available for testing")
+                    # Try to find any Facebook posts
+                    facebook_posts = [p for p in posts if p.get('platform') == 'facebook']
+                    if facebook_posts:
+                        self.log(f"   Found {len(facebook_posts)} Facebook posts without images")
+                        return True
+                    else:
+                        self.log(f"   No Facebook posts found at all")
+                        return False
                     
             else:
                 self.log(f"   ❌ Posts retrieval FAILED: {response.status_code}")

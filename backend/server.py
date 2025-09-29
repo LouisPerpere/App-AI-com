@@ -93,8 +93,8 @@ def convert_to_public_image_url(image_url: str) -> str:
         match = re.search(r'/api/content/([^/]+)/file', image_url)
         if match:
             file_id = match.group(1)
-            print(f"🔄 Converting content URL: {image_url} → /api/public/image/{file_id}.webp")
-            return f"{backend_url}/api/public/image/{file_id}.webp"
+            print(f"🔄 Converting content URL: {image_url} → /api/public/image/{file_id}.jpg")
+            return f"{backend_url}/api/public/image/{file_id}.jpg"
     
     # Support uploads/ (selon ChatGPT)
     if "uploads/" in image_url:

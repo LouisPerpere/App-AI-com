@@ -3218,14 +3218,14 @@ async def get_public_image_webp(file_id: str):
                 content_type = media_item.get("content_type", "image/jpeg")
                 filename = media_item.get("filename", f"image_{file_id}")
                 
-                # Retourner le fichier directement
+                # Retourner le fichier directement (selon ChatGPT : pas de redirection)
                 from fastapi.responses import Response
                 return Response(
                     content=grid_file.read(),
-                    media_type=content_type,
+                    media_type="image/webp",  # Force webp pour Facebook
                     headers={
-                        "Content-Disposition": f"inline; filename={filename}",
-                        "Cache-Control": "public, max-age=86400",
+                        "Content-Disposition": f"inline; filename={file_id}.webp",
+                        "Cache-Control": "public, max-age=31536000",  # 1 an selon ChatGPT
                         "Access-Control-Allow-Origin": "*"
                     }
                 )

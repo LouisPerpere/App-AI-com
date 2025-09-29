@@ -2996,9 +2996,16 @@ async def facebook_oauth_callback(
         print(f"❌ Facebook OAuth error: {error} - {error_description}")
         return RedirectResponse(url=f"{frontend_url}?auth_error=facebook_oauth_error", status_code=302)
     
-    # Pas de code = pas de connexion possible
+    # Support nouveau format Facebook avec id_token
+    id_token = request.query_params.get('id_token')
+    if id_token:
+        print(f"✅ ID Token détecté (nouveau format Facebook): {id_token[:20]}...")
+        # Pour l'instant, traiter comme un code pour compatibilité
+        code = id_token
+    
+    # Pas de code ni id_token = pas de connexion possible
     if not code:
-        print(f"❌ No authorization code - Facebook OAuth failed")
+        print(f"❌ No authorization code or id_token - Facebook OAuth failed")
         return RedirectResponse(url=f"{frontend_url}?auth_error=facebook_no_code", status_code=302)
     
     # Pas de state = pas de connexion possible

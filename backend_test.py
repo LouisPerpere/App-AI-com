@@ -277,7 +277,7 @@ class LiveEnvironmentTester:
         # First, get available posts
         try:
             response = self.session.get(
-                f"{self.backend_url}/posts",
+                f"{self.backend_url}/posts/generated",
                 timeout=10
             )
             

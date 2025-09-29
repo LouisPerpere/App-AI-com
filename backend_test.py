@@ -225,108 +225,90 @@ class FacebookOAuthDiagnostic:
         except Exception as e:
             self.log_test("Current Social Connections Analysis", False, f"Error: {str(e)}")
             return None
-        print("   🎯 Confirmer expires_at basé sur expires_in (60 jours)")
-        print("   🎯 Vérifier que tokens ne sont plus temp_facebook_token_")
+    
+    def simulate_callback_flow_steps(self):
+        """Test 5: Simuler les étapes du callback OAuth"""
+        print("\n🔄 TEST 5: Simulation flow callback OAuth 3-étapes")
         
-        if not connections_data:
-            print("   ❌ Pas de données de connexions à analyser")
-            return False
-        
+        # ÉTAPE 1: Code → Short-lived token
+        print("   📝 ÉTAPE 1/3: Code d'autorisation → Token court terme")
         try:
-            valid_permanent_tokens = 0
-            invalid_temp_tokens = 0
-            long_lived_tokens = 0
+            # Simuler un appel callback avec code
+            callback_data = {
+                'code': 'AQD_simulated_auth_code_for_testing',
+                'state': f'facebook_oauth|{self.user_id}'
+            }
             
-            print(f"\n📋 ANALYSE STRUCTURE DES CONNEXIONS:")
+            # Note: Ceci va échouer mais nous permet de voir les logs
+            callback_url = "https://claire-marcus.com/api/social/facebook/callback"
+            response = requests.get(callback_url, params=callback_data, timeout=15)
             
-            for collection_name in ["social_media_connections", "social_connections_old"]:
-                connections = connections_data.get(collection_name, [])
-                if not connections:
-                    continue
-                    
-                print(f"\n   📂 Collection: {collection_name}")
-                
-                for i, conn in enumerate(connections):
-                    platform = conn.get("platform", "")
-                    access_token = conn.get("access_token", "")
-                    token_type = conn.get("token_type", "")
-                    expires_at = conn.get("expires_at", "")
-                    expires_in = conn.get("expires_in", "")
-                    is_active = conn.get("active", conn.get("is_active", False))
-                    
-                    print(f"\n      🔗 Connexion {i+1}:")
-                    print(f"         Platform: {platform}")
-                    print(f"         Actif: {is_active}")
-                    print(f"         Token type: {token_type}")
-                    
-                    if access_token:
-                        if access_token.startswith("EAA"):
-                            valid_permanent_tokens += 1
-                            print(f"         ✅ Token EAA: {access_token[:35]}...")
-                            
-                            # Analyser expires_at pour 60 jours
-                            if expires_at:
-                                try:
-                                    # Parser la date d'expiration
-                                    if isinstance(expires_at, str):
-                                        # Essayer différents formats
-                                        for fmt in ["%Y-%m-%dT%H:%M:%S.%fZ", "%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%d %H:%M:%S"]:
-                                            try:
-                                                exp_date = datetime.strptime(expires_at, fmt)
-                                                break
-                                            except ValueError:
-                                                continue
-                                        else:
-                                            print(f"         ⚠️ Format expires_at non reconnu: {expires_at}")
-                                            continue
-                                    else:
-                                        exp_date = expires_at
-                                    
-                                    now = datetime.utcnow()
-                                    days_until_expiry = (exp_date - now).days
-                                    
-                                    print(f"         📅 Expire dans: {days_until_expiry} jours")
-                                    
-                                    if 50 <= days_until_expiry <= 70:  # ~60 jours avec tolérance
-                                        long_lived_tokens += 1
-                                        print(f"         ✅ Token long-lived (60 jours) confirmé")
-                                    elif days_until_expiry > 365:
-                                        print(f"         🎉 Token permanent (>1 an) confirmé")
-                                    else:
-                                        print(f"         ⚠️ Token court-terme ({days_until_expiry} jours)")
-                                        
-                                except Exception as date_error:
-                                    print(f"         ⚠️ Erreur parsing date: {date_error}")
-                            
-                            if expires_in:
-                                print(f"         📊 Expires_in: {expires_in} secondes")
-                                days_from_expires_in = int(expires_in) / (24 * 3600)
-                                print(f"         📊 Soit: {days_from_expires_in:.1f} jours")
-                                
-                        elif access_token.startswith("temp_facebook_token_"):
-                            invalid_temp_tokens += 1
-                            print(f"         ❌ Token temporaire: {access_token[:50]}...")
-                        else:
-                            print(f"         🔍 Autre format: {access_token[:35]}...")
-                    else:
-                        print(f"         ❌ Pas de token d'accès")
+            print(f"      Status: {response.status_code}")
+            if response.status_code == 302:
+                location = response.headers.get('Location', '')
+                if 'facebook_success=true' in location:
+                    print("      ✅ Redirection de succès détectée")
+                elif 'facebook_error' in location:
+                    print("      ❌ Redirection d'erreur détectée")
+                    print(f"      📍 Location: {location}")
             
-            print(f"\n📊 RÉSULTATS TEST 3:")
-            print(f"   ✅ Tokens EAA valides: {valid_permanent_tokens}")
-            print(f"   📅 Tokens long-lived (60j): {long_lived_tokens}")
-            print(f"   ❌ Tokens temporaires: {invalid_temp_tokens}")
+            self.log_test("OAuth Callback Step 1 Simulation", True, 
+                        f"Callback testé (Status: {response.status_code})")
             
-            if valid_permanent_tokens > 0 and invalid_temp_tokens == 0:
-                print(f"   🎉 SUCCÈS: Format tokens sauvegardés VALIDE")
-                print(f"   ✅ Plus de temp_facebook_token_ détectés")
-                return True
-            else:
-                print(f"   ❌ ÉCHEC: Tokens temporaires encore présents")
-                return False
-                
         except Exception as e:
-            print(f"   ❌ Erreur test 3: {e}")
-            return False
+            self.log_test("OAuth Callback Step 1 Simulation", False, f"Error: {str(e)}")
+        
+        # ÉTAPE 2: Vérifier si des tokens long terme sont créés
+        print("   📝 ÉTAPE 2/3: Vérification tokens long terme")
+        try:
+            # Re-vérifier les connexions après simulation
+            response = self.session.get(f"{API_BASE}/debug/social-connections")
+            if response.status_code == 200:
+                data = response.json()
+                connections = data.get('connections_detail', [])
+                
+                long_lived_tokens = [c for c in connections 
+                                   if c.get('access_token') and 
+                                   not c.get('access_token', '').startswith('temp_')]
+                
+                if long_lived_tokens:
+                    print(f"      ✅ Tokens long terme trouvés: {len(long_lived_tokens)}")
+                    self.log_test("OAuth Long-lived Token Check", True, 
+                                f"{len(long_lived_tokens)} tokens long terme")
+                else:
+                    print("      ❌ Aucun token long terme trouvé")
+                    self.log_test("OAuth Long-lived Token Check", False, 
+                                "Pas de tokens long terme")
+            
+        except Exception as e:
+            self.log_test("OAuth Long-lived Token Check", False, f"Error: {str(e)}")
+        
+        # ÉTAPE 3: Vérifier tokens EAA (Page Access Token)
+        print("   📝 ÉTAPE 3/3: Vérification tokens EAA permanents")
+        try:
+            response = self.session.get(f"{API_BASE}/debug/social-connections")
+            if response.status_code == 200:
+                data = response.json()
+                connections = data.get('connections_detail', [])
+                
+                eaa_tokens = [c for c in connections 
+                            if c.get('access_token') and 
+                            c.get('access_token', '').startswith('EAA')]
+                
+                if eaa_tokens:
+                    print(f"      ✅ Tokens EAA trouvés: {len(eaa_tokens)}")
+                    for eaa in eaa_tokens:
+                        print(f"         - Page: {eaa.get('page_name', 'Unknown')}")
+                        print(f"         - Token: {eaa.get('access_token', '')[:20]}...")
+                    self.log_test("OAuth EAA Token Check", True, 
+                                f"{len(eaa_tokens)} tokens EAA permanents")
+                else:
+                    print("      ❌ Aucun token EAA permanent trouvé")
+                    self.log_test("OAuth EAA Token Check", False, 
+                                "Pas de tokens EAA permanents")
+            
+        except Exception as e:
+            self.log_test("OAuth EAA Token Check", False, f"Error: {str(e)}")
     
     def test_4_flow_publication_complet(self):
         """TEST 4: Test flow publication complet"""

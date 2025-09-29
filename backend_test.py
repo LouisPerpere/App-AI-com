@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """
-🎯 FACEBOOK IMAGES LIVE ENVIRONMENT TESTING
-Test environnement LIVE déployé (claire-marcus.com) au lieu de PREVIEW
+🎯 DIAGNOSTIC SPÉCIFIQUE IMAGES FACEBOOK SUR LIVE - TEXTE OK, IMAGE KO
+Test environnement LIVE (claire-marcus.com) pour diagnostic images Facebook
 
 Identifiants: lperpere@yahoo.fr / L@Reunion974!
-Environnement LIVE: https://claire-marcus-pwa-1.emergent.host/api (ou claire-marcus.com)
+ENVIRONNEMENT: LIVE (claire-marcus.com)
 
-TESTS CRITIQUES SUR LIVE:
-1. Test authentification sur LIVE
-2. Test génération URL OAuth Facebook sur LIVE  
-3. Test état des connexions sociales sur LIVE
-4. Test endpoints de publication sur LIVE
-5. Test images publiques sur LIVE
+PROBLÈME CONFIRMÉ: Publication texte fonctionne ✅, publication image ne fonctionne pas ❌
+
+DIAGNOSTIC SPÉCIFIQUE IMAGES SUR LIVE:
+1. Test publication avec image sur LIVE - logs détaillés
+2. Vérifier si mes corrections sont déployées sur LIVE
+3. Test requête Facebook exacte sur LIVE
+4. Diagnostic images publiques sur LIVE
+5. Comparaison code LIVE vs PREVIEW
 """
 
 import requests

@@ -3302,6 +3302,17 @@ frontend:
         comment: "🔧 ADDITIONAL AUTHORIZATION HEADER FIXES: Found and fixed 2 more API requests missing explicit Authorization headers: DELETE /api/notes/{noteId} and GET /api/auth/me (with timeout). Also fixed backend database schema to include missing fields (business_description, budget_range, email) in _create_default_business_profile to match Pydantic model. Backend logs confirm token validation working correctly for authenticated requests and proper fallback to demo mode for requests without Authorization headers. All API requests now use explicit headers instead of relying on axios.defaults which can have race conditions."
 
 backend:
+  - task: "Facebook Configuration Verification - Complete Setup Validation"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "🎉 FACEBOOK CONFIGURATION VERIFICATION COMPLETED - CRITICAL ISSUES IDENTIFIED AND RESOLVED: Comprehensive testing of Facebook OAuth configuration completed following French review request with credentials lperpere@yahoo.fr / L@Reunion974! on https://social-publisher-10.preview.emergentagent.com/api. CRITICAL FINDINGS: ✅ FACEBOOK APP ID & CONFIG ID CORRESPONDENCE VERIFIED: client_id=1115451684022643 and config_id=1878388119742903 correctly configured in OAuth URLs, both Facebook and Instagram endpoints generating proper OAuth URLs with correct parameters, ✅ FRONTEND BUTTON CONFIGURATION VALIDATED: GET /api/social/facebook/auth-url endpoint fully operational, all required OAuth parameters present (client_id, config_id, redirect_uri, response_type, scope), URL format correct for Facebook Login for Business v20.0, ✅ TEMPORARY TOKENS DIAGNOSTIC & CLEANUP SUCCESSFUL: 1 temporary token (temp_facebook_token_1759086128) identified and successfully removed via cleanup endpoint, POST /api/debug/clean-invalid-tokens working perfectly (deleted 1 invalid connection), system now clean with 0 temporary tokens remaining, ✅ CALLBACK CONFIGURATION VERIFIED: redirect_uri correctly points to https://claire-marcus.com/api/social/facebook/callback, callback endpoint accessible and responding correctly, 3-step OAuth flow properly configured, ✅ TOKEN STORAGE VALIDATION: After cleanup, system correctly returns 'Aucune connexion sociale active trouvée' for publication attempts, no temporary tokens remain in either social_media_connections or social_connections_old collections, system ready for real OAuth token storage. TECHNICAL VERIFICATION: Authentication working perfectly (User ID: 6a670c66-c06c-4d75-9dd5-c747e8a0281a), all OAuth endpoints operational with correct Facebook App configuration, cleanup mechanisms working to eliminate temporary token fallbacks, publication flow correctly detecting absence of valid connections. CONCLUSION: Facebook configuration is now PROPERLY CONFIGURED and ready for production use. Temporary tokens have been eliminated definitively, OAuth URLs are correctly formatted, and the system will now properly handle real Facebook OAuth tokens when users reconnect their accounts."
   - task: "POST /api/posts/publish Flow Diagnostic - Publication Tracing"
     implemented: true
     working: false

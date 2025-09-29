@@ -1,0 +1,26 @@
+{
+  "authentication": true,
+  "test_1_token_state": true,
+  "test_2_publication": false,
+  "test_3_token_validation": false,
+  "test_4_publication_flow": false,
+  "test_5_instagram_verification": false,
+  "has_permanent_eaa_tokens": false,
+  "connections_data": {
+    "user_id": "6a670c66-c06c-4d75-9dd5-c747e8a0281a",
+    "social_connections_count": 0,
+    "social_media_connections_count": 1,
+    "social_connections_old": [],
+    "social_media_connections": [
+      {
+        "platform": "facebook",
+        "is_active": null,
+        "active": true,
+        "access_token": "temp_facebook_token_1759086128",
+        "page_name": "My Test Page",
+        "connected_at": "2025-09-28T19:02:08.419357",
+        "created_at": "2025-09-28T19:02:08.419350"
+      }
+    ]
+  }
+}

@@ -496,13 +496,87 @@ class LiveEnvironmentTester:
             self.log(f"   ❌ Content retrieval ERROR: {str(e)}", "ERROR")
             return False
             
-    def compare_with_preview(self):
-        """Compare LIVE vs PREVIEW environment differences"""
-        self.log("🔄 COMPARISON: LIVE vs PREVIEW differences")
+    def test_jpg_conversion_deployment_live(self):
+        """6. Vérifier si mes corrections JPG sont déployées sur LIVE"""
+        self.log("🔧 TEST 6: JPG conversion deployment sur LIVE")
+        
+        if not self.access_token:
+            self.log("❌ No access token available", "ERROR")
+            return False
+            
+        # Test if convert_to_public_image_url function is working
+        try:
+            # Get a post with image to test conversion
+            response = self.session.get(
+                f"{self.backend_url}/posts/generated?limit=5",
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                posts = data.get('posts', [])
+                
+                posts_with_images = [p for p in posts if p.get('visual_url')]
+                self.log(f"   Posts with images: {len(posts_with_images)}")
+                
+                if posts_with_images:
+                    test_post = posts_with_images[0]
+                    visual_url = test_post.get('visual_url', '')
+                    
+                    self.log(f"   Testing image URL conversion:")
+                    self.log(f"      Original URL: {visual_url}")
+                    
+                    # Check if URL looks like it's been converted
+                    if '/api/public/image/' in visual_url:
+                        self.log(f"      ✅ URL appears to be converted to public format")
+                    elif '/api/content/' in visual_url:
+                        self.log(f"      ⚠️ URL still in protected format - conversion may not be deployed")
+                    else:
+                        self.log(f"      ℹ️ External URL (Pixabay/WikiMedia)")
+                    
+                    # Test if the image is accessible
+                    if visual_url.startswith('/'):
+                        full_url = f"{self.backend_url.replace('/api', '')}{visual_url}"
+                    else:
+                        full_url = visual_url
+                        
+                    try:
+                        img_test = self.session.get(full_url, timeout=10)
+                        self.log(f"      Image accessibility: {img_test.status_code}")
+                        
+                        if img_test.status_code == 200:
+                            content_type = img_test.headers.get('content-type', '')
+                            self.log(f"      Content-Type: {content_type}")
+                            
+                            if 'jpeg' in content_type or 'jpg' in content_type:
+                                self.log(f"      ✅ JPG format confirmed")
+                            elif 'webp' in content_type:
+                                self.log(f"      ⚠️ Still WebP format - JPG conversion may not be working")
+                            else:
+                                self.log(f"      ℹ️ Other format: {content_type}")
+                                
+                        return True
+                    except Exception as e:
+                        self.log(f"      ❌ Image test ERROR: {str(e)}")
+                        return False
+                else:
+                    self.log(f"   ⚠️ No posts with images found")
+                    return True
+            else:
+                self.log(f"   ❌ Posts retrieval FAILED: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log(f"   ❌ JPG conversion test ERROR: {str(e)}", "ERROR")
+            return False
+            
+    def compare_live_vs_preview_code(self):
+        """7. Comparaison code LIVE vs PREVIEW"""
+        self.log("🔄 TEST 7: LIVE vs PREVIEW code comparison")
         
         preview_url = "https://social-publisher-10.preview.emergentagent.com/api"
         
-        # Test health endpoints
+        # Test health endpoints to see if they're different versions
         try:
             live_health = self.session.get(f"{self.backend_url}/health", timeout=5)
             preview_health = self.session.get(f"{preview_url}/health", timeout=5)
@@ -514,13 +588,49 @@ class LiveEnvironmentTester:
                 self.log(f"   LIVE service: {live_data.get('service', 'unknown')}")
                 self.log(f"   PREVIEW service: {preview_data.get('service', 'unknown')}")
                 
+                live_timestamp = live_data.get('timestamp', '')
+                preview_timestamp = preview_data.get('timestamp', '')
+                
+                self.log(f"   LIVE timestamp: {live_timestamp}")
+                self.log(f"   PREVIEW timestamp: {preview_timestamp}")
+                
                 if live_data.get('service') == preview_data.get('service'):
                     self.log(f"   ✅ Same service name")
                 else:
                     self.log(f"   ⚠️ Different service names")
                     
+                # Test if both have same endpoints
+                endpoints_to_test = [
+                    '/posts/publish',
+                    '/public/image/test',
+                    '/social/facebook/publish-simple'
+                ]
+                
+                for endpoint in endpoints_to_test:
+                    try:
+                        live_test = self.session.get(f"{self.backend_url}{endpoint}", timeout=3)
+                        preview_test = self.session.get(f"{preview_url}{endpoint}", timeout=3)
+                        
+                        self.log(f"   Endpoint {endpoint}:")
+                        self.log(f"      LIVE: {live_test.status_code}")
+                        self.log(f"      PREVIEW: {preview_test.status_code}")
+                        
+                        if live_test.status_code == preview_test.status_code:
+                            self.log(f"      ✅ Same response codes")
+                        else:
+                            self.log(f"      ⚠️ Different response codes - possible version difference")
+                            
+                    except Exception as e:
+                        self.log(f"      ❌ Endpoint test ERROR: {str(e)}")
+                        
+                return True
+            else:
+                self.log(f"   ❌ Health check failed - LIVE: {live_health.status_code}, PREVIEW: {preview_health.status_code}")
+                return False
+                    
         except Exception as e:
             self.log(f"   ❌ Comparison ERROR: {str(e)}", "ERROR")
+            return False
             
     def run_all_tests(self):
         """Run all LIVE environment tests"""

@@ -10182,6 +10182,7 @@ function MainApp() {
   return (
     <div className="App">
       <Dashboard />
+      <Footer />
     </div>
   );
 }

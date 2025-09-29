@@ -1921,6 +1921,16 @@ const ImageAttachmentContent = ({
 function MainApp() {
   const location = useLocation();
   
+  // Handle special routes without authentication
+  if (location.pathname === '/mentions-legales') {
+    return <MentionsLegales />;
+  }
+  
+  if (location.pathname === '/politique-confidentialite') {
+    return <PrivacyPolicy onBack={() => window.location.href = '/'} />;
+  }
+  const location = useLocation();
+  
   // État pour l'authentification
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);

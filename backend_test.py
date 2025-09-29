@@ -650,11 +650,10 @@ class LiveEnvironmentTester:
         results['authentication'] = self.test_live_authentication()
         results['facebook_oauth'] = self.test_facebook_oauth_url_live()
         results['social_connections'] = self.test_social_connections_state_live()
-        results['publication'] = self.test_publication_endpoints_live()
-        results['public_images'] = self.test_public_images_live()
-        
-        # Compare environments
-        self.compare_with_preview()
+        results['facebook_image_publication'] = self.test_facebook_image_publication_live()
+        results['public_images_facebook'] = self.test_public_images_facebook_access_live()
+        results['jpg_conversion_deployment'] = self.test_jpg_conversion_deployment_live()
+        results['live_vs_preview_comparison'] = self.compare_live_vs_preview_code()
         
         # Summary
         self.log("=" * 60)

@@ -624,7 +624,7 @@ async def get_pending_content_mongo(offset: int = 0, limit: int = 24, user_id: s
                 print(f"⚠️ Error processing media item {d.get('id', 'unknown')}: {item_error}")
                 continue
                 
-        return {"content": items, "total": total, "offset": offset, "limit": limit, "has_more": offset + limit < total, "loaded": len(items)}
+        return {"content": accessible_items, "total": len(accessible_items), "offset": offset, "limit": limit, "has_more": offset + limit < len(accessible_items), "loaded": len(accessible_items)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch content: {str(e)}")
 

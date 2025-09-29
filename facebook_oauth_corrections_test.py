@@ -235,7 +235,7 @@ class FacebookOAuthCorrectionsValidator:
         print("\n📋 Step 5: Facebook App Configuration Verification")
         
         try:
-            # Get current configuration
+            # Get current configuration (authenticated endpoint)
             response = self.session.get(f"{BACKEND_URL}/social/facebook/auth-url")
             
             if response.status_code == 200:

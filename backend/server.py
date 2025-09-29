@@ -596,7 +596,7 @@ async def get_pending_content_mongo(offset: int = 0, limit: int = 24, user_id: s
                 if not thumb_url:
                     thumb_url = f"/api/content/{file_id}/thumb"
                 
-                items.append({
+                accessible_items.append({
                     "id": file_id,
                     "filename": d.get("filename", ""),
                     "file_type": d.get("file_type", ""),

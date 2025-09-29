@@ -10191,6 +10191,8 @@ function App() {
     <Router>
       <Routes>
         <Route path="/auth/facebook/callback" element={<FacebookCallback />} />
+        <Route path="/mentions-legales" element={<MentionsLegales />} />
+        <Route path="/politique-confidentialite" element={<PrivacyPolicy onBack={() => window.location.href = '/'} />} />
         <Route path="/*" element={<MainApp />} />
       </Routes>
     </Router>

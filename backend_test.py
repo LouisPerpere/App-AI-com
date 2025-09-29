@@ -178,126 +178,53 @@ class FacebookOAuthDiagnostic:
         except Exception as e:
             self.log_test("Facebook Environment Variables", False, f"Error: {str(e)}")
             return False
-                print(f"   ⚠️ Tokens temporaires: {temp_tokens_found}")
-                
-                if eaa_tokens_found > 0 and page_access_tokens > 0:
-                    print(f"   🎉 SUCCÈS: Flow 3-étapes ChatGPT RÉUSSI!")
-                    print(f"   ✅ Tokens permanents EAA avec type page_access_token détectés")
-                    return True, data
-                elif temp_tokens_found > 0:
-                    print(f"   ❌ ÉCHEC: Seulement des tokens temporaires trouvés")
-                    print(f"   📋 Le flow 3-étapes n'est pas terminé")
-                    return False, data
-                else:
-                    print(f"   ⚠️ Aucun token trouvé - reconnexion nécessaire")
-                    return False, data
-                    
-            else:
-                print(f"   ❌ Erreur endpoint debug: {response.status_code}")
-                return False, None
-                
-        except Exception as e:
-            print(f"   ❌ Erreur test 1: {e}")
-            return False, None
     
-    def test_2_publication_avec_tokens_permanents(self):
-        """TEST 2: Test publication avec tokens permanents"""
-        print("\n📝 TEST 2: Test publication avec tokens permanents...")
-        print("   🎯 Objectif: POST /api/posts/publish avec post contenant image")
-        print("   🎯 Vérifier que validation stricte accepte maintenant les tokens EAA")
+    def test_current_social_connections(self):
+        """Test 4: Analyser connexions sociales actuelles"""
+        print("\n📊 TEST 4: Analyse connexions sociales actuelles")
         
         try:
-            # Récupérer les posts disponibles
-            posts_response = self.session.get(f"{BACKEND_URL}/posts/generated", timeout=30)
+            # Test endpoint de diagnostic
+            response = self.session.get(f"{API_BASE}/debug/social-connections")
             
-            if posts_response.status_code != 200:
-                print(f"   ❌ Impossible de récupérer les posts: {posts_response.status_code}")
-                return False
-            
-            posts_data = posts_response.json()
-            posts = posts_data.get("posts", [])
-            
-            if not posts:
-                print(f"   ⚠️ Aucun post disponible pour test")
-                return False
-            
-            # Chercher un post Facebook avec image
-            facebook_post_with_image = None
-            for post in posts:
-                if (post.get("platform") == "facebook" and 
-                    post.get("visual_url") and 
-                    not post.get("published", False)):
-                    facebook_post_with_image = post
-                    break
-            
-            if not facebook_post_with_image:
-                print(f"   ⚠️ Aucun post Facebook avec image trouvé")
-                # Essayer n'importe quel post Facebook
-                for post in posts:
-                    if post.get("platform") == "facebook":
-                        facebook_post_with_image = post
-                        break
-            
-            if not facebook_post_with_image:
-                print(f"   ❌ Aucun post Facebook disponible")
-                return False
-            
-            post_id = facebook_post_with_image.get("id")
-            has_image = bool(facebook_post_with_image.get("visual_url"))
-            
-            print(f"   📋 Test avec post: {post_id}")
-            print(f"   📋 Titre: {facebook_post_with_image.get('title', 'Sans titre')}")
-            print(f"   📋 Contient image: {'Oui' if has_image else 'Non'}")
-            
-            # Tenter la publication
-            start_time = time.time()
-            pub_response = self.session.post(
-                f"{BACKEND_URL}/posts/publish",
-                json={"post_id": post_id},
-                timeout=60
-            )
-            end_time = time.time()
-            
-            print(f"   ⏱️ Temps de réponse: {end_time - start_time:.2f}s")
-            print(f"   📊 Status code: {pub_response.status_code}")
-            
-            if pub_response.status_code == 200:
-                pub_data = pub_response.json()
-                print(f"   🎉 PUBLICATION RÉUSSIE!")
-                print(f"   📋 Réponse: {json.dumps(pub_data, indent=2)}")
+            if response.status_code == 200:
+                data = response.json()
                 
-                # Vérifier si méthode binaire fonctionne avec vrais tokens
-                if has_image:
-                    print(f"   ✅ Publication avec image réussie - tokens EAA fonctionnent!")
+                # Analyser les connexions
+                total_connections = data.get('total_connections', 0)
+                active_connections = data.get('active_connections', 0)
+                facebook_connections = data.get('facebook_connections', 0)
                 
-                return True
+                print(f"   📈 Connexions totales: {total_connections}")
+                print(f"   ✅ Connexions actives: {active_connections}")
+                print(f"   📘 Connexions Facebook: {facebook_connections}")
                 
-            elif pub_response.status_code == 400:
-                pub_data = pub_response.json()
-                error_msg = pub_data.get("error", "Erreur inconnue")
-                print(f"   ❌ Échec publication: {error_msg}")
+                # Vérifier les tokens
+                connections_detail = data.get('connections_detail', [])
+                temp_tokens = [c for c in connections_detail if 'temp_' in str(c.get('access_token', ''))]
                 
-                if "Aucune connexion sociale active" in error_msg:
-                    print(f"   📋 Erreur attendue: Pas de connexion sociale active")
-                    print(f"   📋 Tokens peut-être pas encore sauvegardés correctement")
-                elif "Invalid OAuth access token" in error_msg:
-                    print(f"   🚨 CRITIQUE: Tokens EAA rejetés par Facebook!")
-                    print(f"   📋 Les tokens ne sont peut-être pas vraiment permanents")
+                if temp_tokens:
+                    print(f"   ⚠️ Tokens temporaires détectés: {len(temp_tokens)}")
+                    for token_info in temp_tokens:
+                        print(f"      - {token_info.get('platform')}: {token_info.get('access_token', '')[:30]}...")
                 
-                return False
+                self.log_test("Current Social Connections Analysis", True, 
+                            f"Total: {total_connections}, Actives: {active_connections}, Facebook: {facebook_connections}")
+                
+                return {
+                    'total': total_connections,
+                    'active': active_connections,
+                    'facebook': facebook_connections,
+                    'temp_tokens': len(temp_tokens)
+                }
             else:
-                print(f"   ❌ Réponse inattendue: {pub_response.status_code}")
-                print(f"   📄 Réponse: {pub_response.text}")
-                return False
+                self.log_test("Current Social Connections Analysis", False, 
+                            f"Status: {response.status_code}")
+                return None
                 
         except Exception as e:
-            print(f"   ❌ Erreur test 2: {e}")
-            return False
-    
-    def test_3_validation_format_tokens_sauvegardes(self, connections_data):
-        """TEST 3: Validation format tokens sauvegardés"""
-        print("\n🔍 TEST 3: Validation format tokens sauvegardés...")
-        print("   🎯 Objectif: Analyser structure des connexions sauvegardées")
+            self.log_test("Current Social Connections Analysis", False, f"Error: {str(e)}")
+            return None
         print("   🎯 Confirmer expires_at basé sur expires_in (60 jours)")
         print("   🎯 Vérifier que tokens ne sont plus temp_facebook_token_")
         

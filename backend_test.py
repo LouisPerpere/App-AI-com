@@ -110,94 +110,74 @@ class FacebookOAuthDiagnostic:
         except Exception as e:
             self.log_test("Facebook Auth URL Generation", False, f"Error: {str(e)}")
             return None
-        print("   🎯 Objectif: Rechercher tokens commençant par EAA (vrais tokens)")
-        print("   🎯 Vérifier token_type: 'page_access_token'")
+    
+    def test_callback_endpoint_accessibility(self):
+        """Test 2: Vérifier accessibilité du callback"""
+        print("\n🔄 TEST 2: Accessibilité endpoint callback")
+        
+        callback_url = "https://claire-marcus.com/api/social/facebook/callback"
         
         try:
-            response = self.session.get(
-                f"{BACKEND_URL}/debug/social-connections",
-                timeout=30
-            )
+            # Test avec paramètres simulés
+            test_params = {
+                'code': 'test_code_simulation',
+                'state': f'facebook_oauth|{self.user_id}'
+            }
+            
+            response = requests.get(callback_url, params=test_params, timeout=10)
+            
+            # Le callback devrait répondre (même avec erreur de token)
+            if response.status_code in [200, 302, 400, 401]:
+                self.log_test("Callback Endpoint Accessibility", True, 
+                            f"Endpoint accessible (Status: {response.status_code})")
+                return True
+            else:
+                self.log_test("Callback Endpoint Accessibility", False, 
+                            f"Status inattendu: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Callback Endpoint Accessibility", False, f"Error: {str(e)}")
+            return False
+    
+    def test_facebook_environment_variables(self):
+        """Test 3: Vérifier variables d'environnement Facebook"""
+        print("\n⚙️ TEST 3: Variables d'environnement Facebook")
+        
+        try:
+            # Test indirect via l'URL OAuth générée
+            response = self.session.get(f"{API_BASE}/social/facebook/auth-url")
             
             if response.status_code == 200:
                 data = response.json()
-                print(f"   ✅ Endpoint debug accessible")
+                auth_url = data.get('auth_url', '')
                 
-                # Analyser les connexions
-                total_connections = data.get("total_connections", 0)
-                active_connections = data.get("active_connections", 0)
-                facebook_connections = data.get("facebook_connections", 0)
-                instagram_connections = data.get("instagram_connections", 0)
+                # Extraire et vérifier les variables
+                checks = {
+                    'FACEBOOK_APP_ID': '1115451684022643' in auth_url,
+                    'FACEBOOK_REDIRECT_URI': 'claire-marcus.com/api/social/facebook/callback' in auth_url,
+                    'CONFIG_ID': '1878388119742903' in auth_url
+                }
                 
-                print(f"   📊 Total connexions: {total_connections}")
-                print(f"   📊 Connexions actives: {active_connections}")
-                print(f"   📘 Connexions Facebook: {facebook_connections}")
-                print(f"   📷 Connexions Instagram: {instagram_connections}")
+                all_vars_ok = all(checks.values())
                 
-                # Rechercher tokens EAA dans toutes les collections
-                eaa_tokens_found = 0
-                page_access_tokens = 0
-                temp_tokens_found = 0
+                if all_vars_ok:
+                    self.log_test("Facebook Environment Variables", True, 
+                                "Toutes les variables critiques présentes")
+                    return True
+                else:
+                    failed_vars = [var for var, ok in checks.items() if not ok]
+                    self.log_test("Facebook Environment Variables", False, 
+                                f"Variables manquantes/incorrectes: {failed_vars}")
+                    return False
+            else:
+                self.log_test("Facebook Environment Variables", False, 
+                            "Impossible de vérifier via auth-url")
+                return False
                 
-                print(f"\n🔍 RECHERCHE TOKENS EAA (PERMANENTS):")
-                
-                # Vérifier social_media_connections
-                social_media_connections = data.get("social_media_connections", [])
-                print(f"   📋 Collection social_media_connections: {len(social_media_connections)} connexions")
-                
-                for conn in social_media_connections:
-                    platform = conn.get("platform", "")
-                    access_token = conn.get("access_token", "")
-                    token_type = conn.get("token_type", "")
-                    is_active = conn.get("active", False)
-                    
-                    if access_token:
-                        if access_token.startswith("EAA"):
-                            eaa_tokens_found += 1
-                            print(f"      ✅ TOKEN EAA TROUVÉ!")
-                            print(f"         Platform: {platform}")
-                            print(f"         Token: {access_token[:30]}...")
-                            print(f"         Type: {token_type}")
-                            print(f"         Actif: {is_active}")
-                            
-                            if token_type == "page_access_token":
-                                page_access_tokens += 1
-                                print(f"         🎉 TYPE: page_access_token (PERMANENT)")
-                        elif access_token.startswith("temp_"):
-                            temp_tokens_found += 1
-                            print(f"      ⚠️ Token temporaire trouvé: {access_token[:40]}...")
-                        else:
-                            print(f"      🔍 Autre format token: {access_token[:30]}...")
-                
-                # Vérifier social_connections_old
-                social_connections_old = data.get("social_connections_old", [])
-                print(f"   📋 Collection social_connections_old: {len(social_connections_old)} connexions")
-                
-                for conn in social_connections_old:
-                    platform = conn.get("platform", "")
-                    access_token = conn.get("access_token", "")
-                    token_type = conn.get("token_type", "")
-                    is_active = conn.get("is_active", False)
-                    
-                    if access_token:
-                        if access_token.startswith("EAA"):
-                            eaa_tokens_found += 1
-                            print(f"      ✅ TOKEN EAA TROUVÉ (old collection)!")
-                            print(f"         Platform: {platform}")
-                            print(f"         Token: {access_token[:30]}...")
-                            print(f"         Type: {token_type}")
-                            print(f"         Actif: {is_active}")
-                            
-                            if token_type == "page_access_token":
-                                page_access_tokens += 1
-                                print(f"         🎉 TYPE: page_access_token (PERMANENT)")
-                        elif access_token.startswith("temp_"):
-                            temp_tokens_found += 1
-                            print(f"      ⚠️ Token temporaire trouvé: {access_token[:40]}...")
-                
-                print(f"\n📊 RÉSULTATS TEST 1:")
-                print(f"   🔑 Tokens EAA trouvés: {eaa_tokens_found}")
-                print(f"   🎯 Page access tokens: {page_access_tokens}")
+        except Exception as e:
+            self.log_test("Facebook Environment Variables", False, f"Error: {str(e)}")
+            return False
                 print(f"   ⚠️ Tokens temporaires: {temp_tokens_found}")
                 
                 if eaa_tokens_found > 0 and page_access_tokens > 0:

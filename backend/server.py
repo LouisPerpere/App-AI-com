@@ -3256,17 +3256,57 @@ async def get_public_image_webp(file_id: str):
                 content_type = media_item.get("content_type", "image/jpeg")
                 filename = media_item.get("filename", f"image_{file_id}")
                 
-                # Retourner le fichier directement (selon ChatGPT : pas de redirection)
+                # Retourner le fichier en JPG pour Facebook (selon analyse ChatGPT)
                 from fastapi.responses import Response
-                return Response(
-                    content=grid_file.read(),
-                    media_type="image/webp",  # Force webp pour Facebook
-                    headers={
-                        "Content-Disposition": f"inline; filename={file_id}.webp",
-                        "Cache-Control": "public, max-age=31536000",  # 1 an selon ChatGPT
-                        "Access-Control-Allow-Origin": "*"
-                    }
-                )
+                from PIL import Image
+                import io
+                
+                # Convertir en JPG pour Facebook
+                image_bytes = grid_file.read()
+                
+                try:
+                    # Ouvrir et convertir l'image en JPG
+                    image = Image.open(io.BytesIO(image_bytes))
+                    
+                    # Convertir en RGB si nécessaire
+                    if image.mode in ('RGBA', 'LA', 'P'):
+                        background = Image.new('RGB', image.size, (255, 255, 255))
+                        if image.mode == 'P':
+                            image = image.convert('RGBA')
+                        background.paste(image, mask=image.split()[-1] if image.mode == 'RGBA' else None)
+                        image = background
+                    elif image.mode != 'RGB':
+                        image = image.convert('RGB')
+                    
+                    # Sauvegarder en JPG
+                    jpg_buffer = io.BytesIO()
+                    image.save(jpg_buffer, format='JPEG', quality=85, optimize=True)
+                    jpg_bytes = jpg_buffer.getvalue()
+                    
+                    print(f"✅ Converted to JPG: {len(image_bytes)} → {len(jpg_bytes)} bytes")
+                    
+                    return Response(
+                        content=jpg_bytes,
+                        media_type="image/jpeg",  # JPG pour Facebook selon ChatGPT
+                        headers={
+                            "Content-Disposition": f"inline; filename={file_id}.jpg",
+                            "Cache-Control": "public, max-age=31536000",
+                            "Access-Control-Allow-Origin": "*"
+                        }
+                    )
+                    
+                except Exception as convert_error:
+                    print(f"❌ JPG conversion failed, serving original: {convert_error}")
+                    # Fallback vers l'image originale
+                    return Response(
+                        content=image_bytes,
+                        media_type=content_type,
+                        headers={
+                            "Content-Disposition": f"inline; filename={file_id}.jpg",
+                            "Cache-Control": "public, max-age=31536000",
+                            "Access-Control-Allow-Origin": "*"
+                        }
+                    )
                 
             except Exception as grid_error:
                 print(f"❌ GridFS error: {str(grid_error)}")

@@ -35,14 +35,14 @@ TEST_CREDENTIALS = {
     "password": "L@Reunion974!"
 }
 
-class FacebookTokenDiagnostic:
+class ChatGPTTokenFlowTester:
     def __init__(self):
         self.session = requests.Session()
         self.auth_token = None
         self.user_id = None
         
     def authenticate(self):
-        """Authentification avec les identifiants de test"""
+        """ÉTAPE 1: Authentification avec les identifiants de test"""
         print("🔐 ÉTAPE 1: Authentification...")
         
         try:

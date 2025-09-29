@@ -102,7 +102,7 @@ class PublicationFlowTracer:
         
         try:
             # Récupérer les posts générés
-            response = self.session.get(f"{BACKEND_URL}/posts", timeout=10)
+            response = self.session.get(f"{BACKEND_URL}/posts/generated", timeout=10)
             
             if response.status_code == 200:
                 posts = response.json()

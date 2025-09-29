@@ -3180,8 +3180,15 @@ async def facebook_oauth_callback(
         
     except Exception as oauth_error:
         print(f"❌ Facebook OAuth failed: {str(oauth_error)}")
-        # AUCUN FALLBACK - Si OAuth échoue, on échoue proprement
-        error_redirect = f"{frontend_url}?auth_error=facebook_oauth_failed&detail={str(oauth_error)}"
+        
+        # Gestion spéciale pour erreurs XMLHttpRequest/AJAX
+        error_str = str(oauth_error).lower()
+        if "xmlhttprequest" in error_str or "ajax" in error_str or "cors" in error_str:
+            print("🔧 Detected AJAX/CORS error - Facebook Business Manager issue")
+            error_redirect = f"{frontend_url}?auth_error=facebook_ajax_error&detail=business_manager_access"
+        else:
+            error_redirect = f"{frontend_url}?auth_error=facebook_oauth_failed&detail={str(oauth_error)}"
+        
         return RedirectResponse(url=error_redirect, status_code=302)
 
 @api_router.get("/social/instagram/callback")

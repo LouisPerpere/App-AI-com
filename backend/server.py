@@ -3220,12 +3220,18 @@ async def get_public_image_webp(file_id: str):
     try:
         print(f"🌐 Serving public image: {file_id}")
         
+        # CORRECTION CRITIQUE: Strip file extension from file_id for database lookup
+        clean_file_id = file_id
+        if file_id.endswith('.jpg') or file_id.endswith('.webp'):
+            clean_file_id = file_id.rsplit('.', 1)[0]
+            print(f"🔧 Stripped extension: {file_id} → {clean_file_id}")
+        
         # Récupérer l'image directement de GridFS
         from database import get_database
         dbm = get_database()
         
         # Récupérer depuis la collection media
-        query = parse_any_id(file_id)
+        query = parse_any_id(clean_file_id)
         media_item = dbm.db.media.find_one(query)
         
         if not media_item:

@@ -1,53 +1,34 @@
 #!/usr/bin/env python3
 """
-BACKEND TESTING - CORRECTIONS CHATGPT APPLIQUÉES
-Test des 3 corrections critiques identifiées dans la demande de révision française:
-1. Support carousel dans convert_to_public_image_url()
-2. Validation stricte tokens Facebook (doit commencer par EAAG/EAA)
-3. Endpoint principal utilise maintenant méthode binaire
+DIAGNOSTIC ÉTAT ACTUEL TOKENS FACEBOOK - SONT-ILS PERMANENTS ?
+
+Test complet pour vérifier si les tokens Facebook sauvegardés sont maintenant 
+des vrais tokens permanents (EAAG/EAA) ou encore des tokens temporaires.
 
 Identifiants: lperpere@yahoo.fr / L@Reunion974!
 """
 
 import requests
 import json
-import time
 import os
+import sys
 from datetime import datetime
+import re
 
 # Configuration
 BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com/api"
-TEST_EMAIL = "lperpere@yahoo.fr"
-TEST_PASSWORD = "L@Reunion974!"
+TEST_CREDENTIALS = {
+    "email": "lperpere@yahoo.fr",
+    "password": "L@Reunion974!"
+}
 
-class FacebookCorrectionsTester:
+class FacebookTokenDiagnostic:
     def __init__(self):
         self.session = requests.Session()
-        self.access_token = None
+        self.auth_token = None
         self.user_id = None
-        self.test_results = []
         
-    def log_test(self, test_name, success, details="", error=""):
-        """Log test results"""
-        result = {
-            "test": test_name,
-            "success": success,
-            "details": details,
-            "error": error,
-            "timestamp": datetime.now().isoformat()
-        }
-        self.test_results.append(result)
-        
-        status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status} {test_name}")
-        if details:
-            print(f"   📝 {details}")
-        if error:
-            print(f"   ❌ {error}")
-        print()
-    
     def authenticate(self):
-        """Authenticate with the backend"""
         print("🔐 AUTHENTICATION")
         print("=" * 50)
         

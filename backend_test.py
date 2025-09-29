@@ -1,29 +1,32 @@
 #!/usr/bin/env python3
 """
-🎯 DIAGNOSTIC SPÉCIFIQUE IMAGES FACEBOOK SUR LIVE - TEXTE OK, IMAGE KO
-Test environnement LIVE (claire-marcus.com) pour diagnostic images Facebook
+FACEBOOK IMAGE PUBLICATION DIAGNOSTIC - BACKEND TESTING
+Comprehensive testing for Facebook publication with real image verification
+Following French review request: lperpere@yahoo.fr / L@Reunion974!
 
-Identifiants: lperpere@yahoo.fr / L@Reunion974!
+OBJECTIFS:
+1. Test real Facebook publication with image via API
+2. Capture complete backend logs to see JPG conversion
+3. Verify if image actually appears on Facebook
+4. Check Facebook Graph API to see if post contains image
+5. Diagnose exact Facebook HTTP request
+6. Test specific system image with manual JPG conversion
+7. Compare with working posts
+
 ENVIRONNEMENT: LIVE (claire-marcus.com)
-
-PROBLÈME CONFIRMÉ: Publication texte fonctionne ✅, publication image ne fonctionne pas ❌
-
-DIAGNOSTIC SPÉCIFIQUE IMAGES SUR LIVE:
-1. Test publication avec image sur LIVE - logs détaillés
-2. Vérifier si mes corrections sont déployées sur LIVE
-3. Test requête Facebook exacte sur LIVE
-4. Diagnostic images publiques sur LIVE
-5. Comparaison code LIVE vs PREVIEW
+QUESTION CENTRALE: Quand tu publies depuis l'interface, l'image apparaît-elle vraiment sur Facebook ou seulement le texte ?
 """
 
 import requests
 import json
 import sys
+import time
+import re
 from datetime import datetime
 
-# Configuration LIVE
+# Configuration
+BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com/api"
 LIVE_BACKEND_URL = "https://claire-marcus.com/api"
-ALTERNATIVE_LIVE_URL = "https://claire-marcus-pwa-1.emergent.host/api"
 CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"

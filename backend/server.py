@@ -3316,15 +3316,54 @@ async def get_public_image_webp(file_id: str):
         if file_path and os.path.exists(file_path):
             print(f"✅ Serving local file: {file_path}")
             from fastapi.responses import FileResponse
-            return FileResponse(
-                file_path,
-                media_type="image/webp",  # Force webp pour Facebook
-                filename=f"{file_id}.webp",
-                headers={
-                    "Cache-Control": "public, max-age=31536000",  # 1 an selon ChatGPT
-                    "Access-Control-Allow-Origin": "*"
-                }
-            )
+            # Convertir le fichier local en JPG pour Facebook
+            try:
+                from PIL import Image
+                import io
+                
+                # Ouvrir et convertir en JPG
+                image = Image.open(file_path)
+                
+                # Convertir en RGB si nécessaire
+                if image.mode in ('RGBA', 'LA', 'P'):
+                    background = Image.new('RGB', image.size, (255, 255, 255))
+                    if image.mode == 'P':
+                        image = image.convert('RGBA')
+                    background.paste(image, mask=image.split()[-1] if image.mode == 'RGBA' else None)
+                    image = background
+                elif image.mode != 'RGB':
+                    image = image.convert('RGB')
+                
+                # Sauvegarder en JPG
+                jpg_buffer = io.BytesIO()
+                image.save(jpg_buffer, format='JPEG', quality=85, optimize=True)
+                jpg_bytes = jpg_buffer.getvalue()
+                
+                print(f"✅ File converted to JPG: {file_path}")
+                
+                from fastapi.responses import Response
+                return Response(
+                    content=jpg_bytes,
+                    media_type="image/jpeg",  # JPG pour Facebook
+                    headers={
+                        "Content-Disposition": f"inline; filename={file_id}.jpg",
+                        "Cache-Control": "public, max-age=31536000",
+                        "Access-Control-Allow-Origin": "*"
+                    }
+                )
+                
+            except Exception as convert_error:
+                print(f"❌ File JPG conversion failed, serving as-is: {convert_error}")
+                # Fallback vers FileResponse original
+                return FileResponse(
+                    file_path,
+                    media_type="image/jpeg",  # Force JPG même en fallback
+                    filename=f"{file_id}.jpg",
+                    headers={
+                        "Cache-Control": "public, max-age=31536000",
+                        "Access-Control-Allow-Origin": "*"
+                    }
+                )
         
         # Pas de fichier disponible
         print(f"❌ No file data available for: {file_id}")

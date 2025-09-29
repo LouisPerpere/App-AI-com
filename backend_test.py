@@ -484,7 +484,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-        """TEST 4: Test flow publication complet"""
+# End of file
         print("\n🔄 TEST 4: Test flow publication complet...")
         print("   🎯 Objectif: Tracer publication depuis /api/posts/publish")
         print("   🎯 Voir logs 'ÉTAPE X/3' si callback a été utilisé")

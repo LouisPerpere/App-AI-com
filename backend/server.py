@@ -4259,14 +4259,61 @@ async def publish_post_to_social_media(
                 if not access_token.startswith("EAAG") and not access_token.startswith("EAA"):
                     raise Exception(f"Format de token Facebook invalide - Token reçu: {access_token[:20]}...")
                 
-                fb_client = FacebookAPIClient(access_token)
-                
-                result = await fb_client.post_to_page(
-                    page_id,
-                    access_token,
-                    content,
-                    image_url
-                )
+                # MÉTHODE BINAIRE selon ChatGPT (au lieu de fb_client.post_to_page)
+                if image_url:
+                    print(f"🔄 Facebook Binary Upload: Downloading image from {image_url}")
+                    
+                    import aiohttp
+                    async with aiohttp.ClientSession() as session:
+                        # Télécharger l'image
+                        async with session.get(image_url) as img_response:
+                            if img_response.status != 200:
+                                raise Exception(f"Impossible de télécharger l'image: {img_response.status} - {image_url}")
+                            
+                            image_bytes = await img_response.read()
+                            content_type = img_response.headers.get('Content-Type', 'image/webp')
+                            
+                            print(f"✅ Image téléchargée: {len(image_bytes)} bytes, {content_type}")
+                            
+                            # Upload binaire à Facebook (solution ChatGPT)
+                            fb_url = f"https://graph.facebook.com/v20.0/{page_id}/photos"
+                            
+                            form_data = aiohttp.FormData()
+                            form_data.add_field('source', image_bytes, filename='post_image.webp', content_type=content_type)
+                            form_data.add_field('caption', content)
+                            form_data.add_field('access_token', access_token)
+                            form_data.add_field('published', 'true')
+                            
+                            async with session.post(fb_url, data=form_data, timeout=30) as fb_response:
+                                if fb_response.status == 200:
+                                    result = await fb_response.json()
+                                    facebook_post_id = result.get('id')
+                                    
+                                    if facebook_post_id:
+                                        print(f"✅ Facebook binary upload successful: {facebook_post_id}")
+                                        result = {"id": facebook_post_id, "platform": "facebook"}
+                                    else:
+                                        raise Exception(f"Pas d'ID post dans la réponse Facebook: {result}")
+                                else:
+                                    error_response = await fb_response.json()
+                                    raise Exception(f"Facebook binary upload failed: {fb_response.status} - {error_response}")
+                else:
+                    # Publication texte seul (sans image)
+                    import aiohttp
+                    async with aiohttp.ClientSession() as session:
+                        fb_url = f"https://graph.facebook.com/v20.0/{page_id}/feed"
+                        form_data = aiohttp.FormData()
+                        form_data.add_field('message', content)
+                        form_data.add_field('access_token', access_token)
+                        
+                        async with session.post(fb_url, data=form_data) as fb_response:
+                            if fb_response.status == 200:
+                                result = await fb_response.json()
+                                result = {"id": result.get('id'), "platform": "facebook"}
+                                print(f"✅ Facebook text post successful: {result['id']}")
+                            else:
+                                error_response = await fb_response.json()
+                                raise Exception(f"Facebook text post failed: {fb_response.status} - {error_response}")
                 
                 print(f"✅ Successfully published to Facebook: {result}")
                 

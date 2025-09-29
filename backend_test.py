@@ -422,7 +422,7 @@ class FacebookTokenDiagnostic:
         if permanent_tokens > 0 and pub_result == "success":
             print("✅ LES TOKENS FACEBOOK SONT MAINTENANT PERMANENTS ET FONCTIONNELS!")
             print("   🎉 Le problème de tokens temporaires a été résolu")
-        elif permanent_tokens > 0 but pub_result != "success":
+        elif permanent_tokens > 0 and pub_result != "success":
             print("⚠️  TOKENS PERMANENTS DÉTECTÉS MAIS PUBLICATION ÉCHOUE")
             print("   🔧 Vérifier la configuration ou les permissions")
         elif temporary_tokens > 0:

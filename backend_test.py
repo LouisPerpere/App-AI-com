@@ -621,13 +621,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-                if self.access_token:
-                    self.session.headers.update({
-                        'Authorization': f'Bearer {self.access_token}'
-                    })
-                
-                return True
-            else:
                 self.log(f"   ❌ Authentication FAILED: {response.status_code}")
                 try:
                     error_data = response.json()

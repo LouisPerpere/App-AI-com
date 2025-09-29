@@ -5,7 +5,7 @@ URGENT UPLOAD DATA PERSISTENCE ISSUE INVESTIGATION
 Critical issue: User uploads files with title "Test" and description "Test" 
 but after upload the modal shows "Facultatif" placeholder instead of saved data.
 
-Testing against: https://social-publisher-10.preview.emergentagent.com/api
+Testing against: https://social-pub-hub.preview.emergentagent.com/api
 Credentials: lperpere@yahoo.fr / L@Reunion974!
 """
 
@@ -15,7 +15,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://social-publisher-10.preview.emergentagent.com/api"
+BASE_URL = "https://social-pub-hub.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 

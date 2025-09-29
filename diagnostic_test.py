@@ -9,7 +9,7 @@ import json
 import time
 
 # Configuration - Using the correct backend URL from frontend/.env
-BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com"
+BACKEND_URL = "https://social-pub-hub.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request

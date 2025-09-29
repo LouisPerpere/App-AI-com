@@ -19,7 +19,7 @@ import os
 from urllib.parse import urlparse, parse_qs
 
 # Configuration
-BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com/api"
+BACKEND_URL = "https://social-pub-hub.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"
@@ -336,17 +336,17 @@ class ComprehensiveOAuthTester:
             access_methods = [
                 {
                     "name": "Public endpoint",
-                    "url": f"https://social-publisher-10.preview.emergentagent.com/api/public/image/{content_id}",
+                    "url": f"https://social-pub-hub.preview.emergentagent.com/api/public/image/{content_id}",
                     "auth": False
                 },
                 {
                     "name": "Public JPG endpoint", 
-                    "url": f"https://social-publisher-10.preview.emergentagent.com/api/public/image/{content_id}.jpg",
+                    "url": f"https://social-pub-hub.preview.emergentagent.com/api/public/image/{content_id}.jpg",
                     "auth": False
                 },
                 {
                     "name": "Protected endpoint",
-                    "url": f"https://social-publisher-10.preview.emergentagent.com/api/content/{content_id}/file",
+                    "url": f"https://social-pub-hub.preview.emergentagent.com/api/content/{content_id}/file",
                     "auth": True
                 }
             ]

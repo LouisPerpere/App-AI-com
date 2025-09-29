@@ -1,7 +1,7 @@
 # Netlify Redirects for Claire et Marcus SPA
 
 # API redirects to backend (MUST be before /* rule)
-/api/*  https://social-publisher-10.preview.emergentagent.com/api/:splat  200
+/api/*  https://social-pub-hub.preview.emergentagent.com/api/:splat  200
 
 # SPA fallback (MUST be last)
 /*    /index.html   200

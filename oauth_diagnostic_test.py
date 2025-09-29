@@ -8,7 +8,7 @@ Despite AJAX errors after Facebook OAuth redirection, EAA tokens should be saved
 and Facebook publication should work with proper token validation.
 
 Credentials: lperpere@yahoo.fr / L@Reunion974!
-Backend URL: https://social-publisher-10.preview.emergentagent.com/api
+Backend URL: https://social-pub-hub.preview.emergentagent.com/api
 """
 
 import requests
@@ -19,7 +19,7 @@ import os
 from urllib.parse import urlparse
 
 # Configuration
-BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com/api"
+BACKEND_URL = "https://social-pub-hub.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"

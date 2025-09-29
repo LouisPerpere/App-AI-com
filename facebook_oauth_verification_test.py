@@ -11,7 +11,7 @@ import os
 from urllib.parse import urlparse, parse_qs
 
 # Configuration
-BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com/api"
+BACKEND_URL = "https://social-pub-hub.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 

@@ -6,7 +6,7 @@ Comprehensive testing of the website analysis timeout improvements from 45s to 9
 CONTEXTE:
 - Backend timeout: 45s → 90s global, 20s → 35s content extraction, 15s → 25s LLM
 - Frontend timeout: 50s → 95s client with fake progress bar over 90s
-- Test URL: https://social-publisher-10.preview.emergentagent.com/api
+- Test URL: https://social-pub-hub.preview.emergentagent.com/api
 - Credentials: lperpere@yahoo.fr / L@Reunion974!
 
 TESTS DE VALIDATION:
@@ -23,7 +23,7 @@ import sys
 from datetime import datetime
 
 # Configuration from review request
-BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com/api"
+BACKEND_URL = "https://social-pub-hub.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"

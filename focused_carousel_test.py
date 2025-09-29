@@ -10,7 +10,7 @@ import io
 from PIL import Image
 
 # Configuration
-BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com/api"
+BACKEND_URL = "https://social-pub-hub.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 

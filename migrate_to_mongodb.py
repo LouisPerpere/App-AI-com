@@ -82,7 +82,7 @@ def migrate_filesystem_to_mongodb():
         
         if os.path.exists(thumb_path):
             # Use the correct domain as specified in the review
-            thumb_url = f"https://social-publisher-10.preview.emergentagent.com/uploads/thumbs/{thumb_filename}"
+            thumb_url = f"https://social-pub-hub.preview.emergentagent.com/uploads/thumbs/{thumb_filename}"
         
         # Get description
         description = descriptions.get(file_id, "")
@@ -101,7 +101,7 @@ def migrate_filesystem_to_mongodb():
                     "thumb_url": thumb_url,
                     "description": description,
                     "file_type": content_type,
-                    "url": f"https://social-publisher-10.preview.emergentagent.com/uploads/{filename}",
+                    "url": f"https://social-pub-hub.preview.emergentagent.com/uploads/{filename}",
                     "deleted": False
                 }}
             )
@@ -113,7 +113,7 @@ def migrate_filesystem_to_mongodb():
                 "filename": filename,
                 "original_filename": filename,
                 "file_type": content_type,
-                "url": f"https://social-publisher-10.preview.emergentagent.com/uploads/{filename}",
+                "url": f"https://social-pub-hub.preview.emergentagent.com/uploads/{filename}",
                 "thumb_url": thumb_url,
                 "description": description,
                 "deleted": False,

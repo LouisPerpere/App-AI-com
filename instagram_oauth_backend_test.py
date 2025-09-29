@@ -7,7 +7,7 @@ Objectif: Vérifier que le passage de Instagram Basic Display API vers Facebook 
 est correctement implémenté et que les paramètres OAuth générés correspondent à la nouvelle documentation Meta.
 
 Credentials: lperpere@yahoo.fr / L@Reunion974!
-Backend: https://social-publisher-10.preview.emergentagent.com/api
+Backend: https://social-pub-hub.preview.emergentagent.com/api
 """
 
 import requests
@@ -18,7 +18,7 @@ import re
 
 class InstagramOAuthTester:
     def __init__(self):
-        self.base_url = "https://social-publisher-10.preview.emergentagent.com/api"
+        self.base_url = "https://social-pub-hub.preview.emergentagent.com/api"
         self.email = "lperpere@yahoo.fr"
         self.password = "L@Reunion974!"
         self.access_token = None

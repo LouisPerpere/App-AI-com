@@ -1,91 +1,57 @@
 <analysis>
-The AI engineer's trajectory showcases an extensive, iterative process to implement and stabilize social media publishing for the Claire et Marcus PWA, primarily focusing on Facebook and Instagram. The initial task involved refining the post modification workflow and hiding UI elements, which was quickly completed. The core of the work then shifted to implementing actual publishing via a Publier button. This led to a prolonged debugging cycle centered on persistent OAuth issues, particularly with Facebook. Key challenges included: identifying and resolving mismatches in database collection names ( vs. ), incorrect field names ( vs. ), hardcoded preview URLs in production code, faulty fallback token mechanisms, and misconfigurations in Facebook App IDs and Config IDs during the OAuth flow. The engineer employed  and  extensively to diagnose root causes. The trajectory concludes with the engineer in the process of applying a user-provided audit, specifically implementing real Instagram publication and setting up a test endpoint.
+The previous AI engineer focused on achieving reliable social media publishing (Facebook/Instagram) for the PWA, starting from a state where connections were simulated or failing silently. The primary hurdles were persistent OAuth failures (using invalid fallback tokens like ) and the inability to publish images due to access control, incorrect URL formats (WebP/no extension), and reliance on unstable URL uploads. The work involved major architectural changes: refactoring the OAuth flow to the mandatory 3-step token exchange (code -> short-lived -> long-lived -> page token, all starting with EAA), implementing unauthenticated image serving (converting internal paths to public ), forcing automatic conversion of all images to JPG, and crucially, switching from URL-based publication to the more reliable **binary upload ()** method for Facebook. The system is now technically sound, but the immediate blockage is identified as an external configuration issue in the Facebook Developer App, preventing the final EAA token saving due to a persistent AJAX error encountered during the callback finalization. The engineer analyzed the user's Facebook App settings and provided the precise external configurations required.
 </analysis>
 
 <product_requirements>
-The Claire et Marcus PWA aims to automate social media content generation using AI. Initial requirements focused on stabilizing social media integrations (Instagram, Facebook Login for Business), fixing content display bugs (0/22 items), and integrating LLMs for post refinement. Subsequent features included manual date/time modification for posts via a calendar popup, enhancing the Valider button to use the post's date/time and provide visual feedback, and improving the calendar UI to view, move, and cancel scheduled posts. Validated posts in the Posts tab needed to be read-only, displaying a Programmé badge. The post modification workflow was enhanced with AI rephrasing and a preview with Confirmer, Annuler, Modifier à nouveau options. Recent UX refinements included simplifying calendar post actions and hiding Valider and Modifier buttons during the advanced modification process. The current overarching goal is to implement actual social media publishing (starting with Facebook, then Instagram) when the Valider (now Publier) button is clicked, transitioning posts to a published status.
+The Claire et Marcus PWA's core mission is to automate AI-driven social media content generation. The essential current requirement is to implement robust, real-time social media publishing (Facebook and Instagram) upon clicking the Publier button, successfully transitioning posts to a published status. This required stabilizing integrations that were using simulated connections or invalid tokens. Specific implementations include: refining post modification workflows, enabling manual date/time scheduling via calendar, and ensuring validated posts are read-only. The major feature implemented is the backend integration of the Facebook/Instagram Graph API v20.0 for actual publication, specifically ensuring that both text and images are published successfully. This required eliminating the use of temporary tokens (), utilizing permanent Page Access Tokens (starting with EAA), securing public access to images, and implementing the binary image upload method.
 </product_requirements>
 
 <key_technical_concepts>
-- **Full-stack Development**: React.js (Frontend), FastAPI (Backend), MongoDB (Database).
-- **Authentication**: OAuth 2.0 (Facebook/Instagram Graph API), JWT tokens.
-- **State Management**: React , , .
-- **API Interaction**:  for FastAPI endpoints.
-- **Error Handling & Debugging**: Console logs, , , .
-- **Deployment**: Supervisor, Kubernetes Ingress rules.
-- **MongoDB Serialization**: Handling  and  objects.
+- **API Integration:** Facebook Graph API v20.0, Instagram Graph API (2-step process).
+- **OAuth 2.0:** Full 3-step token exchange flow (code -> short-lived -> long-lived user token -> page access token, prefixed EAA).
+- **Media Handling:** GridFS, FastAPI streaming, automatic image conversion (Pillow for WebP/PNG to JPG), and reliable binary image upload ( parameter).
+- **Backend Frameworks:** FastAPI, MongoDB (GridFS).
 </key_technical_concepts>
 
 <code_architecture>
+The application uses a standard full-stack architecture: React.js frontend and FastAPI/MongoDB backend.
 
-- ****: Main FastAPI application.
-    - **Importance**: Handles all backend logic, API routes, and database interactions (CRUD for posts, auth, social media, etc.).
-    - **Changes Made**:
-        - : Modified to include  field.
-        - : Debug logs added.
-        - New : Created for real social media publication, handles Facebook and Instagram API calls, updates post status to published. Initially had  serialization issues, fixed.
-        - , : Modified to use  (and ) and  (and ) consistently.
-        - , : Heavily refactored. Corrected collection name ( to ), field name ( to ), fixed variable scope issues, removed hardcoded preview URLs, ensured proper OAuth token exchange logic (page token vs. user token), and ensured successful connections are saved to DB.
-        - : Modified to update  and  counters for associated content to manage library badges.
-        - : Corrected to use  collection.
-        - Debug endpoints: , , ,  were added for diagnostic and cleanup purposes.
-        - Added  import and inclusion.
 
-- ****: Contains FacebookAPIClient for social media interactions.
-    - **Importance**: Encapsulates external API calls for social media.
-    - **Changes Made**:
-        -  and  fallbacks changed from  to environment variables.
-        - Updated  to use correct  for OAuth exchange.
-        - Implemented real Instagram publishing logic.
 
-- ****: Logic for generating posts.
-    - **Importance**: Determines which platforms to generate posts for based on active connections.
+- ****: Main API and logic handler.
+    - **Importance**: Contains all primary API routes, social media callbacks, and post publication logic.
     - **Changes Made**:
-        - : Corrected to query  collection and use the  field for identifying connected platforms, ensuring accurate post generation.
-
-- ****: Main React component, state, UI.
-    - **Importance**: Renders application, handles user interactions, displays posts/calendar, manages modification workflows.
-    - **Changes Made**:
-        - **Post modification UI**: Logic added to hide/gray out Valider and Modifier buttons when modification workflow is active.
-        - : Modified to call the new  endpoint.
-        - Button text Valider changed to Publier.
-        - UI for published posts: Displays Publié status.
-        - Error handling: Improved toast notifications for backend errors.
-        - Platform display: Replaced text labels (e.g., Facebook, Instagram) with their respective logos in the posts display and modal.
-        - , : Ensured dynamic URL generation for OAuth uses correct parameters.
+        - **OAuth Callback ()**: Fully refactored to implement the 3-step token exchange (Short-lived -> Long-lived User Token -> Page Access Token). Strict validation added to ensure the saved token starts with EAA.
+        - **Image Serving ( / )**: Created unauthenticated endpoints to stream images directly from GridFS, supporting both JPG and WebP, optimizing headers (Content-Type, Cache-Control, Access-Control-Allow-Origin: *), and handling HEAD requests.
+        - **Image Conversion ()**: Extended logic to parse carousel IDs and standard file paths, converting them to the public URL format with the  extension (e.g., ).
+        - **Publication ()**: Logic modified to: 1) strictly require a valid EAA token, 2) download the image, 3) convert it to JPG using Pillow, and 4) perform binary upload via  to Facebook's  endpoint.
+- ****: Social API Client wrapper.
+    - **Changes Made**: Updated functions to use Facebook Graph API v20.0 and implement the complex token exchange methods required for permanent tokens.
+- **Image Conversion Libraries**: Pillow was verified to be installed and is used within  for image format conversion during publication.
 </code_architecture>
 
 <pending_tasks>
 - Fully implement the analytics dashboard for published posts.
 - Diagnose and fix carousel deletion (if still present).
-- Diagnose and fix recurring photo modification issue (blue question mark).
-- Work with infrastructure team to resolve any remaining external proxy/cache issues.
 - Finalize carousel display logic (grey placeholder instead of first image).
-- Continue to apply and verify all corrections on the LIVE environment.
-- The minor issue where the secondary modification area disappears after the second AI processing, preventing full testing of differentiated cancellation, could be revisited.
-- The user's request for a complete skeleton of the OAuth flow for Facebook and Instagram in Python FastAPI.
+- **CRITICAL**: User must complete the external Facebook Developer App configurations as specified to resolve the OAuth AJAX error and ensure EAA tokens are permanently saved.
 </pending_tasks>
 
 <current_work>
-Immediately prior to this summary, the AI engineer was deep into resolving persistent Facebook and Instagram OAuth and publication issues. Despite numerous fixes to database collection names, field names, token exchange logic, hardcoded URLs, and configuration IDs, Facebook connections were not persisting, and actual publication (for both Facebook and Instagram) was not occurring. The AI engineer had just provided a comprehensive status report to the user, outlining what was working, partially working, and completely broken, along with detailed diagnostics.
+The immediate work focused on resolving a critical failure in the OAuth process observed on the LIVE environment: the inability to save permanent EAA tokens despite correct backend implementation of the 3-step OAuth flow and robust image handling. This failure was traced to an intermittent front-end AJAX error () occurring immediately after Facebook redirects to the callback URI. This strongly indicates an external configuration failure in the Facebook Developer App.
 
-The user then provided a comprehensive audit of the code, reinforcing many of the AI's recent findings and suggesting specific code changes for:
-1.  **OAuth Flow**: Ensuring  and  are received, and  are exchanged.
-2.  **Storage**: Correctly saving page tokens to .
-3.  **Publication**: Using the correct  for Facebook  and Instagram  endpoints (un-mocking Instagram publication).
-4.  **Frontend**: Visually marking successful connections.
-5.  **Tests**: Creating an isolated test endpoint.
+The engineer analyzed user-provided screenshots of the Facebook App settings (App ID: 1115451684022643) and identified several missing or incomplete fields.
 
-The AI engineer has begun implementing these suggestions. Specifically, the following actions have just been completed:
--   Adding detailed logging for  and  in the Facebook callback.
--   Correcting the Facebook  to  exchange to use the *page access token*.
--   Ensuring the acquired Facebook page access token is correctly saved to .
--   Creating a dedicated test endpoint  for isolated Facebook publication testing.
--   Replacing the simulated Instagram publication logic with actual calls to the Instagram Graph API.
+The last action taken was instructing the user on the precise fixes required in the Facebook Developer Console:
+1. Impose HTTPS: Set to **OUI**.
+2. Se connecter avec le SDK JavaScript: Set to **OUI**.
+3. Domaines autorisés pour le SDK JavaScript: Add .
+4. URL de rappel pour les annulations d'autorisation: Add .
+5. URL de la demande de suppression des données: Add .
 
-The very last action taken was preparing to create a test endpoint for Instagram publication.
+All code-level fixes (EAA token flow, JPG conversion, binary upload) are complete and validated internally. The current blockage is entirely dependent on the user making these external configuration changes.
 </current_work>
 
 <optional_next_step>
-Create a dedicated test endpoint for isolated Instagram publication testing.
+Wait for user confirmation that the required Facebook Developer App configuration changes have been applied.
 </optional_next_step>

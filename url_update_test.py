@@ -12,7 +12,7 @@ import pymongo
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com"
+BACKEND_URL = "https://social-pub-hub.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials as specified in review request
@@ -133,7 +133,7 @@ class URLUpdateTester:
             
             # Count documents with new domain in thumb_url
             new_domain_thumb_count = media_collection.count_documents({
-                "thumb_url": {"$regex": "https://social-publisher-10.preview.emergentagent.com"}
+                "thumb_url": {"$regex": "https://social-pub-hub.preview.emergentagent.com"}
             })
             
             # Count documents with url field
@@ -146,7 +146,7 @@ class URLUpdateTester:
             
             # Count documents with new domain in url
             new_domain_url_count = media_collection.count_documents({
-                "url": {"$regex": "https://social-publisher-10.preview.emergentagent.com"}
+                "url": {"$regex": "https://social-pub-hub.preview.emergentagent.com"}
             })
             
             # Get sample URLs for verification
@@ -215,7 +215,7 @@ class URLUpdateTester:
                                 "$replaceOne": {
                                     "input": "$thumb_url",
                                     "find": "https://claire-marcus.com",
-                                    "replacement": "https://social-publisher-10.preview.emergentagent.com"
+                                    "replacement": "https://social-pub-hub.preview.emergentagent.com"
                                 }
                             }
                         }
@@ -262,7 +262,7 @@ class URLUpdateTester:
                                 "$replaceOne": {
                                     "input": "$url",
                                     "find": "https://claire-marcus.com",
-                                    "replacement": "https://social-publisher-10.preview.emergentagent.com"
+                                    "replacement": "https://social-pub-hub.preview.emergentagent.com"
                                 }
                             }
                         }
@@ -310,21 +310,21 @@ class URLUpdateTester:
             
             # Count documents with new domain after update
             new_domain_thumb_count = media_collection.count_documents({
-                "thumb_url": {"$regex": "https://social-publisher-10.preview.emergentagent.com"}
+                "thumb_url": {"$regex": "https://social-pub-hub.preview.emergentagent.com"}
             })
             
             new_domain_url_count = media_collection.count_documents({
-                "url": {"$regex": "https://social-publisher-10.preview.emergentagent.com"}
+                "url": {"$regex": "https://social-pub-hub.preview.emergentagent.com"}
             })
             
             # Get sample updated URLs
             sample_updated_thumb = list(media_collection.find(
-                {"thumb_url": {"$regex": "https://social-publisher-10.preview.emergentagent.com"}}, 
+                {"thumb_url": {"$regex": "https://social-pub-hub.preview.emergentagent.com"}}, 
                 {"thumb_url": 1}
             ).limit(3))
             
             sample_updated_url = list(media_collection.find(
-                {"url": {"$regex": "https://social-publisher-10.preview.emergentagent.com"}}, 
+                {"url": {"$regex": "https://social-pub-hub.preview.emergentagent.com"}}, 
                 {"url": 1}
             ).limit(3))
             
@@ -531,11 +531,11 @@ class URLUpdateTester:
             # Get current status from MongoDB
             media_collection = self.db.media
             current_libfusion_thumb = media_collection.count_documents({
-                "thumb_url": {"$regex": "https://social-publisher-10.preview.emergentagent.com"}
+                "thumb_url": {"$regex": "https://social-pub-hub.preview.emergentagent.com"}
             })
             
             current_libfusion_url = media_collection.count_documents({
-                "url": {"$regex": "https://social-publisher-10.preview.emergentagent.com"}
+                "url": {"$regex": "https://social-pub-hub.preview.emergentagent.com"}
             })
             
             # Success criteria: significant number of URLs updated and pointing to libfusion
@@ -574,7 +574,7 @@ class URLUpdateTester:
         print(f"Backend URL: {BACKEND_URL}")
         print(f"Test User: {TEST_EMAIL}")
         print(f"OBJECTIF: Mettre à jour TOUTES les URLs en base pour utiliser l'API backend")
-        print(f"TÂCHE: Remplacer 'https://claire-marcus.com/uploads/' par 'https://social-publisher-10.preview.emergentagent.com/uploads/'")
+        print(f"TÂCHE: Remplacer 'https://claire-marcus.com/uploads/' par 'https://social-pub-hub.preview.emergentagent.com/uploads/'")
         print("=" * 60)
         print()
         

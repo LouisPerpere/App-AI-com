@@ -18,7 +18,7 @@ def diagnose_thumbnails():
     print("=" * 50)
     
     # Backend URL
-    backend_url = 'https://social-publisher-10.preview.emergentagent.com'
+    backend_url = 'https://social-pub-hub.preview.emergentagent.com'
     
     # Login
     login_data = {'email': 'lperpere@yahoo.fr', 'password': 'L@Reunion974!'}

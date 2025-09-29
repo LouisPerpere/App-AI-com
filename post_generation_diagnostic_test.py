@@ -17,7 +17,7 @@ from datetime import datetime
 class PostGenerationDiagnostic:
     def __init__(self):
         # Use the frontend environment URL from .env
-        self.base_url = "https://social-publisher-10.preview.emergentagent.com/api"
+        self.base_url = "https://social-pub-hub.preview.emergentagent.com/api"
         self.session = requests.Session()
         self.token = None
         self.user_id = None

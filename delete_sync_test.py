@@ -13,7 +13,7 @@ import uuid
 from datetime import datetime
 
 # Configuration - Using production URLs from review
-BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com/api"
+BACKEND_URL = "https://social-pub-hub.preview.emergentagent.com/api"
 FRONTEND_URL = "claire-marcus.com"
 TEST_USER_EMAIL = "lperpere@yahoo.fr"
 TEST_USER_PASSWORD = "L@Reunion974!"

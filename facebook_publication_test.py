@@ -12,7 +12,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://social-publisher-10.preview.emergentagent.com/api"
+BASE_URL = "https://social-pub-hub.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"
@@ -162,7 +162,7 @@ def test_facebook_publication_endpoints():
             if content_items:
                 app_image_url = content_items[0].get("url", "")
                 if app_image_url.startswith("/api/"):
-                    app_image_url = f"https://social-publisher-10.preview.emergentagent.com{app_image_url}"
+                    app_image_url = f"https://social-pub-hub.preview.emergentagent.com{app_image_url}"
                 
                 text_app_image_data = {
                     "text": "Test publication avec image de l'app",

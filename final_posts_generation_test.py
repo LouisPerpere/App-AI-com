@@ -14,7 +14,7 @@ TEST COMPLET:
 PARAMÈTRES DE TEST:
 - target_month: octobre_2025
 - num_posts: 3 (validation rapide)
-- Backend URL: https://social-publisher-10.preview.emergentagent.com/api
+- Backend URL: https://social-pub-hub.preview.emergentagent.com/api
 
 RÉSULTAT ATTENDU:
 - 3 posts générés avec contenu riche de ChatGPT 4o
@@ -29,7 +29,7 @@ import time
 from datetime import datetime
 
 # Configuration selon la demande de test
-BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com/api"
+BACKEND_URL = "https://social-pub-hub.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 TARGET_MONTH = "octobre_2025"

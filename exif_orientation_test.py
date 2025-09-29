@@ -20,7 +20,7 @@ import io
 class EXIFOrientationTester:
     def __init__(self):
         # Use production backend URL from frontend/.env
-        self.base_url = "https://social-publisher-10.preview.emergentagent.com"
+        self.base_url = "https://social-pub-hub.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.user_id = None

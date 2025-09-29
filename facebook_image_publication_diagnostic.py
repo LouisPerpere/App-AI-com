@@ -22,7 +22,7 @@ import re
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://social-publisher-10.preview.emergentagent.com/api"
+BASE_URL = "https://social-pub-hub.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"
@@ -287,7 +287,7 @@ Public URLs found:
             
             # Convert relative URL to absolute if needed
             if image_url.startswith("/api/"):
-                image_url = f"https://social-publisher-10.preview.emergentagent.com{image_url}"
+                image_url = f"https://social-pub-hub.preview.emergentagent.com{image_url}"
             
             test_data = {
                 "text": f"Test avec image du système: {test_item.get('filename', 'image')}",
@@ -365,7 +365,7 @@ Public URLs found:
                 
                 # Convert to absolute URL if relative
                 if url.startswith("/api/"):
-                    full_url = f"https://social-publisher-10.preview.emergentagent.com{url}"
+                    full_url = f"https://social-pub-hub.preview.emergentagent.com{url}"
                 else:
                     full_url = url
                 

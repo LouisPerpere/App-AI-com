@@ -12,8 +12,8 @@ import sys
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://social-publisher-10.preview.emergentagent.com/api"
-FRONTEND_URL = "https://social-publisher-10.preview.emergentagent.com"
+BASE_URL = "https://social-pub-hub.preview.emergentagent.com/api"
+FRONTEND_URL = "https://social-pub-hub.preview.emergentagent.com"
 TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"

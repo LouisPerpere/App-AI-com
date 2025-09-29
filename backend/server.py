@@ -3013,7 +3013,7 @@ async def facebook_oauth_callback(
         print(f"❌ Failed to extract user_id from state")
         return RedirectResponse(url=f"{frontend_url}?auth_error=facebook_state_parse_error", status_code=302)
     
-    # ÉCHANGE OAUTH PROPRE - SI ÇA ÉCHOUE, ON ÉCHOUE (PAS DE FALLBACK)
+    # FLOW COMPLET SELON CHATGPT : CODE → SHORT-LIVED → LONG-LIVED → PAGE TOKEN
     try:
         facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
         facebook_app_secret = os.environ.get('FACEBOOK_APP_SECRET')

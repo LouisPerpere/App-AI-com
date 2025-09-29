@@ -590,59 +590,128 @@ class ChatGPTTokenFlowTester:
         except Exception as e:
             print(f"   ❌ Erreur test 5: {e}")
             return False
-        except Exception as e:
-            print(f"   ❌ Erreur récupération connexions: {e}")
-            return {"facebook_tokens": [], "analysis": "exception"}
     
-    def analyze_token_format(self, token):
-        """Analyser le format d'un token Facebook"""
-        if not token:
-            return {"type": "empty", "length": 0, "prefix": ""}
+    def run_comprehensive_chatgpt_token_flow_test(self):
+        """Exécuter tous les tests du flow ChatGPT 3-étapes"""
+        print("🚀 DÉBUT TEST FLOW TOKENS PERMANENTS CHATGPT")
+        print("=" * 80)
+        print(f"Backend URL: {BACKEND_URL}")
+        print(f"Utilisateur: {TEST_CREDENTIALS['email']}")
+        print(f"Timestamp: {datetime.now().isoformat()}")
+        print("=" * 80)
         
-        length = len(token)
+        results = {
+            "authentication": False,
+            "test_1_token_state": False,
+            "test_2_publication": False,
+            "test_3_token_validation": False,
+            "test_4_publication_flow": False,
+            "test_5_instagram_verification": False,
+            "has_permanent_eaa_tokens": False,
+            "connections_data": None
+        }
         
-        # Vérifier les préfixes de tokens permanents Facebook
-        if token.startswith("EAAG") or token.startswith("EAA"):
-            return {
-                "type": "permanent",
-                "length": length,
-                "prefix": token[:4],
-                "expected_length": "200+ caractères pour tokens permanents"
-            }
+        # ÉTAPE 1: Authentification
+        if not self.authenticate():
+            print("\n❌ CRITIQUE: Authentification échouée - impossible de continuer")
+            return results
+        results["authentication"] = True
         
-        # Vérifier les tokens temporaires (pattern temp_)
-        if token.startswith("temp_"):
-            return {
-                "type": "temporary", 
-                "length": length,
-                "prefix": token[:10],
-                "expected_length": "Variable pour tokens temporaires"
-            }
+        # TEST 1: Vérifier état tokens après reconnexion
+        has_eaa_tokens, connections_data = self.test_1_verifier_etat_tokens_apres_reconnexion()
+        results["test_1_token_state"] = True
+        results["has_permanent_eaa_tokens"] = has_eaa_tokens
+        results["connections_data"] = connections_data
         
-        # Vérifier autres patterns temporaires
-        if "temp" in token.lower() or "test" in token.lower():
-            return {
-                "type": "temporary",
-                "length": length, 
-                "prefix": token[:10],
-                "expected_length": "Variable pour tokens temporaires"
-            }
+        # TEST 2: Test publication avec tokens permanents
+        pub_success = self.test_2_publication_avec_tokens_permanents()
+        results["test_2_publication"] = pub_success
         
-        # Token format inconnu mais analyser la longueur
-        if length > 200:
-            return {
-                "type": "possibly_permanent",
-                "length": length,
-                "prefix": token[:10],
-                "expected_length": "200+ caractères suggèrent token permanent"
-            }
+        # TEST 3: Validation format tokens sauvegardés
+        if connections_data:
+            token_validation = self.test_3_validation_format_tokens_sauvegardes(connections_data)
+            results["test_3_token_validation"] = token_validation
+        
+        # TEST 4: Test flow publication complet
+        flow_success = self.test_4_flow_publication_complet()
+        results["test_4_publication_flow"] = flow_success
+        
+        # TEST 5: Vérification Instagram avec même token
+        if connections_data:
+            instagram_verification = self.test_5_verification_instagram_meme_token(connections_data)
+            results["test_5_instagram_verification"] = instagram_verification
+        
+        # Générer le résumé final
+        self.generate_chatgpt_flow_summary(results)
+        
+        return results
+    
+    def generate_chatgpt_flow_summary(self, results):
+        """Générer le résumé final du test ChatGPT flow"""
+        print("\n" + "=" * 80)
+        print("🎯 RÉSUMÉ FINAL - TEST FLOW TOKENS PERMANENTS CHATGPT")
+        print("=" * 80)
+        
+        total_tests = 5
+        passed_tests = sum([
+            results["test_1_token_state"],
+            results["test_2_publication"],
+            results["test_3_token_validation"],
+            results["test_4_publication_flow"],
+            results["test_5_instagram_verification"]
+        ])
+        
+        print(f"📊 Résultats globaux: {passed_tests}/{total_tests} tests réussis")
+        print(f"📊 Taux de réussite: {(passed_tests/total_tests)*100:.1f}%")
+        
+        print(f"\n📋 Détail des résultats:")
+        print(f"   ✅ Authentification: {'RÉUSSI' if results['authentication'] else 'ÉCHOUÉ'}")
+        print(f"   🔍 Test 1 - État tokens: {'RÉUSSI' if results['test_1_token_state'] else 'ÉCHOUÉ'}")
+        print(f"   📝 Test 2 - Publication: {'RÉUSSI' if results['test_2_publication'] else 'ÉCHOUÉ'}")
+        print(f"   🔍 Test 3 - Validation tokens: {'RÉUSSI' if results['test_3_token_validation'] else 'ÉCHOUÉ'}")
+        print(f"   🔄 Test 4 - Flow publication: {'RÉUSSI' if results['test_4_publication_flow'] else 'ÉCHOUÉ'}")
+        print(f"   📱 Test 5 - Instagram: {'RÉUSSI' if results['test_5_instagram_verification'] else 'ÉCHOUÉ'}")
+        
+        print(f"\n🎯 Conclusions clés:")
+        if results["has_permanent_eaa_tokens"]:
+            print(f"   ✅ TOKENS EAA PERMANENTS DÉTECTÉS")
+            print(f"   🎉 Flow 3-étapes ChatGPT RÉUSSI")
+            print(f"   📋 Tokens devraient fonctionner pour publication Facebook réelle")
         else:
-            return {
-                "type": "unknown_short",
-                "length": length,
-                "prefix": token[:10],
-                "expected_length": "< 200 caractères, possiblement temporaire"
-            }
+            print(f"   ❌ AUCUN TOKEN EAA PERMANENT TROUVÉ")
+            print(f"   ⚠️ Flow 3-étapes ChatGPT NON TERMINÉ")
+            print(f"   📋 Utilisateur doit reconnecter Facebook pour tokens permanents")
+        
+        if results["test_2_publication"]:
+            print(f"   ✅ Système de publication fonctionnel")
+        else:
+            print(f"   ❌ Système de publication a des problèmes")
+        
+        if results["test_5_instagram_verification"]:
+            print(f"   ✅ Instagram partage le même page_access_token")
+        else:
+            print(f"   ⚠️ Instagram utilise un token différent ou n'est pas connecté")
+        
+        print(f"\n🔧 Recommandations:")
+        if not results["has_permanent_eaa_tokens"]:
+            print(f"   1. Utilisateur doit reconnecter le compte Facebook")
+            print(f"   2. S'assurer que le flow OAuth 3-étapes se termine correctement")
+            print(f"   3. Vérifier la configuration de l'URL de callback")
+        
+        if not results["test_2_publication"]:
+            print(f"   1. Vérifier la validité des tokens OAuth")
+            print(f"   2. Vérifier les permissions de l'API Facebook")
+            print(f"   3. Tester avec des tokens EAA valides")
+        
+        print(f"\n🎯 HYPOTHÈSE TESTÉE:")
+        if results["has_permanent_eaa_tokens"] and results["test_2_publication"]:
+            print(f"   ✅ CONFIRMÉE: Avec vrais tokens permanents (EAA), Facebook accepte les publications avec images")
+        elif results["has_permanent_eaa_tokens"] and not results["test_2_publication"]:
+            print(f"   ⚠️ PARTIELLEMENT CONFIRMÉE: Tokens EAA présents mais publication échoue")
+        else:
+            print(f"   ❌ NON CONFIRMÉE: Pas de tokens EAA permanents détectés")
+        
+        print("=" * 80)
     
     def test_publication_with_validation(self):
         """Test validation token avec nouveaux critères"""

@@ -74,16 +74,16 @@ def convert_to_public_image_url(image_url: str) -> str:
     if image_url.startswith("http") and not "/api/" in image_url:
         return image_url
     
-    # Si c'est une URL protégée /api/content/{id}/file, convertir
+    # Si c'est une URL protégée /api/content/{id}/file, convertir (selon ChatGPT: ajouter extension)
     if "/api/content/" in image_url and "/file" in image_url:
         # Extraire l'ID du fichier
         import re
         match = re.search(r'/api/content/([^/]+)/file', image_url)
         if match:
             file_id = match.group(1)
-            # Retourner l'URL publique
+            # Retourner l'URL publique avec extension .webp pour Facebook
             backend_url = os.environ.get('REACT_APP_BACKEND_URL', 'https://claire-marcus.com')
-            return f"{backend_url}/api/public/image/{file_id}"
+            return f"{backend_url}/api/public/image/{file_id}.webp"
     
     # Si c'est une URL relative, la convertir en absolue
     if image_url.startswith("/"):

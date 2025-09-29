@@ -249,10 +249,13 @@ class LiveEnvironmentTester:
                 self.log(f"      Visible connections: {len(connections)}")
                 
                 for conn in connections:
-                    platform = conn.get('platform', 'unknown')
-                    is_active = conn.get('is_active', False)
-                    page_name = conn.get('page_name', 'unknown')
-                    self.log(f"      - {platform}: {page_name} (active: {is_active})")
+                    if isinstance(conn, dict):
+                        platform = conn.get('platform', 'unknown')
+                        is_active = conn.get('is_active', False)
+                        page_name = conn.get('page_name', 'unknown')
+                        self.log(f"      - {platform}: {page_name} (active: {is_active})")
+                    else:
+                        self.log(f"      - Connection: {conn}")
                     
                 return True
             else:

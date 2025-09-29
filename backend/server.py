@@ -3400,6 +3400,69 @@ async def get_public_image_webp(file_id: str):
         print(f"❌ Error serving public image: {str(e)}")
         raise HTTPException(status_code=500, detail="Image service error")
 
+@api_router.post("/social/facebook/connect-manual")
+async def connect_facebook_manual(
+    request: dict,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """SOLUTION TEMPORAIRE : Connexion Facebook manuelle avec token fourni"""
+    try:
+        page_access_token = request.get("page_access_token")
+        page_name = request.get("page_name", "Page Facebook")
+        page_id = request.get("page_id")
+        
+        if not page_access_token or not page_access_token.startswith("EAA"):
+            return {
+                "success": False,
+                "error": "Token Facebook EAA requis",
+                "message": "Fournir un page access token valide commençant par EAA"
+            }
+        
+        if not page_id:
+            return {
+                "success": False,
+                "error": "Page ID requis",
+                "message": "Fournir l'ID de la page Facebook"
+            }
+        
+        # SAUVEGARDER LA CONNEXION MANUELLE
+        dbm = get_database()
+        facebook_connection = {
+            "id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "platform": "facebook",
+            "access_token": page_access_token,
+            "page_id": page_id,
+            "page_name": page_name,
+            "connected_at": datetime.now(timezone.utc).isoformat(),
+            "active": True,
+            "token_type": "manual_eaa_token",
+            "expires_at": (datetime.now(timezone.utc) + timedelta(days=60)).isoformat()
+        }
+        
+        # Supprimer anciennes connexions et sauvegarder
+        dbm.db.social_media_connections.delete_many({
+            "user_id": user_id,
+            "platform": "facebook"
+        })
+        
+        dbm.db.social_media_connections.insert_one(facebook_connection)
+        
+        return {
+            "success": True,
+            "message": f"✅ Connexion Facebook manuelle réussie : {page_name}",
+            "page_name": page_name,
+            "page_id": page_id,
+            "token_type": "manual_eaa"
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Erreur connexion manuelle Facebook"
+        }
+
 @api_router.get("/test/image-headers/{file_id}")
 async def test_image_headers(file_id: str):
     """Test endpoint pour vérifier les headers d'image (selon ChatGPT)"""

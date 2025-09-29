@@ -20,8 +20,8 @@ import sys
 from datetime import datetime
 
 # Configuration LIVE
-LIVE_BACKEND_URL = "https://claire-marcus-pwa-1.emergent.host/api"
-ALTERNATIVE_LIVE_URL = "https://claire-marcus.com/api"
+LIVE_BACKEND_URL = "https://claire-marcus.com/api"
+ALTERNATIVE_LIVE_URL = "https://claire-marcus-pwa-1.emergent.host/api"
 CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"

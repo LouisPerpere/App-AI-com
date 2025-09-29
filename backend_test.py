@@ -74,9 +74,11 @@ class ChatGPTTokenFlowTester:
             print(f"   ❌ Erreur authentification: {e}")
             return False
     
-    def get_social_connections_debug(self):
-        """Vérifier l'état des connexions sociales actuelles"""
-        print("\n🔍 ÉTAPE 2: Vérification état des connexions sociales...")
+    def test_1_verifier_etat_tokens_apres_reconnexion(self):
+        """TEST 1: Vérifier état tokens après reconnexion - Rechercher tokens EAA"""
+        print("\n🔍 TEST 1: Vérification état des tokens après reconnexion...")
+        print("   🎯 Objectif: Rechercher tokens commençant par EAA (vrais tokens)")
+        print("   🎯 Vérifier token_type: 'page_access_token'")
         
         try:
             response = self.session.get(
@@ -99,55 +101,495 @@ class ChatGPTTokenFlowTester:
                 print(f"   📘 Connexions Facebook: {facebook_connections}")
                 print(f"   📷 Connexions Instagram: {instagram_connections}")
                 
-                # Analyser les tokens Facebook en détail
-                connections_detail = data.get("connections_detail", [])
-                facebook_tokens = []
+                # Rechercher tokens EAA dans toutes les collections
+                eaa_tokens_found = 0
+                page_access_tokens = 0
+                temp_tokens_found = 0
                 
-                for conn in connections_detail:
-                    if conn.get("platform") == "facebook":
-                        facebook_tokens.append(conn)
+                print(f"\n🔍 RECHERCHE TOKENS EAA (PERMANENTS):")
                 
-                print(f"\n🔍 ANALYSE DÉTAILLÉE DES TOKENS FACEBOOK:")
-                if not facebook_tokens:
-                    print("   ❌ Aucun token Facebook trouvé")
-                    return {"facebook_tokens": [], "analysis": "no_tokens"}
+                # Vérifier social_media_connections
+                social_media_connections = data.get("social_media_connections", [])
+                print(f"   📋 Collection social_media_connections: {len(social_media_connections)} connexions")
                 
-                for i, token_info in enumerate(facebook_tokens, 1):
-                    print(f"\n   📘 TOKEN FACEBOOK #{i}:")
+                for conn in social_media_connections:
+                    platform = conn.get("platform", "")
+                    access_token = conn.get("access_token", "")
+                    token_type = conn.get("token_type", "")
+                    is_active = conn.get("active", False)
                     
-                    access_token = token_info.get("access_token", "")
-                    is_active = token_info.get("active", False)
-                    created_at = token_info.get("created_at", "")
-                    
-                    print(f"      🔑 Token: {access_token[:50]}..." if len(access_token) > 50 else f"      🔑 Token: {access_token}")
-                    print(f"      ⚡ Actif: {is_active}")
-                    print(f"      📅 Créé: {created_at}")
-                    
-                    # Analyser le format du token
-                    token_analysis = self.analyze_token_format(access_token)
-                    print(f"      📋 Format: {token_analysis['type']}")
-                    print(f"      📏 Longueur: {token_analysis['length']} caractères")
-                    print(f"      🏷️ Préfixe: {token_analysis['prefix']}")
-                    
-                    if token_analysis['type'] == 'temporary':
-                        print(f"      ⚠️  TOKEN TEMPORAIRE DÉTECTÉ!")
-                    elif token_analysis['type'] == 'permanent':
-                        print(f"      ✅ TOKEN PERMANENT DÉTECTÉ!")
-                    else:
-                        print(f"      ❓ FORMAT INCONNU")
+                    if access_token:
+                        if access_token.startswith("EAA"):
+                            eaa_tokens_found += 1
+                            print(f"      ✅ TOKEN EAA TROUVÉ!")
+                            print(f"         Platform: {platform}")
+                            print(f"         Token: {access_token[:30]}...")
+                            print(f"         Type: {token_type}")
+                            print(f"         Actif: {is_active}")
+                            
+                            if token_type == "page_access_token":
+                                page_access_tokens += 1
+                                print(f"         🎉 TYPE: page_access_token (PERMANENT)")
+                        elif access_token.startswith("temp_"):
+                            temp_tokens_found += 1
+                            print(f"      ⚠️ Token temporaire trouvé: {access_token[:40]}...")
+                        else:
+                            print(f"      🔍 Autre format token: {access_token[:30]}...")
                 
-                return {
-                    "facebook_tokens": facebook_tokens,
-                    "analysis": "tokens_found",
-                    "total_connections": total_connections,
-                    "active_connections": active_connections
-                }
+                # Vérifier social_connections_old
+                social_connections_old = data.get("social_connections_old", [])
+                print(f"   📋 Collection social_connections_old: {len(social_connections_old)} connexions")
                 
+                for conn in social_connections_old:
+                    platform = conn.get("platform", "")
+                    access_token = conn.get("access_token", "")
+                    token_type = conn.get("token_type", "")
+                    is_active = conn.get("is_active", False)
+                    
+                    if access_token:
+                        if access_token.startswith("EAA"):
+                            eaa_tokens_found += 1
+                            print(f"      ✅ TOKEN EAA TROUVÉ (old collection)!")
+                            print(f"         Platform: {platform}")
+                            print(f"         Token: {access_token[:30]}...")
+                            print(f"         Type: {token_type}")
+                            print(f"         Actif: {is_active}")
+                            
+                            if token_type == "page_access_token":
+                                page_access_tokens += 1
+                                print(f"         🎉 TYPE: page_access_token (PERMANENT)")
+                        elif access_token.startswith("temp_"):
+                            temp_tokens_found += 1
+                            print(f"      ⚠️ Token temporaire trouvé: {access_token[:40]}...")
+                
+                print(f"\n📊 RÉSULTATS TEST 1:")
+                print(f"   🔑 Tokens EAA trouvés: {eaa_tokens_found}")
+                print(f"   🎯 Page access tokens: {page_access_tokens}")
+                print(f"   ⚠️ Tokens temporaires: {temp_tokens_found}")
+                
+                if eaa_tokens_found > 0 and page_access_tokens > 0:
+                    print(f"   🎉 SUCCÈS: Flow 3-étapes ChatGPT RÉUSSI!")
+                    print(f"   ✅ Tokens permanents EAA avec type page_access_token détectés")
+                    return True, data
+                elif temp_tokens_found > 0:
+                    print(f"   ❌ ÉCHEC: Seulement des tokens temporaires trouvés")
+                    print(f"   📋 Le flow 3-étapes n'est pas terminé")
+                    return False, data
+                else:
+                    print(f"   ⚠️ Aucun token trouvé - reconnexion nécessaire")
+                    return False, data
+                    
             else:
                 print(f"   ❌ Erreur endpoint debug: {response.status_code}")
-                print(f"   📄 Réponse: {response.text}")
-                return {"facebook_tokens": [], "analysis": "endpoint_error"}
+                return False, None
                 
+        except Exception as e:
+            print(f"   ❌ Erreur test 1: {e}")
+            return False, None
+    
+    def test_2_publication_avec_tokens_permanents(self):
+        """TEST 2: Test publication avec tokens permanents"""
+        print("\n📝 TEST 2: Test publication avec tokens permanents...")
+        print("   🎯 Objectif: POST /api/posts/publish avec post contenant image")
+        print("   🎯 Vérifier que validation stricte accepte maintenant les tokens EAA")
+        
+        try:
+            # Récupérer les posts disponibles
+            posts_response = self.session.get(f"{BACKEND_URL}/posts/generated", timeout=30)
+            
+            if posts_response.status_code != 200:
+                print(f"   ❌ Impossible de récupérer les posts: {posts_response.status_code}")
+                return False
+            
+            posts_data = posts_response.json()
+            posts = posts_data.get("posts", [])
+            
+            if not posts:
+                print(f"   ⚠️ Aucun post disponible pour test")
+                return False
+            
+            # Chercher un post Facebook avec image
+            facebook_post_with_image = None
+            for post in posts:
+                if (post.get("platform") == "facebook" and 
+                    post.get("visual_url") and 
+                    not post.get("published", False)):
+                    facebook_post_with_image = post
+                    break
+            
+            if not facebook_post_with_image:
+                print(f"   ⚠️ Aucun post Facebook avec image trouvé")
+                # Essayer n'importe quel post Facebook
+                for post in posts:
+                    if post.get("platform") == "facebook":
+                        facebook_post_with_image = post
+                        break
+            
+            if not facebook_post_with_image:
+                print(f"   ❌ Aucun post Facebook disponible")
+                return False
+            
+            post_id = facebook_post_with_image.get("id")
+            has_image = bool(facebook_post_with_image.get("visual_url"))
+            
+            print(f"   📋 Test avec post: {post_id}")
+            print(f"   📋 Titre: {facebook_post_with_image.get('title', 'Sans titre')}")
+            print(f"   📋 Contient image: {'Oui' if has_image else 'Non'}")
+            
+            # Tenter la publication
+            start_time = time.time()
+            pub_response = self.session.post(
+                f"{BACKEND_URL}/posts/publish",
+                json={"post_id": post_id},
+                timeout=60
+            )
+            end_time = time.time()
+            
+            print(f"   ⏱️ Temps de réponse: {end_time - start_time:.2f}s")
+            print(f"   📊 Status code: {pub_response.status_code}")
+            
+            if pub_response.status_code == 200:
+                pub_data = pub_response.json()
+                print(f"   🎉 PUBLICATION RÉUSSIE!")
+                print(f"   📋 Réponse: {json.dumps(pub_data, indent=2)}")
+                
+                # Vérifier si méthode binaire fonctionne avec vrais tokens
+                if has_image:
+                    print(f"   ✅ Publication avec image réussie - tokens EAA fonctionnent!")
+                
+                return True
+                
+            elif pub_response.status_code == 400:
+                pub_data = pub_response.json()
+                error_msg = pub_data.get("error", "Erreur inconnue")
+                print(f"   ❌ Échec publication: {error_msg}")
+                
+                if "Aucune connexion sociale active" in error_msg:
+                    print(f"   📋 Erreur attendue: Pas de connexion sociale active")
+                    print(f"   📋 Tokens peut-être pas encore sauvegardés correctement")
+                elif "Invalid OAuth access token" in error_msg:
+                    print(f"   🚨 CRITIQUE: Tokens EAA rejetés par Facebook!")
+                    print(f"   📋 Les tokens ne sont peut-être pas vraiment permanents")
+                
+                return False
+            else:
+                print(f"   ❌ Réponse inattendue: {pub_response.status_code}")
+                print(f"   📄 Réponse: {pub_response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"   ❌ Erreur test 2: {e}")
+            return False
+    
+    def test_3_validation_format_tokens_sauvegardes(self, connections_data):
+        """TEST 3: Validation format tokens sauvegardés"""
+        print("\n🔍 TEST 3: Validation format tokens sauvegardés...")
+        print("   🎯 Objectif: Analyser structure des connexions sauvegardées")
+        print("   🎯 Confirmer expires_at basé sur expires_in (60 jours)")
+        print("   🎯 Vérifier que tokens ne sont plus temp_facebook_token_")
+        
+        if not connections_data:
+            print("   ❌ Pas de données de connexions à analyser")
+            return False
+        
+        try:
+            valid_permanent_tokens = 0
+            invalid_temp_tokens = 0
+            long_lived_tokens = 0
+            
+            print(f"\n📋 ANALYSE STRUCTURE DES CONNEXIONS:")
+            
+            for collection_name in ["social_media_connections", "social_connections_old"]:
+                connections = connections_data.get(collection_name, [])
+                if not connections:
+                    continue
+                    
+                print(f"\n   📂 Collection: {collection_name}")
+                
+                for i, conn in enumerate(connections):
+                    platform = conn.get("platform", "")
+                    access_token = conn.get("access_token", "")
+                    token_type = conn.get("token_type", "")
+                    expires_at = conn.get("expires_at", "")
+                    expires_in = conn.get("expires_in", "")
+                    is_active = conn.get("active", conn.get("is_active", False))
+                    
+                    print(f"\n      🔗 Connexion {i+1}:")
+                    print(f"         Platform: {platform}")
+                    print(f"         Actif: {is_active}")
+                    print(f"         Token type: {token_type}")
+                    
+                    if access_token:
+                        if access_token.startswith("EAA"):
+                            valid_permanent_tokens += 1
+                            print(f"         ✅ Token EAA: {access_token[:35]}...")
+                            
+                            # Analyser expires_at pour 60 jours
+                            if expires_at:
+                                try:
+                                    # Parser la date d'expiration
+                                    if isinstance(expires_at, str):
+                                        # Essayer différents formats
+                                        for fmt in ["%Y-%m-%dT%H:%M:%S.%fZ", "%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%d %H:%M:%S"]:
+                                            try:
+                                                exp_date = datetime.strptime(expires_at, fmt)
+                                                break
+                                            except ValueError:
+                                                continue
+                                        else:
+                                            print(f"         ⚠️ Format expires_at non reconnu: {expires_at}")
+                                            continue
+                                    else:
+                                        exp_date = expires_at
+                                    
+                                    now = datetime.utcnow()
+                                    days_until_expiry = (exp_date - now).days
+                                    
+                                    print(f"         📅 Expire dans: {days_until_expiry} jours")
+                                    
+                                    if 50 <= days_until_expiry <= 70:  # ~60 jours avec tolérance
+                                        long_lived_tokens += 1
+                                        print(f"         ✅ Token long-lived (60 jours) confirmé")
+                                    elif days_until_expiry > 365:
+                                        print(f"         🎉 Token permanent (>1 an) confirmé")
+                                    else:
+                                        print(f"         ⚠️ Token court-terme ({days_until_expiry} jours)")
+                                        
+                                except Exception as date_error:
+                                    print(f"         ⚠️ Erreur parsing date: {date_error}")
+                            
+                            if expires_in:
+                                print(f"         📊 Expires_in: {expires_in} secondes")
+                                days_from_expires_in = int(expires_in) / (24 * 3600)
+                                print(f"         📊 Soit: {days_from_expires_in:.1f} jours")
+                                
+                        elif access_token.startswith("temp_facebook_token_"):
+                            invalid_temp_tokens += 1
+                            print(f"         ❌ Token temporaire: {access_token[:50]}...")
+                        else:
+                            print(f"         🔍 Autre format: {access_token[:35]}...")
+                    else:
+                        print(f"         ❌ Pas de token d'accès")
+            
+            print(f"\n📊 RÉSULTATS TEST 3:")
+            print(f"   ✅ Tokens EAA valides: {valid_permanent_tokens}")
+            print(f"   📅 Tokens long-lived (60j): {long_lived_tokens}")
+            print(f"   ❌ Tokens temporaires: {invalid_temp_tokens}")
+            
+            if valid_permanent_tokens > 0 and invalid_temp_tokens == 0:
+                print(f"   🎉 SUCCÈS: Format tokens sauvegardés VALIDE")
+                print(f"   ✅ Plus de temp_facebook_token_ détectés")
+                return True
+            else:
+                print(f"   ❌ ÉCHEC: Tokens temporaires encore présents")
+                return False
+                
+        except Exception as e:
+            print(f"   ❌ Erreur test 3: {e}")
+            return False
+    
+    def test_4_flow_publication_complet(self):
+        """TEST 4: Test flow publication complet"""
+        print("\n🔄 TEST 4: Test flow publication complet...")
+        print("   🎯 Objectif: Tracer publication depuis /api/posts/publish")
+        print("   🎯 Voir logs 'ÉTAPE X/3' si callback a été utilisé")
+        print("   🎯 Capturer requête Facebook avec vrai token EAA")
+        
+        try:
+            # Récupérer un post pour test
+            posts_response = self.session.get(f"{BACKEND_URL}/posts/generated", timeout=30)
+            
+            if posts_response.status_code != 200:
+                print(f"   ❌ Impossible de récupérer les posts")
+                return False
+            
+            posts_data = posts_response.json()
+            posts = posts_data.get("posts", [])
+            
+            if not posts:
+                print(f"   ⚠️ Aucun post disponible")
+                return False
+            
+            # Chercher post Facebook avec image
+            test_post = None
+            for post in posts:
+                if post.get("platform") == "facebook":
+                    test_post = post
+                    break
+            
+            if not test_post:
+                print(f"   ❌ Aucun post Facebook trouvé")
+                return False
+            
+            post_id = test_post.get("id")
+            has_image = bool(test_post.get("visual_url"))
+            
+            print(f"   📋 Test flow avec post: {post_id}")
+            print(f"   📋 Contient image: {'Oui' if has_image else 'Non'}")
+            print(f"   📋 Image URL: {test_post.get('visual_url', 'Aucune')}")
+            
+            # Tracer la requête de publication
+            print(f"\n🔄 TRAÇAGE DU FLOW DE PUBLICATION:")
+            start_time = time.time()
+            
+            pub_response = self.session.post(
+                f"{BACKEND_URL}/posts/publish",
+                json={"post_id": post_id},
+                timeout=60
+            )
+            
+            end_time = time.time()
+            duration = end_time - start_time
+            
+            print(f"   ⏱️ Durée totale: {duration:.2f} secondes")
+            print(f"   📊 Status: {pub_response.status_code}")
+            
+            if pub_response.status_code == 200:
+                pub_data = pub_response.json()
+                print(f"   🎉 FLOW COMPLET RÉUSSI!")
+                print(f"   📋 Réponse: {json.dumps(pub_data, indent=2)}")
+                
+                # Chercher indices d'utilisation du callback
+                response_str = str(pub_data).lower()
+                if "callback" in response_str or "étape" in response_str:
+                    print(f"   🔍 Indices de callback détectés dans la réponse")
+                
+                return True
+                
+            elif pub_response.status_code == 400:
+                pub_data = pub_response.json()
+                error_msg = pub_data.get("error", "")
+                print(f"   📋 Erreur flow: {error_msg}")
+                
+                # Analyser le type d'erreur
+                if "Invalid OAuth access token" in error_msg:
+                    print(f"   🚨 Token OAuth rejeté par Facebook")
+                    print(f"   📋 Tokens EAA peut-être pas vraiment permanents")
+                elif "Aucune connexion sociale active" in error_msg:
+                    print(f"   📋 Pas de connexion active trouvée")
+                    print(f"   📋 Callback n'a peut-être pas sauvegardé les connexions")
+                
+                return False
+            else:
+                print(f"   ❌ Réponse inattendue: {pub_response.status_code}")
+                return False
+                
+        except Exception as e:
+            print(f"   ❌ Erreur test 4: {e}")
+            return False
+    
+    def test_5_verification_instagram_meme_token(self, connections_data):
+        """TEST 5: Vérification Instagram avec même token"""
+        print("\n📱 TEST 5: Vérification Instagram avec même token...")
+        print("   🎯 Objectif: Si Instagram Business connecté")
+        print("   🎯 Vérifier qu'Instagram utilise même page_access_token")
+        print("   🎯 Tester publication Instagram avec token permanent")
+        
+        if not connections_data:
+            print("   ❌ Pas de données de connexions")
+            return False
+        
+        try:
+            facebook_tokens = []
+            instagram_tokens = []
+            
+            # Collecter tous les tokens Facebook et Instagram
+            for collection_name in ["social_media_connections", "social_connections_old"]:
+                connections = connections_data.get(collection_name, [])
+                
+                for conn in connections:
+                    platform = conn.get("platform", "").lower()
+                    access_token = conn.get("access_token", "")
+                    token_type = conn.get("token_type", "")
+                    is_active = conn.get("active", conn.get("is_active", False))
+                    
+                    if platform == "facebook" and access_token:
+                        facebook_tokens.append({
+                            "token": access_token,
+                            "type": token_type,
+                            "active": is_active,
+                            "collection": collection_name
+                        })
+                    elif platform == "instagram" and access_token:
+                        instagram_tokens.append({
+                            "token": access_token,
+                            "type": token_type,
+                            "active": is_active,
+                            "collection": collection_name
+                        })
+            
+            print(f"   📊 Tokens Facebook trouvés: {len(facebook_tokens)}")
+            print(f"   📊 Tokens Instagram trouvés: {len(instagram_tokens)}")
+            
+            if not facebook_tokens and not instagram_tokens:
+                print(f"   ⚠️ Aucun token trouvé pour comparaison")
+                return False
+            
+            # Vérifier si Instagram utilise le même token que Facebook
+            shared_tokens = 0
+            for fb_token in facebook_tokens:
+                for ig_token in instagram_tokens:
+                    if fb_token["token"] == ig_token["token"]:
+                        shared_tokens += 1
+                        print(f"   ✅ TOKEN PARTAGÉ TROUVÉ!")
+                        print(f"      Token: {fb_token['token'][:35]}...")
+                        print(f"      Type: {fb_token['type']}")
+                        print(f"      Facebook actif: {fb_token['active']}")
+                        print(f"      Instagram actif: {ig_token['active']}")
+                        print(f"      ✅ Même page_access_token utilisé par les deux plateformes")
+            
+            if shared_tokens > 0:
+                print(f"   🎉 SUCCÈS: Instagram utilise même page_access_token")
+                
+                # Tester publication Instagram si possible
+                try:
+                    posts_response = self.session.get(f"{BACKEND_URL}/posts/generated", timeout=30)
+                    if posts_response.status_code == 200:
+                        posts_data = posts_response.json()
+                        posts = posts_data.get("posts", [])
+                        
+                        instagram_post = None
+                        for post in posts:
+                            if post.get("platform") == "instagram":
+                                instagram_post = post
+                                break
+                        
+                        if instagram_post:
+                            print(f"   📱 Test publication Instagram avec token permanent...")
+                            pub_response = self.session.post(
+                                f"{BACKEND_URL}/posts/publish",
+                                json={"post_id": instagram_post.get("id")},
+                                timeout=60
+                            )
+                            
+                            if pub_response.status_code == 200:
+                                print(f"   ✅ Publication Instagram réussie avec token permanent!")
+                            else:
+                                print(f"   📋 Publication Instagram: {pub_response.status_code}")
+                        
+                except Exception as ig_test_error:
+                    print(f"   ⚠️ Test publication Instagram échoué: {ig_test_error}")
+                
+                return True
+            else:
+                print(f"   📋 Instagram et Facebook utilisent des tokens différents")
+                
+                # Afficher détails pour analyse
+                if facebook_tokens:
+                    print(f"   📘 Tokens Facebook:")
+                    for i, token in enumerate(facebook_tokens):
+                        print(f"      {i+1}. {token['token'][:35]}... (type: {token['type']})")
+                
+                if instagram_tokens:
+                    print(f"   📷 Tokens Instagram:")
+                    for i, token in enumerate(instagram_tokens):
+                        print(f"      {i+1}. {token['token'][:35]}... (type: {token['type']})")
+                
+                return False
+                
+        except Exception as e:
+            print(f"   ❌ Erreur test 5: {e}")
+            return False
         except Exception as e:
             print(f"   ❌ Erreur récupération connexions: {e}")
             return {"facebook_tokens": [], "analysis": "exception"}

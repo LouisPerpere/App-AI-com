@@ -8,6 +8,8 @@ import PaymentPage from './PaymentPage';
 import AdminDashboard from './AdminDashboard';
 import FacebookCallback from './FacebookCallback';
 import PrivacyPolicy from './PrivacyPolicy';
+import MentionsLegales from './MentionsLegales';
+import Footer from './components/Footer';
 
 // Remove withCredentials to avoid CORS conflicts with token-based auth
 // axios.defaults.withCredentials = true;

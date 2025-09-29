@@ -277,9 +277,9 @@ backend:
         comment: "🎯 DIAGNOSTIC APPROFONDI PUBLICATION IMAGES FACEBOOK TERMINÉ - CAUSE RACINE CONFIRMÉE: Diagnostic complet effectué suite à la demande française avec identifiants lperpere@yahoo.fr / L@Reunion974! sur https://social-pub-hub.preview.emergentagent.com/api. OBJECTIFS DIAGNOSTIC ATTEINTS: ✅ Test endpoint public directement: GET /api/public/image/{id} accessible sans auth (redirection 302), ✅ Logs backend capturés pendant publication réelle: Tous montrent 'Image: ✅' confirmant traitement correct, ✅ Réponse Facebook API analysée: Erreur OAuth 190 'Invalid OAuth access token - Cannot parse access token', ✅ Test image WikiMedia externe: Traitée correctement, échec dû au token, ✅ Format requête Facebook vérifié: Toutes les requêtes bien formées avec images. DÉCOUVERTE CRITIQUE: ❌ PROBLÈME N'EST PAS LES IMAGES: Connexion Facebook existe avec token temporaire 'temp_facebook_token_1759086128', ❌ FACEBOOK REJETTE LE TOKEN: Erreur OAuth Code 190 sur TOUTES les publications (avec/sans image), ✅ IMAGES FONCTIONNENT PARFAITEMENT: Endpoint public accessible, conversion URL opérationnelle, logs montrent traitement réussi. PREUVES TECHNIQUES: ✅ URL originale protégée: /api/content/{id}/file, ✅ URL publique générée: /api/public/image/{id}, ✅ Redirection 302 fonctionnelle, ✅ Images externes (WikiMedia/Pixabay) traitées, ✅ Fonction convert_to_public_image_url() opérationnelle. CONCLUSION DÉFINITIVE: L'hypothèse utilisateur était CORRECTE - les images étaient protégées. La correction avec endpoint public /api/public/image/{id} FONCTIONNE PARFAITEMENT. Le seul problème restant est le token Facebook temporaire invalide. Avec un vrai token OAuth, les images se publieront correctement sur Facebook."
   - task: "OAuth Callback Persistence Diagnostic - Facebook/Instagram Connection Issues"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
-    stuck_count: 2
+    stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:

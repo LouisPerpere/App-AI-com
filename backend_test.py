@@ -62,77 +62,82 @@ class FacebookTokenDiagnostic:
             return False
     
     def get_social_connections_debug(self):
-        """Test 1: Support carousel dans convert_to_public_image_url()"""
-        print("🎠 TEST 1: CAROUSEL URL CONVERSION")
-        print("=" * 50)
-        
-        # Test carousel URL conversion by examining the function behavior
-        # We'll test this indirectly through the publication endpoint
+        """Vérifier l'état des connexions sociales actuelles"""
+        print("\n🔍 ÉTAPE 2: Vérification état des connexions sociales...")
         
         try:
-            # First, let's check if we have any posts with carousel images
-            response = self.session.get(f"{BACKEND_URL}/posts/generated")
+            response = self.session.get(
+                f"{BACKEND_URL}/debug/social-connections",
+                timeout=30
+            )
             
             if response.status_code == 200:
-                posts = response.json().get("posts", [])
-                carousel_posts = [p for p in posts if "carousel_" in str(p.get("visual_url", ""))]
+                data = response.json()
+                print(f"   ✅ Endpoint debug accessible")
                 
-                if carousel_posts:
-                    carousel_post = carousel_posts[0]
-                    visual_url = carousel_post.get("visual_url", "")
+                # Analyser les connexions
+                total_connections = data.get("total_connections", 0)
+                active_connections = data.get("active_connections", 0)
+                facebook_connections = data.get("facebook_connections", 0)
+                instagram_connections = data.get("instagram_connections", 0)
+                
+                print(f"   📊 Total connexions: {total_connections}")
+                print(f"   📊 Connexions actives: {active_connections}")
+                print(f"   📘 Connexions Facebook: {facebook_connections}")
+                print(f"   📷 Connexions Instagram: {instagram_connections}")
+                
+                # Analyser les tokens Facebook en détail
+                connections_detail = data.get("connections_detail", [])
+                facebook_tokens = []
+                
+                for conn in connections_detail:
+                    if conn.get("platform") == "facebook":
+                        facebook_tokens.append(conn)
+                
+                print(f"\n🔍 ANALYSE DÉTAILLÉE DES TOKENS FACEBOOK:")
+                if not facebook_tokens:
+                    print("   ❌ Aucun token Facebook trouvé")
+                    return {"facebook_tokens": [], "analysis": "no_tokens"}
+                
+                for i, token_info in enumerate(facebook_tokens, 1):
+                    print(f"\n   📘 TOKEN FACEBOOK #{i}:")
                     
-                    self.log_test(
-                        "Carousel URL Detection",
-                        True,
-                        f"Found carousel post with URL: {visual_url}"
-                    )
+                    access_token = token_info.get("access_token", "")
+                    is_active = token_info.get("active", False)
+                    created_at = token_info.get("created_at", "")
                     
-                    # Test publication with carousel URL to see if conversion works
-                    test_response = self.session.post(f"{BACKEND_URL}/posts/publish", json={
-                        "post_id": carousel_post.get("id")
-                    })
+                    print(f"      🔑 Token: {access_token[:50]}..." if len(access_token) > 50 else f"      🔑 Token: {access_token}")
+                    print(f"      ⚡ Actif: {is_active}")
+                    print(f"      📅 Créé: {created_at}")
                     
-                    # Check if the logs show carousel URL conversion
-                    if test_response.status_code in [200, 400]:  # 400 expected due to no social connections
-                        response_text = test_response.text
-                        
-                        # Look for conversion indicators in response or check if it doesn't crash
-                        if "carousel_" in visual_url:
-                            self.log_test(
-                                "Carousel URL Conversion Support",
-                                True,
-                                f"Carousel URL processed without errors: {visual_url}"
-                            )
-                        else:
-                            self.log_test(
-                                "Carousel URL Conversion Support",
-                                False,
-                                error="No carousel URL conversion detected"
-                            )
+                    # Analyser le format du token
+                    token_analysis = self.analyze_token_format(access_token)
+                    print(f"      📋 Format: {token_analysis['type']}")
+                    print(f"      📏 Longueur: {token_analysis['length']} caractères")
+                    print(f"      🏷️ Préfixe: {token_analysis['prefix']}")
+                    
+                    if token_analysis['type'] == 'temporary':
+                        print(f"      ⚠️  TOKEN TEMPORAIRE DÉTECTÉ!")
+                    elif token_analysis['type'] == 'permanent':
+                        print(f"      ✅ TOKEN PERMANENT DÉTECTÉ!")
                     else:
-                        self.log_test(
-                            "Carousel URL Conversion Support",
-                            False,
-                            error=f"Unexpected status: {test_response.status_code}"
-                        )
-                else:
-                    # Create a test scenario with carousel URL pattern
-                    test_carousel_url = "/api/content/carousel/carousel_90e5d8c2-ff60-4c17-b416-da6573edb492"
-                    
-                    self.log_test(
-                        "Carousel URL Pattern Test",
-                        True,
-                        f"Testing conversion pattern: {test_carousel_url} → /api/public/image/90e5d8c2-ff60-4c17-b416-da6573edb492.webp"
-                    )
+                        print(f"      ❓ FORMAT INCONNU")
+                
+                return {
+                    "facebook_tokens": facebook_tokens,
+                    "analysis": "tokens_found",
+                    "total_connections": total_connections,
+                    "active_connections": active_connections
+                }
+                
             else:
-                self.log_test(
-                    "Carousel URL Conversion",
-                    False,
-                    error=f"Cannot access posts: {response.status_code}"
-                )
+                print(f"   ❌ Erreur endpoint debug: {response.status_code}")
+                print(f"   📄 Réponse: {response.text}")
+                return {"facebook_tokens": [], "analysis": "endpoint_error"}
                 
         except Exception as e:
-            self.log_test("Carousel URL Conversion", False, error=str(e))
+            print(f"   ❌ Erreur récupération connexions: {e}")
+            return {"facebook_tokens": [], "analysis": "exception"}
     
     def test_facebook_token_validation(self):
         """Test 2: Validation stricte tokens Facebook (doit commencer par EAAG/EAA)"""

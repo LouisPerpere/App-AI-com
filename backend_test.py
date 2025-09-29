@@ -382,9 +382,9 @@ class LiveEnvironmentTester:
             self.log(f"   ❌ Posts retrieval ERROR: {str(e)}", "ERROR")
             return False
             
-    def test_public_images_live(self):
-        """5. Test images publiques sur LIVE"""
-        self.log("🖼️ TEST 5: Public images sur LIVE")
+    def test_public_images_facebook_access_live(self):
+        """5. Test images publiques accessibles par Facebook sur LIVE"""
+        self.log("🌐 TEST 5: Public images Facebook access sur LIVE")
         
         if not self.access_token:
             self.log("❌ No access token available", "ERROR")
@@ -393,7 +393,7 @@ class LiveEnvironmentTester:
         # Get content to find image IDs
         try:
             response = self.session.get(
-                f"{self.backend_url}/content/pending?limit=5",
+                f"{self.backend_url}/content/pending?limit=10",
                 timeout=10
             )
             
@@ -403,49 +403,87 @@ class LiveEnvironmentTester:
                 self.log(f"   Available content items: {len(content)}")
                 
                 if content:
-                    # Test first image
-                    test_item = content[0]
-                    file_id = test_item.get('id')
-                    filename = test_item.get('filename', 'unknown')
+                    # Test multiple images for Facebook accessibility
+                    tested_images = 0
+                    successful_images = 0
                     
-                    self.log(f"   Testing image: {filename} (ID: {file_id})")
-                    
-                    # Test public endpoint
-                    try:
-                        img_response = self.session.get(
-                            f"{self.backend_url}/public/image/{file_id}.webp",
-                            timeout=10
-                        )
+                    for item in content[:5]:  # Test first 5 images
+                        file_id = item.get('id')
+                        filename = item.get('filename', 'unknown')
                         
-                        self.log(f"   Public image Status: {img_response.status_code}")
+                        self.log(f"   Testing image: {filename} (ID: {file_id})")
+                        tested_images += 1
                         
-                        if img_response.status_code == 200:
-                            content_type = img_response.headers.get('content-type', '')
-                            content_length = img_response.headers.get('content-length', '0')
+                        # Test public endpoint (Facebook-accessible)
+                        try:
+                            # Test with Facebook User-Agent
+                            facebook_headers = {
+                                'User-Agent': 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'
+                            }
                             
-                            self.log(f"   ✅ Public image SUCCESS on LIVE")
-                            self.log(f"      Content-Type: {content_type}")
-                            self.log(f"      Content-Length: {content_length} bytes")
+                            img_response = self.session.get(
+                                f"{self.backend_url}/public/image/{file_id}.webp",
+                                headers=facebook_headers,
+                                timeout=10
+                            )
                             
-                            # Check if it's actually an image
-                            if 'image' in content_type:
-                                self.log(f"      ✅ Valid image content")
-                            else:
-                                self.log(f"      ⚠️ Unexpected content type")
+                            self.log(f"      Facebook bot Status: {img_response.status_code}")
+                            
+                            if img_response.status_code == 200:
+                                content_type = img_response.headers.get('content-type', '')
+                                content_length = img_response.headers.get('content-length', '0')
                                 
-                            return True
-                        elif img_response.status_code == 302:
-                            redirect_url = img_response.headers.get('location', '')
-                            self.log(f"   ✅ Public image REDIRECT on LIVE")
-                            self.log(f"      Redirect to: {redirect_url}")
-                            return True
-                        else:
-                            self.log(f"   ❌ Public image FAILED: {img_response.status_code}")
-                            return False
+                                self.log(f"      ✅ Facebook accessible")
+                                self.log(f"         Content-Type: {content_type}")
+                                self.log(f"         Content-Length: {content_length} bytes")
+                                
+                                # Check if it's actually an image
+                                if 'image' in content_type:
+                                    self.log(f"         ✅ Valid image content for Facebook")
+                                    successful_images += 1
+                                else:
+                                    self.log(f"         ⚠️ Unexpected content type for Facebook")
+                                    
+                            elif img_response.status_code == 302:
+                                redirect_url = img_response.headers.get('location', '')
+                                self.log(f"      ✅ Facebook redirect")
+                                self.log(f"         Redirect to: {redirect_url}")
+                                successful_images += 1
+                            else:
+                                self.log(f"      ❌ Facebook access FAILED: {img_response.status_code}")
+                                
+                        except Exception as e:
+                            self.log(f"      ❌ Facebook test ERROR: {str(e)}")
+                    
+                    # Test JPG conversion endpoint
+                    if content:
+                        test_item = content[0]
+                        file_id = test_item.get('id')
+                        
+                        self.log(f"   Testing JPG conversion for: {file_id}")
+                        try:
+                            # Test if JPG conversion is available
+                            jpg_response = self.session.get(
+                                f"{self.backend_url}/public/image/{file_id}",  # Without .webp
+                                timeout=10
+                            )
                             
-                    except Exception as e:
-                        self.log(f"   ❌ Public image ERROR: {str(e)}", "ERROR")
-                        return False
+                            self.log(f"      JPG conversion Status: {jpg_response.status_code}")
+                            
+                            if jpg_response.status_code == 200:
+                                content_type = jpg_response.headers.get('content-type', '')
+                                if 'jpeg' in content_type or 'jpg' in content_type:
+                                    self.log(f"      ✅ JPG conversion working")
+                                else:
+                                    self.log(f"      ⚠️ JPG conversion returns: {content_type}")
+                            else:
+                                self.log(f"      ❌ JPG conversion not available")
+                                
+                        except Exception as e:
+                            self.log(f"      ❌ JPG conversion ERROR: {str(e)}")
+                    
+                    self.log(f"   📊 Facebook accessibility: {successful_images}/{tested_images} images")
+                    return successful_images > 0
                 else:
                     self.log(f"   ⚠️ No content available for testing")
                     return True

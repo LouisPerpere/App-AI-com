@@ -69,7 +69,7 @@ class ImageDatabaseDiagnostic:
             self.db = self.mongo_client.claire_marcus
             
             # Test connection
-            self.db.admin.command('ping')
+            self.mongo_client.admin.command('ping')
             self.log_test("MongoDB Connection", True, "Connected to claire_marcus database")
             return True
             

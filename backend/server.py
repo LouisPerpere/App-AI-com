@@ -3299,7 +3299,7 @@ async def get_public_image_webp(file_id: str):
                         content=jpg_bytes,
                         media_type="image/jpeg",  # JPG pour Facebook selon ChatGPT
                         headers={
-                            "Content-Disposition": f"inline; filename={file_id}.jpg",
+                            "Content-Disposition": f"inline; filename={clean_file_id}.jpg",
                             "Cache-Control": "public, max-age=31536000",
                             "Access-Control-Allow-Origin": "*"
                         }
@@ -3312,7 +3312,7 @@ async def get_public_image_webp(file_id: str):
                         content=image_bytes,
                         media_type=content_type,
                         headers={
-                            "Content-Disposition": f"inline; filename={file_id}.jpg",
+                            "Content-Disposition": f"inline; filename={clean_file_id}.jpg",
                             "Cache-Control": "public, max-age=31536000",
                             "Access-Control-Allow-Origin": "*"
                         }

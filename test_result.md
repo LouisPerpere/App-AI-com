@@ -3074,10 +3074,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Facebook Token Diagnostic - Permanent vs Temporary Status"
+    - "Facebook Token Diagnostic - ChatGPT 3-Step Flow Implementation"
   stuck_tasks: 
     - "OAuth Callback Persistence Diagnostic - Facebook/Instagram Connection Issues"
     - "Instagram to Facebook Post Conversion - LIVE Environment"
+    - "Facebook Token Diagnostic - ChatGPT 3-Step Flow Implementation"
   test_all: false
   test_priority: "high_first"
 

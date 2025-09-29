@@ -32,25 +32,73 @@ CREDENTIALS = {
     "password": "L@Reunion974!"
 }
 
-class LiveEnvironmentTester:
+class FacebookImagePublicationTester:
     def __init__(self):
         self.session = requests.Session()
         self.session.headers.update({
             'Content-Type': 'application/json',
-            'User-Agent': 'Claire-Marcus-Testing-Agent/1.0'
+            'User-Agent': 'Facebook-Image-Diagnostic/1.0'
         })
         self.access_token = None
         self.user_id = None
-        self.backend_url = None
+        self.backend_url = BACKEND_URL
+        self.test_results = []
         
     def log(self, message, level="INFO"):
+        """Enhanced logging with timestamp"""
         timestamp = datetime.now().strftime("%H:%M:%S")
         print(f"[{timestamp}] {level}: {message}")
         
-    def test_backend_connectivity(self):
-        """Test connectivity to both possible LIVE URLs"""
-        self.log("🔍 Testing LIVE backend connectivity...")
+    def log_result(self, test_name, success, details):
+        """Log test results with structured format"""
+        result = {
+            "test": test_name,
+            "success": success,
+            "details": details,
+            "timestamp": datetime.now().isoformat()
+        }
+        self.test_results.append(result)
+        status = "✅" if success else "❌"
+        self.log(f"{status} {test_name}: {details}")
         
+    def authenticate(self):
+        """ÉTAPE 1: Authentification avec backend"""
+        self.log("🔐 ÉTAPE 1: AUTHENTIFICATION BACKEND")
+        
+        try:
+            response = self.session.post(
+                f"{self.backend_url}/auth/login-robust",
+                json=CREDENTIALS,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.access_token = data.get("access_token")
+                self.user_id = data.get("user_id")
+                
+                # Set authorization header
+                self.session.headers.update({
+                    "Authorization": f"Bearer {self.access_token}"
+                })
+                
+                self.log_result(
+                    "Authentication", 
+                    True, 
+                    f"User ID: {self.user_id}, Token: {self.access_token[:20]}..."
+                )
+                return True
+            else:
+                self.log_result(
+                    "Authentication", 
+                    False, 
+                    f"Status: {response.status_code}, Response: {response.text}"
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result("Authentication", False, f"Exception: {str(e)}")
+            return False
         urls_to_test = [LIVE_BACKEND_URL, ALTERNATIVE_LIVE_URL]
         
         for url in urls_to_test:

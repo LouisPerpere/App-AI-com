@@ -3266,7 +3266,8 @@ async def test_image_headers(file_id: str):
         # Simuler un appel curl -I mais avec GET car HEAD n'est pas supporté
         import aiohttp
         import time
-        backend_url = os.environ.get('REACT_APP_BACKEND_URL', 'https://claire-marcus.com')
+        # Use the current environment URL for testing
+        backend_url = os.environ.get('REACT_APP_BACKEND_URL', 'https://social-publisher-10.preview.emergentagent.com')
         image_url = f"{backend_url}/api/public/image/{file_id}.webp"
         
         start_time = time.time()

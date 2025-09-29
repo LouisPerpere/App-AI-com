@@ -95,7 +95,7 @@ class FacebookCorrectionsTester:
         
         try:
             # First, let's check if we have any posts with carousel images
-            response = self.session.get(f"{BACKEND_URL}/posts")
+            response = self.session.get(f"{BACKEND_URL}/posts/generated")
             
             if response.status_code == 200:
                 posts = response.json().get("posts", [])

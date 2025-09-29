@@ -1919,17 +1919,6 @@ const ImageAttachmentContent = ({
 };
 
 function MainApp() {
-  const location = useLocation();
-  
-  // Handle special routes without authentication FIRST
-  if (location.pathname === '/mentions-legales') {
-    return <MentionsLegales />;
-  }
-  
-  if (location.pathname === '/politique-confidentialite') {
-    return <PrivacyPolicy onBack={() => window.location.href = '/'} />;
-  }
-
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [activeStep, setActiveStep] = useState('onboarding');

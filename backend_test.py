@@ -69,35 +69,47 @@ class FacebookOAuthDiagnostic:
         except Exception as e:
             self.log_test("Authentication", False, f"Error: {str(e)}")
             return False
-                json=TEST_CREDENTIALS,
-                timeout=30
-            )
+    
+    def test_facebook_auth_url_generation(self):
+        """Test 1: Vérifier génération URL OAuth Facebook"""
+        print("\n🔗 TEST 1: Génération URL OAuth Facebook")
+        
+        try:
+            response = self.session.get(f"{API_BASE}/social/facebook/auth-url")
             
             if response.status_code == 200:
                 data = response.json()
-                self.auth_token = data.get("access_token")
-                self.user_id = data.get("user_id")
+                auth_url = data.get('auth_url', '')
                 
-                # Set authorization header for future requests
-                self.session.headers.update({
-                    "Authorization": f"Bearer {self.auth_token}"
-                })
+                # Vérifier les paramètres critiques
+                required_params = [
+                    'client_id=1115451684022643',
+                    'config_id=1878388119742903', 
+                    'redirect_uri=https://claire-marcus.com/api/social/facebook/callback',
+                    'response_type=code',
+                    'scope=pages_show_list,pages_read_engagement,pages_manage_posts'
+                ]
                 
-                print(f"   ✅ Authentification réussie")
-                print(f"   👤 User ID: {self.user_id}")
-                return True
+                all_params_present = all(param in auth_url for param in required_params)
+                
+                if all_params_present:
+                    self.log_test("Facebook Auth URL Generation", True, 
+                                f"URL correcte avec tous paramètres requis")
+                    print(f"   📋 URL générée: {auth_url[:100]}...")
+                    return auth_url
+                else:
+                    missing = [p for p in required_params if p not in auth_url]
+                    self.log_test("Facebook Auth URL Generation", False, 
+                                f"Paramètres manquants: {missing}")
+                    return None
             else:
-                print(f"   ❌ Échec authentification: {response.status_code}")
-                print(f"   📄 Réponse: {response.text}")
-                return False
+                self.log_test("Facebook Auth URL Generation", False, 
+                            f"Status: {response.status_code}")
+                return None
                 
         except Exception as e:
-            print(f"   ❌ Erreur authentification: {e}")
-            return False
-    
-    def test_1_verifier_etat_tokens_apres_reconnexion(self):
-        """TEST 1: Vérifier état tokens après reconnexion - Rechercher tokens EAA"""
-        print("\n🔍 TEST 1: Vérification état des tokens après reconnexion...")
+            self.log_test("Facebook Auth URL Generation", False, f"Error: {str(e)}")
+            return None
         print("   🎯 Objectif: Rechercher tokens commençant par EAA (vrais tokens)")
         print("   🎯 Vérifier token_type: 'page_access_token'")
         

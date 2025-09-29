@@ -3264,7 +3264,7 @@ async def get_public_image_webp(file_id: str):
                 
                 # Déterminer le content-type
                 content_type = media_item.get("content_type", "image/jpeg")
-                filename = media_item.get("filename", f"image_{file_id}")
+                filename = media_item.get("filename", f"image_{clean_file_id}")
                 
                 # Retourner le fichier en JPG pour Facebook (selon analyse ChatGPT)
                 from fastapi.responses import Response

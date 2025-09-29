@@ -83,8 +83,8 @@ def convert_to_public_image_url(image_url: str) -> str:
         match = re.search(r'carousel_([^/.]+)', image_url)
         if match:
             file_id = match.group(1)
-            print(f"🔄 Converting carousel URL: {image_url} → /api/public/image/{file_id}.webp")
-            return f"{backend_url}/api/public/image/{file_id}.webp"
+            print(f"🔄 Converting carousel URL: {image_url} → /api/public/image/{file_id}.jpg")
+            return f"{backend_url}/api/public/image/{file_id}.jpg"
     
     # Si c'est une URL protégée /api/content/{id}/file, convertir
     if "/api/content/" in image_url and "/file" in image_url:

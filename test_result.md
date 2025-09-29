@@ -3062,7 +3062,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Facebook Image Publication Diagnostic - URL Accessibility Testing"
+    - "ChatGPT Binary Upload Approach Testing - Facebook Publication"
   stuck_tasks: 
     - "OAuth Callback Persistence Diagnostic - Facebook/Instagram Connection Issues"
     - "Instagram to Facebook Post Conversion - LIVE Environment"

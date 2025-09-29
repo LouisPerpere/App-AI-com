@@ -176,23 +176,92 @@ class LiveEnvironmentTester:
                 
         except Exception as e:
             self.log(f"   ❌ Facebook OAuth URL ERROR: {str(e)}", "ERROR")
-            return False 
-                                f"URL correcte avec tous paramètres requis")
-                    print(f"   📋 URL générée: {auth_url[:100]}...")
-                    return auth_url
-                else:
-                    missing = [p for p in required_params if p not in auth_url]
-                    self.log_test("Facebook Auth URL Generation", False, 
-                                f"Paramètres manquants: {missing}")
-                    return None
+            return False
+            
+    def test_social_connections_state_live(self):
+        """3. Test état des connexions sociales sur LIVE"""
+        self.log("📱 TEST 3: Social connections state sur LIVE")
+        
+        if not self.access_token:
+            self.log("❌ No access token available", "ERROR")
+            return False
+            
+        # Test debug endpoint first
+        try:
+            response = self.session.get(
+                f"{self.backend_url}/debug/social-connections",
+                timeout=10
+            )
+            
+            self.log(f"   Debug endpoint Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log(f"   ✅ Debug social connections SUCCESS on LIVE")
+                
+                # Analyze connections data
+                total_connections = data.get('total_connections', 0)
+                active_connections = data.get('active_connections', 0)
+                facebook_connections = data.get('facebook_connections', 0)
+                instagram_connections = data.get('instagram_connections', 0)
+                
+                self.log(f"      Total connections: {total_connections}")
+                self.log(f"      Active connections: {active_connections}")
+                self.log(f"      Facebook connections: {facebook_connections}")
+                self.log(f"      Instagram connections: {instagram_connections}")
+                
+                # Check for EAA tokens
+                connections_detail = data.get('connections_detail', [])
+                eaa_tokens_found = 0
+                temp_tokens_found = 0
+                
+                for conn in connections_detail:
+                    token = conn.get('access_token', '')
+                    if token.startswith('EAA'):
+                        eaa_tokens_found += 1
+                        self.log(f"      ✅ EAA token found: {token[:20]}...")
+                    elif 'temp_' in token:
+                        temp_tokens_found += 1
+                        self.log(f"      ⚠️ Temp token found: {token}")
+                        
+                self.log(f"      EAA tokens: {eaa_tokens_found}")
+                self.log(f"      Temp tokens: {temp_tokens_found}")
+                
             else:
-                self.log_test("Facebook Auth URL Generation", False, 
-                            f"Status: {response.status_code}")
-                return None
+                self.log(f"   ❌ Debug endpoint FAILED: {response.status_code}")
                 
         except Exception as e:
-            self.log_test("Facebook Auth URL Generation", False, f"Error: {str(e)}")
-            return None
+            self.log(f"   ❌ Debug endpoint ERROR: {str(e)}", "ERROR")
+            
+        # Test regular connections endpoint
+        try:
+            response = self.session.get(
+                f"{self.backend_url}/social/connections",
+                timeout=10
+            )
+            
+            self.log(f"   Regular endpoint Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                connections = data.get('connections', [])
+                self.log(f"   ✅ Regular social connections SUCCESS on LIVE")
+                self.log(f"      Visible connections: {len(connections)}")
+                
+                for conn in connections:
+                    platform = conn.get('platform', 'unknown')
+                    is_active = conn.get('is_active', False)
+                    page_name = conn.get('page_name', 'unknown')
+                    self.log(f"      - {platform}: {page_name} (active: {is_active})")
+                    
+                return True
+            else:
+                self.log(f"   ❌ Regular endpoint FAILED: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log(f"   ❌ Regular endpoint ERROR: {str(e)}", "ERROR")
+            return False
     
     def test_callback_endpoint_accessibility(self):
         """Test 2: Vérifier accessibilité du callback"""

@@ -3258,6 +3258,32 @@ async def get_public_image_webp(file_id: str):
         print(f"❌ Error serving public image: {str(e)}")
         raise HTTPException(status_code=500, detail="Image service error")
 
+@api_router.get("/test/image-headers/{file_id}")
+async def test_image_headers(file_id: str):
+    """Test endpoint pour vérifier les headers d'image (selon ChatGPT)"""
+    try:
+        # Simuler un appel curl -I
+        import aiohttp
+        backend_url = os.environ.get('REACT_APP_BACKEND_URL', 'https://claire-marcus.com')
+        image_url = f"{backend_url}/api/public/image/{file_id}.webp"
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.head(image_url) as response:
+                return {
+                    "url": image_url,
+                    "status_code": response.status,
+                    "headers": dict(response.headers),
+                    "redirected": response.status in [301, 302, 307, 308],
+                    "facebook_compatible": response.status == 200 and not response.status in [301, 302, 307, 308],
+                    "content_type": response.headers.get("Content-Type", "unknown")
+                }
+    except Exception as e:
+        return {
+            "url": image_url,
+            "error": str(e),
+            "facebook_compatible": False
+        }
+
 @api_router.get("/social/connections/status")
 async def get_social_connections_status(user_id: str = Depends(get_current_user_id_robust)):
     """STATUS SIMPLE - Voir les connexions comme ChatGPT"""

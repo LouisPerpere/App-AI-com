@@ -30,74 +30,153 @@ CREDENTIALS = {
 class LiveEnvironmentTester:
     def __init__(self):
         self.session = requests.Session()
-        self.user_id = None
-        self.access_token = None
-        self.test_results = []
-        
-    def log_test(self, test_name, success, details=""):
-        """Log test results"""
-        status = "✅ PASS" if success else "❌ FAIL"
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        result = f"[{timestamp}] {status} {test_name}"
-        if details:
-            result += f" - {details}"
-        print(result)
-        self.test_results.append({
-            'test': test_name,
-            'success': success,
-            'details': details,
-            'timestamp': timestamp
+        self.session.headers.update({
+            'Content-Type': 'application/json',
+            'User-Agent': 'Claire-Marcus-Testing-Agent/1.0'
         })
+        self.access_token = None
+        self.user_id = None
+        self.backend_url = None
         
-    def authenticate(self):
-        """Step 1: Authenticate user"""
-        print("\n🔐 ÉTAPE PRÉLIMINAIRE: Authentification utilisateur")
+    def log(self, message, level="INFO"):
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        print(f"[{timestamp}] {level}: {message}")
         
+    def test_backend_connectivity(self):
+        """Test connectivity to both possible LIVE URLs"""
+        self.log("🔍 Testing LIVE backend connectivity...")
+        
+        urls_to_test = [LIVE_BACKEND_URL, ALTERNATIVE_LIVE_URL]
+        
+        for url in urls_to_test:
+            try:
+                self.log(f"   Testing: {url}")
+                response = self.session.get(f"{url}/health", timeout=10)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    self.log(f"   ✅ SUCCESS: {url}")
+                    self.log(f"      Status: {data.get('status', 'unknown')}")
+                    self.log(f"      Service: {data.get('service', 'unknown')}")
+                    self.backend_url = url
+                    return True
+                else:
+                    self.log(f"   ❌ FAILED: {url} - Status {response.status_code}")
+                    
+            except Exception as e:
+                self.log(f"   ❌ ERROR: {url} - {str(e)}")
+                
+        return False
+        
+    def test_live_authentication(self):
+        """1. Test authentification sur LIVE"""
+        self.log("🔐 TEST 1: Authentication sur environnement LIVE")
+        
+        if not self.backend_url:
+            self.log("❌ No backend URL available", "ERROR")
+            return False
+            
         try:
-            response = self.session.post(f"{API_BASE}/auth/login-robust", 
-                json={"email": TEST_EMAIL, "password": TEST_PASSWORD})
+            response = self.session.post(
+                f"{self.backend_url}/auth/login-robust",
+                json=CREDENTIALS,
+                timeout=15
+            )
+            
+            self.log(f"   Response Status: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
                 self.access_token = data.get('access_token')
                 self.user_id = data.get('user_id')
-                self.session.headers.update({
-                    'Authorization': f'Bearer {self.access_token}'
-                })
-                self.log_test("Authentication", True, f"User ID: {self.user_id}")
+                
+                self.log(f"   ✅ Authentication SUCCESS on LIVE")
+                self.log(f"      User ID: {self.user_id}")
+                self.log(f"      Token: {self.access_token[:30]}..." if self.access_token else "No token")
+                
+                # Update session headers with token
+                if self.access_token:
+                    self.session.headers.update({
+                        'Authorization': f'Bearer {self.access_token}'
+                    })
+                
                 return True
             else:
-                self.log_test("Authentication", False, f"Status: {response.status_code}")
+                self.log(f"   ❌ Authentication FAILED: {response.status_code}")
+                try:
+                    error_data = response.json()
+                    self.log(f"      Error: {error_data}")
+                except:
+                    self.log(f"      Raw response: {response.text[:200]}")
                 return False
                 
         except Exception as e:
-            self.log_test("Authentication", False, f"Error: {str(e)}")
+            self.log(f"   ❌ Authentication ERROR: {str(e)}", "ERROR")
             return False
-    
-    def test_facebook_auth_url_generation(self):
-        """Test 1: Vérifier génération URL OAuth Facebook"""
-        print("\n🔗 TEST 1: Génération URL OAuth Facebook")
+            
+    def test_facebook_oauth_url_live(self):
+        """2. Test génération URL OAuth Facebook sur LIVE"""
+        self.log("🔗 TEST 2: Facebook OAuth URL generation sur LIVE")
         
+        if not self.access_token:
+            self.log("❌ No access token available", "ERROR")
+            return False
+            
         try:
-            response = self.session.get(f"{API_BASE}/social/facebook/auth-url")
+            response = self.session.get(
+                f"{self.backend_url}/social/facebook/auth-url",
+                timeout=10
+            )
+            
+            self.log(f"   Response Status: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
                 auth_url = data.get('auth_url', '')
                 
-                # Vérifier les paramètres critiques
-                required_params = [
-                    'client_id=1115451684022643',
-                    'config_id=1878388119742903', 
-                    'redirect_uri=https://claire-marcus.com/api/social/facebook/callback',
-                    'response_type=code',
-                    'scope=pages_show_list,pages_read_engagement,pages_manage_posts'
-                ]
+                self.log(f"   ✅ Facebook OAuth URL SUCCESS on LIVE")
+                self.log(f"      URL Length: {len(auth_url)}")
                 
-                all_params_present = all(param in auth_url for param in required_params)
+                # Analyze URL components
+                if 'client_id=' in auth_url:
+                    client_id = auth_url.split('client_id=')[1].split('&')[0]
+                    self.log(f"      Client ID: {client_id}")
+                    
+                if 'config_id=' in auth_url:
+                    config_id = auth_url.split('config_id=')[1].split('&')[0]
+                    self.log(f"      Config ID: {config_id}")
+                    
+                if 'redirect_uri=' in auth_url:
+                    redirect_uri = auth_url.split('redirect_uri=')[1].split('&')[0]
+                    self.log(f"      Redirect URI: {redirect_uri}")
+                    
+                # Compare with expected values
+                expected_client_id = "1115451684022643"
+                expected_config_id = "1878388119742903"
                 
-                if all_params_present:
-                    self.log_test("Facebook Auth URL Generation", True, 
+                if expected_client_id in auth_url:
+                    self.log(f"      ✅ Client ID matches expected: {expected_client_id}")
+                else:
+                    self.log(f"      ⚠️ Client ID mismatch - expected: {expected_client_id}")
+                    
+                if expected_config_id in auth_url:
+                    self.log(f"      ✅ Config ID matches expected: {expected_config_id}")
+                else:
+                    self.log(f"      ⚠️ Config ID mismatch - expected: {expected_config_id}")
+                    
+                return True
+            else:
+                self.log(f"   ❌ Facebook OAuth URL FAILED: {response.status_code}")
+                try:
+                    error_data = response.json()
+                    self.log(f"      Error: {error_data}")
+                except:
+                    self.log(f"      Raw response: {response.text[:200]}")
+                return False
+                
+        except Exception as e:
+            self.log(f"   ❌ Facebook OAuth URL ERROR: {str(e)}", "ERROR")
+            return False 
                                 f"URL correcte avec tous paramètres requis")
                     print(f"   📋 URL générée: {auth_url[:100]}...")
                     return auth_url

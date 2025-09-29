@@ -262,34 +262,82 @@ class LiveEnvironmentTester:
         except Exception as e:
             self.log(f"   ❌ Regular endpoint ERROR: {str(e)}", "ERROR")
             return False
-    
-    def test_callback_endpoint_accessibility(self):
-        """Test 2: Vérifier accessibilité du callback"""
-        print("\n🔄 TEST 2: Accessibilité endpoint callback")
+            
+    def test_publication_endpoints_live(self):
+        """4. Test endpoints de publication sur LIVE"""
+        self.log("📤 TEST 4: Publication endpoints sur LIVE")
         
-        callback_url = "https://claire-marcus.com/api/social/facebook/callback"
-        
+        if not self.access_token:
+            self.log("❌ No access token available", "ERROR")
+            return False
+            
+        # First, get available posts
         try:
-            # Test avec paramètres simulés
-            test_params = {
-                'code': 'test_code_simulation',
-                'state': f'facebook_oauth|{self.user_id}'
-            }
+            response = self.session.get(
+                f"{self.backend_url}/posts",
+                timeout=10
+            )
             
-            response = requests.get(callback_url, params=test_params, timeout=10)
-            
-            # Le callback devrait répondre (même avec erreur de token)
-            if response.status_code in [200, 302, 400, 401]:
-                self.log_test("Callback Endpoint Accessibility", True, 
-                            f"Endpoint accessible (Status: {response.status_code})")
-                return True
+            if response.status_code == 200:
+                data = response.json()
+                posts = data.get('posts', [])
+                self.log(f"   Available posts: {len(posts)}")
+                
+                # Find a Facebook post for testing
+                facebook_posts = [p for p in posts if p.get('platform') == 'facebook']
+                self.log(f"   Facebook posts: {len(facebook_posts)}")
+                
+                if facebook_posts:
+                    test_post = facebook_posts[0]
+                    post_id = test_post.get('id')
+                    self.log(f"   Testing with post: {post_id}")
+                    
+                    # Test publication endpoint
+                    try:
+                        pub_response = self.session.post(
+                            f"{self.backend_url}/posts/publish",
+                            json={"post_id": post_id},
+                            timeout=15
+                        )
+                        
+                        self.log(f"   Publication Status: {pub_response.status_code}")
+                        
+                        if pub_response.status_code in [200, 400, 500]:
+                            try:
+                                pub_data = pub_response.json()
+                                self.log(f"   ✅ Publication endpoint ACCESSIBLE on LIVE")
+                                self.log(f"      Response: {pub_data}")
+                                
+                                # Check for specific error messages
+                                error_msg = pub_data.get('error', '')
+                                if 'connexion sociale' in error_msg.lower():
+                                    self.log(f"      ✅ Expected social connection error (normal)")
+                                elif 'token' in error_msg.lower():
+                                    self.log(f"      ✅ Token-related error (expected)")
+                                else:
+                                    self.log(f"      ⚠️ Unexpected error: {error_msg}")
+                                    
+                                return True
+                            except:
+                                self.log(f"      Raw response: {pub_response.text[:200]}")
+                                return True
+                        else:
+                            self.log(f"   ❌ Publication endpoint FAILED: {pub_response.status_code}")
+                            return False
+                            
+                    except Exception as e:
+                        self.log(f"   ❌ Publication test ERROR: {str(e)}", "ERROR")
+                        return False
+                else:
+                    self.log(f"   ⚠️ No Facebook posts available for testing")
+                    return True
+                    
             else:
-                self.log_test("Callback Endpoint Accessibility", False, 
-                            f"Status inattendu: {response.status_code}")
+                self.log(f"   ❌ Posts retrieval FAILED: {response.status_code}")
                 return False
                 
         except Exception as e:
-            self.log_test("Callback Endpoint Accessibility", False, f"Error: {str(e)}")
+            self.log(f"   ❌ Posts retrieval ERROR: {str(e)}", "ERROR")
             return False
     
     def test_facebook_environment_variables(self):

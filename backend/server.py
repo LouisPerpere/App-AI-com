@@ -3235,7 +3235,7 @@ async def get_public_image_webp(file_id: str):
         media_item = dbm.db.media.find_one(query)
         
         if not media_item:
-            print(f"❌ Image not found: {file_id}")
+            print(f"❌ Image not found: {clean_file_id}")
             raise HTTPException(status_code=404, detail="Image not found")
         
         # URL externe (Pixabay, WikiMedia, etc.)

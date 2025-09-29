@@ -1,31 +1,32 @@
 #!/usr/bin/env python3
 """
-Facebook Image Publication Diagnostic Test Suite
-Diagnostic approfondi pour publication images Facebook
+Facebook Image Publication Diagnostic - Production vs Preview
+Testing Facebook image publication issues in production environment
 
 Identifiants: lperpere@yahoo.fr / L@Reunion974!
 
-OBJECTIFS DIAGNOSTIC:
-1. Test endpoint public directement dans navigateur
-2. Capturer les logs backend pendant publication réelle
-3. Analyser la réponse Facebook API
-4. Test avec image externe simple (WikiMedia)
-5. Vérifier format de requête Facebook
+DIAGNOSTIC OBJECTIVES:
+1. Test URL production directe - GET https://claire-marcus.com/api/public/image/{id} without auth
+2. Compare with preview URL that was working
+3. Test curl production manual with HTTP headers analysis
+4. Test Facebook publication in production with image URLs
+5. Diagnostic production environment variables
+6. Test Facebook Graph API direct with production URLs
 
-HYPOTHÈSE: Les images de l'app passent par /api/content/{id}/file (protégé) 
-au lieu d'être publiquement accessibles.
+HYPOTHESIS: Configuration serveur/proxy différente entre preview et production bloque l'accès aux images
 """
 
 import requests
 import json
 import sys
+import subprocess
 import time
 from datetime import datetime
 from urllib.parse import urlparse
 
-# Configuration
-BASE_URL = "https://social-publisher-10.preview.emergentagent.com/api"
-FRONTEND_URL = "https://social-publisher-10.preview.emergentagent.com"
+# Configuration - PRODUCTION URLs
+PRODUCTION_BASE_URL = "https://claire-marcus.com/api"
+PREVIEW_BASE_URL = "https://social-publisher-10.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"

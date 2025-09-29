@@ -994,10 +994,11 @@ backend:
 
 test_plan:
   current_focus:
-    - "Facebook Image Publication Diagnostic - Image Accessibility Issue"
-    - "OAuth Callback Persistence Diagnostic - Facebook/Instagram Connection Issues"
+    - "Website Analysis Critical Bug Fixes"
+    - "Frontend Login Functionality Critical Bug"
   stuck_tasks: 
-    - "OAuth Callback Persistence Diagnostic - Facebook/Instagram Connection Issues"
+    - "Website Analysis Critical Bug Fixes"
+    - "Frontend Login Functionality Critical Bug"
   test_all: false
   test_priority: "high_first"
 

@@ -3376,7 +3376,7 @@ async def get_public_image_webp(file_id: str):
                 )
         
         # Pas de fichier disponible
-        print(f"❌ No file data available for: {file_id}")
+        print(f"❌ No file data available for: {clean_file_id}")
         raise HTTPException(status_code=404, detail="Image file not found")
         
     except HTTPException:

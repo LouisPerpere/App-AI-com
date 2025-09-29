@@ -1,19 +1,32 @@
 #!/usr/bin/env python3
 """
-DIAGNOSTIC ÉTAT ACTUEL TOKENS FACEBOOK - SONT-ILS PERMANENTS ?
-
-Test complet pour vérifier si les tokens Facebook sauvegardés sont maintenant 
-des vrais tokens permanents (EAAG/EAA) ou encore des tokens temporaires.
+TEST FLOW TOKENS PERMANENTS CHATGPT - IMPLEMENTATION COMPLÈTE
 
 Identifiants: lperpere@yahoo.fr / L@Reunion974!
+
+FLOW CHATGPT IMPLÉMENTÉ:
+- ÉTAPE 1: Code → Short-lived token  
+- ÉTAPE 2: Short-lived → Long-lived token (60 jours)
+- ÉTAPE 3: Long-lived → Page access token (permanent)
+
+TESTS CRITIQUES:
+1. Vérifier état tokens après reconnexion (GET /api/debug/social-connections)
+2. Test publication avec tokens permanents (POST /api/posts/publish)
+3. Validation format tokens sauvegardés
+4. Test flow publication complet
+5. Vérification Instagram avec même token
+
+OBJECTIF: Confirmer que le flow 3-étapes produit des tokens permanents EAA utilisables.
+HYPOTHÈSE: Avec vrais tokens permanents (EAA), Facebook acceptera maintenant les publications avec images.
 """
 
 import requests
 import json
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 import re
+import time
 
 # Configuration
 BACKEND_URL = "https://social-publisher-10.preview.emergentagent.com/api"

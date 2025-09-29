@@ -105,7 +105,8 @@ class PublicationFlowTracer:
             response = self.session.get(f"{BACKEND_URL}/posts/generated", timeout=10)
             
             if response.status_code == 200:
-                posts = response.json()
+                data = response.json()
+                posts = data.get('posts', [])
                 print(f"✅ Posts récupérés: {len(posts)} posts trouvés")
                 
                 # Chercher un post Facebook non publié avec image

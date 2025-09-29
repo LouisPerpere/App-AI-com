@@ -111,7 +111,7 @@ class ImageDatabaseDiagnostic:
         try:
             print("📊 DIAGNOSTIC 1: Count elements in collections")
             
-            if not self.db:
+            if self.db is None:
                 self.log_test("Count Collections", False, error="MongoDB not connected")
                 return False
             
@@ -143,7 +143,7 @@ class ImageDatabaseDiagnostic:
         try:
             print("🔍 DIAGNOSTIC 2: Analyze sample from media collection")
             
-            if not self.db:
+            if self.db is None:
                 self.log_test("Analyze Media Sample", False, error="MongoDB not connected")
                 return False
             
@@ -280,7 +280,7 @@ class ImageDatabaseDiagnostic:
         try:
             print("🗃️ DIAGNOSTIC 4: GridFS diagnostic")
             
-            if not self.db:
+            if self.db is None:
                 self.log_test("GridFS Analysis", False, error="MongoDB not connected")
                 return False
             

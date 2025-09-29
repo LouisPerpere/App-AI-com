@@ -71,25 +71,19 @@ const Footer = () => {
               © {new Date().getFullYear()} Claire & Marcus - Tous droits réservés
             </div>
             
-            {/* Legal info */}
+            {/* Politique de confidentialité */}
             <div className="text-xs text-gray-500 text-center md:text-right leading-relaxed">
-              <p className="mb-1">
-                Édité par l'EI Fou De Vanille - SIRET 952 513 661 00019
-              </p>
-              <p className="mb-1">
-                44 Rue De Lorraine, 94700 Maisons Alfort - RCS Créteil
-              </p>
-              <p>
-                Hébergé sur{' '}
-                <a 
-                  href="https://emergentagent.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="hover:text-pink-600 transition-colors"
+              <p className="mb-2">
+                <Link 
+                  to="/politique-confidentialite" 
+                  className="hover:text-pink-600 transition-colors underline"
                 >
-                  Emergent
-                </a>
-                {' '}(115 Rue Réaumur, 75002 Paris, France)
+                  Politique de confidentialité
+                </Link>
+              </p>
+              <p className="text-xs">
+                Vos données personnelles sont traitées conformément au RGPD. 
+                Nous ne partageons jamais vos informations avec des tiers.
               </p>
             </div>
           </div>

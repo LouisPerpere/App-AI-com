@@ -339,44 +339,81 @@ class LiveEnvironmentTester:
         except Exception as e:
             self.log(f"   ❌ Posts retrieval ERROR: {str(e)}", "ERROR")
             return False
-    
-    def test_facebook_environment_variables(self):
-        """Test 3: Vérifier variables d'environnement Facebook"""
-        print("\n⚙️ TEST 3: Variables d'environnement Facebook")
+            
+    def test_public_images_live(self):
+        """5. Test images publiques sur LIVE"""
+        self.log("🖼️ TEST 5: Public images sur LIVE")
         
+        if not self.access_token:
+            self.log("❌ No access token available", "ERROR")
+            return False
+            
+        # Get content to find image IDs
         try:
-            # Test indirect via l'URL OAuth générée
-            response = self.session.get(f"{API_BASE}/social/facebook/auth-url")
+            response = self.session.get(
+                f"{self.backend_url}/content/pending?limit=5",
+                timeout=10
+            )
             
             if response.status_code == 200:
                 data = response.json()
-                auth_url = data.get('auth_url', '')
+                content = data.get('content', [])
+                self.log(f"   Available content items: {len(content)}")
                 
-                # Extraire et vérifier les variables
-                checks = {
-                    'FACEBOOK_APP_ID': '1115451684022643' in auth_url,
-                    'FACEBOOK_REDIRECT_URI': 'claire-marcus.com/api/social/facebook/callback' in auth_url,
-                    'CONFIG_ID': '1878388119742903' in auth_url
-                }
-                
-                all_vars_ok = all(checks.values())
-                
-                if all_vars_ok:
-                    self.log_test("Facebook Environment Variables", True, 
-                                "Toutes les variables critiques présentes")
-                    return True
+                if content:
+                    # Test first image
+                    test_item = content[0]
+                    file_id = test_item.get('id')
+                    filename = test_item.get('filename', 'unknown')
+                    
+                    self.log(f"   Testing image: {filename} (ID: {file_id})")
+                    
+                    # Test public endpoint
+                    try:
+                        img_response = self.session.get(
+                            f"{self.backend_url}/public/image/{file_id}.webp",
+                            timeout=10
+                        )
+                        
+                        self.log(f"   Public image Status: {img_response.status_code}")
+                        
+                        if img_response.status_code == 200:
+                            content_type = img_response.headers.get('content-type', '')
+                            content_length = img_response.headers.get('content-length', '0')
+                            
+                            self.log(f"   ✅ Public image SUCCESS on LIVE")
+                            self.log(f"      Content-Type: {content_type}")
+                            self.log(f"      Content-Length: {content_length} bytes")
+                            
+                            # Check if it's actually an image
+                            if 'image' in content_type:
+                                self.log(f"      ✅ Valid image content")
+                            else:
+                                self.log(f"      ⚠️ Unexpected content type")
+                                
+                            return True
+                        elif img_response.status_code == 302:
+                            redirect_url = img_response.headers.get('location', '')
+                            self.log(f"   ✅ Public image REDIRECT on LIVE")
+                            self.log(f"      Redirect to: {redirect_url}")
+                            return True
+                        else:
+                            self.log(f"   ❌ Public image FAILED: {img_response.status_code}")
+                            return False
+                            
+                    except Exception as e:
+                        self.log(f"   ❌ Public image ERROR: {str(e)}", "ERROR")
+                        return False
                 else:
-                    failed_vars = [var for var, ok in checks.items() if not ok]
-                    self.log_test("Facebook Environment Variables", False, 
-                                f"Variables manquantes/incorrectes: {failed_vars}")
-                    return False
+                    self.log(f"   ⚠️ No content available for testing")
+                    return True
+                    
             else:
-                self.log_test("Facebook Environment Variables", False, 
-                            "Impossible de vérifier via auth-url")
+                self.log(f"   ❌ Content retrieval FAILED: {response.status_code}")
                 return False
                 
         except Exception as e:
-            self.log_test("Facebook Environment Variables", False, f"Error: {str(e)}")
+            self.log(f"   ❌ Content retrieval ERROR: {str(e)}", "ERROR")
             return False
     
     def test_current_social_connections(self):

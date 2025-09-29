@@ -3022,136 +3022,153 @@ async def facebook_oauth_callback(
         if not facebook_app_id or not facebook_app_secret:
             raise Exception("Facebook App ID ou Secret manquant")
         
-        print(f"🔄 Token exchange - App ID: {facebook_app_id}")
-        
-        # Échange du code contre access token (correction format)
-        token_url = "https://graph.facebook.com/v20.0/oauth/access_token"  # Utiliser v20.0 pour compatibilité
-        token_params = {
-            'client_id': facebook_app_id,
-            'client_secret': facebook_app_secret,
-            'redirect_uri': redirect_uri,
-            'code': code.strip()  # Supprimer espaces/caractères parasites
-        }
-        
-        print(f"🔧 OAuth Token Exchange Debug:")
-        print(f"   Code reçu: '{code}' (length: {len(code)})")
-        print(f"   Code nettoyé: '{code.strip()}' (length: {len(code.strip())})")
-        print(f"   Client ID: {facebook_app_id}")
-        print(f"   Redirect URI: {redirect_uri}")
+        print(f"🔄 ÉTAPE 1/3: Échange code → short-lived token")
+        print(f"   App ID: {facebook_app_id}")
+        print(f"   Code: {code[:20]}...")
         
         import aiohttp
         async with aiohttp.ClientSession() as session:
-            # Utiliser GET au lieu de POST pour l'échange OAuth Facebook (recommandation docs)
+            # ÉTAPE 1: Code → Short-lived token
+            token_url = "https://graph.facebook.com/v20.0/oauth/access_token"
+            token_params = {
+                'client_id': facebook_app_id,
+                'client_secret': facebook_app_secret,
+                'redirect_uri': redirect_uri,
+                'code': code.strip()
+            }
+            
             async with session.get(token_url, params=token_params) as token_response:
                 if token_response.status != 200:
                     error_text = await token_response.text()
-                    print(f"❌ Facebook Token Exchange Error Details:")
-                    print(f"   Status: {token_response.status}")
-                    print(f"   Response: {error_text}")
-                    print(f"   Request URL: {token_url}")
-                    print(f"   Request Params: {token_params}")
-                    raise Exception(f"Token exchange failed: {token_response.status} - {error_text}")
+                    raise Exception(f"Short-lived token exchange failed: {token_response.status} - {error_text}")
                 
                 token_data = await token_response.json()
-                print(f"✅ Token response: {token_data}")
-                user_access_token = token_data.get('access_token')
+                short_lived_token = token_data.get('access_token')
                 
-                if not user_access_token:
-                    raise Exception("No access token in Facebook response")
+                if not short_lived_token:
+                    raise Exception("No short-lived token received")
                 
-                print(f"✅ User token obtained: {user_access_token[:20]}...")
+                print(f"✅ ÉTAPE 1/3 réussie: Short-lived token reçu ({short_lived_token[:20]}...)")
                 
-                # Récupérer les pages Facebook (API v20.0 selon GPT-4o)
-                pages_url = f"https://graph.facebook.com/v20.0/me/accounts"
-                pages_params = {
-                    'access_token': user_access_token,
-                    'fields': 'id,name,access_token,category,instagram_business_account'
+                # ÉTAPE 2: Short-lived → Long-lived token (selon ChatGPT)
+                print(f"🔄 ÉTAPE 2/3: Échange short-lived → long-lived token")
+                
+                long_lived_url = "https://graph.facebook.com/v20.0/oauth/access_token"
+                long_lived_params = {
+                    'grant_type': 'fb_exchange_token',
+                    'client_id': facebook_app_id,
+                    'client_secret': facebook_app_secret,
+                    'fb_exchange_token': short_lived_token
                 }
                 
-                async with session.get(pages_url, params=pages_params) as pages_response:
-                    if pages_response.status != 200:
-                        error_text = await pages_response.text()
-                        raise Exception(f"Pages fetch failed: {pages_response.status} - {error_text}")
+                async with session.get(long_lived_url, params=long_lived_params) as long_response:
+                    if long_response.status != 200:
+                        error_text = await long_response.text()
+                        raise Exception(f"Long-lived token exchange failed: {long_response.status} - {error_text}")
                     
-                    pages_data = await pages_response.json()
-                    pages = pages_data.get('data', [])
+                    long_data = await long_response.json()
+                    long_lived_token = long_data.get('access_token')
+                    expires_in = long_data.get('expires_in', 5183944)  # ~60 jours
                     
-                    if not pages:
-                        raise Exception("Aucune page Facebook trouvée")
+                    if not long_lived_token:
+                        raise Exception("No long-lived token received")
                     
-                    # Utiliser la première page avec son PAGE TOKEN
-                    page = pages[0]
-                    page_access_token = page.get('access_token')
-                    page_name = page.get('name', 'Page Facebook')
-                    page_id = page.get('id')
+                    print(f"✅ ÉTAPE 2/3 réussie: Long-lived token reçu ({long_lived_token[:20]}...) - Expire dans {expires_in}s")
                     
-                    if not page_access_token:
-                        raise Exception("Page access token manquant")
+                    # ÉTAPE 3: Long-lived token → Page access token (selon ChatGPT)
+                    print(f"🔄 ÉTAPE 3/3: Récupération page access token")
                     
-                    print(f"✅ Page found: {page_name} - Token: {page_access_token[:20]}...")
-                    
-                    # SAUVEGARDER LA CONNEXION SIMPLE (Approche ChatGPT)
-                    dbm = get_database()
-                    facebook_connection = {
-                        "id": str(uuid.uuid4()),
-                        "user_id": user_id,
-                        "platform": "facebook",
-                        "access_token": page_access_token,  # PAGE TOKEN DIRECT
-                        "page_id": page_id,
-                        "page_name": page_name,
-                        "connected_at": datetime.now(timezone.utc).isoformat(),
-                        "active": True,
-                        "expires_at": (datetime.now(timezone.utc) + timedelta(days=60)).isoformat()
+                    pages_url = f"https://graph.facebook.com/v20.0/me/accounts"
+                    pages_params = {
+                        'access_token': long_lived_token,
+                        'fields': 'id,name,access_token,category,instagram_business_account'
                     }
                     
-                    # Remplacer toute connexion Facebook existante (clean)
-                    dbm.db.social_media_connections.delete_many({
-                        "user_id": user_id,
-                        "platform": "facebook"
-                    })
-                    
-                    dbm.db.social_media_connections.insert_one(facebook_connection)
-                    print(f"✅ SIMPLE Facebook connection saved: {page_name} (ID: {page_id})")
-                    
-                    # Traiter Instagram si connecté à la page Facebook (selon GPT-4o)
-                    if page.get('instagram_business_account'):
-                        ig_account = page['instagram_business_account']
-                        ig_user_id = ig_account.get('id')
-                        ig_username = ig_account.get('username', 'Instagram')
+                    async with session.get(pages_url, params=pages_params) as pages_response:
+                        if pages_response.status != 200:
+                            error_text = await pages_response.text()
+                            raise Exception(f"Pages fetch failed: {pages_response.status} - {error_text}")
                         
-                        print(f"✅ Instagram Business Account détecté:")
-                        print(f"   Instagram User ID: {ig_user_id}")
-                        print(f"   Username: @{ig_username}")
+                        pages_data = await pages_response.json()
+                        pages = pages_data.get('data', [])
                         
-                        if ig_user_id:  # Validation selon GPT-4o
-                            instagram_connection = {
-                                "id": str(uuid.uuid4()),
-                                "user_id": user_id,
-                                "platform": "instagram",
-                                "access_token": page_access_token,  # MÊME TOKEN que Facebook
-                                "instagram_user_id": ig_user_id,  # CRITIQUE selon GPT-4o
-                                "username": ig_username,
-                                "page_id": page_id,  # Lié à la page Facebook
-                                "connected_at": datetime.now(timezone.utc).isoformat(),
-                                "active": True,
-                                "expires_at": (datetime.now(timezone.utc) + timedelta(days=60)).isoformat()
-                            }
+                        if not pages:
+                            raise Exception("Aucune page Facebook trouvée pour cet utilisateur")
                         
-                            # Remplacer toute connexion Instagram existante (clean)
-                            dbm.db.social_media_connections.delete_many({
-                                "user_id": user_id,
-                                "platform": "instagram"
-                            })
+                        # Utiliser la première page (Claire & Marcus)
+                        page = pages[0]
+                        page_access_token = page.get('access_token')
+                        page_name = page.get('name', 'Page Facebook')
+                        page_id = page.get('id')
+                        
+                        if not page_access_token:
+                            raise Exception("Page access token manquant dans la réponse")
+                        
+                        # VALIDATION TOKEN FORMAT (selon ChatGPT)
+                        if not page_access_token.startswith('EAA'):
+                            print(f"⚠️ Warning: Token format inattendu: {page_access_token[:10]}...")
+                        
+                        print(f"✅ ÉTAPE 3/3 réussie: Page access token obtenu")
+                        print(f"   Page: {page_name} (ID: {page_id})")
+                        print(f"   Token: {page_access_token[:20]}... (format: {'EAA' if page_access_token.startswith('EAA') else 'Other'})")
+                        
+                        # SAUVEGARDE TOKEN PERMANENT (selon ChatGPT)
+                        dbm = get_database()
+                        facebook_connection = {
+                            "id": str(uuid.uuid4()),
+                            "user_id": user_id,
+                            "platform": "facebook",
+                            "access_token": page_access_token,  # VRAI PAGE TOKEN PERMANENT
+                            "page_id": page_id,
+                            "page_name": page_name,
+                            "connected_at": datetime.now(timezone.utc).isoformat(),
+                            "active": True,
+                            "token_type": "page_access_token",
+                            "expires_at": (datetime.now(timezone.utc) + timedelta(seconds=expires_in)).isoformat()
+                        }
+                        
+                        # Supprimer anciennes connexions et sauvegarder la nouvelle
+                        dbm.db.social_media_connections.delete_many({
+                            "user_id": user_id,
+                            "platform": "facebook"
+                        })
+                        
+                        dbm.db.social_media_connections.insert_one(facebook_connection)
+                        print(f"✅ TOKEN PERMANENT SAUVEGARDÉ: {page_name}")
+                        
+                        # Instagram si disponible
+                        if page.get('instagram_business_account'):
+                            ig_account = page['instagram_business_account']
+                            ig_user_id = ig_account.get('id')
+                            ig_username = ig_account.get('username', 'Instagram')
                             
-                            dbm.db.social_media_connections.insert_one(instagram_connection)
-                            print(f"✅ Instagram connection saved: @{ig_username} (User ID: {ig_user_id})")
-                        else:
-                            print(f"⚠️ Instagram Business Account sans User ID - ignoré")
-                    
-                    # Succès - redirection avec vraie connexion
-                    success_redirect = f"{frontend_url}?auth_success=facebook_connected&page_name={page_name}"
-                    print(f"✅ Real Facebook OAuth successful - redirecting to: {success_redirect}")
-                    return RedirectResponse(url=success_redirect, status_code=302)
+                            if ig_user_id:
+                                instagram_connection = {
+                                    "id": str(uuid.uuid4()),
+                                    "user_id": user_id,
+                                    "platform": "instagram",
+                                    "access_token": page_access_token,  # MÊME TOKEN PERMANENT
+                                    "instagram_user_id": ig_user_id,
+                                    "username": ig_username,
+                                    "page_id": page_id,
+                                    "connected_at": datetime.now(timezone.utc).isoformat(),
+                                    "active": True,
+                                    "token_type": "page_access_token",
+                                    "expires_at": (datetime.now(timezone.utc) + timedelta(seconds=expires_in)).isoformat()
+                                }
+                                
+                                dbm.db.social_media_connections.delete_many({
+                                    "user_id": user_id,
+                                    "platform": "instagram"
+                                })
+                                
+                                dbm.db.social_media_connections.insert_one(instagram_connection)
+                                print(f"✅ INSTAGRAM TOKEN PERMANENT SAUVEGARDÉ: @{ig_username}")
+                        
+                        # Succès avec tokens permanents
+                        success_redirect = f"{frontend_url}?auth_success=facebook_connected&page_name={page_name}&token_type=permanent"
+                        print(f"✅ FLOW COMPLET RÉUSSI - Tokens permanents sauvegardés")
+                        return RedirectResponse(url=success_redirect, status_code=302)
         
     except Exception as oauth_error:
         print(f"❌ Facebook OAuth failed: {str(oauth_error)}")

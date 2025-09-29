@@ -406,9 +406,10 @@ class FacebookImageDiagnostic:
     
     def run_diagnostic(self):
         """Exécuter le diagnostic complet"""
-        print("🎯 DIAGNOSTIC APPROFONDI PUBLICATION IMAGES FACEBOOK")
+        print("🎯 FACEBOOK IMAGE PUBLICATION DIAGNOSTIC - PRODUCTION VS PREVIEW")
         print("=" * 80)
-        print(f"Backend URL: {BASE_URL}")
+        print(f"Production URL: {PRODUCTION_BASE_URL}")
+        print(f"Preview URL: {PREVIEW_BASE_URL}")
         print(f"Test User: {TEST_CREDENTIALS['email']}")
         print(f"Test Time: {datetime.now().isoformat()}")
         print("=" * 80)

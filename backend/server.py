@@ -3329,23 +3329,82 @@ async def get_social_connections_status(user_id: str = Depends(get_current_user_
             "error": str(e)
         }
 
-@api_router.post("/social/facebook/publish-simple")
-async def publish_facebook_simple(
+@api_router.post("/publish/facebook/photo")
+async def publish_facebook_photo_binary(
+    caption: str = Form(...),
+    page_id: str = Form(...),
+    access_token: str = Form(...),
+    file: UploadFile = File(...)
+):
+    """PUBLICATION FACEBOOK BINAIRE - Solution ChatGPT 100% fiable"""
+    try:
+        print(f"📘 Facebook Binary Upload: {caption[:50]}...")
+        print(f"   Page ID: {page_id}")
+        print(f"   File: {file.filename} ({file.content_type})")
+        
+        fb_url = f"https://graph.facebook.com/v20.0/{page_id}/photos"
+        
+        # Lire l'image uploadée
+        file_bytes = await file.read()
+        
+        # Construire payload multipart/form-data (selon ChatGPT)
+        import aiohttp
+        async with aiohttp.ClientSession() as session:
+            form_data = aiohttp.FormData()
+            form_data.add_field('source', file_bytes, filename=file.filename, content_type=file.content_type)
+            form_data.add_field('caption', caption)
+            form_data.add_field('access_token', access_token)
+            form_data.add_field('published', 'true')
+            
+            async with session.post(fb_url, data=form_data, timeout=30) as response:
+                fb_resp = await response.json()
+                
+                if response.status == 200 and 'id' in fb_resp:
+                    print(f"✅ Facebook binary upload successful: {fb_resp.get('id')}")
+                    return {
+                        "success": True,
+                        "facebook_post_id": fb_resp.get('id'),
+                        "message": "Photo publiée avec succès via upload binaire"
+                    }
+                else:
+                    print(f"❌ Facebook binary upload failed: {fb_resp}")
+                    return {
+                        "success": False,
+                        "error": fb_resp.get('error', {}).get('message', 'Upload failed'),
+                        "details": fb_resp
+                    }
+        
+    except Exception as e:
+        print(f"❌ Facebook binary upload error: {str(e)}")
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Erreur lors de l'upload binaire Facebook"
+        }
+
+@api_router.post("/social/facebook/publish-with-image")
+async def publish_facebook_with_image(
     request: dict,
     user_id: str = Depends(get_current_user_id_robust)
 ):
-    """PUBLICATION FACEBOOK SIMPLE - Approche ChatGPT"""
+    """PUBLICATION FACEBOOK AVEC IMAGE - Télécharge image puis upload binaire"""
     try:
         text = request.get("text", "Test de publication Facebook")
-        image_url = request.get("image_url")  # Optionnel
+        image_url = request.get("image_url")
         
-        # Convertir URL protégée en URL publique pour Facebook
-        if image_url:
-            image_url = convert_to_public_image_url(image_url)
+        if not image_url:
+            return {
+                "success": False,
+                "error": "Image URL requise pour cette méthode",
+                "message": "Utilisez publish-simple pour texte seul"
+            }
+        
+        # Convertir URL protégée en URL publique
+        public_image_url = convert_to_public_image_url(image_url)
         
         dbm = get_database()
         
-        # Récupérer la connexion Facebook (approche simple)
+        # Récupérer la connexion Facebook
         connection = dbm.db.social_media_connections.find_one({
             "user_id": user_id,
             "platform": "facebook",
@@ -3363,64 +3422,62 @@ async def publish_facebook_simple(
         page_id = connection.get("page_id")
         page_name = connection.get("page_name", "Page Facebook")
         
-        print(f"📘 Publishing to Facebook: {page_name}")
-        print(f"   Content: {text[:50]}...")
-        print(f"   Image: {'✅' if image_url else '❌'}")
+        print(f"📘 Facebook upload with image download: {page_name}")
+        print(f"   Image URL: {public_image_url}")
         
-        # Publication directe via Facebook Graph API (approche ChatGPT)
+        # ÉTAPE 1: Télécharger l'image (selon ChatGPT)
         import aiohttp
         async with aiohttp.ClientSession() as session:
-            # URL de publication Facebook (selon GPT-4o : TOUJOURS /photos pour images)
-            if image_url:
-                publish_url = f"https://graph.facebook.com/v20.0/{page_id}/photos"
-            else:
-                publish_url = f"https://graph.facebook.com/v20.0/{page_id}/feed"
-            
-            # Données de publication
-            publish_data = {
-                "access_token": access_token
-            }
-            
-            if image_url:
-                # Publication avec image (selon GPT-4o : url + caption + published)
-                publish_data.update({
-                    "url": image_url,
-                    "caption": text,
-                    "published": True
-                })
-            else:
-                # Publication texte seulement
-                publish_data["message"] = text
-            
-            async with session.post(publish_url, data=publish_data) as response:
-                if response.status == 200:
-                    result = await response.json()
-                    post_id = result.get("id") or result.get("post_id")
-                    
-                    return {
-                        "success": True,
-                        "message": f"✅ Publication réussie sur {page_name}",
-                        "facebook_post_id": post_id,
-                        "page_name": page_name,
-                        "content": text,
-                        "has_image": bool(image_url),
-                        "published_at": datetime.now().isoformat()
-                    }
-                else:
-                    error_text = await response.text()
-                    print(f"❌ Facebook API Error: {response.status} - {error_text}")
+            async with session.get(public_image_url) as img_response:
+                if img_response.status != 200:
                     return {
                         "success": False,
-                        "error": f"Erreur Facebook API: {response.status}",
-                        "details": error_text
+                        "error": f"Impossible de télécharger l'image: {img_response.status}",
+                        "image_url": public_image_url
                     }
+                
+                image_bytes = await img_response.read()
+                content_type = img_response.headers.get('Content-Type', 'image/webp')
+                
+                print(f"✅ Image downloaded: {len(image_bytes)} bytes, {content_type}")
+                
+                # ÉTAPE 2: Upload binaire à Facebook (solution ChatGPT)
+                fb_url = f"https://graph.facebook.com/v20.0/{page_id}/photos"
+                
+                form_data = aiohttp.FormData()
+                form_data.add_field('source', image_bytes, filename='image.webp', content_type=content_type)
+                form_data.add_field('caption', text)
+                form_data.add_field('access_token', access_token)
+                form_data.add_field('published', 'true')
+                
+                async with session.post(fb_url, data=form_data, timeout=30) as fb_response:
+                    fb_resp = await fb_response.json()
+                    
+                    if fb_response.status == 200 and 'id' in fb_resp:
+                        print(f"✅ Facebook binary publication successful: {fb_resp.get('id')}")
+                        return {
+                            "success": True,
+                            "facebook_post_id": fb_resp.get('id'),
+                            "page_name": page_name,
+                            "content": text,
+                            "image_size": len(image_bytes),
+                            "method": "binary_upload",
+                            "published_at": datetime.now().isoformat()
+                        }
+                    else:
+                        print(f"❌ Facebook API Error: {fb_resp}")
+                        return {
+                            "success": False,
+                            "error": fb_resp.get('error', {}).get('message', 'Publication failed'),
+                            "details": fb_resp
+                        }
         
     except Exception as e:
-        print(f"❌ Facebook publication error: {str(e)}")
+        print(f"❌ Facebook publication with image error: {str(e)}")
         return {
             "success": False,
             "error": str(e),
-            "message": "Erreur lors de la publication Facebook"
+            "message": "Erreur lors de la publication Facebook avec image"
         }
 
 @api_router.post("/social/instagram/publish-simple")

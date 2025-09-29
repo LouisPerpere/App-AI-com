@@ -527,16 +527,61 @@ async def get_pending_content_mongo(offset: int = 0, limit: int = 24, user_id: s
     try:
         media_collection = get_media_collection()
         q = {"owner_id": user_id, "$or": [{"deleted": {"$ne": True}}, {"deleted": {"$exists": False}}]}
-        total = media_collection.count_documents(q)
-        cursor = (
-            media_collection.find(q)
-            .sort([("created_at", -1), ("_id", -1)])
-            .skip(max(0, int(offset)))
-            .limit(max(1, int(limit)))
-        )
-        items = []
+        
+        # CORRECTION CRITIQUE: Filtrer pour ne retourner QUE les images accessibles
+        cursor = media_collection.find(q).sort([("created_at", -1), ("_id", -1)])
+        accessible_items = []
+        total_checked = 0
+        
+        print(f"🔍 Filtering accessible images for Facebook publication...")
+        
         for d in cursor:
+            total_checked += 1
             try:
+                file_id = d.get("id") or str(d.get("_id"))
+                url = d.get("url", "")
+                file_path = d.get("file_path", "")
+                grid_file_id = d.get("grid_file_id")
+                
+                # VALIDATION: Vérifier si l'image est vraiment accessible
+                is_accessible = False
+                access_method = ""
+                
+                # Méthode 1: Images avec file_path (uploads/)
+                if file_path and os.path.exists(file_path):
+                    is_accessible = True
+                    access_method = "file_path"
+                    url = f"/api/content/{file_id}/file"
+                
+                # Méthode 2: Images avec GridFS (si disponible)
+                elif grid_file_id:
+                    try:
+                        import gridfs
+                        from bson import ObjectId
+                        dbm = get_database()
+                        fs = gridfs.GridFS(dbm.db)
+                        if isinstance(grid_file_id, str):
+                            grid_file_id = ObjectId(grid_file_id)
+                        if fs.exists(grid_file_id):
+                            is_accessible = True
+                            access_method = "gridfs"
+                            url = f"/api/content/{file_id}/file"
+                    except Exception:
+                        pass
+                
+                # Méthode 3: URLs externes valides (commençant par http)
+                elif url and url.startswith("http") and not "claire-marcus-api.onrender.com" in url:
+                    is_accessible = True
+                    access_method = "external_url"
+                    # Garder l'URL externe telle quelle
+                
+                # IMPORTANT: Ne traiter que les images accessibles
+                if not is_accessible:
+                    print(f"   ❌ Skipping inaccessible image: {file_id} (no valid storage)")
+                    continue
+                
+                print(f"   ✅ Including accessible image: {file_id} via {access_method}")
+                
                 # Handle created_at safely
                 created_at = d.get("created_at")
                 if hasattr(created_at, 'isoformat'):
@@ -546,22 +591,9 @@ async def get_pending_content_mongo(offset: int = 0, limit: int = 24, user_id: s
                 else:
                     created_at_str = None
                 
-                # Corriger les URLs obsolètes à la volée
-                url = d.get("url", "")
+                # Générer thumb_url pour les images accessibles
                 thumb_url = d.get("thumb_url", "")
-                file_id = d.get("id") or str(d.get("_id"))
-                
-                # Remplacer les anciennes URLs par le nouveau système de serveur de fichiers
-                if url and "claire-marcus-api.onrender.com" in url:
-                    url = f"/api/content/{file_id}/file"
-                elif not url and file_id:
-                    # Générer URL pour les médias sans URL
-                    url = f"/api/content/{file_id}/file"
-                
-                if thumb_url and "claire-marcus-api.onrender.com" in thumb_url:
-                    thumb_url = f"/api/content/{file_id}/thumb"
-                elif not thumb_url and file_id:
-                    # Générer URL de vignette pour les médias sans vignette
+                if not thumb_url:
                     thumb_url = f"/api/content/{file_id}/thumb"
                 
                 items.append({

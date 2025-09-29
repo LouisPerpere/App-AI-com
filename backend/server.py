@@ -103,8 +103,8 @@ def convert_to_public_image_url(image_url: str) -> str:
         match = re.search(r'uploads/[^/]+/([^/.]+)', image_url)
         if match:
             file_id = match.group(1)
-            print(f"🔄 Converting uploads URL: {image_url} → /api/public/image/{file_id}.webp")
-            return f"{backend_url}/api/public/image/{file_id}.webp"
+            print(f"🔄 Converting uploads URL: {image_url} → /api/public/image/{file_id}.jpg")
+            return f"{backend_url}/api/public/image/{file_id}.jpg"
     
     # Si c'est une URL relative, la convertir en absolue
     if image_url.startswith("/"):

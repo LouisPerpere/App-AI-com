@@ -3210,7 +3210,11 @@ class PublishPostRequest(BaseModel):
     post_id: str
 
 @api_router.get("/public/image/{file_id}.webp")
+@api_router.get("/public/image/{file_id}.jpg") 
+@api_router.get("/public/image/{file_id}")
 @api_router.head("/public/image/{file_id}.webp")
+@api_router.head("/public/image/{file_id}.jpg")
+@api_router.head("/public/image/{file_id}")
 async def get_public_image_webp(file_id: str):
     """ENDPOINT PUBLIC VRAIMENT ACCESSIBLE - Pas d'auth pour Facebook"""
     try:

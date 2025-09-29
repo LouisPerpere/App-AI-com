@@ -10176,6 +10176,9 @@ function MainApp() {
           </div>
         )}
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 

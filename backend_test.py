@@ -61,7 +61,7 @@ class FacebookTokenDiagnostic:
             print(f"   ❌ Erreur authentification: {e}")
             return False
     
-    def test_carousel_url_conversion(self):
+    def get_social_connections_debug(self):
         """Test 1: Support carousel dans convert_to_public_image_url()"""
         print("🎠 TEST 1: CAROUSEL URL CONVERSION")
         print("=" * 50)

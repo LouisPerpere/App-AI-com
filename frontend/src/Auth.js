@@ -38,6 +38,50 @@ const API = `${BACKEND_URL}/api`;
 
 console.log('🔍 AUTH DEBUG - API URL:', API);
 
+// Composant Accordéon Mentions Légales - Noir et blanc discret
+const MentionsLegalesAccordion = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="flex items-start space-x-4 p-4 bg-gray-100/50 backdrop-blur-sm rounded-2xl border border-gray-200">
+      <div className="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center flex-shrink-0">
+        <Scale className="w-5 h-5 text-white" />
+      </div>
+      <div className="flex-1">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full flex items-center justify-between text-left"
+        >
+          <h3 className="font-bold text-gray-900 mb-1">Mentions légales</h3>
+          <svg 
+            className={`w-4 h-4 text-gray-600 transition-transform duration-200 ml-2 ${isOpen ? 'rotate-180' : ''}`}
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        
+        {isOpen && (
+          <div className="mt-2 text-xs text-gray-700 space-y-1 leading-relaxed">
+            <div><strong>EI Fou De Vanille</strong> • SIRET 952 513 661 00019</div>
+            <div>44 Rue De Lorraine, 94700 Maisons Alfort • RCS Créteil</div>
+            <div>
+              Responsable : Alexandra Perpere • 
+              <a href="mailto:contact@claire-marcus.com" className="text-gray-900 underline ml-1">Contact</a>
+            </div>
+            <div>
+              Hébergement : <a href="https://emergentagent.com" target="_blank" rel="noopener noreferrer" className="text-gray-900 underline">Emergent</a> (75002 Paris)
+            </div>
+            <div>© {new Date().getFullYear()} • TVA Non Applicable • RGPD</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Ping backend to wake Render free instance (can take 20-40s)
 const pingBackend = async (maxWaitMs = 60000) => {
   const start = Date.now();

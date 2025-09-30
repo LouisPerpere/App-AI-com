@@ -672,6 +672,95 @@ const AuthPage = ({ onAuthSuccess }) => {
           </Card>
         </div>
       </div>
+      
+      {/* Accordéon Mentions Légales - Tout en bas */}
+      <LegalAccordion />
+    </div>
+  );
+};
+
+// Composant Accordéon pour les Mentions Légales
+const LegalAccordion = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="mt-12 max-w-4xl mx-auto px-4">
+      <div className="border-t border-gray-200 pt-6">
+        {/* Bouton accordéon */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full flex items-center justify-between text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-sm text-gray-700"
+        >
+          <span className="font-medium">Mentions légales</span>
+          <svg 
+            className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        
+        {/* Contenu extensible */}
+        {isOpen && (
+          <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg">
+            <div className="grid md:grid-cols-3 gap-6 text-xs text-gray-600">
+              {/* Éditeur */}
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-2">Éditeur</h4>
+                <p><strong>EI Fou De Vanille</strong></p>
+                <p>SIRET : 952 513 661 00019</p>
+                <p>44 Rue De Lorraine</p>
+                <p>94700 Maisons Alfort</p>
+                <p>RCS Créteil</p>
+              </div>
+              
+              {/* Contact & Publication */}
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-2">Contact</h4>
+                <p>
+                  <a 
+                    href="mailto:contact@claire-marcus.com"
+                    className="text-purple-600 hover:text-purple-700 underline"
+                  >
+                    contact@claire-marcus.com
+                  </a>
+                </p>
+                <p className="mt-2"><strong>Responsable publication :</strong></p>
+                <p>Alexandra Perpere</p>
+              </div>
+              
+              {/* Hébergement & Légal */}
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-2">Hébergement</h4>
+                <p>
+                  <a 
+                    href="https://emergentagent.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-purple-600 hover:text-purple-700 underline"
+                  >
+                    Emergent
+                  </a>
+                </p>
+                <p>115 Rue Réaumur, 75002 Paris</p>
+                <p className="mt-2 text-xs text-gray-500">
+                  TVA Non Applicable, art. 293 B du CGI
+                </p>
+              </div>
+            </div>
+            
+            {/* Copyright */}
+            <div className="border-t border-gray-200 mt-4 pt-3 text-center">
+              <p className="text-xs text-gray-500">
+                © {new Date().getFullYear()} Claire & Marcus - Tous droits réservés | 
+                Données traitées conformément au RGPD
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

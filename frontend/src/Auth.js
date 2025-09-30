@@ -746,9 +746,6 @@ const AuthPage = ({ onAuthSuccess }) => {
           </Card>
         </div>
       </div>
-      
-      {/* Accordéon Mentions Légales - Discret en bas */}
-      <LegalAccordion />
     </div>
   );
 };

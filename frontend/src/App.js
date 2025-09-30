@@ -4422,10 +4422,12 @@ function MainApp() {
                             setSelectedMonthForGeneration(month.key);
                             setShowGenerationModal(true);
                           }}
-                          disabled={generatingMonths.has(month.key)}
+                          disabled={generatingMonths.has(month.key) || isGenerationBlocked(month.key)}
                           size="sm"
                           className={`w-full sm:w-auto px-3 py-2 text-xs font-medium transition-all ${
-                            hasGeneratedPosts
+                            isGenerationBlocked(month.key)
+                              ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                              : hasGeneratedPosts
                               ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
                               : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
                           }`}
@@ -4435,6 +4437,12 @@ function MainApp() {
                               <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1.5"></div>
                               <span className="hidden sm:inline">Génération...</span>
                               <span className="sm:hidden">...</span>
+                            </>
+                          ) : isGenerationBlocked(month.key) ? (
+                            <>
+                              <Clock className="w-3 h-3 mr-1.5" />
+                              <span className="hidden sm:inline">Indisponible (22h passées)</span>
+                              <span className="sm:hidden">Indisponible</span>
                             </>
                           ) : (
                             <>

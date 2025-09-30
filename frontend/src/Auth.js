@@ -672,31 +672,6 @@ const AuthPage = ({ onAuthSuccess }) => {
           </Card>
         </div>
       </div>
-      
-      {/* Mentions Légales Discrètes - Lien en bas de page */}
-      <div className="mt-8 text-center pb-6">
-        <div className="text-xs text-gray-500 space-y-2">
-          <p>© {new Date().getFullYear()} Claire & Marcus - Tous droits réservés</p>
-          <div className="space-y-1">
-            <div>
-              <strong>EI Fou De Vanille</strong> • SIRET 952 513 661 00019 • RCS Créteil
-            </div>
-            <div>
-              44 Rue De Lorraine, 94700 Maisons Alfort • 
-              <a href="mailto:contact@claire-marcus.com" className="text-purple-600 hover:text-purple-700 ml-1">
-                contact@claire-marcus.com
-              </a>
-            </div>
-            <div>
-              Responsable publication : Alexandra Perpere • 
-              Hébergement : <a href="https://emergentagent.com" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:text-purple-700">Emergent</a> (75002 Paris)
-            </div>
-            <div>
-              TVA Non Applicable, art. 293 B du CGI • Données traitées conformément au RGPD
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

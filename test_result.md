@@ -3315,6 +3315,18 @@ frontend:
         comment: "🔧 ADDITIONAL AUTHORIZATION HEADER FIXES: Found and fixed 2 more API requests missing explicit Authorization headers: DELETE /api/notes/{noteId} and GET /api/auth/me (with timeout). Also fixed backend database schema to include missing fields (business_description, budget_range, email) in _create_default_business_profile to match Pydantic model. Backend logs confirm token validation working correctly for authenticated requests and proper fallback to demo mode for requests without Authorization headers. All API requests now use explicit headers instead of relying on axios.defaults which can have race conditions."
 
 backend:
+  - task: "September 2024 Post Generation - Last Day Mode Fix"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py, /app/backend/llm_backup_system.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "🎯 SEPTEMBER 2024 POST GENERATION TESTING COMPLETED - PARTIAL SUCCESS WITH CRITICAL ISSUE: Comprehensive testing of September 2024 post generation with last_day_mode functionality completed following urgent French review request with credentials lperpere@yahoo.fr / L@Reunion974! on https://claire-marcus.com/api. CRITICAL FINDINGS: ✅ NEW month_key FORMAT WORKING: POST /api/posts/generate with {'month_key': '2024-09'} works perfectly - no blocking error, ✅ last_day_mode FUNCTIONALITY WORKING: Both {'month_key': '2024-09', 'last_day_mode': true, 'generation_hour': 20} and generation_hour: 23 work correctly, ✅ BLOCKING CODE REMOVED: The old 'Génération bloquée : nous sommes le dernier jour' error no longer appears for new month_key format. ❌ CRITICAL ISSUE IDENTIFIED: Legacy format {'target_month': 'septembre_2024'} still triggers blocking error: 'Failed to generate posts: 400: Génération bloquée : nous sommes le dernier jour de septembre 2024. Veuillez lancer la génération pour octobre 2025 (clé: 2025-10).' ROOT CAUSE DISCOVERED: The blocking logic exists in the external emergentintegrations.llm.chat.LlmChat service (lines 164-165 in llm_backup_system.py). When using legacy target_month format, the system calls await self.claude_chat.send_message(user_message) which has its own blocking logic that hasn't been updated for last_day_mode. TECHNICAL ANALYSIS: New month_key format bypasses external service blocking, legacy target_month format triggers external service call with blocking logic, emergentintegrations service needs to be updated to handle last_day_mode parameter. CONCLUSION: The backend fixes are PARTIALLY WORKING - new format works perfectly, but legacy format still blocked by external service. Users should use month_key format instead of target_month format for September 2024 generation."
+
   - task: "Facebook JPG Corrections Final Validation - 5 Critical Fixes"
     implemented: true
     working: true

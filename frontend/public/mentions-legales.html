@@ -1,87 +1,161 @@
-import React from 'react';
-
-const SimpleMentionsLegales = () => {
-  return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#f8f9fa',
-      padding: '2rem',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    }}>
-      <div style={{
-        maxWidth: '800px',
-        margin: '0 auto',
-        backgroundColor: 'white',
-        padding: '2rem',
-        borderRadius: '8px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-      }}>
-        <h1 style={{
-          color: '#6366f1',
-          fontSize: '2rem',
-          marginBottom: '2rem',
-          textAlign: 'center'
-        }}>
-          Mentions Légales
-        </h1>
-
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{ color: '#374151', fontSize: '1.25rem', marginBottom: '1rem' }}>
-            Identification de l'éditeur
-          </h2>
-          <div style={{ backgroundColor: '#f3e8ff', padding: '1rem', borderRadius: '6px' }}>
-            <p><strong>Dénomination sociale :</strong> EI Fou De Vanille</p>
-            <p><strong>SIRET :</strong> 952 513 661 00019</p>
-            <p><strong>Adresse :</strong> 44 Rue De Lorraine, 94700 Maisons Alfort</p>
-            <p><strong>RCS :</strong> Créteil</p>
-            <p><strong>TVA :</strong> Non Applicable, art. 293 B du CGI</p>
-          </div>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentions Légales - Claire & Marcus</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        .content {
+            padding: 2rem;
+        }
+        .section {
+            margin-bottom: 2rem;
+        }
+        .section h2 {
+            color: #374151;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+        .info-box {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        .info-box p {
+            margin: 0.5rem 0;
+            line-height: 1.6;
+        }
+        .info-box strong {
+            color: #374151;
+        }
+        a {
+            color: #6366f1;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            border-top: 1px solid #e5e7eb;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .back-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+        .back-link:hover {
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Mentions Légales</h1>
+            <p>Claire & Marcus - Community Management IA</p>
         </div>
+        
+        <div class="content">
+            <div class="section">
+                <h2>Identification de l'éditeur</h2>
+                <div class="info-box">
+                    <p><strong>Dénomination sociale :</strong> EI Fou De Vanille</p>
+                    <p><strong>SIRET :</strong> 952 513 661 00019</p>
+                    <p><strong>Adresse :</strong> 44 Rue De Lorraine, 94700 Maisons Alfort</p>
+                    <p><strong>RCS :</strong> Créteil</p>
+                    <p><strong>TVA :</strong> Non Applicable, art. 293 B du CGI</p>
+                </div>
+            </div>
 
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{ color: '#374151', fontSize: '1.25rem', marginBottom: '1rem' }}>
-            Responsable de la publication
-          </h2>
-          <p><strong>Directrice de la publication :</strong> Alexandra Perpere</p>
-          <p><strong>Contact :</strong> <a href="mailto:contact@claire-marcus.com" style={{ color: '#6366f1' }}>contact@claire-marcus.com</a></p>
-        </div>
+            <div class="section">
+                <h2>Responsable de la publication</h2>
+                <div class="info-box">
+                    <p><strong>Directrice de la publication :</strong> Alexandra Perpere</p>
+                    <p><strong>Contact :</strong> 
+                        <a href="mailto:contact@claire-marcus.com">contact@claire-marcus.com</a>
+                    </p>
+                </div>
+            </div>
 
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{ color: '#374151', fontSize: '1.25rem', marginBottom: '1rem' }}>
-            Hébergement
-          </h2>
-          <p><strong>Hébergeur :</strong> <a href="https://emergentagent.com" target="_blank" rel="noopener noreferrer" style={{ color: '#6366f1' }}>Emergent</a></p>
-          <p><strong>Adresse :</strong> 115 Rue Réaumur, 75002 Paris, France</p>
-        </div>
+            <div class="section">
+                <h2>Hébergement</h2>
+                <div class="info-box">
+                    <p><strong>Hébergeur :</strong> 
+                        <a href="https://emergentagent.com" target="_blank" rel="noopener noreferrer">Emergent</a>
+                    </p>
+                    <p><strong>Adresse :</strong> 115 Rue Réaumur, 75002 Paris, France</p>
+                </div>
+            </div>
 
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{ color: '#374151', fontSize: '1.25rem', marginBottom: '1rem' }}>
-            Propriété intellectuelle
-          </h2>
-          <p style={{ lineHeight: '1.6' }}>
-            L'ensemble des contenus présents sur le site Claire & Marcus sont la propriété exclusive 
-            de l'EI Fou De Vanille, à l'exception des marques, logos ou contenus appartenant à 
-            d'autres sociétés partenaires ou auteurs.
-          </p>
-        </div>
+            <div class="section">
+                <h2>Propriété intellectuelle</h2>
+                <div class="info-box">
+                    <p>L'ensemble des contenus présents sur le site Claire & Marcus, incluant notamment les textes, images, graphiques, logos, vidéos, icônes et éléments sonores, ainsi que leur mise en forme sont la propriété exclusive de l'EI Fou De Vanille ou de ses partenaires, à l'exception des marques, logos ou contenus appartenant à d'autres sociétés partenaires ou auteurs.</p>
+                    <p>Toute reproduction, représentation, modification, publication, adaptation de tout ou partie des éléments du site, quel que soit le moyen ou le procédé utilisé, est interdite, sauf autorisation écrite préalable de l'EI Fou De Vanille.</p>
+                </div>
+            </div>
 
-        <div style={{ 
-          borderTop: '1px solid #e5e7eb', 
-          paddingTop: '1rem', 
-          textAlign: 'center',
-          fontSize: '0.875rem',
-          color: '#6b7280'
-        }}>
-          <p>© {new Date().getFullYear()} Claire & Marcus - Tous droits réservés</p>
-          <p>
-            <a href="/" style={{ color: '#6366f1', textDecoration: 'none' }}>
-              ← Retour à l'accueil
-            </a>
-          </p>
+            <div class="section">
+                <h2>Protection des données personnelles</h2>
+                <div class="info-box">
+                    <p>Les données personnelles collectées sur ce site font l'objet d'un traitement informatique destiné à la gestion de votre compte utilisateur et à l'amélioration de nos services.</p>
+                    <p>Conformément à la loi « informatique et libertés » du 6 janvier 1978 modifiée et au Règlement Général sur la Protection des Données (RGPD), vous bénéficiez d'un droit d'accès, de rectification, de portabilité et d'effacement de vos données ou encore de limitation du traitement.</p>
+                    <p>Vous pouvez exercer ces droits en nous contactant à l'adresse <a href="mailto:contact@claire-marcus.com">contact@claire-marcus.com</a>.</p>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>© {YEAR} Claire & Marcus - Tous droits réservés</p>
+                <p>Données personnelles traitées conformément au RGPD</p>
+                <a href="/" class="back-link">← Retour à l'accueil</a>
+            </div>
         </div>
-      </div>
     </div>
-  );
-};
 
-export default SimpleMentionsLegales;
+    <script>
+        // Remplacer {YEAR} par l'année actuelle
+        document.querySelector('.footer p').innerHTML = document.querySelector('.footer p').innerHTML.replace('{YEAR}', new Date().getFullYear());
+    </script>
+</body>
+</html>

@@ -1,92 +1,55 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
+  const [isLegalOpen, setIsLegalOpen] = useState(false);
+
   return (
     <footer className="bg-white border-t border-gray-200">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Main footer content */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Logo & Brand */}
-          <div className="col-span-1">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">C</span>
+        {/* Accordéon Mentions Légales Discret */}
+        <div className="max-w-2xl mx-auto">
+          <button
+            onClick={() => setIsLegalOpen(!isLegalOpen)}
+            className="w-full flex items-center justify-center space-x-2 text-xs text-gray-400 hover:text-gray-600 transition-colors py-3 rounded-lg hover:bg-gray-50"
+          >
+            <span>Mentions légales</span>
+            <svg 
+              className={`w-3 h-3 transition-transform duration-200 ${isLegalOpen ? 'rotate-180' : ''}`}
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          
+          {isLegalOpen && (
+            <div className="mt-3 p-4 bg-gray-50 border rounded-lg text-xs text-gray-500 leading-relaxed">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <div><strong>EI Fou De Vanille</strong></div>
+                  <div>SIRET 952 513 661 00019</div>
+                  <div>44 Rue De Lorraine</div>
+                  <div>94700 Maisons Alfort • RCS Créteil</div>
+                </div>
+                <div className="space-y-1">
+                  <div>Responsable : Alexandra Mara Perpere</div>
+                  <div>
+                    <a href="mailto:contact@claire-marcus.com" className="text-gray-600 hover:text-gray-700 underline">
+                      contact@claire-marcus.com
+                    </a>
+                  </div>
+                  <div>
+                    Hébergement : <a href="https://emergentagent.com" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-gray-700 underline">Emergent</a>
+                  </div>
+                </div>
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                Claire & Marcus
-              </span>
+              <div className="text-center mt-4 pt-3 border-t border-gray-300 text-xs text-gray-500">
+                © {new Date().getFullYear()} Claire & Marcus • TVA Non Applicable, art. 293 B du CGI • RGPD
+              </div>
             </div>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              Votre assistant IA pour une présence sociale authentique et engageante. 
-              Automatisez vos publications tout en gardant votre voix unique.
-            </p>
-          </div>
-
-          {/* Mentions légales intégrées */}
-          <div className="col-span-1">
-            <h3 className="font-semibold text-gray-900 mb-4">Mentions légales</h3>
-            <div className="space-y-2 text-xs text-gray-600 leading-relaxed">
-              <p><strong>Éditeur :</strong> EI Fou De Vanille</p>
-              <p><strong>SIRET :</strong> 952 513 661 00019</p>
-              <p><strong>Adresse :</strong> 44 Rue De Lorraine, 94700 Maisons Alfort</p>
-              <p><strong>RCS :</strong> Créteil</p>
-              <p><strong>Responsable publication :</strong> Alexandra Perpere</p>
-              <p><strong>Hébergeur :</strong> 
-                <a 
-                  href="https://emergentagent.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="hover:text-pink-600 transition-colors ml-1"
-                >
-                  Emergent
-                </a>
-                <br />115 Rue Réaumur, 75002 Paris, France
-              </p>
-            </div>
-          </div>
-
-          {/* Contact Info */}
-          <div className="col-span-1">
-            <h3 className="font-semibold text-gray-900 mb-4">Contact</h3>
-            <div className="space-y-2 text-sm text-gray-600">
-              <p>
-                <a 
-                  href="mailto:contact@claire-marcus.com"
-                  className="hover:text-pink-600 transition-colors"
-                >
-                  contact@claire-marcus.com
-                </a>
-              </p>
-              <p>Responsable de la publication :<br />Alexandra Perpere</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className="border-t border-gray-200 mt-8 pt-6">
-          {/* Bottom section */}
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="text-sm text-gray-600 text-center md:text-left">
-              © {new Date().getFullYear()} Claire & Marcus - Tous droits réservés
-            </div>
-            
-            {/* Politique de confidentialité */}
-            <div className="text-xs text-gray-500 text-center md:text-right leading-relaxed">
-              <p className="mb-2">
-                <Link 
-                  to="/politique-confidentialite" 
-                  className="hover:text-pink-600 transition-colors underline"
-                >
-                  Politique de confidentialité
-                </Link>
-              </p>
-              <p className="text-xs">
-                Vos données personnelles sont traitées conformément au RGPD. 
-                Nous ne partageons jamais vos informations avec des tiers.
-              </p>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </footer>

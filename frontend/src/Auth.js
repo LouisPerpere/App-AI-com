@@ -72,7 +72,7 @@ const MentionsLegalesAccordion = () => {
               <a href="mailto:contact@claire-marcus.com" className="text-gray-600 underline ml-1">Contact</a>
             </div>
             <div>
-              Hébergement : <a href="https://emergentagent.com" target="_blank" rel="noopener noreferrer" className="text-gray-600 underline">Emergent</a> (75002 Paris)
+              Hébergement : <a href="https://emergentagent.com" target="_blank" rel="noopener noreferrer" className="text-gray-600 underline">Emergent</a>
             </div>
             <div>© {new Date().getFullYear()} • TVA Non Applicable • RGPD</div>
           </div>

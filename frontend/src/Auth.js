@@ -496,9 +496,6 @@ const AuthPage = ({ onAuthSuccess }) => {
                 <p className="text-sm text-gray-600">Testez sans engagement, résultats garantis !</p>
               </div>
             </div>
-            
-            {/* Bloc Mentions Légales - Accordéon noir et blanc */}
-            <MentionsLegalesAccordion />
           </div>
         </div>
 

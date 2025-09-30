@@ -38,9 +38,9 @@ const API = `${BACKEND_URL}/api`;
 
 console.log('🔍 AUTH DEBUG - API URL:', API);
 
-// Composant Accordéon Mentions Légales - Gris très discret
+// Composant Accordéon Mentions Légales - Ouvert par défaut pour Facebook
 const MentionsLegalesAccordion = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true); // OUVERT PAR DÉFAUT pour afficher "EI Fou De Vanille"
 
   return (
     <div className="flex items-start space-x-4 p-4 bg-gray-50/60 backdrop-blur-sm rounded-2xl border border-gray-200/80">

@@ -58,59 +58,6 @@ const pingBackend = async (maxWaitMs = 60000) => {
   console.warn('⚠️ Backend ping timeout after', maxWaitMs, 'ms', lastErr?.message);
   return false;
 };
-// Composant Accordéon discret pour Mentions Légales
-const LegalAccordion = () => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="w-full max-w-2xl mx-auto mt-8 px-4">
-      {/* Bouton accordéon centré */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-center space-x-2 text-xs text-gray-400 hover:text-gray-600 transition-colors py-3 rounded-lg hover:bg-gray-50"
-      >
-        <span>Mentions légales</span>
-        <svg 
-          className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-      
-      {/* Contenu extensible */}
-      {isOpen && (
-        <div className="mt-3 p-4 bg-gray-50 border rounded-lg text-xs text-gray-600 leading-relaxed">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-center md:text-left">
-            <div className="space-y-1">
-              <div><strong>EI Fou De Vanille</strong></div>
-              <div>SIRET 952 513 661 00019</div>
-              <div>44 Rue De Lorraine</div>
-              <div>94700 Maisons Alfort • RCS Créteil</div>
-            </div>
-            <div className="space-y-1">
-              <div>Responsable : Alexandra Perpere</div>
-              <div>
-                <a href="mailto:contact@claire-marcus.com" className="text-purple-600 hover:text-purple-700">
-                  contact@claire-marcus.com
-                </a>
-              </div>
-              <div>
-                Hébergement : <a href="https://emergentagent.com" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:text-purple-700">Emergent</a> (75002 Paris)
-              </div>
-            </div>
-          </div>
-          <div className="text-center mt-4 pt-3 border-t border-gray-300 text-xs text-gray-500">
-            © {new Date().getFullYear()} Claire & Marcus • TVA Non Applicable, art. 293 B du CGI
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
 const AuthPage = ({ onAuthSuccess }) => {
   const [activeTab, setActiveTab] = useState('login');
   const [showPassword, setShowPassword] = useState(false);

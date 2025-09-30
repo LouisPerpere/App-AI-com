@@ -764,6 +764,5 @@ const LegalAccordion = () => {
     </div>
   );
 };
-};
 
 export default AuthPage;

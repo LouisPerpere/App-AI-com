@@ -714,8 +714,15 @@ const AuthPage = ({ onAuthSuccess }) => {
             </CardContent>
           </Card>
           
-          {/* Mentions légales - Visible sur mobile sous le bloc de connexion */}
-          <div className="mt-6 block">
+          {/* Nom d'entreprise visible directement (demande Facebook) */}
+          <div className="max-w-md mx-auto mt-4 px-4 text-center">
+            <p className="text-xs text-gray-500">
+              Édité par <strong>EI Fou De Vanille</strong> • SIRET 952 513 661 00019
+            </p>
+          </div>
+          
+          {/* Accordéon Mentions Légales - Ouvert par défaut */}
+          <div className="max-w-md mx-auto mt-2 px-4">
             <MentionsLegalesAccordion />
           </div>
         </div>

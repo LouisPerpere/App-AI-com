@@ -1963,6 +1963,17 @@ function MainApp() {
   });
   const [calendarDate, setCalendarDate] = useState(new Date());
   const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
+  
+  // Helper function pour vérifier si la génération est bloquée
+  const isGenerationBlocked = useCallback((monthKey) => {
+    const now = new Date();
+    const currentHour = now.getHours();
+    const isLastDayOfMonth = now.getDate() === new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const currentMonthKey = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+    
+    // Bloquer la génération du mois actuel après 22h le dernier jour du mois
+    return isLastDayOfMonth && currentHour >= 22 && monthKey === currentMonthKey;
+  }, []);
   const [selectedCalendarPost, setSelectedCalendarPost] = useState(null);
   
   // États pour le workflow de modification amélioré (globaux)

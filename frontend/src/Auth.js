@@ -68,7 +68,7 @@ const MentionsLegalesAccordion = () => {
             <div><strong>EI Fou De Vanille</strong> • SIRET 952 513 661 00019</div>
             <div>44 Rue De Lorraine, 94700 Maisons Alfort • RCS Créteil</div>
             <div>
-              Responsable : Alexandra Perpere • 
+              Responsable : Alexandra Mara Perpere • 
               <a href="mailto:contact@claire-marcus.com" className="text-gray-600 underline ml-1">Contact</a>
             </div>
             <div>

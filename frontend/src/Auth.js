@@ -505,6 +505,28 @@ const AuthPage = ({ onAuthSuccess }) => {
                 <p className="text-sm text-gray-600">Testez sans engagement, résultats garantis !</p>
               </div>
             </div>
+            
+            {/* Bloc Mentions Légales - Copie du bloc "1 mois offert" */}
+            <div className="flex items-start space-x-4 p-4 bg-white/80 backdrop-blur-sm rounded-2xl border border-purple-100">
+              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Scale className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 mb-1">Mentions légales</h3>
+                <div className="text-xs text-gray-600 space-y-1">
+                  <div><strong>EI Fou De Vanille</strong> • SIRET 952 513 661 00019</div>
+                  <div>44 Rue De Lorraine, 94700 Maisons Alfort • RCS Créteil</div>
+                  <div>
+                    Responsable : Alexandra Perpere • 
+                    <a href="mailto:contact@claire-marcus.com" className="text-purple-600 ml-1">Contact</a>
+                  </div>
+                  <div>
+                    Hébergement : <a href="https://emergentagent.com" target="_blank" rel="noopener noreferrer" className="text-purple-600">Emergent</a> (75002 Paris)
+                  </div>
+                  <div>© {new Date().getFullYear()} • TVA Non Applicable • RGPD</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

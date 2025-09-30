@@ -3887,6 +3887,48 @@ function MainApp() {
     }
 
     try {
+      // Logique spéciale pour le dernier jour du mois (septembre 2025)
+      const now = new Date();
+      const currentHour = now.getHours();
+      const isLastDayOfMonth = now.getDate() === new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      
+      // Si c'est le dernier jour du mois et qu'on génère pour le mois actuel
+      const isCurrentMonth = !monthKey || monthKey === `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+      
+      if (isLastDayOfMonth && isCurrentMonth) {
+        // Après 22h, bloquer complètement la génération du mois actuel
+        if (currentHour >= 22) {
+          toast.error('Génération pour le mois actuel indisponible après 22h. Seule la génération du mois suivant est possible.', {
+            duration: 6000,
+            style: {
+              background: '#fef3c7',
+              border: '1px solid #f59e0b',
+              color: '#92400e',
+            }
+          });
+          if (monthKey) {
+            setGeneratingMonths(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(monthKey);
+              return newSet;
+            });
+          } else {
+            setIsGeneratingPosts(false);
+          }
+          return;
+        }
+        
+        // Avant 22h : génération spéciale pour le dernier jour
+        toast.info(`Mode dernier jour activé ! Génération de 1 post par réseau connecté pour aujourd'hui, programmé dans la journée (minimum 1h après génération).`, {
+          duration: 8000,
+          style: {
+            background: '#eff6ff',
+            border: '1px solid #3b82f6',
+            color: '#1d4ed8',
+          }
+        });
+      }
+      
       // Calculer les jours restants pour affichage informatif
       const currentDate = new Date();
       const [year, month] = (monthKey || `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}`).split('-');

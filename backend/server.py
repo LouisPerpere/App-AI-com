@@ -1666,6 +1666,8 @@ async def attach_image_to_post(
 class PostGenerationRequest(BaseModel):
     month_key: Optional[str] = None  # Format: "2025-01" pour janvier 2025
     target_month: Optional[str] = None  # Legacy field, keep for compatibility
+    last_day_mode: Optional[bool] = False  # Mode dernier jour du mois
+    generation_hour: Optional[int] = None  # Heure de génération pour le mode dernier jour
 
 class ValidateToCalendarRequest(BaseModel):
     post_id: str

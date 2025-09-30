@@ -3951,6 +3951,13 @@ function MainApp() {
       });
 
       const requestBody = monthKey ? { month_key: monthKey } : {};
+      
+      // Ajouter le flag last_day_mode si c'est le dernier jour du mois actuel
+      if (isLastDayOfMonth && isCurrentMonth && currentHour < 22) {
+        requestBody.last_day_mode = true;
+        requestBody.generation_hour = currentHour;
+      }
+      
       const response = await axios.post(`${API}/posts/generate`, requestBody, {
         headers: { Authorization: `Bearer ${token}` }
       });

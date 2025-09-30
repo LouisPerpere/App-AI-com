@@ -672,6 +672,68 @@ const AuthPage = ({ onAuthSuccess }) => {
           </Card>
         </div>
       </div>
+      
+      {/* Section Mentions Légales Discrète */}
+      <div className="mt-8 max-w-4xl mx-auto px-4">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <div className="grid md:grid-cols-3 gap-6 text-xs text-gray-600">
+            {/* Éditeur */}
+            <div>
+              <h4 className="font-semibold text-gray-800 mb-2">Éditeur</h4>
+              <p><strong>EI Fou De Vanille</strong></p>
+              <p>SIRET : 952 513 661 00019</p>
+              <p>44 Rue De Lorraine</p>
+              <p>94700 Maisons Alfort</p>
+              <p>RCS Créteil</p>
+            </div>
+            
+            {/* Contact & Publication */}
+            <div>
+              <h4 className="font-semibold text-gray-800 mb-2">Contact</h4>
+              <p>
+                <a 
+                  href="mailto:contact@claire-marcus.com"
+                  className="text-purple-600 hover:text-purple-700"
+                >
+                  contact@claire-marcus.com
+                </a>
+              </p>
+              <p className="mt-2"><strong>Responsable publication :</strong></p>
+              <p>Alexandra Perpere</p>
+            </div>
+            
+            {/* Hébergement & Légal */}
+            <div>
+              <h4 className="font-semibold text-gray-800 mb-2">Hébergement</h4>
+              <p>
+                <a 
+                  href="https://emergentagent.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-purple-600 hover:text-purple-700"
+                >
+                  Emergent
+                </a>
+              </p>
+              <p>115 Rue Réaumur</p>
+              <p>75002 Paris, France</p>
+              <p className="mt-2 text-xs text-gray-500">
+                TVA Non Applicable, art. 293 B du CGI
+              </p>
+            </div>
+          </div>
+          
+          {/* Ligne de séparation et copyright */}
+          <div className="border-t border-gray-300 mt-4 pt-3">
+            <div className="flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
+              <p>© {new Date().getFullYear()} Claire & Marcus - Tous droits réservés</p>
+              <p className="mt-1 md:mt-0">
+                Données personnelles traitées conformément au RGPD
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

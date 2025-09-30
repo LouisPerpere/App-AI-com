@@ -59,54 +59,7 @@ const pingBackend = async (maxWaitMs = 60000) => {
   return false;
 };
 
-// Composant Accordéon discret pour Mentions Légales
-const LegalAccordion = () => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="max-w-md mx-auto mt-6 mb-4 px-4">
-      {/* Bouton accordéon discret */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-center space-x-2 text-xs text-gray-500 hover:text-gray-700 transition-colors py-2"
-      >
-        <span>Mentions légales</span>
-        <svg 
-          className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-      
-      {/* Contenu extensible */}
-      {isOpen && (
-        <div className="mt-2 p-3 bg-gray-50 border rounded-lg text-xs text-gray-600 space-y-2">
-          <div>
-            <strong>EI Fou De Vanille</strong> • SIRET 952 513 661 00019
-          </div>
-          <div>
-            44 Rue De Lorraine, 94700 Maisons Alfort • RCS Créteil
-          </div>
-          <div>
-            Responsable : Alexandra Perpere • 
-            <a href="mailto:contact@claire-marcus.com" className="text-purple-600 ml-1">
-              Contact
-            </a>
-          </div>
-          <div>
-            Hébergement : <a href="https://emergentagent.com" target="_blank" rel="noopener noreferrer" className="text-purple-600">Emergent</a> (Paris)
-          </div>
-          <div className="text-center pt-2 border-t border-gray-200">
-            © {new Date().getFullYear()} Claire & Marcus - TVA Non Applicable
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
+ 
 
 const AuthPage = ({ onAuthSuccess }) => {
   const [activeTab, setActiveTab] = useState('login');

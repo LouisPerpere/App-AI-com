@@ -509,6 +509,11 @@ const AuthPage = ({ onAuthSuccess }) => {
               <CardDescription className="text-base text-gray-600">
                 Connectez-vous ou créez votre compte pour commencer
               </CardDescription>
+              
+              {/* Nom d'entreprise pour Facebook - Directement visible dans le header */}
+              <div className="mt-4 text-xs text-gray-500 bg-gray-50 p-2 rounded border">
+                Édité par <strong className="text-gray-700">EI Fou De Vanille</strong> • SIRET 952 513 661 00019
+              </div>
             </CardHeader>
             
             <CardContent>

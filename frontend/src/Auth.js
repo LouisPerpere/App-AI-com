@@ -713,6 +713,11 @@ const AuthPage = ({ onAuthSuccess }) => {
               </Tabs>
             </CardContent>
           </Card>
+          
+          {/* Mentions légales - Visible sur mobile sous le bloc de connexion */}
+          <div className="mt-6 block">
+            <MentionsLegalesAccordion />
+          </div>
         </div>
       </div>
     </div>

@@ -675,8 +675,9 @@ const AuthPage = ({ onAuthSuccess }) => {
       
       {/* Section Mentions Légales Discrète */}
       <div className="mt-8 max-w-4xl mx-auto px-4">
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-          <div className="grid md:grid-cols-3 gap-6 text-xs text-gray-600">
+        <div className="bg-red-100 border-2 border-red-500 rounded-lg p-6">
+          <h3 className="text-red-800 text-lg font-bold mb-4">🚨 TEST MENTIONS LÉGALES 🚨</h3>
+          <div className="grid md:grid-cols-3 gap-6 text-sm text-gray-800">
             {/* Éditeur */}
             <div>
               <h4 className="font-semibold text-gray-800 mb-2">Éditeur</h4>

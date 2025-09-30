@@ -107,8 +107,6 @@ const LegalAccordion = () => {
   );
 };
 
- 
-
 const AuthPage = ({ onAuthSuccess }) => {
   const [activeTab, setActiveTab] = useState('login');
   const [showPassword, setShowPassword] = useState(false);

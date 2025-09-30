@@ -4440,9 +4440,9 @@ function MainApp() {
                             </>
                           ) : isGenerationBlocked(month.key) ? (
                             <>
-                              <Clock className="w-3 h-3 mr-1.5" />
-                              <span className="hidden sm:inline">Indisponible (22h passées)</span>
-                              <span className="sm:hidden">Indisponible</span>
+                              <Clock className="w-3 h-3 mr-1" />
+                              <span className="hidden sm:inline">passez au mois suivant</span>
+                              <span className="sm:hidden">Mois suivant</span>
                             </>
                           ) : (
                             <>

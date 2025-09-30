@@ -2069,31 +2069,33 @@ async def generate_posts_manual(
         last_day_of_month = calendar.monthrange(year, month)[1]
         last_date_of_month = datetime(year, month, last_day_of_month).date()
         
-        # Block generation if it's the last day of the month
-        if calculation_date == last_date_of_month:
-            # Calculate next month for suggestion
-            if month == 12:
-                next_year, next_month = year + 1, 1
-            else:
-                next_year, next_month = year, month + 1
-                
-            next_month_key = f"{next_year}-{next_month:02d}"
-            next_month_name = {
-                1: "janvier", 2: "février", 3: "mars", 4: "avril", 5: "mai", 6: "juin",
-                7: "juillet", 8: "août", 9: "septembre", 10: "octobre", 11: "novembre", 12: "décembre"
-            }.get(next_month, "")
+        # Handle last day mode (special generation for last day of current month)
+        is_last_day_current_month = (
+            calculation_date == last_date_of_month and 
+            year == current_date.year and 
+            month == current_date.month and
+            request.last_day_mode
+        )
+        
+        if is_last_day_current_month:
+            print(f"🗓️ LAST DAY MODE activated for {target_month_fr}")
+            # Special logic for last day: 1 post per connected platform
+            num_posts = 1  # Override to 1 post per platform
             
-            raise HTTPException(
-                status_code=400, 
-                detail=f"Génération bloquée : nous sommes le dernier jour de {target_month_fr}. Veuillez lancer la génération pour {next_month_name} {next_year} (clé: {next_month_key})."
-            )
-        
-        # Calculate remaining days from tomorrow (posts are scheduled starting tomorrow)
-        tomorrow = calculation_date + timedelta(days=1)
-        remaining_days = (last_date_of_month - tomorrow).days + 1
-        
-        # Ensure at least 1 day remaining
-        remaining_days = max(remaining_days, 1)
+            # Schedule posts for today with minimum 1 hour delay
+            generation_hour = getattr(request, 'generation_hour', current_date.hour)
+            min_schedule_hour = generation_hour + 1
+            if min_schedule_hour > 21:  # Don't schedule after 21h
+                min_schedule_hour = 21
+                
+            print(f"   📅 Last day scheduling: posts for TODAY starting at {min_schedule_hour}:00")
+        else:
+            # Calculate remaining days from tomorrow (posts are scheduled starting tomorrow)
+            tomorrow = calculation_date + timedelta(days=1)
+            remaining_days = (last_date_of_month - tomorrow).days + 1
+            
+            # Ensure at least 1 day remaining
+            remaining_days = max(remaining_days, 1)
         
         # Calculate proportional number of posts (rounded up)
         import math

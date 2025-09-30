@@ -704,7 +704,7 @@ const LegalAccordion = () => {
         
         {/* Contenu extensible */}
         {isOpen && (
-          <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg">
+          <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
             <div className="grid md:grid-cols-3 gap-6 text-xs text-gray-600">
               {/* Éditeur */}
               <div>

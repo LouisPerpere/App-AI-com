@@ -4917,7 +4917,7 @@ function MainApp() {
     }
   };
 
-  // Fonction pour valider et envoyer un post au calendrier
+  // Fonction pour programmer un post (au lieu de publier immédiatement)
   const handleValidatePost = async (post) => {
     if (!post || !post.id) {
       toast.error('❌ Post invalide');
@@ -4942,55 +4942,59 @@ function MainApp() {
     }
 
     try {
-      toast.loading('📡 Publication en cours...', { id: 'publish-post' });
+      toast.loading('⏰ Programmation en cours...', { id: 'schedule-post' });
 
+      // Programmer le post au lieu de le publier immédiatement
       const response = await axios.post(
-        `${API}/posts/publish`,
+        `${API}/posts/schedule`,
         { 
-          post_id: post.id
+          post_id: post.id,
+          scheduled_date: post.date,
+          scheduled_time: post.time
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.data?.success) {
-        toast.success(`🎉 ${response.data.message}`, { id: 'publish-post' });
+        toast.success(`🎉 Post programmé avec succès pour ${new Date(post.date + 'T' + post.time).toLocaleString('fr-FR')}`, { id: 'schedule-post' });
         
-        // Marquer le post comme publié dans l'interface
-        post.published = true;
-        post.status = "published";
+        // Marquer le post comme programmé dans l'interface
+        post.validated = true;
+        post.status = "scheduled";
         
         // Mettre à jour dans la liste des posts générés
         setGeneratedPosts(prevPosts => {
           return prevPosts.map(p => 
             p.id === post.id ? { 
               ...p, 
-              published: true, 
-              status: "published",
-              published_at: response.data.published_at,
-              platform_post_id: response.data.post_id,
-              publication_platform: response.data.platform
+              validated: true, 
+              status: "scheduled",
+              scheduled_at: response.data.scheduled_at,
+              scheduled_date: post.date,
+              scheduled_time: post.time
             } : p
           );
         });
         
         // Recharger les données pour s'assurer de la cohérence
         await loadGeneratedPosts();
+        await loadCalendarPosts(); // Recharger aussi le calendrier
         
         // Retourner true pour indiquer le succès
         return true;
       } else {
-        toast.error('Erreur lors de la publication', { id: 'publish-post' });
+        toast.error('Erreur lors de la programmation', { id: 'schedule-post' });
         return false;
       }
       
     } catch (error) {
-      console.error('Publication error details:', error);
+      console.error('Scheduling error details:', error);
       console.error('Error response:', error.response);
       console.error('Error response data:', error.response?.data);
       
       const errorMessage = error.response?.data?.detail || error.response?.data?.message || error.message || 'Erreur inconnue';
-      toast.error(`❌ ${errorMessage}`, { id: 'publish-post' });
-      console.error('Publication error:', error);
+      toast.error(`❌ ${errorMessage}`, { id: 'schedule-post' });
+      console.error('Scheduling error:', error);
       return false;
     }
   };

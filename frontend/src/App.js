@@ -1334,7 +1334,7 @@ const PostPreviewModal = ({
                         {isValidating ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Publication...</span>
+                            <span>Programmation...</span>
                           </>
                         ) : post.published || post.status === 'published' ? (
                           <>
@@ -1349,7 +1349,7 @@ const PostPreviewModal = ({
                         ) : (
                           <>
                             <Send className="w-4 h-4" />
-                            <span>Publier</span>
+                            <span>Programmer</span>
                           </>
                         )}
                       </div>

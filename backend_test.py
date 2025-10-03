@@ -212,98 +212,81 @@ class CalendarTester:
             print(f"❌ Posts validation error: {str(e)}")
             return False
     
-    def test_system_consistency(self):
-        """Test 5: Cohérence système complète"""
-        print("\n🔧 Test 5: Cohérence système complète")
+    def test_content_thumbnails(self):
+        """Test 5: Verify content thumbnails/vignettes are available"""
+        print(f"\n🖼️ Step 6: Testing content thumbnails availability...")
         
         try:
-            # Test that all endpoints use the same JPG logic
-            print("   🔍 Testing system-wide JPG consistency")
+            response = self.session.get(f"{API_BASE}/content/pending?limit=5")
             
-            # Get content for testing
-            content_response = self.session.get(f"{BACKEND_URL}/content/pending?limit=3")
-            if content_response.status_code != 200:
-                print(f"   ❌ Cannot get content for consistency test")
-                return False
+            if response.status_code == 200:
+                data = response.json()
+                content_items = data.get('content', [])
                 
-            content_data = content_response.json()
-            content_items = content_data.get("content", [])
-            
-            if not content_items:
-                print("   ⚠️ No content for consistency testing")
-                return False
-            
-            consistency_score = 0
-            total_tests = 0
-            
-            for item in content_items[:3]:  # Test first 3 items
-                content_id = item.get("id")
+                print(f"✅ Content endpoint accessible")
+                print(f"   Found {len(content_items)} content items")
                 
-                # Test public endpoint consistency
-                jpg_url = f"{BACKEND_URL}/public/image/{content_id}.jpg"
-                regular_url = f"{BACKEND_URL}/public/image/{content_id}"
+                thumbnail_count = 0
+                for item in content_items:
+                    if item.get('thumb_url'):
+                        thumbnail_count += 1
+                        print(f"   Item {item.get('id', 'N/A')}: has thumbnail")
                 
-                jpg_response = requests.get(jpg_url)
-                regular_response = requests.get(regular_url)
+                print(f"   Items with thumbnails: {thumbnail_count}/{len(content_items)}")
                 
-                total_tests += 2
+                if thumbnail_count > 0:
+                    # Test accessing a thumbnail
+                    first_thumb_item = next((item for item in content_items if item.get('thumb_url')), None)
+                    if first_thumb_item:
+                        thumb_url = first_thumb_item['thumb_url']
+                        if thumb_url.startswith('/'):
+                            thumb_url = f"{BACKEND_URL}{thumb_url}"
+                        
+                        thumb_response = self.session.get(thumb_url)
+                        if thumb_response.status_code == 200:
+                            print(f"   ✅ Thumbnail accessible: {thumb_response.headers.get('content-type', 'unknown')}")
+                        else:
+                            print(f"   ⚠️ Thumbnail not accessible: {thumb_response.status_code}")
                 
-                if jpg_response.status_code == 200:
-                    consistency_score += 1
-                    jpg_content_type = jpg_response.headers.get("Content-Type", "")
-                    if "image/jpeg" in jpg_content_type:
-                        consistency_score += 1
-                        print(f"      ✅ {content_id}: JPG endpoint consistent")
-                    else:
-                        print(f"      ⚠️ {content_id}: JPG endpoint wrong content type")
-                else:
-                    print(f"      ❌ {content_id}: JPG endpoint failed")
-                
-                total_tests += 1
-                
-                if regular_response.status_code == 200:
-                    consistency_score += 1
-                    print(f"      ✅ {content_id}: Regular endpoint consistent")
-                else:
-                    print(f"      ❌ {content_id}: Regular endpoint failed")
-            
-            # Test Facebook publication endpoints consistency
-            print("   🔍 Testing Facebook publication consistency")
-            
-            # Test binary upload endpoints
-            binary_endpoints = [
-                "/social/facebook/publish-simple",
-                "/social/instagram/publish-simple"
-            ]
-            
-            for endpoint in binary_endpoints:
-                test_response = self.session.post(
-                    f"{BACKEND_URL}{endpoint}",
-                    json={"post_text": "Test", "image_url": "test"}
-                )
-                
-                total_tests += 1
-                
-                if test_response.status_code in [200, 400]:  # 400 expected without connections
-                    consistency_score += 1
-                    print(f"      ✅ {endpoint}: Endpoint accessible")
-                else:
-                    print(f"      ❌ {endpoint}: Endpoint error {test_response.status_code}")
-            
-            # Calculate consistency percentage
-            consistency_percentage = (consistency_score / total_tests) * 100 if total_tests > 0 else 0
-            
-            print(f"   📊 System consistency: {consistency_score}/{total_tests} ({consistency_percentage:.1f}%)")
-            
-            if consistency_percentage >= 80:
-                print("   ✅ System consistency acceptable")
-                return True
+                return len(content_items) > 0
             else:
-                print("   ❌ System consistency below threshold")
+                print(f"❌ Content endpoint failed: {response.status_code}")
                 return False
                 
         except Exception as e:
-            print(f"   ❌ System consistency test error: {e}")
+            print(f"❌ Content thumbnails error: {str(e)}")
+            return False
+    
+    def test_deprogrammer_functionality(self, post_id):
+        """Test 6: Test Déprogrammer functionality (removing from calendar)"""
+        print(f"\n🗑️ Step 7: Testing Déprogrammer functionality for post {post_id}...")
+        
+        try:
+            # Test if there's a deprogramming endpoint
+            # This might be implemented as a status change or deletion
+            response = self.session.put(f"{API_BASE}/posts/{post_id}", json={
+                "validated": False,
+                "status": "draft"
+            })
+            
+            if response.status_code == 200:
+                data = response.json()
+                print(f"✅ Déprogrammer functionality working")
+                print(f"   Response: {data}")
+                return True
+            else:
+                # Try alternative endpoint
+                response = self.session.delete(f"{API_BASE}/calendar/posts/{post_id}")
+                if response.status_code == 200:
+                    print(f"✅ Déprogrammer via delete endpoint working")
+                    return True
+                else:
+                    print(f"❌ Déprogrammer failed: {response.status_code}")
+                    print(f"   Response: {response.text}")
+                    return False
+                
+        except Exception as e:
+            print(f"❌ Déprogrammer error: {str(e)}")
             return False
     
     def run_validation(self):

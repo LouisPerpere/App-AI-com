@@ -29,32 +29,36 @@ class CalendarTester:
         self.user_id = None
         
     def authenticate(self):
-        """Authenticate with the backend"""
-        print("🔐 Step 1: Authentication")
+        """Authenticate with the backend API"""
+        print("🔐 Step 1: Authenticating with backend...")
+        
         try:
-            response = self.session.post(
-                f"{BACKEND_URL}/auth/login-robust",
-                json=TEST_CREDENTIALS,
-                headers={"Content-Type": "application/json"}
-            )
+            response = self.session.post(f"{API_BASE}/auth/login-robust", json={
+                "email": EMAIL,
+                "password": PASSWORD
+            })
             
             if response.status_code == 200:
                 data = response.json()
                 self.auth_token = data.get("access_token")
                 self.user_id = data.get("user_id")
+                
+                # Set authorization header for future requests
                 self.session.headers.update({
                     "Authorization": f"Bearer {self.auth_token}"
                 })
-                print(f"   ✅ Authentication successful")
-                print(f"   ✅ User ID: {self.user_id}")
+                
+                print(f"✅ Authentication successful")
+                print(f"   User ID: {self.user_id}")
+                print(f"   Token: {self.auth_token[:20]}..." if self.auth_token else "   Token: None")
                 return True
             else:
-                print(f"   ❌ Authentication failed: {response.status_code}")
-                print(f"   ❌ Response: {response.text}")
+                print(f"❌ Authentication failed: {response.status_code}")
+                print(f"   Response: {response.text}")
                 return False
                 
         except Exception as e:
-            print(f"   ❌ Authentication error: {e}")
+            print(f"❌ Authentication error: {str(e)}")
             return False
     
     def test_public_jpg_endpoint(self):

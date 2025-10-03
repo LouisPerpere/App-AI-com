@@ -160,71 +160,56 @@ class CalendarTester:
             print(f"❌ Post modification error: {str(e)}")
             return False
     
-    def test_oauth_3_step_flow(self):
-        """Test 4: Flow OAuth 3-étapes Facebook"""
-        print("\n🔐 Test 4: Flow OAuth 3-étapes Facebook")
+    def test_posts_validation_endpoint(self):
+        """Test 4: Test posts validation to calendar (Programmer functionality)"""
+        print(f"\n✅ Step 5: Testing posts validation to calendar...")
         
         try:
-            # Step 1: Get Facebook auth URL
-            print("   📋 Step 1: Get Facebook auth URL")
-            auth_url_response = self.session.get(f"{BACKEND_URL}/social/facebook/auth-url")
+            # First get generated posts to find one to validate
+            response = self.session.get(f"{API_BASE}/posts/generated")
             
-            if auth_url_response.status_code == 200:
-                auth_data = auth_url_response.json()
-                auth_url = auth_data.get("auth_url", "")
-                state = auth_data.get("state", "")
+            if response.status_code == 200:
+                data = response.json()
+                posts = data.get('posts', [])
                 
-                print(f"      ✅ Auth URL generated")
-                print(f"      🔗 URL: {auth_url[:100]}...")
-                print(f"      🎫 State: {state[:20]}...")
+                # Find a non-validated post
+                non_validated_post = None
+                for post in posts:
+                    if not post.get('validated', False):
+                        non_validated_post = post
+                        break
                 
-                # Verify URL contains required parameters
-                if "client_id=" in auth_url and "config_id=" in auth_url:
-                    print("      ✅ Auth URL contains required parameters")
-                else:
-                    print("      ❌ Auth URL missing required parameters")
-                    return False
+                if non_validated_post:
+                    post_id = non_validated_post['id']
+                    print(f"   Found non-validated post: {post_id}")
                     
+                    # Test validation endpoint
+                    validation_response = self.session.post(f"{API_BASE}/posts/validate-to-calendar", json={
+                        "post_id": post_id,
+                        "platforms": [non_validated_post.get('platform', 'instagram')],
+                        "scheduled_date": "2025-09-28T10:00:00"
+                    })
+                    
+                    if validation_response.status_code == 200:
+                        validation_data = validation_response.json()
+                        print(f"✅ Post validation to calendar working")
+                        print(f"   Success: {validation_data.get('success', False)}")
+                        print(f"   Message: {validation_data.get('message', 'N/A')}")
+                        print(f"   Calendar entries: {validation_data.get('calendar_entries', 0)}")
+                        return True
+                    else:
+                        print(f"❌ Post validation failed: {validation_response.status_code}")
+                        print(f"   Response: {validation_response.text}")
+                        return False
+                else:
+                    print("⚠️ No non-validated posts found for testing")
+                    return False
             else:
-                print(f"      ❌ Auth URL generation failed: {auth_url_response.status_code}")
-                return False
-            
-            # Step 2: Test callback endpoint accessibility
-            print("   📋 Step 2: Test callback endpoint")
-            callback_url = f"{BACKEND_URL}/social/facebook/callback"
-            
-            # Test with invalid parameters (should handle gracefully)
-            callback_response = requests.get(f"{callback_url}?code=test&state=test")
-            print(f"      📞 GET {callback_url}")
-            print(f"      Status: {callback_response.status_code}")
-            
-            if callback_response.status_code in [200, 302, 400]:
-                print("      ✅ Callback endpoint accessible")
-            else:
-                print(f"      ❌ Callback endpoint error: {callback_response.status_code}")
-                return False
-            
-            # Step 3: Test social connections endpoint
-            print("   📋 Step 3: Test social connections")
-            connections_response = self.session.get(f"{BACKEND_URL}/social/connections")
-            
-            if connections_response.status_code == 200:
-                connections_data = connections_response.json()
-                connections = connections_data.get("connections", [])
-                print(f"      ✅ Social connections endpoint working")
-                print(f"      📊 Found {len(connections)} connections")
-                
-                # Check for Facebook connections
-                facebook_connections = [c for c in connections if c.get("platform") == "facebook"]
-                print(f"      📘 Facebook connections: {len(facebook_connections)}")
-                
-                return True
-            else:
-                print(f"      ❌ Social connections failed: {connections_response.status_code}")
+                print(f"❌ Failed to get generated posts: {response.status_code}")
                 return False
                 
         except Exception as e:
-            print(f"   ❌ OAuth 3-step flow test error: {e}")
+            print(f"❌ Posts validation error: {str(e)}")
             return False
     
     def test_system_consistency(self):

@@ -994,6 +994,7 @@ backend:
 
 test_plan:
   current_focus:
+    - "Calendar Functionalities Post-Programmer Verification"
     - "Website Analysis Critical Bug Fixes"
     - "Frontend Login Functionality Critical Bug"
   stuck_tasks: 

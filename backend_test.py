@@ -1,33 +1,28 @@
 #!/usr/bin/env python3
 """
-VALIDATION FINALE DES CORRECTIONS AVANT REDÉPLOIEMENT
-Backend Testing for Facebook JPG Corrections
-
-Testing the 5 critical corrections:
-1. Endpoint public JPG fonctionnel
-2. Conversion URL automatique vers JPG  
-3. Publication Facebook avec conversion JPG intégrée
-4. Flow OAuth 3-étapes Facebook
-5. Cohérence système complète
-
-Credentials: lperpere@yahoo.fr / L@Reunion974!
+Backend Testing Script for Calendar Functionalities Post-Programmer Transformation
+Testing the 5 critical calendar features mentioned in the French review request:
+1. "Déprogrammer" button on scheduled posts
+2. Explanatory text "Déprogrammez ce post pour pouvoir le modifier en onglet post"
+3. Modal preview opens when clicking on calendar posts
+4. Thumbnails/vignettes visible next to text
+5. Scheduled posts appear in calendar after "Programmer"
 """
 
 import requests
 import json
-import time
 import sys
-import os
-from urllib.parse import urlparse
+from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://social-pub-hub.preview.emergentagent.com/api"
-TEST_CREDENTIALS = {
-    "email": "lperpere@yahoo.fr",
-    "password": "L@Reunion974!"
-}
+BACKEND_URL = "https://claire-marcus.com"
+API_BASE = f"{BACKEND_URL}/api"
 
-class FacebookJPGValidator:
+# Test credentials from review request
+EMAIL = "lperpere@yahoo.fr"
+PASSWORD = "L@Reunion974!"
+
+class CalendarTester:
     def __init__(self):
         self.session = requests.Session()
         self.auth_token = None

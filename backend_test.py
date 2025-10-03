@@ -104,74 +104,29 @@ class CalendarTester:
             print(f"❌ Calendar endpoint error: {str(e)}")
             return None
     
-    def test_url_conversion_function(self):
-        """Test 2: Conversion URL automatique vers JPG"""
-        print("\n🔄 Test 2: Conversion URL automatique vers JPG")
+    def test_post_movement_endpoint(self, post_id):
+        """Test 2: Test post movement (Déplacer functionality)"""
+        print(f"\n🔄 Step 3: Testing post movement for post {post_id}...")
         
         try:
-            # Get content to test URL conversion
-            content_response = self.session.get(f"{BACKEND_URL}/content/pending?limit=10")
-            if content_response.status_code != 200:
-                print(f"   ❌ Cannot get content for URL conversion test")
-                return False
-                
-            content_data = content_response.json()
-            content_items = content_data.get("content", [])
+            # Test the move calendar post endpoint
+            new_date = "2025-09-27T15:00:00.000Z"
+            response = self.session.put(f"{API_BASE}/posts/move-calendar-post/{post_id}", json={
+                "new_date": new_date
+            })
             
-            # Look for carousel content or regular content
-            carousel_found = False
-            regular_content_found = False
-            
-            for item in content_items:
-                url = item.get("url", "")
-                content_id = item.get("id", "")
-                
-                print(f"   🔍 Content ID: {content_id}")
-                print(f"   🔍 Original URL: {url}")
-                
-                # Test if this would be converted to JPG
-                if "carousel" in url:
-                    print("   📸 Carousel content detected")
-                    expected_jpg_url = f"/api/public/image/{content_id}.jpg"
-                    print(f"   ➡️ Expected JPG conversion: {expected_jpg_url}")
-                    carousel_found = True
-                    
-                elif "/api/content/" in url and "/file" in url:
-                    print("   📸 Protected content URL detected")
-                    expected_jpg_url = f"/api/public/image/{content_id}.jpg"
-                    print(f"   ➡️ Expected JPG conversion: {expected_jpg_url}")
-                    regular_content_found = True
-                    
-                elif url.startswith("http") and "api" not in url:
-                    print("   🌐 External URL detected - no conversion needed")
-                    print(f"   ➡️ Should remain: {url}")
-                    
-                else:
-                    print("   📁 Other URL format")
-                    
-            if carousel_found:
-                print("   ✅ Carousel URL conversion logic testable")
-            if regular_content_found:
-                print("   ✅ Protected URL conversion logic testable")
-                
-            # Test the conversion function indirectly by checking if JPG URLs work
-            if content_items:
-                test_id = content_items[0].get("id")
-                jpg_test_url = f"{BACKEND_URL}/public/image/{test_id}.jpg"
-                
-                jpg_test = requests.get(jpg_test_url)
-                if jpg_test.status_code == 200:
-                    print("   ✅ JPG URL conversion endpoint accessible")
-                    return True
-                else:
-                    print(f"   ❌ JPG URL conversion test failed: {jpg_test.status_code}")
-                    return False
+            if response.status_code == 200:
+                data = response.json()
+                print(f"✅ Post movement endpoint working")
+                print(f"   Response: {data.get('message', 'Success')}")
+                return True
             else:
-                print("   ⚠️ No content available for conversion testing")
+                print(f"❌ Post movement failed: {response.status_code}")
+                print(f"   Response: {response.text}")
                 return False
                 
         except Exception as e:
-            print(f"   ❌ URL conversion test error: {e}")
+            print(f"❌ Post movement error: {str(e)}")
             return False
     
     def test_facebook_publication_jpg_integration(self):

@@ -129,74 +129,35 @@ class CalendarTester:
             print(f"❌ Post movement error: {str(e)}")
             return False
     
-    def test_facebook_publication_jpg_integration(self):
-        """Test 3: Publication Facebook avec conversion JPG intégrée"""
-        print("\n📘 Test 3: Publication Facebook avec conversion JPG intégrée")
+    def test_post_modification_endpoint(self, post_id):
+        """Test 3: Test post modification functionality"""
+        print(f"\n✏️ Step 4: Testing post modification for post {post_id}...")
         
         try:
-            # Get Facebook posts for testing - use the correct endpoint
-            posts_response = self.session.get(f"{BACKEND_URL}/posts/generated")
-            if posts_response.status_code != 200:
-                print(f"   ❌ Cannot get posts: {posts_response.status_code}")
-                return False
-                
-            posts_data = posts_response.json()
-            posts = posts_data.get("posts", [])
+            # Test the modify post endpoint
+            response = self.session.put(f"{API_BASE}/posts/{post_id}/modify", json={
+                "modification_request": "Rends ce texte plus accrocheur pour le calendrier"
+            })
             
-            # Find Facebook posts with images
-            facebook_posts = [p for p in posts if p.get("platform", "").lower() == "facebook"]
-            
-            if not facebook_posts:
-                print("   ⚠️ No Facebook posts found for testing")
-                # Try to find any posts and convert one for testing
-                if posts:
-                    test_post = posts[0]
-                    post_id = test_post.get("id")
-                    visual_url = test_post.get("visual_url", "")
-                    
-                    print(f"   📝 Testing with any post (converted to Facebook): {post_id}")
-                    print(f"   🖼️ Visual URL: {visual_url}")
-                else:
-                    return False
-            else:
-                test_post = facebook_posts[0]
-                post_id = test_post.get("id")
-                visual_url = test_post.get("visual_url", "")
-                
-                print(f"   📝 Testing Facebook post: {post_id}")
-                print(f"   🖼️ Visual URL: {visual_url}")
-            
-            # Test publication endpoint (should use JPG conversion)
-            pub_response = self.session.post(
-                f"{BACKEND_URL}/posts/publish",
-                json={"post_id": post_id}
-            )
-            
-            print(f"   📤 POST /posts/publish")
-            print(f"      Status: {pub_response.status_code}")
-            
-            if pub_response.status_code == 200:
-                pub_data = pub_response.json()
-                print(f"      Response: {pub_data}")
-                print("   ✅ Facebook publication endpoint accessible")
+            if response.status_code == 200:
+                data = response.json()
+                print(f"✅ Post modification endpoint working")
+                print(f"   Success: {data.get('success', False)}")
+                print(f"   Message: {data.get('message', 'N/A')}")
+                if 'new_text' in data:
+                    print(f"   Modified text preview: {data['new_text'][:100]}...")
                 return True
-            elif pub_response.status_code == 400:
-                # Expected if no active social connections
-                pub_data = pub_response.json()
-                error_msg = pub_data.get("error", "")
-                if "connexion sociale" in error_msg.lower():
-                    print(f"      Expected error: {error_msg}")
-                    print("   ✅ Facebook publication flow working (no active connections)")
-                    return True
-                else:
-                    print(f"      Unexpected error: {error_msg}")
-                    return False
+            elif response.status_code == 404:
+                print(f"⚠️ Post modification endpoint not found (404)")
+                print(f"   This may be expected if endpoint doesn't exist for calendar posts")
+                return False
             else:
-                print(f"      Error: {pub_response.text}")
+                print(f"❌ Post modification failed: {response.status_code}")
+                print(f"   Response: {response.text}")
                 return False
                 
         except Exception as e:
-            print(f"   ❌ Facebook publication test error: {e}")
+            print(f"❌ Post modification error: {str(e)}")
             return False
     
     def test_oauth_3_step_flow(self):

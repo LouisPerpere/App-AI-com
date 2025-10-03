@@ -289,59 +289,95 @@ class CalendarTester:
             print(f"❌ Déprogrammer error: {str(e)}")
             return False
     
-    def run_validation(self):
-        """Run all validation tests"""
-        print("🎯 VALIDATION FINALE DES CORRECTIONS AVANT REDÉPLOIEMENT")
-        print("=" * 60)
+    def run_comprehensive_test(self):
+        """Run all calendar functionality tests"""
+        print("🎯 CALENDAR FUNCTIONALITIES POST-PROGRAMMER TRANSFORMATION TESTING")
+        print("=" * 70)
+        print(f"Environment: {BACKEND_URL}")
+        print(f"Credentials: {EMAIL}")
+        print(f"Test Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print("=" * 70)
         
+        # Step 1: Authentication
         if not self.authenticate():
-            print("\n❌ VALIDATION FAILED: Authentication error")
+            print("\n❌ CRITICAL: Authentication failed - cannot proceed with tests")
             return False
         
-        tests = [
-            ("Endpoint public JPG fonctionnel", self.test_public_jpg_endpoint),
-            ("Conversion URL automatique vers JPG", self.test_url_conversion_function),
-            ("Publication Facebook avec conversion JPG intégrée", self.test_facebook_publication_jpg_integration),
-            ("Flow OAuth 3-étapes Facebook", self.test_oauth_3_step_flow),
-            ("Cohérence système complète", self.test_system_consistency)
-        ]
+        # Step 2: Test calendar posts endpoint
+        calendar_posts = self.test_calendar_posts_endpoint()
+        if calendar_posts is None:
+            print("\n❌ CRITICAL: Calendar posts endpoint failed")
+            return False
         
-        results = []
+        # Step 3-7: Test specific functionalities if we have posts
+        test_results = {
+            "calendar_posts_accessible": calendar_posts is not None and len(calendar_posts) > 0,
+            "post_movement": False,
+            "post_modification": False,
+            "posts_validation": False,
+            "content_thumbnails": False,
+            "deprogrammer": False
+        }
         
-        for test_name, test_func in tests:
-            try:
-                result = test_func()
-                results.append((test_name, result))
-            except Exception as e:
-                print(f"\n❌ Test '{test_name}' crashed: {e}")
-                results.append((test_name, False))
+        # Test with first available post if any
+        if calendar_posts and len(calendar_posts) > 0:
+            test_post_id = calendar_posts[0].get('id')
+            
+            if test_post_id:
+                test_results["post_movement"] = self.test_post_movement_endpoint(test_post_id)
+                test_results["post_modification"] = self.test_post_modification_endpoint(test_post_id)
+                test_results["deprogrammer"] = self.test_deprogrammer_functionality(test_post_id)
+        
+        # Test posts validation (independent of existing calendar posts)
+        test_results["posts_validation"] = self.test_posts_validation_endpoint()
+        
+        # Test content thumbnails
+        test_results["content_thumbnails"] = self.test_content_thumbnails()
         
         # Summary
-        print("\n" + "=" * 60)
-        print("📋 RÉSULTATS DE VALIDATION")
-        print("=" * 60)
+        print("\n" + "=" * 70)
+        print("📊 CALENDAR FUNCTIONALITIES TEST SUMMARY")
+        print("=" * 70)
         
-        passed = 0
-        total = len(results)
+        passed_tests = sum(1 for result in test_results.values() if result)
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests) * 100
         
-        for test_name, result in results:
-            status = "✅ PASS" if result else "❌ FAIL"
-            print(f"{status} {test_name}")
-            if result:
-                passed += 1
+        print(f"Overall Success Rate: {success_rate:.1f}% ({passed_tests}/{total_tests} tests passed)")
+        print()
         
-        success_rate = (passed / total) * 100 if total > 0 else 0
+        # Detailed results mapped to review request requirements
+        feature_mapping = {
+            "calendar_posts_accessible": "✅ Posts programmés apparaissent dans calendrier",
+            "post_movement": "✅ Bouton 'Déplacer' fonctionnel", 
+            "post_modification": "✅ Modal d'aperçu s'ouvre (modification)",
+            "posts_validation": "✅ Posts apparaissent après 'Programmer'",
+            "content_thumbnails": "✅ Vignettes/thumbnails visibles",
+            "deprogrammer": "✅ Bouton 'Déprogrammer' fonctionnel"
+        }
         
-        print(f"\n📊 TAUX DE RÉUSSITE: {passed}/{total} ({success_rate:.1f}%)")
+        for test_key, description in feature_mapping.items():
+            status = "✅ WORKING" if test_results[test_key] else "❌ FAILED"
+            print(f"{description}: {status}")
+        
+        print("\n" + "=" * 70)
         
         if success_rate >= 80:
-            print("🎉 VALIDATION RÉUSSIE - Système prêt pour redéploiement")
-            return True
+            print("🎉 CONCLUSION: Calendar functionalities are MOSTLY OPERATIONAL after Programmer transformation")
+        elif success_rate >= 60:
+            print("⚠️ CONCLUSION: Calendar functionalities have SOME ISSUES after Programmer transformation")
         else:
-            print("❌ VALIDATION ÉCHOUÉE - Corrections supplémentaires requises")
-            return False
+            print("❌ CONCLUSION: Calendar functionalities have MAJOR ISSUES after Programmer transformation")
+        
+        return success_rate >= 60
+
+def main():
+    """Main test execution"""
+    tester = CalendarTester()
+    success = tester.run_comprehensive_test()
+    
+    # Exit with appropriate code
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
-    validator = FacebookJPGValidator()
-    success = validator.run_validation()
-    sys.exit(0 if success else 1)
+    main()

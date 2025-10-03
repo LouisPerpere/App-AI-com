@@ -4693,6 +4693,105 @@ async def publish_post_to_social_media(
         print(f"❌ Error publishing post: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erreur lors de la publication: {str(e)}")
 
+@api_router.post("/posts/schedule")
+async def schedule_post_for_later(
+    request: dict,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Programmer un post pour publication automatique à la date/heure prévue"""
+    try:
+        post_id = request.get("post_id")
+        scheduled_date = request.get("scheduled_date")  # Format: "2024-09-30"
+        scheduled_time = request.get("scheduled_time")  # Format: "14:30"
+        
+        if not post_id:
+            raise HTTPException(status_code=400, detail="post_id requis")
+        
+        print(f"⏰ Scheduling post {post_id} for {scheduled_date} at {scheduled_time} for user {user_id}")
+        
+        dbm = get_database()
+        db = dbm.db
+        
+        # Récupérer le post
+        post = db.generated_posts.find_one({
+            "id": post_id,
+            "owner_id": user_id
+        })
+        
+        if not post:
+            raise HTTPException(status_code=404, detail="Post non trouvé")
+        
+        # Vérifier les connexions sociales actives
+        social_connections = list(db.social_media_connections.find({
+            "user_id": user_id,
+            "active": True
+        }))
+        
+        if not social_connections:
+            raise HTTPException(status_code=400, detail="Aucune connexion sociale active trouvée")
+        
+        # Créer la date/heure de programmation
+        if scheduled_date and scheduled_time:
+            scheduled_datetime = datetime.fromisoformat(f"{scheduled_date}T{scheduled_time}:00")
+        else:
+            # Utiliser la date/heure du post si pas spécifiées
+            post_date = post.get("date", datetime.now().strftime("%Y-%m-%d"))
+            post_time = post.get("time", datetime.now().strftime("%H:%M"))
+            scheduled_datetime = datetime.fromisoformat(f"{post_date}T{post_time}:00")
+        
+        # Mettre à jour le post avec les informations de programmation
+        update_data = {
+            "validated": True,
+            "status": "scheduled",
+            "scheduled_at": scheduled_datetime.isoformat(),
+            "scheduled_for_publication": True,
+            "programming_date": datetime.utcnow().isoformat()
+        }
+        
+        # Ajouter au calendrier (collection calendar_posts)
+        calendar_post = {
+            **post,  # Copier toutes les données du post original
+            "id": post["id"],  # Garder le même ID
+            "original_post_id": post["id"],  # Référence au post original
+            "scheduled_datetime": scheduled_datetime.isoformat(),
+            "status": "scheduled",
+            "created_for_calendar": True,
+            "programming_date": datetime.utcnow().isoformat()
+        }
+        
+        # Insérer dans le calendrier
+        try:
+            db.calendar_posts.replace_one(
+                {"id": post["id"]}, 
+                calendar_post, 
+                upsert=True
+            )
+            print(f"✅ Post ajouté au calendrier avec programmation pour {scheduled_datetime}")
+        except Exception as calendar_error:
+            print(f"⚠️ Erreur ajout calendrier: {calendar_error}")
+        
+        # Mettre à jour le post original
+        db.generated_posts.update_one(
+            {"id": post_id, "owner_id": user_id},
+            {"$set": update_data}
+        )
+        
+        print(f"✅ Post {post_id} programmé avec succès pour {scheduled_datetime}")
+        
+        return {
+            "success": True,
+            "message": f"Post programmé avec succès pour {scheduled_datetime.strftime('%d/%m/%Y à %H:%M')}",
+            "scheduled_at": scheduled_datetime.isoformat(),
+            "status": "scheduled",
+            "calendar_added": True
+        }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error scheduling post: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la programmation: {str(e)}")
+
 @api_router.post("/debug/convert-post-platform")
 async def convert_post_platform(
     request: dict,

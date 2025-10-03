@@ -61,85 +61,48 @@ class CalendarTester:
             print(f"❌ Authentication error: {str(e)}")
             return False
     
-    def test_public_jpg_endpoint(self):
-        """Test 1: Endpoint public JPG fonctionnel"""
-        print("\n🖼️ Test 1: Endpoint public JPG fonctionnel")
+    def test_calendar_posts_endpoint(self):
+        """Test 1: Verify calendar posts endpoint returns scheduled posts"""
+        print("\n📅 Step 2: Testing calendar posts endpoint...")
         
-        # First, get some content to test with
         try:
-            content_response = self.session.get(f"{BACKEND_URL}/content/pending?limit=5")
-            if content_response.status_code != 200:
-                print(f"   ❌ Cannot get content list: {content_response.status_code}")
-                return False
+            response = self.session.get(f"{API_BASE}/calendar/posts")
+            
+            if response.status_code == 200:
+                data = response.json()
+                posts = data if isinstance(data, list) else data.get('posts', [])
                 
-            content_data = content_response.json()
-            content_items = content_data.get("content", [])
-            
-            if not content_items:
-                print("   ⚠️ No content items found for testing")
-                return False
+                print(f"✅ Calendar endpoint accessible")
+                print(f"   Found {len(posts)} calendar posts")
                 
-            # Test public JPG endpoint with first available content
-            test_content = content_items[0]
-            content_id = test_content.get("id")
-            
-            print(f"   🔍 Testing with content ID: {content_id}")
-            
-            # Test both .jpg and regular public endpoints
-            jpg_url = f"{BACKEND_URL}/public/image/{content_id}.jpg"
-            regular_url = f"{BACKEND_URL}/public/image/{content_id}"
-            
-            # Test JPG endpoint
-            jpg_response = requests.get(jpg_url)
-            print(f"   📸 GET {jpg_url}")
-            print(f"      Status: {jpg_response.status_code}")
-            
-            if jpg_response.status_code == 200:
-                content_type = jpg_response.headers.get("Content-Type", "")
-                content_length = jpg_response.headers.get("Content-Length", "0")
-                print(f"      Content-Type: {content_type}")
-                print(f"      Content-Length: {content_length} bytes")
-                
-                # Verify it's JPG format
-                if "image/jpeg" in content_type:
-                    print("   ✅ JPG endpoint working - returns image/jpeg")
-                else:
-                    print(f"   ⚠️ JPG endpoint returns {content_type} instead of image/jpeg")
+                if posts:
+                    # Analyze first post for required fields
+                    first_post = posts[0]
+                    print(f"   Sample post ID: {first_post.get('id', 'N/A')}")
+                    print(f"   Title: {first_post.get('title', 'N/A')}")
+                    print(f"   Platform: {first_post.get('platform', 'N/A')}")
+                    print(f"   Scheduled date: {first_post.get('scheduled_date', 'N/A')}")
+                    print(f"   Status: {first_post.get('status', 'N/A')}")
+                    print(f"   Validated: {first_post.get('validated', 'N/A')}")
                     
-            else:
-                print(f"   ❌ JPG endpoint failed: {jpg_response.status_code}")
-                
-            # Test regular endpoint
-            regular_response = requests.get(regular_url)
-            print(f"   📸 GET {regular_url}")
-            print(f"      Status: {regular_response.status_code}")
-            
-            if regular_response.status_code == 200:
-                content_type = regular_response.headers.get("Content-Type", "")
-                print(f"      Content-Type: {content_type}")
-                print("   ✅ Regular public endpoint working")
-            else:
-                print(f"   ❌ Regular public endpoint failed: {regular_response.status_code}")
-                
-            # Test Facebook-friendly headers
-            if jpg_response.status_code == 200:
-                headers = jpg_response.headers
-                cors_header = headers.get("Access-Control-Allow-Origin", "")
-                cache_control = headers.get("Cache-Control", "")
-                
-                print(f"   🌐 CORS Header: {cors_header}")
-                print(f"   💾 Cache-Control: {cache_control}")
-                
-                if cors_header == "*":
-                    print("   ✅ Facebook-friendly CORS headers present")
-                else:
-                    print("   ⚠️ CORS headers may not be Facebook-friendly")
+                    # Check for image/visual fields (thumbnails)
+                    visual_fields = ['visual_url', 'visual_id', 'carousel_images', 'image_url']
+                    for field in visual_fields:
+                        if field in first_post and first_post[field]:
+                            print(f"   Visual field '{field}': {str(first_post[field])[:50]}...")
                     
-            return jpg_response.status_code == 200
-            
+                    return posts
+                else:
+                    print("⚠️ No calendar posts found")
+                    return []
+            else:
+                print(f"❌ Calendar endpoint failed: {response.status_code}")
+                print(f"   Response: {response.text}")
+                return None
+                
         except Exception as e:
-            print(f"   ❌ Public JPG endpoint test error: {e}")
-            return False
+            print(f"❌ Calendar endpoint error: {str(e)}")
+            return None
     
     def test_url_conversion_function(self):
         """Test 2: Conversion URL automatique vers JPG"""

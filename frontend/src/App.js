@@ -1280,85 +1280,87 @@ const PostPreviewModal = ({
                 </>
               ) : (
                 /* Interface pour les posts normaux (onglet Posts) */
-                <div className="flex items-center justify-center space-x-4">
-                  <button
-                    onClick={() => {
-                      setModificationTextValue(''); // Reset la valeur avant d'ouvrir
-                      setShowModificationForm(true);
-                    }}
-                    disabled={showModificationForm || showModificationPreview || isModifying}
-                    className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform shadow-lg ${
-                      showModificationForm || showModificationPreview || isModifying
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
-                        : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white hover:scale-105 active:scale-95 hover:shadow-xl'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Edit className="w-4 h-4" />
-                      <span>Modifier</span>
-                    </div>
-                  </button>
-                  
-                  {/* Bouton Valider seulement dans l'onglet Posts */}
-                  {!isFromCalendar && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-center space-x-4">
                     <button
-                      onClick={async () => {
-                        if (isValidating) return;
-                        
-                        setIsValidating(true);
-                        try {
-                          const success = await onValidate(post);
-                          if (success) {
-                            // Pas besoin de setIsValidated car on utilise post.validated maintenant
-                          }
-                        } catch (error) {
-                          console.error('Validation error:', error);
-                        } finally {
-                          setIsValidating(false);
-                        }
+                      onClick={() => {
+                        setModificationTextValue(''); // Reset la valeur avant d'ouvrir
+                        setShowModificationForm(true);
                       }}
-                      disabled={isValidating || post.validated || post.published || post.status === 'published' || showModificationForm || showModificationPreview || isModifying}
+                      disabled={showModificationForm || showModificationPreview || isModifying}
                       className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform shadow-lg ${
-                        post.validated
-                          ? 'bg-green-600 text-white cursor-not-allowed' 
-                          : post.published || post.status === 'published'
-                            ? 'bg-blue-600 text-white cursor-not-allowed'
-                            : isValidating 
-                              ? 'bg-gray-400 text-white cursor-not-allowed'
-                              : showModificationForm || showModificationPreview || isModifying
-                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
-                                : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white hover:scale-105 active:scale-95 hover:shadow-xl'
+                        showModificationForm || showModificationPreview || isModifying
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
+                          : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white hover:scale-105 active:scale-95 hover:shadow-xl'
                       }`}
                     >
                       <div className="flex items-center space-x-2">
-                        {isValidating ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Programmation...</span>
-                          </>
-                        ) : post.published || post.status === 'published' ? (
-                          <>
-                            <CheckCircleIcon className="w-4 h-4" />
-                            <span>Publié !</span>
-                          </>
-                        ) : post.validated ? (
-                          <>
-                            <Check className="w-4 h-4" />
-                            <span>Programmé !</span>
-                          </>
-                        ) : (
-                          <>
-                            <Send className="w-4 h-4" />
-                            <span>Programmer</span>
-                          </>
-                        )}
+                        <Edit className="w-4 h-4" />
+                        <span>Modifier</span>
                       </div>
                     </button>
-                  )}
+                    
+                    {/* Bouton Valider seulement dans l'onglet Posts */}
+                    {!isFromCalendar && (
+                      <button
+                        onClick={async () => {
+                          if (isValidating) return;
+                          
+                          setIsValidating(true);
+                          try {
+                            const success = await onValidate(post);
+                            if (success) {
+                              // Pas besoin de setIsValidated car on utilise post.validated maintenant
+                            }
+                          } catch (error) {
+                            console.error('Validation error:', error);
+                          } finally {
+                            setIsValidating(false);
+                          }
+                        }}
+                        disabled={isValidating || post.validated || post.published || post.status === 'published' || showModificationForm || showModificationPreview || isModifying}
+                        className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform shadow-lg ${
+                          post.validated
+                            ? 'bg-green-600 text-white cursor-not-allowed' 
+                            : post.published || post.status === 'published'
+                              ? 'bg-blue-600 text-white cursor-not-allowed'
+                              : isValidating 
+                                ? 'bg-gray-400 text-white cursor-not-allowed'
+                                : showModificationForm || showModificationPreview || isModifying
+                                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
+                                  : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white hover:scale-105 active:scale-95 hover:shadow-xl'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-2">
+                          {isValidating ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span>Programmation...</span>
+                            </>
+                          ) : post.published || post.status === 'published' ? (
+                            <>
+                              <CheckCircleIcon className="w-4 h-4" />
+                              <span>Publié !</span>
+                            </>
+                          ) : post.validated ? (
+                            <>
+                              <Check className="w-4 h-4" />
+                              <span>Programmé !</span>
+                            </>
+                          ) : (
+                            <>
+                              <Send className="w-4 h-4" />
+                              <span>Programmer</span>
+                            </>
+                          )}
+                        </div>
+                      </button>
+                    )}
+                  </div>
                   
-                  {/* Lien discret "publier de suite" - seulement si pas encore publié ni programmé */}
-                  {!post.published && !post.validated && post.status !== 'published' && (
-                    <div className="mt-2 text-center">
+                  {/* Lien discret "publier de suite" centré sous les boutons principaux */}
+                  {!post.published && !post.validated && post.status !== 'published' && !isFromCalendar && (
+                    <div className="text-center">
                       <button
                         onClick={() => handlePublishNow(post)}
                         className="text-xs text-gray-500 hover:text-purple-600 transition-colors underline"

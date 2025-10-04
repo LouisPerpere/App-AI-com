@@ -4999,6 +4999,77 @@ function MainApp() {
     }
   };
 
+  // Fonction pour publier un post immédiatement
+  const handlePublishNow = async (post) => {
+    if (!post || !post.id) {
+      toast.error('❌ Post invalide');
+      return;
+    }
+    
+    // Vérifier les réseaux connectés
+    const connectedPlatforms = [];
+    if (connectedAccounts.facebook) connectedPlatforms.push('facebook');
+    if (connectedAccounts.instagram) connectedPlatforms.push('instagram');
+    if (connectedAccounts.linkedin) connectedPlatforms.push('linkedin');
+
+    if (connectedPlatforms.length === 0) {
+      toast.error('Connectez au moins un réseau social d\'abord !');
+      return;
+    }
+
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast.error('Vous devez être connecté !');
+      return;
+    }
+
+    try {
+      toast.loading('⚡ Publication immédiate en cours...', { id: 'publish-now' });
+
+      const response = await axios.post(
+        `${API}/posts/${post.id}/publish-now`,
+        {}, // Pas de body requis
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data?.success) {
+        toast.success(`🎉 Post publié immédiatement avec succès !`, { id: 'publish-now' });
+        
+        // Marquer le post comme publié dans l'interface
+        post.published = true;
+        post.status = "published";
+        
+        // Mettre à jour dans la liste des posts générés
+        setGeneratedPosts(prevPosts => {
+          return prevPosts.map(p => 
+            p.id === post.id ? { 
+              ...p, 
+              published: true, 
+              status: "published",
+              published_at: response.data.published_at,
+              publication_method: "immediate"
+            } : p
+          );
+        });
+        
+        // Recharger les données pour s'assurer de la cohérence
+        await loadGeneratedPosts();
+        await loadCalendarPosts();
+        
+        return true;
+      } else {
+        toast.error('Erreur lors de la publication immédiate', { id: 'publish-now' });
+        return false;
+      }
+      
+    } catch (error) {
+      console.error('Immediate publish error:', error);
+      const errorMessage = error.response?.data?.detail || error.response?.data?.message || error.message || 'Erreur inconnue';
+      toast.error(`❌ ${errorMessage}`, { id: 'publish-now' });
+      return false;
+    }
+  };
+
   // États pour le modal de modification date/heure
   const [showDateTimeModal, setShowDateTimeModal] = useState(false);
   const [selectedPostForDateTime, setSelectedPostForDateTime] = useState(null);

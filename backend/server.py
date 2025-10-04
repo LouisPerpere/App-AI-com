@@ -3256,13 +3256,14 @@ async def instagram_oauth_callback(
         }
         
         # Supprimer anciennes connexions Instagram
-        dbm.db.social_media_connections.delete_many({
+        db_manager = get_database()
+        db_manager.db.social_media_connections.delete_many({
             "user_id": user_id,
             "platform": "instagram" 
         })
         
         # Sauvegarder la nouvelle connexion
-        dbm.db.social_media_connections.insert_one(instagram_connection)
+        db_manager.db.social_media_connections.insert_one(instagram_connection)
         print(f"✅ CONNEXION INSTAGRAM SIMPLIFIÉE CRÉÉE")
         print(f"   User ID: {user_id}")
         print(f"   Platform: instagram")

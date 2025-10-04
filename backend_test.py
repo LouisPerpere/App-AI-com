@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 """
-Instagram OAuth Callback URL Corrections Testing
-==============================================
+Instagram OAuth Callback Corrections Testing on LIVE Environment
+===============================================================
 
-Testing the corrections made to Instagram OAuth redirect URIs:
-- FACEBOOK_REDIRECT_URI: claire-marcus.com → claire-marcus-app-1.preview.emergentagent.com
-- INSTAGRAM_REDIRECT_URI: claire-marcus.com → claire-marcus-app-1.preview.emergentagent.com  
-- FRONTEND_URL: claire-marcus.com → claire-marcus-app-1.preview.emergentagent.com
+Testing the corrections applied to handle Instagram connections directly instead of redirecting to Facebook:
+- Suppression de la redirection automatique vers Facebook callback
+- Implémentation du processus complet d'OAuth Instagram 
+- Création directe de connexions Instagram avec tokens permanents
+- Gestion d'erreurs spécifique à Instagram
 
 Test Objectives:
-1. Verify auth URLs contain correct redirect_uri with preview domain
-2. Test Instagram callback simulation with new URLs
-3. Verify connection state endpoints
-4. Ensure no "Invalid verification code format" errors
+1. Authenticate on LIVE environment (https://claire-marcus.com/api)
+2. Test Instagram callback to verify it no longer redirects to Facebook
+3. Verify new logic processes Instagram directly
+4. Check connection states and verify connections can now be created
 """
 
 import requests
@@ -20,9 +21,10 @@ import json
 import sys
 import time
 from urllib.parse import urlparse, parse_qs
+from datetime import datetime
 
-# Configuration
-BASE_URL = "https://claire-marcus-app-1.preview.emergentagent.com/api"
+# LIVE Environment Configuration
+BASE_URL = "https://claire-marcus.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

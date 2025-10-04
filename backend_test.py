@@ -28,15 +28,20 @@ BASE_URL = "https://claire-marcus.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 
-class InstagramOAuthTester:
+class InstagramCallbackTester:
     def __init__(self):
         self.session = requests.Session()
         self.access_token = None
         self.user_id = None
         
+    def log(self, message, level="INFO"):
+        """Log message with timestamp"""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        print(f"[{timestamp}] {level}: {message}")
+        
     def authenticate(self):
-        """Authenticate and get access token"""
-        print("🔐 Step 1: Authenticating...")
+        """Authenticate with LIVE environment"""
+        self.log("🔐 Authenticating with LIVE environment...")
         
         login_data = {
             "email": TEST_EMAIL,
@@ -44,7 +49,7 @@ class InstagramOAuthTester:
         }
         
         try:
-            response = self.session.post(f"{BASE_URL}/auth/login-robust", json=login_data)
+            response = self.session.post(f"{BASE_URL}/auth/login-robust", json=login_data, timeout=30)
             
             if response.status_code == 200:
                 data = response.json()

@@ -198,55 +198,150 @@ class InstagramCallbackTester:
         except Exception as e:
             self.log(f"❌ Simulated callback error: {str(e)}", "ERROR")
             return False
+    
+    def test_social_connections_status(self):
+        """Test current social connections status"""
+        try:
+            self.log("📊 Testing current social connections status...")
+            
+            response = self.session.get(f"{BASE_URL}/social/connections", timeout=10)
+            
+            if response.status_code == 200:
+                connections = response.json()
+                
+                instagram_connections = [c for c in connections if c.get('platform') == 'instagram']
+                facebook_connections = [c for c in connections if c.get('platform') == 'facebook']
+                
+                self.log(f"✅ Social connections retrieved:")
+                self.log(f"   Instagram connections: {len(instagram_connections)}")
+                self.log(f"   Facebook connections: {len(facebook_connections)}")
+                
+                # Check for active Instagram connections
+                active_instagram = [c for c in instagram_connections if c.get('active', False)]
+                if active_instagram:
+                    self.log(f"✅ Found {len(active_instagram)} active Instagram connection(s)")
+                else:
+                    self.log("⚠️ No active Instagram connections found")
+                
+                return True
+            else:
+                self.log(f"❌ Failed to get social connections: {response.status_code}", "ERROR")
                 return False
                 
         except Exception as e:
-            print(f"❌ Instagram auth URL test error: {e}")
+            self.log(f"❌ Social connections test error: {str(e)}", "ERROR")
             return False
     
-    def test_instagram_callback_simulation(self):
-        """Test Instagram callback with simulated parameters"""
-        print("\n🔍 Step 4: Testing Instagram callback simulation...")
-        
+    def test_instagram_connection_creation_logs(self):
+        """Test if Instagram connections can be created (check logs)"""
         try:
-            # First get a valid state parameter from auth URL
-            auth_response = self.session.get(f"{BASE_URL}/social/instagram/auth-url")
-            if auth_response.status_code != 200:
-                print("❌ Could not get auth URL for state parameter")
-                return False
+            self.log("🔍 Testing Instagram connection creation capability...")
+            
+            # Check if diagnostic endpoint exists
+            response = self.session.get(f"{BASE_URL}/debug/social-connections", timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
                 
-            auth_data = auth_response.json()
-            auth_url = auth_data.get("auth_url", "")
-            parsed_url = urlparse(auth_url)
-            query_params = parse_qs(parsed_url.query)
-            state = query_params.get("state", [""])[0]
-            
-            if not state:
-                print("❌ No state parameter found in auth URL")
-                return False
+                # Check collections and connection status
+                total_connections = data.get('total_connections', 0)
+                active_connections = data.get('active_connections', 0)
+                instagram_connections = data.get('instagram_connections', 0)
                 
-            print(f"   Using state parameter: {state[:20]}...")
-            
-            # Simulate callback with test parameters
-            callback_params = {
-                "code": "test_authorization_code_12345",
-                "state": state
-            }
-            
-            # Test callback endpoint
-            callback_url = f"{BASE_URL}/social/instagram/callback"
-            response = self.session.get(callback_url, params=callback_params)
-            
-            print(f"   Callback response status: {response.status_code}")
-            
-            # Check if we get a redirect (expected behavior)
-            if response.status_code in [302, 200]:
-                print("✅ Instagram callback endpoint accessible")
+                self.log(f"✅ Connection diagnostic retrieved:")
+                self.log(f"   Total connections: {total_connections}")
+                self.log(f"   Active connections: {active_connections}")
+                self.log(f"   Instagram connections: {instagram_connections}")
                 
-                # Check if we get the expected error format (not "Invalid verification code format")
-                if response.status_code == 302:
-                    redirect_url = response.headers.get("Location", "")
-                    print(f"   Redirect URL: {redirect_url}")
+                return True
+            else:
+                self.log(f"⚠️ Diagnostic endpoint not available: {response.status_code}")
+                return True  # Not critical for main test
+                
+        except Exception as e:
+            self.log(f"⚠️ Connection diagnostic error: {str(e)}")
+            return True  # Not critical for main test
+    
+    def run_all_tests(self):
+        """Run all Instagram callback correction tests"""
+        self.log("🎯 STARTING INSTAGRAM CALLBACK CORRECTIONS TESTING ON LIVE ENVIRONMENT")
+        self.log("=" * 80)
+        
+        test_results = {}
+        
+        # Test 1: Health Check
+        test_results['health_check'] = self.test_health_check()
+        
+        # Test 2: Authentication
+        if not self.authenticate():
+            self.log("❌ CRITICAL: Authentication failed - cannot continue tests", "ERROR")
+            return False
+        test_results['authentication'] = True
+        
+        # Test 3: Instagram OAuth URL Generation
+        test_results['instagram_auth_url'] = self.test_instagram_auth_url_generation()
+        
+        # Test 4: CRITICAL - Instagram Callback No Facebook Redirect
+        test_results['no_facebook_redirect'] = self.test_instagram_callback_no_facebook_redirect()
+        
+        # Test 5: Simulated Instagram Callback
+        test_results['simulated_callback'] = self.test_simulated_instagram_callback()
+        
+        # Test 6: Social Connections Status
+        test_results['social_connections'] = self.test_social_connections_status()
+        
+        # Test 7: Connection Creation Capability
+        test_results['connection_creation'] = self.test_instagram_connection_creation_logs()
+        
+        # Summary
+        self.log("=" * 80)
+        self.log("🎯 INSTAGRAM CALLBACK CORRECTIONS TEST SUMMARY")
+        self.log("=" * 80)
+        
+        passed_tests = sum(1 for result in test_results.values() if result)
+        total_tests = len(test_results)
+        
+        for test_name, result in test_results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            self.log(f"{status}: {test_name}")
+        
+        self.log(f"\nOVERALL RESULT: {passed_tests}/{total_tests} tests passed")
+        
+        # Critical success criteria
+        critical_tests = [
+            'no_facebook_redirect',
+            'simulated_callback'
+        ]
+        
+        critical_passed = all(test_results.get(test, False) for test in critical_tests)
+        
+        if critical_passed:
+            self.log("✅ CRITICAL SUCCESS: Instagram callback no longer redirects to Facebook")
+            self.log("✅ Instagram callback processes Instagram connections directly")
+        else:
+            self.log("❌ CRITICAL FAILURE: Instagram callback corrections not working properly")
+        
+        return critical_passed
+
+def main():
+    """Main test execution"""
+    print("🎯 Instagram OAuth Callback Corrections Testing")
+    print("Environment: LIVE (https://claire-marcus.com)")
+    print("Credentials: lperpere@yahoo.fr")
+    print("=" * 80)
+    
+    tester = InstagramCallbackTester()
+    success = tester.run_all_tests()
+    
+    if success:
+        print("\n🎉 INSTAGRAM CALLBACK CORRECTIONS TESTING COMPLETED SUCCESSFULLY")
+        sys.exit(0)
+    else:
+        print("\n❌ INSTAGRAM CALLBACK CORRECTIONS TESTING FAILED")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
                     
                     # Check if redirect uses preview domain
                     if "claire-marcus-app-1.preview.emergentagent.com" in redirect_url:

@@ -1355,6 +1355,18 @@ const PostPreviewModal = ({
                       </div>
                     </button>
                   )}
+                  
+                  {/* Lien discret "publier de suite" - seulement si pas encore publié ni programmé */}
+                  {!post.published && !post.validated && !post.status === 'published' && (
+                    <div className="mt-2 text-center">
+                      <button
+                        onClick={() => handlePublishNow(post)}
+                        className="text-xs text-gray-500 hover:text-purple-600 transition-colors underline"
+                      >
+                        publier de suite
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </>

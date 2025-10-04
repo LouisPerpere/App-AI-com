@@ -13,7 +13,7 @@ from io import BytesIO
 from PIL import Image
 
 # Configuration selon la review française
-BACKEND_URL = "https://social-pub-hub.preview.emergentagent.com"
+BACKEND_URL = "https://claire-marcus-app-1.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Credentials spécifiés dans la review

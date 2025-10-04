@@ -16,7 +16,7 @@ from datetime import datetime
 
 class SpecificCleanupEndpointsTest:
     def __init__(self):
-        self.base_url = "https://social-pub-hub.preview.emergentagent.com/api"
+        self.base_url = "https://claire-marcus-app-1.preview.emergentagent.com/api"
         self.session = requests.Session()
         self.token = None
         self.user_id = None

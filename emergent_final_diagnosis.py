@@ -33,7 +33,7 @@ def test_emergent_app_url():
 def main():
     print(f"🎯 FINAL EMERGENT BACKEND DIAGNOSIS REPORT")
     print(f"Timestamp: {datetime.now().isoformat()}")
-    print(f"Target: https://social-pub-hub.preview.emergentagent.com")
+    print(f"Target: https://claire-marcus-app-1.preview.emergentagent.com")
     
     print(f"\n{'='*80}")
     print(f"CRITICAL FINDINGS")
@@ -88,7 +88,7 @@ def main():
     
     print(f"\n🎯 CONCRETE CAUSE FOR FAILURE:")
     print(f"   The login is failing because there is NO BACKEND API deployed")
-    print(f"   at https://social-pub-hub.preview.emergentagent.com. This URL serves")
+    print(f"   at https://claire-marcus-app-1.preview.emergentagent.com. This URL serves")
     print(f"   only the frontend application. The backend needs to be deployed")
     print(f"   to a different URL and the frontend configuration updated.")
     

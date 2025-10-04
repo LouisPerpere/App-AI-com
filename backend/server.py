@@ -3475,7 +3475,7 @@ async def test_image_headers(file_id: str):
         import aiohttp
         import time
         # Use the current environment URL for testing
-        backend_url = os.environ.get('REACT_APP_BACKEND_URL', 'https://social-pub-hub.preview.emergentagent.com')
+        backend_url = os.environ.get('REACT_APP_BACKEND_URL', 'https://claire-marcus-app-1.preview.emergentagent.com')
         image_url = f"{backend_url}/api/public/image/{file_id}.webp"
         
         start_time = time.time()

@@ -9,7 +9,7 @@ import sys
 
 class SimplePhase2Test:
     def __init__(self):
-        self.base_url = "https://social-pub-hub.preview.emergentagent.com"
+        self.base_url = "https://claire-marcus-app-1.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         self.access_token = None
         self.business_id = None

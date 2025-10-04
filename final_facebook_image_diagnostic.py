@@ -11,7 +11,7 @@ import json
 import sys
 from datetime import datetime
 
-BASE_URL = "https://social-pub-hub.preview.emergentagent.com/api"
+BASE_URL = "https://claire-marcus-app-1.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"

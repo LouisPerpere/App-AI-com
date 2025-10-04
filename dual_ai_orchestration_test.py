@@ -11,7 +11,7 @@ from datetime import datetime
 
 class DualAIOrchestrationTester:
     def __init__(self):
-        self.base_url = "https://social-pub-hub.preview.emergentagent.com/api"
+        self.base_url = "https://claire-marcus-app-1.preview.emergentagent.com/api"
         self.session = requests.Session()
         self.access_token = None
         self.user_id = None

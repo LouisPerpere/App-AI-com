@@ -1,57 +1,88 @@
 <analysis>
-The previous AI engineer focused on achieving reliable social media publishing (Facebook/Instagram) for the PWA, starting from a state where connections were simulated or failing silently. The primary hurdles were persistent OAuth failures (using invalid fallback tokens like ) and the inability to publish images due to access control, incorrect URL formats (WebP/no extension), and reliance on unstable URL uploads. The work involved major architectural changes: refactoring the OAuth flow to the mandatory 3-step token exchange (code -> short-lived -> long-lived -> page token, all starting with EAA), implementing unauthenticated image serving (converting internal paths to public ), forcing automatic conversion of all images to JPG, and crucially, switching from URL-based publication to the more reliable **binary upload ()** method for Facebook. The system is now technically sound, but the immediate blockage is identified as an external configuration issue in the Facebook Developer App, preventing the final EAA token saving due to a persistent AJAX error encountered during the callback finalization. The engineer analyzed the user's Facebook App settings and provided the precise external configurations required.
+The trajectory details a handover from an AI engineer who achieved initial social media publishing. The initial problem involved persistent OAuth failures and image publication issues. The current AI engineer validated the previous work, confirming that the core backend for Facebook publishing (EAA token flow, binary image upload) was indeed functioning correctly on the live environment, contradicting initial user reports. The bulk of the subsequent work focused on iteratively implementing legal mentions on the login page, transitioning from a full footer to a discreet, responsive accordion. Significant effort was spent debugging frontend rendering/routing issues, deployment caches, and refining the accordion's styling and positioning based on user feedback. Concurrently, the post generation logic was adapted for month-end scenarios, and Publish was re-factored into Schedule with an Publish Now option, requiring both frontend and backend changes. The current task involves refining the Generate Posts button availability logic.
 </analysis>
 
 <product_requirements>
-The Claire et Marcus PWA's core mission is to automate AI-driven social media content generation. The essential current requirement is to implement robust, real-time social media publishing (Facebook and Instagram) upon clicking the Publier button, successfully transitioning posts to a published status. This required stabilizing integrations that were using simulated connections or invalid tokens. Specific implementations include: refining post modification workflows, enabling manual date/time scheduling via calendar, and ensuring validated posts are read-only. The major feature implemented is the backend integration of the Facebook/Instagram Graph API v20.0 for actual publication, specifically ensuring that both text and images are published successfully. This required eliminating the use of temporary tokens (), utilizing permanent Page Access Tokens (starting with EAA), securing public access to images, and implementing the binary image upload method.
+The Claire et Marcus PWA aims to automate AI-driven social media content generation, specifically robust Facebook and Instagram publishing. The initial requirement was to stabilize social media integrations, eliminating simulated connections and invalid tokens, and ensuring both text and images are published successfully via the Graph API v20.0 using permanent Page Access Tokens (EAA) and binary image uploads.
+
+Recent updates included:
+1.  **Legal Mentions**: Integrate legal information (company name, address, SIRET, contact, hosting, RGPD compliance) into the application. This must be discreet, non-disruptive, accessible without login, and eventually presented as an accordion on the login page. Facebook required the official company name (EI Fou De Vanille) to be directly visible on the login page.
+2.  **Post Generation Logic**: Modify the Generate Posts button behavior for the last day of the month. Generation for the current month should allow one post per connected social network, scheduled for the same day (minimum 1 hour after generation, before 22h). After 22h, the button should be grayed out, prompting users to generate for the next month.
+3.  **Publish/Schedule Feature**: Re-factor the Publier (Publish) button into Programmer (Schedule). This should schedule posts for a future date/time. A new discrete publier de suite (publish now) option should be added to allow immediate publication. The scheduling feature should include a spinner, success state, and calendar integration.
+4.  **Calendar Functionality**: Preserve existing calendar features like Déprogrammer (unschedule), post preview modals, and post thumbnails, and fix any related bugs.
 </product_requirements>
 
 <key_technical_concepts>
-- **API Integration:** Facebook Graph API v20.0, Instagram Graph API (2-step process).
-- **OAuth 2.0:** Full 3-step token exchange flow (code -> short-lived -> long-lived user token -> page access token, prefixed EAA).
-- **Media Handling:** GridFS, FastAPI streaming, automatic image conversion (Pillow for WebP/PNG to JPG), and reliable binary image upload ( parameter).
-- **Backend Frameworks:** FastAPI, MongoDB (GridFS).
+-   **API Integration:** Facebook Graph API v20.0 (binary image upload, 3-step OAuth).
+-   **Frontend Framework:** React.js (functional components, , , React Router).
+-   **Backend Frameworks:** FastAPI, MongoDB (GridFS for image storage).
+-   **Image Processing:** Pillow (Python library for JPG conversion).
+-   **UI Components:** Accordions, responsive design (Tailwind CSS classes).
+-   **Environment Management**: Kubernetes container, supervisor for service control, specific URL/port rules.
 </key_technical_concepts>
 
 <code_architecture>
-The application uses a standard full-stack architecture: React.js frontend and FastAPI/MongoDB backend.
+The application utilizes a React.js frontend, a FastAPI backend, and MongoDB for data persistence, including GridFS for image storage.
 
 
 
-- ****: Main API and logic handler.
-    - **Importance**: Contains all primary API routes, social media callbacks, and post publication logic.
-    - **Changes Made**:
-        - **OAuth Callback ()**: Fully refactored to implement the 3-step token exchange (Short-lived -> Long-lived User Token -> Page Access Token). Strict validation added to ensure the saved token starts with EAA.
-        - **Image Serving ( / )**: Created unauthenticated endpoints to stream images directly from GridFS, supporting both JPG and WebP, optimizing headers (Content-Type, Cache-Control, Access-Control-Allow-Origin: *), and handling HEAD requests.
-        - **Image Conversion ()**: Extended logic to parse carousel IDs and standard file paths, converting them to the public URL format with the  extension (e.g., ).
-        - **Publication ()**: Logic modified to: 1) strictly require a valid EAA token, 2) download the image, 3) convert it to JPG using Pillow, and 4) perform binary upload via  to Facebook's  endpoint.
-- ****: Social API Client wrapper.
-    - **Changes Made**: Updated functions to use Facebook Graph API v20.0 and implement the complex token exchange methods required for permanent tokens.
-- **Image Conversion Libraries**: Pillow was verified to be installed and is used within  for image format conversion during publication.
+-   ****:
+    -   **Importance**: Handles all API routes, social media interactions (OAuth callbacks, post publication/scheduling), and image serving.
+    -   **Changes Made**:
+        -   **OAuth Callback**: Refactored for 3-step token exchange (Short-lived -> Long-lived User Token -> Page Access Token, prefixed EAA).
+        -   **Image Serving**: Unauthenticated endpoints () to stream images from GridFS, with automatic JPG conversion.
+        -   **Publication ()**: Uses binary upload () to Facebook's  endpoint, converts images to JPG.
+        -   **Scheduling ()**: New endpoint created to handle post scheduling based on provided date/time.
+        -   **Publish Now ()**: New endpoint for immediate post publication.
+        -   **Unschedule ()**: New endpoint to cancel a scheduled post.
+        -   **Generation Logic**: Removed blocking logic for last day of month generation (lines 2072-2089).
+        -   **Pydantic Models**:  model updated to accept  and .
+
+-   ****:
+    -   **Importance**: Social API client wrapper.
+    -   **Changes Made**: Updated functions to use Facebook Graph API v20.0 and implement required token exchange.
+
+-   ****:
+    -   **Importance**: Main application component, handles routing, authentication state, and post generation/scheduling logic.
+    -   **Changes Made**:
+        -   **Footer Integration**: Initial attempts to integrate a global footer were problematic due to rendering hierarchy and routing.
+        -   **Post Generation Logic**: Modified  to incorporate new last-day-of-month rules, including a  helper function for button states. Updated button messages.
+        -   **Publish/Schedule UI**: Modified logic for the Publier button to Programmer, added a spinner state, and integrated a discrete publier de suite link.
+        -   **Post Management**: Corrected  to use the new backend  endpoint. Added  for immediate publishing.
+
+-   ****:
+    -   **Importance**: Handles user authentication (login/signup) and displays the landing page. This is where legal mentions were ultimately placed.
+    -   **Changes Made**:
+        -   **Legal Mentions Integration**: Extensive modifications to integrate legal mentions. Initially attempted directly, then an accordion component  was created and refined.
+        -   ****: Implemented a discrete, gray, responsive accordion displaying all legal details.
+        -   **Facebook Compliance**: Added Édité par EI Fou De Vanille • SIRET 952 513 661 00019 directly into the  to satisfy Facebook's requirement for immediate visibility of company name.
+        -   Styling: Adjusted colors (light gray) and positioning (bottom, responsive for mobile) for discretion and compliance.
+
+-   ****:
+    -   **Importance**: Intended global footer component.
+    -   **Changes Made**: Initially modified, but later its role was largely superseded by placing the legal mentions directly in . The dashboard footer was transformed into an accordion, with Emergent address removed, replicating the Auth page's legal accordion functionality.
 </code_architecture>
 
 <pending_tasks>
-- Fully implement the analytics dashboard for published posts.
-- Diagnose and fix carousel deletion (if still present).
-- Finalize carousel display logic (grey placeholder instead of first image).
-- **CRITICAL**: User must complete the external Facebook Developer App configurations as specified to resolve the OAuth AJAX error and ensure EAA tokens are permanently saved.
+-   Fully implement the analytics dashboard for published posts.
+-   Diagnose and fix carousel deletion (if still present).
+-   Finalize carousel display logic (grey placeholder instead of first image).
+-   Refine the message for the Générer les posts button based on the new availability logic.
 </pending_tasks>
 
 <current_work>
-The immediate work focused on resolving a critical failure in the OAuth process observed on the LIVE environment: the inability to save permanent EAA tokens despite correct backend implementation of the 3-step OAuth flow and robust image handling. This failure was traced to an intermittent front-end AJAX error () occurring immediately after Facebook redirects to the callback URI. This strongly indicates an external configuration failure in the Facebook Developer App.
+The immediate work being done is to refine the availability logic for the Générer les posts buttons in the frontend. The user requested that:
+-   The button for the current month should always be available.
+-   The button for the *next* month becomes available only from the 15th of the current month.
+-   Buttons for all subsequent months should be grayed out and inactive.
 
-The engineer analyzed user-provided screenshots of the Facebook App settings (App ID: 1115451684022643) and identified several missing or incomplete fields.
+The AI engineer has already started implementing this by:
+1.  **Modifying  function**: This function in  is being extended to incorporate the new logic that checks the current date against the 15th of the month for enabling/disabling the next month's generation button, in addition to the existing last-day-of-month checks.
+2.  **Creating a helper function for messages**: A new function is being created to generate dynamic messages for the disabled generation buttons, such as passez au mois suivant or Disponible à partir du 15 du mois, depending on the specific blocking reason.
 
-The last action taken was instructing the user on the precise fixes required in the Facebook Developer Console:
-1. Impose HTTPS: Set to **OUI**.
-2. Se connecter avec le SDK JavaScript: Set to **OUI**.
-3. Domaines autorisés pour le SDK JavaScript: Add .
-4. URL de rappel pour les annulations d'autorisation: Add .
-5. URL de la demande de suppression des données: Add .
-
-All code-level fixes (EAA token flow, JPG conversion, binary upload) are complete and validated internally. The current blockage is entirely dependent on the user making these external configuration changes.
+This work involves updating the conditional rendering and styling of the generation buttons based on these new time-based rules. The last action was to find where the button message is used (line 4489 in ) to integrate the new message helper function.
 </current_work>
 
 <optional_next_step>
-Wait for user confirmation that the required Facebook Developer App configuration changes have been applied.
+Create a helper function  in  to provide dynamic messages for the Générer les posts buttons based on the new availability logic.
 </optional_next_step>

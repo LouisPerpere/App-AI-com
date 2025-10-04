@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Emergent Backend Diagnosis Script
-Deep diagnostics against https://social-pub-hub.preview.emergentagent.com
+Deep diagnostics against https://claire-marcus-app-1.preview.emergentagent.com
 
 Steps:
 1) GET /api/health
@@ -18,7 +18,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://social-pub-hub.preview.emergentagent.com"
+BASE_URL = "https://claire-marcus-app-1.preview.emergentagent.com"
 CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"
@@ -147,7 +147,7 @@ def test_cors_behavior():
         # Test preflight request
         url = f"{BASE_URL}/api/auth/login-robust"
         headers = {
-            'Origin': 'https://social-pub-hub.preview.emergentagent.com',
+            'Origin': 'https://claire-marcus-app-1.preview.emergentagent.com',
             'Access-Control-Request-Method': 'POST',
             'Access-Control-Request-Headers': 'Content-Type,Authorization'
         }

@@ -13,7 +13,7 @@ import uuid
 from datetime import datetime
 
 # Configuration - Using production backend URL
-BACKEND_URL = "https://social-pub-hub.preview.emergentagent.com/api"
+BACKEND_URL = "https://claire-marcus-app-1.preview.emergentagent.com/api"
 TEST_USER_EMAIL = "lperpere@yahoo.fr"
 TEST_USER_PASSWORD = "L@Reunion974!"
 

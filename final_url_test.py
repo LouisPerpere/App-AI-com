@@ -7,7 +7,7 @@ import requests
 import json
 
 # Configuration
-BACKEND_URL = "https://social-pub-hub.preview.emergentagent.com"
+BACKEND_URL = "https://claire-marcus-app-1.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials

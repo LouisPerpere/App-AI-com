@@ -16,7 +16,7 @@ Valider que la correction des URLs résout le problème et que les connexions Fa
 sont maintenant sauvegardées correctement en base de données.
 
 Expected User ID: bdf87a74-e3f3-44f3-bac2-649cde3ef93e
-Backend URL: https://social-pub-hub.preview.emergentagent.com/api
+Backend URL: https://claire-marcus-app-1.preview.emergentagent.com/api
 """
 
 import requests
@@ -26,7 +26,7 @@ from urllib.parse import urlparse, parse_qs
 import time
 
 # Configuration
-BACKEND_URL = "https://social-pub-hub.preview.emergentagent.com/api"
+BACKEND_URL = "https://claire-marcus-app-1.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 EXPECTED_USER_ID = "bdf87a74-e3f3-44f3-bac2-649cde3ef93e"
@@ -162,7 +162,7 @@ class FacebookConnectionsTester:
                     
                     # Check redirect URI (should use preview domain)
                     redirect_uri = query_params.get('redirect_uri', [''])[0]
-                    expected_redirect = "https://social-pub-hub.preview.emergentagent.com/api/social/instagram/callback"
+                    expected_redirect = "https://claire-marcus-app-1.preview.emergentagent.com/api/social/instagram/callback"
                     
                     if redirect_uri == expected_redirect:
                         print(f"   ✅ Redirect URI correct (preview domain)")

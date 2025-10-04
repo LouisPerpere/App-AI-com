@@ -15,7 +15,7 @@ import os
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://social-pub-hub.preview.emergentagent.com/api"
+BACKEND_URL = "https://claire-marcus-app-1.preview.emergentagent.com/api"
 EMAIL = "lperpere@yahoo.fr"
 PASSWORD = "L@Reunion974!"
 

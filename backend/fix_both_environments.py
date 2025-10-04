@@ -21,7 +21,7 @@ class EnvironmentFixer:
         # Configuration des environnements
         self.environments = {
             'preview': {
-                'url': 'https://social-pub-hub.preview.emergentagent.com',
+                'url': 'https://claire-marcus-app-1.preview.emergentagent.com',
                 'mongo_url': 'mongodb://localhost:27017/claire_marcus'  # Local MongoDB pour preview
             },
             'live': {

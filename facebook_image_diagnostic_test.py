@@ -26,7 +26,7 @@ from urllib.parse import urlparse
 
 # Configuration - PRODUCTION URLs
 PRODUCTION_BASE_URL = "https://claire-marcus.com/api"
-PREVIEW_BASE_URL = "https://social-pub-hub.preview.emergentagent.com/api"
+PREVIEW_BASE_URL = "https://claire-marcus-app-1.preview.emergentagent.com/api"
 TEST_CREDENTIALS = {
     "email": "lperpere@yahoo.fr",
     "password": "L@Reunion974!"

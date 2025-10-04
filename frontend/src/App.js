@@ -4551,13 +4551,17 @@ function MainApp() {
                               <span className="hidden sm:inline">Génération...</span>
                               <span className="sm:hidden">...</span>
                             </>
-                          ) : isGenerationBlocked(month.key) ? (
-                            <>
-                              <Clock className="w-3 h-3 mr-1" />
-                              <span className="hidden sm:inline">passez au mois suivant</span>
-                              <span className="sm:hidden">Mois suivant</span>
-                            </>
-                          ) : (
+                          ) : isGenerationBlocked(month.key) ? (() => {
+                            const blockedMessage = getBlockedMessage(month.key);
+                            const IconComponent = getIconComponent(blockedMessage.icon);
+                            return (
+                              <>
+                                <IconComponent className="w-3 h-3 mr-1" />
+                                <span className="hidden sm:inline">{blockedMessage.desktop}</span>
+                                <span className="sm:hidden">{blockedMessage.mobile}</span>
+                              </>
+                            );
+                          })() : (
                             <>
                               <Sparkles className="w-3 h-3 mr-1.5" />
                               <span className="hidden sm:inline">

@@ -1365,15 +1365,37 @@ const PostPreviewModal = ({
                     )}
                   </div>
                   
-                  {/* Lien discret "publier de suite" centré sous les boutons principaux */}
+                  {/* Bouton "publier de suite" centré sous les boutons principaux */}
                   {!post.published && !post.validated && post.status !== 'published' && !isFromCalendar && (
                     <div className="text-center">
                       <button
                         onClick={() => onPublishNow(post)}
-                        className="text-xs text-gray-500 hover:text-purple-600 transition-colors underline"
+                        disabled={isPublishing}
+                        className={`text-xs transition-colors underline flex items-center justify-center space-x-1 ${
+                          isPublishing 
+                            ? 'text-gray-400 cursor-not-allowed' 
+                            : 'text-gray-500 hover:text-purple-600'
+                        }`}
                       >
-                        Publier de suite
+                        {isPublishing ? (
+                          <>
+                            <div className="w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                            <span>Publication...</span>
+                          </>
+                        ) : (
+                          <span>Publier de suite</span>
+                        )}
                       </button>
+                    </div>
+                  )}
+                  
+                  {/* Message "Post publié" si le post vient d'être publié */}
+                  {(post.published || post.status === 'published') && !isFromCalendar && (
+                    <div className="text-center">
+                      <div className="text-xs text-blue-600 font-medium flex items-center justify-center space-x-1">
+                        <CheckCircleIcon className="w-3 h-3" />
+                        <span>Post publié !</span>
+                      </div>
                     </div>
                   )}
                 </div>

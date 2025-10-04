@@ -5132,6 +5132,11 @@ function MainApp() {
       return;
     }
 
+    // Éviter les clics multiples
+    if (isPublishing) {
+      return;
+    }
+
     const token = localStorage.getItem('access_token');
     if (!token) {
       toast.error('Vous devez être connecté !');
@@ -5139,6 +5144,7 @@ function MainApp() {
     }
 
     try {
+      setIsPublishing(true);
       toast.loading('⚡ Publication en cours...', { id: 'publish-now' });
 
       // Utiliser l'ancien endpoint /posts/publish qui fonctionnait
@@ -5170,10 +5176,11 @@ function MainApp() {
           );
         });
         
-        // Fermer le modal pour voir le changement d'état
-        setSelectedPost(null);
-        setSelectedCalendarPost(null);
+        // Mettre à jour les posts du calendrier s'ils existent
+        setSelectedPost(prev => prev?.id === post.id ? { ...prev, published: true, status: "published" } : prev);
+        setSelectedCalendarPost(prev => prev?.id === post.id ? { ...prev, published: true, status: "published" } : prev);
         
+        // Ne pas fermer le modal - garder ouvert pour voir le changement d'état
         // Recharger les données pour s'assurer de la cohérence
         await loadGeneratedPosts();
         await loadCalendarPosts();
@@ -5189,6 +5196,8 @@ function MainApp() {
       const errorMessage = error.response?.data?.detail || error.response?.data?.message || error.message || 'Erreur inconnue';
       toast.error(`❌ ${errorMessage}`, { id: 'publish-now' });
       return false;
+    } finally {
+      setIsPublishing(false);
     }
   };
 

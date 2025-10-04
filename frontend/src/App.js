@@ -4280,6 +4280,9 @@ function MainApp() {
         Object.keys(postsByMonth).forEach(monthKey => {
           console.log(`📅 ${monthKey}: ${postsByMonth[monthKey].posts.length} posts`);
         });
+        
+        // Nettoyer les badges des images après chargement des posts
+        cleanImageBadges();
       }
     } catch (error) {
       console.error('Error loading generated posts:', error);

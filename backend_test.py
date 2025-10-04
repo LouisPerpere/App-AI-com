@@ -61,17 +61,14 @@ class InstagramCallbackTester:
                     "Authorization": f"Bearer {self.access_token}"
                 })
                 
-                print(f"✅ Authentication successful")
-                print(f"   User ID: {self.user_id}")
-                print(f"   Token: {self.access_token[:20]}..." if self.access_token else "   Token: None")
+                self.log(f"✅ Authentication successful - User ID: {self.user_id}")
                 return True
             else:
-                print(f"❌ Authentication failed: {response.status_code}")
-                print(f"   Response: {response.text}")
+                self.log(f"❌ Authentication failed: {response.status_code} - {response.text}", "ERROR")
                 return False
                 
         except Exception as e:
-            print(f"❌ Authentication error: {e}")
+            self.log(f"❌ Authentication error: {str(e)}", "ERROR")
             return False
     
     def test_facebook_auth_url(self):

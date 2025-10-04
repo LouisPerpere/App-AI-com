@@ -9243,6 +9243,7 @@ function MainApp() {
                     onClose={() => setSelectedPost(null)}
                     onModify={handleModifyPost}
                     onValidate={handleValidatePost}
+                    onPublishNow={handlePublishNow}
                     isModifying={isModifyingPost}
                     modificationRequestRef={modificationRequestRef}
                     showModificationPreview={showModificationPreview}

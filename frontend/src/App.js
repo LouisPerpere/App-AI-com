@@ -608,6 +608,7 @@ const PostPreviewModal = ({
   onMovePost, // Fonction pour déplacer le post
   onCancelPost, // Fonction pour annuler/déprogrammer le post
   onPublishNow, // Fonction pour publier immédiatement
+  isPublishing, // État de publication pour le spinner
   // Nouveaux props pour la gestion d'état globale
   showModificationPreview,
   setShowModificationPreview, 

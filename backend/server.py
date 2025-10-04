@@ -3197,33 +3197,188 @@ async def facebook_oauth_callback(
 
 @api_router.get("/social/instagram/callback")
 async def instagram_oauth_callback(
+    request: Request,
     code: str = None,
     state: str = None,
     error: str = None,
-    error_description: str = None
+    error_description: str = None,
+    id_token: str = None  # Support nouveau format Facebook
 ):
-    """CALLBACK INSTAGRAM PROPRE - Instagram est traité via Facebook OAuth"""
+    """CALLBACK INSTAGRAM PROPRE - Traite Instagram directement sans rediriger vers Facebook"""
     frontend_url = os.environ.get('FRONTEND_URL', 'https://claire-marcus.com')
     
-    print(f"🔄 Instagram OAuth callback - REDIRECTION VERS FACEBOOK")
+    print(f"🔄 Instagram OAuth callback - TRAITEMENT DIRECT")
     print(f"   Code: {'✅ Present' if code else '❌ Missing'}")
     print(f"   State: {state}")
     print(f"   Error: {error}")
     
-    # Instagram Business se connecte via Facebook OAuth
-    # Rediriger vers le callback Facebook qui traite aussi Instagram
-    if code and state:
-        facebook_callback_url = f"/api/social/facebook/callback?code={code}&state={state}"
-        print(f"🔄 Redirecting Instagram OAuth to Facebook callback: {facebook_callback_url}")
-        return RedirectResponse(url=facebook_callback_url, status_code=302)
-    
-    # Erreur ou paramètres manquants
+    # Vérifier les erreurs OAuth
     if error:
-        print(f"❌ Instagram OAuth error: {error}")
+        print(f"❌ Instagram OAuth error: {error} - {error_description}")
         return RedirectResponse(url=f"{frontend_url}?auth_error=instagram_oauth_error", status_code=302)
     
-    print(f"❌ Instagram OAuth - Missing parameters")
-    return RedirectResponse(url=f"{frontend_url}?auth_error=instagram_missing_params", status_code=302)
+    # Support nouveau format Facebook avec id_token
+    id_token = request.query_params.get('id_token')
+    if id_token:
+        print(f"✅ ID Token détecté (nouveau format Instagram): {id_token[:20]}...")
+        code = id_token
+    
+    # Pas de code = pas de connexion possible
+    if not code:
+        print(f"❌ No authorization code or id_token - Instagram OAuth failed")
+        return RedirectResponse(url=f"{frontend_url}?auth_error=instagram_no_code", status_code=302)
+    
+    # Pas de state = pas de connexion possible
+    if not state or '|' not in state:
+        print(f"❌ Invalid state format - Instagram OAuth failed")
+        return RedirectResponse(url=f"{frontend_url}?auth_error=instagram_invalid_state", status_code=302)
+    
+    # Extraire user_id du state
+    try:
+        _, user_id = state.split('|', 1)
+        print(f"🔍 User ID extracted: {user_id}")
+    except:
+        print(f"❌ Failed to extract user_id from state")
+        return RedirectResponse(url=f"{frontend_url}?auth_error=instagram_state_parse_error", status_code=302)
+    
+    # FLOW INSTAGRAM : Même processus que Facebook mais spécialisé Instagram
+    try:
+        facebook_app_id = os.environ.get('FACEBOOK_APP_ID')  # Instagram utilise l'App Facebook
+        facebook_app_secret = os.environ.get('FACEBOOK_APP_SECRET')
+        redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://claire-marcus.com/api/social/instagram/callback')
+        
+        if not facebook_app_id or not facebook_app_secret:
+            raise Exception("Facebook/Instagram App ID ou Secret manquant")
+        
+        print(f"🔄 ÉTAPE 1/3: Instagram - Échange code → short-lived token")
+        print(f"   App ID: {facebook_app_id}")
+        print(f"   Code: {code[:20]}...")
+        
+        import aiohttp
+        async with aiohttp.ClientSession() as session:
+            # ÉTAPE 1: Code → Short-lived token (même endpoint que Facebook)
+            token_url = "https://graph.facebook.com/v20.0/oauth/access_token"
+            token_params = {
+                'client_id': facebook_app_id,
+                'client_secret': facebook_app_secret,
+                'redirect_uri': redirect_uri,
+                'code': code.strip()
+            }
+            
+            async with session.get(token_url, params=token_params) as token_response:
+                if token_response.status != 200:
+                    error_text = await token_response.text()
+                    raise Exception(f"Short-lived token exchange failed: {token_response.status} - {error_text}")
+                
+                token_data = await token_response.json()
+                short_lived_token = token_data.get('access_token')
+                
+                if not short_lived_token:
+                    raise Exception("No short-lived token received")
+                
+                print(f"✅ ÉTAPE 1/3 réussie: Instagram short-lived token reçu ({short_lived_token[:20]}...)")
+                
+                # ÉTAPE 2: Short-lived → Long-lived token
+                print(f"🔄 ÉTAPE 2/3: Instagram - Échange short-lived → long-lived token")
+                
+                long_lived_url = "https://graph.facebook.com/v20.0/oauth/access_token"
+                long_lived_params = {
+                    'grant_type': 'fb_exchange_token',
+                    'client_id': facebook_app_id,
+                    'client_secret': facebook_app_secret,
+                    'fb_exchange_token': short_lived_token
+                }
+                
+                async with session.get(long_lived_url, params=long_lived_params) as long_response:
+                    if long_response.status != 200:
+                        error_text = await long_response.text()
+                        raise Exception(f"Long-lived token exchange failed: {long_response.status} - {error_text}")
+                    
+                    long_data = await long_response.json()
+                    long_lived_token = long_data.get('access_token')
+                    expires_in = long_data.get('expires_in', 5183944)  # ~60 jours
+                    
+                    if not long_lived_token:
+                        raise Exception("No long-lived token received")
+                    
+                    print(f"✅ ÉTAPE 2/3 réussie: Instagram long-lived token reçu ({long_lived_token[:20]}...) - Expire dans {expires_in}s")
+                    
+                    # ÉTAPE 3: Récupération des pages et comptes Instagram
+                    print(f"🔄 ÉTAPE 3/3: Instagram - Récupération des comptes Instagram Business")
+                    
+                    pages_url = f"https://graph.facebook.com/v20.0/me/accounts"
+                    pages_params = {
+                        'access_token': long_lived_token,
+                        'fields': 'id,name,access_token,category,instagram_business_account'
+                    }
+                    
+                    async with session.get(pages_url, params=pages_params) as pages_response:
+                        if pages_response.status != 200:
+                            error_text = await pages_response.text()
+                            raise Exception(f"Pages retrieval failed: {pages_response.status} - {error_text}")
+                        
+                        pages_data = await pages_response.json()
+                        pages = pages_data.get('data', [])
+                        
+                        print(f"✅ ÉTAPE 3/3 réussie: {len(pages)} page(s) trouvée(s)")
+                        
+                        # Chercher des comptes Instagram Business
+                        instagram_connections_created = 0
+                        for page in pages:
+                            page_id = page.get('id')
+                            page_name = page.get('name', 'Page sans nom')
+                            page_access_token = page.get('access_token')
+                            
+                            if not page_access_token:
+                                continue
+                                
+                            # Vérifier s'il y a un compte Instagram lié
+                            if page.get('instagram_business_account'):
+                                ig_account = page['instagram_business_account']
+                                ig_user_id = ig_account.get('id')
+                                ig_username = ig_account.get('username', 'Instagram')
+                                
+                                if ig_user_id:
+                                    # Créer la connexion Instagram
+                                    instagram_connection = {
+                                        "id": str(uuid.uuid4()),
+                                        "user_id": user_id,
+                                        "platform": "instagram",
+                                        "access_token": page_access_token,  # PAGE TOKEN PERMANENT
+                                        "instagram_user_id": ig_user_id,
+                                        "username": ig_username,
+                                        "page_id": page_id,
+                                        "connected_at": datetime.now(timezone.utc).isoformat(),
+                                        "active": True,
+                                        "token_type": "page_access_token",
+                                        "expires_at": (datetime.now(timezone.utc) + timedelta(seconds=expires_in)).isoformat()
+                                    }
+                                    
+                                    # Supprimer anciennes connexions Instagram et sauvegarder la nouvelle
+                                    dbm.db.social_media_connections.delete_many({
+                                        "user_id": user_id,
+                                        "platform": "instagram"
+                                    })
+                                    
+                                    dbm.db.social_media_connections.insert_one(instagram_connection)
+                                    print(f"✅ CONNEXION INSTAGRAM SAUVEGARDÉE: @{ig_username}")
+                                    instagram_connections_created += 1
+                        
+                        if instagram_connections_created > 0:
+                            # Succès avec tokens Instagram
+                            success_redirect = f"{frontend_url}?auth_success=instagram_connected&connections={instagram_connections_created}&token_type=permanent"
+                            print(f"✅ FLOW INSTAGRAM COMPLET RÉUSSI - {instagram_connections_created} connexion(s) Instagram créée(s)")
+                            return RedirectResponse(url=success_redirect, status_code=302)
+                        else:
+                            # Pas de compte Instagram Business trouvé
+                            error_redirect = f"{frontend_url}?auth_error=instagram_no_business_account&detail=no_instagram_business_accounts_found"
+                            print(f"⚠️ Aucun compte Instagram Business trouvé")
+                            return RedirectResponse(url=error_redirect, status_code=302)
+        
+    except Exception as oauth_error:
+        print(f"❌ Instagram OAuth failed: {str(oauth_error)}")
+        error_redirect = f"{frontend_url}?auth_error=instagram_oauth_failed&detail={str(oauth_error)}"
+        return RedirectResponse(url=error_redirect, status_code=302)
 
 class PublishPostRequest(BaseModel):
     post_id: str

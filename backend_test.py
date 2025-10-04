@@ -1,33 +1,30 @@
 #!/usr/bin/env python3
 """
-Instagram OAuth Callback Fix Testing - LIVE Environment
-======================================================
+Test Instagram OAuth Callback Corrections on PREVIEW Environment
+================================================================
 
-Testing the corrected Instagram callback that should process connections directly
-without redirecting to Facebook callback.
+This test validates that Instagram OAuth callback corrections work properly
+on the PREVIEW environment (https://claire-marcus-app-1.preview.emergentagent.com/api)
+to prove the fixes are correct before deploying to LIVE.
 
-CRITICAL TEST FOCUS (from review request):
-1. Instagram callback processes connections directly (no redirect to Facebook)
-2. Instagram logs should show "🔄 Instagram OAuth callback - TRAITEMENT DIRECT"
-3. Complete token exchange process for Instagram
-4. Creation of active Instagram connections
-
-Environment: https://claire-marcus.com/api
-Credentials: lperpere@yahoo.fr / L@Reunion974!
-
-This test verifies that the Instagram callback corrections are working on the LIVE environment
-after the services have been restarted to apply the fixes.
+Test Objectives:
+1. Authenticate on PREVIEW with lperpere@yahoo.fr / L@Reunion974!
+2. Test Instagram callback with parameters to verify direct processing
+3. Verify correct logs showing "🔄 Instagram OAuth callback - TRAITEMENT DIRECT"
+4. Confirm no redirection to Facebook - callback should process Instagram directly
 """
 
 import requests
 import json
-import sys
 import time
-from urllib.parse import urlparse, parse_qs
-from datetime import datetime
+import sys
+from urllib.parse import urlencode, parse_qs, urlparse
 
-# LIVE Environment Configuration
-BASE_URL = "https://claire-marcus.com/api"
+# Configuration for PREVIEW environment
+BASE_URL = "https://claire-marcus-app-1.preview.emergentagent.com/api"
+FRONTEND_URL = "https://claire-marcus-app-1.preview.emergentagent.com"
+
+# Test credentials
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

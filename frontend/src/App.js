@@ -5026,12 +5026,8 @@ function MainApp() {
     setShowDateTimeModal(true);
   };
 
-  // Fonction pour annuler la programmation d'un post
+  // Fonction pour annuler la programmation d'un post (déprogrammer)
   const handleCancelCalendarPost = async (post) => {
-    if (!window.confirm('Annuler la programmation de ce post ?\n\nIl sera retiré du calendrier et pourra être validé à nouveau.')) {
-      return;
-    }
-
     const token = localStorage.getItem('access_token');
     if (!token) {
       toast.error('Vous devez être connecté');
@@ -5039,29 +5035,30 @@ function MainApp() {
     }
 
     try {
-      toast.loading('Annulation en cours...', { id: 'cancel-post' });
+      toast.loading('🗑️ Déprogrammation en cours...', { id: 'unschedule-post' });
 
-      const response = await axios.delete(
-        `${API}/posts/cancel-calendar-post/${post.id}`,
+      const response = await axios.put(
+        `${API}/posts/${post.id}/unschedule`,
+        {}, // Pas de body requis
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.data?.success) {
-        toast.success('🗑️ Post retiré du calendrier !', { id: 'cancel-post' });
+        toast.success('✅ Post déprogrammé avec succès ! Vous pouvez maintenant le modifier dans l\'onglet Posts.', { id: 'unschedule-post' });
         
         // Fermer la modal
         setSelectedCalendarPost(null);
         
         // Recharger les données
         await loadCalendarPosts();
-        await loadGeneratedPosts(); // Pour que le bouton redevienne "Valider"
+        await loadGeneratedPosts(); // Pour que le bouton redevienne "Programmer"
       } else {
-        toast.error('Erreur lors de l\'annulation', { id: 'cancel-post' });
+        toast.error('Erreur lors de la déprogrammation', { id: 'unschedule-post' });
       }
     } catch (error) {
-      console.error('Error canceling post:', error);
+      console.error('Error unscheduling post:', error);
       const errorMessage = error.response?.data?.detail || error.message || 'Erreur inconnue';
-      toast.error(`❌ ${errorMessage}`, { id: 'cancel-post' });
+      toast.error(`❌ ${errorMessage}`, { id: 'unschedule-post' });
     }
   };
 

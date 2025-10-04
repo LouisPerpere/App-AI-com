@@ -9279,6 +9279,7 @@ function MainApp() {
                     onValidate={handleValidatePost}
                     onPublishNow={handlePublishNow}
                     isModifying={isModifyingPost}
+                    isPublishing={isPublishing}
                     modificationRequestRef={modificationRequestRef}
                     showModificationPreview={showModificationPreview}
                     setShowModificationPreview={setShowModificationPreview}

@@ -3260,13 +3260,14 @@ async def instagram_oauth_callback(
         
         import aiohttp
         async with aiohttp.ClientSession() as session:
-            # ÉTAPE 1: Code → Short-lived token (même endpoint que Facebook)
+            # ÉTAPE 1: Code → Short-lived token avec config Instagram
             token_url = "https://graph.facebook.com/v20.0/oauth/access_token"
             token_params = {
                 'client_id': facebook_app_id,
                 'client_secret': facebook_app_secret,
                 'redirect_uri': redirect_uri,
-                'code': code.strip()
+                'code': code.strip(),
+                'config_id': instagram_config_id  # Config Instagram spécifique !
             }
             
             async with session.get(token_url, params=token_params) as token_response:

@@ -2902,6 +2902,75 @@ function MainApp() {
       console.error('Error loading pending content:', error);
     }
   };
+
+  // Fonction pour nettoyer les badges des images en fonction des posts réellement existants
+  const cleanImageBadges = useCallback(async () => {
+    try {
+      console.log('🧹 Nettoyage des badges d\'images...');
+      
+      // Récupérer tous les posts existants
+      const existingPosts = generatedPosts || [];
+      
+      // Créer un map des images utilisées par plateforme
+      const usedImages = new Map();
+      
+      existingPosts.forEach(post => {
+        if (post.visual_url) {
+          // Extraire l'ID de l'image depuis l'URL
+          let imageId = null;
+          
+          // Format: /api/content/{id}/file ou similaire
+          const urlMatch = post.visual_url.match(/\/content\/([^\/]+)\/file/);
+          if (urlMatch) {
+            imageId = urlMatch[1];
+          }
+          
+          if (imageId) {
+            if (!usedImages.has(imageId)) {
+              usedImages.set(imageId, {
+                used_on_facebook: false,
+                used_on_instagram: false,
+                used_on_linkedin: false
+              });
+            }
+            
+            // Marquer la plateforme correspondante
+            const platform = (post.platform || 'instagram').toLowerCase();
+            if (platform === 'facebook') {
+              usedImages.get(imageId).used_on_facebook = true;
+            } else if (platform === 'instagram') {
+              usedImages.get(imageId).used_on_instagram = true;
+            } else if (platform === 'linkedin') {
+              usedImages.get(imageId).used_on_linkedin = true;
+            }
+          }
+        }
+      });
+      
+      // Mettre à jour l'état pendingContent avec les bonnes valeurs de badge
+      setPendingContent(prevContent => {
+        return prevContent.map(content => {
+          const imageUsage = usedImages.get(content.id) || {
+            used_on_facebook: false,
+            used_on_instagram: false,
+            used_on_linkedin: false
+          };
+          
+          return {
+            ...content,
+            used_on_facebook: imageUsage.used_on_facebook,
+            used_on_instagram: imageUsage.used_on_instagram,
+            used_on_linkedin: imageUsage.used_on_linkedin
+          };
+        });
+      });
+      
+      console.log(`✅ Badges nettoyés pour ${usedImages.size} images utilisées`);
+      
+    } catch (error) {
+      console.error('❌ Erreur lors du nettoyage des badges:', error);
+    }
+  }, [generatedPosts]);
   
   // Load content for specific months (optimized loading)
   const loadContentForMonths = useCallback(async (monthKeys) => {

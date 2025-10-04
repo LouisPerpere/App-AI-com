@@ -436,8 +436,13 @@ const PostThumbnail = ({ post, onClick, onAddImage, onModifyImage, onValidatePos
           
           {/* Badge plateforme */}
           <div className="absolute top-2 left-2 flex flex-col space-y-1">
-            {/* Badge "Programmé" pour les posts validés */}
-            {post.validated ? (
+            {/* Badge statut du post */}
+            {post.published || post.status === 'published' ? (
+              <span className="bg-blue-500 text-white text-xs px-3 py-2 rounded-full font-medium flex items-center space-x-1">
+                <CheckCircleIcon className="w-3 h-3" />
+                <span>Publié</span>
+              </span>
+            ) : post.validated ? (
               <span className="bg-green-500 text-white text-xs px-3 py-2 rounded-full font-medium flex items-center space-x-1">
                 <Check className="w-3 h-3" />
                 <span>Programmé</span>

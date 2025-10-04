@@ -3422,6 +3422,21 @@ frontend:
         comment: "🎯 PUBLIER DE SUITE IMPROVEMENTS TESTING - AUTHENTICATION BLOCKED BUT CODE VERIFIED: Testing of new improvements (spinner, modal persistence, success message) attempted with credentials lperpere@yahoo.fr / L@Reunion974! but blocked by authentication issue. ❌ AUTHENTICATION PROBLEM: Login successful but no token stored, preventing dashboard access and UI testing. ✅ CODE REVIEW COMPLETE: All 6 improvements verified in codebase - (1) Spinner with animate-spin class during isPublishing (lines 1380-1384), (2) Button disabled during publication (lines 1373, 1375), (3) Multiple click prevention via isPublishing check (line 5159), (4) Modal persistence confirmed (line 5206 comment), (5) 'Post publié !' success message (lines 1392-1400), (6) Blue 'Publié' badge vs green 'Programmé' (lines 440-444). ✅ IMPLEMENTATION VERIFIED: All requested improvements are correctly implemented and ready for testing once authentication is resolved. The code shows proper state management with setIsPublishing(true/false) flow and try/finally protection."
 
 backend:
+  - task: "Instagram OAuth Callback Connection Issue on LIVE"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Diagnostic complet du problème de connexion Instagram sur l'environnement LIVE claire-marcus.com suite à la demande française urgente. Investigation: (1) Authentification LIVE, (2) Test génération URL auth Instagram, (3) Test callback Instagram avec simulation, (4) Vérification état connexions sociales, (5) Analyse logs d'erreur LIVE, (6) Identification cause régression."
+      - working: false
+        agent: "testing"
+        comment: "🚨 CAUSE RACINE IDENTIFIÉE - PROBLÈME CRITIQUE CALLBACK INSTAGRAM: Diagnostic complet révèle que le callback Instagram (/api/social/instagram/callback) redirige automatiquement vers le callback Facebook (/api/social/facebook/callback) au lieu de traiter Instagram directement. PROBLÈME TECHNIQUE: Code backend ligne 3216 server.py redirige intentionnellement Instagram vers Facebook car 'Instagram Business se connecte via Facebook OAuth', mais cette redirection empêche la création de connexions Instagram actives. IMPACT: Base de données montre 1 connexion Instagram INACTIVE avec token de test 'test_token_from_callback' au lieu d'un token réel. SOLUTION REQUISE: Corriger la logique de callback Instagram pour créer des connexions Instagram actives ou implémenter une logique qui crée les deux types de connexions lors du callback. Environnement LIVE confirmé opérationnel avec authentification réussie."
+
   - task: "September 2024 Post Generation - Last Day Mode Fix"
     implemented: true
     working: false

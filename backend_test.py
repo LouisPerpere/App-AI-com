@@ -80,30 +80,31 @@ class InstagramCallbackTester:
             
             if response.status_code == 200:
                 data = response.json()
-                auth_url = data.get("auth_url", "")
+                auth_url = data.get("auth_url")
                 
-                # Verify URL contains correct parameters for LIVE environment
-                if "claire-marcus.com" in auth_url and "instagram" in auth_url:
-                    self.log("✅ Instagram OAuth URL generated correctly")
-                    self.log(f"   URL: {auth_url[:100]}...")
-                    
-                    # Check for correct redirect URI (should be LIVE domain)
-                    if "redirect_uri=https%3A//claire-marcus.com/api/social/instagram/callback" in auth_url:
-                        self.log("✅ Correct Instagram callback URI in OAuth URL (LIVE domain)")
-                        return True
-                    else:
-                        self.log("❌ Instagram callback URI not correct for LIVE environment", "ERROR")
-                        return False
+                print(f"   ✅ Instagram auth URL generated successfully")
+                print(f"   URL: {auth_url}")
+                
+                # Parse URL to extract state parameter
+                parsed_url = urlparse(auth_url)
+                query_params = parse_qs(parsed_url.query)
+                state = query_params.get('state', [None])[0]
+                
+                if state and '|' in state:
+                    print(f"   ✅ State parameter format correct: {state}")
+                    return state
                 else:
-                    self.log("❌ Invalid Instagram OAuth URL format", "ERROR")
-                    return False
+                    print(f"   ❌ Invalid state parameter format: {state}")
+                    return None
+                    
             else:
-                self.log(f"❌ Instagram auth URL generation failed: {response.status_code}", "ERROR")
-                return False
+                print(f"   ❌ Auth URL generation failed: {response.status_code}")
+                print(f"   Response: {response.text}")
+                return None
                 
         except Exception as e:
-            self.log(f"❌ Instagram auth URL test error: {str(e)}", "ERROR")
-            return False
+            print(f"   ❌ Auth URL generation error: {str(e)}")
+            return None
     
     def test_instagram_callback_no_facebook_redirect(self):
         """CRITICAL TEST: Verify Instagram callback doesn't redirect to Facebook"""

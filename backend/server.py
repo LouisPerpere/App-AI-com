@@ -3291,7 +3291,8 @@ async def instagram_oauth_callback(
                     'grant_type': 'fb_exchange_token',
                     'client_id': facebook_app_id,
                     'client_secret': facebook_app_secret,
-                    'fb_exchange_token': short_lived_token
+                    'fb_exchange_token': short_lived_token,
+                    'config_id': instagram_config_id  # Config Instagram pour long-lived token
                 }
                 
                 async with session.get(long_lived_url, params=long_lived_params) as long_response:

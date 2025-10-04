@@ -2894,11 +2894,6 @@ function MainApp() {
         
         // Update total count for display
         setTotalContentCount(data.total || 0);
-        
-        // Nettoyer les badges après chargement de la bibliothèque (avec un petit délai pour que les posts soient chargés)
-        setTimeout(() => {
-          cleanImageBadges();
-        }, 500);
       } else {
         setTotalContentCount(0);
       }

@@ -4792,6 +4792,140 @@ async def schedule_post_for_later(
         print(f"❌ Error scheduling post: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erreur lors de la programmation: {str(e)}")
 
+@api_router.put("/posts/{post_id}/unschedule")
+async def unschedule_post(
+    post_id: str,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Déprogrammer un post - le retirer du calendrier et le remettre en brouillon"""
+    try:
+        print(f"🗑️ Unscheduling post {post_id} for user {user_id}")
+        
+        dbm = get_database()
+        db = dbm.db
+        
+        # Récupérer le post du calendrier
+        calendar_post = db.calendar_posts.find_one({
+            "id": post_id,
+            "owner_id": user_id
+        })
+        
+        if not calendar_post:
+            raise HTTPException(status_code=404, detail="Post programmé non trouvé")
+        
+        # Mettre à jour le post original pour le remettre en brouillon
+        update_data = {
+            "validated": False,
+            "status": "draft", 
+            "scheduled_at": None,
+            "scheduled_for_publication": False,
+            "unscheduled_at": datetime.utcnow().isoformat()
+        }
+        
+        # Mettre à jour dans generated_posts
+        db.generated_posts.update_one(
+            {"id": post_id, "owner_id": user_id},
+            {"$set": update_data}
+        )
+        
+        # Supprimer du calendrier
+        db.calendar_posts.delete_one({"id": post_id, "owner_id": user_id})
+        
+        print(f"✅ Post {post_id} déprogrammé avec succès")
+        
+        return {
+            "success": True,
+            "message": "Post déprogrammé avec succès. Vous pouvez maintenant le modifier dans l'onglet Posts.",
+            "status": "unscheduled"
+        }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error unscheduling post: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la déprogrammation: {str(e)}")
+
+@api_router.post("/posts/{post_id}/publish-now")
+async def publish_post_immediately(
+    post_id: str,
+    user_id: str = Depends(get_current_user_id_robust)
+):
+    """Publier un post immédiatement (bypasser la programmation)"""
+    try:
+        print(f"⚡ Publishing post {post_id} immediately for user {user_id}")
+        
+        dbm = get_database()
+        db = dbm.db
+        
+        # Récupérer le post
+        post = db.generated_posts.find_one({
+            "id": post_id,
+            "owner_id": user_id
+        })
+        
+        if not post:
+            raise HTTPException(status_code=404, detail="Post non trouvé")
+        
+        # Vérifier les connexions sociales actives
+        social_connections = list(db.social_media_connections.find({
+            "user_id": user_id,
+            "active": True
+        }))
+        
+        if not social_connections:
+            raise HTTPException(status_code=400, detail="Aucune connexion sociale active trouvée")
+        
+        # Utiliser la même logique que l'endpoint publish original
+        # mais marquer directement comme publié
+        published_at = datetime.utcnow().isoformat()
+        
+        # Mettre à jour le post comme publié
+        update_data = {
+            "published": True,
+            "status": "published",
+            "published_at": published_at,
+            "publication_method": "immediate",  # Marquer comme publication immédiate
+            "validated": True
+        }
+        
+        # Mettre à jour dans generated_posts  
+        db.generated_posts.update_one(
+            {"id": post_id, "owner_id": user_id},
+            {"$set": update_data}
+        )
+        
+        # Ajouter au calendrier avec statut publié
+        calendar_post = {
+            **post,
+            "status": "published", 
+            "published_at": published_at,
+            "publication_method": "immediate",
+            "created_for_calendar": True,
+            "immediate_publication_date": datetime.utcnow().isoformat()
+        }
+        
+        db.calendar_posts.replace_one(
+            {"id": post_id}, 
+            calendar_post, 
+            upsert=True
+        )
+        
+        print(f"✅ Post {post_id} publié immédiatement")
+        
+        return {
+            "success": True,
+            "message": "Post publié immédiatement avec succès !",
+            "published_at": published_at,
+            "status": "published",
+            "publication_method": "immediate"
+        }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error publishing post immediately: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la publication immédiate: {str(e)}")
+
 @api_router.post("/debug/convert-post-platform")
 async def convert_post_platform(
     request: dict,

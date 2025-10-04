@@ -26,7 +26,7 @@ BASE_URL = "https://claire-marcus-app-1.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 
-class CalendarTester:
+class InstagramOAuthTester:
     def __init__(self):
         self.session = requests.Session()
         self.auth_token = None

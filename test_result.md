@@ -151,10 +151,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Image Badge Cleaning Function in Library"
-  stuck_tasks: []
+    - "Instagram OAuth Callback Connection Issue on LIVE"
+  stuck_tasks: 
+    - "Instagram OAuth Callback Connection Issue on LIVE"
   test_all: false
-  test_priority: "high_first"
+  test_priority: "stuck_first"
 
 agent_communication:
   - agent: "testing"

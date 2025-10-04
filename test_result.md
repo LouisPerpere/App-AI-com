@@ -3127,7 +3127,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Facebook OAuth Corrections - AJAX Error Handling & Manual Connection"
+    - "Facebook Post Generation with Carousels from Library (September)"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

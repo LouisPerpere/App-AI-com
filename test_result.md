@@ -3429,7 +3429,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -3439,6 +3439,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "🚨 CAUSE RACINE IDENTIFIÉE - PROBLÈME CRITIQUE CALLBACK INSTAGRAM: Diagnostic complet révèle que le callback Instagram (/api/social/instagram/callback) redirige automatiquement vers le callback Facebook (/api/social/facebook/callback) au lieu de traiter Instagram directement. PROBLÈME TECHNIQUE: Code backend ligne 3216 server.py redirige intentionnellement Instagram vers Facebook car 'Instagram Business se connecte via Facebook OAuth', mais cette redirection empêche la création de connexions Instagram actives. IMPACT: Base de données montre 1 connexion Instagram INACTIVE avec token de test 'test_token_from_callback' au lieu d'un token réel. SOLUTION REQUISE: Corriger la logique de callback Instagram pour créer des connexions Instagram actives ou implémenter une logique qui crée les deux types de connexions lors du callback. Environnement LIVE confirmé opérationnel avec authentification réussie."
+      - working: false
+        agent: "testing"
+        comment: "🚨 INSTAGRAM CALLBACK CORRECTIONS NOT FULLY IMPLEMENTED - CRITICAL ISSUE PERSISTS: Comprehensive testing of Instagram callback corrections on LIVE environment completed. CORRECTIONS CLAIMED BUT NOT WORKING: Despite review request stating corrections were applied to handle Instagram connections directly instead of redirecting to Facebook, the Instagram callback still redirects to Facebook when parameters are provided. TECHNICAL FINDINGS: ✅ Instagram callback without parameters works correctly (returns Instagram-specific error), ❌ Instagram callback with parameters redirects to '/api/social/facebook/callback?code=test&state=test%7Cuser', ❌ Instagram callback function at lines 3198-3382 appears correct but is not being reached when parameters are present, ❌ Backend logs show no Instagram callback execution, indicating route conflict or middleware interception. ROOT CAUSE: There is still an old redirect logic or route conflict that intercepts Instagram callback requests with parameters and redirects them to Facebook callback. The corrected Instagram callback function exists but is bypassed. IMPACT: Users attempting Instagram OAuth have requests processed as Facebook OAuth, preventing Instagram connection creation. SOLUTION REQUIRED: Identify and remove the old redirect logic that intercepts Instagram callbacks before they reach the corrected handler. The corrections mentioned in the review request are incomplete."
 
   - task: "September 2024 Post Generation - Last Day Mode Fix"
     implemented: true

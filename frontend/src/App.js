@@ -8151,6 +8151,19 @@ function MainApp() {
                               <Calendar className="w-4 h-4 mr-2" />
                               {monthlyLibraryView ? 'Vue liste' : 'Vue mensuelle'}
                             </Button>
+                            
+                            <Button
+                              onClick={cleanImageBadges}
+                              variant="outline"
+                              size="sm"
+                              className="text-green-600 border-green-300 hover:bg-green-50"
+                              title="Synchroniser les badges avec les posts existants"
+                            >
+                              <RefreshCw className="w-4 h-4 mr-2" />
+                              <span className="hidden sm:inline">Nettoyer badges</span>
+                              <span className="sm:hidden">Badges</span>
+                            </Button>
+                            
                             <div className="text-sm font-medium text-gray-700">
                               <span className="text-purple-600 font-bold">{pendingContent.length}</span>
                               <span className="text-gray-500">/{totalContentCount}</span>

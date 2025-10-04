@@ -2255,6 +2255,7 @@ function MainApp() {
   // Posts management states
   const [selectedPost, setSelectedPost] = useState(null);
   const [isModifyingPost, setIsModifyingPost] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [postsByMonth, setPostsByMonth] = useState({});
   const [collapsedPostMonths, setCollapsedPostMonths] = useState(() => getInitialCollapsedPostMonths());
   

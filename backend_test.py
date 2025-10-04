@@ -31,71 +31,52 @@ TEST_PASSWORD = "L@Reunion974!"
 class InstagramCallbackTester:
     def __init__(self):
         self.session = requests.Session()
-        self.access_token = None
+        self.auth_token = None
         self.user_id = None
         
-    def log(self, message, level="INFO"):
-        """Log message with timestamp"""
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        print(f"[{timestamp}] {level}: {message}")
-        
     def authenticate(self):
-        """Authenticate with LIVE environment"""
-        self.log("🔐 Authenticating with LIVE environment...")
-        
-        login_data = {
-            "email": TEST_EMAIL,
-            "password": TEST_PASSWORD
-        }
+        """Step 1: Authenticate on PREVIEW environment"""
+        print("🔐 STEP 1: Authentication on PREVIEW environment")
+        print(f"   URL: {BASE_URL}/auth/login-robust")
+        print(f"   Email: {TEST_EMAIL}")
         
         try:
-            response = self.session.post(f"{BASE_URL}/auth/login-robust", json=login_data, timeout=30)
+            response = self.session.post(f"{BASE_URL}/auth/login-robust", json={
+                "email": TEST_EMAIL,
+                "password": TEST_PASSWORD
+            })
             
             if response.status_code == 200:
                 data = response.json()
-                self.access_token = data.get("access_token")
+                self.auth_token = data.get("access_token")
                 self.user_id = data.get("user_id")
+                
+                print(f"   ✅ Authentication successful")
+                print(f"   User ID: {self.user_id}")
+                print(f"   Token: {self.auth_token[:30]}..." if self.auth_token else "No token")
                 
                 # Set authorization header for future requests
                 self.session.headers.update({
-                    "Authorization": f"Bearer {self.access_token}"
+                    "Authorization": f"Bearer {self.auth_token}"
                 })
                 
-                self.log(f"✅ Authentication successful - User ID: {self.user_id}")
                 return True
             else:
-                self.log(f"❌ Authentication failed: {response.status_code} - {response.text}", "ERROR")
+                print(f"   ❌ Authentication failed: {response.status_code}")
+                print(f"   Response: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log(f"❌ Authentication error: {str(e)}", "ERROR")
-            return False
-    
-    def test_health_check(self):
-        """Test LIVE API health"""
-        try:
-            self.log("🏥 Testing LIVE API health...")
-            
-            response = self.session.get(f"{BASE_URL}/health", timeout=10)
-            
-            if response.status_code == 200:
-                data = response.json()
-                self.log(f"✅ LIVE API is healthy: {data.get('message', 'OK')}")
-                return True
-            else:
-                self.log(f"❌ Health check failed: {response.status_code}", "ERROR")
-                return False
-                
-        except Exception as e:
-            self.log(f"❌ Health check error: {str(e)}", "ERROR")
+            print(f"   ❌ Authentication error: {str(e)}")
             return False
     
     def test_instagram_auth_url_generation(self):
-        """Test Instagram OAuth URL generation"""
+        """Step 2: Test Instagram OAuth URL generation"""
+        print("\n🔗 STEP 2: Instagram OAuth URL Generation")
+        print(f"   URL: {BASE_URL}/social/instagram/auth-url")
+        
         try:
-            self.log("🔗 Testing Instagram OAuth URL generation...")
-            
-            response = self.session.get(f"{BASE_URL}/social/instagram/auth-url", timeout=10)
+            response = self.session.get(f"{BASE_URL}/social/instagram/auth-url")
             
             if response.status_code == 200:
                 data = response.json()

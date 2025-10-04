@@ -602,6 +602,7 @@ const PostPreviewModal = ({
   isFromCalendar = false, // Nouveau prop pour savoir si c'est depuis le calendrier
   onMovePost, // Fonction pour déplacer le post
   onCancelPost, // Fonction pour annuler/déprogrammer le post
+  onPublishNow, // Fonction pour publier immédiatement
   // Nouveaux props pour la gestion d'état globale
   showModificationPreview,
   setShowModificationPreview, 

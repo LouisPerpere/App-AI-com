@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
 """
-Instagram OAuth Callback Corrections Testing on LIVE Environment
-===============================================================
+Instagram OAuth Callback Fix Testing - LIVE Environment
+======================================================
 
-Testing the corrections applied to handle Instagram connections directly instead of redirecting to Facebook:
-- Suppression de la redirection automatique vers Facebook callback
-- Implémentation du processus complet d'OAuth Instagram 
-- Création directe de connexions Instagram avec tokens permanents
-- Gestion d'erreurs spécifique à Instagram
+Testing the corrected Instagram callback that should process connections directly
+without redirecting to Facebook callback.
 
-Test Objectives:
-1. Authenticate on LIVE environment (https://claire-marcus.com/api)
-2. Test Instagram callback to verify it no longer redirects to Facebook
-3. Verify new logic processes Instagram directly
-4. Check connection states and verify connections can now be created
+CRITICAL TEST FOCUS (from review request):
+1. Instagram callback processes connections directly (no redirect to Facebook)
+2. Instagram logs should show "🔄 Instagram OAuth callback - TRAITEMENT DIRECT"
+3. Complete token exchange process for Instagram
+4. Creation of active Instagram connections
+
+Environment: https://claire-marcus.com/api
+Credentials: lperpere@yahoo.fr / L@Reunion974!
+
+This test verifies that the Instagram callback corrections are working on the LIVE environment
+after the services have been restarted to apply the fixes.
 """
 
 import requests

@@ -2075,6 +2075,18 @@ function MainApp() {
       icon: "X"
     };
   }, []);
+
+  // Helper function pour mapper les icônes
+  const getIconComponent = (iconName) => {
+    switch(iconName) {
+      case 'Clock': return Clock;
+      case 'Calendar': return Calendar;
+      case 'Lock': return Lock;
+      case 'X': return X;
+      default: return Clock;
+    }
+  };
+
   const [selectedCalendarPost, setSelectedCalendarPost] = useState(null);
   
   // États pour le workflow de modification amélioré (globaux)

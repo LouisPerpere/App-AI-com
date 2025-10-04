@@ -1363,7 +1363,7 @@ const PostPreviewModal = ({
                   {!post.published && !post.validated && post.status !== 'published' && !isFromCalendar && (
                     <div className="text-center">
                       <button
-                        onClick={() => handlePublishNow(post)}
+                        onClick={() => onPublishNow(post)}
                         className="text-xs text-gray-500 hover:text-purple-600 transition-colors underline"
                       >
                         publier de suite

@@ -342,62 +342,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-                    print("✅ Callback processed successfully")
-                    return True
-                    
-            else:
-                print(f"❌ Instagram callback failed: {response.status_code}")
-                print(f"   Response: {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Instagram callback test error: {e}")
-            return False
-    
-    def test_social_connections_state(self):
-        """Test social connections state endpoints"""
-        print("\n🔍 Step 5: Testing social connections state...")
-        
-        try:
-            # Test main connections endpoint
-            response = self.session.get(f"{BASE_URL}/social/connections")
-            
-            if response.status_code == 200:
-                data = response.json()
-                connections = data.get("connections", [])
-                
-                print(f"✅ Social connections endpoint accessible")
-                print(f"   Active connections: {len(connections)}")
-                
-                for conn in connections:
-                    platform = conn.get("platform", "unknown")
-                    active = conn.get("active", False)
-                    print(f"   - {platform}: {'active' if active else 'inactive'}")
-                
-                return True
-            else:
-                print(f"❌ Social connections endpoint failed: {response.status_code}")
-                print(f"   Response: {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Social connections test error: {e}")
-            return False
-    
-    def test_debug_social_connections(self):
-        """Test debug social connections endpoint"""
-        print("\n🔍 Step 6: Testing debug social connections...")
-        
-        try:
-            response = self.session.get(f"{BASE_URL}/debug/social-connections")
-            
-            if response.status_code == 200:
-                data = response.json()
-                
-                print(f"✅ Debug social connections endpoint accessible")
-                print(f"   Total connections: {data.get('total_connections', 0)}")
-                print(f"   Active connections: {data.get('active_connections', 0)}")
-                print(f"   Facebook connections: {data.get('facebook_connections', 0)}")
                 print(f"   Instagram connections: {data.get('instagram_connections', 0)}")
                 
                 return True

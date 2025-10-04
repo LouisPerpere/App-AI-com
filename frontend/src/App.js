@@ -2019,6 +2019,62 @@ function MainApp() {
     
     return false;
   }, []);
+  
+  // Helper function pour obtenir le message de blocage approprié
+  const getBlockedMessage = useCallback((monthKey) => {
+    const now = new Date();
+    const currentDay = now.getDate();
+    const currentHour = now.getHours();
+    const isLastDayOfMonth = currentDay === new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    
+    // Parse le monthKey
+    const [yearStr, monthStr] = monthKey.split('-');
+    const targetYear = parseInt(yearStr);
+    const targetMonth = parseInt(monthStr);
+    
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    const monthDifference = (targetYear - currentYear) * 12 + (targetMonth - currentMonth);
+    
+    // Messages selon le type de blocage
+    if (monthDifference === 0 && isLastDayOfMonth && currentHour >= 22) {
+      return { 
+        desktop: "passez au mois suivant", 
+        mobile: "Mois suivant",
+        icon: "Clock"
+      };
+    }
+    
+    if (monthDifference === 1 && currentDay < 15) {
+      return { 
+        desktop: `disponible le 15`, 
+        mobile: "Le 15",
+        icon: "Calendar"
+      };
+    }
+    
+    if (monthDifference > 1) {
+      return { 
+        desktop: "trop tôt", 
+        mobile: "Trop tôt",
+        icon: "Lock"
+      };
+    }
+    
+    if (monthDifference < 0) {
+      return { 
+        desktop: "mois passé", 
+        mobile: "Passé",
+        icon: "X"
+      };
+    }
+    
+    return { 
+      desktop: "indisponible", 
+      mobile: "Non",
+      icon: "X"
+    };
+  }, []);
   const [selectedCalendarPost, setSelectedCalendarPost] = useState(null);
   
   // États pour le workflow de modification amélioré (globaux)

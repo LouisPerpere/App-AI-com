@@ -1,26 +1,30 @@
 #!/usr/bin/env python3
 """
-Backend Testing Script for Calendar Functionalities Post-Programmer Transformation
-Testing the 5 critical calendar features mentioned in the French review request:
-1. "Déprogrammer" button on scheduled posts
-2. Explanatory text "Déprogrammez ce post pour pouvoir le modifier en onglet post"
-3. Modal preview opens when clicking on calendar posts
-4. Thumbnails/vignettes visible next to text
-5. Scheduled posts appear in calendar after "Programmer"
+Instagram OAuth Callback URL Corrections Testing
+==============================================
+
+Testing the corrections made to Instagram OAuth redirect URIs:
+- FACEBOOK_REDIRECT_URI: claire-marcus.com → claire-marcus-app-1.preview.emergentagent.com
+- INSTAGRAM_REDIRECT_URI: claire-marcus.com → claire-marcus-app-1.preview.emergentagent.com  
+- FRONTEND_URL: claire-marcus.com → claire-marcus-app-1.preview.emergentagent.com
+
+Test Objectives:
+1. Verify auth URLs contain correct redirect_uri with preview domain
+2. Test Instagram callback simulation with new URLs
+3. Verify connection state endpoints
+4. Ensure no "Invalid verification code format" errors
 """
 
 import requests
 import json
 import sys
-from datetime import datetime
+import time
+from urllib.parse import urlparse, parse_qs
 
 # Configuration
-BACKEND_URL = "https://claire-marcus.com"
-API_BASE = f"{BACKEND_URL}/api"
-
-# Test credentials from review request
-EMAIL = "lperpere@yahoo.fr"
-PASSWORD = "L@Reunion974!"
+BASE_URL = "https://claire-marcus-app-1.preview.emergentagent.com/api"
+TEST_EMAIL = "lperpere@yahoo.fr"
+TEST_PASSWORD = "L@Reunion974!"
 
 class CalendarTester:
     def __init__(self):

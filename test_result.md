@@ -3336,6 +3336,18 @@ frontend:
         agent: "main"
         comment: "🔧 ADDITIONAL AUTHORIZATION HEADER FIXES: Found and fixed 2 more API requests missing explicit Authorization headers: DELETE /api/notes/{noteId} and GET /api/auth/me (with timeout). Also fixed backend database schema to include missing fields (business_description, budget_range, email) in _create_default_business_profile to match Pydantic model. Backend logs confirm token validation working correctly for authenticated requests and proper fallback to demo mode for requests without Authorization headers. All API requests now use explicit headers instead of relying on axios.defaults which can have race conditions."
 
+  - task: "Publier de Suite Button Positioning and Functionality Fix"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "🎯 POSITIONING CORRECTIONS VERIFIED BUT FUNCTIONALITY BROKEN: Comprehensive testing completed with mixed results. ✅ POSITIONING SUCCESS: 'Publier de suite' button correctly positioned UNDER main buttons (Modifier/Programmer) and centered as requested in French review. Visual confirmation shows proper layout with main buttons side by side and 'publier de suite' 66px below them. ✅ UI LAYOUT VERIFIED: Main buttons in centered flex container, proper spacing and alignment maintained. ❌ CRITICAL JAVASCRIPT ERROR: Console error 'handlePublishNow is not defined' prevents button functionality. ROOT CAUSE: handlePublishNow function exists in main component (line 5122) but is NOT passed as prop to PostPreviewModal component. MISSING PROP: PostPreviewModal component (lines 9240-9253) needs onPublishNow prop to receive handlePublishNow function. SOLUTION REQUIRED: Add onPublishNow={handlePublishNow} prop to PostPreviewModal component calls to enable button functionality."
+
 backend:
   - task: "September 2024 Post Generation - Last Day Mode Fix"
     implemented: true

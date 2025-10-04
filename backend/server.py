@@ -3241,17 +3241,21 @@ async def instagram_oauth_callback(
         print(f"❌ Failed to extract user_id from state")
         return RedirectResponse(url=f"{frontend_url}?auth_error=instagram_state_parse_error", status_code=302)
     
-    # FLOW INSTAGRAM : Même processus que Facebook mais spécialisé Instagram
+    # FLOW INSTAGRAM : Même processus que Facebook mais avec config Instagram spécifique
     try:
         facebook_app_id = os.environ.get('FACEBOOK_APP_ID')  # Instagram utilise l'App Facebook
         facebook_app_secret = os.environ.get('FACEBOOK_APP_SECRET')
         redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://claire-marcus.com/api/social/instagram/callback')
+        
+        # CONFIG INSTAGRAM SPÉCIFIQUE - CRITIQUE pour la persistence !
+        instagram_config_id = os.environ.get('INSTAGRAM_CONFIG_ID_PAGES', os.environ.get('INSTAGRAM_CONFIG_ID', '1309694717566880'))
         
         if not facebook_app_id or not facebook_app_secret:
             raise Exception("Facebook/Instagram App ID ou Secret manquant")
         
         print(f"🔄 ÉTAPE 1/3: Instagram - Échange code → short-lived token")
         print(f"   App ID: {facebook_app_id}")
+        print(f"   Instagram Config ID: {instagram_config_id}")
         print(f"   Code: {code[:20]}...")
         
         import aiohttp

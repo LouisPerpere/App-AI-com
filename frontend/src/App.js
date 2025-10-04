@@ -9995,6 +9995,7 @@ function MainApp() {
             onClose={() => setSelectedCalendarPost(null)}
             onModify={handleModifyCalendarPost}
             onValidate={handleValidatePost}
+            onPublishNow={handlePublishNow}
             isModifying={isModifyingPost}
             modificationRequestRef={modificationRequestRef}
             isFromCalendar={true}

@@ -1366,7 +1366,7 @@ const PostPreviewModal = ({
                         onClick={() => onPublishNow(post)}
                         className="text-xs text-gray-500 hover:text-purple-600 transition-colors underline"
                       >
-                        publier de suite
+                        Publier de suite
                       </button>
                     </div>
                   )}

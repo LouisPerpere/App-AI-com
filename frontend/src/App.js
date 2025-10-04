@@ -1979,12 +1979,45 @@ function MainApp() {
   // Helper function pour vérifier si la génération est bloquée
   const isGenerationBlocked = useCallback((monthKey) => {
     const now = new Date();
+    const currentDay = now.getDate();
     const currentHour = now.getHours();
-    const isLastDayOfMonth = now.getDate() === new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-    const currentMonthKey = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+    const isLastDayOfMonth = currentDay === new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
     
-    // Bloquer la génération du mois actuel après 22h le dernier jour du mois
-    return isLastDayOfMonth && currentHour >= 22 && monthKey === currentMonthKey;
+    // Parse le monthKey pour obtenir année et mois
+    const [yearStr, monthStr] = monthKey.split('-');
+    const targetYear = parseInt(yearStr);
+    const targetMonth = parseInt(monthStr);
+    
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1; // getMonth() retourne 0-11, on veut 1-12
+    
+    // Calculer la différence en mois
+    const monthDifference = (targetYear - currentYear) * 12 + (targetMonth - currentMonth);
+    
+    // RÈGLES DE DISPONIBILITÉ :
+    
+    // 1. Mois actuel : toujours disponible (sauf après 22h le dernier jour)
+    if (monthDifference === 0) {
+      // Exception : bloquer après 22h le dernier jour du mois actuel
+      return isLastDayOfMonth && currentHour >= 22;
+    }
+    
+    // 2. Mois suivant : disponible seulement à partir du 15 du mois actuel
+    if (monthDifference === 1) {
+      return currentDay < 15; // Bloqué si on est avant le 15
+    }
+    
+    // 3. Mois plus loin : toujours bloqués
+    if (monthDifference > 1) {
+      return true; // Bloqué
+    }
+    
+    // 4. Mois passés : bloqués
+    if (monthDifference < 0) {
+      return true; // Bloqué
+    }
+    
+    return false;
   }, []);
   const [selectedCalendarPost, setSelectedCalendarPost] = useState(null);
   

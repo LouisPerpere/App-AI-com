@@ -342,22 +342,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-                    
-                    # Check if redirect uses preview domain
-                    if "claire-marcus-app-1.preview.emergentagent.com" in redirect_url:
-                        print("✅ Callback redirect uses correct preview domain")
-                        
-                        # Check if it's not the "Invalid verification code format" error
-                        if "invalid_state" not in redirect_url.lower():
-                            print("✅ No 'Invalid verification code format' error detected")
-                            return True
-                        else:
-                            print("⚠️ State validation error (expected with test data)")
-                            return True
-                    else:
-                        print("❌ Callback redirect does not use preview domain")
-                        return False
-                else:
                     print("✅ Callback processed successfully")
                     return True
                     

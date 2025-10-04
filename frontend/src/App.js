@@ -10032,6 +10032,7 @@ function MainApp() {
             onValidate={handleValidatePost}
             onPublishNow={handlePublishNow}
             isModifying={isModifyingPost}
+            isPublishing={isPublishing}
             modificationRequestRef={modificationRequestRef}
             isFromCalendar={true}
             onMovePost={handleMoveCalendarPost}

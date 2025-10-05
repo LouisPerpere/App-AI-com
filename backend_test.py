@@ -46,12 +46,12 @@ class InstagramLiveDiagnostic:
         timestamp = datetime.now().strftime("%H:%M:%S")
         print(f"[{timestamp}] {level}: {message}")
         
-    def authenticate(self):
-        """Step 1: Authenticate with test credentials"""
-        self.log("🔐 STEP 1: Authentication with test credentials")
+    def authenticate_live(self):
+        """Step 1: Authenticate on LIVE environment"""
+        self.log("🔐 STEP 1: Authentication on LIVE environment (claire-marcus.com)")
         
         try:
-            response = self.session.post(f"{BACKEND_URL}/auth/login-robust", json={
+            response = self.session.post(f"{LIVE_BACKEND_URL}/auth/login-robust", json={
                 "email": TEST_EMAIL,
                 "password": TEST_PASSWORD
             })
@@ -66,16 +66,16 @@ class InstagramLiveDiagnostic:
                     'Authorization': f'Bearer {self.auth_token}'
                 })
                 
-                self.log(f"✅ Authentication successful")
+                self.log(f"✅ LIVE Authentication successful")
                 self.log(f"   User ID: {self.user_id}")
                 self.log(f"   Token: {self.auth_token[:20]}..." if self.auth_token else "   Token: None")
                 return True
             else:
-                self.log(f"❌ Authentication failed: {response.status_code} - {response.text}", "ERROR")
+                self.log(f"❌ LIVE Authentication failed: {response.status_code} - {response.text}", "ERROR")
                 return False
                 
         except Exception as e:
-            self.log(f"❌ Authentication error: {str(e)}", "ERROR")
+            self.log(f"❌ LIVE Authentication error: {str(e)}", "ERROR")
             return False
     
     def analyze_database_state(self):

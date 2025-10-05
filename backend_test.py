@@ -28,7 +28,7 @@ BACKEND_URL = "https://claire-marcus-app-1.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 
-class InstagramOAuthInvestigation:
+class InstagramCallbackTester:
     def __init__(self):
         self.session = requests.Session()
         self.session.headers.update({

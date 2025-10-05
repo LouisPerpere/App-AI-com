@@ -492,20 +492,21 @@ class InstagramCallbackTester:
 
 def main():
     """Main execution function"""
-    print("🔍 Instagram OAuth Persistence Investigation")
-    print("=" * 50)
-    print(f"Backend URL: {BACKEND_URL}")
-    print(f"Test Credentials: {TEST_EMAIL}")
-    print("=" * 50)
+    print("🎯 INSTAGRAM OAUTH CALLBACK TESTING - EXACT FACEBOOK LOGIC + INSTAGRAM CONFIG")
+    print("=" * 80)
+    print(f"📅 Test Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"🌐 Backend URL: {BACKEND_URL}")
+    print(f"👤 Test User: {TEST_EMAIL}")
+    print("=" * 80)
     
-    investigator = InstagramOAuthInvestigation()
-    results = investigator.run_comprehensive_investigation()
+    tester = InstagramCallbackTester()
+    success = tester.run_comprehensive_investigation()
     
     # Exit with appropriate code
-    if all(results.values()):
-        sys.exit(0)  # All tests passed
+    if success:
+        sys.exit(0)  # Tests passed
     else:
-        sys.exit(1)  # Some tests failed
+        sys.exit(1)  # Tests failed
 
 if __name__ == "__main__":
     main()

@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
 """
-Instagram OAuth Callback Testing - Exact Facebook Logic + Instagram Config
-Testing the 3-step token exchange, EAA tokens, and connection persistence
+Instagram OAuth LIVE Environment Diagnostic - claire-marcus.com
+Diagnostiquer le problème Instagram sur l'environnement LIVE claire-marcus.com 
+où les URLs sont correctement configurées dans Facebook Developer Console.
 
-Review Request: Tester le callback Instagram avec la logique Facebook exacte + config Instagram
-- vérifier la persistance des connexions.
+CONTEXTE CRITIQUE:
+L'utilisateur confirme que le problème est sur l'environnement LIVE (claire-marcus.com) et NON sur preview. 
+Les URLs sont correctement configurées dans Facebook Developer Console pour la production. 
+Facebook fonctionne mais Instagram ne persiste pas.
 
-CONTEXTE: Logique Facebook copiée EXACTEMENT et adaptée pour Instagram avec config spécifique.
-TESTS CRITIQUES:
-1. Vérifier 3-step token exchange : Instagram doit suivre le même flow que Facebook
-2. Vérifier tokens EAA : Les tokens Instagram doivent commencer par "EAA" comme Facebook  
-3. Vérifier persistance : Les connexions doivent être sauvées avec active=True
-4. Vérifier cohérence : Debug et frontend doivent montrer les mêmes connexions
+INVESTIGATION LIVE REQUISE:
+1. **Tester sur claire-marcus.com** : https://claire-marcus.com/api
+2. **Comparer Facebook vs Instagram** : Pourquoi Facebook fonctionne et pas Instagram ?
+3. **Analyser la logique callback** : Vérifier si mes corrections sont appliquées sur LIVE
+4. **Vérifier les tokens** : Instagram vs Facebook sur l'environnement de production
+5. **Diagnostic de persistance** : Pourquoi Instagram ne "tient" pas sur LIVE ?
 
 AUTHENTIFICATION: lperpere@yahoo.fr / L@Reunion974!
-URL: https://claire-marcus-app-1.preview.emergentagent.com/api
+URL LIVE: https://claire-marcus.com/api
 """
 
 import requests
@@ -22,9 +25,10 @@ import json
 import time
 import sys
 from datetime import datetime
+import urllib.parse
 
-# Configuration
-BACKEND_URL = "https://claire-marcus-app-1.preview.emergentagent.com/api"
+# Configuration LIVE
+LIVE_BACKEND_URL = "https://claire-marcus.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

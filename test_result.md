@@ -3134,8 +3134,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Facebook Post Generation with Carousels from Library (September)"
-  stuck_tasks: []
+    - "Instagram OAuth Callback Connection Issue on LIVE"
+  stuck_tasks: 
+    - "Instagram OAuth Callback Connection Issue on LIVE"
   test_all: false
   test_priority: "high_first"
 

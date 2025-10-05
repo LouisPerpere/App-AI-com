@@ -133,12 +133,23 @@ class InstagramOAuthInvestigation:
             
             if response.status_code == 200:
                 data = response.json()
-                connections = data.get('connections', [])
+                
+                # Handle different response formats
+                if isinstance(data, list):
+                    connections = data
+                else:
+                    connections = data.get('connections', [])
                 
                 self.log("✅ Frontend connections endpoint accessible")
                 self.log(f"📊 Frontend sees {len(connections)} connections")
                 
-                instagram_frontend = [conn for conn in connections if conn.get('platform') == 'instagram']
+                # Handle case where connections might be strings or objects
+                instagram_frontend = []
+                for conn in connections:
+                    if isinstance(conn, dict) and conn.get('platform') == 'instagram':
+                        instagram_frontend.append(conn)
+                    elif isinstance(conn, str) and 'instagram' in conn.lower():
+                        instagram_frontend.append({'platform': 'instagram', 'connected': True})
                 
                 if instagram_frontend:
                     self.log(f"📋 Instagram connections visible to frontend:")

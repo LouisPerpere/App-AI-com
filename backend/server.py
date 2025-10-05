@@ -3234,46 +3234,109 @@ async def instagram_oauth_callback(
         print(f"❌ Failed to extract user_id from state")
         return RedirectResponse(url=f"{frontend_url}?auth_error=instagram_state_parse_error", status_code=302)
     
-    # APPROCHE SIMPLIFIÉE : Storage direct comme dans l'historique qui marchait
+    # VRAI FLOW OAUTH 2024 : Échange code contre vrai token Instagram
     try:
-        print(f"📝 APPROCHE SIMPLIFIÉE: Stockage direct Instagram")
+        facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
+        facebook_app_secret = os.environ.get('FACEBOOK_APP_SECRET') 
+        redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI')
         
-        # Créer directement une connexion Instagram simple avec le code reçu
-        # Cette approche marchait selon l'historique test_result.md
-        instagram_connection = {
-            "id": str(uuid.uuid4()),
-            "user_id": user_id, 
-            "platform": "instagram",
-            "access_token": f"instagram_token_{code[:10]}_{int(time.time())}", # Token simple basé sur code
-            "instagram_user_id": f"ig_user_{user_id}",
-            "username": "Instagram Connected",
-            "page_id": f"page_{user_id}",
-            "page_name": "Instagram Business Account",
-            "connected_at": datetime.now(timezone.utc).isoformat(),
-            "active": True,
-            "token_type": "instagram_simple",
-            "config_id": "1309694717566880"
-        }
+        if not facebook_app_id or not facebook_app_secret:
+            raise Exception("App ID ou Secret manquant")
         
-        # Supprimer anciennes connexions Instagram
-        db_manager = get_database()
-        db_manager.db.social_media_connections.delete_many({
-            "user_id": user_id,
-            "platform": "instagram" 
-        })
+        print(f"🔄 VRAI OAUTH 2024: Échange code → token Instagram")
+        print(f"   App ID: {facebook_app_id}")
+        print(f"   Code reçu: {code[:15]}...")
         
-        # Sauvegarder la nouvelle connexion
-        db_manager.db.social_media_connections.insert_one(instagram_connection)
-        print(f"✅ CONNEXION INSTAGRAM SIMPLIFIÉE CRÉÉE")
-        print(f"   User ID: {user_id}")
-        print(f"   Platform: instagram")
-        print(f"   Active: True")
-        print(f"   Token: {instagram_connection['access_token'][:20]}...")
-        
-        # Succès - redirection
-        success_redirect = f"{frontend_url}?auth_success=instagram_connected&approach=simplified"
-        print(f"✅ INSTAGRAM SIMPLIFIÉ RÉUSSI - Redirection vers {success_redirect}")
-        return RedirectResponse(url=success_redirect, status_code=302)
+        import aiohttp
+        async with aiohttp.ClientSession() as session:
+            # ÉTAPE 1: Échanger le code contre un access_token via Facebook Graph API
+            token_url = "https://graph.facebook.com/v20.0/oauth/access_token"
+            token_params = {
+                'client_id': facebook_app_id,
+                'client_secret': facebook_app_secret,
+                'redirect_uri': redirect_uri,
+                'code': code
+            }
+            
+            print(f"📡 Échange token Instagram via: {token_url}")
+            
+            async with session.get(token_url, params=token_params) as response:
+                if response.status != 200:
+                    error_text = await response.text()
+                    raise Exception(f"Token exchange failed: {response.status} - {error_text}")
+                
+                token_data = await response.json()
+                access_token = token_data.get('access_token')
+                
+                if not access_token:
+                    raise Exception("No access token received from Instagram OAuth")
+                
+                print(f"✅ VRAI TOKEN REÇU: {access_token[:20]}...")
+                
+                # ÉTAPE 2: Récupérer les informations du compte Instagram via Graph API
+                me_url = f"https://graph.facebook.com/v20.0/me"
+                me_params = {
+                    'access_token': access_token,
+                    'fields': 'id,name,accounts{id,name,instagram_business_account{id,username}}'
+                }
+                
+                async with session.get(me_url, params=me_params) as me_response:
+                    if me_response.status == 200:
+                        user_data = await me_response.json()
+                        accounts = user_data.get('accounts', {}).get('data', [])
+                        
+                        print(f"📊 Données utilisateur reçues: {len(accounts)} page(s)")
+                        
+                        # ÉTAPE 3: Créer une connexion pour chaque compte Instagram Business trouvé
+                        db_manager = get_database()
+                        connections_created = 0
+                        
+                        # Supprimer anciennes connexions
+                        db_manager.db.social_media_connections.delete_many({
+                            "user_id": user_id,
+                            "platform": "instagram"
+                        })
+                        
+                        for account in accounts:
+                            ig_account = account.get('instagram_business_account')
+                            if ig_account:
+                                ig_user_id = ig_account.get('id')
+                                ig_username = ig_account.get('username', 'Instagram')
+                                page_id = account.get('id')
+                                page_name = account.get('name', 'Instagram Page')
+                                
+                                # Créer connexion avec VRAI token
+                                connection = {
+                                    "id": str(uuid.uuid4()),
+                                    "user_id": user_id,
+                                    "platform": "instagram", 
+                                    "access_token": access_token,  # VRAI TOKEN OAUTH
+                                    "instagram_user_id": ig_user_id,
+                                    "username": ig_username,
+                                    "page_id": page_id,
+                                    "page_name": page_name,
+                                    "connected_at": datetime.now(timezone.utc).isoformat(),
+                                    "active": True,
+                                    "token_type": "oauth_access_token",
+                                    "expires_at": None  # Les tokens Instagram Business sont long-lived
+                                }
+                                
+                                db_manager.db.social_media_connections.insert_one(connection)
+                                connections_created += 1
+                                
+                                print(f"✅ CONNEXION INSTAGRAM RÉELLE CRÉÉE:")
+                                print(f"   Username: @{ig_username}")
+                                print(f"   Instagram ID: {ig_user_id}")
+                                print(f"   Token valide: {access_token[:15]}...")
+                        
+                        if connections_created > 0:
+                            success_redirect = f"{frontend_url}?auth_success=instagram_connected&connections={connections_created}"
+                            print(f"✅ {connections_created} CONNEXION(S) INSTAGRAM AVEC VRAIS TOKENS")
+                            return RedirectResponse(url=success_redirect, status_code=302)
+                        else:
+                            raise Exception("Aucun compte Instagram Business trouvé")
+                    else:
+                        raise Exception("Impossible de récupérer les données utilisateur")
         
     except Exception as error:
         print(f"❌ Instagram simple storage failed: {str(error)}")

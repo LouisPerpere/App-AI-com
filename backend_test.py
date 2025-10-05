@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite - Instagram OAuth Persistence Investigation
-Investigation approfondie - Pourquoi la connexion Instagram ne persiste toujours pas malgré les corrections.
+Instagram OAuth Callback Testing - Exact Facebook Logic + Instagram Config
+Testing the 3-step token exchange, EAA tokens, and connection persistence
 
-This test suite investigates the critical issue where Instagram connections don't persist
-despite the simplified approach implemented by the main agent.
+Review Request: Tester le callback Instagram avec la logique Facebook exacte + config Instagram
+- vérifier la persistance des connexions.
 
-Test Focus:
-1. Database state analysis for Instagram connections
-2. Complete OAuth Instagram flow testing  
-3. Long-lived token analysis
-4. Frontend API testing
-5. Button logic testing
+CONTEXTE: Logique Facebook copiée EXACTEMENT et adaptée pour Instagram avec config spécifique.
+TESTS CRITIQUES:
+1. Vérifier 3-step token exchange : Instagram doit suivre le même flow que Facebook
+2. Vérifier tokens EAA : Les tokens Instagram doivent commencer par "EAA" comme Facebook  
+3. Vérifier persistance : Les connexions doivent être sauvées avec active=True
+4. Vérifier cohérence : Debug et frontend doivent montrer les mêmes connexions
 
-Credentials: lperpere@yahoo.fr / L@Reunion974!
-Backend URL: https://claire-marcus-app-1.preview.emergentagent.com/api
+AUTHENTIFICATION: lperpere@yahoo.fr / L@Reunion974!
+URL: https://claire-marcus-app-1.preview.emergentagent.com/api
 """
 
 import requests

@@ -1,34 +1,34 @@
 #!/usr/bin/env python3
 """
-Test Instagram OAuth Callback Corrections on PREVIEW Environment
-================================================================
+Backend Test Suite - Instagram OAuth Persistence Investigation
+Investigation approfondie - Pourquoi la connexion Instagram ne persiste toujours pas malgré les corrections.
 
-This test validates that Instagram OAuth callback corrections work properly
-on the PREVIEW environment (https://claire-marcus-app-1.preview.emergentagent.com/api)
-to prove the fixes are correct before deploying to LIVE.
+This test suite investigates the critical issue where Instagram connections don't persist
+despite the simplified approach implemented by the main agent.
 
-Test Objectives:
-1. Authenticate on PREVIEW with lperpere@yahoo.fr / L@Reunion974!
-2. Test Instagram callback with parameters to verify direct processing
-3. Verify correct logs showing "🔄 Instagram OAuth callback - TRAITEMENT DIRECT"
-4. Confirm no redirection to Facebook - callback should process Instagram directly
+Test Focus:
+1. Database state analysis for Instagram connections
+2. Complete OAuth Instagram flow testing  
+3. Long-lived token analysis
+4. Frontend API testing
+5. Button logic testing
+
+Credentials: lperpere@yahoo.fr / L@Reunion974!
+Backend URL: https://claire-marcus-app-1.preview.emergentagent.com/api
 """
 
 import requests
 import json
 import time
 import sys
-from urllib.parse import urlencode, parse_qs, urlparse
+from datetime import datetime
 
-# Configuration for PREVIEW environment
-BASE_URL = "https://claire-marcus-app-1.preview.emergentagent.com/api"
-FRONTEND_URL = "https://claire-marcus-app-1.preview.emergentagent.com"
-
-# Test credentials
+# Configuration
+BACKEND_URL = "https://claire-marcus-app-1.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 
-class InstagramCallbackTester:
+class InstagramOAuthInvestigation:
     def __init__(self):
         self.session = requests.Session()
         self.auth_token = None

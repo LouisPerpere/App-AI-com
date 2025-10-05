@@ -37,7 +37,7 @@ class InstagramLiveDiagnostic:
         self.session = requests.Session()
         self.session.headers.update({
             'Content-Type': 'application/json',
-            'User-Agent': 'Instagram-OAuth-Investigation/1.0'
+            'User-Agent': 'Instagram-LIVE-Diagnostic/1.0'
         })
         self.auth_token = None
         self.user_id = None

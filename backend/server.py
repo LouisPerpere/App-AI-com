@@ -5375,7 +5375,10 @@ async def clean_invalid_social_tokens(user_id: str = Depends(get_current_user_id
                 {"access_token": {"$exists": False}},
                 {"access_token": {"$regex": "^temp_facebook_token_"}},
                 {"access_token": {"$regex": "^temp_instagram_token_"}},
-                {"access_token": {"$regex": "^temp_"}}
+                {"access_token": {"$regex": "^temp_"}},
+                {"access_token": {"$regex": "^instagram_token_test_insta_"}},
+                {"access_token": {"$regex": "^facebook_token_test_"}},
+                {"access_token": {"$regex": "_test_"}}
             ]
         })
         

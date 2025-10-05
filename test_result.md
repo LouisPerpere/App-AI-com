@@ -151,7 +151,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Instagram OAuth Callback Connection Issue on LIVE"
+    - "Instagram OAuth Real Flow Token Exchange Testing"
   stuck_tasks: 
     - "Instagram OAuth Callback Connection Issue on LIVE"
   test_all: false

@@ -31,43 +31,47 @@ TEST_PASSWORD = "L@Reunion974!"
 class InstagramOAuthInvestigation:
     def __init__(self):
         self.session = requests.Session()
+        self.session.headers.update({
+            'Content-Type': 'application/json',
+            'User-Agent': 'Instagram-OAuth-Investigation/1.0'
+        })
         self.auth_token = None
         self.user_id = None
         
+    def log(self, message, level="INFO"):
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        print(f"[{timestamp}] {level}: {message}")
+        
     def authenticate(self):
-        """Step 1: Authenticate on PREVIEW environment"""
-        print("🔐 STEP 1: Authentication on PREVIEW environment")
-        print(f"   URL: {BASE_URL}/auth/login-robust")
-        print(f"   Email: {TEST_EMAIL}")
+        """Step 1: Authenticate with test credentials"""
+        self.log("🔐 STEP 1: Authentication with test credentials")
         
         try:
-            response = self.session.post(f"{BASE_URL}/auth/login-robust", json={
+            response = self.session.post(f"{BACKEND_URL}/auth/login-robust", json={
                 "email": TEST_EMAIL,
                 "password": TEST_PASSWORD
             })
             
             if response.status_code == 200:
                 data = response.json()
-                self.auth_token = data.get("access_token")
-                self.user_id = data.get("user_id")
-                
-                print(f"   ✅ Authentication successful")
-                print(f"   User ID: {self.user_id}")
-                print(f"   Token: {self.auth_token[:30]}..." if self.auth_token else "No token")
+                self.auth_token = data.get('access_token')
+                self.user_id = data.get('user_id')
                 
                 # Set authorization header for future requests
                 self.session.headers.update({
-                    "Authorization": f"Bearer {self.auth_token}"
+                    'Authorization': f'Bearer {self.auth_token}'
                 })
                 
+                self.log(f"✅ Authentication successful")
+                self.log(f"   User ID: {self.user_id}")
+                self.log(f"   Token: {self.auth_token[:20]}..." if self.auth_token else "   Token: None")
                 return True
             else:
-                print(f"   ❌ Authentication failed: {response.status_code}")
-                print(f"   Response: {response.text}")
+                self.log(f"❌ Authentication failed: {response.status_code} - {response.text}", "ERROR")
                 return False
                 
         except Exception as e:
-            print(f"   ❌ Authentication error: {str(e)}")
+            self.log(f"❌ Authentication error: {str(e)}", "ERROR")
             return False
     
     def test_instagram_auth_url_generation(self):

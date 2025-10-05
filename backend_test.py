@@ -32,7 +32,7 @@ LIVE_BACKEND_URL = "https://claire-marcus.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 
-class InstagramCallbackTester:
+class InstagramLiveDiagnostic:
     def __init__(self):
         self.session = requests.Session()
         self.session.headers.update({

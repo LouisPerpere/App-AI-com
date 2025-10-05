@@ -316,8 +316,18 @@ class InstagramOAuthInvestigation:
             self.log(f"   Debug endpoint Instagram count: {debug_instagram}")
             
             # Frontend endpoint Instagram connections
-            frontend_connections = frontend_data.get('connections', [])
-            frontend_instagram = [conn for conn in frontend_connections if conn.get('platform') == 'instagram']
+            if isinstance(frontend_data, list):
+                frontend_connections = frontend_data
+            else:
+                frontend_connections = frontend_data.get('connections', [])
+            
+            frontend_instagram = []
+            for conn in frontend_connections:
+                if isinstance(conn, dict) and conn.get('platform') == 'instagram':
+                    frontend_instagram.append(conn)
+                elif isinstance(conn, str) and 'instagram' in conn.lower():
+                    frontend_instagram.append({'platform': 'instagram', 'connected': True})
+            
             frontend_instagram_count = len(frontend_instagram)
             
             self.log(f"   Frontend endpoint Instagram count: {frontend_instagram_count}")

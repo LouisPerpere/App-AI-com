@@ -45,7 +45,7 @@ const Footer = ({ onShowPrivacyPolicy }) => {
                   </div>
                   <div>
                     <button 
-                      onClick={onShowPrivacyPolicy}
+                      onClick={() => onShowPrivacyPolicy && onShowPrivacyPolicy()}
                       className="text-gray-600 hover:text-gray-700 underline transition-colors"
                     >
                       Politique de confidentialité

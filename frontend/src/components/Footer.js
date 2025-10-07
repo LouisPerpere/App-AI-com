@@ -43,6 +43,14 @@ const Footer = ({ onShowPrivacyPolicy }) => {
                   <div>
                     Hébergement : <a href="https://emergentagent.com" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-gray-700 underline">Emergent</a>
                   </div>
+                  <div>
+                    <button 
+                      onClick={onShowPrivacyPolicy}
+                      className="text-gray-600 hover:text-gray-700 underline transition-colors"
+                    >
+                      Politique de confidentialité
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="text-center mt-4 pt-3 border-t border-gray-300 text-xs text-gray-500">

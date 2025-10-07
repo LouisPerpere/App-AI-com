@@ -10550,7 +10550,7 @@ function MainApp() {
   return (
     <div className="App">
       <Dashboard />
-      <Footer />
+      <Footer onShowPrivacyPolicy={() => setShowPrivacyPolicy(true)} />
     </div>
   );
 }

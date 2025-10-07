@@ -110,7 +110,7 @@ const pingBackend = async (maxWaitMs = 60000) => {
   console.warn('⚠️ Backend ping timeout after', maxWaitMs, 'ms', lastErr?.message);
   return false;
 };
-const AuthPage = ({ onAuthSuccess }) => {
+const AuthPage = ({ onAuthSuccess, onShowPrivacyPolicy }) => {
   const [activeTab, setActiveTab] = useState('login');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

@@ -39,7 +39,7 @@ const API = `${BACKEND_URL}/api`;
 console.log('🔍 AUTH DEBUG - API URL:', API);
 
 // Composant Accordéon Mentions Légales - Ouvert par défaut pour Facebook
-const MentionsLegalesAccordion = () => {
+const MentionsLegalesAccordion = ({ onShowPrivacyPolicy }) => {
   const [isOpen, setIsOpen] = useState(true); // OUVERT PAR DÉFAUT pour afficher "EI Fou De Vanille"
 
   return (

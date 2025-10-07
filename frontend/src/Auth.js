@@ -736,7 +736,7 @@ const AuthPage = ({ onAuthSuccess, onShowPrivacyPolicy }) => {
           
           {/* Accordéon Mentions Légales - Ouvert par défaut */}
           <div className="max-w-md mx-auto mt-2 px-4">
-            <MentionsLegalesAccordion />
+            <MentionsLegalesAccordion onShowPrivacyPolicy={onShowPrivacyPolicy} />
           </div>
         </div>
       </div>

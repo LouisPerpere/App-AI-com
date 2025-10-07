@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-const Footer = () => {
+const Footer = ({ onShowPrivacyPolicy }) => {
   const [isLegalOpen, setIsLegalOpen] = useState(false);
 
   return (

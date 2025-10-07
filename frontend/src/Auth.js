@@ -74,6 +74,14 @@ const MentionsLegalesAccordion = ({ onShowPrivacyPolicy }) => {
             <div>
               Hébergement : <a href="https://emergentagent.com" target="_blank" rel="noopener noreferrer" className="text-gray-600 underline">Emergent</a>
             </div>
+            <div>
+              <button 
+                onClick={onShowPrivacyPolicy}
+                className="text-gray-600 underline hover:text-gray-800 transition-colors"
+              >
+                Politique de confidentialité
+              </button>
+            </div>
             <div>© {new Date().getFullYear()} • TVA Non Applicable • RGPD</div>
           </div>
         )}

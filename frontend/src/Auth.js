@@ -76,7 +76,7 @@ const MentionsLegalesAccordion = ({ onShowPrivacyPolicy }) => {
             </div>
             <div>
               <button 
-                onClick={onShowPrivacyPolicy}
+                onClick={() => onShowPrivacyPolicy && onShowPrivacyPolicy()}
                 className="text-gray-600 underline hover:text-gray-800 transition-colors"
               >
                 Politique de confidentialité

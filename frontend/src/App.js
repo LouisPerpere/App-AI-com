@@ -6649,7 +6649,7 @@ function MainApp() {
 
   // Show auth page if not authenticated
   if (!isAuthenticated) {
-    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+    return <AuthPage onAuthSuccess={handleAuthSuccess} onShowPrivacyPolicy={() => setShowPrivacyPolicy(true)} />;
   }
 
   // Show payment page if requested

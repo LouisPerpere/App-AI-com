@@ -669,6 +669,7 @@ async def get_pending_content_mongo(offset: int = 0, limit: int = 24, user_id: s
 @api_router.get("/content/pending-temp")
 async def get_pending_content_with_auth(offset: int = 0, limit: int = 24, current_user_id: str = Depends(get_current_user_id_robust)):
     """Endpoint corrigé avec authentification appropriée"""
+    print("🚨🚨🚨 PENDING-TEMP ENDPOINT CALLED - THIS SHOULD REQUIRE AUTH! 🚨🚨🚨")
     try:
         print(f"🔑 DEBUG: pending-temp called with authenticated user_id: {current_user_id}")
         # Utiliser le user_id authentifié au lieu du hardcodé

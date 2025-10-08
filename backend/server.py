@@ -667,11 +667,11 @@ async def get_pending_content_mongo(offset: int = 0, limit: int = 24, user_id: s
 
 # Endpoint temporaire sans authentification pour corriger le problème immédiatement
 @api_router.get("/content/pending-temp")
-async def get_pending_content_no_auth(offset: int = 0, limit: int = 24):
-    """Endpoint temporaire sans auth - utilise le user_id connu avec des médias"""
+async def get_pending_content_with_auth(offset: int = 0, limit: int = 24, current_user_id: str = Depends(get_current_user_id_robust)):
+    """Endpoint corrigé avec authentification appropriée"""
     try:
-        # Utiliser le user_id qui a des médias (de l'agent de test)
-        user_id = "6a670c66-c06c-4d75-9dd5-c747e8a0281a"
+        # Utiliser le user_id authentifié au lieu du hardcodé
+        user_id = current_user_id
         
         media_collection = get_media_collection()
         q = {"owner_id": user_id, "$or": [{"deleted": {"$ne": True}}, {"deleted": {"$exists": False}}]}

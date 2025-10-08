@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
-INVESTIGATION URGENTE - Interface utilisateur vide malgré création de contenu
-Test critique pour identifier pourquoi l'UI est vide pour test@claire-marcus.com
+MIGRATION DES DONNÉES RESTAURANT - Test critique pour la migration des données
+Test pour migrer les posts et analyses du restaurant de la collection 'notes' vers les collections correctes
+Environnement: LIVE (https://claire-marcus.com/api)
+Compte: test@claire-marcus.com
 """
 
 import requests

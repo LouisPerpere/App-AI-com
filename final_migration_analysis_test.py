@@ -226,7 +226,7 @@ class FinalMigrationAnalysis:
         
         return True
 
-    def provide_implementation_guidance(self):
+    def provide_implementation_guidance(self, analysis_results):
         """Fournir des conseils d'implémentation"""
         print(f"\n" + "=" * 80)
         print("🛠️ GUIDE D'IMPLÉMENTATION - SOLUTION RECOMMANDÉE")

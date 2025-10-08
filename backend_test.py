@@ -22,43 +22,43 @@ class LiveUIInvestigation:
         self.session = requests.Session()
         self.session.headers.update({
             'Content-Type': 'application/json',
-            'User-Agent': 'Claire-Marcus-Testing-Agent/1.0'
+            'User-Agent': 'Backend-Test-Investigation/1.0'
         })
-        
-    def log(self, message, level="INFO"):
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        print(f"[{timestamp}] {level}: {message}")
-        
+
     def authenticate(self):
-        """Authentification sur l'environnement LIVE"""
-        self.log("🔐 STEP 1: Authentication on LIVE environment (claire-marcus.com)")
+        """Étape 1: Authentification avec test@claire-marcus.com"""
+        print(f"🔐 ÉTAPE 1: Authentification sur {self.base_url}")
+        print(f"   Email: {TEST_EMAIL}")
+        print(f"   Password: {TEST_PASSWORD}")
         
         try:
-            response = self.session.post(f"{LIVE_BACKEND_URL}/auth/login-robust", json={
+            response = self.session.post(f"{self.base_url}/auth/login-robust", json={
                 "email": TEST_EMAIL,
                 "password": TEST_PASSWORD
             })
             
+            print(f"   Status: {response.status_code}")
+            
             if response.status_code == 200:
                 data = response.json()
-                self.auth_token = data.get('access_token')
+                self.token = data.get('access_token')
                 self.user_id = data.get('user_id')
                 
-                # Set authorization header for future requests
+                # Configurer l'en-tête d'autorisation
                 self.session.headers.update({
-                    'Authorization': f'Bearer {self.auth_token}'
+                    'Authorization': f'Bearer {self.token}'
                 })
                 
-                self.log(f"✅ LIVE Authentication successful")
-                self.log(f"   User ID: {self.user_id}")
-                self.log(f"   Token: {self.auth_token[:20]}..." if self.auth_token else "   Token: None")
+                print(f"   ✅ AUTHENTIFICATION RÉUSSIE")
+                print(f"   User ID: {self.user_id}")
+                print(f"   Token: {self.token[:30]}...")
                 return True
             else:
-                self.log(f"❌ LIVE Authentication failed: {response.status_code} - {response.text}", "ERROR")
+                print(f"   ❌ ÉCHEC AUTHENTIFICATION: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log(f"❌ LIVE Authentication error: {str(e)}", "ERROR")
+            print(f"   ❌ ERREUR AUTHENTIFICATION: {e}")
             return False
     
     def analyze_live_social_connections_state(self):

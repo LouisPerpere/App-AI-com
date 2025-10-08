@@ -2893,8 +2893,6 @@ async def get_media_for_specific_user(user_id: str):
 
 
 
-@api_router.get("/content/pending")
-
 @api_router.get("/social/instagram/test-auth")
 async def test_instagram_auth():
     """Endpoint de test pour générer et vérifier l'URL d'autorisation Instagram"""

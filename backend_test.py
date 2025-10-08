@@ -379,8 +379,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-                data = response.json()
-                self.log("✅ LIVE Debug endpoint accessible")
                 
                 # Analyze connection data
                 total_connections = data.get('total_connections', 0)

@@ -2266,6 +2266,48 @@ async def get_website_analyses(user_id: str = Depends(get_current_user_id_robust
         print(f"❌ Failed to fetch analyses: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch website analyses: {str(e)}")
 
+@api_router.get("/debug/posts-count")
+async def debug_posts_count(user_id: str = Depends(get_current_user_id_robust)):
+    """Debug endpoint to check posts count in database"""
+    try:
+        print(f"🔍 DEBUG ENDPOINT: debug_posts_count called for user {user_id}")
+        
+        dbm = get_database()
+        db = dbm.db
+        
+        # Count all posts
+        total_posts = db.generated_posts.count_documents({})
+        print(f"🔍 DEBUG: Total posts in collection: {total_posts}")
+        
+        # Count posts for this user
+        user_posts = db.generated_posts.count_documents({"owner_id": user_id})
+        print(f"🔍 DEBUG: Posts for owner_id {user_id}: {user_posts}")
+        
+        # Get a sample of posts for this user
+        sample_posts = list(db.generated_posts.find({"owner_id": user_id}).limit(3))
+        print(f"🔍 DEBUG: Sample posts: {len(sample_posts)}")
+        
+        sample_data = []
+        for post in sample_posts:
+            sample_data.append({
+                "id": post.get("id", ""),
+                "title": post.get("title", "")[:50],
+                "owner_id": post.get("owner_id", ""),
+                "platform": post.get("platform", "")
+            })
+        
+        return {
+            "user_id": user_id,
+            "total_posts_in_collection": total_posts,
+            "posts_for_user": user_posts,
+            "sample_posts": sample_data,
+            "database_name": db.name
+        }
+        
+    except Exception as e:
+        print(f"❌ DEBUG endpoint error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Debug endpoint error: {str(e)}")
+
 class PostModificationRequest(BaseModel):
     modification_request: str
 

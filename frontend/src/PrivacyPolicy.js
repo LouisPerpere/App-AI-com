@@ -219,6 +219,30 @@ const PrivacyPolicy = ({ onBack }) => {
             <section>
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
                 <span className="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-bold mr-3">11</span>
+                📂 Réponse aux demandes des autorités publiques
+              </h2>
+              <div className="text-gray-700 space-y-3">
+                <p>Claire & Marcus s'engage à protéger la vie privée de ses utilisateurs, y compris en cas de demande d'accès aux données par une autorité publique.</p>
+                
+                <p>Conformément à la réglementation en vigueur (notamment le RGPD), nous appliquons les principes suivants :</p>
+                
+                <ul className="list-disc pl-6 space-y-2">
+                  <li>✅ <strong>Vérification légale préalable</strong> : aucune donnée n'est communiquée sans vérification préalable de la légalité de la demande (mandat, décision judiciaire, base légale claire).</li>
+                  <li>✅ <strong>Droit de refus</strong> : si une demande nous semble non conforme ou abusive, nous nous réservons le droit de la contester ou de demander des précisions.</li>
+                  <li>✅ <strong>Minimisation des données</strong> : seules les informations strictement nécessaires et pertinentes sont transmises, en fonction de la demande justifiée.</li>
+                  <li>✅ <strong>Traçabilité</strong> : toute demande d'accès est documentée en interne, incluant la date, l'identité de l'émetteur, la nature des données transmises et le fondement juridique invoqué.</li>
+                </ul>
+                
+                <div className="bg-green-50 p-4 rounded-lg mt-4">
+                  <p><strong>Transparence :</strong> Claire & Marcus n'a jamais transmis de données personnelles à des autorités à des fins de sécurité nationale ou de surveillance de masse.</p>
+                </div>
+              </div>
+            </section>
+
+            {/* Section 12 */}
+            <section>
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <span className="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-bold mr-3">12</span>
                 Contact
               </h2>
               <div className="text-gray-700">

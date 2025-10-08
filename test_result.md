@@ -51,6 +51,19 @@
 
 user_problem_statement: "🚨 INVESTIGATION URGENTE - Fuite de données entre comptes utilisateurs - Données de lperpere@yahoo.fr visibles sur test@claire-marcus.com. PROBLÈME CRITIQUE DE SÉCURITÉ IDENTIFIÉ : L'utilisateur rapporte que le compte test@claire-marcus.com affiche l'analyse de site web et les photos du compte lperpere@yahoo.fr. C'est une violation grave de confidentialité."
 
+backend:
+  - task: "User Data Isolation Security Investigation"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "🚨 CRITICAL SECURITY VULNERABILITY IDENTIFIED - DATA LEAKAGE CONFIRMED: Comprehensive security investigation completed with credentials test@claire-marcus.com / test123! and lperpere@yahoo.fr / L@Reunion974! on https://claire-marcus.com/api. ROOT CAUSE DISCOVERED: ❌ ENDPOINT /api/content/pending-temp (lines 669-740) is a temporary endpoint WITHOUT AUTHENTICATION that hardcodes user_id to '6a670c66-c06c-4d75-9dd5-c747e8a0281a' (lperpere@yahoo.fr's account). This means ANY USER can access this endpoint and ALL USERS see lperpere@yahoo.fr's content data. SECURITY BREACH CONFIRMED: ✅ Test account user_id: 82ce1284-ca2e-469a-8521-2a9116ef7826, ✅ LPerpere account user_id: 6a670c66-c06c-4d75-9dd5-c747e8a0281a, ❌ CRITICAL: /content/pending-temp returns IDENTICAL DATA (18599 chars) for both accounts containing lperpere's photos and content. COMPREHENSIVE TESTING RESULTS: ✅ Authentication isolation working correctly, ✅ JWT token validation working correctly, ✅ Main /content/pending endpoint properly isolated, ✅ All other endpoints properly isolated, ❌ CRITICAL FAILURE: /content/pending-temp endpoint exposes lperpere's data to ALL users. IMMEDIATE ACTION REQUIRED: Remove or fix /content/pending-temp endpoint to use proper authentication and user_id filtering. This explains the reported data leakage - test@claire-marcus.com sees lperpere's photos because the temporary endpoint bypasses all security."
+
 frontend:
   - task: "Privacy Policy Section 11 - Réponse aux demandes des autorités publiques"
     implemented: true

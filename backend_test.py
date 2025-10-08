@@ -16,7 +16,7 @@ LIVE_BASE_URL = "https://claire-marcus.com/api"
 TEST_EMAIL = "test@claire-marcus.com"
 TEST_PASSWORD = "test123!"
 
-class LiveUIInvestigation:
+class RestaurantDataMigrationTest:
     def __init__(self):
         self.base_url = LIVE_BASE_URL
         self.token = None

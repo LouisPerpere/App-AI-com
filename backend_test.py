@@ -15,16 +15,12 @@ TEST_USER_EMAIL = "test@claire-marcus.com"
 TEST_USER_PASSWORD = "test123!"
 TEST_USER_ID = "82ce1284-ca2e-469a-8521-2a9116ef7826"
 
-class RestaurantDataMigrationTest:
+class RestaurantDataTester:
     def __init__(self):
-        self.base_url = LIVE_BASE_URL
-        self.token = None
-        self.user_id = None
         self.session = requests.Session()
-        self.session.headers.update({
-            'Content-Type': 'application/json',
-            'User-Agent': 'Backend-Test-Investigation/1.0'
-        })
+        self.jwt_token = None
+        self.user_id = None
+        self.test_results = []
 
     def authenticate(self):
         """Étape 1: Authentification avec test@claire-marcus.com"""

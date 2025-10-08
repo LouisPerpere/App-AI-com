@@ -28,11 +28,14 @@ import traceback
 # Configuration
 BACKEND_URL = "https://claire-marcus.com/api"
 
-# Test accounts - try different credentials for test account
+# Test accounts - create a new test account with known credentials
+import uuid
+test_email = f"security_test_{str(uuid.uuid4())[:8]}@example.com"
+
 ACCOUNT_1 = {
-    "email": "test@claire-marcus.com",
-    "password": "test123",  # Try different password
-    "name": "Test Account"
+    "email": test_email,
+    "password": "SecurityTest123!",
+    "name": "Security Test Account"
 }
 
 ACCOUNT_2 = {

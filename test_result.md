@@ -56,13 +56,16 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "critical"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "🚨 CRITICAL SECURITY VULNERABILITY IDENTIFIED - DATA LEAKAGE CONFIRMED: Comprehensive security investigation completed with credentials test@claire-marcus.com / test123! and lperpere@yahoo.fr / L@Reunion974! on https://claire-marcus.com/api. ROOT CAUSE DISCOVERED: ❌ ENDPOINT /api/content/pending-temp (lines 669-740) is a temporary endpoint WITHOUT AUTHENTICATION that hardcodes user_id to '6a670c66-c06c-4d75-9dd5-c747e8a0281a' (lperpere@yahoo.fr's account). This means ANY USER can access this endpoint and ALL USERS see lperpere@yahoo.fr's content data. SECURITY BREACH CONFIRMED: ✅ Test account user_id: 82ce1284-ca2e-469a-8521-2a9116ef7826, ✅ LPerpere account user_id: 6a670c66-c06c-4d75-9dd5-c747e8a0281a, ❌ CRITICAL: /content/pending-temp returns IDENTICAL DATA (18599 chars) for both accounts containing lperpere's photos and content. COMPREHENSIVE TESTING RESULTS: ✅ Authentication isolation working correctly, ✅ JWT token validation working correctly, ✅ Main /content/pending endpoint properly isolated, ✅ All other endpoints properly isolated, ❌ CRITICAL FAILURE: /content/pending-temp endpoint exposes lperpere's data to ALL users. IMMEDIATE ACTION REQUIRED: Remove or fix /content/pending-temp endpoint to use proper authentication and user_id filtering. This explains the reported data leakage - test@claire-marcus.com sees lperpere's photos because the temporary endpoint bypasses all security."
+      - working: false
+        agent: "testing"
+        comment: "🚨 SECURITY FIX VALIDATION FAILED - CRITICAL VULNERABILITY STILL ACTIVE: Comprehensive testing of the reported security fix for /api/content/pending-temp endpoint completed. CLAIMED FIX: Main agent reported replacing hardcoded user_id with get_current_user_id_robust authentication dependency. TESTING RESULTS: ❌ CRITICAL FAILURE: Security fix NOT applied - endpoint still accessible without authentication, ❌ Data leakage CONFIRMED: Both test@claire-marcus.com and lperpere@yahoo.fr receive identical content (22 items, 100% overlap), ❌ Authentication bypass CONFIRMED: Endpoint returns 200 OK without Authorization header (should return 401), ❌ Debug messages NOT appearing in logs despite code changes. TECHNICAL INVESTIGATION: ✅ Code changes verified in /app/backend/server.py line 670 with Depends(get_current_user_id_robust), ✅ Authentication function working correctly (tested independently), ✅ FastAPI routes correctly registered, ✅ Backend service restarted multiple times, ❌ CRITICAL: Changes not taking effect - possible infrastructure/proxy caching issue. ROOT CAUSE: The security fix appears to be correctly implemented in code but is not being served by the live system. IMMEDIATE ACTION REQUIRED: Infrastructure-level investigation needed - possible proxy caching, load balancer issues, or deployment problems preventing security fix from taking effect."
 
 frontend:
   - task: "Privacy Policy Section 11 - Réponse aux demandes des autorités publiques"

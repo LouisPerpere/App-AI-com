@@ -2223,6 +2223,49 @@ async def get_generated_posts(user_id: str = Depends(get_current_user_id_robust)
         print(f"❌ Failed to fetch posts: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch generated posts: {str(e)}")
 
+@api_router.get("/website-analysis")
+async def get_website_analyses(user_id: str = Depends(get_current_user_id_robust)):
+    """Get website analyses for the current user"""
+    try:
+        print(f"🔍 DEBUG: get_website_analyses called for user {user_id}")
+        
+        dbm = get_database()
+        db = dbm.db
+        
+        print(f"🔍 DEBUG: Database name: {db.name}")
+        print(f"🔍 DEBUG: Looking for analyses with user_id: {user_id}")
+        
+        analyses = list(db.website_analyses.find(
+            {"user_id": user_id}
+        ).sort([("created_at", -1)]).limit(50))
+        
+        print(f"🔍 DEBUG: Found {len(analyses)} analyses in database")
+        
+        # Format analyses for frontend display
+        formatted_analyses = []
+        for analysis in analyses:
+            formatted_analyses.append({
+                "id": analysis.get("id", ""),
+                "website_url": analysis.get("website_url", ""),
+                "seo_score": analysis.get("seo_score", 0),
+                "performance_score": analysis.get("performance_score", 0),
+                "accessibility_score": analysis.get("accessibility_score", 0),
+                "overall_score": analysis.get("overall_score", 0),
+                "recommendations": analysis.get("recommendations", []),
+                "technical_analysis": analysis.get("technical_analysis", {}),
+                "competitive_analysis": analysis.get("competitive_analysis", {}),
+                "action_plan": analysis.get("action_plan", {}),
+                "created_at": analysis.get("created_at", ""),
+                "status": analysis.get("status", "completed")
+            })
+        
+        print(f"📋 Retrieved {len(formatted_analyses)} website analyses for user {user_id}")
+        return {"analyses": formatted_analyses, "count": len(formatted_analyses)}
+        
+    except Exception as e:
+        print(f"❌ Failed to fetch analyses: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch website analyses: {str(e)}")
+
 class PostModificationRequest(BaseModel):
     modification_request: str
 

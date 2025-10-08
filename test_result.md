@@ -49,7 +49,7 @@
 ##
 ## test_plan:
 
-user_problem_statement: "Tester l'ajout de la nouvelle section 'Réponse aux demandes des autorités publiques' dans la politique de confidentialité. Vérifier que la section 11 est visible avec le bon titre et l'emoji 📂, contient les 4 principes listés, affiche l'encadré de transparence vert, et que la renumérotation est correcte (Contact en section 12)."
+user_problem_statement: "🚨 INVESTIGATION URGENTE - Fuite de données entre comptes utilisateurs - Données de lperpere@yahoo.fr visibles sur test@claire-marcus.com. PROBLÈME CRITIQUE DE SÉCURITÉ IDENTIFIÉ : L'utilisateur rapporte que le compte test@claire-marcus.com affiche l'analyse de site web et les photos du compte lperpere@yahoo.fr. C'est une violation grave de confidentialité."
 
 frontend:
   - task: "Privacy Policy Section 11 - Réponse aux demandes des autorités publiques"

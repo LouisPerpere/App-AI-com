@@ -155,16 +155,19 @@ backend:
         comment: "✅ FINAL CONTENT ASSOCIATION VERIFICATION FOR FRENCH REVIEW: Complete content association verification completed successfully for French review request. All REAL restaurant content properly associated with test account test@claire-marcus.com (User ID: 82ce1284-ca2e-469a-8521-2a9116ef7826) on LIVE environment. COMPREHENSIVE VERIFICATION RESULTS: Business Profile: 'Le Bistrot de Jean' (Industry: Restauration, Website: https://lebistrotdejean-paris.fr) ✅ CONFIRMED, Total Notes: 25 (21 restaurant-related) ✅ VERIFIED, Website Analyses: 4 (including new comprehensive analysis with SEO score 78/100) ✅ PRESENT, October Posts: 9 (exceeding requirement of 4) ✅ COMPLETE, November Posts: 8 (exceeding requirement of 4) ✅ COMPLETE. All content accessible via GET /api/business-profile and GET /api/notes endpoints with proper JWT authentication. No content leakage detected - all content correctly isolated to test account. Content appears exactly as if user had genuinely used the interface to create website analysis and social media posts. French review request FULLY SATISFIED - test environment now contains comprehensive restaurant content for Facebook App Review purposes."
 
   - task: "Restaurant Data Migration - Notes to Collections"
-    implemented: false
+    implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "❌ CRITICAL MIGRATION ISSUE IDENTIFIED: Restaurant data exists in wrong collections causing empty frontend display. Data successfully created and stored in 'notes' collection (9 posts + 2 analyses) but frontend reads from different collections: GET /api/posts/generated reads from 'generated_posts' collection (returns 0 posts), GET /api/analysis reads from 'website_analyses' collection (returns 404). ROOT CAUSE: Content creation used POST /api/notes but frontend expects data in specialized collections. MIGRATION REQUIRED: Move 9 social media posts from 'notes' to 'generated_posts' collection, Move 2 website analyses from 'notes' to 'website_analyses' collection. TECHNICAL SOLUTION: Direct MongoDB migration OR API migration endpoint creation. IMPACT: After migration, frontend will display 9 posts in Posts page and 2 analyses in Analysis page. User ID: 82ce1284-ca2e-469a-8521-2a9116ef7826. URGENT: This is the exact issue described in French review request - data exists but in wrong collections."
+      - working: false
+        agent: "testing"
+        comment: "🔧 MIGRATION PARTIALLY COMPLETED: Successfully migrated 25 restaurant posts from 'notes' collection to 'generated_posts' collection using direct MongoDB migration script. Database now contains 33 posts for user_id 82ce1284-ca2e-469a-8521-2a9116ef7826. However, API endpoint GET /api/posts/generated still returns 0 posts despite successful database migration. CRITICAL ISSUE: Database contains migrated data but API cannot access it. Added GET /api/website-analysis endpoint to server.py. REMAINING PROBLEMS: (1) API-Database connection issue preventing posts from being returned, (2) Website analyses not migrated due to extraction issues, (3) Server restart not picking up new endpoints. TECHNICAL STATUS: Migration script successful, database populated, but API layer not functioning correctly. URGENT: API layer debugging required to complete migration."
 
 frontend:
   - task: "Privacy Policy Section 11 - Réponse aux demandes des autorités publiques"

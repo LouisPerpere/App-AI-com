@@ -135,6 +135,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ CONTENT ASSOCIATION VERIFIED: All created content properly associated with test account test@claire-marcus.com. Verification completed via GET /api/business-profile, GET /api/notes, and GET /api/content/pending endpoints. Business profile shows correct restaurant name 'Le Bistrot de Jean'. Found 14 restaurant-related notes including website analysis and all 8 posts (4 October + 4 November). Content library accessible with proper authentication. All content correctly isolated to test account user_id: 82ce1284-ca2e-469a-8521-2a9116ef7826."
+      - working: true
+        agent: "testing"
+        comment: "✅ LIVE VERIFICATION CONFIRMED: Content association VERIFIED on LIVE environment. All restaurant content properly associated with test account test@claire-marcus.com (User ID: 82ce1284-ca2e-469a-8521-2a9116ef7826). Business profile confirmed: 'Le Bistrot de Jean', Industry: Restauration, Website: https://lebistrotdejean-paris.fr. Found 11 restaurant posts + 3 website analyses = 14 total items. All content accessible with proper authentication and correctly isolated to test account. No content leakage or association issues detected."
 
 frontend:
   - task: "Privacy Policy Section 11 - Réponse aux demandes des autorités publiques"

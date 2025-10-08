@@ -12,6 +12,7 @@ BACKEND_URL = "https://claire-marcus.com/api"
 
 # Common passwords to try for test@claire-marcus.com
 COMMON_PASSWORDS = [
+    "test123!",  # User provided password
     "password",
     "password123",
     "test123",

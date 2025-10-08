@@ -379,8 +379,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-            
-            if response.status_code == 200:
                 data = response.json()
                 self.log("✅ LIVE Debug endpoint accessible")
                 

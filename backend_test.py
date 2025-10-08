@@ -14,22 +14,23 @@ LIVE_BASE_URL = "https://claire-marcus.com/api"
 TEST_EMAIL = "test@claire-marcus.com"
 TEST_PASSWORD = "test123!"
 
-class InstagramLiveDiagnostic:
+class LiveEnvironmentTester:
     def __init__(self):
+        self.base_url = LIVE_BASE_URL
+        self.token = None
+        self.user_id = None
         self.session = requests.Session()
         self.session.headers.update({
             'Content-Type': 'application/json',
-            'User-Agent': 'Instagram-LIVE-Diagnostic/1.0'
+            'User-Agent': 'Claire-Marcus-Testing-Agent/1.0'
         })
-        self.auth_token = None
-        self.user_id = None
         
     def log(self, message, level="INFO"):
         timestamp = datetime.now().strftime("%H:%M:%S")
         print(f"[{timestamp}] {level}: {message}")
         
-    def authenticate_live(self):
-        """Step 1: Authenticate on LIVE environment"""
+    def authenticate(self):
+        """Authentification sur l'environnement LIVE"""
         self.log("🔐 STEP 1: Authentication on LIVE environment (claire-marcus.com)")
         
         try:

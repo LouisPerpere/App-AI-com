@@ -60,8 +60,8 @@ class LiveUIInvestigation:
         except Exception as e:
             print(f"   ❌ ERREUR AUTHENTIFICATION: {e}")
             return False
-    
-    def analyze_live_social_connections_state(self):
+
+    def test_posts_generated_endpoint(self):
         """Step 2: Analyze current social connections state on LIVE"""
         self.log("🔍 STEP 2: LIVE Social Connections State Analysis")
         

@@ -63,7 +63,7 @@ class UserDataIsolationTester:
         print(f"[{timestamp}] {level}: {message}")
         
     def authenticate_account(self, account, session, account_name):
-        """Authenticate a specific account"""
+        """Authenticate a specific account, try to register if login fails"""
         self.log(f"🔐 Authenticating {account_name}: {account['email']}")
         
         try:
@@ -87,6 +87,36 @@ class UserDataIsolationTester:
                 self.log(f"   Token: {token[:20]}..." if token else "   Token: None")
                 
                 return token, user_id
+            elif response.status_code == 401:
+                # Try to register the account if login fails
+                self.log(f"⚠️ {account_name} login failed, attempting registration")
+                
+                register_response = session.post(f"{BACKEND_URL}/auth/register", json={
+                    "email": account["email"],
+                    "password": account["password"],
+                    "first_name": "Test",
+                    "last_name": "User",
+                    "business_name": f"Test Business {account_name}"
+                })
+                
+                if register_response.status_code == 200:
+                    reg_data = register_response.json()
+                    token = reg_data.get('access_token')
+                    user_id = reg_data.get('user_id')
+                    
+                    # Set authorization header
+                    session.headers.update({
+                        'Authorization': f'Bearer {token}'
+                    })
+                    
+                    self.log(f"✅ {account_name} registration and authentication successful")
+                    self.log(f"   User ID: {user_id}")
+                    self.log(f"   Token: {token[:20]}..." if token else "   Token: None")
+                    
+                    return token, user_id
+                else:
+                    self.log(f"❌ {account_name} registration failed: {register_response.status_code} - {register_response.text}", "ERROR")
+                    return None, None
             else:
                 self.log(f"❌ {account_name} authentication failed: {response.status_code} - {response.text}", "ERROR")
                 return None, None

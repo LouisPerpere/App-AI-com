@@ -737,7 +737,16 @@ async def get_pending_content_with_auth(offset: int = 0, limit: int = 24, curren
                 print(f"⚠️ Error processing media item {d.get('id', 'unknown')}: {item_error}")
                 continue
                 
-        return {"content": items, "total": total, "offset": offset, "limit": limit, "has_more": offset + limit < total, "loaded": len(items)}
+        return {
+            "content": items, 
+            "total": total, 
+            "offset": offset, 
+            "limit": limit, 
+            "has_more": offset + limit < total, 
+            "loaded": len(items),
+            "debug_auth_fix": "SECURITY_FIX_APPLIED",
+            "authenticated_user": user_id
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch content: {str(e)}")
 

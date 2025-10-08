@@ -1,36 +1,18 @@
 #!/usr/bin/env python3
 """
-Instagram OAuth LIVE Environment Diagnostic - claire-marcus.com
-Diagnostiquer le problème Instagram sur l'environnement LIVE claire-marcus.com 
-où les URLs sont correctement configurées dans Facebook Developer Console.
-
-CONTEXTE CRITIQUE:
-L'utilisateur confirme que le problème est sur l'environnement LIVE (claire-marcus.com) et NON sur preview. 
-Les URLs sont correctement configurées dans Facebook Developer Console pour la production. 
-Facebook fonctionne mais Instagram ne persiste pas.
-
-INVESTIGATION LIVE REQUISE:
-1. **Tester sur claire-marcus.com** : https://claire-marcus.com/api
-2. **Comparer Facebook vs Instagram** : Pourquoi Facebook fonctionne et pas Instagram ?
-3. **Analyser la logique callback** : Vérifier si mes corrections sont appliquées sur LIVE
-4. **Vérifier les tokens** : Instagram vs Facebook sur l'environnement de production
-5. **Diagnostic de persistance** : Pourquoi Instagram ne "tient" pas sur LIVE ?
-
-AUTHENTIFICATION: lperpere@yahoo.fr / L@Reunion974!
-URL LIVE: https://claire-marcus.com/api
+VÉRIFICATION URGENTE - Test de présence du contenu restaurant sur l'environnement LIVE
+Objectif: Confirmer si l'analyse de site web et les 8 posts sont réellement présents sur claire-marcus.com
 """
 
 import requests
 import json
-import time
 import sys
 from datetime import datetime
-import urllib.parse
 
-# Configuration LIVE
-LIVE_BACKEND_URL = "https://claire-marcus.com/api"
-TEST_EMAIL = "lperpere@yahoo.fr"
-TEST_PASSWORD = "L@Reunion974!"
+# CONFIGURATION CRITIQUE - ENVIRONNEMENT LIVE UNIQUEMENT
+LIVE_BASE_URL = "https://claire-marcus.com/api"
+TEST_EMAIL = "test@claire-marcus.com"
+TEST_PASSWORD = "test123!"
 
 class InstagramLiveDiagnostic:
     def __init__(self):

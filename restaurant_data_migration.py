@@ -10,6 +10,9 @@ import requests
 import json
 import sys
 from datetime import datetime
+import sys
+import os
+sys.path.append('/app/backend')
 from database import get_database
 
 # Configuration

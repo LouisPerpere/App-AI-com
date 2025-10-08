@@ -28,10 +28,10 @@ import traceback
 # Configuration
 BACKEND_URL = "https://claire-marcus.com/api"
 
-# Test accounts
+# Test accounts - try different credentials for test account
 ACCOUNT_1 = {
     "email": "test@claire-marcus.com",
-    "password": "password123",  # Assuming standard password
+    "password": "test123",  # Try different password
     "name": "Test Account"
 }
 

@@ -631,14 +631,14 @@ class RestaurantDataMigrationTest:
 
 def main():
     """Point d'entrée principal"""
-    investigation = LiveUIInvestigation()
-    success = investigation.run_investigation()
+    migration_test = RestaurantDataMigrationTest()
+    success = migration_test.run_migration_test()
     
     if success:
-        print(f"\n✅ INVESTIGATION TERMINÉE AVEC SUCCÈS")
+        print(f"\n✅ TEST DE MIGRATION TERMINÉ AVEC SUCCÈS")
         sys.exit(0)
     else:
-        print(f"\n❌ INVESTIGATION ÉCHOUÉE")
+        print(f"\n❌ TEST DE MIGRATION ÉCHOUÉ")
         sys.exit(1)
 
 if __name__ == "__main__":

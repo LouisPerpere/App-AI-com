@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 """
-MIGRATION DES DONNÉES RESTAURANT - Test critique pour la migration des données
-Test pour migrer les posts et analyses du restaurant de la collection 'notes' vers les collections correctes
-Environnement: LIVE (https://claire-marcus.com/api)
-Compte: test@claire-marcus.com
+Backend Test for Restaurant Test User Data Verification
+Testing endpoints for test@claire-marcus.com to verify migrated data accessibility
 """
 
 import requests
@@ -11,10 +9,11 @@ import json
 import sys
 from datetime import datetime
 
-# Configuration LIVE
-LIVE_BASE_URL = "https://claire-marcus.com/api"
-TEST_EMAIL = "test@claire-marcus.com"
-TEST_PASSWORD = "test123!"
+# Configuration
+BACKEND_URL = "https://claire-marcus.com/api"
+TEST_USER_EMAIL = "test@claire-marcus.com"
+TEST_USER_PASSWORD = "test123!"
+TEST_USER_ID = "82ce1284-ca2e-469a-8521-2a9116ef7826"
 
 class RestaurantDataMigrationTest:
     def __init__(self):

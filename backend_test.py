@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-VÉRIFICATION URGENTE - Test de présence du contenu restaurant sur l'environnement LIVE
-Objectif: Confirmer si l'analyse de site web et les 8 posts sont réellement présents sur claire-marcus.com
+INVESTIGATION URGENTE - Interface utilisateur vide malgré création de contenu
+Test critique pour identifier pourquoi l'UI est vide pour test@claire-marcus.com
 """
 
 import requests
@@ -9,12 +9,12 @@ import json
 import sys
 from datetime import datetime
 
-# CONFIGURATION CRITIQUE - ENVIRONNEMENT LIVE UNIQUEMENT
+# Configuration LIVE
 LIVE_BASE_URL = "https://claire-marcus.com/api"
 TEST_EMAIL = "test@claire-marcus.com"
 TEST_PASSWORD = "test123!"
 
-class LiveEnvironmentTester:
+class LiveUIInvestigation:
     def __init__(self):
         self.base_url = LIVE_BASE_URL
         self.token = None

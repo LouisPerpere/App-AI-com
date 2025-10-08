@@ -7,7 +7,7 @@ import requests
 import json
 
 def debug_website_analysis():
-    base_url = "https://claire-marcus-app-1.preview.emergentagent.com"
+    base_url = "https://post-restore.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     # Login first

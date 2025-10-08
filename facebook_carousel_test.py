@@ -19,7 +19,7 @@ ENDPOINTS À TESTER:
 - GET /api/content/carousel/{carousel_id} (vérifier les carousels)
 - POST /api/posts/generate (génération avec carousels)
 
-URL de test: https://claire-marcus-app-1.preview.emergentagent.com/api
+URL de test: https://post-restore.preview.emergentagent.com/api
 """
 
 import requests
@@ -28,7 +28,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://claire-marcus-app-1.preview.emergentagent.com"
+BACKEND_URL = "https://post-restore.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials from review request

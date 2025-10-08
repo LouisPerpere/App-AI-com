@@ -10,7 +10,7 @@ This is a regression issue that needs to be diagnosed by checking:
 4. Token exchange process
 5. Connection verification endpoints
 
-Test URL: https://claire-marcus-app-1.preview.emergentagent.com/api
+Test URL: https://post-restore.preview.emergentagent.com/api
 Credentials: lperpere@yahoo.fr / L@Reunion974!
 """
 
@@ -21,7 +21,7 @@ from datetime import datetime
 import urllib.parse
 
 # Configuration from review request
-BACKEND_URL = "https://claire-marcus-app-1.preview.emergentagent.com"
+BACKEND_URL = "https://post-restore.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials from review request

@@ -2,7 +2,7 @@
 """
 Claire et Marcus Dashboard Restoration Backend Compatibility Test
 Testing critical endpoints for dashboard restoration as per review request
-Backend URL: https://claire-marcus-app-1.preview.emergentagent.com
+Backend URL: https://post-restore.preview.emergentagent.com
 """
 
 import requests
@@ -575,7 +575,7 @@ class ClaireMarcusDashboardTester:
         try:
             # Test CORS preflight request
             headers = {
-                'Origin': 'https://claire-marcus-app-1.preview.emergentagent.com',
+                'Origin': 'https://post-restore.preview.emergentagent.com',
                 'Access-Control-Request-Method': 'POST',
                 'Access-Control-Request-Headers': 'authorization,content-type'
             }

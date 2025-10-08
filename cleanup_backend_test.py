@@ -28,7 +28,7 @@ CRITÈRES DE SUCCÈS:
 - Base de données propre sans tokens factices
 
 Credentials: lperpere@yahoo.fr / L@Reunion974!
-URL: https://claire-marcus-app-1.preview.emergentagent.com/api
+URL: https://post-restore.preview.emergentagent.com/api
 """
 
 import requests
@@ -38,7 +38,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://claire-marcus-app-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://post-restore.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

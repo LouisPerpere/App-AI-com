@@ -17,7 +17,7 @@ Test Objectives:
 4. Verify persistence: GET /api/social/connections should show connections
 5. Verify active state: connections should have active: True
 
-Environment: https://claire-marcus-app-1.preview.emergentagent.com/api
+Environment: https://post-restore.preview.emergentagent.com/api
 """
 
 import requests
@@ -27,8 +27,8 @@ import sys
 from urllib.parse import urlencode, parse_qs, urlparse
 
 # Configuration for PREVIEW environment
-BASE_URL = "https://claire-marcus-app-1.preview.emergentagent.com/api"
-FRONTEND_URL = "https://claire-marcus-app-1.preview.emergentagent.com"
+BASE_URL = "https://post-restore.preview.emergentagent.com/api"
+FRONTEND_URL = "https://post-restore.preview.emergentagent.com"
 
 # Test credentials
 TEST_EMAIL = "lperpere@yahoo.fr"

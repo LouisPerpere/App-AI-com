@@ -13,7 +13,7 @@ Objectifs de test:
 4. Vérifier les logs : Doit montrer "Instagram Config ID: 1309694717566880"
 5. Confirmer le token exchange avec config Instagram
 
-Environnement: https://claire-marcus-app-1.preview.emergentagent.com/api
+Environnement: https://post-restore.preview.emergentagent.com/api
 """
 
 import requests
@@ -23,8 +23,8 @@ import sys
 from urllib.parse import urlencode, parse_qs, urlparse
 
 # Configuration pour l'environnement PREVIEW
-BASE_URL = "https://claire-marcus-app-1.preview.emergentagent.com/api"
-FRONTEND_URL = "https://claire-marcus-app-1.preview.emergentagent.com"
+BASE_URL = "https://post-restore.preview.emergentagent.com/api"
+FRONTEND_URL = "https://post-restore.preview.emergentagent.com"
 
 # Identifiants de test
 TEST_EMAIL = "lperpere@yahoo.fr"

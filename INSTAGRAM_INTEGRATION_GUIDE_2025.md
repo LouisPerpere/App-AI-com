@@ -20,7 +20,7 @@ L'URL d'autorisation Facebook/Instagram générait une erreur car nous utilision
 
 ### 3. Paramètres OAuth Corrigés
 - **response_type**: `code` (au lieu de `token`)
-- **URL de redirection mise à jour**: `https://claire-marcus-app-1.preview.emergentagent.com/api/social/instagram/callback`
+- **URL de redirection mise à jour**: `https://post-restore.preview.emergentagent.com/api/social/instagram/callback`
 
 ## 🔗 Nouvelle URL d'Autorisation Générée
 
@@ -47,7 +47,7 @@ Pour que cette URL fonctionne, vous devez configurer votre application Facebook 
 1. Dans "Instagram Graph API" > "Paramètres"
 2. Ajouter cette URI de redirection **EXACTEMENT** :
    ```
-   https://claire-marcus-app-1.preview.emergentagent.com/api/social/instagram/callback
+   https://post-restore.preview.emergentagent.com/api/social/instagram/callback
    ```
 
 ### Étape 4: Vérifier les Permissions
@@ -60,7 +60,7 @@ Pour que cette URL fonctionne, vous devez configurer votre application Facebook 
 
 ### Endpoint de Test Disponible
 ```bash
-curl "https://claire-marcus-app-1.preview.emergentagent.com/api/social/instagram/test-auth"
+curl "https://post-restore.preview.emergentagent.com/api/social/instagram/test-auth"
 ```
 
 ### Test Manuel

@@ -23,7 +23,7 @@ OBJECTIFS:
 - Confirmer que les boutons passent en "Connecté"
 
 Credentials: lperpere@yahoo.fr / L@Reunion974!
-Backend URL: https://claire-marcus-app-1.preview.emergentagent.com/api
+Backend URL: https://post-restore.preview.emergentagent.com/api
 """
 
 import requests
@@ -34,7 +34,7 @@ from datetime import datetime
 import re
 
 # Configuration
-BACKEND_URL = "https://claire-marcus-app-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://post-restore.preview.emergentagent.com/api"
 TEST_EMAIL = "lperpere@yahoo.fr"
 TEST_PASSWORD = "L@Reunion974!"
 

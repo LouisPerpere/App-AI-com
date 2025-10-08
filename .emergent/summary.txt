@@ -1,24 +1,40 @@
 <analysis>
-The trajectory details a handover from an AI engineer who achieved initial social media publishing. The initial problem involved persistent OAuth failures and image publication issues. The current AI engineer validated the previous work, confirming that the core backend for Facebook publishing (EAA token flow, binary image upload) was indeed functioning correctly on the live environment, contradicting initial user reports. The bulk of the subsequent work focused on iteratively implementing legal mentions on the login page, transitioning from a full footer to a discreet, responsive accordion. Significant effort was spent debugging frontend rendering/routing issues, deployment caches, and refining the accordion's styling and positioning based on user feedback. Concurrently, the post generation logic was adapted for month-end scenarios, and Publish was re-factored into Schedule with an Publish Now option, requiring both frontend and backend changes. The current task involves refining the Generate Posts button availability logic.
+This trajectory details an intensive debugging and feature enhancement phase following an initial AI engineer's work. The core application involves AI-driven social media content generation. Initially, efforts focused on refining the Generate Posts button logic, dynamic messaging, and correcting Publier de suite functionality, including spinner integration and status updates. A significant portion involved deep dives into Instagram OAuth issues, revealing multiple regressions, configuration mismatches (preview vs. live domains), and eventually a critical data leak due to hardcoded user IDs in a public endpoint. This necessitated a shift to infrastructure-level concerns like Kubernetes redeployment. Finally, the user requested the creation of comprehensive test data for a fictive restaurant, including analysis and posts, which inadvertently exposed data storage inconsistencies. The current task is to migrate these miscategorized data points.
 </analysis>
 
 <product_requirements>
-The Claire et Marcus PWA aims to automate AI-driven social media content generation, specifically robust Facebook and Instagram publishing. The initial requirement was to stabilize social media integrations, eliminating simulated connections and invalid tokens, and ensuring both text and images are published successfully via the Graph API v20.0 using permanent Page Access Tokens (EAA) and binary image uploads.
+The Claire et Marcus PWA automates AI-driven social media content generation for Facebook and Instagram. The initial goal was to stabilize social media integrations, ensuring successful text and image publishing via Graph API v20.0 with permanent Page Access Tokens (EAA) and binary image uploads.
 
-Recent updates included:
-1.  **Legal Mentions**: Integrate legal information (company name, address, SIRET, contact, hosting, RGPD compliance) into the application. This must be discreet, non-disruptive, accessible without login, and eventually presented as an accordion on the login page. Facebook required the official company name (EI Fou De Vanille) to be directly visible on the login page.
-2.  **Post Generation Logic**: Modify the Generate Posts button behavior for the last day of the month. Generation for the current month should allow one post per connected social network, scheduled for the same day (minimum 1 hour after generation, before 22h). After 22h, the button should be grayed out, prompting users to generate for the next month.
-3.  **Publish/Schedule Feature**: Re-factor the Publier (Publish) button into Programmer (Schedule). This should schedule posts for a future date/time. A new discrete publier de suite (publish now) option should be added to allow immediate publication. The scheduling feature should include a spinner, success state, and calendar integration.
-4.  **Calendar Functionality**: Preserve existing calendar features like Déprogrammer (unschedule), post preview modals, and post thumbnails, and fix any related bugs.
+Recent updates and explicit requests include:
+1.  **Legal Mentions**: Integrate discreet, responsive legal mentions as an accordion on the login page, accessible without login. Facebook required EI Fou De Vanille to be directly visible. A link to the comprehensive Privacy Policy, which has been recently updated with a section on Réponse aux demandes des autorités publiques, must also be included in the legal mentions accordion and the dashboard footer.
+2.  **Post Generation Logic**:
+    *   Generate Posts button for the current month is always available.
+    *   Generate Posts button for the *next* month is available only from the 15th of the current month.
+    *   Buttons for subsequent months are grayed out.
+    *   Dynamic messages and icons for blocked buttons (e.g., disponible le 15, trop tôt, mois passé, passez au mois suivant).
+3.  **Publish/Schedule Feature**:
+    *   Re-factor Publier (Publish) to Programmer (Schedule) for future dates/times.
+    *   Add a discrete Publier de suite (publish now) option. This button should use the original  backend endpoint, display a spinner on click, prevent double-clicks, and keep the post preview modal open with a Post publié ! status and a blue badge.
+4.  **Calendar Functionality**: Maintain existing Déprogrammer (unschedule), post preview modals, and post thumbnails.
+5.  **Image Library Badges**: Ensure Facebook/Instagram badges on library photos are accurate and update automatically when posts are deleted. The manual Nettoyer badges button should be removed.
+6.  **Test Account Setup (Live Environment)**: Create a test account (, ) on the live environment () for Facebook App Review. This account must contain:
+    *   Fictive business data (e.g., a restaurant), with all fields completed.
+    *   A fictive website analysis displayed on the Analyse page, as if a real analysis was performed.
+    *   Photos in the library (4 per month for the next 4 months).
+    *   Fictive notes (general and monthly).
+    *   8 fictive posts for October and November, with photos, Facebook badges, publication dates/times, and status ready to be published/scheduled, appearing on the Posts page as if they were genuinely created.
+
 </product_requirements>
 
 <key_technical_concepts>
--   **API Integration:** Facebook Graph API v20.0 (binary image upload, 3-step OAuth).
--   **Frontend Framework:** React.js (functional components, , , React Router).
+-   **API Integration:** Facebook Graph API v20.0 (binary image upload, 3-step OAuth, Page Access Tokens, Instagram Business API via Facebook).
+-   **Frontend Framework:** React.js (functional components, , , , React Router,  for API calls).
 -   **Backend Frameworks:** FastAPI, MongoDB (GridFS for image storage).
--   **Image Processing:** Pillow (Python library for JPG conversion).
--   **UI Components:** Accordions, responsive design (Tailwind CSS classes).
--   **Environment Management**: Kubernetes container, supervisor for service control, specific URL/port rules.
+-   **UI Components:** Accordions (for legal mentions), dynamic buttons, spinners, modals.
+-   **Environment Management**: Kubernetes container,  for service control, specific URL/port rules.
+-   **Authentication**: JWT-based (implicitly  used for protection).
+-   **Data Serialization**: MongoDB + Pydantic for data consistency.
+-   **Compliance**: RGPD for privacy policy.
 </key_technical_concepts>
 
 <code_architecture>
@@ -27,62 +43,76 @@ The application utilizes a React.js frontend, a FastAPI backend, and MongoDB for
 
 
 -   ****:
-    -   **Importance**: Handles all API routes, social media interactions (OAuth callbacks, post publication/scheduling), and image serving.
+    -   **Importance**: Core API routes, social media interactions, image serving.
     -   **Changes Made**:
-        -   **OAuth Callback**: Refactored for 3-step token exchange (Short-lived -> Long-lived User Token -> Page Access Token, prefixed EAA).
-        -   **Image Serving**: Unauthenticated endpoints () to stream images from GridFS, with automatic JPG conversion.
-        -   **Publication ()**: Uses binary upload () to Facebook's  endpoint, converts images to JPG.
-        -   **Scheduling ()**: New endpoint created to handle post scheduling based on provided date/time.
-        -   **Publish Now ()**: New endpoint for immediate post publication.
-        -   **Unschedule ()**: New endpoint to cancel a scheduled post.
-        -   **Generation Logic**: Removed blocking logic for last day of month generation (lines 2072-2089).
-        -   **Pydantic Models**:  model updated to accept  and .
+        -   **Post Generation Logic**: Modified.
+        -   **Scheduling ()**: New endpoint.
+        -   **Publish Now ()**: New endpoint (initially used, then reverted to ).
+        -   **Unschedule ()**: New endpoint.
+        -   ****: Endpoint restored for Publier de suite functionality.
+        -   **Social Media Callbacks**:
+            *   Facebook OAuth callback was correctly exchanging 3-step tokens and storing EAA page tokens.
+            *   Instagram OAuth callback was heavily refactored multiple times:
+                -   Initially redirected to Facebook callback (bug).
+                -   Then had a complex 3-step token exchange with .
+                -   Reverted to a simplified direct storage approach (was a bug, creating fake tokens).
+                -   Finally re-implemented to mirror the full 3-step Facebook OAuth logic but with Instagram's specific config.
+        -   **Database Debug Endpoints**: Added  and  to manage and inspect social connections.
+        -   **Data Leak Fix**: Endpoint  was secured by adding authentication () and dynamically fetching  instead of hardcoding.
+        -   **Test Data Creation**: New logic added to create fictive business profiles, website analyses, and generated posts directly into the appropriate MongoDB collections (, ) for a test user.
 
 -   ****:
-    -   **Importance**: Social API client wrapper.
-    -   **Changes Made**: Updated functions to use Facebook Graph API v20.0 and implement required token exchange.
+    -   **Importance**: Stores environment variables for backend configuration.
+    -   **Changes Made**: , ,  were updated to point to the  preview domain during debugging, and later confirmed they should be  for the live environment.
 
 -   ****:
     -   **Importance**: Main application component, handles routing, authentication state, and post generation/scheduling logic.
     -   **Changes Made**:
-        -   **Footer Integration**: Initial attempts to integrate a global footer were problematic due to rendering hierarchy and routing.
-        -   **Post Generation Logic**: Modified  to incorporate new last-day-of-month rules, including a  helper function for button states. Updated button messages.
-        -   **Publish/Schedule UI**: Modified logic for the Publier button to Programmer, added a spinner state, and integrated a discrete publier de suite link.
-        -   **Post Management**: Corrected  to use the new backend  endpoint. Added  for immediate publishing.
+        -   ** & **: Refined logic for dynamic Generate Posts button availability, messages, and icons (, , , ).
+        -   **Publier de suite button**:
+            *   Repositioned under Modifier and Programmer buttons.
+            *   Capitalized to Publier de suite.
+            *   Logic updated to call  which now uses .
+            *   Integrated  state for spinner and button disabling.
+            *   Modified  to remain open after publishing and display Post publié ! status with a blue badge.
+        -   **Image Badges**:  component updated to display Publié (blue) or Programmé (green) badges based on post status.  function created and integrated into  and  for automatic badge synchronization. The manual Nettoyer badges button was added and then removed.
+        -   **Privacy Policy Link**:  prop passed to  and , and linked in  and .
+        -   **State Management**: Added  state for Publier de suite functionality.
 
 -   ****:
-    -   **Importance**: Handles user authentication (login/signup) and displays the landing page. This is where legal mentions were ultimately placed.
-    -   **Changes Made**:
-        -   **Legal Mentions Integration**: Extensive modifications to integrate legal mentions. Initially attempted directly, then an accordion component  was created and refined.
-        -   ****: Implemented a discrete, gray, responsive accordion displaying all legal details.
-        -   **Facebook Compliance**: Added Édité par EI Fou De Vanille • SIRET 952 513 661 00019 directly into the  to satisfy Facebook's requirement for immediate visibility of company name.
-        -   Styling: Adjusted colors (light gray) and positioning (bottom, responsive for mobile) for discretion and compliance.
+    -   **Importance**: Handles user authentication and displays the landing page where legal mentions are placed.
+    -   **Changes Made**:  was passed an  prop to link to the Privacy Policy.
 
 -   ****:
-    -   **Importance**: Intended global footer component.
-    -   **Changes Made**: Initially modified, but later its role was largely superseded by placing the legal mentions directly in . The dashboard footer was transformed into an accordion, with Emergent address removed, replicating the Auth page's legal accordion functionality.
+    -   **Importance**: Dashboard footer component, now also containing legal mentions.
+    -   **Changes Made**: Modified to accept and use the  prop to display a link to the Privacy Policy within its legal mentions accordion.
+
+-   ****:
+    -   **Importance**: Dedicated component for the application's privacy policy.
+    -   **Changes Made**: Added a new section, Réponse aux demandes des autorités publiques (Section 11), detailing the handling of requests from public authorities, enhancing RGPD compliance.
 </code_architecture>
 
 <pending_tasks>
--   Fully implement the analytics dashboard for published posts.
+-   Fully implement the analytics dashboard for published posts (Phase 2).
 -   Diagnose and fix carousel deletion (if still present).
 -   Finalize carousel display logic (grey placeholder instead of first image).
--   Refine the message for the Générer les posts button based on the new availability logic.
 </pending_tasks>
 
 <current_work>
-The immediate work being done is to refine the availability logic for the Générer les posts buttons in the frontend. The user requested that:
--   The button for the current month should always be available.
--   The button for the *next* month becomes available only from the 15th of the current month.
--   Buttons for all subsequent months should be grayed out and inactive.
+The immediate work being done is to address a critical data storage inconsistency issue on the live environment (). The user reported that the fictive website analysis and posts, which were recently created for the  account, are not visible in the frontend.
 
-The AI engineer has already started implementing this by:
-1.  **Modifying  function**: This function in  is being extended to incorporate the new logic that checks the current date against the 15th of the month for enabling/disabling the next month's generation button, in addition to the existing last-day-of-month checks.
-2.  **Creating a helper function for messages**: A new function is being created to generate dynamic messages for the disabled generation buttons, such as passez au mois suivant or Disponible à partir du 15 du mois, depending on the specific blocking reason.
+Investigation revealed that:
+1.  The fictive posts were incorrectly stored in the  collection. The frontend expects posts to be in the  collection, which is accessed via .
+2.  The fictive website analyses were also stored in the  collection. The frontend expects them in the  collection, accessed via .
+3.  The data *is* present in the database (in the  collection), but it's in the wrong place, preventing the frontend from displaying it.
 
-This work involves updating the conditional rendering and styling of the generation buttons based on these new time-based rules. The last action was to find where the button message is used (line 4489 in ) to integrate the new message helper function.
+The AI engineer has just completed the diagnostic and received the explicit instruction Migre les données from the user. Therefore, the current work is to implement the migration logic to move the existing fictive posts and website analyses from the  collection to their correct respective collections ( and ) for the  user on the live environment.
 </current_work>
 
 <optional_next_step>
-Create a helper function  in  to provide dynamic messages for the Générer les posts buttons based on the new availability logic.
+Migrate the fictive posts and website analyses from the  collection to the  and  collections, respectively, for the test user on the live environment.
 </optional_next_step>
+
+<direct_quotes_for_next_step>
+User: Migre les données
+</direct_quotes_for_next_step>

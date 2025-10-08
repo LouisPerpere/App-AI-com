@@ -217,7 +217,7 @@ class DatabasePostModifier:
         
         print(f"\n🎯 TESTING INSTRUCTIONS:")
         print(f"   1. Use the following endpoint to test Facebook publication:")
-        print(f"      POST https://claire-marcus-app-1.preview.emergentagent.com/api/posts/publish")
+        print(f"      POST https://post-restore.preview.emergentagent.com/api/posts/publish")
         print(f"      Body: {{'post_id': '{post_id}'}}")
         print(f"      Headers: Authorization: Bearer <token>")
         

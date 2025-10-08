@@ -62,8 +62,8 @@ class LiveUIInvestigation:
             return False
 
     def test_posts_generated_endpoint(self):
-        """Step 2: Analyze current social connections state on LIVE"""
-        self.log("🔍 STEP 2: LIVE Social Connections State Analysis")
+        """Étape 2: Tester GET /api/posts/generated (ce que voit la page Posts)"""
+        print(f"\n📄 ÉTAPE 2: Test endpoint Posts - GET /api/posts/generated")
         
         try:
             # Test debug endpoint for comprehensive connection analysis

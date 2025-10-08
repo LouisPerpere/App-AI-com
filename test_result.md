@@ -70,14 +70,13 @@ metadata:
   test_sequence: 1
   run_ui: true
 
-test_plan:
-##   current_focus:
-##     - "Social Connections Facebook Integration"
-##   stuck_tasks: []
-##   test_all: false
-##   test_priority: "high_first"  # or "sequential" or "stuck_first"
-##
-## agent_communication:
+  current_focus:
+    - "Privacy Policy Section 11 - Réponse aux demandes des autorités publiques"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
 ##   - agent: "main"
 ##     message: "Phase 1: Test de bugs prioritaires - Vérification de l'état actuel des corrections de persistance de données business profile et module d'analyse de site web. Tests backend requis pour valider les corrections récentes avant implémentation de nouvelles fonctionnalités."
 ##   - agent: "main"

@@ -302,7 +302,7 @@ class FinalMigrationAnalysis:
         self.document_problem_and_solutions(analysis_results)
         
         # Étape 4: Guide d'implémentation
-        self.provide_implementation_guidance()
+        self.provide_implementation_guidance(analysis_results)
         
         # CONCLUSION
         print(f"\n" + "=" * 80)

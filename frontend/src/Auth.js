@@ -716,13 +716,13 @@ const AuthPage = ({ onAuthSuccess, onShowPrivacyPolicy }) => {
                   
                   <p className="text-xs text-gray-500 text-center leading-relaxed">
                     En créant un compte, vous acceptez nos{' '}
-                    <button className="text-purple-600 hover:text-purple-700 font-medium">
+                    <a href="/politique-confidentialite" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:text-purple-700 font-medium">
                       conditions d'utilisation
-                    </button>{' '}
+                    </a>{' '}
                     et notre{' '}
-                    <button className="text-purple-600 hover:text-purple-700 font-medium">
+                    <a href="/politique-confidentialite" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:text-purple-700 font-medium">
                       politique de confidentialité
-                    </button>
+                    </a>
                   </p>
                 </TabsContent>
               </Tabs>

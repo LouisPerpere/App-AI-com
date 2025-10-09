@@ -52,6 +52,15 @@ const Footer = ({ onShowPrivacyPolicy }) => {
                     >
                       Politique de confidentialité
                     </a>
+                    {' • '}
+                    <a 
+                      href="/suppression-donnees"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-600 hover:text-gray-700 underline transition-colors"
+                    >
+                      Suppression de données
+                    </a>
                   </div>
                 </div>
               </div>

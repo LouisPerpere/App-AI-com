@@ -3289,6 +3289,112 @@ async def facebook_oauth_callback(
         
         return RedirectResponse(url=error_redirect, status_code=302)
 
+
+@api_router.post("/social/facebook/data-deletion")
+@api_router.get("/social/facebook/data-deletion")
+async def facebook_data_deletion_callback(request: Request):
+    """
+    Endpoint de callback pour les demandes de suppression de données Facebook
+    Facebook envoie une requête signée pour demander la suppression des données utilisateur
+    Documentation: https://developers.facebook.com/docs/development/create-an-app/app-dashboard/data-deletion-callback
+    """
+    try:
+        # Log de la requête pour debugging
+        print(f"🔔 Facebook Data Deletion Request received")
+        print(f"   Method: {request.method}")
+        print(f"   Headers: {dict(request.headers)}")
+        
+        # Pour GET requests (accès direct), retourner une page d'information
+        if request.method == "GET":
+            return {
+                "status": "active",
+                "message": "Facebook Data Deletion Callback Endpoint",
+                "documentation": "https://claire-marcus.com/suppression-donnees",
+                "contact": "contact@claire-marcus.com"
+            }
+        
+        # Pour POST requests de Facebook
+        if request.method == "POST":
+            # Récupérer les données du callback
+            try:
+                body = await request.json()
+                signed_request = body.get('signed_request', '')
+                
+                print(f"   Signed Request: {signed_request[:50]}..." if signed_request else "   No signed request")
+                
+                # Décoder le signed_request (format: signature.payload)
+                if signed_request and '.' in signed_request:
+                    import base64
+                    import json
+                    
+                    signature, payload = signed_request.split('.', 1)
+                    
+                    # Ajouter le padding si nécessaire
+                    padding = len(payload) % 4
+                    if padding:
+                        payload += '=' * (4 - padding)
+                    
+                    # Décoder le payload
+                    decoded_payload = base64.urlsafe_b64decode(payload)
+                    user_data = json.loads(decoded_payload)
+                    
+                    user_id = user_data.get('user_id')
+                    print(f"   Facebook User ID to delete: {user_id}")
+                    
+                    # Générer un code de confirmation unique
+                    import hashlib
+                    confirmation_code = hashlib.sha256(f"{user_id}_{datetime.now(timezone.utc).isoformat()}".encode()).hexdigest()[:16]
+                    
+                    # Log de la demande dans la base de données
+                    dbm = get_database()
+                    deletion_request = {
+                        "id": str(uuid.uuid4()),
+                        "facebook_user_id": user_id,
+                        "confirmation_code": confirmation_code,
+                        "status": "pending",
+                        "requested_at": datetime.now(timezone.utc).isoformat(),
+                        "signed_request": signed_request
+                    }
+                    
+                    dbm.db.data_deletion_requests.insert_one(deletion_request)
+                    print(f"   ✅ Deletion request logged: {confirmation_code}")
+                    
+                    # Supprimer les connexions sociales associées (si l'utilisateur existe dans notre système)
+                    deleted_connections = dbm.db.social_media_connections.delete_many({
+                        "facebook_user_id": user_id
+                    })
+                    
+                    if deleted_connections.deleted_count > 0:
+                        print(f"   ✅ Deleted {deleted_connections.deleted_count} social connections")
+                    
+                    # Réponse à Facebook avec l'URL de confirmation et le code
+                    return {
+                        "url": f"https://claire-marcus.com/suppression-donnees?code={confirmation_code}",
+                        "confirmation_code": confirmation_code
+                    }
+                else:
+                    print("   ⚠️ No signed request in POST body")
+                    
+            except Exception as parse_error:
+                print(f"   ❌ Error parsing request: {str(parse_error)}")
+            
+            # Réponse par défaut si le parsing échoue
+            return {
+                "status": "received",
+                "message": "Data deletion request received and will be processed"
+            }
+    
+    except Exception as e:
+        print(f"❌ Error in data deletion callback: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        
+        return {
+            "status": "error",
+            "message": "Error processing data deletion request",
+            "error": str(e)
+        }
+
 @api_router.get("/social/instagram/callback")
 async def instagram_oauth_callback(
     request: Request,

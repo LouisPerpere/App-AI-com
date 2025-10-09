@@ -83,6 +83,15 @@ const MentionsLegalesAccordion = ({ onShowPrivacyPolicy }) => {
               >
                 Politique de confidentialité
               </a>
+              {' • '}
+              <a 
+                href="/suppression-donnees"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 underline hover:text-gray-800 transition-colors"
+              >
+                Suppression de données
+              </a>
             </div>
             <div>© {new Date().getFullYear()} • TVA Non Applicable • RGPD</div>
           </div>

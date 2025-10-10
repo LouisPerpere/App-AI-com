@@ -3033,6 +3033,8 @@ async def get_facebook_auth_url(user_id: str = Depends(get_current_user_id_robus
             raise HTTPException(status_code=500, detail="FACEBOOK_APP_ID non configuré")
         
         redirect_uri = os.environ.get('FACEBOOK_REDIRECT_URI', 'https://claire-marcus.com/api/social/facebook/callback')
+        print(f"🔍 DEBUG: FACEBOOK_REDIRECT_URI from env = {os.environ.get('FACEBOOK_REDIRECT_URI')}")
+        print(f"🔍 DEBUG: redirect_uri used = {redirect_uri}")
         
         # Générer un état sécurisé AVEC user_id pour le callback
         import secrets

@@ -10,6 +10,7 @@ import FacebookCallback from './FacebookCallback';
 import PrivacyPolicy from './PrivacyPolicy';
 import MentionsLegales from './MentionsLegales';
 import DataDeletion from './DataDeletion';
+import Analytics from './components/Analytics';
 import Footer from './components/Footer';
 
 // Remove withCredentials to avoid CORS conflicts with token-based auth

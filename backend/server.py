@@ -20,7 +20,7 @@ from bson import ObjectId
 
 # Load environment variables
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(override=True)  # Force override existing env vars
 
 # Enable HEIC/HEIF support for iPhone photos (optional)
 try:

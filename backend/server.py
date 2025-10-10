@@ -3196,7 +3196,7 @@ async def test_instagram_auth():
         import secrets
         
         test_state = secrets.token_urlsafe(16)
-        scopes = "pages_show_list,pages_read_engagement,pages_manage_posts"
+        scopes = "pages_show_list,pages_manage_posts"
         
         # Ajouter config_id pour Instagram spécifique
         instagram_config_id = os.environ.get('INSTAGRAM_CONFIG_ID')

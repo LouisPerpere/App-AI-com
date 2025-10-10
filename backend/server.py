@@ -511,20 +511,10 @@ async def register(body: RegisterRequest):
 @api_router.post("/auth/login-robust")
 async def login_robust(body: LoginIn):
     try:
-        print(f"🔐 Login attempt for: {body.email}")
         dbm = get_database()
-        print(f"✅ Database connected")
         users = dbm.db.users
         email_clean = body.email.lower().strip()
-        print(f"🔍 Looking for user: {email_clean}")
-        print(f"🔍 Database name: {dbm.db.name}")
-        print(f"🔍 Total users in DB: {users.count_documents({})}")
         user = users.find_one({"email": email_clean})
-        print(f"👤 User found: {user is not None}")
-        if not user:
-            # Debug: list all users
-            all_users = list(users.find({}, {"email": 1, "_id": 0}).limit(5))
-            print(f"👥 Sample users in DB: {all_users}")
         if not user:
             raise HTTPException(status_code=401, detail="Invalid credentials")
         stored_pw = user.get("password_hash") or user.get("hashed_password")

@@ -3405,12 +3405,16 @@ async def facebook_oauth_callback(
                     async with session.get(pages_url, params=pages_params) as pages_response:
                         if pages_response.status != 200:
                             error_text = await pages_response.text()
+                            print(f"❌ Erreur récupération pages: {error_text}")
                             raise Exception(f"Pages fetch failed: {pages_response.status} - {error_text}")
                         
                         pages_data = await pages_response.json()
+                        print(f"📊 Réponse Facebook /me/accounts: {pages_data}")
                         pages = pages_data.get('data', [])
+                        print(f"📄 Nombre de pages trouvées: {len(pages)}")
                         
                         if not pages:
+                            print(f"⚠️ AUCUNE PAGE! Vérifiez que l'utilisateur a une page Facebook ET que pages_show_list est approuvée")
                             raise Exception("Aucune page Facebook trouvée pour cet utilisateur")
                         
                         # Utiliser la première page (Claire & Marcus)

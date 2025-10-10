@@ -3121,7 +3121,10 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
             params["config_id"] = instagram_config_id
         
         # URL OAuth classique (comme Facebook)
-        auth_url = f"https://www.facebook.com/v23.0/dialog/oauth?{urlencode(params)}"
+        # Utiliser la version API depuis .env ou fallback v23.0
+        api_version = os.environ.get('FACEBOOK_API_VERSION', 'v23.0')
+        auth_url = f"https://www.facebook.com/{api_version}/dialog/oauth?{urlencode(params)}"
+        print(f"🔍 URL OAuth générée avec {api_version}")
         
         return {
             "auth_url": auth_url,

@@ -3088,8 +3088,8 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         random_token = secrets.token_urlsafe(16)
         state = f"{random_token}|{user_id}"  # Format attendu par le callback
         
-        # Scopes Pages seulement (votre nouvelle config Instagram)
-        scopes = "pages_show_list,pages_read_engagement,pages_manage_posts"
+        # Scopes Pages + Instagram pour Facebook Login for Business
+        scopes = "pages_show_list,pages_read_engagement,pages_manage_posts,instagram_basic,instagram_content_publish,instagram_manage_insights"
         
         # Config ID Instagram dédié
         instagram_config_id = os.environ.get('INSTAGRAM_CONFIG_ID_PAGES', os.environ.get('INSTAGRAM_CONFIG_ID', '1309694717566880'))

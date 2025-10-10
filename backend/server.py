@@ -536,8 +536,11 @@ async def login_robust(body: LoginIn):
         return {"access_token": token, "token_type": "bearer", "user_id": user_id, "email": user["email"]}
     except HTTPException:
         raise
-    except Exception:
-        raise HTTPException(status_code=500, detail="Internal server error during login")
+    except Exception as e:
+        import traceback
+        print(f"❌ LOGIN EXCEPTION: {type(e).__name__}: {str(e)}")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Internal server error during login: {str(e)}")
 
 # ----------------------------
 # CONTENT LISTING: /api/content/pending

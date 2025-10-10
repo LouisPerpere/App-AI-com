@@ -3039,7 +3039,7 @@ async def get_facebook_auth_url(user_id: str = Depends(get_current_user_id_robus
         random_token = secrets.token_urlsafe(16)
         state = f"{random_token}|{user_id}"  # Format attendu par le callback
         
-        # Scopes Facebook pour pages uniquement
+        # Scopes Facebook pour pages et analytics
         scopes = "pages_show_list,pages_read_engagement,pages_manage_posts"
         
         # Configuration Facebook Login for Business

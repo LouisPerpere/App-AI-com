@@ -3226,7 +3226,10 @@ async def test_instagram_auth():
             params["config_id"] = instagram_config_id
         
         # Utiliser Facebook OAuth v20 pour Instagram (via Facebook Login for Business)
-        test_auth_url = f"https://www.facebook.com/v23.0/dialog/oauth?{urlencode(params)}"
+        # Utiliser la version API depuis .env ou fallback v23.0
+        api_version = os.environ.get('FACEBOOK_API_VERSION', 'v23.0')
+        test_auth_url = f"https://www.facebook.com/{api_version}/dialog/oauth?{urlencode(params)}"
+        print(f"🔍 URL OAuth générée avec {api_version}")
         
         return {
             "status": "success",

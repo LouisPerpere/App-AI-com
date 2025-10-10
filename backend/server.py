@@ -3044,6 +3044,7 @@ async def get_facebook_auth_url(user_id: str = Depends(get_current_user_id_robus
         
         # Scopes Facebook pour pages (sans analytics pour l'instant)
         scopes = "pages_show_list,pages_manage_posts"
+        print(f"🔍 DEBUG SCOPES FACEBOOK: '{scopes}'")
         
         # Configuration Facebook Login for Business (désactivé temporairement pour tests)
         facebook_config_id = None  # FORCER None pour tester OAuth standard sans config_id

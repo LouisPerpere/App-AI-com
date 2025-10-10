@@ -3191,7 +3191,7 @@ async def test_instagram_auth():
         import secrets
         
         test_state = secrets.token_urlsafe(16)
-        scopes = "instagram_business_basic,instagram_business_content_publishing"
+        scopes = "instagram_basic,instagram_content_publish,instagram_manage_insights"
         
         # Ajouter config_id pour Instagram spécifique
         instagram_config_id = os.environ.get('INSTAGRAM_CONFIG_ID')

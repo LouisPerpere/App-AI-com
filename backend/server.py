@@ -2881,7 +2881,7 @@ async def get_posts_analytics(
                             continue
                         
                         # API Facebook pour récupérer les posts publiés
-                        posts_url = f"https://graph.facebook.com/v20.0/{page_id}/published_posts"
+                        posts_url = f"https://graph.facebook.com/v23.0/{page_id}/published_posts"
                         params = {
                             "access_token": access_token,
                             "fields": "id,message,created_time,full_picture,permalink_url,insights.metric(post_impressions,post_engaged_users,post_clicks,post_reactions_like_total,post_reactions_love_total,post_reactions_wow_total,post_reactions_haha_total,post_reactions_sorry_total,post_reactions_anger_total)",
@@ -2925,7 +2925,7 @@ async def get_posts_analytics(
                                     shares_count = 0
                                     
                                     # Requête pour commentaires et partages
-                                    details_url = f"https://graph.facebook.com/v20.0/{post_id}"
+                                    details_url = f"https://graph.facebook.com/v23.0/{post_id}"
                                     details_params = {
                                         "access_token": access_token,
                                         "fields": "comments.summary(true),shares"
@@ -2962,7 +2962,7 @@ async def get_posts_analytics(
                             continue
                         
                         # API Instagram pour récupérer les posts
-                        media_url = f"https://graph.facebook.com/v20.0/{instagram_user_id}/media"
+                        media_url = f"https://graph.facebook.com/v23.0/{instagram_user_id}/media"
                         params = {
                             "access_token": access_token,
                             "fields": "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count,insights.metric(impressions,reach,engagement)",
@@ -3065,14 +3065,14 @@ async def get_facebook_auth_url(user_id: str = Depends(get_current_user_id_robus
         if facebook_config_id:
             params["config_id"] = facebook_config_id
         
-        auth_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(params)}"
+        auth_url = f"https://www.facebook.com/v23.0/dialog/oauth?{urlencode(params)}"
         
         return {
             "auth_url": auth_url,
             "state": state,
             "redirect_uri": redirect_uri,
             "scopes": scopes.split(","),
-            "api_version": "Facebook Login for Business v20.0",
+            "api_version": "Facebook Login for Business v23.0",
             "client_id": facebook_app_id,
             "config_id": facebook_config_id,
             "note": f"Facebook Login for Business - App ID: {facebook_app_id}, Config ID: {facebook_config_id}"
@@ -3118,7 +3118,7 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
             params["config_id"] = instagram_config_id
         
         # URL OAuth classique (comme Facebook)
-        auth_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(params)}"
+        auth_url = f"https://www.facebook.com/v23.0/dialog/oauth?{urlencode(params)}"
         
         return {
             "auth_url": auth_url,
@@ -3220,7 +3220,7 @@ async def test_instagram_auth():
             params["config_id"] = instagram_config_id
         
         # Utiliser Facebook OAuth v20 pour Instagram (via Facebook Login for Business)
-        test_auth_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(params)}"
+        test_auth_url = f"https://www.facebook.com/v23.0/dialog/oauth?{urlencode(params)}"
         
         return {
             "status": "success",
@@ -3348,7 +3348,7 @@ async def facebook_oauth_callback(
         import aiohttp
         async with aiohttp.ClientSession() as session:
             # ÉTAPE 1: Code → Short-lived token
-            token_url = "https://graph.facebook.com/v20.0/oauth/access_token"
+            token_url = "https://graph.facebook.com/v23.0/oauth/access_token"
             token_params = {
                 'client_id': facebook_app_id,
                 'client_secret': facebook_app_secret,
@@ -3373,7 +3373,7 @@ async def facebook_oauth_callback(
                 # ÉTAPE 2: Short-lived → Long-lived token (selon ChatGPT)
                 print(f"🔄 ÉTAPE 2/3: Échange short-lived → long-lived token")
                 
-                long_lived_url = "https://graph.facebook.com/v20.0/oauth/access_token"
+                long_lived_url = "https://graph.facebook.com/v23.0/oauth/access_token"
                 long_lived_params = {
                     'grant_type': 'fb_exchange_token',
                     'client_id': facebook_app_id,
@@ -3398,7 +3398,7 @@ async def facebook_oauth_callback(
                     # ÉTAPE 3: Long-lived token → Page access token (selon ChatGPT)
                     print(f"🔄 ÉTAPE 3/3: Récupération page access token")
                     
-                    pages_url = f"https://graph.facebook.com/v20.0/me/accounts"
+                    pages_url = f"https://graph.facebook.com/v23.0/me/accounts"
                     pages_params = {
                         'access_token': long_lived_token,
                         'fields': 'id,name,access_token,category,instagram_business_account'
@@ -3675,7 +3675,7 @@ async def instagram_oauth_callback(
         import aiohttp
         async with aiohttp.ClientSession() as session:
             # ÉTAPE 1: Code → Short-lived token (IDENTIQUE FACEBOOK)
-            token_url = "https://graph.facebook.com/v20.0/oauth/access_token"
+            token_url = "https://graph.facebook.com/v23.0/oauth/access_token"
             token_params = {
                 'client_id': facebook_app_id,
                 'client_secret': facebook_app_secret,
@@ -3700,7 +3700,7 @@ async def instagram_oauth_callback(
                 # ÉTAPE 2: Short-lived → Long-lived token (IDENTIQUE FACEBOOK)
                 print(f"🔄 ÉTAPE 2/3: Instagram - Échange short-lived → long-lived token")
                 
-                long_lived_url = "https://graph.facebook.com/v20.0/oauth/access_token"
+                long_lived_url = "https://graph.facebook.com/v23.0/oauth/access_token"
                 long_lived_params = {
                     'grant_type': 'fb_exchange_token',
                     'client_id': facebook_app_id,
@@ -3725,7 +3725,7 @@ async def instagram_oauth_callback(
                     # ÉTAPE 3: Long-lived token → Page access token (IDENTIQUE FACEBOOK)
                     print(f"🔄 ÉTAPE 3/3: Instagram - Récupération page access token")
                     
-                    pages_url = f"https://graph.facebook.com/v20.0/me/accounts"
+                    pages_url = f"https://graph.facebook.com/v23.0/me/accounts"
                     pages_params = {
                         'access_token': long_lived_token,
                         'fields': 'id,name,access_token,category,instagram_business_account'
@@ -4141,7 +4141,7 @@ async def publish_facebook_photo_binary(
         print(f"   Page ID: {page_id}")
         print(f"   File: {file.filename} ({file.content_type})")
         
-        fb_url = f"https://graph.facebook.com/v20.0/{page_id}/photos"
+        fb_url = f"https://graph.facebook.com/v23.0/{page_id}/photos"
         
         # Lire l'image uploadée
         file_bytes = await file.read()
@@ -4241,7 +4241,7 @@ async def publish_facebook_with_image(
                 print(f"✅ Image downloaded: {len(image_bytes)} bytes, {content_type}")
                 
                 # ÉTAPE 2: Upload binaire à Facebook (solution ChatGPT)
-                fb_url = f"https://graph.facebook.com/v20.0/{page_id}/photos"
+                fb_url = f"https://graph.facebook.com/v23.0/{page_id}/photos"
                 
                 form_data = aiohttp.FormData()
                 form_data.add_field('source', image_bytes, filename='image.webp', content_type=content_type)
@@ -4333,8 +4333,8 @@ async def publish_instagram_simple(
         # Publication Instagram en 2 étapes (approche ChatGPT)
         import aiohttp
         async with aiohttp.ClientSession() as session:
-            # ÉTAPE 1: Créer le media container (API v20.0 selon GPT-4o)
-            create_url = f"https://graph.facebook.com/v20.0/{instagram_user_id}/media"
+            # ÉTAPE 1: Créer le media container (API v23.0 selon GPT-4o)
+            create_url = f"https://graph.facebook.com/v23.0/{instagram_user_id}/media"
             create_data = {
                 "caption": text,
                 "image_url": image_url,
@@ -4351,8 +4351,8 @@ async def publish_instagram_simple(
                     
                     print(f"✅ Media container créé: {media_id}")
                     
-                    # ÉTAPE 2: Publier le media (API v20.0 selon GPT-4o)
-                    publish_url = f"https://graph.facebook.com/v20.0/{instagram_user_id}/media_publish"
+                    # ÉTAPE 2: Publier le media (API v23.0 selon GPT-4o)
+                    publish_url = f"https://graph.facebook.com/v23.0/{instagram_user_id}/media_publish"
                     publish_data = {
                         "creation_id": media_id,
                         "access_token": access_token
@@ -4688,7 +4688,7 @@ async def publish_facebook_post(
         message = f"{post.get('text', '')}\n\n{' '.join(post.get('hashtags', []))}"
         
         # URL de publication Facebook (pages)
-        facebook_url = f"https://graph.facebook.com/v20.0/me/feed"
+        facebook_url = f"https://graph.facebook.com/v23.0/me/feed"
         
         post_data = {
             "message": message,
@@ -4751,7 +4751,7 @@ async def connect_instagram_account(
             raise HTTPException(status_code=500, detail="Instagram/Facebook credentials not configured")
         
         # ✅ STEP 1: Exchange code for access token with Facebook OAuth (pour Instagram)
-        token_url = "https://graph.facebook.com/v20.0/oauth/access_token"
+        token_url = "https://graph.facebook.com/v23.0/oauth/access_token"
         token_data = {
             "client_id": facebook_app_id,
             "client_secret": facebook_app_secret,
@@ -4774,7 +4774,7 @@ async def connect_instagram_account(
                     raise HTTPException(status_code=400, detail="Failed to connect Instagram account via Facebook")
         
         # ✅ STEP 2: Get Facebook pages to find Instagram business account
-        pages_url = f"https://graph.facebook.com/v20.0/me/accounts?fields=id,name,instagram_business_account&access_token={access_token}"
+        pages_url = f"https://graph.facebook.com/v23.0/me/accounts?fields=id,name,instagram_business_account&access_token={access_token}"
         
         instagram_user_id = None
         username = None
@@ -4792,7 +4792,7 @@ async def connect_instagram_account(
                             instagram_user_id = instagram_account.get("id")
                             
                             # Get Instagram account details
-                            instagram_info_url = f"https://graph.facebook.com/v20.0/{instagram_user_id}?fields=username&access_token={access_token}"
+                            instagram_info_url = f"https://graph.facebook.com/v23.0/{instagram_user_id}?fields=username&access_token={access_token}"
                             async with session.get(instagram_info_url) as ig_response:
                                 if ig_response.status == 200:
                                     ig_data = await ig_response.json()
@@ -5087,7 +5087,7 @@ async def publish_post_to_social_media(
                                 print(f"⚠️ Utilisation image originale sans conversion")
                             
                             # Upload binaire JPG à Facebook (solution ChatGPT)
-                            fb_url = f"https://graph.facebook.com/v20.0/{page_id}/photos"
+                            fb_url = f"https://graph.facebook.com/v23.0/{page_id}/photos"
                             
                             form_data = aiohttp.FormData()
                             form_data.add_field('source', jpg_bytes, filename='post_image.jpg', content_type='image/jpeg')
@@ -5133,7 +5133,7 @@ async def publish_post_to_social_media(
                     # Publication texte seul (sans image)
                     import aiohttp
                     async with aiohttp.ClientSession() as session:
-                        fb_url = f"https://graph.facebook.com/v20.0/{page_id}/feed"
+                        fb_url = f"https://graph.facebook.com/v23.0/{page_id}/feed"
                         form_data = aiohttp.FormData()
                         form_data.add_field('message', content)
                         form_data.add_field('access_token', access_token)

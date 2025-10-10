@@ -3353,6 +3353,7 @@ async def facebook_oauth_callback(
             async with session.get(token_url, params=token_params) as token_response:
                 if token_response.status != 200:
                     error_text = await token_response.text()
+                    print(f"❌ ERREUR FACEBOOK DÉTAILLÉE: {error_text}")
                     raise Exception(f"Short-lived token exchange failed: {token_response.status} - {error_text}")
                 
                 token_data = await token_response.json()
@@ -3676,6 +3677,7 @@ async def instagram_oauth_callback(
             async with session.get(token_url, params=token_params) as token_response:
                 if token_response.status != 200:
                     error_text = await token_response.text()
+                    print(f"❌ ERREUR FACEBOOK DÉTAILLÉE: {error_text}")
                     raise Exception(f"Short-lived token exchange failed: {token_response.status} - {error_text}")
                 
                 token_data = await token_response.json()

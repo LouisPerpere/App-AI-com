@@ -3097,10 +3097,10 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         # Scopes Pages uniquement - Instagram accessible via les pages connectées
         scopes = "pages_show_list,pages_manage_posts"
         
-        # Config ID Instagram dédié
-        instagram_config_id = os.environ.get('INSTAGRAM_CONFIG_ID_PAGES', os.environ.get('INSTAGRAM_CONFIG_ID', '1309694717566880'))
+        # Config ID Instagram dédié (optionnel)
+        instagram_config_id = os.environ.get('INSTAGRAM_CONFIG_ID_PAGES', os.environ.get('INSTAGRAM_CONFIG_ID'))
         
-        # OAuth avec config_id (configuration Instagram dédiée)
+        # OAuth avec config_id si défini
         from urllib.parse import urlencode
         
         params = {
@@ -3108,9 +3108,12 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
             "redirect_uri": redirect_uri,
             "scope": scopes,
             "response_type": "code",
-            "state": state,
-            "config_id": instagram_config_id  # Configuration Instagram dédiée
+            "state": state
         }
+        
+        # Ajouter config_id seulement si défini
+        if instagram_config_id:
+            params["config_id"] = instagram_config_id
         
         # URL OAuth classique (comme Facebook)
         auth_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(params)}"

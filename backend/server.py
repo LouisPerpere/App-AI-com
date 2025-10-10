@@ -3097,8 +3097,8 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         # Scopes Pages uniquement - Instagram accessible via les pages connectées
         scopes = "pages_show_list,pages_manage_posts"
         
-        # Config ID Instagram dédié (optionnel)
-        instagram_config_id = os.environ.get('INSTAGRAM_CONFIG_ID_PAGES', os.environ.get('INSTAGRAM_CONFIG_ID'))
+        # Config ID Instagram dédié (désactivé temporairement pour tests)
+        instagram_config_id = None  # FORCER None pour tester OAuth standard sans config_id
         
         # OAuth avec config_id si défini
         from urllib.parse import urlencode

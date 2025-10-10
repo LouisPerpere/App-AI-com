@@ -6795,7 +6795,7 @@ function MainApp() {
                     <span className="font-bold text-xs">Calendrier</span>
                   </div>
                 </TabsTrigger>
-                <TabsTrigger value="analytics" className="group relative overflow-hidden rounded-lg transition-all duration-300 hover:scale-105 data-[state=active]:scale-105 data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/25 bg-gradient-to-br from-amber-50 to-yellow-50 data-[state=active]:from-amber-500 data-[state=active]:to-yellow-500 border-0 px-3 py-3">
+                <TabsTrigger value="analytics" className="group relative overflow-hidden rounded-lg transition-all duration-300 hover:scale-105 data-[state=active]:scale-105 data-[state=active]:shadow-lg data-[state=active]:shadow-amber-500/25 bg-gradient-to-br from-amber-50 to-yellow-50 data-[state=active]:from-amber-500 data-[state=active]:to-yellow-500 border-0 px-2 py-3">
                   <div className="absolute inset-0 bg-gradient-to-r from-amber-600 to-yellow-600 opacity-0 group-data-[state=active]:opacity-100 transition-opacity duration-300 rounded-lg"></div>
                   <div className="relative z-10 flex items-center justify-center text-slate-700 group-data-[state=active]:text-white transition-colors duration-300">
                     <span className="font-bold text-xs">Statistiques</span>

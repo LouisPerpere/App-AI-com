@@ -3208,7 +3208,8 @@ async def test_instagram_auth():
         if instagram_config_id:
             params["config_id"] = instagram_config_id
         
-        test_auth_url = f"https://api.instagram.com/oauth/authorize?{urlencode(params)}"
+        # Utiliser Facebook OAuth v20 pour Instagram (via Facebook Login for Business)
+        test_auth_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(params)}"
         
         return {
             "status": "success",

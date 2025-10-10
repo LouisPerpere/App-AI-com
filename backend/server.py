@@ -2823,6 +2823,207 @@ async def get_social_connections(user_id: str = Depends(get_current_user_id_robu
     
     return {"connections": connections}
 
+
+@api_router.get("/analytics/posts")
+async def get_posts_analytics(
+    user_id: str = Depends(get_current_user_id_robust),
+    platform: str = None,  # 'facebook', 'instagram', or None for all
+    days: int = 30  # Number of days to look back
+):
+    """
+    Récupère les statistiques des posts publiés sur Facebook et Instagram
+    Requiert pages_read_engagement pour Facebook et instagram_manage_insights pour Instagram
+    """
+    try:
+        print(f"📊 Analytics request for user {user_id}, platform: {platform}, days: {days}")
+        
+        dbm = get_database()
+        
+        # Récupérer les connexions sociales actives
+        query = {"user_id": user_id, "active": True}
+        if platform:
+            query["platform"] = platform
+        
+        connections = list(dbm.db.social_media_connections.find(query))
+        
+        if not connections:
+            return {
+                "success": True,
+                "posts": [],
+                "message": "Aucune connexion sociale active trouvée"
+            }
+        
+        all_posts = []
+        
+        # Calculer la date limite
+        from datetime import datetime, timezone, timedelta
+        since_date = datetime.now(timezone.utc) - timedelta(days=days)
+        since_timestamp = int(since_date.timestamp())
+        
+        import aiohttp
+        
+        async with aiohttp.ClientSession() as session:
+            for conn in connections:
+                platform_name = conn.get("platform")
+                access_token = conn.get("access_token")
+                
+                if not access_token:
+                    continue
+                
+                try:
+                    if platform_name == "facebook":
+                        # Récupérer les posts Facebook avec métriques
+                        page_id = conn.get("page_id")
+                        if not page_id:
+                            continue
+                        
+                        # API Facebook pour récupérer les posts publiés
+                        posts_url = f"https://graph.facebook.com/v20.0/{page_id}/published_posts"
+                        params = {
+                            "access_token": access_token,
+                            "fields": "id,message,created_time,full_picture,permalink_url,insights.metric(post_impressions,post_engaged_users,post_clicks,post_reactions_like_total,post_reactions_love_total,post_reactions_wow_total,post_reactions_haha_total,post_reactions_sorry_total,post_reactions_anger_total)",
+                            "since": since_timestamp,
+                            "limit": 50
+                        }
+                        
+                        print(f"🔍 Fetching Facebook posts for page {page_id}")
+                        
+                        async with session.get(posts_url, params=params, timeout=30) as response:
+                            if response.status == 200:
+                                data = await response.json()
+                                posts = data.get("data", [])
+                                
+                                print(f"✅ Retrieved {len(posts)} Facebook posts")
+                                
+                                for post in posts:
+                                    # Calculer le total de réactions (likes)
+                                    insights = post.get("insights", {}).get("data", [])
+                                    metrics = {}
+                                    
+                                    for insight in insights:
+                                        metric_name = insight.get("name")
+                                        values = insight.get("values", [])
+                                        if values:
+                                            metrics[metric_name] = values[0].get("value", 0)
+                                    
+                                    # Calculer le total des likes (toutes réactions)
+                                    total_likes = (
+                                        metrics.get("post_reactions_like_total", 0) +
+                                        metrics.get("post_reactions_love_total", 0) +
+                                        metrics.get("post_reactions_wow_total", 0) +
+                                        metrics.get("post_reactions_haha_total", 0) +
+                                        metrics.get("post_reactions_sorry_total", 0) +
+                                        metrics.get("post_reactions_anger_total", 0)
+                                    )
+                                    
+                                    # Récupérer les commentaires et partages séparément
+                                    post_id = post.get("id")
+                                    comments_count = 0
+                                    shares_count = 0
+                                    
+                                    # Requête pour commentaires et partages
+                                    details_url = f"https://graph.facebook.com/v20.0/{post_id}"
+                                    details_params = {
+                                        "access_token": access_token,
+                                        "fields": "comments.summary(true),shares"
+                                    }
+                                    
+                                    async with session.get(details_url, params=details_params, timeout=10) as details_response:
+                                        if details_response.status == 200:
+                                            details_data = await details_response.json()
+                                            comments_count = details_data.get("comments", {}).get("summary", {}).get("total_count", 0)
+                                            shares_count = details_data.get("shares", {}).get("count", 0)
+                                    
+                                    all_posts.append({
+                                        "id": post.get("id"),
+                                        "platform": "facebook",
+                                        "message": post.get("message", ""),
+                                        "created_time": post.get("created_time"),
+                                        "image_url": post.get("full_picture"),
+                                        "permalink": post.get("permalink_url"),
+                                        "likes": total_likes,
+                                        "comments": comments_count,
+                                        "shares": shares_count,
+                                        "reach": metrics.get("post_impressions", 0),
+                                        "engagement": metrics.get("post_engaged_users", 0),
+                                        "clicks": metrics.get("post_clicks", 0)
+                                    })
+                            else:
+                                error_text = await response.text()
+                                print(f"❌ Facebook API error: {response.status} - {error_text}")
+                    
+                    elif platform_name == "instagram":
+                        # Récupérer les posts Instagram avec métriques
+                        instagram_user_id = conn.get("instagram_user_id")
+                        if not instagram_user_id:
+                            continue
+                        
+                        # API Instagram pour récupérer les posts
+                        media_url = f"https://graph.facebook.com/v20.0/{instagram_user_id}/media"
+                        params = {
+                            "access_token": access_token,
+                            "fields": "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count,insights.metric(impressions,reach,engagement)",
+                            "since": since_timestamp,
+                            "limit": 50
+                        }
+                        
+                        print(f"🔍 Fetching Instagram posts for user {instagram_user_id}")
+                        
+                        async with session.get(media_url, params=params, timeout=30) as response:
+                            if response.status == 200:
+                                data = await response.json()
+                                posts = data.get("data", [])
+                                
+                                print(f"✅ Retrieved {len(posts)} Instagram posts")
+                                
+                                for post in posts:
+                                    insights = post.get("insights", {}).get("data", [])
+                                    metrics = {}
+                                    
+                                    for insight in insights:
+                                        metric_name = insight.get("name")
+                                        values = insight.get("values", [])
+                                        if values:
+                                            metrics[metric_name] = values[0].get("value", 0)
+                                    
+                                    image_url = post.get("media_url") if post.get("media_type") == "IMAGE" else post.get("thumbnail_url")
+                                    
+                                    all_posts.append({
+                                        "id": post.get("id"),
+                                        "platform": "instagram",
+                                        "message": post.get("caption", ""),
+                                        "created_time": post.get("timestamp"),
+                                        "image_url": image_url,
+                                        "permalink": post.get("permalink"),
+                                        "likes": post.get("like_count", 0),
+                                        "comments": post.get("comments_count", 0),
+                                        "shares": 0,  # Instagram n'a pas de partages
+                                        "reach": metrics.get("reach", 0),
+                                        "engagement": metrics.get("engagement", 0),
+                                        "impressions": metrics.get("impressions", 0)
+                                    })
+                            else:
+                                error_text = await response.text()
+                                print(f"❌ Instagram API error: {response.status} - {error_text}")
+                
+                except Exception as conn_error:
+                    print(f"❌ Error fetching analytics for {platform_name}: {str(conn_error)}")
+                    continue
+        
+        print(f"📊 Total posts retrieved: {len(all_posts)}")
+        
+        return {
+            "success": True,
+            "posts": all_posts,
+            "count": len(all_posts)
+        }
+    
+    except Exception as e:
+        print(f"❌ Analytics error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la récupération des statistiques: {str(e)}")
+
 @api_router.get("/social/facebook/auth-url")
 async def get_facebook_auth_url(user_id: str = Depends(get_current_user_id_robust)):
     """Générer l'URL d'autorisation Facebook OAuth pour pages Facebook"""

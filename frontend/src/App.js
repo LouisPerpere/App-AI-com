@@ -6724,7 +6724,17 @@ function MainApp() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center flex-shrink-0">
+            <div className="flex items-center space-x-2 flex-shrink-0">
+              <Button
+                onClick={() => setActiveTab('reglages')}
+                variant="ghost"
+                size="sm"
+                className="group relative overflow-hidden text-slate-600 hover:text-white p-2 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-slate-500/25 hover:scale-110"
+                title="Réglages"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-500 to-gray-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full"></div>
+                <Settings className="w-4 h-4 relative z-10 transition-transform duration-300 group-hover:rotate-90" />
+              </Button>
               <Button
                 onClick={handleLogout}
                 variant="ghost"

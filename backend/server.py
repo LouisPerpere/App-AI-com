@@ -3084,8 +3084,7 @@ async def get_instagram_auth_url(user_id: str = Depends(get_current_user_id_robu
         if not facebook_app_id:
             raise HTTPException(status_code=500, detail="FACEBOOK_APP_ID non configuré")
         
-        # HOTFIX: Force correct redirect URI for live environment
-        redirect_uri = 'https://claire-marcus.com/api/social/instagram/callback'
+        redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://claire-marcus.com/api/social/instagram/callback')
         
         # Générer un état sécurisé AVEC user_id pour le callback
         import secrets
@@ -3652,8 +3651,7 @@ async def instagram_oauth_callback(
     try:
         facebook_app_id = os.environ.get('FACEBOOK_APP_ID')
         facebook_app_secret = os.environ.get('FACEBOOK_APP_SECRET')
-        # HOTFIX: Force correct redirect URI for live environment
-        redirect_uri = 'https://claire-marcus.com/api/social/instagram/callback'
+        redirect_uri = os.environ.get('INSTAGRAM_REDIRECT_URI', 'https://claire-marcus.com/api/social/instagram/callback')
         
         if not facebook_app_id or not facebook_app_secret:
             raise Exception("Instagram App ID ou Secret manquant")

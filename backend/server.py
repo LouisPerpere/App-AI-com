@@ -3056,9 +3056,12 @@ async def get_facebook_auth_url(user_id: str = Depends(get_current_user_id_robus
             "redirect_uri": redirect_uri,
             "scope": scopes,
             "response_type": "code",
-            "state": state,
-            "config_id": facebook_config_id  # Config ID Facebook Login for Business REQUIS
+            "state": state
         }
+        
+        # Ajouter config_id seulement si défini (Facebook Login for Business)
+        if facebook_config_id:
+            params["config_id"] = facebook_config_id
         
         auth_url = f"https://www.facebook.com/v20.0/dialog/oauth?{urlencode(params)}"
         

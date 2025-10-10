@@ -3057,7 +3057,8 @@ async def get_facebook_auth_url(user_id: str = Depends(get_current_user_id_robus
             "redirect_uri": redirect_uri,
             "scope": scopes,
             "response_type": "code",
-            "state": state
+            "state": state,
+            "auth_type": "rerequest"  # Force Facebook à redemander toutes les permissions
         }
         
         # Ajouter config_id seulement si défini (Facebook Login for Business)

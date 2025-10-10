@@ -9877,6 +9877,11 @@ function MainApp() {
           </TabsContent>
 
           <TabsContent value="social" className="space-y-8">
+          <TabsContent value="analytics" className="space-y-8">
+            <Analytics />
+          </TabsContent>
+
+
             <Card className="card-gradient">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-3 text-2xl">

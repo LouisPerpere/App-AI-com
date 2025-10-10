@@ -3045,8 +3045,8 @@ async def get_facebook_auth_url(user_id: str = Depends(get_current_user_id_robus
         # Scopes Facebook pour pages (sans analytics pour l'instant)
         scopes = "pages_show_list,pages_manage_posts"
         
-        # Configuration Facebook Login for Business
-        facebook_config_id = os.environ.get('FACEBOOK_CONFIG_ID', '1878388119742903')  # Config Facebook spécifique
+        # Configuration Facebook Login for Business (optionnel)
+        facebook_config_id = os.environ.get('FACEBOOK_CONFIG_ID')  # Config Facebook spécifique - None pour OAuth standard
         
         # Construire l'URL d'autorisation Facebook avec Login for Business
         from urllib.parse import urlencode

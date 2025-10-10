@@ -24,13 +24,14 @@ const getBackendURL = () => {
   // Tentative 3: Détection automatique URL courante
   if (typeof window !== 'undefined') {
     const currentUrl = window.location.origin;
-    if (currentUrl.includes('insta-automate-2.preview.emergentagent.com')) {
-      return 'https://post-restore.preview.emergentagent.com';
+    // Pour l'environnement live, retourner l'URL live
+    if (currentUrl.includes('claire-marcus.com')) {
+      return 'https://claire-marcus.com';
     }
   }
   
-  // Fallback final: URL hardcodée pour garantir fonctionnement
-  return 'https://post-restore.preview.emergentagent.com';
+  // Fallback final: URL de production
+  return 'https://claire-marcus.com';
 };
 
 const BACKEND_URL = getBackendURL();
